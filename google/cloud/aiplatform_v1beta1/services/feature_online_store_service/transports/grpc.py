@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,12 +74,11 @@ class _LoggingClientInterceptor(grpc.UnaryUnaryClientInterceptor):  # pragma: NO
                 f"Sending request for {client_call_details.method}",
                 extra={
                     "serviceName": "google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService",
-                    "rpcName": client_call_details.method,
+                    "rpcName": str(client_call_details.method),
                     "request": grpc_request,
                     "metadata": grpc_request["metadata"],
                 },
             )
-
         response = continuation(client_call_details, request)
         if logging_enabled:  # pragma: NO COVER
             response_metadata = response.trailing_metadata()
@@ -419,6 +418,40 @@ class FeatureOnlineStoreServiceGrpcTransport(FeatureOnlineStoreServiceTransport)
                 response_deserializer=feature_online_store_service.SearchNearestEntitiesResponse.deserialize,
             )
         return self._stubs["search_nearest_entities"]
+
+    @property
+    def feature_view_direct_write(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.FeatureViewDirectWriteRequest],
+        feature_online_store_service.FeatureViewDirectWriteResponse,
+    ]:
+        r"""Return a callable for the feature view direct write method over gRPC.
+
+        Bidirectional streaming RPC to directly write to
+        feature values in a feature view. Requests may not have
+        a one-to-one mapping to responses and responses may be
+        returned out-of-order to reduce latency.
+
+        Returns:
+            Callable[[~.FeatureViewDirectWriteRequest],
+                    ~.FeatureViewDirectWriteResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "feature_view_direct_write" not in self._stubs:
+            self._stubs[
+                "feature_view_direct_write"
+            ] = self._logged_channel.stream_stream(
+                "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService/FeatureViewDirectWrite",
+                request_serializer=feature_online_store_service.FeatureViewDirectWriteRequest.serialize,
+                response_deserializer=feature_online_store_service.FeatureViewDirectWriteResponse.deserialize,
+            )
+        return self._stubs["feature_view_direct_write"]
 
     def close(self):
         self._logged_channel.close()

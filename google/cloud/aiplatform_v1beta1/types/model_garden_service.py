@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import operation
@@ -38,6 +39,12 @@ __protobuf__ = proto.module(
         "DeployPublisherModelResponse",
         "DeployOperationMetadata",
         "DeployPublisherModelOperationMetadata",
+        "ExportPublisherModelResponse",
+        "ExportPublisherModelOperationMetadata",
+        "ExportPublisherModelRequest",
+        "CheckPublisherModelEulaAcceptanceRequest",
+        "AcceptPublisherModelEulaRequest",
+        "PublisherModelEulaAcceptance",
     },
 )
 
@@ -349,6 +356,10 @@ class DeployRequest(proto.Message):
             fast_tryout_enabled (bool):
                 Optional. If true, enable the QMT fast tryout
                 feature for this model if possible.
+            system_labels (MutableMapping[str, str]):
+                Optional. System labels for Model Garden
+                deployments. These labels are managed by Google
+                and for tracking purposes only.
         """
 
         dedicated_resources: machine_resources.DedicatedResources = proto.Field(
@@ -359,6 +370,11 @@ class DeployRequest(proto.Message):
         fast_tryout_enabled: bool = proto.Field(
             proto.BOOL,
             number=2,
+        )
+        system_labels: MutableMapping[str, str] = proto.MapField(
+            proto.STRING,
+            proto.STRING,
+            number=3,
         )
 
     publisher_model_name: str = proto.Field(
@@ -545,6 +561,9 @@ class DeployOperationMetadata(proto.Message):
         project_number (int):
             Output only. The project number where the
             deploy model request is sent.
+        model_id (str):
+            Output only. The model id to be used at query
+            time.
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
@@ -563,6 +582,10 @@ class DeployOperationMetadata(proto.Message):
     project_number: int = proto.Field(
         proto.INT64,
         number=4,
+    )
+    model_id: str = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 
@@ -604,6 +627,152 @@ class DeployPublisherModelOperationMetadata(proto.Message):
     project_number: int = proto.Field(
         proto.INT64,
         number=4,
+    )
+
+
+class ExportPublisherModelResponse(proto.Message):
+    r"""Response message for
+    [ModelGardenService.ExportPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.ExportPublisherModel].
+
+    Attributes:
+        publisher_model (str):
+            The name of the PublisherModel resource. Format:
+            ``publishers/{publisher}/models/{publisher_model}@{version_id}``
+        destination_uri (str):
+            The destination uri of the model weights.
+    """
+
+    publisher_model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    destination_uri: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class ExportPublisherModelOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [ModelGardenService.ExportPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.ExportPublisherModel].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class ExportPublisherModelRequest(proto.Message):
+    r"""Request message for
+    [ModelGardenService.ExportPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.ExportPublisherModel].
+
+    Attributes:
+        name (str):
+            Required. The name of the PublisherModel resource. Format:
+            ``publishers/{publisher}/models/{publisher_model}@{version_id}``,
+            or
+            ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001``
+        destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            Required. The target where we are exporting
+            the model weights to
+        parent (str):
+            Required. The Location to export the model weights from
+            Format: ``projects/{project}/locations/{location}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    destination: io.GcsDestination = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=io.GcsDestination,
+    )
+    parent: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class CheckPublisherModelEulaAcceptanceRequest(proto.Message):
+    r"""Request message for [ModelGardenService.CheckPublisherModelEula][].
+
+    Attributes:
+        parent (str):
+            Required. The project requesting access for named model. The
+            format is ``projects/{project}``.
+        publisher_model (str):
+            Required. The name of the PublisherModel resource. Format:
+            ``publishers/{publisher}/models/{publisher_model}``, or
+            ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}``
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    publisher_model: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class AcceptPublisherModelEulaRequest(proto.Message):
+    r"""Request message for
+    [ModelGardenService.AcceptPublisherModelEula][google.cloud.aiplatform.v1beta1.ModelGardenService.AcceptPublisherModelEula].
+
+    Attributes:
+        parent (str):
+            Required. The project requesting access for named model. The
+            format is ``projects/{project}``.
+        publisher_model (str):
+            Required. The name of the PublisherModel resource. Format:
+            ``publishers/{publisher}/models/{publisher_model}``, or
+            ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}``
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    publisher_model: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class PublisherModelEulaAcceptance(proto.Message):
+    r"""Response message for
+    [ModelGardenService.UpdatePublisherModelEula][].
+
+    Attributes:
+        project_number (int):
+            The project number requesting access for
+            named model.
+        publisher_model (str):
+            The publisher model resource name.
+        publisher_model_eula_acked (bool):
+            The EULA content acceptance status.
+    """
+
+    project_number: int = proto.Field(
+        proto.INT64,
+        number=1,
+    )
+    publisher_model: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    publisher_model_eula_acked: bool = proto.Field(
+        proto.BOOL,
+        number=3,
     )
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14947,6 +14947,9 @@ def test_update_model_rest_call_success(request_type):
         },
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "checkpoints": [
+            {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
+        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -18906,6 +18909,9 @@ async def test_update_model_rest_asyncio_call_success(request_type):
         },
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "checkpoints": [
+            {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
+        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

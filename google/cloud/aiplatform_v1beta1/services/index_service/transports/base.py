@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ from google.api_core import retry as retries
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 from google.cloud.aiplatform_v1beta1.types import index
 from google.cloud.aiplatform_v1beta1.types import index_service
@@ -37,6 +38,9 @@ from google.longrunning import operations_pb2  # type: ignore
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class IndexServiceTransport(abc.ABC):
@@ -145,6 +149,11 @@ class IndexServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.import_index: gapic_v1.method.wrap_method(
+                self.import_index,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.list_indexes: gapic_v1.method.wrap_method(
                 self.list_indexes,
                 default_timeout=5.0,
@@ -250,6 +259,15 @@ class IndexServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [index_service.GetIndexRequest], Union[index.Index, Awaitable[index.Index]]
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def import_index(
+        self,
+    ) -> Callable[
+        [index_service.ImportIndexRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

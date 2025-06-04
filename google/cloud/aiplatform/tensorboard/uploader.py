@@ -25,6 +25,7 @@ import time
 from typing import ContextManager, Dict, FrozenSet, Generator, Iterable, Optional, Tuple
 import uuid
 
+from google.api_core import exceptions
 from google.cloud import storage
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.services import (
@@ -323,11 +324,16 @@ class TensorBoardUploader(object):
         for run_name in self._experiment_runs:
             if run_name:
                 logging.info("Ending run %s", run_name)
-                run = experiment_run_resource.ExperimentRun.get(
-                    project=self._project, location=self._location, run_name=run_name
-                )
-                if run:
-                    run.update_state(state=gca_execution.Execution.State.COMPLETE)
+                try:
+                    run = experiment_run_resource.ExperimentRun.get(
+                        project=self._project,
+                        location=self._location,
+                        run_name=run_name,
+                    )
+                    if run:
+                        run.update_state(state=gca_execution.Execution.State.COMPLETE)
+                except exceptions.MethodNotImplemented:
+                    logging.warning("Failed to end run %s", run_name)
 
     def start_uploading(self):
         """Blocks forever to continuously upload data from the logdir.

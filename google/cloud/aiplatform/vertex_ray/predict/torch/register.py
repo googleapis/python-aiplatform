@@ -90,14 +90,18 @@ def get_pytorch_model_from(
         raise ModuleNotFoundError("PyTorch isn't installed.") from mnfe
 
     if os.path.exists(model_path):
-        model_or_state_dict = torch.load(model_path, map_location="cpu")
+        model_or_state_dict = torch.load(
+            model_path, map_location="cpu", weights_only=True
+        )
     else:
         try:
             # Download from GCS to temp and then load_model
             with tempfile.TemporaryDirectory() as temp_dir:
                 gcs_utils.download_from_gcs("gs://" + checkpoint.path, temp_dir)
                 model_or_state_dict = torch.load(
-                    f"{temp_dir}/{model_file_name}", map_location="cpu"
+                    f"{temp_dir}/{model_file_name}",
+                    map_location="cpu",
+                    weights_only=True,
                 )
         except Exception as e:
             raise RuntimeError(

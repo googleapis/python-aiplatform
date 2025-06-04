@@ -83,6 +83,7 @@ for library in s.get_staging_dirs(default_version):
             "noxfile.py",
             "testing",
             "docs/conf.py",
+            "*.tar.gz"
         ],
     )
     has_generator_updates = True
@@ -97,8 +98,8 @@ if has_generator_updates:
 
     templated_files = common.py_library(
         cov_level=98,
-        system_test_python_versions=["3.8"],
-        unit_test_python_versions=["3.8", "3.9", "3.10", "3.11", "3.12"],
+        system_test_python_versions=["3.9"],
+        unit_test_python_versions=["3.9", "3.10", "3.11", "3.12"],
         unit_test_extras=["testing"],
         system_test_extras=["testing"],
         microgenerator=True,
@@ -117,20 +118,20 @@ if has_generator_updates:
             ".kokoro/release.sh",
             ".kokoro/release/common.cfg",
             ".kokoro/requirements*",
+            ".kokoro/samples/python3.7/**",
+            ".kokoro/samples/python3.8/**",
             # exclude sample configs so periodic samples are tested against main
             # instead of pypi
-            ".kokoro/samples/python3.7/common.cfg",
-            ".kokoro/samples/python3.8/common.cfg",
             ".kokoro/samples/python3.9/common.cfg",
             ".kokoro/samples/python3.10/common.cfg",
             ".kokoro/samples/python3.11/common.cfg",
             ".kokoro/samples/python3.12/common.cfg",
-            ".kokoro/samples/python3.7/periodic.cfg",
-            ".kokoro/samples/python3.8/periodic.cfg",
             ".kokoro/samples/python3.9/periodic.cfg",
             ".kokoro/samples/python3.10/periodic.cfg",
             ".kokoro/samples/python3.11/periodic.cfg",
             ".kokoro/samples/python3.12/periodic.cfg",
+            ".github/auto-label.yaml",
+            ".github/blunderbuss.yml",
             ".github/CODEOWNERS",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/workflows",  # exclude gh actions as credentials are needed for tests
@@ -149,10 +150,10 @@ if has_generator_updates:
     # Update samples config to use `ucaip-sample-tests` project
     s.replace(
         ".kokoro/samples/python3.*/common.cfg",
-        """env_vars: \{
+        """env_vars: {
         key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
         value: "python-docs-samples-tests-.*?"
-    \}""",
+        }""",
         """env_vars: {
         key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
         value: "ucaip-sample-tests"
@@ -163,43 +164,6 @@ if has_generator_updates:
         ".kokoro/test-samples-impl.sh",
         "python3.9",
         "python3",
-    )
-
-    # Update publish-docs to include gemini docs workflow.
-    s.replace(
-        ".kokoro/publish-docs.sh",
-        "# build docs",
-        """\
-# build Gemini docs
-nox -s gemini_docs
-# create metadata
-python3 -m docuploader create-metadata \\
-  --name="vertexai" \\
-  --version=$(python3 setup.py --version) \\
-  --language=$(jq --raw-output '.language // empty' .repo-metadata.json) \\
-  --distribution-name="google-cloud-vertexai" \\
-  --product-page=$(jq --raw-output '.product_documentation // empty' .repo-metadata.json) \\
-  --github-repository=$(jq --raw-output '.repo // empty' .repo-metadata.json) \\
-  --issue-tracker=$(jq --raw-output '.issue_tracker // empty' .repo-metadata.json)
-cat docs.metadata
-# upload docs
-python3 -m docuploader upload gemini_docs/_build/html --metadata-file docs.metadata --staging-bucket "${STAGING_BUCKET}"
-# Gemini docfx yaml files
-nox -s gemini_docfx
-# create metadata.
-python3 -m docuploader create-metadata \\
-  --name="vertexai" \\
-  --version=$(python3 setup.py --version) \\
-  --language=$(jq --raw-output '.language // empty' .repo-metadata.json) \\
-  --distribution-name="google-cloud-vertexai" \\
-  --product-page=$(jq --raw-output '.product_documentation // empty' .repo-metadata.json) \\
-  --github-repository=$(jq --raw-output '.repo // empty' .repo-metadata.json) \\
-  --issue-tracker=$(jq --raw-output '.issue_tracker // empty' .repo-metadata.json) \\
-  --stem="/vertex-ai/generative-ai/docs/reference/python"
-cat docs.metadata
-# upload docs
-python3 -m docuploader upload gemini_docs/_build/html/docfx_yaml --metadata-file docs.metadata --destination-prefix docfx --staging-bucket "${V2_STAGING_BUCKET}"
-# build docs""",
     )
 
     s.shell.run(["nox", "-s", "blacken"], hide_output=False)

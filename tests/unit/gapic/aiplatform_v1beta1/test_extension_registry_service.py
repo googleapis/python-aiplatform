@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -4577,8 +4577,13 @@ def test_import_extension_rest_call_success(request_type):
                         "pattern": "pattern_value",
                         "example": {},
                         "any_of": {},
+                        "additional_properties": {},
+                        "ref": "ref_value",
+                        "defs": {},
                     },
+                    "parameters_json_schema": {},
                     "response": {},
+                    "response_json_schema": {},
                 },
             }
         ],
@@ -5153,8 +5158,13 @@ def test_update_extension_rest_call_success(request_type):
                         "pattern": "pattern_value",
                         "example": {},
                         "any_of": {},
+                        "additional_properties": {},
+                        "ref": "ref_value",
+                        "defs": {},
                     },
+                    "parameters_json_schema": {},
                     "response": {},
+                    "response_json_schema": {},
                 },
             }
         ],
@@ -6359,8 +6369,13 @@ async def test_import_extension_rest_asyncio_call_success(request_type):
                         "pattern": "pattern_value",
                         "example": {},
                         "any_of": {},
+                        "additional_properties": {},
+                        "ref": "ref_value",
+                        "defs": {},
                     },
+                    "parameters_json_schema": {},
                     "response": {},
+                    "response_json_schema": {},
                 },
             }
         ],
@@ -6983,8 +6998,13 @@ async def test_update_extension_rest_asyncio_call_success(request_type):
                         "pattern": "pattern_value",
                         "example": {},
                         "any_of": {},
+                        "additional_properties": {},
+                        "ref": "ref_value",
+                        "defs": {},
                     },
+                    "parameters_json_schema": {},
                     "response": {},
+                    "response_json_schema": {},
                 },
             }
         ],

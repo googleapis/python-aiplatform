@@ -45,12 +45,15 @@ try:
     if TYPE_CHECKING:
         import sklearn
 
-except ModuleNotFoundError as mnfe:
-    raise ModuleNotFoundError("Sklearn isn't installed.") from mnfe
+except ImportError as ie:
+    if ray.__version__ < "2.42.0":
+        raise ModuleNotFoundError("Sklearn isn't installed.") from ie
+    else:
+        sklearn = None
 
 
 def register_sklearn(
-    checkpoint: ray_sklearn.SklearnCheckpoint,
+    checkpoint: "ray_sklearn.SklearnCheckpoint",
     artifact_uri: Optional[str] = None,
     display_name: Optional[str] = None,
     **kwargs,
@@ -120,7 +123,7 @@ def register_sklearn(
 
 
 def _get_estimator_from(
-    checkpoint: ray_sklearn.SklearnCheckpoint,
+    checkpoint: "ray_sklearn.SklearnCheckpoint",
 ) -> "sklearn.base.BaseEstimator":
     """Converts a SklearnCheckpoint to sklearn estimator.
 

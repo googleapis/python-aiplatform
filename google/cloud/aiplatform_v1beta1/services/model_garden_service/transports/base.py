@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ from google.api_core import retry as retries
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 from google.cloud.aiplatform_v1beta1.types import model_garden_service
 from google.cloud.aiplatform_v1beta1.types import publisher_model
@@ -37,6 +38,9 @@ from google.longrunning import operations_pb2  # type: ignore
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class ModelGardenServiceTransport(abc.ABC):
@@ -155,6 +159,21 @@ class ModelGardenServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.export_publisher_model: gapic_v1.method.wrap_method(
+                self.export_publisher_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.check_publisher_model_eula_acceptance: gapic_v1.method.wrap_method(
+                self.check_publisher_model_eula_acceptance,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.accept_publisher_model_eula: gapic_v1.method.wrap_method(
+                self.accept_publisher_model_eula,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -259,6 +278,39 @@ class ModelGardenServiceTransport(abc.ABC):
     ) -> Callable[
         [model_garden_service.DeployPublisherModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def export_publisher_model(
+        self,
+    ) -> Callable[
+        [model_garden_service.ExportPublisherModelRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def check_publisher_model_eula_acceptance(
+        self,
+    ) -> Callable[
+        [model_garden_service.CheckPublisherModelEulaAcceptanceRequest],
+        Union[
+            model_garden_service.PublisherModelEulaAcceptance,
+            Awaitable[model_garden_service.PublisherModelEulaAcceptance],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def accept_publisher_model_eula(
+        self,
+    ) -> Callable[
+        [model_garden_service.AcceptPublisherModelEulaRequest],
+        Union[
+            model_garden_service.PublisherModelEulaAcceptance,
+            Awaitable[model_garden_service.PublisherModelEulaAcceptance],
+        ],
     ]:
         raise NotImplementedError()
 

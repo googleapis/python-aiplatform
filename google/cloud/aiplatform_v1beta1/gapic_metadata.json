@@ -10,6 +10,16 @@
         "grpc": {
           "libraryClient": "DatasetServiceClient",
           "rpcs": {
+            "AssembleData": {
+              "methods": [
+                "assemble_data"
+              ]
+            },
+            "AssessData": {
+              "methods": [
+                "assess_data"
+              ]
+            },
             "CreateDataset": {
               "methods": [
                 "create_dataset"
@@ -110,6 +120,16 @@
         "grpc-async": {
           "libraryClient": "DatasetServiceAsyncClient",
           "rpcs": {
+            "AssembleData": {
+              "methods": [
+                "assemble_data"
+              ]
+            },
+            "AssessData": {
+              "methods": [
+                "assess_data"
+              ]
+            },
             "CreateDataset": {
               "methods": [
                 "create_dataset"
@@ -210,6 +230,16 @@
         "rest": {
           "libraryClient": "DatasetServiceClient",
           "rpcs": {
+            "AssembleData": {
+              "methods": [
+                "assemble_data"
+              ]
+            },
+            "AssessData": {
+              "methods": [
+                "assess_data"
+              ]
+            },
             "CreateDataset": {
               "methods": [
                 "create_dataset"
@@ -438,6 +468,11 @@
                 "deploy_model"
               ]
             },
+            "FetchPublisherModelConfig": {
+              "methods": [
+                "fetch_publisher_model_config"
+              ]
+            },
             "GetEndpoint": {
               "methods": [
                 "get_endpoint"
@@ -451,6 +486,11 @@
             "MutateDeployedModel": {
               "methods": [
                 "mutate_deployed_model"
+              ]
+            },
+            "SetPublisherModelConfig": {
+              "methods": [
+                "set_publisher_model_config"
               ]
             },
             "UndeployModel": {
@@ -488,6 +528,11 @@
                 "deploy_model"
               ]
             },
+            "FetchPublisherModelConfig": {
+              "methods": [
+                "fetch_publisher_model_config"
+              ]
+            },
             "GetEndpoint": {
               "methods": [
                 "get_endpoint"
@@ -501,6 +546,11 @@
             "MutateDeployedModel": {
               "methods": [
                 "mutate_deployed_model"
+              ]
+            },
+            "SetPublisherModelConfig": {
+              "methods": [
+                "set_publisher_model_config"
               ]
             },
             "UndeployModel": {
@@ -538,6 +588,11 @@
                 "deploy_model"
               ]
             },
+            "FetchPublisherModelConfig": {
+              "methods": [
+                "fetch_publisher_model_config"
+              ]
+            },
             "GetEndpoint": {
               "methods": [
                 "get_endpoint"
@@ -551,6 +606,11 @@
             "MutateDeployedModel": {
               "methods": [
                 "mutate_deployed_model"
+              ]
+            },
+            "SetPublisherModelConfig": {
+              "methods": [
+                "set_publisher_model_config"
               ]
             },
             "UndeployModel": {
@@ -615,6 +675,160 @@
             "EvaluateInstances": {
               "methods": [
                 "evaluate_instances"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ExampleStoreService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ExampleStoreServiceClient",
+          "rpcs": {
+            "CreateExampleStore": {
+              "methods": [
+                "create_example_store"
+              ]
+            },
+            "DeleteExampleStore": {
+              "methods": [
+                "delete_example_store"
+              ]
+            },
+            "FetchExamples": {
+              "methods": [
+                "fetch_examples"
+              ]
+            },
+            "GetExampleStore": {
+              "methods": [
+                "get_example_store"
+              ]
+            },
+            "ListExampleStores": {
+              "methods": [
+                "list_example_stores"
+              ]
+            },
+            "RemoveExamples": {
+              "methods": [
+                "remove_examples"
+              ]
+            },
+            "SearchExamples": {
+              "methods": [
+                "search_examples"
+              ]
+            },
+            "UpdateExampleStore": {
+              "methods": [
+                "update_example_store"
+              ]
+            },
+            "UpsertExamples": {
+              "methods": [
+                "upsert_examples"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ExampleStoreServiceAsyncClient",
+          "rpcs": {
+            "CreateExampleStore": {
+              "methods": [
+                "create_example_store"
+              ]
+            },
+            "DeleteExampleStore": {
+              "methods": [
+                "delete_example_store"
+              ]
+            },
+            "FetchExamples": {
+              "methods": [
+                "fetch_examples"
+              ]
+            },
+            "GetExampleStore": {
+              "methods": [
+                "get_example_store"
+              ]
+            },
+            "ListExampleStores": {
+              "methods": [
+                "list_example_stores"
+              ]
+            },
+            "RemoveExamples": {
+              "methods": [
+                "remove_examples"
+              ]
+            },
+            "SearchExamples": {
+              "methods": [
+                "search_examples"
+              ]
+            },
+            "UpdateExampleStore": {
+              "methods": [
+                "update_example_store"
+              ]
+            },
+            "UpsertExamples": {
+              "methods": [
+                "upsert_examples"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ExampleStoreServiceClient",
+          "rpcs": {
+            "CreateExampleStore": {
+              "methods": [
+                "create_example_store"
+              ]
+            },
+            "DeleteExampleStore": {
+              "methods": [
+                "delete_example_store"
+              ]
+            },
+            "FetchExamples": {
+              "methods": [
+                "fetch_examples"
+              ]
+            },
+            "GetExampleStore": {
+              "methods": [
+                "get_example_store"
+              ]
+            },
+            "ListExampleStores": {
+              "methods": [
+                "list_example_stores"
+              ]
+            },
+            "RemoveExamples": {
+              "methods": [
+                "remove_examples"
+              ]
+            },
+            "SearchExamples": {
+              "methods": [
+                "search_examples"
+              ]
+            },
+            "UpdateExampleStore": {
+              "methods": [
+                "update_example_store"
+              ]
+            },
+            "UpsertExamples": {
+              "methods": [
+                "upsert_examples"
               ]
             }
           }
@@ -983,6 +1197,11 @@
         "grpc": {
           "libraryClient": "FeatureOnlineStoreServiceClient",
           "rpcs": {
+            "FeatureViewDirectWrite": {
+              "methods": [
+                "feature_view_direct_write"
+              ]
+            },
             "FetchFeatureValues": {
               "methods": [
                 "fetch_feature_values"
@@ -1003,6 +1222,11 @@
         "grpc-async": {
           "libraryClient": "FeatureOnlineStoreServiceAsyncClient",
           "rpcs": {
+            "FeatureViewDirectWrite": {
+              "methods": [
+                "feature_view_direct_write"
+              ]
+            },
             "FetchFeatureValues": {
               "methods": [
                 "fetch_feature_values"
@@ -1023,6 +1247,11 @@
         "rest": {
           "libraryClient": "FeatureOnlineStoreServiceClient",
           "rpcs": {
+            "FeatureViewDirectWrite": {
+              "methods": [
+                "feature_view_direct_write"
+              ]
+            },
             "FetchFeatureValues": {
               "methods": [
                 "fetch_feature_values"
@@ -2091,6 +2320,11 @@
                 "get_index"
               ]
             },
+            "ImportIndex": {
+              "methods": [
+                "import_index"
+              ]
+            },
             "ListIndexes": {
               "methods": [
                 "list_indexes"
@@ -2131,6 +2365,11 @@
                 "get_index"
               ]
             },
+            "ImportIndex": {
+              "methods": [
+                "import_index"
+              ]
+            },
             "ListIndexes": {
               "methods": [
                 "list_indexes"
@@ -2169,6 +2408,11 @@
             "GetIndex": {
               "methods": [
                 "get_index"
+              ]
+            },
+            "ImportIndex": {
+              "methods": [
+                "import_index"
               ]
             },
             "ListIndexes": {
@@ -3375,6 +3619,16 @@
         "grpc": {
           "libraryClient": "ModelGardenServiceClient",
           "rpcs": {
+            "AcceptPublisherModelEula": {
+              "methods": [
+                "accept_publisher_model_eula"
+              ]
+            },
+            "CheckPublisherModelEulaAcceptance": {
+              "methods": [
+                "check_publisher_model_eula_acceptance"
+              ]
+            },
             "Deploy": {
               "methods": [
                 "deploy"
@@ -3383,6 +3637,11 @@
             "DeployPublisherModel": {
               "methods": [
                 "deploy_publisher_model"
+              ]
+            },
+            "ExportPublisherModel": {
+              "methods": [
+                "export_publisher_model"
               ]
             },
             "GetPublisherModel": {
@@ -3400,6 +3659,16 @@
         "grpc-async": {
           "libraryClient": "ModelGardenServiceAsyncClient",
           "rpcs": {
+            "AcceptPublisherModelEula": {
+              "methods": [
+                "accept_publisher_model_eula"
+              ]
+            },
+            "CheckPublisherModelEulaAcceptance": {
+              "methods": [
+                "check_publisher_model_eula_acceptance"
+              ]
+            },
             "Deploy": {
               "methods": [
                 "deploy"
@@ -3408,6 +3677,11 @@
             "DeployPublisherModel": {
               "methods": [
                 "deploy_publisher_model"
+              ]
+            },
+            "ExportPublisherModel": {
+              "methods": [
+                "export_publisher_model"
               ]
             },
             "GetPublisherModel": {
@@ -3425,6 +3699,16 @@
         "rest": {
           "libraryClient": "ModelGardenServiceClient",
           "rpcs": {
+            "AcceptPublisherModelEula": {
+              "methods": [
+                "accept_publisher_model_eula"
+              ]
+            },
+            "CheckPublisherModelEulaAcceptance": {
+              "methods": [
+                "check_publisher_model_eula_acceptance"
+              ]
+            },
             "Deploy": {
               "methods": [
                 "deploy"
@@ -3433,6 +3717,11 @@
             "DeployPublisherModel": {
               "methods": [
                 "deploy_publisher_model"
+              ]
+            },
+            "ExportPublisherModel": {
+              "methods": [
+                "export_publisher_model"
               ]
             },
             "GetPublisherModel": {
@@ -5015,6 +5304,130 @@
         }
       }
     },
+    "SessionService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "SessionServiceClient",
+          "rpcs": {
+            "AppendEvent": {
+              "methods": [
+                "append_event"
+              ]
+            },
+            "CreateSession": {
+              "methods": [
+                "create_session"
+              ]
+            },
+            "DeleteSession": {
+              "methods": [
+                "delete_session"
+              ]
+            },
+            "GetSession": {
+              "methods": [
+                "get_session"
+              ]
+            },
+            "ListEvents": {
+              "methods": [
+                "list_events"
+              ]
+            },
+            "ListSessions": {
+              "methods": [
+                "list_sessions"
+              ]
+            },
+            "UpdateSession": {
+              "methods": [
+                "update_session"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "SessionServiceAsyncClient",
+          "rpcs": {
+            "AppendEvent": {
+              "methods": [
+                "append_event"
+              ]
+            },
+            "CreateSession": {
+              "methods": [
+                "create_session"
+              ]
+            },
+            "DeleteSession": {
+              "methods": [
+                "delete_session"
+              ]
+            },
+            "GetSession": {
+              "methods": [
+                "get_session"
+              ]
+            },
+            "ListEvents": {
+              "methods": [
+                "list_events"
+              ]
+            },
+            "ListSessions": {
+              "methods": [
+                "list_sessions"
+              ]
+            },
+            "UpdateSession": {
+              "methods": [
+                "update_session"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "SessionServiceClient",
+          "rpcs": {
+            "AppendEvent": {
+              "methods": [
+                "append_event"
+              ]
+            },
+            "CreateSession": {
+              "methods": [
+                "create_session"
+              ]
+            },
+            "DeleteSession": {
+              "methods": [
+                "delete_session"
+              ]
+            },
+            "GetSession": {
+              "methods": [
+                "get_session"
+              ]
+            },
+            "ListEvents": {
+              "methods": [
+                "list_events"
+              ]
+            },
+            "ListSessions": {
+              "methods": [
+                "list_sessions"
+              ]
+            },
+            "UpdateSession": {
+              "methods": [
+                "update_session"
+              ]
+            }
+          }
+        }
+      }
+    },
     "SpecialistPoolService": {
       "clients": {
         "grpc": {
@@ -5603,6 +6016,11 @@
                 "get_rag_corpus"
               ]
             },
+            "GetRagEngineConfig": {
+              "methods": [
+                "get_rag_engine_config"
+              ]
+            },
             "GetRagFile": {
               "methods": [
                 "get_rag_file"
@@ -5626,6 +6044,11 @@
             "UpdateRagCorpus": {
               "methods": [
                 "update_rag_corpus"
+              ]
+            },
+            "UpdateRagEngineConfig": {
+              "methods": [
+                "update_rag_engine_config"
               ]
             },
             "UploadRagFile": {
@@ -5658,6 +6081,11 @@
                 "get_rag_corpus"
               ]
             },
+            "GetRagEngineConfig": {
+              "methods": [
+                "get_rag_engine_config"
+              ]
+            },
             "GetRagFile": {
               "methods": [
                 "get_rag_file"
@@ -5681,6 +6109,11 @@
             "UpdateRagCorpus": {
               "methods": [
                 "update_rag_corpus"
+              ]
+            },
+            "UpdateRagEngineConfig": {
+              "methods": [
+                "update_rag_engine_config"
               ]
             },
             "UploadRagFile": {
@@ -5713,6 +6146,11 @@
                 "get_rag_corpus"
               ]
             },
+            "GetRagEngineConfig": {
+              "methods": [
+                "get_rag_engine_config"
+              ]
+            },
             "GetRagFile": {
               "methods": [
                 "get_rag_file"
@@ -5736,6 +6174,11 @@
             "UpdateRagCorpus": {
               "methods": [
                 "update_rag_corpus"
+              ]
+            },
+            "UpdateRagEngineConfig": {
+              "methods": [
+                "update_rag_engine_config"
               ]
             },
             "UploadRagFile": {

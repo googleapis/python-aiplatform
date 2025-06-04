@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -224,6 +224,8 @@ from .types.endpoint_service import UpdateEndpointOperationMetadata
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
+from .types.env_var import SecretEnvVar
+from .types.env_var import SecretRef
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
@@ -650,6 +652,7 @@ from .types.migration_service import MigrateResourceRequest
 from .types.migration_service import MigrateResourceResponse
 from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
+from .types.model import Checkpoint
 from .types.model import GenieSource
 from .types.model import LargeModelReference
 from .types.model import Model
@@ -856,6 +859,7 @@ from .types.schedule_service import UpdateScheduleRequest
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
+from .types.service_networking import PscInterfaceConfig
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -941,6 +945,7 @@ from .types.tool import Retrieval
 from .types.tool import RetrievalConfig
 from .types.tool import Tool
 from .types.tool import ToolConfig
+from .types.tool import UrlContext
 from .types.tool import VertexAISearch
 from .types.tool import VertexRagStore
 from .types.training_pipeline import FilterSplit
@@ -955,6 +960,7 @@ from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
 from .types.tuning_job import SupervisedTuningSpec
 from .types.tuning_job import TunedModel
+from .types.tuning_job import TunedModelCheckpoint
 from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
@@ -969,6 +975,7 @@ from .types.value import Value
 from .types.vertex_rag_data import CorpusStatus
 from .types.vertex_rag_data import FileStatus
 from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import RagChunk
 from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
@@ -977,6 +984,7 @@ from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import VertexAiSearchConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
@@ -1130,6 +1138,7 @@ __all__ = (
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
     "CheckTrialEarlyStoppingStateResponse",
+    "Checkpoint",
     "Citation",
     "CitationMetadata",
     "Claim",
@@ -1703,6 +1712,7 @@ __all__ = (
     "PrivateServiceConnectConfig",
     "Probe",
     "PscAutomatedEndpoints",
+    "PscInterfaceConfig",
     "PublisherModel",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
@@ -1738,6 +1748,7 @@ __all__ = (
     "QuestionAnsweringRelevanceInstance",
     "QuestionAnsweringRelevanceResult",
     "QuestionAnsweringRelevanceSpec",
+    "RagChunk",
     "RagContexts",
     "RagCorpus",
     "RagEmbeddingModelConfig",
@@ -1821,6 +1832,8 @@ __all__ = (
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
+    "SecretEnvVar",
+    "SecretRef",
     "Segment",
     "ServiceAccountSpec",
     "SharePointSources",
@@ -1918,6 +1931,7 @@ __all__ = (
     "Trial",
     "TrialContext",
     "TunedModel",
+    "TunedModelCheckpoint",
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
@@ -1986,9 +2000,11 @@ __all__ = (
     "UploadRagFileResponse",
     "UpsertDatapointsRequest",
     "UpsertDatapointsResponse",
+    "UrlContext",
     "UserActionReference",
     "Value",
     "VertexAISearch",
+    "VertexAiSearchConfig",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",

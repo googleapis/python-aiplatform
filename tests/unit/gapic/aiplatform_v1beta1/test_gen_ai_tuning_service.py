@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -4555,6 +4555,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                 "learning_rate_multiplier": 0.2561,
                 "adapter_size": 1,
             },
+            "export_last_checkpoint_only": True,
         },
         "distillation_spec": {
             "base_teacher_model": "base_teacher_model_value",
@@ -4594,7 +4595,18 @@ def test_create_tuning_job_rest_call_success(request_type):
         },
         "labels": {},
         "experiment": "experiment_value",
-        "tuned_model": {"model": "model_value", "endpoint": "endpoint_value"},
+        "tuned_model": {
+            "model": "model_value",
+            "endpoint": "endpoint_value",
+            "checkpoints": [
+                {
+                    "checkpoint_id": "checkpoint_id_value",
+                    "epoch": 527,
+                    "step": 444,
+                    "endpoint": "endpoint_value",
+                }
+            ],
+        },
         "tuning_data_stats": {
             "supervised_tuning_data_stats": {
                 "tuning_dataset_example_count": 2989,
@@ -4630,10 +4642,12 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "file_uri": "file_uri_value",
                                 },
                                 "function_call": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "args": {"fields": {}},
                                 },
                                 "function_response": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
                                 },
@@ -4650,12 +4664,17 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "end_offset": {},
                                 },
                                 "thought": True,
+                                "thought_signature": b"thought_signature_blob",
                             }
                         ],
                     }
                 ],
                 "total_truncated_example_count": 3104,
                 "truncated_example_indices": [2644, 2645],
+                "dropped_example_reasons": [
+                    "dropped_example_reasons_value1",
+                    "dropped_example_reasons_value2",
+                ],
             },
             "distillation_data_stats": {
                 "training_dataset_stats": {
@@ -6183,6 +6202,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                 "learning_rate_multiplier": 0.2561,
                 "adapter_size": 1,
             },
+            "export_last_checkpoint_only": True,
         },
         "distillation_spec": {
             "base_teacher_model": "base_teacher_model_value",
@@ -6222,7 +6242,18 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
         },
         "labels": {},
         "experiment": "experiment_value",
-        "tuned_model": {"model": "model_value", "endpoint": "endpoint_value"},
+        "tuned_model": {
+            "model": "model_value",
+            "endpoint": "endpoint_value",
+            "checkpoints": [
+                {
+                    "checkpoint_id": "checkpoint_id_value",
+                    "epoch": 527,
+                    "step": 444,
+                    "endpoint": "endpoint_value",
+                }
+            ],
+        },
         "tuning_data_stats": {
             "supervised_tuning_data_stats": {
                 "tuning_dataset_example_count": 2989,
@@ -6258,10 +6289,12 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                     "file_uri": "file_uri_value",
                                 },
                                 "function_call": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "args": {"fields": {}},
                                 },
                                 "function_response": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
                                 },
@@ -6278,12 +6311,17 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                     "end_offset": {},
                                 },
                                 "thought": True,
+                                "thought_signature": b"thought_signature_blob",
                             }
                         ],
                     }
                 ],
                 "total_truncated_example_count": 3104,
                 "truncated_example_indices": [2644, 2645],
+                "dropped_example_reasons": [
+                    "dropped_example_reasons_value1",
+                    "dropped_example_reasons_value2",
+                ],
             },
             "distillation_data_stats": {
                 "training_dataset_stats": {

@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1 import (
     ImportRagFilesConfig,
     ImportRagFilesRequest,
     RagFileChunkingConfig,
+    RagFileParsingConfig,
     RagFileTransformationConfig,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
@@ -30,6 +31,7 @@ from google.cloud.aiplatform_v1 import (
     SlackSource as GapicSlackSource,
     JiraSource as GapicJiraSource,
     RagVectorDbConfig as GapicRagVectorDbConfig,
+    VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import (
@@ -38,6 +40,8 @@ from google.cloud.aiplatform.utils import (
     VertexRagClientWithOverride,
 )
 from vertexai.rag.utils.resources import (
+    LayoutParserConfig,
+    LlmParserConfig,
     Pinecone,
     RagCorpus,
     RagEmbeddingModelConfig,
@@ -48,12 +52,17 @@ from vertexai.rag.utils.resources import (
     SlackChannelsSource,
     TransformationConfig,
     JiraSource,
+    VertexAiSearchConfig,
     VertexVectorSearch,
     VertexPredictionEndpoint,
+    RagCitedGenerationResponse,
 )
 
 
 _VALID_RESOURCE_NAME_REGEX = "[a-z][a-zA-Z0-9._-]{0,127}"
+_VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX = (
+    r"projects/[^/]+/locations/[^/]+/processors/[^/]+(?:/processorVersions/[^/]+)?"
+)
 
 
 def create_rag_data_service_client():
@@ -171,12 +180,26 @@ def convert_gapic_to_backend_config(
     return vector_config
 
 
+def convert_gapic_to_vertex_ai_search_config(
+    gapic_vertex_ai_search_config: VertexAiSearchConfig,
+) -> VertexAiSearchConfig:
+    """Convert Gapic VertexAiSearchConfig to VertexAiSearchConfig."""
+    if gapic_vertex_ai_search_config.serving_config:
+        return VertexAiSearchConfig(
+            serving_config=gapic_vertex_ai_search_config.serving_config,
+        )
+    return None
+
+
 def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
     """Convert GapicRagCorpus to RagCorpus."""
     rag_corpus = RagCorpus(
         name=gapic_rag_corpus.name,
         display_name=gapic_rag_corpus.display_name,
         description=gapic_rag_corpus.description,
+        vertex_ai_search_config=convert_gapic_to_vertex_ai_search_config(
+            gapic_rag_corpus.vertex_ai_search_config
+        ),
         backend_config=convert_gapic_to_backend_config(
             gapic_rag_corpus.vector_db_config
         ),
@@ -194,6 +217,9 @@ def convert_gapic_to_rag_corpus_no_embedding_model_config(
         name=gapic_rag_corpus.name,
         display_name=gapic_rag_corpus.display_name,
         description=gapic_rag_corpus.description,
+        vertex_ai_search_config=convert_gapic_to_vertex_ai_search_config(
+            gapic_rag_corpus.vertex_ai_search_config
+        ),
         backend_config=convert_gapic_to_backend_config(
             rag_vector_db_config_no_embedding_model_config
         ),
@@ -219,6 +245,17 @@ def convert_json_to_rag_file(upload_rag_file_response: Dict[str, Any]) -> RagFil
         description=upload_rag_file_response.get("ragFile").get("description"),
     )
     return rag_file
+
+
+def convert_tuple_to_rag_cited_generation_response(
+    cited_text: str, final_bibliography: str
+) -> RagCitedGenerationResponse:
+    """Converts a tuple to a RagCitedGenerationResponse."""
+    rag_cited_generation_response = RagCitedGenerationResponse(
+        cited_text=cited_text,
+        final_bibliography=final_bibliography,
+    )
+    return rag_cited_generation_response
 
 
 def convert_path_to_resource_id(
@@ -355,12 +392,47 @@ def prepare_import_files_request(
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
+    import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
             "corpus_name must be of the format `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`"
         )
+
+    rag_file_parsing_config = RagFileParsingConfig()
+    if layout_parser is not None:
+        if (
+            re.fullmatch(
+                _VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX,
+                layout_parser.processor_name,
+            )
+            is None
+        ):
+            raise ValueError(
+                "processor_name must be of the format"
+                " `projects/{project_id}/locations/{location}/processors/{processor_id}`or"
+                " `projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`,"
+                f" got {layout_parser.processor_name!r}"
+            )
+        rag_file_parsing_config.layout_parser = RagFileParsingConfig.LayoutParser(
+            processor_name=layout_parser.processor_name,
+            max_parsing_requests_per_min=layout_parser.max_parsing_requests_per_min,
+        )
+    if llm_parser is not None:
+        rag_file_parsing_config.llm_parser = RagFileParsingConfig.LlmParser(
+            model_name=llm_parser.model_name
+        )
+        if llm_parser.max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.llm_parser.max_parsing_requests_per_min = (
+                llm_parser.max_parsing_requests_per_min
+            )
+        if llm_parser.custom_parsing_prompt is not None:
+            rag_file_parsing_config.llm_parser.custom_parsing_prompt = (
+                llm_parser.custom_parsing_prompt
+            )
 
     chunk_size = 1024
     chunk_overlap = 200
@@ -379,8 +451,25 @@ def prepare_import_files_request(
 
     import_rag_files_config = ImportRagFilesConfig(
         rag_file_transformation_config=rag_file_transformation_config,
+        rag_file_parsing_config=rag_file_parsing_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
     )
+
+    import_result_sink = import_result_sink or partial_failures_sink
+
+    if import_result_sink is not None:
+        if import_result_sink.startswith("gs://"):
+            import_rag_files_config.partial_failure_gcs_sink.output_uri_prefix = (
+                import_result_sink
+            )
+        elif import_result_sink.startswith("bq://"):
+            import_rag_files_config.partial_failure_bigquery_sink.output_uri = (
+                import_result_sink
+            )
+        else:
+            raise ValueError(
+                "import_result_sink must be a GCS path or a BigQuery table."
+            )
 
     if source is not None:
         gapic_source = convert_source_for_rag_import(source)
@@ -568,4 +657,28 @@ def set_backend_config(
     if backend_config.rag_embedding_model_config:
         set_embedding_model_config(
             backend_config.rag_embedding_model_config, rag_corpus
+        )
+
+
+def set_vertex_ai_search_config(
+    vertex_ai_search_config: VertexAiSearchConfig,
+    rag_corpus: GapicRagCorpus,
+) -> None:
+    if not vertex_ai_search_config.serving_config:
+        raise ValueError("serving_config must be set.")
+    engine_resource_name = re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/collections/(?P<collection>.+?)/engines/(?P<engine>.+?)/servingConfigs/(?P<serving_config>.+?)$",
+        vertex_ai_search_config.serving_config,
+    )
+    data_store_resource_name = re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/collections/(?P<collection>.+?)/dataStores/(?P<data_store>.+?)/servingConfigs/(?P<serving_config>.+?)$",
+        vertex_ai_search_config.serving_config,
+    )
+    if engine_resource_name or data_store_resource_name:
+        rag_corpus.vertex_ai_search_config = GapicVertexAiSearchConfig(
+            serving_config=vertex_ai_search_config.serving_config,
+        )
+    else:
+        raise ValueError(
+            "serving_config must be of the format `projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}` or `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}`"
         )

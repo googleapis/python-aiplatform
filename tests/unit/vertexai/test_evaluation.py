@@ -36,6 +36,7 @@ from google.cloud.aiplatform_v1.types import (
 from google.cloud.aiplatform_v1beta1.services import (
     evaluation_service as gapic_evaluation_services_preview,
 )
+from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import (
     evaluation_service as gapic_evaluation_service_types_preview,
 )
@@ -54,6 +55,31 @@ from vertexai.evaluation.metrics import pairwise_metric
 from vertexai.evaluation.metrics import pointwise_metric
 from vertexai.preview import evaluation as evaluation_preview
 from vertexai.preview import reasoning_engines
+from vertexai.preview.evaluation import (
+    _pre_eval_utils as pre_eval_utils_preview,
+)
+from vertexai.preview.evaluation import (
+    constants as constants_preview,
+)
+from vertexai.preview.evaluation import utils as utils_preview
+from vertexai.preview.evaluation.metrics import (
+    _default_templates as default_templates_preview,
+)
+from vertexai.preview.evaluation.metrics import (
+    custom_output_config,
+)
+from vertexai.preview.evaluation.metrics import (
+    metric_prompt_template_examples as metric_prompt_template_examples_preview,
+)
+from vertexai.preview.evaluation.metrics import (
+    pairwise_metric as pairwise_metric_preview,
+)
+from vertexai.preview.evaluation.metrics import (
+    pointwise_metric as pointwise_metric_preview,
+)
+from vertexai.preview.evaluation.metrics import (
+    rubric_based_metric,
+)
 import numpy as np
 import pandas as pd
 import pytest
@@ -70,6 +96,11 @@ Pairwise = metric_prompt_template_examples.MetricPromptTemplateExamples.Pairwise
 PairwisePreview = (
     evaluation_preview.metrics.metric_prompt_template_examples.MetricPromptTemplateExamples.Pairwise
 )
+ContentMap = gapic_evaluation_service_types_preview.ContentMap
+Content = content.Content
+Part = content.Part
+RubricGenerationConfig = evaluation_preview.RubricGenerationConfig
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -194,6 +225,12 @@ _TEST_EVAL_DATASET_ALL_INCLUDED_DEFAULT_FIELDS = pd.DataFrame(
         "instruction": ["test", "instruction"],
     }
 )
+_TEST_EVAL_DATASET_PROMPT_RESPONSE = pd.DataFrame(
+    {
+        "prompt": ["test_prompt", "text_prompt", "test_prompt_3"],
+        "response": ["test", "text", "test_response_3"],
+    }
+)
 _TEST_EVAL_DATASET_SINGLE = pd.DataFrame({"prompt": ["test_prompt", "text_prompt"]})
 _TEST_JSONL_FILE_CONTENT = """{"prompt": "prompt", "reference": "reference"}\n
 {"prompt":"test", "reference": "test"}\n
@@ -206,6 +243,45 @@ _TEST_CSV = pd.DataFrame(
     columns={
         "response": ["text"],
         "reference": ["ref"],
+    }
+)
+_TEST_POINTWISE_METRIC_WITH_RAW_OUTPUT = pointwise_metric_preview.PointwiseMetric(
+    metric="test_pointwise_metric",
+    metric_prompt_template=metric_prompt_template.PointwiseMetricPromptTemplate(
+        metric_definition=_METRIC_DEFINITION,
+        criteria=_CRITERIA,
+        rating_rubric=_POINTWISE_RATING_RUBRIC,
+        evaluation_steps=_EVALUATION_STEPS,
+    ),
+    custom_output_config=custom_output_config.CustomOutputConfig(
+        return_raw_output=True
+    ),
+)
+_TEST_PAIRWISE_METRIC_WITH_RAW_OUTPUT = pairwise_metric_preview.PairwiseMetric(
+    metric="test_pairwise_metric",
+    metric_prompt_template=metric_prompt_template.PairwiseMetricPromptTemplate(
+        metric_definition=_METRIC_DEFINITION,
+        criteria=_CRITERIA,
+        rating_rubric=_PAIRWISE_RATING_RUBRIC,
+        evaluation_steps=_EVALUATION_STEPS,
+    ),
+    custom_output_config=custom_output_config.CustomOutputConfig(
+        return_raw_output=True
+    ),
+)
+_TEST_MULTIMODAL_MODEL_DATASET = pd.DataFrame(
+    {
+        "prompt": ["test_prompt", "text_prompt"],
+        "response": [
+            (
+                '{"contents": [{"parts": [{"file_data": {"mime_type": "image/png",'
+                ' "file_uri": "gs://test-bucket/image3.png"}}]}]}'
+            ),
+            (
+                '{"contents": [{"parts": [{"file_data": {"mime_type": "image/png",'
+                ' "file_uri": "gs://test-bucket/image4.png"}}]}]}'
+            ),
+        ],
     }
 )
 _EXPECTED_POINTWISE_PROMPT_TEMPLATE = """
@@ -348,6 +424,18 @@ Step 5: Output your assessment reasoning in the explanation field
 {response}
 """
 
+_EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS = pd.DataFrame(
+    {
+        "prompt": ["test_prompt", "text_prompt", "test_prompt_3"],
+        "response": ["test", "text", "test_response_3"],
+        "rubrics": [
+            ["test_rubric1", "test_rubric2"],
+            ["test_rubric1", "test_rubric2"],
+            ["test_rubric1", "test_rubric2"],
+        ],
+    }
+)
+
 _MOCK_RUNNABLE_INFERENCE_RESPONSE = [
     {
         "input": "test_input",
@@ -366,6 +454,53 @@ _MOCK_RUNNABLE_INFERENCE_RESPONSE = [
         ],
     },
 ]
+
+_MOCK_RUBRIC_BASED_INSTRUCTION_FOLLOWING_RESULT = (
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        rubric_based_instruction_following_result=(
+            gapic_evaluation_service_types_preview.RubricBasedInstructionFollowingResult(
+                score=0.5,
+                rubric_critique_results=[
+                    gapic_evaluation_service_types_preview.RubricCritiqueResult(
+                        rubric="rubric_1",
+                        verdict=True,
+                    ),
+                    gapic_evaluation_service_types_preview.RubricCritiqueResult(
+                        rubric="rubric_2",
+                    ),
+                ],
+            )
+        )
+    ),
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        rubric_based_instruction_following_result=(
+            gapic_evaluation_service_types_preview.RubricBasedInstructionFollowingResult(
+                score=0.0,
+                rubric_critique_results=[
+                    gapic_evaluation_service_types_preview.RubricCritiqueResult(
+                        rubric="rubric_1",
+                    ),
+                    gapic_evaluation_service_types_preview.RubricCritiqueResult(
+                        rubric="rubric_2",
+                    ),
+                ],
+            )
+        )
+    ),
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        rubric_based_instruction_following_result=(
+            gapic_evaluation_service_types_preview.RubricBasedInstructionFollowingResult(
+                score=1.0,
+                rubric_critique_results=[
+                    gapic_evaluation_service_types_preview.RubricCritiqueResult(
+                        rubric="rubric_1",
+                        verdict=True,
+                    ),
+                ],
+            )
+        )
+    ),
+)
 
 _MOCK_EXACT_MATCH_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
@@ -501,6 +636,78 @@ MOCK_EVAL_RESULT = eval_base.EvalResult(
         }
     ),
 )
+_MOCK_POINTWISE_RESULT_WITH_RAW_OUTPUT = (
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        pointwise_metric_result=gapic_evaluation_service_types_preview.PointwiseMetricResult(
+            custom_output=gapic_evaluation_service_types_preview.CustomOutput(
+                raw_outputs=gapic_evaluation_service_types_preview.RawOutput(
+                    raw_output=["raw_output_sample_1.1", "raw_output_sample_1.2"],
+                ),
+            )
+        )
+    ),
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        pointwise_metric_result=gapic_evaluation_service_types_preview.PointwiseMetricResult(
+            custom_output=gapic_evaluation_service_types_preview.CustomOutput(
+                raw_outputs=gapic_evaluation_service_types_preview.RawOutput(
+                    raw_output=["raw_output_sample_2.1", "raw_output_sample_2.2"],
+                ),
+            )
+        )
+    ),
+)
+_MOCK_PAIRWISE_RESULT_WITH_RAW_OUTPUT = (
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        pairwise_metric_result=gapic_evaluation_service_types_preview.PairwiseMetricResult(
+            custom_output=gapic_evaluation_service_types_preview.CustomOutput(
+                raw_outputs=gapic_evaluation_service_types_preview.RawOutput(
+                    raw_output=["raw_output_sample_1.1", "raw_output_sample_1.2"],
+                ),
+            )
+        )
+    ),
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        pairwise_metric_result=gapic_evaluation_service_types_preview.PairwiseMetricResult(
+            custom_output=gapic_evaluation_service_types_preview.CustomOutput(
+                raw_outputs=gapic_evaluation_service_types_preview.RawOutput(
+                    raw_output=["raw_output_sample_2.1", "raw_output_sample_2.2"],
+                ),
+            )
+        )
+    ),
+)
+_MOCK_MODEL_RUBRIC_GENERATION_RESPONSE = generative_models.GenerationResponse.from_dict(
+    {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "text": """```json{"questions": ["test_rubric1", "test_rubric2"]}```"""
+                        }
+                    ]
+                },
+            }
+        ]
+    }
+)
+_MOCK_MODEL_RUBRIC_GENERATION_RESPONSE_WITH_ADDITIONAL = generative_models.GenerationResponse.from_dict(
+    {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "text": """```json{"questions": ["test_rubric1", "test_rubric2"], "desc": "test_desc"}```"""
+                        }
+                    ]
+                },
+            }
+        ]
+    }
+)
+_UNPARSED_RUBRIC = """```json{"questions": ["test_rubric"]}```"""
+_INVALID_UNPARSED_RUBRIC = """```json{["questions": ["test_rubric"]]}```"""
 _EXPECTED_ROUGE_REQUESTS = (
     gapic_evaluation_service_types.EvaluateInstancesRequest(
         location=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
@@ -697,9 +904,8 @@ class TestEvaluation:
         assert test_result.metrics_table["prompt"].equals(
             _TEST_EVAL_DATASET_ALL_INCLUDED["prompt"]
         )
-        assert list(
-            test_result.metrics_table["test_pointwise_metric/score"].values
-        ) == [5, 4]
+        scores = list(test_result.metrics_table["test_pointwise_metric/score"].values)
+        assert scores == [5, 4] or scores == [4, 5]
         assert list(
             test_result.metrics_table["test_pointwise_metric/explanation"].values
         ) == [
@@ -1293,6 +1499,193 @@ class TestEvaluation:
             {"row_count": 1, "mock_metric/mean": 1.0, "mock_metric/std": "NaN"}
         )
 
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_rubric_based_instruction_following_metric(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = ["rubric_based_instruction_following"]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_PROMPT_RESPONSE,
+            metrics=test_metrics,
+        )
+        mock_metric_results = _MOCK_RUBRIC_BASED_INSTRUCTION_FOLLOWING_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate()
+
+        assert len(test_result.metrics_table) == 3
+        assert (
+            test_result.metrics_table.iloc[0][
+                "rubric_based_instruction_following/score"
+            ]
+            == 0.5
+        )
+        assert test_result.metrics_table.iloc[0][
+            "rubric_based_instruction_following/per_rubric_result"
+        ] == [
+            {"rubric": "rubric_1", "verdict": True},
+            {"rubric": "rubric_2", "verdict": False},
+        ]
+        assert (
+            test_result.metrics_table.iloc[1][
+                "rubric_based_instruction_following/score"
+            ]
+            == 0.0
+        )
+        assert test_result.metrics_table.iloc[1][
+            "rubric_based_instruction_following/per_rubric_result"
+        ] == [
+            {"rubric": "rubric_1", "verdict": False},
+            {"rubric": "rubric_2", "verdict": False},
+        ]
+        assert (
+            test_result.metrics_table.iloc[2][
+                "rubric_based_instruction_following/score"
+            ]
+            == 1.0
+        )
+        assert test_result.metrics_table.iloc[2][
+            "rubric_based_instruction_following/per_rubric_result"
+        ] == [{"rubric": "rubric_1", "verdict": True}]
+        assert (
+            test_result.summary_metrics["rubric_based_instruction_following/mean"]
+            == 0.5
+        )
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_compute_pointwise_metrics_with_raw_output(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [_TEST_POINTWISE_METRIC_WITH_RAW_OUTPUT]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED, metrics=test_metrics
+        )
+        mock_metric_results = _MOCK_POINTWISE_RESULT_WITH_RAW_OUTPUT
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate()
+        assert test_result.summary_metrics["row_count"] == 2
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "prompt",
+                "response",
+                "context",
+                "source",
+                "instruction",
+                "reference",
+                "test_pointwise_metric/raw_output",
+            ]
+        )
+        assert test_result.metrics_table["response"].equals(
+            _TEST_EVAL_DATASET_ALL_INCLUDED["response"]
+        )
+        assert test_result.metrics_table["prompt"].equals(
+            _TEST_EVAL_DATASET_ALL_INCLUDED["prompt"]
+        )
+        assert list(
+            test_result.metrics_table["test_pointwise_metric/raw_output"].values
+        ) == [
+            ["raw_output_sample_1.1", "raw_output_sample_1.2"],
+            ["raw_output_sample_2.1", "raw_output_sample_2.2"],
+        ]
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_compute_pairwise_metrics_with_raw_output(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [_TEST_PAIRWISE_METRIC_WITH_RAW_OUTPUT]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED_DEFAULT_FIELDS, metrics=test_metrics
+        )
+        mock_metric_results = _MOCK_PAIRWISE_RESULT_WITH_RAW_OUTPUT
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate()
+        assert test_result.summary_metrics["row_count"] == 2
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "prompt",
+                "response",
+                "baseline_model_response",
+                "context",
+                "instruction",
+                "test_pairwise_metric/raw_output",
+            ]
+        )
+        assert list(
+            test_result.metrics_table["test_pairwise_metric/raw_output"].values
+        ) == [
+            ["raw_output_sample_1.1", "raw_output_sample_1.2"],
+            ["raw_output_sample_2.1", "raw_output_sample_2.2"],
+        ]
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_compute_rubric_based_metric(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_rubric_based_metric = rubric_based_metric.RubricBasedMetric(
+            generation_config=RubricGenerationConfig(
+                prompt_template="abc",
+            ),
+            critique_metric=metric_prompt_template_examples_preview.MetricPromptTemplateExamples.Pointwise.SUMMARIZATION_QUALITY,
+        )
+        test_metrics = [test_rubric_based_metric]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED_DEFAULT_FIELDS, metrics=test_metrics
+        )
+        mock_metric_results = _MOCK_POINTWISE_RESULT_WITH_RAW_OUTPUT
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = (
+            _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE
+        )
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate()
+        assert test_result.summary_metrics["row_count"] == 2
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "prompt",
+                "response",
+                "baseline_model_response",
+                "context",
+                "instruction",
+                "summarization_quality/raw_output",
+                "rubrics",
+            ]
+        )
+        assert list(
+            test_result.metrics_table["summarization_quality/raw_output"].values
+        ) == [
+            ["raw_output_sample_1.1", "raw_output_sample_1.2"],
+            ["raw_output_sample_2.1", "raw_output_sample_2.2"],
+        ]
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEvaluation:
@@ -1420,6 +1813,75 @@ class TestAgentEvaluation:
         assert api_requests[0].autorater_config == _AUTORATER_CONFIG
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_pointwise_autorater_from_metric(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [
+            pointwise_metric_preview.PointwiseMetric(
+                metric=constants_preview.Metric.SUMMARIZATION_QUALITY,
+                metric_prompt_template=default_templates_preview.SUMMARIZATION_QUALITY_PROMPT_TEMPLATE,
+                autorater_config=_AUTORATER_CONFIG,
+            )
+        ]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED_DEFAULT_FIELDS,
+            metrics=test_metrics,
+        )
+        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ) as mock_evaluate_instances:
+            _ = test_eval_task.evaluate()
+
+        api_requests = [
+            call.kwargs["request"] for call in mock_evaluate_instances.call_args_list
+        ]
+        assert api_requests[0].autorater_config == _AUTORATER_CONFIG
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_pointwise_autorater_from_metric_override(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [
+            pointwise_metric_preview.PointwiseMetric(
+                metric=constants_preview.Metric.SUMMARIZATION_QUALITY,
+                metric_prompt_template=default_templates_preview.SUMMARIZATION_QUALITY_PROMPT_TEMPLATE,
+                autorater_config=_AUTORATER_CONFIG,
+            )
+        ]
+        TASK_AUTORATER_CONFIG = AutoraterConfig(
+            autorater_model="test_another_model",
+            sampling_count=2,
+            flip_enabled=False,
+        )
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED_DEFAULT_FIELDS,
+            metrics=test_metrics,
+            autorater_config=TASK_AUTORATER_CONFIG,
+        )
+        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ) as mock_evaluate_instances:
+            _ = test_eval_task.evaluate()
+
+        api_requests = [
+            call.kwargs["request"] for call in mock_evaluate_instances.call_args_list
+        ]
+        assert api_requests[0].autorater_config != TASK_AUTORATER_CONFIG
+        assert api_requests[0].autorater_config == _AUTORATER_CONFIG
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_pairwise_autorater_request_config_enabled(self, api_transport):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1437,6 +1899,37 @@ class TestAgentEvaluation:
             },
         )
         mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT_PREVIEW
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ) as mock_evaluate_instances:
+            _ = test_eval_task.evaluate()
+
+        api_requests = [
+            call.kwargs["request"] for call in mock_evaluate_instances.call_args_list
+        ]
+        assert api_requests[0].autorater_config == _AUTORATER_CONFIG
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_pairwise_autorater_from_metric(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [
+            pairwise_metric_preview.PairwiseMetric(
+                metric=constants_preview.Metric.SUMMARIZATION_QUALITY,
+                metric_prompt_template=default_templates_preview.PAIRWISE_SUMMARIZATION_QUALITY_PROMPT_TEMPLATE,
+                autorater_config=_AUTORATER_CONFIG,
+            )
+        ]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED_DEFAULT_FIELDS,
+            metrics=test_metrics,
+        )
+        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT
         with mock.patch.object(
             target=gapic_evaluation_services_preview.EvaluationServiceClient,
             attribute="evaluate_instances",
@@ -2041,6 +2534,143 @@ class TestEvaluationUtils:
         )
         assert converted_metric_column_mapping == _EXPECTED_COLUMN_MAPPING
 
+    def test_upload_results(self, mock_storage_blob_from_string):
+        with mock.patch("json.dump") as mock_json_dump:
+            evaluation.utils.upload_evaluation_results(
+                MOCK_EVAL_RESULT,
+                _TEST_BUCKET,
+                _TEST_FILE_NAME,
+                "candidate_model",
+                "baseline_model",
+                "gs://test-bucket/test-dataset.csv",
+                [_TEST_POINTWISE_METRIC, _TEST_PAIRWISE_METRIC],
+            )
+
+        mock_storage_blob_from_string.assert_any_call(
+            uri="gs://test-bucket/test-file-name/test-file-name.csv",
+            client=mock.ANY,
+        )
+        mock_storage_blob_from_string.assert_any_call(
+            uri="gs://test-bucket/test-file-name/summary_metrics.json",
+            client=mock.ANY,
+        )
+        mock_json_dump.assert_called_once_with(
+            {
+                "summary_metrics": MOCK_EVAL_RESULT.summary_metrics,
+                "candidate_model_name": "candidate_model",
+                "baseline_model_name": "baseline_model",
+                "dataset_uri": "gs://test-bucket/test-dataset.csv",
+                "metric_descriptions": {
+                    "test_pointwise_metric": {
+                        "criteria": _CRITERIA,
+                        "rating_rubric": _POINTWISE_RATING_RUBRIC,
+                    },
+                    "test_pairwise_metric": {
+                        "criteria": _CRITERIA,
+                        "rating_rubric": _PAIRWISE_RATING_RUBRIC,
+                    },
+                },
+            },
+            mock.ANY,
+        )
+
+    def test_upload_results_with_default_output_file_name(
+        self, mock_storage_blob_from_string
+    ):
+        mock_metric_results = _MOCK_EXACT_MATCH_RESULT
+        with mock.patch.object(
+            aiplatform_utils, "timestamped_unique_name"
+        ) as mock_timestamped_unique_name:
+            with mock.patch.object(
+                target=gapic_evaluation_services.EvaluationServiceClient,
+                attribute="evaluate_instances",
+                side_effect=mock_metric_results,
+            ):
+                mock_timestamped_unique_name.return_value = "2025-02-10-12-00-00-12345"
+                eval_dataset = pd.DataFrame(
+                    {
+                        "response": ["test", "text"],
+                        "reference": ["test", "ref"],
+                    }
+                )
+                test_metrics = ["exact_match"]
+                test_eval_task = EvalTask(
+                    dataset=eval_dataset,
+                    metrics=test_metrics,
+                    output_uri_prefix=_TEST_BUCKET,
+                )
+                _ = test_eval_task.evaluate()
+        mock_storage_blob_from_string.assert_any_call(
+            uri="gs://test-bucket/eval_results_2025-02-10-12-00-00-12345/summary_metrics.json",
+            client=mock.ANY,
+        )
+
+    def test_validate_metrics_multiple_rubric_based_metrics(self):
+        generation_config = RubricGenerationConfig(prompt_template="abc")
+        test_metrics = [
+            rubric_based_metric.RubricBasedMetric(
+                generation_config=generation_config,
+                critique_metric=metric_prompt_template_examples_preview.MetricPromptTemplateExamples.Pointwise.COHERENCE,
+            ),
+            rubric_based_metric.RubricBasedMetric(
+                generation_config=generation_config,
+                critique_metric=metric_prompt_template_examples_preview.MetricPromptTemplateExamples.Pointwise.FLUENCY,
+            ),
+        ]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_PROMPT_RESPONSE,
+            metrics=test_metrics,
+        )
+        with pytest.raises(
+            ValueError,
+            match=re.escape("Multiple rubric based metrics are not supported."),
+        ):
+            _ = test_eval_task.evaluate()
+
+    def test_default_rubrics_parser_succeeds(self):
+        parsed_rubrics = utils_preview.parse_rubrics(_UNPARSED_RUBRIC)
+        assert parsed_rubrics == {"questions": ["test_rubric"]}
+
+    def test_default_rubrics_parser_with_invalid_json(self):
+        parsed_rubrics = utils_preview.parse_rubrics(_INVALID_UNPARSED_RUBRIC)
+        assert parsed_rubrics == {"questions": ""}
+
+    def test_generate_responses_from_gemini_model(self):
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = _MOCK_MODEL_INFERENCE_RESPONSE
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        response_list = pre_eval_utils_preview._generate_responses_from_gemini_model(
+            mock_model, _TEST_EVAL_DATASET_WITHOUT_RESPONSE
+        )
+        assert response_list == ["test_response", "test_response"]
+
+    def test_generate_responses_from_gemini_model_with_multimodal_dataset(self):
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = _MOCK_MODEL_INFERENCE_RESPONSE
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        mm_prompt_template = "This is a multimodal prompt: {prompt} and {response}"
+        response_list = pre_eval_utils_preview._generate_responses_from_gemini_model(
+            mock_model,
+            _TEST_MULTIMODAL_MODEL_DATASET,
+            mm_prompt_template,
+        )
+        assert response_list == ["test_response", "test_response"]
+        assert mock_model.generate_content.call_count == 2
+        assert (
+            mock_model.generate_content.call_args[0][0][0]
+            == "This is a multimodal prompt: "
+        )
+        assert mock_model.generate_content.call_args[0][0][1] == "text_prompt"
+        assert mock_model.generate_content.call_args[0][0][2] == " and "
+        assert (
+            mock_model.generate_content.call_args[0][0][3].file_data.file_uri
+            == "gs://test-bucket/image4.png"
+        )
+
 
 class TestPromptTemplate:
     def test_init(self):
@@ -2138,57 +2768,144 @@ class TestPromptTemplate:
             == _EXPECTED_PAIRWISE_PROMPT_TEMPLATE_WITH_DEFAULT_VALUES.strip()
         )
 
-    def test_upload_results(self, mock_storage_blob_from_string):
-        with mock.patch("json.dump") as mock_json_dump:
-            evaluation.utils.upload_evaluation_results(
-                MOCK_EVAL_RESULT,
-                _TEST_BUCKET,
-                _TEST_FILE_NAME,
-                "candidate_model",
-                "baseline_model",
-                "gs://test-bucket/test-dataset.csv",
-                [_TEST_POINTWISE_METRIC, _TEST_PAIRWISE_METRIC],
-            )
+    def test_complex_prompt_template_variables(self):
+        template_str = """Metric prompt template
+instructions ...
+Here are some JSON structures
+{
+  "Function API spec": You may use default python libraries,
+  "example": test test
+}
+Output format prompt with JSON:
+The answer should be a json alone which follows the json structure below:
+{
+  "is_the_response_valid": [valid or invalid],
+  "reasoning":
+  "rewritten response":
+}
+Here are some actual variables:
+{var_1} {var2} {_var_3} {
+        var_5_mutli_line
+} {VAR_6} {7_var} {{var_9}}
+"""
+        prompt_template = evaluation.PromptTemplate(template_str)
+        assert prompt_template.variables == {
+            "var_1",
+            "var2",
+            "_var_3",
+            "VAR_6",
+            "var_9",
+        }
 
-        mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/test-file-name/test-file-name.csv",
-            client=mock.ANY,
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestRubricGeneration:
+    """Test class for RubricGeneration."""
+
+    def test_rubric_generation_succeeds(self):
+        """Test rubric generation using RubricBasedMetric."""
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
         )
-        mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/test-file-name/summary_metrics.json",
-            client=mock.ANY,
+        mock_model.generate_content.return_value = (
+            _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE
         )
-        mock_json_dump.assert_called_once_with(
-            {
-                "summary_metrics": MOCK_EVAL_RESULT.summary_metrics,
-                "candidate_model_name": "candidate_model",
-                "baseline_model_name": "baseline_model",
-                "dataset_uri": "gs://test-bucket/test-dataset.csv",
-                "metric_descriptions": {
-                    "test_pointwise_metric": {
-                        "criteria": _CRITERIA,
-                        "rating_rubric": _POINTWISE_RATING_RUBRIC,
-                    },
-                    "test_pairwise_metric": {
-                        "criteria": _CRITERIA,
-                        "rating_rubric": _PAIRWISE_RATING_RUBRIC,
-                    },
-                },
-            },
-            mock.ANY,
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        rbe = evaluation_preview.metrics.RubricBasedMetric(
+            generation_config=RubricGenerationConfig(
+                prompt_template="Generate rubrics for the given prompt: {prompt}",
+                model=mock_model,
+            ),
+            critique_metric=metric_prompt_template_examples_preview.MetricPromptTemplateExamples.Pointwise.COHERENCE,
+        )
+        dataset_with_rubrics = rbe.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
+        assert dataset_with_rubrics.equals(
+            _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS
         )
 
-    def test_upload_results_with_default_file_name(self, mock_storage_blob_from_string):
-        with mock.patch.object(
-            aiplatform_utils, "timestamped_unique_name"
-        ) as mock_timestamped_unique_name:
-            mock_timestamped_unique_name.return_value = "2025-02-10-12-00-00-12345"
-            evaluation.utils.upload_evaluation_results(
-                MOCK_EVAL_RESULT,
-                _TEST_BUCKET,
-            )
-
-        mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/eval_results_2025-02-10-12-00-00-12345/eval_results_2025-02-10-12-00-00-12345.csv",
-            client=mock.ANY,
+    def test_rubric_generation_skipped(self):
+        """Test rubric generation using RubricBasedMetric."""
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
         )
+        mock_model.generate_content.return_value = (
+            _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE
+        )
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        rbm = evaluation_preview.metrics.RubricBasedMetric(
+            generation_config=RubricGenerationConfig(
+                prompt_template="Generate rubrics for the given prompt: {prompt}",
+                model=mock_model,
+            ),
+            critique_metric=metric_prompt_template_examples_preview.MetricPromptTemplateExamples.Pointwise.COHERENCE,
+        )
+        _ = rbm.generate_rubrics(_EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS)
+        assert mock_model.generate_content.call_count == 0
+
+    def test_rubric_generation_default_parsing_fn(self):
+        """Test rubric generation using default parsing function."""
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = (
+            _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE
+        )
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        rbm = evaluation_preview.metrics.RubricBasedMetric(
+            generation_config=RubricGenerationConfig(
+                prompt_template="Generate rubrics for the given prompt: {prompt}",
+                model=mock_model,
+            ),
+            critique_metric=metric_prompt_template_examples_preview.MetricPromptTemplateExamples.Pointwise.COHERENCE,
+        )
+        dataset_with_rubrics = rbm.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
+        assert dataset_with_rubrics.equals(
+            _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS
+        )
+
+    def test_rubric_generation_parsing_str(self):
+        """Test rubric generation using parsing function that returns str."""
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = (
+            _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE
+        )
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+
+        def parsing_fn(response: str):
+            return ["test_rubric1", "test_rubric2"]
+
+        rbm = evaluation_preview.metrics.RubricBasedMetric(
+            generation_config=RubricGenerationConfig(
+                prompt_template="Generate rubrics for the given prompt: {prompt}",
+                model=mock_model,
+                parsing_fn=parsing_fn,
+            ),
+            critique_metric=metric_prompt_template_examples.MetricPromptTemplateExamples.Pointwise.COHERENCE,
+        )
+        dataset_with_rubrics = rbm.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
+        assert dataset_with_rubrics.equals(
+            _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS
+        )
+
+    def test_rubric_generation_parsing_additional_fields(self):
+        """Test rubric generation using default parsing function with additional fields."""
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = (
+            _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE_WITH_ADDITIONAL
+        )
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        rbm = evaluation_preview.metrics.RubricBasedMetric(
+            generation_config=RubricGenerationConfig(
+                prompt_template="Generate rubrics for the given prompt: {prompt}",
+                model=mock_model,
+            ),
+            critique_metric=metric_prompt_template_examples.MetricPromptTemplateExamples.Pointwise.COHERENCE,
+        )
+        dataset_with_rubrics = rbm.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
+        expected = _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS
+        expected["desc"] = ["test_desc", "test_desc", "test_desc"]
+        assert dataset_with_rubrics.equals(expected)

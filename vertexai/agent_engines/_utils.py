@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import dataclasses
 import inspect
 import json
 import sys
@@ -23,9 +24,11 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Mapping,
     Optional,
     Sequence,
+    Set,
     TypedDict,
     Union,
 )
@@ -62,9 +65,9 @@ except AttributeError:
 
 try:
     # sys.stdlib_module_names is available from Python 3.10 onwards.
-    _STDLIB_MODULE_NAMES: frozenset[str] = sys.stdlib_module_names
+    _STDLIB_MODULE_NAMES: frozenset = sys.stdlib_module_names
 except AttributeError:
-    _STDLIB_MODULE_NAMES: frozenset[str] = frozenset()
+    _STDLIB_MODULE_NAMES: frozenset = frozenset()
 
 try:
     _PACKAGE_DISTRIBUTIONS: Mapping[
@@ -73,16 +76,30 @@ try:
 except AttributeError:
     _PACKAGE_DISTRIBUTIONS: Mapping[str, Sequence[str]] = {}
 
+try:
+    from autogen.agentchat import chat
+
+    AutogenChatResult = chat.ChatResult
+except ImportError:
+    AutogenChatResult = Any
+
+try:
+    from autogen.io import run_response
+
+    AutogenRunResponse = run_response.RunResponse
+except ImportError:
+    AutogenRunResponse = Any
+
 JsonDict = Dict[str, Any]
 
 
 class _RequirementsValidationActions(TypedDict):
-    append: set[str]
+    append: Set[str]
 
 
 class _RequirementsValidationWarnings(TypedDict):
-    missing: set[str]
-    incompatible: set[str]
+    missing: Set[str]
+    incompatible: Set[str]
 
 
 class _RequirementsValidationResult(TypedDict):
@@ -92,8 +109,8 @@ class _RequirementsValidationResult(TypedDict):
 
 LOGGER = base.Logger("vertexai.agent_engines")
 
-_BASE_MODULES = set(sys.builtin_module_names + tuple(_STDLIB_MODULE_NAMES))
-_DEFAULT_REQUIRED_PACKAGES = frozenset(["cloudpickle"])
+_BASE_MODULES = set(_BUILTIN_MODULE_NAMES + tuple(_STDLIB_MODULE_NAMES))
+_DEFAULT_REQUIRED_PACKAGES = frozenset(["cloudpickle", "pydantic"])
 _ACTIONS_KEY = "actions"
 _ACTION_APPEND = "append"
 _WARNINGS_KEY = "warnings"
@@ -158,6 +175,124 @@ def to_dict(message: proto.Message) -> JsonDict:
             )
         )
     return result
+
+
+def _dataclass_to_dict_or_raise(obj: Any) -> JsonDict:
+    """Converts a dataclass to a JSON dictionary.
+
+    Args:
+        obj (Any):
+            Required. The dataclass to be converted to a JSON dictionary.
+
+    Returns:
+        dict[str, Any]: A dictionary containing the contents of the dataclass.
+
+    Raises:
+        TypeError: If the object is not a dataclass.
+    """
+    if not dataclasses.is_dataclass(obj):
+        raise TypeError(f"Object is not a dataclass: {obj}")
+    return json.loads(json.dumps(dataclasses.asdict(obj)))
+
+
+def _autogen_run_response_protocol_to_dict(
+    obj: AutogenRunResponse,
+) -> JsonDict:
+    """Converts an AutogenRunResponse object into a JSON-serializable dictionary.
+
+    This function takes a `RunResponseProtocol` object and transforms its
+    relevant attributes into a dictionary format suitable for JSON conversion.
+
+    The `RunResponseProtocol` defines the structure of the response object,
+    which typically includes:
+
+    *   **summary** (`Optional[str]`):
+        A textual summary of the run.
+    *   **messages** (`Iterable[Message]`):
+        A sequence of messages exchanged during the run.
+        Each message is expected to be a JSON-serializable dictionary (`Dict[str,
+        Any]`).
+    *   **events** (`Iterable[BaseEvent]`):
+        A sequence of events that occurred during the run.
+        Note: The `process()` method, if present, is called before conversion,
+        which typically clears this event queue.
+    *   **context_variables** (`Optional[dict[str, Any]]`):
+        A dictionary containing contextual variables from the run.
+    *   **last_speaker** (`Optional[Agent]`):
+        The agent that produced the last message.
+        The `Agent` object has attributes like `name` (Optional[str]) and
+        `description` (Optional[str]).
+    *   **cost** (`Optional[Cost]`):
+        Information about the computational cost of the run.
+        The `Cost` object inherits from `pydantic.BaseModel` and is converted
+        to JSON using its `model_dump_json()` method.
+    *   **process** (`Optional[Callable[[], None]]`):
+        An optional function (like a console event processor) that is called
+        before the conversion takes place.
+        Executing this method often clears the `events` queue.
+
+    For a detailed definition of `RunResponseProtocol` and its components, refer
+    to: https://github.com/ag2ai/ag2/blob/main/autogen/io/run_response.py
+
+    Args:
+        obj (AutogenRunResponse): The AutogenRunResponse object to convert. This
+            object must conform to the `RunResponseProtocol`.
+
+    Returns:
+        JsonDict: A dictionary representation of the AutogenRunResponse, ready
+            to be serialized into JSON. The dictionary includes keys like
+            'summary', 'messages', 'context_variables', 'last_speaker_name',
+            and 'cost'.
+    """
+    if hasattr(obj, "process"):
+        obj.process()
+
+    last_speaker = None
+    if getattr(obj, "last_speaker", None) is not None:
+        last_speaker = {
+            "name": getattr(obj.last_speaker, "name", None),
+            "description": getattr(obj.last_speaker, "description", None),
+        }
+
+    cost = None
+    if getattr(obj, "cost", None) is not None:
+        if hasattr(obj.cost, "model_dump_json"):
+            cost = json.loads(obj.cost.model_dump_json())
+        else:
+            cost = str(obj.cost)
+
+    result = {
+        "summary": getattr(obj, "summary", None),
+        "messages": list(getattr(obj, "messages", [])),
+        "context_variables": getattr(obj, "context_variables", None),
+        "last_speaker": last_speaker,
+        "cost": cost,
+    }
+    return json.loads(json.dumps(result))
+
+
+def to_json_serializable_autogen_object(
+    obj: Union[
+        AutogenChatResult,
+        AutogenRunResponse,
+    ]
+) -> JsonDict:
+    """Converts an Autogen object to a JSON serializable object.
+
+    In `ag2<=0.8.4`, `.run()` will return a `ChatResult` object.
+    In `ag2>=0.8.5`, `.run()` will return a `RunResponse` object.
+
+    Args:
+        obj (Union[AutogenChatResult, AutogenRunResponse]):
+            Required. The Autogen object to be converted to a JSON serializable
+            object.
+
+    Returns:
+        JsonDict: A JSON serializable object.
+    """
+    if isinstance(obj, AutogenChatResult):
+        return _dataclass_to_dict_or_raise(obj)
+    return _autogen_run_response_protocol_to_dict(obj)
 
 
 def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
@@ -225,7 +360,7 @@ def parse_constraints(
 
 def validate_requirements_or_warn(
     obj: Any,
-    requirements: list[str],
+    requirements: List[str],
 ) -> Mapping[str, str]:
     """Compiles the requirements into a list of requirements."""
     requirements = requirements.copy()
@@ -464,6 +599,14 @@ def generate_schema(
     return schema
 
 
+def is_noop_or_proxy_tracer_provider(tracer_provider) -> bool:
+    """Returns True if the tracer_provider is Proxy or NoOp."""
+    opentelemetry = _import_opentelemetry_or_warn()
+    ProxyTracerProvider = opentelemetry.trace.ProxyTracerProvider
+    NoOpTracerProvider = opentelemetry.trace.NoOpTracerProvider
+    return isinstance(tracer_provider, (NoOpTracerProvider, ProxyTracerProvider))
+
+
 def _import_cloud_storage_or_raise() -> types.ModuleType:
     """Tries to import the Cloud Storage module."""
     try:
@@ -526,3 +669,101 @@ def _import_packaging_version_or_raise() -> types.ModuleType:
             "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
     return version
+
+
+def _import_opentelemetry_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry module."""
+    try:
+        import opentelemetry  # noqa:F401
+
+        return opentelemetry
+    except ImportError:
+        LOGGER.warning(
+            "opentelemetry-sdk is not installed. Please call "
+            "'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
+def _import_opentelemetry_sdk_trace_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry.sdk.trace module."""
+    try:
+        import opentelemetry.sdk.trace  # noqa:F401
+
+        return opentelemetry.sdk.trace
+    except ImportError:
+        LOGGER.warning(
+            "opentelemetry-sdk is not installed. Please call "
+            "'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
+def _import_cloud_trace_v2_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the google.cloud.trace_v2 module."""
+    try:
+        import google.cloud.trace_v2
+
+        return google.cloud.trace_v2
+    except ImportError:
+        LOGGER.warning(
+            "google-cloud-trace is not installed. Please call "
+            "'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
+def _import_cloud_trace_exporter_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry.exporter.cloud_trace module."""
+    try:
+        import opentelemetry.exporter.cloud_trace  # noqa:F401
+
+        return opentelemetry.exporter.cloud_trace
+    except ImportError:
+        LOGGER.warning(
+            "opentelemetry-exporter-gcp-trace is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
+def _import_openinference_langchain_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.langchain module."""
+    try:
+        import openinference.instrumentation.langchain  # noqa:F401
+
+        return openinference.instrumentation.langchain
+    except ImportError:
+        LOGGER.warning(
+            "openinference-instrumentation-langchain is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[langchain]'."
+        )
+    return None
+
+
+def _import_openinference_autogen_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.autogen module."""
+    try:
+        import openinference.instrumentation.autogen  # noqa:F401
+
+        return openinference.instrumentation.autogen
+    except ImportError:
+        LOGGER.warning(
+            "openinference-instrumentation-autogen is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[ag2]'."
+        )
+    return None
+
+
+def _import_autogen_tools_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the autogen.tools module."""
+    try:
+        from autogen import tools
+
+        return tools
+    except ImportError:
+        LOGGER.warning(
+            "autogen.tools is not installed. Please "
+            "call `pip install google-cloud-aiplatform[ag2]`."
+        )
+    return None

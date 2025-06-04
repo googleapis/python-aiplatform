@@ -39,6 +39,7 @@ from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
+    example_store_service_client_v1beta1,
     extension_execution_service_client_v1beta1,
     extension_registry_service_client_v1beta1,
     feature_online_store_admin_service_client_v1beta1,
@@ -77,6 +78,7 @@ from google.cloud.aiplatform.compat.services import (
     feature_registry_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
+    gen_ai_cache_service_client_v1,
     index_service_client_v1,
     index_endpoint_service_client_v1,
     job_service_client_v1,
@@ -88,6 +90,7 @@ from google.cloud.aiplatform.compat.services import (
     prediction_service_async_client_v1,
     reasoning_engine_service_client_v1,
     reasoning_engine_execution_service_client_v1,
+    reasoning_engine_execution_async_client_v1,
     schedule_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
@@ -807,8 +810,7 @@ class GenAiCacheServiceClientWithOverride(ClientWithOverride):
     _version_map = (
         (
             compat.V1,
-            # TODO(b/342585299): Temporary code. Switch to v1 once v1 is available.
-            gen_ai_cache_service_client_v1beta1.GenAiCacheServiceClient,
+            gen_ai_cache_service_client_v1.GenAiCacheServiceClient,
         ),
         (
             compat.V1BETA1,
@@ -951,6 +953,17 @@ class PersistentResourceClientWithOverride(ClientWithOverride):
     )
 
 
+class ExampleStoreClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            example_store_service_client_v1beta1.ExampleStoreServiceClient,
+        ),
+    )
+
+
 class ReasoningEngineClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.V1BETA1
@@ -991,6 +1004,17 @@ class AgentEngineExecutionClientWithOverride(ClientWithOverride):
         (
             compat.V1,
             reasoning_engine_execution_service_client_v1.ReasoningEngineExecutionServiceClient,
+        ),
+    )
+
+
+class AgentEngineExecutionAsyncClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1
+    _version_map = (
+        (
+            compat.V1,
+            reasoning_engine_execution_async_client_v1.ReasoningEngineExecutionServiceAsyncClient,
         ),
     )
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
-
+import google.protobuf
 
 from google.protobuf import json_format
 from google.api_core import operations_v1
@@ -82,6 +82,9 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     rest_version=f"google-auth@{google.auth.__version__}",
 )
 
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
+
 
 class AsyncModelGardenServiceRestInterceptor:
     """Asynchronous Interceptor for ModelGardenService.
@@ -98,6 +101,22 @@ class AsyncModelGardenServiceRestInterceptor:
 
     .. code-block:: python
         class MyCustomModelGardenServiceInterceptor(ModelGardenServiceRestInterceptor):
+            async def pre_accept_publisher_model_eula(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_accept_publisher_model_eula(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            async def pre_check_publisher_model_eula_acceptance(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_check_publisher_model_eula_acceptance(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             async def pre_deploy(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -111,6 +130,14 @@ class AsyncModelGardenServiceRestInterceptor:
                 return request, metadata
 
             async def post_deploy_publisher_model(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            async def pre_export_publisher_model(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_export_publisher_model(self, response):
                 logging.log(f"Received response: {response}")
                 return response
 
@@ -135,6 +162,110 @@ class AsyncModelGardenServiceRestInterceptor:
 
 
     """
+
+    async def pre_accept_publisher_model_eula(
+        self,
+        request: model_garden_service.AcceptPublisherModelEulaRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_garden_service.AcceptPublisherModelEulaRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for accept_publisher_model_eula
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ModelGardenService server.
+        """
+        return request, metadata
+
+    async def post_accept_publisher_model_eula(
+        self, response: model_garden_service.PublisherModelEulaAcceptance
+    ) -> model_garden_service.PublisherModelEulaAcceptance:
+        """Post-rpc interceptor for accept_publisher_model_eula
+
+        DEPRECATED. Please use the `post_accept_publisher_model_eula_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the ModelGardenService server but before
+        it is returned to user code. This `post_accept_publisher_model_eula` interceptor runs
+        before the `post_accept_publisher_model_eula_with_metadata` interceptor.
+        """
+        return response
+
+    async def post_accept_publisher_model_eula_with_metadata(
+        self,
+        response: model_garden_service.PublisherModelEulaAcceptance,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_garden_service.PublisherModelEulaAcceptance,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for accept_publisher_model_eula
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelGardenService server but before it is returned to user code.
+
+        We recommend only using this `post_accept_publisher_model_eula_with_metadata`
+        interceptor in new development instead of the `post_accept_publisher_model_eula` interceptor.
+        When both interceptors are used, this `post_accept_publisher_model_eula_with_metadata` interceptor runs after the
+        `post_accept_publisher_model_eula` interceptor. The (possibly modified) response returned by
+        `post_accept_publisher_model_eula` will be passed to
+        `post_accept_publisher_model_eula_with_metadata`.
+        """
+        return response, metadata
+
+    async def pre_check_publisher_model_eula_acceptance(
+        self,
+        request: model_garden_service.CheckPublisherModelEulaAcceptanceRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_garden_service.CheckPublisherModelEulaAcceptanceRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for check_publisher_model_eula_acceptance
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ModelGardenService server.
+        """
+        return request, metadata
+
+    async def post_check_publisher_model_eula_acceptance(
+        self, response: model_garden_service.PublisherModelEulaAcceptance
+    ) -> model_garden_service.PublisherModelEulaAcceptance:
+        """Post-rpc interceptor for check_publisher_model_eula_acceptance
+
+        DEPRECATED. Please use the `post_check_publisher_model_eula_acceptance_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the ModelGardenService server but before
+        it is returned to user code. This `post_check_publisher_model_eula_acceptance` interceptor runs
+        before the `post_check_publisher_model_eula_acceptance_with_metadata` interceptor.
+        """
+        return response
+
+    async def post_check_publisher_model_eula_acceptance_with_metadata(
+        self,
+        response: model_garden_service.PublisherModelEulaAcceptance,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_garden_service.PublisherModelEulaAcceptance,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for check_publisher_model_eula_acceptance
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelGardenService server but before it is returned to user code.
+
+        We recommend only using this `post_check_publisher_model_eula_acceptance_with_metadata`
+        interceptor in new development instead of the `post_check_publisher_model_eula_acceptance` interceptor.
+        When both interceptors are used, this `post_check_publisher_model_eula_acceptance_with_metadata` interceptor runs after the
+        `post_check_publisher_model_eula_acceptance` interceptor. The (possibly modified) response returned by
+        `post_check_publisher_model_eula_acceptance` will be passed to
+        `post_check_publisher_model_eula_acceptance_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_deploy(
         self,
@@ -230,6 +361,55 @@ class AsyncModelGardenServiceRestInterceptor:
         `post_deploy_publisher_model` interceptor. The (possibly modified) response returned by
         `post_deploy_publisher_model` will be passed to
         `post_deploy_publisher_model_with_metadata`.
+        """
+        return response, metadata
+
+    async def pre_export_publisher_model(
+        self,
+        request: model_garden_service.ExportPublisherModelRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_garden_service.ExportPublisherModelRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for export_publisher_model
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ModelGardenService server.
+        """
+        return request, metadata
+
+    async def post_export_publisher_model(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for export_publisher_model
+
+        DEPRECATED. Please use the `post_export_publisher_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the ModelGardenService server but before
+        it is returned to user code. This `post_export_publisher_model` interceptor runs
+        before the `post_export_publisher_model_with_metadata` interceptor.
+        """
+        return response
+
+    async def post_export_publisher_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for export_publisher_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelGardenService server but before it is returned to user code.
+
+        We recommend only using this `post_export_publisher_model_with_metadata`
+        interceptor in new development instead of the `post_export_publisher_model` interceptor.
+        When both interceptors are used, this `post_export_publisher_model_with_metadata` interceptor runs after the
+        `post_export_publisher_model` interceptor. The (possibly modified) response returned by
+        `post_export_publisher_model` will be passed to
+        `post_export_publisher_model_with_metadata`.
         """
         return response, metadata
 
@@ -669,6 +849,21 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.export_publisher_model: self._wrap_method(
+                self.export_publisher_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.check_publisher_model_eula_acceptance: self._wrap_method(
+                self.check_publisher_model_eula_acceptance,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.accept_publisher_model_eula: self._wrap_method(
+                self.accept_publisher_model_eula,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: self._wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -725,6 +920,355 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
         if self._wrap_with_kind:  # pragma: NO COVER
             kwargs["kind"] = self.kind
         return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
+
+    class _AcceptPublisherModelEula(
+        _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula,
+        AsyncModelGardenServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("AsyncModelGardenServiceRestTransport.AcceptPublisherModelEula")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: model_garden_service.AcceptPublisherModelEulaRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> model_garden_service.PublisherModelEulaAcceptance:
+            r"""Call the accept publisher model
+            eula method over HTTP.
+
+                Args:
+                    request (~.model_garden_service.AcceptPublisherModelEulaRequest):
+                        The request object. Request message for
+                    [ModelGardenService.AcceptPublisherModelEula][google.cloud.aiplatform.v1beta1.ModelGardenService.AcceptPublisherModelEula].
+                    retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
+
+                Returns:
+                    ~.model_garden_service.PublisherModelEulaAcceptance:
+                        Response message for
+                    [ModelGardenService.UpdatePublisherModelEula][].
+
+            """
+
+            http_options = (
+                _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula._get_http_options()
+            )
+
+            request, metadata = await self._interceptor.pre_accept_publisher_model_eula(
+                request, metadata
+            )
+            transcoded_request = _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseModelGardenServiceRestTransport._BaseAcceptPublisherModelEula._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.AcceptPublisherModelEula",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "AcceptPublisherModelEula",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = await AsyncModelGardenServiceRestTransport._AcceptPublisherModelEula._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = model_garden_service.PublisherModelEulaAcceptance()
+            pb_resp = model_garden_service.PublisherModelEulaAcceptance.pb(resp)
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_accept_publisher_model_eula(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_accept_publisher_model_eula_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_garden_service.PublisherModelEulaAcceptance.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelGardenServiceAsyncClient.accept_publisher_model_eula",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "AcceptPublisherModelEula",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
+            return resp
+
+    class _CheckPublisherModelEulaAcceptance(
+        _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance,
+        AsyncModelGardenServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash(
+                "AsyncModelGardenServiceRestTransport.CheckPublisherModelEulaAcceptance"
+            )
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: model_garden_service.CheckPublisherModelEulaAcceptanceRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> model_garden_service.PublisherModelEulaAcceptance:
+            r"""Call the check publisher model
+            eula acceptance method over HTTP.
+
+                Args:
+                    request (~.model_garden_service.CheckPublisherModelEulaAcceptanceRequest):
+                        The request object. Request message for
+                    [ModelGardenService.CheckPublisherModelEula][].
+                    retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
+
+                Returns:
+                    ~.model_garden_service.PublisherModelEulaAcceptance:
+                        Response message for
+                    [ModelGardenService.UpdatePublisherModelEula][].
+
+            """
+
+            http_options = (
+                _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_http_options()
+            )
+
+            (
+                request,
+                metadata,
+            ) = await self._interceptor.pre_check_publisher_model_eula_acceptance(
+                request, metadata
+            )
+            transcoded_request = _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.CheckPublisherModelEulaAcceptance",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "CheckPublisherModelEulaAcceptance",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = await AsyncModelGardenServiceRestTransport._CheckPublisherModelEulaAcceptance._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = model_garden_service.PublisherModelEulaAcceptance()
+            pb_resp = model_garden_service.PublisherModelEulaAcceptance.pb(resp)
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_check_publisher_model_eula_acceptance(
+                resp
+            )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_check_publisher_model_eula_acceptance_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_garden_service.PublisherModelEulaAcceptance.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelGardenServiceAsyncClient.check_publisher_model_eula_acceptance",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "CheckPublisherModelEulaAcceptance",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
+            return resp
 
     class _Deploy(
         _BaseModelGardenServiceRestTransport._BaseDeploy,
@@ -1049,6 +1593,170 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     extra={
                         "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
                         "rpcName": "DeployPublisherModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
+            return resp
+
+    class _ExportPublisherModel(
+        _BaseModelGardenServiceRestTransport._BaseExportPublisherModel,
+        AsyncModelGardenServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("AsyncModelGardenServiceRestTransport.ExportPublisherModel")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: model_garden_service.ExportPublisherModelRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the export publisher model method over HTTP.
+
+            Args:
+                request (~.model_garden_service.ExportPublisherModelRequest):
+                    The request object. Request message for
+                [ModelGardenService.ExportPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.ExportPublisherModel].
+                retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseModelGardenServiceRestTransport._BaseExportPublisherModel._get_http_options()
+            )
+
+            request, metadata = await self._interceptor.pre_export_publisher_model(
+                request, metadata
+            )
+            transcoded_request = _BaseModelGardenServiceRestTransport._BaseExportPublisherModel._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseModelGardenServiceRestTransport._BaseExportPublisherModel._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseModelGardenServiceRestTransport._BaseExportPublisherModel._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.ExportPublisherModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "ExportPublisherModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = await AsyncModelGardenServiceRestTransport._ExportPublisherModel._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            pb_resp = resp
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_export_publisher_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_export_publisher_model_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelGardenServiceAsyncClient.export_publisher_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "ExportPublisherModel",
                         "metadata": http_response["headers"],
                         "httpResponse": http_response,
                     },
@@ -1545,6 +2253,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -1702,6 +2414,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1919,6 +2635,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -2096,6 +2816,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2337,6 +3061,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -2522,6 +3250,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2759,6 +3491,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -2944,6 +3680,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -3189,6 +3929,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -3369,6 +4113,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                     },
                     {
@@ -3458,6 +4206,24 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
         return self._operations_client
 
     @property
+    def accept_publisher_model_eula(
+        self,
+    ) -> Callable[
+        [model_garden_service.AcceptPublisherModelEulaRequest],
+        model_garden_service.PublisherModelEulaAcceptance,
+    ]:
+        return self._AcceptPublisherModelEula(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def check_publisher_model_eula_acceptance(
+        self,
+    ) -> Callable[
+        [model_garden_service.CheckPublisherModelEulaAcceptanceRequest],
+        model_garden_service.PublisherModelEulaAcceptance,
+    ]:
+        return self._CheckPublisherModelEulaAcceptance(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
     def deploy(
         self,
     ) -> Callable[[model_garden_service.DeployRequest], operations_pb2.Operation]:
@@ -3470,6 +4236,14 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
         [model_garden_service.DeployPublisherModelRequest], operations_pb2.Operation
     ]:
         return self._DeployPublisherModel(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def export_publisher_model(
+        self,
+    ) -> Callable[
+        [model_garden_service.ExportPublisherModelRequest], operations_pb2.Operation
+    ]:
+        return self._ExportPublisherModel(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def get_publisher_model(

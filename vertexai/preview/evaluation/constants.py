@@ -39,6 +39,7 @@ class Metric:
     QUESTION_ANSWERING_QUALITY = "question_answering_quality"
     MULTI_TURN_CHAT_QUALITY = "multi_turn_chat_quality"
     MULTI_TURN_SAFETY = "multi_turn_safety"
+    RUBRIC_BASED_INSTRUCTION_FOLLOWING = "rubric_based_instruction_following"
 
     # Model-based Pairwise Metrics.
     PAIRWISE_COHERENCE = "pairwise_coherence"
@@ -138,10 +139,14 @@ class MetricResult:
     ROW_COUNT_KEY = "row_count"
     SCORE_KEY = "score"
     EXPLANATION_KEY = "explanation"
+    CUSTOM_OUTPUT_KEY = "custom_output"
+    RAW_OUTPUT_KEY = "raw_output"
+    RAW_OUTPUTS_KEY = "raw_outputs"
     PAIRWISE_CHOICE_KEY = "pairwise_choice"
     IS_UNSAFE_KEY = "is_unsafe"
     IS_UNSAFE_PROBABILITY_KEY = "is_unsafe_probability"
     VIOLATED_POLICIES_KEY = "violated_policies"
+    RUBRIC_LEVEL_INSTRUCTION_FOLLOWING_KEY = "per_rubric_result"
 
     # Automatic Metrics.
     EXACT_MATCH_RESULTS = "exact_match_results"
@@ -160,6 +165,9 @@ class MetricResult:
 
     POINTWISE_METRIC_RESULT = "pointwise_metric_result"
     PAIRWISE_METRIC_RESULT = "pairwise_metric_result"
+    RUBRIC_BASED_INSTRUCTION_FOLLOWING_RESULT = (
+        "rubric_based_instruction_following_result"
+    )
 
     AUTOMATIC_METRIC_RESULTS_LIST = (
         EXACT_MATCH_RESULTS,
@@ -169,9 +177,6 @@ class MetricResult:
         TOOL_NAME_MATCH_RESULTS,
         TOOL_PARAMETER_KEY_MATCH_RESULTS,
         TOOL_PARAMETER_KV_MATCH_RESULTS,
-    )
-
-    TRAJECTORY_METRIC_RESULTS_LIST = (
         TRAJECTORY_EXACT_MATCH_RESULTS,
         TRAJECTORY_IN_ORDER_MATCH_RESULTS,
         TRAJECTORY_ANY_ORDER_MATCH_RESULTS,
@@ -190,18 +195,12 @@ class Dataset:
     REFERENCE_COLUMN = "reference"
     PREDICTED_TRAJECTORY_COLUMN = "predicted_trajectory"
     REFERENCE_TRAJECTORY_COLUMN = "reference_trajectory"
+    RUBRICS_COLUMN = "rubrics"
 
 
 @dataclasses.dataclass(frozen=True)
 class QuotaLimit:
-    """Generative AI on Vertex AI quota limits.
-
-    For more details about QPM quota by region for each available base model, see
-      https://cloud.google.com/vertex-ai/generative-ai/docs/quotas.
-    """
-
-    # Default Prediction Service QPS limit.
-    PREDICTION_SERVICE_QPS = 5
+    """Generative AI on Vertex AI quota limits."""
 
     # Default Evaluation Service QPS limit.
-    EVAL_SERVICE_QPS = 1
+    EVAL_SERVICE_QPS = 10

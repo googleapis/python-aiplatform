@@ -144,6 +144,21 @@ class Pinecone:
 
 
 @dataclasses.dataclass
+class VertexAiSearchConfig:
+    """VertexAiSearchConfig.
+
+    Attributes:
+        serving_config: The resource name of the Vertex AI Search serving config.
+            Format:
+                ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}``
+            or
+                ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}``
+    """
+
+    serving_config: Optional[str] = None
+
+
+@dataclasses.dataclass
 class RagVectorDbConfig:
     """RagVectorDbConfig.
 
@@ -172,6 +187,7 @@ class RagCorpus:
             ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}``
         display_name: Display name that was configured at client side.
         description: The description of the RagCorpus.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
         backend_config: The backend config of the RagCorpus. It can be a data
             store and/or retrieval engine.
     """
@@ -179,6 +195,7 @@ class RagCorpus:
     name: Optional[str] = None
     display_name: Optional[str] = None
     description: Optional[str] = None
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None
     backend_config: Optional[
         Union[
             RagVectorDbConfig,
@@ -333,16 +350,55 @@ class Filter:
 
 
 @dataclasses.dataclass
+class LlmRanker:
+    """LlmRanker.
+
+    Attributes:
+        model_name: The model name used for ranking. Only Gemini models are
+            supported for now.
+    """
+
+    model_name: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RankService:
+    """RankService.
+
+    Attributes:
+        model_name: The model name of the rank service. Format:
+            ``semantic-ranker-512@latest``
+    """
+
+    model_name: Optional[str] = None
+
+
+@dataclasses.dataclass
+class Ranking:
+    """Ranking.
+
+    Attributes:
+        rank_service: Config for Rank Service.
+        llm_ranker: Config for LlmRanker.
+    """
+
+    rank_service: Optional[RankService] = None
+    llm_ranker: Optional[LlmRanker] = None
+
+
+@dataclasses.dataclass
 class RagRetrievalConfig:
     """RagRetrievalConfig.
 
     Attributes:
         top_k: The number of contexts to retrieve.
         filter: Config for filters.
+        ranking: Config for ranking.
     """
 
     top_k: Optional[int] = None
     filter: Optional[Filter] = None
+    ranking: Optional[Ranking] = None
 
 
 @dataclasses.dataclass
@@ -367,3 +423,63 @@ class TransformationConfig:
     """
 
     chunking_config: Optional[ChunkingConfig] = None
+
+
+@dataclasses.dataclass
+class LayoutParserConfig:
+    """Configuration for the Document AI Layout Parser Processor.
+
+    Attributes:
+        processor_name: The full resource name of a Document AI processor or
+            processor version. The processor must have type
+            `LAYOUT_PARSER_PROCESSOR`.
+            Format must be one of the following:
+            -  `projects/{project_id}/locations/{location}/processors/{processor_id}`
+            -  `projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`
+        max_parsing_requests_per_min: The maximum number of requests the job is
+            allowed to make to the Document AI processor per minute. Consult
+            https://cloud.google.com/document-ai/quotas and the Quota page for
+            your project to set an appropriate value here. If unspecified, a
+            default value of 120 QPM will be used.
+    """
+
+    processor_name: str
+    max_parsing_requests_per_min: Optional[int] = None
+
+
+@dataclasses.dataclass
+class LlmParserConfig:
+    """Configuration for the Document AI Layout Parser Processor.
+
+    Attributes:
+        model_name (str):
+            The full resource name of a Vertex AI model. Format:
+            -  `projects/{project_id}/locations/{location}/publishers/google/models/{model_id}`
+            -  `projects/{project_id}/locations/{location}/models/{model_id}`
+        max_parsing_requests_per_min (int):
+            The maximum number of requests the job is allowed to make to the
+            Vertex AI model per minute. Consult
+            https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and
+            the Quota page for your project to set an appropriate value here.
+            If unspecified, a default value of 120 QPM will be used.
+        custom_parsing_prompt (str):
+            A custom prompt to use for parsing.
+    """
+
+    model_name: str
+    max_parsing_requests_per_min: Optional[int] = None
+    custom_parsing_prompt: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagCitedGenerationResponse:
+    """RagCitedGenerationResponse.
+
+    Attributes:
+        cited_text: The text with inline citations.
+        final_bibliography: List of all unique cited chunks, their URIs, and page
+          numbers (if applicable).
+    """
+
+    cited_text: str
+    final_bibliography: str

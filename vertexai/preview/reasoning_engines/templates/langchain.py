@@ -274,6 +274,8 @@ class LangchainAgent:
     for details.
     """
 
+    agent_framework = "langchain"
+
     def __init__(
         self,
         model: str,
@@ -567,6 +569,7 @@ class LangchainAgent:
 
         return LangchainAgent(
             model=self._model_name,
+            system_instruction=self._system_instruction,
             prompt=copy.deepcopy(self._prompt),
             tools=copy.deepcopy(self._tools),
             output_parser=copy.deepcopy(self._output_parser),

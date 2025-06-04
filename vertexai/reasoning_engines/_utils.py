@@ -37,6 +37,18 @@ try:
 except ImportError:
     RunnableConfig = Any
 
+try:
+    from llama_index.core.base.response import schema as llama_index_schema
+    from llama_index.core.base.llms import types as llama_index_types
+
+    LlamaIndexResponse = llama_index_schema.Response
+    LlamaIndexBaseModel = llama_index_schema.BaseModel
+    LlamaIndexChatResponse = llama_index_types.ChatResponse
+except ImportError:
+    LlamaIndexResponse = Any
+    LlamaIndexBaseModel = Any
+    LlamaIndexChatResponse = Any
+
 JsonDict = Dict[str, Any]
 
 _LOGGER = base.Logger(__name__)
@@ -102,6 +114,56 @@ def dataclass_to_dict(obj: dataclasses.dataclass) -> JsonDict:
         dict[str, Any]: A dictionary containing the contents of the dataclass.
     """
     return json.loads(json.dumps(dataclasses.asdict(obj)))
+
+
+def _llama_index_response_to_dict(obj: LlamaIndexResponse) -> Dict[str, Any]:
+    response = {}
+    if hasattr(obj, "response"):
+        response["response"] = obj.response
+    if hasattr(obj, "source_nodes"):
+        response["source_nodes"] = [node.model_dump_json() for node in obj.source_nodes]
+    if hasattr(obj, "metadata"):
+        response["metadata"] = obj.metadata
+
+    return json.loads(json.dumps(response))
+
+
+def _llama_index_chat_response_to_dict(
+    obj: LlamaIndexChatResponse,
+) -> Dict[str, Any]:
+    return json.loads(obj.message.model_dump_json())
+
+
+def _llama_index_base_model_to_dict(
+    obj: LlamaIndexBaseModel,
+) -> Dict[str, Any]:
+    return json.loads(obj.model_dump_json())
+
+
+def to_json_serializable_llama_index_object(
+    obj: Union[
+        LlamaIndexResponse,
+        LlamaIndexBaseModel,
+        LlamaIndexChatResponse,
+        Sequence[LlamaIndexBaseModel],
+    ]
+) -> Union[str, Dict[str, Any], Sequence[Union[str, Dict[str, Any]]]]:
+    """Converts a LlamaIndexResponse to a JSON serializable object."""
+    if isinstance(obj, LlamaIndexResponse):
+        return _llama_index_response_to_dict(obj)
+    if isinstance(obj, LlamaIndexChatResponse):
+        return _llama_index_chat_response_to_dict(obj)
+    if isinstance(obj, Sequence):
+        seq_result = []
+        for item in obj:
+            if isinstance(item, LlamaIndexBaseModel):
+                seq_result.append(_llama_index_base_model_to_dict(item))
+                continue
+            seq_result.append(str(item))
+        return seq_result
+    if isinstance(obj, LlamaIndexBaseModel):
+        return _llama_index_base_model_to_dict(obj)
+    return str(obj)
 
 
 def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
@@ -385,6 +447,20 @@ def _import_openinference_autogen_or_warn() -> Optional[types.ModuleType]:
     return None
 
 
+def _import_openinference_llama_index_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.llama_index module."""
+    try:
+        import openinference.instrumentation.llama_index  # noqa:F401
+
+        return openinference.instrumentation.llama_index
+    except ImportError:
+        _LOGGER.warning(
+            "openinference-instrumentation-llama_index is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[llama_index]'."
+        )
+    return None
+
+
 def _import_autogen_tools_or_warn() -> Optional[types.ModuleType]:
     """Tries to import the autogen.tools module."""
     try:
@@ -394,5 +470,18 @@ def _import_autogen_tools_or_warn() -> Optional[types.ModuleType]:
     except ImportError:
         _LOGGER.warning(
             "autogen.tools is not installed. Please call: `pip install ag2[tools]`"
+        )
+    return None
+
+
+def _import_nest_asyncio_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the nest_asyncio module."""
+    try:
+        import nest_asyncio
+
+        return nest_asyncio
+    except ImportError:
+        _LOGGER.warning(
+            "nest_asyncio is not installed. Please call: `pip install nest-asyncio`"
         )
     return None

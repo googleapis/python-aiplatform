@@ -116,6 +116,11 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         *,
         output_uri_prefix: Optional[str] = None,
         job_display_name: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        starting_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
     ) -> "BatchPredictionJob":
         """Submits a batch prediction job for a GenAI model.
 
@@ -142,6 +147,16 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
                 The user-defined name of the BatchPredictionJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+            machine_type (str):
+                The type of machine for running batch prediction job.
+            accelerator_type (str):
+                The type of accelerator for running batch prediction job.
+            accelerator_count (int):
+                The number of accelerators for running batch prediction job.
+            starting_replica_count (int):
+                The starting number of replica for running batch prediction job.
+            max_replica_count (int):
+                The maximum number of replica for running batch prediction job.
 
         Returns:
             Instantiated BatchPredictionJob.
@@ -219,6 +234,11 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
                 bigquery_source=bigquery_source,
                 gcs_destination_prefix=gcs_destination_prefix,
                 bigquery_destination_prefix=bigquery_destination_prefix,
+                machine_type=machine_type,
+                accelerator_type=accelerator_type,
+                accelerator_count=accelerator_count,
+                starting_replica_count=starting_replica_count,
+                max_replica_count=max_replica_count,
             )
             job = cls._empty_constructor()
             job._gca_resource = aiplatform_job._gca_resource
@@ -281,7 +301,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         if "/" not in model_name:
             # model name (e.g., gemini-1.0-pro)
             if model_name.startswith("gemini"):
-                model_name = "publishers/google/models/" + model_name
+                return "publishers/google/models/" + model_name
             else:
                 raise ValueError(
                     "Abbreviated model names are only supported for Gemini models. "
@@ -289,18 +309,20 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
                 )
         elif model_name.startswith("models/"):
             # publisher model name (e.g., models/gemini-1.0-pro)
-            model_name = "publishers/google/" + model_name
+            return "publishers/google/" + model_name
         elif (
-            # publisher model full name
-            not model_name.startswith("publishers/google/models/")
-            and not model_name.startswith("publishers/meta/models/")
-            and not model_name.startswith("publishers/anthropic/models/")
-            # tuned model full resource name
-            and not re.search(_GEMINI_TUNED_MODEL_PATTERN, model_name)
+            re.match(
+                r"^publishers/(?P<publisher>[^/]+)/models/(?P<model>[^@]+)@(?P<version>[^@]+)$",
+                model_name,
+            )
+            or model_name.startswith("publishers/google/models/")
+            or model_name.startswith("publishers/meta/models/")
+            or model_name.startswith("publishers/anthropic/models/")
+            or re.search(_GEMINI_TUNED_MODEL_PATTERN, model_name)
         ):
+            return model_name
+        else:
             raise ValueError(f"Invalid format for model name: {model_name}.")
-
-        return model_name
 
     @classmethod
     def _is_genai_model(cls, model_name: str) -> bool:
@@ -324,6 +346,13 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
 
         if re.search(_CLAUDE_MODEL_PATTERN, model_name):
             # Model is a claude model.
+            return True
+
+        if re.match(
+            r"^publishers/(?P<publisher>[^/]+)/models/(?P<model>[^@]+)@(?P<version>[^@]+)$",
+            model_name,
+        ):
+            # Model is a self-hosted model.
             return True
 
         return False

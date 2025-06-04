@@ -28,17 +28,20 @@ from google.cloud.aiplatform_v1beta1 import (
     DeleteRagCorpusRequest,
     DeleteRagFileRequest,
     GetRagCorpusRequest,
+    GetRagEngineConfigRequest,
     GetRagFileRequest,
     ImportRagFilesResponse,
     ListRagCorporaRequest,
     ListRagFilesRequest,
     RagCorpus as GapicRagCorpus,
     UpdateRagCorpusRequest,
+    UpdateRagEngineConfigRequest,
 )
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers import (
     ListRagCorporaPager,
     ListRagFilesPager,
 )
+from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.preview.rag.utils import (
     _gapic_utils,
 )
@@ -49,13 +52,15 @@ from vertexai.preview.rag.utils.resources import (
     LlmParserConfig,
     Pinecone,
     RagCorpus,
+    RagCorpusTypeConfig,
+    RagEngineConfig,
     RagFile,
     RagManagedDb,
     RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
-    VertexAiSearchConfig,
     TransformationConfig,
+    VertexAiSearchConfig,
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
@@ -65,12 +70,14 @@ from vertexai.preview.rag.utils.resources import (
 def create_corpus(
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    corpus_type_config: Optional[RagCorpusTypeConfig] = None,
     embedding_model_config: Optional[EmbeddingModelConfig] = None,
     vector_db: Optional[
         Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
     backend_config: Optional[RagVectorDbConfig] = None,
+    encryption_spec: Optional[EncryptionSpec] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -88,9 +95,10 @@ def create_corpus(
 
     Args:
         display_name: If not provided, SDK will create one. The display name of
-            the RagCorpus. The name can be up to 128 characters long and can
-            consist of any UTF-8 characters.
+            the RagCorpus. The name can be up to 128 characters long and can consist
+            of any UTF-8 characters.
         description: The description of the RagCorpus.
+        corpus_type_config: The corpus type config of the RagCorpus.
         embedding_model_config: The embedding model config.
             Note: Deprecated. Use backend_config instead.
         vector_db: The vector db config of the RagCorpus. If unspecified, the
@@ -101,6 +109,8 @@ def create_corpus(
             vertex_ai_search_config is specified.
         backend_config: The backend config of the RagCorpus. It can specify a
             Vector DB and/or the embedding model config.
+        encryption_spec: The encryption spec of the RagCorpus.
+
     Returns:
         RagCorpus.
     Raises:
@@ -112,6 +122,13 @@ def create_corpus(
     parent = initializer.global_config.common_location_path(project=None, location=None)
 
     rag_corpus = GapicRagCorpus(display_name=display_name, description=description)
+
+    if corpus_type_config:
+        _gapic_utils.set_corpus_type_config(
+            corpus_type_config=corpus_type_config,
+            rag_corpus=rag_corpus,
+        )
+
     if embedding_model_config:
         _gapic_utils.set_embedding_model_config(
             embedding_model_config=embedding_model_config,
@@ -150,6 +167,12 @@ def create_corpus(
     else:
         _gapic_utils.set_vector_db(
             vector_db=vector_db,
+            rag_corpus=rag_corpus,
+        )
+
+    if encryption_spec:
+        _gapic_utils.set_encryption_spec(
+            encryption_spec=encryption_spec,
             rag_corpus=rag_corpus,
         )
 
@@ -477,6 +500,7 @@ def import_files(
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
     llm_parser: Optional[LlmParserConfig] = None,
+    rebuild_ann_index: Optional[bool] = False,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -598,6 +622,13 @@ def import_files(
         llm_parser: Configuration for the LLM Parser to use for document parsing.
             Optional.
             If not None, the other parser configs must be None.
+        rebuild_ann_index: Rebuilds the ANN index to optimize for recall on the
+            imported data. Only applicable for RagCorpora running on
+            RagManagedDb with ``retrieval_strategy`` set to ``ANN``. The
+            rebuild will be performed using the existing ANN config set
+            on the RagCorpus. To change the ANN config, please use the
+            UpdateRagCorpus API. Optional.Default is false, i.e., index is not
+            rebuilt.
     Returns:
         ImportRagFilesResponse.
     """
@@ -619,6 +650,10 @@ def import_files(
         raise ValueError(
             "Only one of layout_parser or llm_parser may be passed in at a time"
         )
+
+    rebuild_ann_index_request = (
+        rebuild_ann_index if rebuild_ann_index is not None else False
+    )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -632,6 +667,7 @@ def import_files(
         partial_failures_sink=partial_failures_sink,
         layout_parser=layout_parser,
         llm_parser=llm_parser,
+        rebuild_ann_index=rebuild_ann_index_request,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -654,6 +690,7 @@ async def import_files_async(
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
     llm_parser: Optional[LlmParserConfig] = None,
+    rebuild_ann_index: Optional[bool] = False,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -775,6 +812,13 @@ async def import_files_async(
         llm_parser: Configuration for the LLM Parser to use for document parsing.
             Optional.
             If not None, the other parser configs must be None.
+        rebuild_ann_index: Rebuilds the ANN index to optimize for recall on the
+            imported data. Only applicable for RagCorpora running on
+            RagManagedDb with ``retrieval_strategy`` set to ``ANN``. The
+            rebuild will be performed using the existing ANN config set
+            on the RagCorpus. To change the ANN config, please use the
+            UpdateRagCorpus API. Optional.Default is false, i.e., index is not
+            rebuilt.
     Returns:
         operation_async.AsyncOperation.
     """
@@ -796,6 +840,9 @@ async def import_files_async(
         raise ValueError(
             "Only one of layout_parser or llm_parser may be passed in at a time"
         )
+    rebuild_ann_index_request = (
+        rebuild_ann_index if rebuild_ann_index is not None else False
+    )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -809,6 +856,7 @@ async def import_files_async(
         partial_failures_sink=partial_failures_sink,
         layout_parser=layout_parser,
         llm_parser=llm_parser,
+        rebuild_ann_index=rebuild_ann_index_request,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:
@@ -926,3 +974,73 @@ def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
     except Exception as e:
         raise RuntimeError("Failed in RagFile deletion due to: ", e) from e
     return None
+
+
+def update_rag_engine_config(
+    rag_engine_config: RagEngineConfig,
+) -> RagEngineConfig:
+    """Update RagEngineConfig.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai.preview import rag
+    vertexai.init(project="my-project")
+    rag_engine_config = rag.RagEngineConfig(
+        rag_managed_db_config=rag.RagManagedDbConfig(
+            rag_managed_db=rag.RagManagedDb(
+                db_basic_tier=rag.Basic(),
+            ),
+        )
+        ),
+    )
+    rag.update_rag_engine_config(rag_engine_config=rag_engine_config)
+    ```
+
+    Args:
+        rag_engine_config: The RagEngineConfig to update.
+
+    Raises:
+        RuntimeError: Failed in RagEngineConfig update due to exception.
+    """
+    gapic_rag_engine_config = _gapic_utils.convert_rag_engine_config_to_gapic(
+        rag_engine_config
+    )
+    request = UpdateRagEngineConfigRequest(
+        rag_engine_config=gapic_rag_engine_config,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.update_rag_engine_config(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in RagEngineConfig update due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_engine_config(response.result(timeout=600))
+
+
+def get_rag_engine_config(name: str) -> RagEngineConfig:
+    """Get an existing RagEngineConfig.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai.preview import rag
+    vertexai.init(project="my-project")
+    rag_engine_config = rag.get_rag_engine_config(
+        name="projects/my-project/locations/us-central1/ragEngineConfig"
+    )
+    ```
+    Args:
+        name: The RagEngineConfig resource name pattern of the singleton resource.
+
+    Returns:
+        RagEngineConfig.
+    Raises:
+        RuntimeError: Failed in getting the RagEngineConfig.
+    """
+    request = GetRagEngineConfigRequest(name=name)
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.get_rag_engine_config(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in getting the RagEngineConfig due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_engine_config(response)

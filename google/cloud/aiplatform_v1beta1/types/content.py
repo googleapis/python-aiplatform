@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import tool
+from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 from google.type import date_pb2  # type: ignore
 
 
@@ -72,7 +74,8 @@ class HarmCategory(proto.Enum):
             The harm category is sexually explicit
             content.
         HARM_CATEGORY_CIVIC_INTEGRITY (5):
-            The harm category is civic integrity.
+            Deprecated: Election filter is not longer
+            supported. The harm category is civic integrity.
     """
     HARM_CATEGORY_UNSPECIFIED = 0
     HARM_CATEGORY_HATE_SPEECH = 1
@@ -200,8 +203,11 @@ class Part(proto.Message):
 
             This field is a member of `oneof`_ ``metadata``.
         thought (bool):
-            Output only. Indicates if the part is thought
-            from the model.
+            Indicates if the part is thought from the
+            model.
+        thought_signature (bytes):
+            An opaque signature for the thought so it can
+            be reused in subsequent requests.
     """
 
     text: str = proto.Field(
@@ -254,6 +260,10 @@ class Part(proto.Message):
     thought: bool = proto.Field(
         proto.BOOL,
         number=10,
+    )
+    thought_signature: bytes = proto.Field(
+        proto.BYTES,
+        number=11,
     )
 
 
@@ -453,6 +463,49 @@ class GenerationConfig(proto.Message):
             response.
 
             This field is a member of `oneof`_ ``_response_schema``.
+        response_json_schema (google.protobuf.struct_pb2.Value):
+            Optional. Output schema of the generated response. This is
+            an alternative to ``response_schema`` that accepts `JSON
+            Schema <https://json-schema.org/>`__.
+
+            If set, ``response_schema`` must be omitted, but
+            ``response_mime_type`` is required.
+
+            While the full JSON Schema may be sent, not all features are
+            supported. Specifically, only the following properties are
+            supported:
+
+            -  ``$id``
+            -  ``$defs``
+            -  ``$ref``
+            -  ``$anchor``
+            -  ``type``
+            -  ``format``
+            -  ``title``
+            -  ``description``
+            -  ``enum`` (for strings and numbers)
+            -  ``items``
+            -  ``prefixItems``
+            -  ``minItems``
+            -  ``maxItems``
+            -  ``minimum``
+            -  ``maximum``
+            -  ``anyOf``
+            -  ``oneOf`` (interpreted the same as ``anyOf``)
+            -  ``properties``
+            -  ``additionalProperties``
+            -  ``required``
+
+            The non-standard ``propertyOrdering`` property may also be
+            set.
+
+            Cyclic references are unrolled to a limited degree and, as
+            such, may only be used within non-required properties.
+            (Nullable properties are not sufficient.) If ``$ref`` is set
+            on a sub-schema, no other properties, except for than those
+            starting as a ``$``, may be set.
+
+            This field is a member of `oneof`_ ``_response_json_schema``.
         routing_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig.RoutingConfig):
             Optional. Routing configuration.
 
@@ -473,6 +526,12 @@ class GenerationConfig(proto.Message):
             Optional. The speech generation config.
 
             This field is a member of `oneof`_ ``_speech_config``.
+        thinking_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig.ThinkingConfig):
+            Optional. Config for thinking features.
+            An error will be returned if this field is set
+            for models that don't support thinking.
+        model_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig.ModelConfig):
+            Optional. Config for model selection.
     """
 
     class Modality(proto.Enum):
@@ -609,6 +668,68 @@ class GenerationConfig(proto.Message):
             message="GenerationConfig.RoutingConfig.ManualRoutingMode",
         )
 
+    class ThinkingConfig(proto.Message):
+        r"""Config for thinking features.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            include_thoughts (bool):
+                Indicates whether to include thoughts in the
+                response. If true, thoughts are returned only
+                when available.
+
+                This field is a member of `oneof`_ ``_include_thoughts``.
+            thinking_budget (int):
+                Optional. Indicates the thinking budget in tokens. This is
+                only applied when enable_thinking is true.
+
+                This field is a member of `oneof`_ ``_thinking_budget``.
+        """
+
+        include_thoughts: bool = proto.Field(
+            proto.BOOL,
+            number=1,
+            optional=True,
+        )
+        thinking_budget: int = proto.Field(
+            proto.INT32,
+            number=3,
+            optional=True,
+        )
+
+    class ModelConfig(proto.Message):
+        r"""Config for model selection.
+
+        Attributes:
+            feature_selection_preference (google.cloud.aiplatform_v1beta1.types.GenerationConfig.ModelConfig.FeatureSelectionPreference):
+                Required. Feature selection preference.
+        """
+
+        class FeatureSelectionPreference(proto.Enum):
+            r"""Options for feature selection preference.
+
+            Values:
+                FEATURE_SELECTION_PREFERENCE_UNSPECIFIED (0):
+                    Unspecified feature selection preference.
+                PRIORITIZE_QUALITY (1):
+                    Prefer higher quality over lower cost.
+                BALANCED (2):
+                    Balanced feature selection preference.
+                PRIORITIZE_COST (3):
+                    Prefer lower cost over higher quality.
+            """
+            FEATURE_SELECTION_PREFERENCE_UNSPECIFIED = 0
+            PRIORITIZE_QUALITY = 1
+            BALANCED = 2
+            PRIORITIZE_COST = 3
+
+        feature_selection_preference: "GenerationConfig.ModelConfig.FeatureSelectionPreference" = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum="GenerationConfig.ModelConfig.FeatureSelectionPreference",
+        )
+
     temperature: float = proto.Field(
         proto.FLOAT,
         number=1,
@@ -673,6 +794,12 @@ class GenerationConfig(proto.Message):
         optional=True,
         message=openapi.Schema,
     )
+    response_json_schema: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=28,
+        optional=True,
+        message=struct_pb2.Value,
+    )
     routing_config: RoutingConfig = proto.Field(
         proto.MESSAGE,
         number=17,
@@ -700,6 +827,16 @@ class GenerationConfig(proto.Message):
         number=23,
         optional=True,
         message="SpeechConfig",
+    )
+    thinking_config: ThinkingConfig = proto.Field(
+        proto.MESSAGE,
+        number=25,
+        message=ThinkingConfig,
+    )
+    model_config: ModelConfig = proto.Field(
+        proto.MESSAGE,
+        number=27,
+        message=ModelConfig,
     )
 
 
@@ -1230,6 +1367,12 @@ class GroundingChunk(proto.Message):
         .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
+            rag_chunk (google.cloud.aiplatform_v1beta1.types.RagChunk):
+                Additional context for the RAG retrieval
+                result. This is only populated when using the
+                RAG retrieval tool.
+
+                This field is a member of `oneof`_ ``context_details``.
             uri (str):
                 URI reference of the attribution.
 
@@ -1244,6 +1387,12 @@ class GroundingChunk(proto.Message):
                 This field is a member of `oneof`_ ``_text``.
         """
 
+        rag_chunk: vertex_rag_data.RagChunk = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            oneof="context_details",
+            message=vertex_rag_data.RagChunk,
+        )
         uri: str = proto.Field(
             proto.STRING,
             number=1,

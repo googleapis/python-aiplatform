@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2023 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ PROJECT_ID = "ucaip-sample-tests"
 class TestJobSubmissionDashboard(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-job-submission-dashboard"
 
-    @pytest.mark.parametrize("cluster_ray_version", ["2.9", "2.33"])
+    @pytest.mark.parametrize("cluster_ray_version", ["2.9", "2.33", "2.42"])
     def test_job_submission_dashboard(self, cluster_ray_version):
         assert ray.__version__ == RAY_VERSION
         aiplatform.init(project=PROJECT_ID, location="us-central1")

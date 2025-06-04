@@ -139,6 +139,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         create_request_timeout: Optional[float] = None,
         required_replica_count: Optional[int] = 0,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -205,6 +206,9 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU
+                deployments. Required for multihost GPU deployments.
 
         Returns:
             DeploymentResourcePool
@@ -232,6 +236,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             create_request_timeout=create_request_timeout,
             required_replica_count=required_replica_count,
+            multihost_gpu_node_count=multihost_gpu_node_count,
         )
 
     @classmethod
@@ -254,6 +259,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         create_request_timeout: Optional[float] = None,
         required_replica_count: Optional[int] = 0,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -323,6 +329,9 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU
+                deployments. Required for multihost GPU deployments.
 
         Returns:
             DeploymentResourcePool
@@ -339,7 +348,8 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         )
 
         machine_spec = gca_machine_resources_compat.MachineSpec(
-            machine_type=machine_type
+            machine_type=machine_type,
+            multihost_gpu_node_count=multihost_gpu_node_count,
         )
 
         if autoscaling_target_cpu_utilization:
@@ -368,6 +378,9 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 dedicated_resources.autoscaling_metric_specs.extend(
                     [autoscaling_metric_spec]
                 )
+
+        if multihost_gpu_node_count:
+            machine_spec.multihost_gpu_node_count = multihost_gpu_node_count
 
         dedicated_resources.machine_spec = machine_spec
 
@@ -685,12 +698,14 @@ class Endpoint(aiplatform.Endpoint):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -764,6 +779,8 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_accelerator_duty_cycle (int): Target Accelerator Duty
               Cycle. Must also set accelerator_type and accelerator_count if
               specified. A default value of 60 will be used if not specified.
+            autoscaling_target_request_count_per_minute (int): Target request
+              count per minute per instance.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -789,7 +806,9 @@ class Endpoint(aiplatform.Endpoint):
                 rest of the replicas will be retried.
             rollout_options (RolloutOptions):
                 Optional. Options to configure a rolling deployment.
-
+            multihost_gpu_node_count (int): Optional. The number of nodes per
+              replica for multihost GPU deployments. Required for multihost GPU
+              deployments.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -826,12 +845,14 @@ class Endpoint(aiplatform.Endpoint):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
             rollout_options=rollout_options,
+            multihost_gpu_node_count=multihost_gpu_node_count,
         )
 
     @base.optional_sync()
@@ -853,12 +874,14 @@ class Endpoint(aiplatform.Endpoint):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -926,6 +949,8 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_accelerator_duty_cycle (int): Target Accelerator Duty
               Cycle. Must also set accelerator_type and accelerator_count if
               specified. A default value of 60 will be used if not specified.
+            autoscaling_target_request_count_per_minute (int): Target request
+              count per minute per instance.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -951,6 +976,10 @@ class Endpoint(aiplatform.Endpoint):
               rest of the replicas will be retried.
             rollout_options (RolloutOptions): Optional.
               Options to configure a rolling deployment.
+            multihost_gpu_node_count (int): Optional. The number of nodes per
+              replica for multihost GPU deployments. Required for multihost
+              GPU deployments.
+
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -976,12 +1005,14 @@ class Endpoint(aiplatform.Endpoint):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
             rollout_options=rollout_options,
+            multihost_gpu_node_count=multihost_gpu_node_count,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1010,12 +1041,14 @@ class Endpoint(aiplatform.Endpoint):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1090,6 +1123,8 @@ class Endpoint(aiplatform.Endpoint):
               Accelerator Duty Cycle. Must also set accelerator_type and
               accelerator_count if specified. A default value of 60 will be used if
               not specified.
+            autoscaling_target_request_count_per_minute (int): Optional. Target
+              request count per minute per instance.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -1115,6 +1150,9 @@ class Endpoint(aiplatform.Endpoint):
               rest of the replicas will be retried.
             rollout_options (RolloutOptions): Optional. Options to configure a
               rolling deployment.
+            multihost_gpu_node_count (int):
+              Optional. The number of nodes per replica for multihost GPU
+              deployments. Required for multihost GPU deployments.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is
@@ -1166,6 +1204,7 @@ class Endpoint(aiplatform.Endpoint):
                 or accelerator_type
                 or accelerator_count
                 or autoscaling_target_accelerator_duty_cycle
+                or autoscaling_target_request_count_per_minute
                 or autoscaling_target_cpu_utilization
             )
 
@@ -1178,9 +1217,11 @@ class Endpoint(aiplatform.Endpoint):
             if provided_custom_machine_spec and not use_dedicated_resources:
                 _LOGGER.info(
                     "Model does not support dedicated deployment resources. "
-                    "The machine_type, accelerator_type and accelerator_count,"
-                    "autoscaling_target_accelerator_duty_cycle,"
-                    "autoscaling_target_cpu_utilization parameters are ignored."
+                    "The machine_type, accelerator_type and accelerator_count, "
+                    "autoscaling_target_accelerator_duty_cycle, "
+                    "autoscaling_target_cpu_utilization, "
+                    "autoscaling_target_request_count_per_minute parameters "
+                    "are ignored."
                 )
 
             if use_dedicated_resources and not machine_type:
@@ -1195,7 +1236,8 @@ class Endpoint(aiplatform.Endpoint):
                 )
 
                 machine_spec = gca_machine_resources_compat.MachineSpec(
-                    machine_type=machine_type
+                    machine_type=machine_type,
+                    multihost_gpu_node_count=multihost_gpu_node_count,
                 )
 
                 if autoscaling_target_cpu_utilization:
@@ -1220,6 +1262,20 @@ class Endpoint(aiplatform.Endpoint):
                         dedicated_resources.autoscaling_metric_specs.extend(
                             [autoscaling_metric_spec]
                         )
+
+                if autoscaling_target_request_count_per_minute:
+                    autoscaling_metric_spec = (
+                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name=(
+                                "aiplatform.googleapis.com/prediction/online/"
+                                "request_count"
+                            ),
+                            target=autoscaling_target_request_count_per_minute,
+                        )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
 
                 dedicated_resources.machine_spec = machine_spec
 
@@ -1267,15 +1323,18 @@ class Endpoint(aiplatform.Endpoint):
                 or accelerator_count
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
+                or autoscaling_target_request_count_per_minute
             )
 
             if provided_custom_machine_spec:
                 raise ValueError(
                     "Conflicting parameters in deployment request. "
-                    "The machine_type, accelerator_type and accelerator_count,"
-                    "autoscaling_target_accelerator_duty_cycle,"
-                    "autoscaling_target_cpu_utilization parameters may not be set "
-                    "when `deployment_resource_pool` is specified."
+                    "The machine_type, accelerator_type and accelerator_count, "
+                    "autoscaling_target_accelerator_duty_cycle, "
+                    "autoscaling_target_cpu_utilization, "
+                    "autoscaling_target_request_count_per_minute parameters "
+                    "may not be set when `deployment_resource_pool` is "
+                    "specified."
                 )
 
             deployed_model.shared_resources = deployment_resource_pool.resource_name
@@ -1532,12 +1591,14 @@ class Model(aiplatform.Model):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1632,6 +1693,8 @@ class Model(aiplatform.Model):
               Accelerator Duty Cycle. Must also set accelerator_type and
               accelerator_count if specified. A default value of 60 will be used if
               not specified.
+            autoscaling_target_request_count_per_minute (int): Optional. Target
+              request count per minute per instance.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -1657,6 +1720,9 @@ class Model(aiplatform.Model):
                 rest of the replicas will be retried.
             rollout_options (RolloutOptions):
               Optional. Options to configure a rolling deployment.
+            multihost_gpu_node_count (int):
+              Optional. The number of nodes per replica for multihost GPU
+              deployments. Required for multihost GPU deployments.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1711,12 +1777,14 @@ class Model(aiplatform.Model):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
             rollout_options=rollout_options,
+            multihost_gpu_node_count=multihost_gpu_node_count,
         )
 
     def _should_enable_dedicated_endpoint(self, fast_tryout_enabled: bool) -> bool:
@@ -1747,12 +1815,14 @@ class Model(aiplatform.Model):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1839,6 +1909,8 @@ class Model(aiplatform.Model):
               Accelerator Duty Cycle. Must also set accelerator_type and
               accelerator_count if specified. A default value of 60 will be used if
               not specified.
+            autoscaling_target_request_count_per_minute (int): Optional. Target
+              request count per minute per instance.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -1863,7 +1935,9 @@ class Model(aiplatform.Model):
               rest of the replicas will be retried.
             rollout_options (RolloutOptions):
               Optional. Options to configure a rolling deployment.
-
+            multihost_gpu_node_count (int):
+              Optional. The number of nodes per replica for multihost GPU
+              deployments. Required for multihost GPU deployments.
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
                 Endpoint with the deployed model.
@@ -1923,11 +1997,13 @@ class Model(aiplatform.Model):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
+            multihost_gpu_node_count=multihost_gpu_node_count,
             **preview_kwargs,
         )
 

@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,21 +14,33 @@
 #
 """Classes and functions for working with agent engines."""
 
-from typing import Iterable, Optional, Sequence, Union
+from typing import Dict, Iterable, Optional, Sequence, Union
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aip_utils
-from google.cloud.aiplatform_v1.types import (
-    reasoning_engine_service as aip_types,
-)
+from google.cloud.aiplatform_v1 import types as aip_types
 
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
 from vertexai.agent_engines._agent_engines import (
+    AgentEngine,
+    Cloneable,
+    ModuleAgent,
     OperationRegistrable,
     Queryable,
-    AgentEngine,
+    AsyncQueryable,
+    StreamQueryable,
+    AsyncStreamQueryable,
+)
+from vertexai.agent_engines.templates.ag2 import (
+    AG2Agent,
+)
+from vertexai.agent_engines.templates.langchain import (
+    LangchainAgent,
+)
+from vertexai.agent_engines.templates.langgraph import (
+    LanggraphAgent,
 )
 
 
@@ -48,13 +60,16 @@ def get(resource_name: str) -> AgentEngine:
 
 
 def create(
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
     *,
     requirements: Optional[Union[str, Sequence[str]]] = None,
     display_name: Optional[str] = None,
     description: Optional[str] = None,
     gcs_dir_name: Optional[str] = None,
     extra_packages: Optional[Sequence[str]] = None,
+    env_vars: Optional[
+        Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+    ] = None,
 ) -> AgentEngine:
     """Creates a new Agent Engine.
 
@@ -110,6 +125,12 @@ def create(
             use for staging the artifacts needed.
         extra_packages (Sequence[str]):
             Optional. The set of extra user-provided packages (if any).
+        env_vars (Union[Sequence[str], Dict[str, Union[str, SecretRef]]]):
+            Optional. The environment variables to be set when running the
+            Agent Engine. If it is a list of strings, each string should be
+            a valid key to `os.environ`. If it is a dictionary, the keys are
+            the environment variable names, and the values are the
+            corresponding values.
 
     Returns:
         AgentEngine: The Agent Engine that was created.
@@ -131,6 +152,7 @@ def create(
         description=description,
         gcs_dir_name=gcs_dir_name,
         extra_packages=extra_packages,
+        env_vars=env_vars,
     )
 
 
@@ -166,20 +188,37 @@ def list(*, filter: str = "") -> Iterable[AgentEngine]:
         yield AgentEngine(agent.name)
 
 
-def delete(resource_name: str) -> None:
+def delete(
+    resource_name: str,
+    *,
+    force: bool = False,
+    **kwargs,
+) -> None:
     """Delete an Agent Engine resource.
 
     Args:
         resource_name (str):
             Required. The name of the Agent Engine to be deleted. Format:
             `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
+        force (bool):
+            Optional. If set to True, child resources will also be deleted.
+            Otherwise, the request will fail with FAILED_PRECONDITION error
+            when the Agent Engine has undeleted child resources. Defaults to
+            False.
+        **kwargs (dict[str, Any]):
+            Optional. Additional keyword arguments to pass to the
+            delete_reasoning_engine method.
     """
     api_client = initializer.global_config.create_client(
         client_class=aip_utils.AgentEngineClientWithOverride,
     )
     _LOGGER.info(f"Deleting AgentEngine resource: {resource_name}")
     operation_future = api_client.delete_reasoning_engine(
-        request=aip_types.DeleteReasoningEngineRequest(name=resource_name)
+        request=aip_types.DeleteReasoningEngineRequest(
+            name=resource_name,
+            force=force,
+            **(kwargs or {}),
+        )
     )
     _LOGGER.info(f"Delete AgentEngine backing LRO: {operation_future.operation.name}")
     operation_future.result()
@@ -195,6 +234,9 @@ def update(
     description: Optional[str] = None,
     gcs_dir_name: Optional[str] = None,
     extra_packages: Optional[Sequence[str]] = None,
+    env_vars: Optional[
+        Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+    ] = None,
 ) -> "AgentEngine":
     """Updates an existing Agent Engine.
 
@@ -232,6 +274,12 @@ def update(
             it is not specified, the existing extra packages will be used.
             If it is set to an empty list, the existing extra packages will
             be removed.
+        env_vars (Union[Sequence[str], Dict[str, Union[str, SecretRef]]]):
+            Optional. The environment variables to be set when running the
+            Agent Engine. If it is a list of strings, each string should be
+            a valid key to `os.environ`. If it is a dictionary, the keys are
+            the environment variable names, and the values are the
+            corresponding values.
 
     Returns:
         AgentEngine: The Agent Engine that was updated.
@@ -255,16 +303,29 @@ def update(
         description=description,
         gcs_dir_name=gcs_dir_name,
         extra_packages=extra_packages,
+        env_vars=env_vars,
     )
 
 
 __all__ = (
+    # Resources
     "AgentEngine",
+    # Protocols
+    "Cloneable",
     "OperationRegistrable",
     "Queryable",
+    "AsyncQueryable",
+    "StreamQueryable",
+    "AsyncStreamQueryable",
+    # Methods
     "create",
     "delete",
     "get",
     "list",
     "update",
+    # Templates
+    "ModuleAgent",
+    "LangchainAgent",
+    "LanggraphAgent",
+    "AG2Agent",
 )

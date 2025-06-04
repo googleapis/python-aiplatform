@@ -694,8 +694,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
         self.authorized_session = None
-        self.raw_predict_request_url = None
-        self.stream_raw_predict_request_url = None
 
     @property
     def _prediction_client(self) -> utils.PredictionClientWithOverride:
@@ -783,7 +781,37 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
     ) -> Optional[gca_service_networking.PrivateServiceConnectConfig]:
         """The Private Service Connect configuration for this Endpoint."""
         self._assert_gca_resource_is_available()
-        return self._gca_resource.private_service_connect_config
+        return getattr(self._gca_resource, "private_service_connect_config", None)
+
+    @property
+    def dedicated_endpoint_dns(self) -> Optional[str]:
+        """The dedicated endpoint dns for this Endpoint.
+
+        This property is only available if dedicated endpoint is enabled.
+        If dedicated endpoint is not enabled, this property returns None.
+        """
+        if re.match(r"^projects/.*/endpoints/.*$", self._gca_resource.name):
+            dedicated_endpoint_dns = getattr(
+                self._gca_resource, "dedicated_endpoint_dns", None
+            )
+            if self.dedicated_endpoint_enabled and not dedicated_endpoint_dns:
+                self._sync_gca_resource()
+                dedicated_endpoint_dns = getattr(
+                    self._gca_resource, "dedicated_endpoint_dns", None
+                )
+            return dedicated_endpoint_dns
+        return None
+
+    @property
+    def dedicated_endpoint_enabled(self) -> bool:
+        """The dedicated endpoint is enabled for this Endpoint.
+
+        This property will be true if dedicated endpoint is enabled.
+        """
+        if re.match(r"^projects/.*/endpoints/.*$", self._gca_resource.name):
+            self._assert_gca_resource_is_available()
+            return getattr(self._gca_resource, "dedicated_endpoint_enabled", False)
+        return False
 
     @classmethod
     def create(
@@ -1113,8 +1141,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             credentials=credentials,
         )
         endpoint.authorized_session = None
-        endpoint.raw_predict_request_url = None
-        endpoint.stream_raw_predict_request_url = None
 
         return endpoint
 
@@ -1734,6 +1760,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
@@ -1837,6 +1864,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            autoscaling_target_request_count_per_minute (int):
+                Optional. Target request count per minute per instance.
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
@@ -1906,15 +1935,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 or accelerator_count
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
+                or autoscaling_target_request_count_per_minute
             )
 
             if provided_custom_machine_spec:
                 raise ValueError(
                     "Conflicting parameters in deployment request. "
-                    "The machine_type, accelerator_type and accelerator_count,"
-                    "autoscaling_target_accelerator_duty_cycle,"
-                    "autoscaling_target_cpu_utilization parameters may not be set "
-                    "when `deployment_resource_pool` is specified."
+                    "The machine_type, accelerator_type and accelerator_count, "
+                    "autoscaling_target_accelerator_duty_cycle, "
+                    "autoscaling_target_cpu_utilization, "
+                    "autoscaling_target_request_count_per_minute parameters "
+                    "may not be set when `deployment_resource_pool` is "
+                    "specified."
                 )
 
             deployed_model.shared_resources = deployment_resource_pool.resource_name
@@ -1965,6 +1997,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 or accelerator_count
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
+                or autoscaling_target_request_count_per_minute
             )
 
             # If the model supports both automatic and dedicated deployment resources,
@@ -1976,9 +2009,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             if provided_custom_machine_spec and not use_dedicated_resources:
                 _LOGGER.info(
                     "Model does not support dedicated deployment resources. "
-                    "The machine_type, accelerator_type and accelerator_count,"
-                    "autoscaling_target_accelerator_duty_cycle,"
-                    "autoscaling_target_cpu_utilization parameters are ignored."
+                    "The machine_type, accelerator_type and accelerator_count, "
+                    "autoscaling_target_accelerator_duty_cycle, "
+                    "autoscaling_target_cpu_utilization, "
+                    "autoscaling_target_request_count_per_minute parameters "
+                    "are ignored."
                 )
 
             if use_dedicated_resources and not machine_type:
@@ -2019,6 +2054,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                         dedicated_resources.autoscaling_metric_specs.extend(
                             [autoscaling_metric_spec]
                         )
+
+                if autoscaling_target_request_count_per_minute:
+                    autoscaling_metric_spec = (
+                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name=(
+                                "aiplatform.googleapis.com/prediction/online/"
+                                "request_count"
+                            ),
+                            target=autoscaling_target_request_count_per_minute,
+                        )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
 
                 if reservation_affinity_type:
                     machine_spec.reservation_affinity = utils.get_reservation_affinity(
@@ -2315,10 +2364,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
     ) -> Prediction:
         """Make a prediction against this Endpoint.
 
-        For dedicated endpoint, set use_dedicated_endpoint = True:
+        Example usage:
             ```
-            response = my_endpoint.predict(instances=[...],
-                use_dedicated_endpoint=True)
+            response = my_endpoint.predict(instances=[...])
             my_predictions = response.predictions
             ```
 
@@ -2353,11 +2401,22 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         Returns:
             prediction (aiplatform.Prediction):
                 Prediction with returned predictions and Model ID.
+
+        Raises:
+            ImportError: If there is an issue importing the `TCPKeepAliveAdapter` package.
+            ValueError: If the dedicated endpoint DNS is empty for dedicated endpoints.
+            ValueError: If the prediction request fails for dedicated endpoints.
         """
         self.wait()
+
+        if parameters is not None:
+            data = json.dumps({"instances": instances, "parameters": parameters})
+        else:
+            data = json.dumps({"instances": instances})
+
         if use_raw_predict:
             raw_predict_response = self.raw_predict(
-                body=json.dumps({"instances": instances, "parameters": parameters}),
+                body=data,
                 headers={"Content-Type": "application/json"},
                 use_dedicated_endpoint=use_dedicated_endpoint,
                 timeout=timeout,
@@ -2377,52 +2436,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 ),
             )
 
-        if use_dedicated_endpoint:
-            self._sync_gca_resource_if_skipped()
-            if (
-                not self._gca_resource.dedicated_endpoint_enabled
-                or self._gca_resource.dedicated_endpoint_dns is None
-            ):
-                raise ValueError(
-                    "Dedicated endpoint is not enabled or DNS is empty."
-                    "Please make sure endpoint has dedicated endpoint enabled"
-                    "and model are ready before making a prediction."
-                )
-
-            if not self.authorized_session:
-                self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
-                self.authorized_session = google_auth_requests.AuthorizedSession(
-                    self.credentials
-                )
-
-            headers = {
-                "Content-Type": "application/json",
-            }
-
-            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
-            response = self.authorized_session.post(
-                url=url,
-                data=json.dumps(
-                    {
-                        "instances": instances,
-                        "parameters": parameters,
-                    }
-                ),
-                headers=headers,
-                timeout=timeout,
-            )
-
-            prediction_response = json.loads(response.text)
-
-            return Prediction(
-                predictions=prediction_response.get("predictions"),
-                metadata=prediction_response.get("metadata"),
-                deployed_model_id=prediction_response.get("deployedModelId"),
-                model_resource_name=prediction_response.get("model"),
-                model_version_id=prediction_response.get("modelVersionId"),
-            )
-
-        else:
+        if not self.dedicated_endpoint_enabled:
             prediction_response = self._prediction_client.predict(
                 endpoint=self._gca_resource.name,
                 instances=instances,
@@ -2444,6 +2458,58 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 model_version_id=prediction_response.model_version_id,
                 model_resource_name=prediction_response.model,
             )
+
+        if not self.dedicated_endpoint_dns:
+            raise ValueError(
+                "Dedicated endpoint DNS is empty. Please make sure endpoint"
+                "and model are ready before making a prediction."
+            )
+
+        if not self.authorized_session:
+            self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.authorized_session = google_auth_requests.AuthorizedSession(
+                self.credentials
+            )
+
+        if timeout is not None and timeout > google_auth_requests._DEFAULT_TIMEOUT:
+            try:
+                from requests_toolbelt.adapters.socket_options import (
+                    TCPKeepAliveAdapter,
+                )
+            except ImportError:
+                raise ImportError(
+                    "Cannot import the requests-toolbelt library."
+                    "Please install requests-toolbelt."
+                )
+            # count * interval need to be larger than 1 hr (3600s)
+            keep_alive = TCPKeepAliveAdapter(idle=120, count=100, interval=100)
+            self.authorized_session.mount("https://", keep_alive)
+
+        url = f"https://{self.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
+        headers = {
+            "Content-Type": "application/json",
+        }
+        response = self.authorized_session.post(
+            url=url,
+            data=data,
+            headers=headers,
+            timeout=timeout,
+        )
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Failed to make prediction request. Status code:"
+                f"{response.status_code}, response: {response.text}."
+            )
+        prediction_response = json.loads(response.text)
+
+        return Prediction(
+            predictions=prediction_response.get("predictions"),
+            metadata=prediction_response.get("metadata"),
+            deployed_model_id=prediction_response.get("deployedModelId"),
+            model_resource_name=prediction_response.get("model"),
+            model_version_id=prediction_response.get("modelVersionId"),
+        )
 
     async def predict_async(
         self,
@@ -2525,12 +2591,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
                 headers = {'Content-Type':'application/json'}
             )
-            # For dedicated endpoint:
-            response = my_endpoint.raw_predict(
-                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}',
-                headers = {'Content-Type':'application/json'},
-                dedicated_endpoint=True,
-            )
             status_code = response.status_code
             results = json.dumps(response.text)
 
@@ -2546,6 +2606,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
         Returns:
             A requests.models.Response object containing the status code and prediction results.
+
+        Raises:
+            ImportError: If there is an issue importing the `TCPKeepAliveAdapter` package.
         """
         if not self.authorized_session:
             self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
@@ -2553,23 +2616,30 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 self.credentials
             )
 
-        if self.raw_predict_request_url is None:
-            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
-
-        url = self.raw_predict_request_url
-
-        if use_dedicated_endpoint:
-            self._sync_gca_resource_if_skipped()
-            if (
-                not self._gca_resource.dedicated_endpoint_enabled
-                or self._gca_resource.dedicated_endpoint_dns is None
-            ):
+        if self.dedicated_endpoint_enabled:
+            if not self.dedicated_endpoint_dns:
                 raise ValueError(
-                    "Dedicated endpoint is not enabled or DNS is empty."
-                    "Please make sure endpoint has dedicated endpoint enabled"
+                    "Dedicated endpoint DNS is empty. Please make sure endpoint"
                     "and model are ready before making a prediction."
                 )
-            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:rawPredict"
+            url = f"https://{self.dedicated_endpoint_dns}/v1/{self.resource_name}:rawPredict"
+
+            if timeout is not None and timeout > google_auth_requests._DEFAULT_TIMEOUT:
+                try:
+                    from requests_toolbelt.adapters.socket_options import (
+                        TCPKeepAliveAdapter,
+                    )
+                except ImportError:
+                    raise ImportError(
+                        "Cannot import the requests-toolbelt library."
+                        "Please install requests-toolbelt."
+                    )
+                # count * interval need to be larger than 1 hr (3600s)
+                keep_alive = TCPKeepAliveAdapter(idle=120, count=100, interval=100)
+                self.authorized_session.mount("https://", keep_alive)
+        else:
+            url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
+
         return self.authorized_session.post(
             url=url, data=body, headers=headers, timeout=timeout
         )
@@ -2591,18 +2661,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             for stream_response in my_endpoint.stream_raw_predict(
                 body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
                 headers = {'Content-Type':'application/json'}
-            ):
-                status_code = response.status_code
-                stream_result = json.dumps(response.text)
-            ```
-
-            For dedicated endpoint:
-            ```
-            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
-            for stream_response in my_endpoint.stream_raw_predict(
-                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}',
-                headers = {'Content-Type':'application/json'},
-                use_dedicated_endpoint=True,
             ):
                 status_code = response.status_code
                 stream_result = json.dumps(response.text)
@@ -2630,23 +2688,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 self.credentials
             )
 
-        if self.stream_raw_predict_request_url is None:
-            self.stream_raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:streamRawPredict"
-
-        url = self.stream_raw_predict_request_url
-
-        if use_dedicated_endpoint:
-            self._sync_gca_resource_if_skipped()
-            if (
-                not self._gca_resource.dedicated_endpoint_enabled
-                or self._gca_resource.dedicated_endpoint_dns is None
-            ):
+        if self.dedicated_endpoint_enabled:
+            if not self.dedicated_endpoint_dns:
                 raise ValueError(
-                    "Dedicated endpoint is not enabled or DNS is empty."
-                    "Please make sure endpoint has dedicated endpoint enabled"
+                    "Dedicated endpoint DNS is empty. Please make sure endpoint"
                     "and model are ready before making a prediction."
                 )
-            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:streamRawPredict"
+            url = f"https://{self.dedicated_endpoint_dns}/v1/{self.resource_name}:streamRawPredict"
+        else:
+            url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:streamRawPredict"
 
         with self.authorized_session.post(
             url=url,
@@ -3280,6 +3330,7 @@ class PrivateEndpoint(Endpoint):
             )
 
         self._http_client = urllib3.PoolManager(cert_reqs="CERT_NONE")
+        self._authorized_session = None
 
     @property
     def predict_http_uri(self) -> Optional[str]:
@@ -3552,6 +3603,7 @@ class PrivateEndpoint(Endpoint):
         )
 
         endpoint._http_client = urllib3.PoolManager(cert_reqs="CERT_NONE")
+        endpoint._authorized_session = None
 
         return endpoint
 
@@ -3724,24 +3776,31 @@ class PrivateEndpoint(Endpoint):
                     "address or DNS."
                 )
 
-            if not self.credentials.valid:
-                self.credentials.refresh(google_auth_requests.Request())
+            if not self._authorized_session:
+                self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+                self._authorized_session = google_auth_requests.AuthorizedSession(
+                    self.credentials,
+                )
+                self._authorized_session.verify = False
 
-            token = self.credentials.token
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-            }
+            if parameters:
+                data = json.dumps({"instances": instances, "parameters": parameters})
+            else:
+                data = json.dumps({"instances": instances})
 
             url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:predict"
-            response = self._http_request(
-                method="POST",
+            response = self._authorized_session.post(
                 url=url,
-                body=json.dumps({"instances": instances, "parameters": parameters}),
-                headers=headers,
+                data=data,
+                headers={"Content-Type": "application/json"},
             )
 
-            prediction_response = json.loads(response.data)
+            if response.status_code != 200:
+                raise ValueError(
+                    f"Failed to make prediction request. Status code:"
+                    f"{response.status_code}, response: {response.text}."
+                )
+            prediction_response = json.loads(response.text)
 
             return Prediction(
                 predictions=prediction_response.get("predictions"),
@@ -3821,19 +3880,19 @@ class PrivateEndpoint(Endpoint):
                     "Invalid endpoint override provided. Please only use IP"
                     "address or DNS."
                 )
-            if not self.credentials.valid:
-                self.credentials.refresh(google_auth_requests.Request())
 
-            token = self.credentials.token
-            headers_with_token = dict(headers)
-            headers_with_token["Authorization"] = f"Bearer {token}"
+            if not self._authorized_session:
+                self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+                self._authorized_session = google_auth_requests.AuthorizedSession(
+                    self.credentials,
+                )
+                self._authorized_session.verify = False
 
             url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
-            return self._http_request(
-                method="POST",
+            return self._authorized_session.post(
                 url=url,
                 body=body,
-                headers=headers_with_token,
+                headers=headers,
             )
 
     def stream_raw_predict(
@@ -3901,24 +3960,19 @@ class PrivateEndpoint(Endpoint):
                     "Invalid endpoint override provided. Please only use IP"
                     "address or DNS."
                 )
-            if not self.credentials.valid:
-                self.credentials.refresh(google_auth_requests.Request())
 
-            token = self.credentials.token
-            headers_with_token = dict(headers)
-            headers_with_token["Authorization"] = f"Bearer {token}"
-
-            if not self.authorized_session:
+            if not self._authorized_session:
                 self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
-                self.authorized_session = google_auth_requests.AuthorizedSession(
-                    self.credentials
+                self._authorized_session = google_auth_requests.AuthorizedSession(
+                    self.credentials,
                 )
+                self._authorized_session.verify = False
 
             url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:streamRawPredict"
-            with self.authorized_session.post(
+            with self._authorized_session.post(
                 url=url,
                 data=body,
-                headers=headers_with_token,
+                headers=headers,
                 stream=True,
                 verify=False,
             ) as resp:
@@ -4816,6 +4870,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         serving_container_health_probe_period_seconds: Optional[int] = None,
         serving_container_health_probe_timeout_seconds: Optional[int] = None,
         model_garden_source_model_name: Optional[str] = None,
+        model_garden_source_model_version_id: Optional[str] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -5031,7 +5086,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             model_garden_source_model_name:
                 Optional. The model garden source model resource name if the
                 model is from Vertex Model Garden.
-
+            model_garden_source_model_version_id:
+                Optional. The model garden source model version id if the
+                model is from Vertex Model Garden.
 
         Returns:
             model (aiplatform.Model):
@@ -5162,11 +5219,19 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
         base_model_source = None
         if model_garden_source_model_name:
-            base_model_source = gca_model_compat.Model.BaseModelSource(
-                model_garden_source=gca_model_compat.ModelGardenSource(
-                    public_model_name=model_garden_source_model_name
+            if model_garden_source_model_version_id:
+                base_model_source = gca_model_compat.Model.BaseModelSource(
+                    model_garden_source=gca_model_compat.ModelGardenSource(
+                        public_model_name=model_garden_source_model_name,
+                        version_id=model_garden_source_model_version_id,
+                    )
                 )
-            )
+            else:
+                base_model_source = gca_model_compat.Model.BaseModelSource(
+                    model_garden_source=gca_model_compat.ModelGardenSource(
+                        public_model_name=model_garden_source_model_name,
+                    )
+                )
 
         managed_model = gca_model_compat.Model(
             display_name=display_name,

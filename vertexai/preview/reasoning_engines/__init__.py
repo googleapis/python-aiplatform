@@ -20,6 +20,9 @@ from vertexai.reasoning_engines._reasoning_engines import (
     Queryable,
     ReasoningEngine,
 )
+from vertexai.preview.reasoning_engines.templates.adk import (
+    AdkApp,
+)
 from vertexai.preview.reasoning_engines.templates.ag2 import (
     AG2Agent,
 )
@@ -29,11 +32,16 @@ from vertexai.preview.reasoning_engines.templates.langchain import (
 from vertexai.preview.reasoning_engines.templates.langgraph import (
     LanggraphAgent,
 )
+from vertexai.preview.reasoning_engines.templates.llama_index import (
+    LlamaIndexQueryPipelineAgent,
+)
 
 __all__ = (
+    "AdkApp",
     "AG2Agent",
     "LangchainAgent",
     "LanggraphAgent",
+    "LlamaIndexQueryPipelineAgent",
     "Queryable",
     "ReasoningEngine",
 )

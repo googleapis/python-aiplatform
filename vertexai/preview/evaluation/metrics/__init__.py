@@ -22,6 +22,9 @@ from vertexai.preview.evaluation.metrics import (
     _trajectory_single_tool_use,
 )
 from vertexai.preview.evaluation.metrics import (
+    custom_output_config,
+)
+from vertexai.preview.evaluation.metrics import (
     metric_prompt_template,
 )
 from vertexai.preview.evaluation.metrics import (
@@ -29,6 +32,12 @@ from vertexai.preview.evaluation.metrics import (
 )
 from vertexai.preview.evaluation.metrics import pairwise_metric
 from vertexai.preview.evaluation.metrics import pointwise_metric
+from vertexai.preview.evaluation.metrics import (
+    predefined_rubric_metrics,
+)
+from vertexai.preview.evaluation.metrics import (
+    rubric_based_metric,
+)
 
 
 PairwiseMetric = pairwise_metric.PairwiseMetric
@@ -41,6 +50,10 @@ MetricPromptTemplateExamples = (
 )
 Rouge = _rouge.Rouge
 TrajectorySingleToolUse = _trajectory_single_tool_use.TrajectorySingleToolUse
+CustomOutputConfig = custom_output_config.CustomOutputConfig
+RubricBasedMetric = rubric_based_metric.RubricBasedMetric
+RubricGenerationConfig = _base.RubricGenerationConfig
+PredefinedRubricMetrics = predefined_rubric_metrics.PredefinedRubricMetrics
 
 
 __all__ = [
@@ -52,4 +65,8 @@ __all__ = [
     "MetricPromptTemplateExamples",
     "Rouge",
     "TrajectorySingleToolUse",
+    "CustomOutputConfig",
+    "RubricBasedMetric",
+    "RubricGenerationConfig",
+    "PredefinedRubricMetrics",
 ]

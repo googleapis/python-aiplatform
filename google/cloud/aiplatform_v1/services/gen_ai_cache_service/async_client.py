@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ from google.api_core import gapic_v1
 from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 
 try:
@@ -48,6 +49,7 @@ from google.cloud.aiplatform_v1.services.gen_ai_cache_service import pagers
 from google.cloud.aiplatform_v1.types import cached_content
 from google.cloud.aiplatform_v1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1.types import content
+from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import gen_ai_cache_service
 from google.cloud.aiplatform_v1.types import tool
 from google.cloud.location import locations_pb2  # type: ignore
@@ -1606,6 +1608,9 @@ class GenAiCacheServiceAsyncClient:
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 __all__ = ("GenAiCacheServiceAsyncClient",)

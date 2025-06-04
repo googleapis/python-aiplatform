@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -7090,6 +7090,7 @@ def test_create_endpoint_rest_call_success(request_type):
                     "available_replica_count": 2408,
                 },
                 "system_labels": {},
+                "checkpoint_id": "checkpoint_id_value",
                 "speculative_decoding_spec": {
                     "draft_model_speculation": {"draft_model": "draft_model_value"},
                     "ngram_speculation": {"ngram_size": 1071},
@@ -7703,6 +7704,7 @@ def test_update_endpoint_rest_call_success(request_type):
                     "available_replica_count": 2408,
                 },
                 "system_labels": {},
+                "checkpoint_id": "checkpoint_id_value",
                 "speculative_decoding_spec": {
                     "draft_model_speculation": {"draft_model": "draft_model_value"},
                     "ngram_speculation": {"ngram_size": 1071},
@@ -9531,6 +9533,7 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                     "available_replica_count": 2408,
                 },
                 "system_labels": {},
+                "checkpoint_id": "checkpoint_id_value",
                 "speculative_decoding_spec": {
                     "draft_model_speculation": {"draft_model": "draft_model_value"},
                     "ngram_speculation": {"ngram_size": 1071},
@@ -10195,6 +10198,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                     "available_replica_count": 2408,
                 },
                 "system_labels": {},
+                "checkpoint_id": "checkpoint_id_value",
                 "speculative_decoding_spec": {
                     "draft_model_speculation": {"draft_model": "draft_model_value"},
                     "ngram_speculation": {"ngram_size": 1071},

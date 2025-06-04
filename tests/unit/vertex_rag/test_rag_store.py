@@ -55,6 +55,17 @@ class TestRagStoreValidations:
             )
             e.match("rag_resources must be specified.")
 
+    def test_retrieval_tool_ranking_config_success(self):
+        tool = Tool.from_retrieval(
+            retrieval=rag.Retrieval(
+                source=rag.VertexRagStore(
+                    rag_resources=[tc.TEST_RAG_RESOURCE],
+                    rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_RANKING_CONFIG,
+                ),
+            )
+        )
+        assert tool is not None
+
     def test_retrieval_tool_invalid_name(self):
         with pytest.raises(ValueError) as e:
             Tool.from_retrieval(
@@ -93,4 +104,19 @@ class TestRagStoreValidations:
                 "Only one of vector_distance_threshold or"
                 " vector_similarity_threshold can be specified at a time"
                 " in rag_retrieval_config."
+            )
+
+    def test_retrieval_tool_invalid_ranking_config_filter(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_resources=[tc.TEST_RAG_RESOURCE],
+                        rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_ERROR_RANKING_CONFIG,
+                    )
+                )
+            )
+            e.match(
+                "Only one of rank_service or llm_ranker can be specified"
+                " at a time in rag_retrieval_config."
             )

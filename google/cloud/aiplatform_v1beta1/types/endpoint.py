@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ __protobuf__ = proto.module(
         "DeployedModel",
         "PrivateEndpoints",
         "PredictRequestResponseLoggingConfig",
+        "PublisherModelConfig",
         "ClientConnectionConfig",
         "FasterDeploymentConfig",
         "RolloutOptions",
@@ -387,6 +388,8 @@ class DeployedModel(proto.Message):
             System labels to apply to Model Garden
             deployments. System labels are managed by Google
             for internal use only.
+        checkpoint_id (str):
+            The checkpoint id of the model.
     """
 
     class Status(proto.Message):
@@ -502,6 +505,10 @@ class DeployedModel(proto.Message):
         proto.STRING,
         number=28,
     )
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=29,
+    )
 
 
 class PrivateEndpoints(proto.Message):
@@ -562,6 +569,16 @@ class PredictRequestResponseLoggingConfig(proto.Message):
             characters will become underscores). If no table name is
             given, a new table will be created with name
             ``request_response_logging``
+        request_response_logging_schema_version (str):
+            Output only. The schema version used in
+            creating the BigQuery table for the request
+            response logging. The versions are "v1" and
+            "v2". The current default version is "v1".
+        enable_otel_logging (bool):
+            This field is used for large models. If true, in addition to
+            the original large model logs, logs will be converted in
+            OTel schema format, and saved in otel_log column. Default
+            value is false.
     """
 
     enabled: bool = proto.Field(
@@ -576,6 +593,30 @@ class PredictRequestResponseLoggingConfig(proto.Message):
         proto.MESSAGE,
         number=3,
         message=io.BigQueryDestination,
+    )
+    request_response_logging_schema_version: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    enable_otel_logging: bool = proto.Field(
+        proto.BOOL,
+        number=6,
+    )
+
+
+class PublisherModelConfig(proto.Message):
+    r"""This message contains configs of a publisher model.
+
+    Attributes:
+        logging_config (google.cloud.aiplatform_v1beta1.types.PredictRequestResponseLoggingConfig):
+            The prediction request/response logging
+            config.
+    """
+
+    logging_config: "PredictRequestResponseLoggingConfig" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="PredictRequestResponseLoggingConfig",
     )
 
 

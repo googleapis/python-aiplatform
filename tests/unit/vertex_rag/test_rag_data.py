@@ -86,6 +86,57 @@ def create_rag_corpus_mock_pinecone():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_vertex_ai_engine_search_config():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_vertex_ai_engine_search_config:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants.TEST_GAPIC_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG
+        )
+        create_rag_corpus_mock_vertex_ai_engine_search_config.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_vertex_ai_engine_search_config
+
+
+@pytest.fixture
+def create_rag_corpus_mock_vertex_ai_datastore_search_config():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_vertex_ai_datastore_search_config:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants.TEST_GAPIC_RAG_CORPUS_VERTEX_AI_DATASTORE_SEARCH_CONFIG
+        )
+        create_rag_corpus_mock_vertex_ai_datastore_search_config.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_vertex_ai_datastore_search_config
+
+
+@pytest.fixture
+def update_rag_corpus_mock_vertex_ai_engine_search_config():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_corpus",
+    ) as update_rag_corpus_mock_vertex_ai_engine_search_config:
+        update_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_corpus_lro_mock.done.return_value = True
+        update_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants.TEST_GAPIC_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG
+        )
+        update_rag_corpus_mock_vertex_ai_engine_search_config.return_value = (
+            update_rag_corpus_lro_mock
+        )
+        yield update_rag_corpus_mock_vertex_ai_engine_search_config
+
+
+@pytest.fixture
 def update_rag_corpus_mock_vertex_vector_search():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -247,6 +298,9 @@ def rag_corpus_eq(returned_corpus, expected_corpus):
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
     assert returned_corpus.backend_config.__eq__(expected_corpus.backend_config)
+    assert returned_corpus.vertex_ai_search_config.__eq__(
+        expected_corpus.vertex_ai_search_config
+    )
 
 
 def rag_file_eq(returned_file, expected_file):
@@ -275,6 +329,14 @@ def import_files_request_eq(returned_request, expected_request):
     assert (
         returned_request.import_rag_files_config.rag_file_transformation_config
         == expected_request.import_rag_files_config.rag_file_transformation_config
+    )
+    assert (
+        returned_request.import_rag_files_config.import_result_gcs_sink
+        == expected_request.import_rag_files_config.import_result_gcs_sink
+    )
+    assert (
+        returned_request.import_rag_files_config.import_result_bigquery_sink
+        == expected_request.import_rag_files_config.import_result_bigquery_sink
     )
 
 
@@ -320,11 +382,89 @@ class TestRagDataManagement:
 
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_PINECONE)
 
+    @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_ai_engine_search_config")
+    def test_create_corpus_vais_engine_search_config_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+            vertex_ai_search_config=test_rag_constants.TEST_VERTEX_AI_SEARCH_CONFIG_ENGINE,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants.TEST_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG,
+        )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_ai_datastore_search_config")
+    def test_create_corpus_vais_datastore_search_config_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+            vertex_ai_search_config=test_rag_constants.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants.TEST_RAG_CORPUS_VERTEX_AI_DATASTORE_SEARCH_CONFIG,
+        )
+
+    def test_create_corpus_vais_datastore_search_config_with_backend_config_failure(
+        self,
+    ):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
+                backend_config=test_rag_constants.TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG,
+            )
+        e.match("Only one of vertex_ai_search_config or backend_config can be set.")
+
+    def test_set_vertex_ai_search_config_with_invalid_serving_config_failure(self):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants.TEST_VERTEX_AI_SEARCH_CONFIG_INVALID,
+            )
+        e.match(
+            "serving_config must be of the format `projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}` or `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}`"
+        )
+
+    def test_set_vertex_ai_search_config_with_empty_serving_config_failure(self):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants.TEST_VERTEX_AI_SEARCH_CONFIG_EMPTY,
+            )
+        e.match("serving_config must be set.")
+
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_create_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.create_corpus(display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME)
         e.match("Failed in RagCorpus creation due to")
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_vertex_ai_engine_search_config")
+    def test_update_corpus_vais_engine_search_config_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+            vertex_ai_search_config=test_rag_constants.TEST_VERTEX_AI_SEARCH_CONFIG_ENGINE,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants.TEST_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG,
+        )
+
+    def test_update_corpus_vais_datastore_search_config_with_backend_config_failure(
+        self,
+    ):
+        with pytest.raises(ValueError) as e:
+            rag.update_corpus(
+                corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+                display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
+                backend_config=test_rag_constants.TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG,
+            )
+        e.match("Only one of vertex_ai_search_config or backend_config can be set.")
 
     @pytest.mark.usefixtures("update_rag_corpus_mock_pinecone")
     def test_update_corpus_pinecone_success(self):
@@ -517,6 +657,26 @@ class TestRagDataManagement:
 
         assert response.imported_rag_files_count == 2
 
+    def test_import_files_with_import_result_gcs_sink(self, import_files_mock):
+        response = rag.import_files(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_GCS_PATH],
+            import_result_sink=test_rag_constants.TEST_IMPORT_RESULT_GCS_SINK,
+        )
+        import_files_mock.assert_called_once()
+
+        assert response.imported_rag_files_count == 2
+
+    def test_import_files_with_import_result_bigquery_sink(self, import_files_mock):
+        response = rag.import_files(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_GCS_PATH],
+            import_result_sink=test_rag_constants.TEST_IMPORT_RESULT_BIGQUERY_SINK,
+        )
+        import_files_mock.assert_called_once()
+
+        assert response.imported_rag_files_count == 2
+
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_import_files_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -531,6 +691,32 @@ class TestRagDataManagement:
         response = await rag.import_files_async(
             corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
             paths=[test_rag_constants.TEST_GCS_PATH],
+        )
+        import_files_async_mock.assert_called_once()
+
+        assert response.result().imported_rag_files_count == 2
+
+    @pytest.mark.asyncio
+    async def test_import_files_with_import_result_gcs_sink_async(
+        self, import_files_async_mock
+    ):
+        response = await rag.import_files_async(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_GCS_PATH],
+            import_result_sink=test_rag_constants.TEST_IMPORT_RESULT_GCS_SINK,
+        )
+        import_files_async_mock.assert_called_once()
+
+        assert response.result().imported_rag_files_count == 2
+
+    @pytest.mark.asyncio
+    async def test_import_files_with_import_result_bigquery_sink_async(
+        self, import_files_async_mock
+    ):
+        response = await rag.import_files_async(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_GCS_PATH],
+            import_result_sink=test_rag_constants.TEST_IMPORT_RESULT_BIGQUERY_SINK,
         )
         import_files_async_mock.assert_called_once()
 
@@ -596,6 +782,16 @@ class TestRagDataManagement:
         with pytest.raises(RuntimeError) as e:
             rag.delete_file(test_rag_constants.TEST_RAG_FILE_RESOURCE_NAME)
         e.match("Failed in RagFile deletion due to")
+
+    @pytest.mark.usefixtures("rag_data_client_mock")
+    def test_inline_citations_and_references_success(self):
+        response = rag.add_inline_citations_and_references(
+            original_text_str=test_rag_constants.TEST_ORIGINAL_TEXT,
+            grounding_supports=test_rag_constants.TEST_GROUNDING_SUPPORTS,
+            grounding_chunks=test_rag_constants.TEST_GROUNDING_CHUNKS,
+        )
+        assert response.cited_text == test_rag_constants.TEST_CITED_TEXT
+        assert response.final_bibliography == test_rag_constants.TEST_FINAL_BIBLIOGRAPHY
 
     def test_prepare_import_files_request_list_gcs_uris(self):
         paths = [test_rag_constants.TEST_GCS_PATH]
@@ -739,6 +935,80 @@ class TestRagDataManagement:
             request,
             test_rag_constants.TEST_IMPORT_REQUEST_SHARE_POINT_SOURCE_NO_FOLDERS,
         )
+
+    def test_prepare_import_files_request_valid_layout_parser_with_processor_path(self):
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_DRIVE_FOLDER],
+            transformation_config=create_transformation_config(),
+            layout_parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants.TEST_IMPORT_REQUEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH,
+        )
+
+    def test_prepare_import_files_request_valid_layout_parser_with_processor_version_path(
+        self,
+    ):
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_DRIVE_FOLDER],
+            transformation_config=create_transformation_config(),
+            layout_parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH_CONFIG,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants.TEST_IMPORT_REQUEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH,
+        )
+
+    def test_prepare_import_files_request_invalid_layout_parser_name(self):
+        layout_parser = rag.LayoutParserConfig(
+            processor_name="projects/test-project/locations/us/processorTypes/LAYOUT_PARSER",
+        )
+        with pytest.raises(ValueError) as e:
+            prepare_import_files_request(
+                corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                layout_parser=layout_parser,
+            )
+        e.match("processor_name must be of the format")
+
+    def test_prepare_import_files_request_llm_parser(self):
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_DRIVE_FOLDER],
+            transformation_config=create_transformation_config(),
+            llm_parser=test_rag_constants.TEST_LLM_PARSER_CONFIG,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants.TEST_IMPORT_REQUEST_LLM_PARSER,
+        )
+
+    def test_layout_parser_and_llm_parser_both_set_error(self):
+        with pytest.raises(ValueError) as e:
+            rag.import_files(
+                corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                layout_parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+                llm_parser=test_rag_constants.TEST_LLM_PARSER_CONFIG,
+            )
+        e.match("Only one of layout_parser or llm_parser may be passed in at a time")
+
+    @pytest.mark.asyncio
+    async def test_layout_parser_and_llm_parser_both_set_error_async(self):
+        with pytest.raises(ValueError) as e:
+            await rag.import_files_async(
+                corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                layout_parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+                llm_parser=test_rag_constants.TEST_LLM_PARSER_CONFIG,
+            )
+        e.match("Only one of layout_parser or llm_parser may be passed in at a time")
 
     def test_set_embedding_model_config_set_both_error(self):
         embedding_model_config = rag.RagEmbeddingModelConfig(

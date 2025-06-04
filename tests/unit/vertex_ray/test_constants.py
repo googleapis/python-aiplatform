@@ -68,7 +68,7 @@ xgbversion = pytest.mark.skipif(
 )
 
 predictionrayversion = pytest.mark.skipif(
-    ray.__version__ != "2.9.3", reason="Not currently supported on Ray 2.33"
+    ray.__version__ != "2.9.3", reason="Not currently supported on Ray 2.33 or Ray 2.42"
 )
 
 
@@ -122,6 +122,12 @@ class ClusterConstants:
     )
     TEST_GPU_IMAGE_2_33 = (
         "us-docker.pkg.dev/vertex-ai/training/ray-gpu.2-33.py310:latest"
+    )
+    TEST_CPU_IMAGE_2_42 = (
+        "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-42.py310:latest"
+    )
+    TEST_GPU_IMAGE_2_42 = (
+        "us-docker.pkg.dev/vertex-ai/training/ray-gpu.2-42.py310:latest"
     )
     TEST_CUSTOM_IMAGE = "us-docker.pkg.dev/my-project/ray-custom-image.2.9:latest"
     TEST_PSC_NETWORK_ATTACHMENT = "my-network-attachment"

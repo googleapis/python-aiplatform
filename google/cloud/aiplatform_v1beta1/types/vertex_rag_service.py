@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import content as gca_content
 from google.cloud.aiplatform_v1beta1.types import tool
+from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 
 
 __protobuf__ = proto.module(
@@ -243,6 +244,8 @@ class RagContexts(proto.Message):
                 relevant and 2 means the least relevant.
 
                 This field is a member of `oneof`_ ``_score``.
+            chunk (google.cloud.aiplatform_v1beta1.types.RagChunk):
+                Context of the retrieved chunk.
         """
 
         source_uri: str = proto.Field(
@@ -269,6 +272,11 @@ class RagContexts(proto.Message):
             proto.DOUBLE,
             number=6,
             optional=True,
+        )
+        chunk: vertex_rag_data.RagChunk = proto.Field(
+            proto.MESSAGE,
+            number=7,
+            message=vertex_rag_data.RagChunk,
         )
 
     contexts: MutableSequence[Context] = proto.RepeatedField(
@@ -514,6 +522,10 @@ class Fact(proto.Message):
             and 2 means the least relevant.
 
             This field is a member of `oneof`_ ``_score``.
+        chunk (google.cloud.aiplatform_v1beta1.types.RagChunk):
+            If present, chunk properties.
+
+            This field is a member of `oneof`_ ``_chunk``.
     """
 
     query: str = proto.Field(
@@ -545,6 +557,12 @@ class Fact(proto.Message):
         proto.DOUBLE,
         number=6,
         optional=True,
+    )
+    chunk: vertex_rag_data.RagChunk = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        optional=True,
+        message=vertex_rag_data.RagChunk,
     )
 
 

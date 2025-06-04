@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import api_auth as gca_api_auth
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -34,11 +35,14 @@ __protobuf__ = proto.module(
         "CorpusStatus",
         "RagCorpus",
         "RagFile",
+        "RagChunk",
         "RagFileChunkingConfig",
         "RagFileTransformationConfig",
         "RagFileParsingConfig",
         "UploadRagFileConfig",
         "ImportRagFilesConfig",
+        "RagManagedDbConfig",
+        "RagEngineConfig",
     },
 )
 
@@ -244,7 +248,82 @@ class RagVectorDbConfig(proto.Message):
     """
 
     class RagManagedDb(proto.Message):
-        r"""The config for the default RAG-managed Vector DB."""
+        r"""The config for the default RAG-managed Vector DB.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            knn (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.RagManagedDb.KNN):
+                Performs a KNN search on RagCorpus.
+                Default choice if not specified.
+
+                This field is a member of `oneof`_ ``retrieval_strategy``.
+            ann (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.RagManagedDb.ANN):
+                Performs an ANN search on RagCorpus. Use this
+                if you have a lot of files (> 10K) in your
+                RagCorpus and want to reduce the search latency.
+
+                This field is a member of `oneof`_ ``retrieval_strategy``.
+        """
+
+        class KNN(proto.Message):
+            r"""Config for KNN search."""
+
+        class ANN(proto.Message):
+            r"""Config for ANN search.
+
+            RagManagedDb uses a tree-based structure to partition data and
+            facilitate faster searches. As a tradeoff, it requires longer
+            indexing time and manual triggering of index rebuild via the
+            ImportRagFiles and UpdateRagCorpus API.
+
+            Attributes:
+                tree_depth (int):
+                    The depth of the tree-based structure. Only
+                    depth values of 2 and 3 are supported.
+
+                    Recommended value is 2 if you have if you have
+                    O(10K) files in the RagCorpus and set this to 3
+                    if more than that.
+
+                    Default value is 2.
+                leaf_count (int):
+                    Number of leaf nodes in the tree-based structure. Each leaf
+                    node contains groups of closely related vectors along with
+                    their corresponding centroid.
+
+                    Recommended value is 10 \* sqrt(num of RagFiles in your
+                    RagCorpus).
+
+                    Default value is 500.
+            """
+
+            tree_depth: int = proto.Field(
+                proto.INT32,
+                number=1,
+            )
+            leaf_count: int = proto.Field(
+                proto.INT32,
+                number=2,
+            )
+
+        knn: "RagVectorDbConfig.RagManagedDb.KNN" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="retrieval_strategy",
+            message="RagVectorDbConfig.RagManagedDb.KNN",
+        )
+        ann: "RagVectorDbConfig.RagManagedDb.ANN" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="retrieval_strategy",
+            message="RagVectorDbConfig.RagManagedDb.ANN",
+        )
 
     class Weaviate(proto.Message):
         r"""The config for the Weaviate.
@@ -470,6 +549,16 @@ class RagCorpus(proto.Message):
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
+        vector_db_config (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig):
+            Optional. Immutable. The config for the
+            Vector DBs.
+
+            This field is a member of `oneof`_ ``backend_config``.
+        vertex_ai_search_config (google.cloud.aiplatform_v1beta1.types.VertexAiSearchConfig):
+            Optional. Immutable. The config for the
+            Vertex AI Search.
+
+            This field is a member of `oneof`_ ``backend_config``.
         name (str):
             Output only. The resource name of the
             RagCorpus.
@@ -493,21 +582,83 @@ class RagCorpus(proto.Message):
             was last updated.
         corpus_status (google.cloud.aiplatform_v1beta1.types.CorpusStatus):
             Output only. RagCorpus state.
-        vector_db_config (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig):
-            Optional. Immutable. The config for the
-            Vector DBs.
-
-            This field is a member of `oneof`_ ``backend_config``.
-        vertex_ai_search_config (google.cloud.aiplatform_v1beta1.types.VertexAiSearchConfig):
-            Optional. Immutable. The config for the
-            Vertex AI Search.
-
-            This field is a member of `oneof`_ ``backend_config``.
         rag_files_count (int):
-            Output only. The number of RagFiles in the
+            Output only. Number of RagFiles in the
+            RagCorpus.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Optional. Immutable. The CMEK key name used
+            to encrypt at-rest data related to this Corpus.
+            Only applicable to RagManagedDb option for
+            Vector DB. This field can only be set at corpus
+            creation time, and cannot be updated or deleted.
+        corpus_type_config (google.cloud.aiplatform_v1beta1.types.RagCorpus.CorpusTypeConfig):
+            Optional. The corpus type config of the
             RagCorpus.
     """
 
+    class CorpusTypeConfig(proto.Message):
+        r"""The config for the corpus type of the RagCorpus.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            document_corpus (google.cloud.aiplatform_v1beta1.types.RagCorpus.CorpusTypeConfig.DocumentCorpus):
+                Optional. Config for the document corpus.
+
+                This field is a member of `oneof`_ ``corpus_type_config``.
+            memory_corpus (google.cloud.aiplatform_v1beta1.types.RagCorpus.CorpusTypeConfig.MemoryCorpus):
+                Optional. Config for the memory corpus.
+
+                This field is a member of `oneof`_ ``corpus_type_config``.
+        """
+
+        class DocumentCorpus(proto.Message):
+            r"""Config for the document corpus."""
+
+        class MemoryCorpus(proto.Message):
+            r"""Config for the memory corpus.
+
+            Attributes:
+                llm_parser (google.cloud.aiplatform_v1beta1.types.RagFileParsingConfig.LlmParser):
+                    The LLM parser to use for the memory corpus.
+            """
+
+            llm_parser: "RagFileParsingConfig.LlmParser" = proto.Field(
+                proto.MESSAGE,
+                number=1,
+                message="RagFileParsingConfig.LlmParser",
+            )
+
+        document_corpus: "RagCorpus.CorpusTypeConfig.DocumentCorpus" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="corpus_type_config",
+            message="RagCorpus.CorpusTypeConfig.DocumentCorpus",
+        )
+        memory_corpus: "RagCorpus.CorpusTypeConfig.MemoryCorpus" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="corpus_type_config",
+            message="RagCorpus.CorpusTypeConfig.MemoryCorpus",
+        )
+
+    vector_db_config: "RagVectorDbConfig" = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        oneof="backend_config",
+        message="RagVectorDbConfig",
+    )
+    vertex_ai_search_config: "VertexAiSearchConfig" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        oneof="backend_config",
+        message="VertexAiSearchConfig",
+    )
     name: str = proto.Field(
         proto.STRING,
         number=1,
@@ -545,21 +696,19 @@ class RagCorpus(proto.Message):
         number=8,
         message="CorpusStatus",
     )
-    vector_db_config: "RagVectorDbConfig" = proto.Field(
-        proto.MESSAGE,
-        number=9,
-        oneof="backend_config",
-        message="RagVectorDbConfig",
-    )
-    vertex_ai_search_config: "VertexAiSearchConfig" = proto.Field(
-        proto.MESSAGE,
-        number=10,
-        oneof="backend_config",
-        message="VertexAiSearchConfig",
-    )
     rag_files_count: int = proto.Field(
         proto.INT32,
         number=11,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
+    corpus_type_config: CorpusTypeConfig = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message=CorpusTypeConfig,
     )
 
 
@@ -718,6 +867,56 @@ class RagFile(proto.Message):
     )
 
 
+class RagChunk(proto.Message):
+    r"""A RagChunk includes the content of a chunk of a RagFile, and
+    associated metadata.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        text (str):
+            The content of the chunk.
+        page_span (google.cloud.aiplatform_v1beta1.types.RagChunk.PageSpan):
+            If populated, represents where the chunk
+            starts and ends in the document.
+
+            This field is a member of `oneof`_ ``_page_span``.
+    """
+
+    class PageSpan(proto.Message):
+        r"""Represents where the chunk starts and ends in the document.
+
+        Attributes:
+            first_page (int):
+                Page where chunk starts in the document.
+                Inclusive. 1-indexed.
+            last_page (int):
+                Page where chunk ends in the document.
+                Inclusive. 1-indexed.
+        """
+
+        first_page: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+        last_page: int = proto.Field(
+            proto.INT32,
+            number=2,
+        )
+
+    text: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    page_span: PageSpan = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        optional=True,
+        message=PageSpan,
+    )
+
+
 class RagFileChunkingConfig(proto.Message):
     r"""Specifies the size and overlap of chunks for RagFiles.
 
@@ -845,6 +1044,14 @@ class RagFileParsingConfig(proto.Message):
                 the Quota page for your project to set an
                 appropriate value here. If unspecified, a
                 default value of 120 QPM would be used.
+            global_max_parsing_requests_per_min (int):
+                The maximum number of requests the job is allowed to make to
+                the Document AI processor per minute in this project.
+                Consult https://cloud.google.com/document-ai/quotas and the
+                Quota page for your project to set an appropriate value
+                here. If this value is not specified,
+                max_parsing_requests_per_min will be used by indexing
+                pipeline as the global limit.
         """
 
         processor_name: str = proto.Field(
@@ -855,14 +1062,19 @@ class RagFileParsingConfig(proto.Message):
             proto.INT32,
             number=2,
         )
+        global_max_parsing_requests_per_min: int = proto.Field(
+            proto.INT32,
+            number=3,
+        )
 
     class LlmParser(proto.Message):
-        r"""Specifies the advanced parsing for RagFiles.
+        r"""Specifies the LLM parsing for RagFiles.
 
         Attributes:
             model_name (str):
                 The name of a LLM model used for parsing. Format:
-                ``gemini-1.5-pro-002``
+
+                -  ``projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}``
             max_parsing_requests_per_min (int):
                 The maximum number of requests the job is
                 allowed to make to the LLM model per minute.
@@ -871,6 +1083,13 @@ class RagFileParsingConfig(proto.Message):
                 and your document size to set an appropriate
                 value here. If unspecified, a default value of
                 5000 QPM would be used.
+            global_max_parsing_requests_per_min (int):
+                The maximum number of requests the job is allowed to make to
+                the LLM model per minute in this project. Consult
+                https://cloud.google.com/vertex-ai/generative-ai/docs/quotas
+                and your document size to set an appropriate value here. If
+                this value is not specified, max_parsing_requests_per_min
+                will be used by indexing pipeline job as the global limit.
             custom_parsing_prompt (str):
                 The prompt to use for parsing. If not
                 specified, a default prompt will be used.
@@ -883,6 +1102,10 @@ class RagFileParsingConfig(proto.Message):
         max_parsing_requests_per_min: int = proto.Field(
             proto.INT32,
             number=2,
+        )
+        global_max_parsing_requests_per_min: int = proto.Field(
+            proto.INT32,
+            number=4,
         )
         custom_parsing_prompt: str = proto.Field(
             proto.STRING,
@@ -992,6 +1215,22 @@ class ImportRagFilesConfig(proto.Message):
             Deprecated. Prefer to use ``import_result_bq_sink``.
 
             This field is a member of `oneof`_ ``partial_failure_sink``.
+        import_result_gcs_sink (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            The Cloud Storage path to write import result
+            to.
+
+            This field is a member of `oneof`_ ``import_result_sink``.
+        import_result_bigquery_sink (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
+            The BigQuery destination to write import
+            result to. It should be a bigquery table
+            resource name (e.g.
+            "bq://projectId.bqDatasetId.bqTableId"). The
+            dataset must exist. If the table does not exist,
+            it will be created with the expected schema. If
+            the table exists, the schema will be validated
+            and data will be added to this existing table.
+
+            This field is a member of `oneof`_ ``import_result_sink``.
         rag_file_chunking_config (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig):
             Specifies the size and overlap of chunks
             after importing RagFiles.
@@ -1011,6 +1250,23 @@ class ImportRagFilesConfig(proto.Message):
             page on the project to set an appropriate value
             here. If unspecified, a default value of 1,000
             QPM would be used.
+        global_max_embedding_requests_per_min (int):
+            Optional. The max number of queries per minute that the
+            indexing pipeline job is allowed to make to the embedding
+            model specified in the project. Please follow the quota
+            usage guideline of the embedding model you use to set the
+            value properly.If this value is not specified,
+            max_embedding_requests_per_min will be used by indexing
+            pipeline job as the global limit.
+        rebuild_ann_index (bool):
+            Rebuilds the ANN index to optimize for recall on the
+            imported data. Only applicable for RagCorpora running on
+            RagManagedDb with ``retrieval_strategy`` set to ``ANN``. The
+            rebuild will be performed using the existing ANN config set
+            on the RagCorpus. To change the ANN config, please use the
+            UpdateRagCorpus API.
+
+            Default is false, i.e., index is not rebuilt.
     """
 
     gcs_source: io.GcsSource = proto.Field(
@@ -1055,6 +1311,18 @@ class ImportRagFilesConfig(proto.Message):
         oneof="partial_failure_sink",
         message=io.BigQueryDestination,
     )
+    import_result_gcs_sink: io.GcsDestination = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        oneof="import_result_sink",
+        message=io.GcsDestination,
+    )
+    import_result_bigquery_sink: io.BigQueryDestination = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        oneof="import_result_sink",
+        message=io.BigQueryDestination,
+    )
     rag_file_chunking_config: "RagFileChunkingConfig" = proto.Field(
         proto.MESSAGE,
         number=4,
@@ -1073,6 +1341,94 @@ class ImportRagFilesConfig(proto.Message):
     max_embedding_requests_per_min: int = proto.Field(
         proto.INT32,
         number=5,
+    )
+    global_max_embedding_requests_per_min: int = proto.Field(
+        proto.INT32,
+        number=18,
+    )
+    rebuild_ann_index: bool = proto.Field(
+        proto.BOOL,
+        number=19,
+    )
+
+
+class RagManagedDbConfig(proto.Message):
+    r"""Configuration message for RagManagedDb used by RagEngine.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        enterprise (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Enterprise):
+            Sets the RagManagedDb to the Enterprise tier.
+            This is the default tier if not explicitly
+            chosen.
+
+            This field is a member of `oneof`_ ``tier``.
+        basic (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Basic):
+            Sets the RagManagedDb to the Basic tier.
+
+            This field is a member of `oneof`_ ``tier``.
+    """
+
+    class Enterprise(proto.Message):
+        r"""Enterprise tier offers production grade performance along
+        with autoscaling functionality. It is suitable for customers
+        with large amounts of data or performance sensitive workloads.
+
+        NOTE: This is the default tier if not explicitly chosen.
+
+        """
+
+    class Basic(proto.Message):
+        r"""Basic tier is a cost-effective and low compute tier suitable for the
+        following cases:
+
+        -  Experimenting with RagManagedDb.
+        -  Small data size.
+        -  Latency insensitive workload.
+        -  Only using RAG Engine with external vector DBs.
+
+        """
+
+    enterprise: Enterprise = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="tier",
+        message=Enterprise,
+    )
+    basic: Basic = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="tier",
+        message=Basic,
+    )
+
+
+class RagEngineConfig(proto.Message):
+    r"""Config for RagEngine.
+
+    Attributes:
+        name (str):
+            Identifier. The name of the RagEngineConfig. Format:
+            ``projects/{project}/locations/{location}/ragEngineConfig``
+        rag_managed_db_config (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig):
+            The config of the RagManagedDb used by
+            RagEngine.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    rag_managed_db_config: "RagManagedDbConfig" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="RagManagedDbConfig",
     )
 
 

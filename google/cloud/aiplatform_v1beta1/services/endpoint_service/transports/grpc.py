@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -77,12 +77,11 @@ class _LoggingClientInterceptor(grpc.UnaryUnaryClientInterceptor):  # pragma: NO
                 f"Sending request for {client_call_details.method}",
                 extra={
                     "serviceName": "google.cloud.aiplatform.v1beta1.EndpointService",
-                    "rpcName": client_call_details.method,
+                    "rpcName": str(client_call_details.method),
                     "request": grpc_request,
                     "metadata": grpc_request["metadata"],
                 },
             )
-
         response = continuation(client_call_details, request)
         if logging_enabled:  # pragma: NO COVER
             response_metadata = response.trailing_metadata()
@@ -592,6 +591,69 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["mutate_deployed_model"]
+
+    @property
+    def set_publisher_model_config(
+        self,
+    ) -> Callable[
+        [endpoint_service.SetPublisherModelConfigRequest], operations_pb2.Operation
+    ]:
+        r"""Return a callable for the set publisher model config method over gRPC.
+
+        Sets (creates or updates) configs of publisher
+        models. For example, sets the request/response logging
+        config.
+
+        Returns:
+            Callable[[~.SetPublisherModelConfigRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "set_publisher_model_config" not in self._stubs:
+            self._stubs[
+                "set_publisher_model_config"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/SetPublisherModelConfig",
+                request_serializer=endpoint_service.SetPublisherModelConfigRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["set_publisher_model_config"]
+
+    @property
+    def fetch_publisher_model_config(
+        self,
+    ) -> Callable[
+        [endpoint_service.FetchPublisherModelConfigRequest],
+        endpoint.PublisherModelConfig,
+    ]:
+        r"""Return a callable for the fetch publisher model config method over gRPC.
+
+        Fetches the configs of publisher models.
+
+        Returns:
+            Callable[[~.FetchPublisherModelConfigRequest],
+                    ~.PublisherModelConfig]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "fetch_publisher_model_config" not in self._stubs:
+            self._stubs[
+                "fetch_publisher_model_config"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/FetchPublisherModelConfig",
+                request_serializer=endpoint_service.FetchPublisherModelConfigRequest.serialize,
+                response_deserializer=endpoint.PublisherModelConfig.deserialize,
+            )
+        return self._stubs["fetch_publisher_model_config"]
 
     def close(self):
         self._logged_channel.close()

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -183,6 +183,8 @@ from .entity_type import (
 )
 from .env_var import (
     EnvVar,
+    SecretEnvVar,
+    SecretRef,
 )
 from .evaluated_annotation import (
     ErrorAnalysisAnnotation,
@@ -687,6 +689,7 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    Checkpoint,
     GenieSource,
     LargeModelReference,
     Model,
@@ -951,6 +954,7 @@ from .service_networking import (
     PrivateServiceConnectConfig,
     PscAutomatedEndpoints,
     PSCAutomationConfig,
+    PscInterfaceConfig,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -1056,6 +1060,7 @@ from .tool import (
     RetrievalConfig,
     Tool,
     ToolConfig,
+    UrlContext,
     VertexAISearch,
     VertexRagStore,
 )
@@ -1074,6 +1079,7 @@ from .tuning_job import (
     SupervisedTuningDataStats,
     SupervisedTuningSpec,
     TunedModel,
+    TunedModelCheckpoint,
     TunedModelRef,
     TuningDataStats,
     TuningJob,
@@ -1098,6 +1104,7 @@ from .vertex_rag_data import (
     CorpusStatus,
     FileStatus,
     ImportRagFilesConfig,
+    RagChunk,
     RagCorpus,
     RagEmbeddingModelConfig,
     RagFile,
@@ -1106,6 +1113,7 @@ from .vertex_rag_data import (
     RagFileTransformationConfig,
     RagVectorDbConfig,
     UploadRagFileConfig,
+    VertexAiSearchConfig,
 )
 from .vertex_rag_data_service import (
     CreateRagCorpusOperationMetadata,
@@ -1285,6 +1293,8 @@ __all__ = (
     "UpdateEndpointRequest",
     "EntityType",
     "EnvVar",
+    "SecretEnvVar",
+    "SecretRef",
     "ErrorAnalysisAnnotation",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
@@ -1707,6 +1717,7 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "Checkpoint",
     "GenieSource",
     "LargeModelReference",
     "Model",
@@ -1905,6 +1916,7 @@ __all__ = (
     "PrivateServiceConnectConfig",
     "PscAutomatedEndpoints",
     "PSCAutomationConfig",
+    "PscInterfaceConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -1990,6 +2002,7 @@ __all__ = (
     "RetrievalConfig",
     "Tool",
     "ToolConfig",
+    "UrlContext",
     "VertexAISearch",
     "VertexRagStore",
     "FilterSplit",
@@ -2004,6 +2017,7 @@ __all__ = (
     "SupervisedTuningDataStats",
     "SupervisedTuningSpec",
     "TunedModel",
+    "TunedModelCheckpoint",
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
@@ -2018,6 +2032,7 @@ __all__ = (
     "CorpusStatus",
     "FileStatus",
     "ImportRagFilesConfig",
+    "RagChunk",
     "RagCorpus",
     "RagEmbeddingModelConfig",
     "RagFile",
@@ -2026,6 +2041,7 @@ __all__ = (
     "RagFileTransformationConfig",
     "RagVectorDbConfig",
     "UploadRagFileConfig",
+    "VertexAiSearchConfig",
     "CreateRagCorpusOperationMetadata",
     "CreateRagCorpusRequest",
     "DeleteRagCorpusRequest",

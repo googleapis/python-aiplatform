@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class _VertexRayClientContext(client_builder.ClientContext):
                 persistent_resource_id,
                 " failed to start Head node properly.",
             )
-        if ray.__version__ == "2.33.0":
+        if ray.__version__ in ("2.42.0", "2.33.0"):
             super().__init__(
                 dashboard_url=dashboard_uri,
                 python_version=ray_client_context.python_version,
@@ -69,7 +69,7 @@ class _VertexRayClientContext(client_builder.ClientContext):
         else:
             raise ImportError(
                 f"[Ray on Vertex AI]: Unsupported version {ray.__version__}."
-                + "Only 2.33.0 and 2.9.3 are supported."
+                + "Only 2.42.0, 2.33.0, and 2.9.3 are supported."
             )
         self.persistent_resource_id = persistent_resource_id
         self.vertex_sdk_version = str(VERTEX_SDK_VERSION)

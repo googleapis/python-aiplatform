@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -80,12 +80,11 @@ class _LoggingClientInterceptor(grpc.UnaryUnaryClientInterceptor):  # pragma: NO
                 f"Sending request for {client_call_details.method}",
                 extra={
                     "serviceName": "google.cloud.aiplatform.v1beta1.DatasetService",
-                    "rpcName": client_call_details.method,
+                    "rpcName": str(client_call_details.method),
                     "request": grpc_request,
                     "metadata": grpc_request["metadata"],
                 },
             )
-
         response = continuation(client_call_details, request)
         if logging_enabled:  # pragma: NO COVER
             response_metadata = response.trailing_metadata()
@@ -852,7 +851,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     ]:
         r"""Return a callable for the list annotations method over gRPC.
 
-        Lists Annotations belongs to a dataitem
+        Lists Annotations belongs to a dataitem.
 
         Returns:
             Callable[[~.ListAnnotationsRequest],
@@ -871,6 +870,60 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
                 response_deserializer=dataset_service.ListAnnotationsResponse.deserialize,
             )
         return self._stubs["list_annotations"]
+
+    @property
+    def assess_data(
+        self,
+    ) -> Callable[[dataset_service.AssessDataRequest], operations_pb2.Operation]:
+        r"""Return a callable for the assess data method over gRPC.
+
+        Assesses the state or validity of the dataset with
+        respect to a given use case.
+
+        Returns:
+            Callable[[~.AssessDataRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "assess_data" not in self._stubs:
+            self._stubs["assess_data"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/AssessData",
+                request_serializer=dataset_service.AssessDataRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["assess_data"]
+
+    @property
+    def assemble_data(
+        self,
+    ) -> Callable[[dataset_service.AssembleDataRequest], operations_pb2.Operation]:
+        r"""Return a callable for the assemble data method over gRPC.
+
+        Assembles each row of a multimodal dataset and writes
+        the result into a BigQuery table.
+
+        Returns:
+            Callable[[~.AssembleDataRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "assemble_data" not in self._stubs:
+            self._stubs["assemble_data"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/AssembleData",
+                request_serializer=dataset_service.AssembleDataRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["assemble_data"]
 
     def close(self):
         self._logged_channel.close()

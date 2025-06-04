@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
-
+import google.protobuf
 
 from google.protobuf import json_format
 from google.api_core import operations_v1
@@ -81,6 +81,9 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     grpc_version=None,
     rest_version=f"google-auth@{google.auth.__version__}",
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class AsyncVertexRagDataServiceRestInterceptor:
@@ -130,6 +133,14 @@ class AsyncVertexRagDataServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            async def pre_get_rag_engine_config(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_get_rag_engine_config(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             async def pre_get_rag_file(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -167,6 +178,14 @@ class AsyncVertexRagDataServiceRestInterceptor:
                 return request, metadata
 
             async def post_update_rag_corpus(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            async def pre_update_rag_engine_config(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_update_rag_engine_config(self, response):
                 logging.log(f"Received response: {response}")
                 return response
 
@@ -377,6 +396,57 @@ class AsyncVertexRagDataServiceRestInterceptor:
         `post_get_rag_corpus` interceptor. The (possibly modified) response returned by
         `post_get_rag_corpus` will be passed to
         `post_get_rag_corpus_with_metadata`.
+        """
+        return response, metadata
+
+    async def pre_get_rag_engine_config(
+        self,
+        request: vertex_rag_data_service.GetRagEngineConfigRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        vertex_rag_data_service.GetRagEngineConfigRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for get_rag_engine_config
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the VertexRagDataService server.
+        """
+        return request, metadata
+
+    async def post_get_rag_engine_config(
+        self, response: vertex_rag_data.RagEngineConfig
+    ) -> vertex_rag_data.RagEngineConfig:
+        """Post-rpc interceptor for get_rag_engine_config
+
+        DEPRECATED. Please use the `post_get_rag_engine_config_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the VertexRagDataService server but before
+        it is returned to user code. This `post_get_rag_engine_config` interceptor runs
+        before the `post_get_rag_engine_config_with_metadata` interceptor.
+        """
+        return response
+
+    async def post_get_rag_engine_config_with_metadata(
+        self,
+        response: vertex_rag_data.RagEngineConfig,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        vertex_rag_data.RagEngineConfig, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for get_rag_engine_config
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VertexRagDataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_rag_engine_config_with_metadata`
+        interceptor in new development instead of the `post_get_rag_engine_config` interceptor.
+        When both interceptors are used, this `post_get_rag_engine_config_with_metadata` interceptor runs after the
+        `post_get_rag_engine_config` interceptor. The (possibly modified) response returned by
+        `post_get_rag_engine_config` will be passed to
+        `post_get_rag_engine_config_with_metadata`.
         """
         return response, metadata
 
@@ -628,6 +698,55 @@ class AsyncVertexRagDataServiceRestInterceptor:
         `post_update_rag_corpus` interceptor. The (possibly modified) response returned by
         `post_update_rag_corpus` will be passed to
         `post_update_rag_corpus_with_metadata`.
+        """
+        return response, metadata
+
+    async def pre_update_rag_engine_config(
+        self,
+        request: vertex_rag_data_service.UpdateRagEngineConfigRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        vertex_rag_data_service.UpdateRagEngineConfigRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for update_rag_engine_config
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the VertexRagDataService server.
+        """
+        return request, metadata
+
+    async def post_update_rag_engine_config(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for update_rag_engine_config
+
+        DEPRECATED. Please use the `post_update_rag_engine_config_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the VertexRagDataService server but before
+        it is returned to user code. This `post_update_rag_engine_config` interceptor runs
+        before the `post_update_rag_engine_config_with_metadata` interceptor.
+        """
+        return response
+
+    async def post_update_rag_engine_config_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_rag_engine_config
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VertexRagDataService server but before it is returned to user code.
+
+        We recommend only using this `post_update_rag_engine_config_with_metadata`
+        interceptor in new development instead of the `post_update_rag_engine_config` interceptor.
+        When both interceptors are used, this `post_update_rag_engine_config_with_metadata` interceptor runs after the
+        `post_update_rag_engine_config` interceptor. The (possibly modified) response returned by
+        `post_update_rag_engine_config` will be passed to
+        `post_update_rag_engine_config_with_metadata`.
         """
         return response, metadata
 
@@ -1045,6 +1164,16 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             ),
             self.delete_rag_file: self._wrap_method(
                 self.delete_rag_file,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_rag_engine_config: self._wrap_method(
+                self.update_rag_engine_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_rag_engine_config: self._wrap_method(
+                self.get_rag_engine_config,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -1736,6 +1865,161 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     extra={
                         "serviceName": "google.cloud.aiplatform.v1beta1.VertexRagDataService",
                         "rpcName": "GetRagCorpus",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
+            return resp
+
+    class _GetRagEngineConfig(
+        _BaseVertexRagDataServiceRestTransport._BaseGetRagEngineConfig,
+        AsyncVertexRagDataServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("AsyncVertexRagDataServiceRestTransport.GetRagEngineConfig")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: vertex_rag_data_service.GetRagEngineConfigRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> vertex_rag_data.RagEngineConfig:
+            r"""Call the get rag engine config method over HTTP.
+
+            Args:
+                request (~.vertex_rag_data_service.GetRagEngineConfigRequest):
+                    The request object. Request message for
+                [VertexRagDataService.GetRagEngineConfig][google.cloud.aiplatform.v1beta1.VertexRagDataService.GetRagEngineConfig]
+                retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.vertex_rag_data.RagEngineConfig:
+                    Config for RagEngine.
+            """
+
+            http_options = (
+                _BaseVertexRagDataServiceRestTransport._BaseGetRagEngineConfig._get_http_options()
+            )
+
+            request, metadata = await self._interceptor.pre_get_rag_engine_config(
+                request, metadata
+            )
+            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseGetRagEngineConfig._get_transcoded_request(
+                http_options, request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseVertexRagDataServiceRestTransport._BaseGetRagEngineConfig._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.VertexRagDataServiceClient.GetRagEngineConfig",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.VertexRagDataService",
+                        "rpcName": "GetRagEngineConfig",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = await AsyncVertexRagDataServiceRestTransport._GetRagEngineConfig._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = vertex_rag_data.RagEngineConfig()
+            pb_resp = vertex_rag_data.RagEngineConfig.pb(resp)
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_get_rag_engine_config(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_rag_engine_config_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = vertex_rag_data.RagEngineConfig.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.VertexRagDataServiceAsyncClient.get_rag_engine_config",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.VertexRagDataService",
+                        "rpcName": "GetRagEngineConfig",
                         "metadata": http_response["headers"],
                         "httpResponse": http_response,
                     },
@@ -2548,6 +2832,173 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
 
             return resp
 
+    class _UpdateRagEngineConfig(
+        _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig,
+        AsyncVertexRagDataServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("AsyncVertexRagDataServiceRestTransport.UpdateRagEngineConfig")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: vertex_rag_data_service.UpdateRagEngineConfigRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the update rag engine config method over HTTP.
+
+            Args:
+                request (~.vertex_rag_data_service.UpdateRagEngineConfigRequest):
+                    The request object. Request message for
+                [VertexRagDataService.UpdateRagEngineConfig][google.cloud.aiplatform.v1beta1.VertexRagDataService.UpdateRagEngineConfig].
+                retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig._get_http_options()
+            )
+
+            request, metadata = await self._interceptor.pre_update_rag_engine_config(
+                request, metadata
+            )
+            transcoded_request = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.VertexRagDataServiceClient.UpdateRagEngineConfig",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.VertexRagDataService",
+                        "rpcName": "UpdateRagEngineConfig",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = await AsyncVertexRagDataServiceRestTransport._UpdateRagEngineConfig._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            pb_resp = resp
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_update_rag_engine_config(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_update_rag_engine_config_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.VertexRagDataServiceAsyncClient.update_rag_engine_config",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.VertexRagDataService",
+                        "rpcName": "UpdateRagEngineConfig",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
+            return resp
+
     class _UploadRagFile(
         _BaseVertexRagDataServiceRestTransport._BaseUploadRagFile,
         AsyncVertexRagDataServiceRestStub,
@@ -2886,6 +3337,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -3043,6 +3498,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -3260,6 +3719,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -3437,6 +3900,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -3678,6 +4145,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -3863,6 +4334,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "get",
@@ -4100,6 +4575,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -4285,6 +4764,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -4530,6 +5013,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -4710,6 +5197,10 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                     },
                     {
@@ -4831,6 +5322,15 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
         return self._GetRagCorpus(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
+    def get_rag_engine_config(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.GetRagEngineConfigRequest],
+        vertex_rag_data.RagEngineConfig,
+    ]:
+        return self._GetRagEngineConfig(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
     def get_rag_file(
         self,
     ) -> Callable[[vertex_rag_data_service.GetRagFileRequest], vertex_rag_data.RagFile]:
@@ -4869,6 +5369,14 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
         [vertex_rag_data_service.UpdateRagCorpusRequest], operations_pb2.Operation
     ]:
         return self._UpdateRagCorpus(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def update_rag_engine_config(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.UpdateRagEngineConfigRequest], operations_pb2.Operation
+    ]:
+        return self._UpdateRagEngineConfig(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def upload_rag_file(

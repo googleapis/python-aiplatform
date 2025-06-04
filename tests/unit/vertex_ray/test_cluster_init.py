@@ -54,7 +54,7 @@ _TEST_RESPONSE_RUNNING_1_POOL_RESIZE_0_WORKER.resource_pools[0].replica_count = 
 
 _TEST_V2_4_WARNING_MESSAGE = (
     "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result"
-    " in an error. Please use Ray version = 2.33.0 (default)."
+    " in an error. Please use Ray version = 2.33.0 or 2.42.0 (default) instead."
 )
 
 
@@ -290,7 +290,7 @@ def cluster_eq(returned_cluster, expected_cluster):
     assert returned_cluster.state == expected_cluster.state
 
 
-@pytest.mark.parametrize("ray_version", ["2.9", "2.33"])
+@pytest.mark.parametrize("ray_version", ["2.9", "2.33", "2.42"])
 @pytest.mark.usefixtures("google_auth_mock", "get_project_number_mock")
 class TestClusterManagement:
     def setup_method(self, ray_version):
@@ -317,14 +317,16 @@ class TestClusterManagement:
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
 
         test_persistent_resource = tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL
+
         if ray_version == "2.9":
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "head-node"
-            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+        elif ray_version == "2.33":
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
         else:
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "head-node"
-            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_42
+        test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+            "head-node"
+        ] = head_node_image
 
         request = persistent_resource_service.CreatePersistentResourceRequest(
             parent=tc.ProjectConstants.TEST_PARENT,
@@ -388,14 +390,17 @@ class TestClusterManagement:
         test_persistent_resource = (
             tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL_WITH_LABELS
         )
+
         if ray_version == "2.9":
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "head-node"
-            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+        elif ray_version == "2.33":
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
         else:
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "head-node"
-            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_42
+
+        test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+            "head-node"
+        ] = head_node_image
 
         request = persistent_resource_service.CreatePersistentResourceRequest(
             parent=tc.ProjectConstants.TEST_PARENT,
@@ -449,20 +454,23 @@ class TestClusterManagement:
         )
 
         test_persistent_resource = tc.ClusterConstants.TEST_REQUEST_RUNNING_2_POOLS
+
         if ray_version == "2.9":
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "head-node"
-            ] = tc.ClusterConstants.TEST_CPU_IMAGE_2_9
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "worker-pool1"
-            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+            head_node_image = tc.ClusterConstants.TEST_CPU_IMAGE_2_9
+            worker_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+        elif ray_version == "2.33":
+            head_node_image = tc.ClusterConstants.TEST_CPU_IMAGE_2_33
+            worker_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
         else:
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "head-node"
-            ] = tc.ClusterConstants.TEST_CPU_IMAGE_2_33
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "worker-pool1"
-            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
+            head_node_image = tc.ClusterConstants.TEST_CPU_IMAGE_2_42
+            worker_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_42
+
+        test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+            "head-node"
+        ] = head_node_image
+        test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+            "worker-pool1"
+        ] = worker_node_image
 
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
         request = persistent_resource_service.CreatePersistentResourceRequest(
@@ -526,14 +534,17 @@ class TestClusterManagement:
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name
 
         test_persistent_resource = tc.ClusterConstants.TEST_REQUEST_RUNNING_1_POOL_BYOSA
+
         if ray_version == "2.9":
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "head-node"
-            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
+        elif ray_version == "2.33":
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
         else:
-            test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
-                "head-node"
-            ] = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_42
+
+        test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
+            "head-node"
+        ] = head_node_image
 
         request = persistent_resource_service.CreatePersistentResourceRequest(
             parent=tc.ProjectConstants.TEST_PARENT,
@@ -568,7 +579,7 @@ class TestClusterManagement:
                 network=tc.ProjectConstants.TEST_VPC_NETWORK,
                 python_version="3.8",
             )
-        e.match(regexp=r"The supported Python version is 3")
+        e.match(regexp=r"The supported Python versions are 3")
 
     def test_create_ray_cluster_ray_version_error(self, ray_version):
         with pytest.raises(ValueError) as e:

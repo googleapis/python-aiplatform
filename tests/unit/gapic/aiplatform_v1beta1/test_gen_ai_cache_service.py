@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,6 +73,7 @@ from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import transp
 from google.cloud.aiplatform_v1beta1.types import cached_content
 from google.cloud.aiplatform_v1beta1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1beta1.types import content
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import gen_ai_cache_service
 from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import tool
@@ -4617,12 +4618,21 @@ def test_create_cached_content_rest_call_success(request_type):
                         "mime_type": "mime_type_value",
                         "file_uri": "file_uri_value",
                     },
-                    "function_call": {"name": "name_value", "args": {"fields": {}}},
-                    "function_response": {"name": "name_value", "response": {}},
+                    "function_call": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "args": {"fields": {}},
+                    },
+                    "function_response": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "response": {},
+                    },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -4666,12 +4676,25 @@ def test_create_cached_content_rest_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -4698,6 +4721,7 @@ def test_create_cached_content_rest_call_success(request_type):
                                 "llm_ranker": {"model_name": "model_name_value"},
                             },
                         },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
@@ -4707,6 +4731,7 @@ def test_create_cached_content_rest_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -4731,6 +4756,7 @@ def test_create_cached_content_rest_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5096,12 +5122,21 @@ def test_update_cached_content_rest_call_success(request_type):
                         "mime_type": "mime_type_value",
                         "file_uri": "file_uri_value",
                     },
-                    "function_call": {"name": "name_value", "args": {"fields": {}}},
-                    "function_response": {"name": "name_value", "response": {}},
+                    "function_call": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "args": {"fields": {}},
+                    },
+                    "function_response": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "response": {},
+                    },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -5145,12 +5180,25 @@ def test_update_cached_content_rest_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -5177,6 +5225,7 @@ def test_update_cached_content_rest_call_success(request_type):
                                 "llm_ranker": {"model_name": "model_name_value"},
                             },
                         },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
@@ -5186,6 +5235,7 @@ def test_update_cached_content_rest_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -5210,6 +5260,7 @@ def test_update_cached_content_rest_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6437,12 +6488,21 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                         "mime_type": "mime_type_value",
                         "file_uri": "file_uri_value",
                     },
-                    "function_call": {"name": "name_value", "args": {"fields": {}}},
-                    "function_response": {"name": "name_value", "response": {}},
+                    "function_call": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "args": {"fields": {}},
+                    },
+                    "function_response": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "response": {},
+                    },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -6486,12 +6546,25 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -6518,6 +6591,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                                 "llm_ranker": {"model_name": "model_name_value"},
                             },
                         },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
@@ -6527,6 +6601,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -6551,6 +6626,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6948,12 +7024,21 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                         "mime_type": "mime_type_value",
                         "file_uri": "file_uri_value",
                     },
-                    "function_call": {"name": "name_value", "args": {"fields": {}}},
-                    "function_response": {"name": "name_value", "response": {}},
+                    "function_call": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "args": {"fields": {}},
+                    },
+                    "function_response": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "response": {},
+                    },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -6997,12 +7082,25 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -7029,6 +7127,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                                 "llm_ranker": {"model_name": "model_name_value"},
                             },
                         },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
@@ -7038,6 +7137,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -7062,6 +7162,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

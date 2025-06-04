@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ from google.cloud.aiplatform_v1.services import (
     llm_utility_service as llm_utility_service_v1,
 )
 from google.cloud.aiplatform_v1beta1 import types as aiplatform_types
+from google.cloud.aiplatform_v1beta1.services import endpoint_service
 from google.cloud.aiplatform_v1beta1.services import prediction_service
 from google.cloud.aiplatform_v1beta1.services import llm_utility_service
 from google.cloud.aiplatform_v1beta1.types import (
@@ -59,10 +60,11 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.protobuf import json_format
+from google.protobuf import field_mask_pb2
 import warnings
 
 if TYPE_CHECKING:
-    from vertexai.preview import caching
+    from vertexai.caching import CachedContent
 
 try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
@@ -234,7 +236,7 @@ def _validate_generate_content_parameters(
     tools: Optional[List["Tool"]] = None,
     tool_config: Optional["ToolConfig"] = None,
     system_instruction: Optional[PartsType] = None,
-    cached_content: Optional["caching.CachedContent"] = None,
+    cached_content: Optional["CachedContent"] = None,
     labels: Optional[Dict[str, str]] = None,
 ) -> None:
     """Validates the parameters for a generate_content call."""
@@ -447,7 +449,7 @@ class _GenerativeModel:
         self._tools = tools
         self._tool_config = tool_config
         self._system_instruction = system_instruction
-        self._cached_content: Optional["caching.CachedContent"] = None
+        self._cached_content: Optional["CachedContent"] = None
         self._labels = labels
 
         # Validating the parameters
@@ -499,6 +501,19 @@ class _GenerativeModel:
         return aiplatform_initializer.global_config.create_client(
             client_class=prediction_service.PredictionServiceAsyncClient,
             location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
+
+    @functools.cached_property
+    def _endpoint_client(self) -> endpoint_service.EndpointServiceClient:
+        # Note this doesn't work with GCP Express but it's better to set the
+        # client correctly and allow the service to throw
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        return aiplatform_initializer.global_config.create_client(
+            client_class=endpoint_service.EndpointServiceClient,
+            location_override=self._location,
             api_key=api_key,
         )
 
@@ -1161,6 +1176,45 @@ class _GenerativeModel:
             response_validation=response_validation,
         )
 
+    @classmethod
+    def from_cached_content(
+        cls,
+        cached_content: Union[str, "CachedContent"],
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+    ) -> "_GenerativeModel":
+        """Creates a model from cached content.
+
+        Creates a model instance with an existing cached content. The cached
+        content becomes the prefix of the requesting contents.
+
+        Args:
+            cached_content: The cached content resource name or object.
+            generation_config: The generation config to use for this model.
+            safety_settings: The safety settings to use for this model.
+
+        Returns:
+            A model instance with the cached content wtih cached content as
+            prefix of all its requests.
+        """
+        if isinstance(cached_content, str):
+            from vertexai.caching import CachedContent
+
+            cached_content = CachedContent.get(cached_content)
+        model_name = cached_content.model_name
+        model = cls(
+            model_name=model_name,
+            generation_config=generation_config,
+            safety_settings=safety_settings,
+            tools=None,
+            tool_config=None,
+            system_instruction=None,
+        )
+        model._cached_content = cached_content
+
+        return model
+
 
 _SUCCESSFUL_FINISH_REASONS = [
     gapic_content_types.Candidate.FinishReason.STOP,
@@ -1715,6 +1769,7 @@ class GenerationConfig:
     """Parameters for the generation."""
 
     Modality = gapic_content_types.GenerationConfig.Modality
+    ModelConfig = gapic_content_types.GenerationConfig.ModelConfig
 
     def __init__(
         self,
@@ -1735,6 +1790,7 @@ class GenerationConfig:
         logprobs: Optional[int] = None,
         response_logprobs: Optional[bool] = None,
         response_modalities: Optional[List["GenerationConfig.Modality"]] = None,
+        model_config: Optional["GenerationConfig.ModelConfig"] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1762,9 +1818,11 @@ class GenerationConfig:
                 response type, otherwise the behavior is undefined.
             response_schema: Output response schema of the genreated candidate text.
             audio_timestamp: If true, the timestamp of the audio will be included in the response.
-            routing_config: Model routing preference set in the request.
+            routing_config: Model routing preference set in the request. This field is deprecated,
+                please use model_config field instead for model optimizer requests.
             logprobs: Logit probabilities.
             reponse_logprobs: If true, export the logprobs results in response.
+            model_config: Sets cost vs quality preference for model routing requests.
 
         Usage:
 
@@ -1806,6 +1864,7 @@ class GenerationConfig:
             logprobs=logprobs,
             response_logprobs=response_logprobs,
             response_modalities=response_modalities,
+            model_config=model_config,
         )
         if routing_config is not None:
             self._raw_generation_config.routing_config = (
@@ -1840,6 +1899,7 @@ class GenerationConfig:
 
     class RoutingConfig:
         r"""The configuration for model router requests.
+        Deprecated, please use ModelConfig to set routing preference instead.
 
         The routing config is either one of the two nested classes:
         - AutoRoutingMode: Automated routing.
@@ -1874,6 +1934,11 @@ class GenerationConfig:
                 "GenerationConfig.RoutingConfig.ManualRoutingMode",
             ],
         ):
+            _LOGGER = base.Logger(__name__)
+            _LOGGER.warning(
+                "RoutingConfig is deprecated, please use ModelConfig to set routing preference instead."
+            )
+
             if isinstance(routing_config, self.AutoRoutingMode):
                 self._gapic_routing_config = (
                     gapic_content_types.GenerationConfig.RoutingConfig(
@@ -2291,26 +2356,73 @@ def _convert_schema_dict_to_gapic(schema_dict: Dict[str, Any]) -> Dict[str, Any]
     return gapic_schema_dict
 
 
+def _remove_dollar_from_keys(schema_dict: Dict[str, Any]) -> None:
+    """Renames, e.g., "$defs" to "defs" in-place."""
+    for dollar_name in ["$defs", "$ref"]:
+        value = schema_dict.pop(dollar_name, None)
+        if value is not None:
+            schema_dict[dollar_name[1:]] = value
+
+
+def _as_camel_case(name: str) -> str:
+    """Returns the `name`, which may be in snake_case, in lowerCamelCase."""
+    words = name.split("_")
+    return words.pop(0) + "".join(word.title() for word in words)
+
+
+def _rename_snake_to_camel_keys(schema_dict: Dict[str, Any]) -> None:
+    """Renames, e.g., "max_items" to "maxItems" in-place."""
+    keys = list(schema_dict)  # cache so we can update while iterating
+    for key in keys:
+        value = schema_dict.pop(key)
+        schema_dict[_as_camel_case(key)] = value
+
+
 def _fix_schema_dict_for_gapic_in_place(schema_dict: Dict[str, Any]) -> None:
     """Converts a JsonSchema to a dict that the Schema proto class accepts."""
+    # Standardize keys so we don't have to consider multiple spellings below.
+    _remove_dollar_from_keys(schema_dict)
+    _rename_snake_to_camel_keys(schema_dict)
+
     if "type" in schema_dict:
         schema_dict["type"] = schema_dict["type"].upper()
 
     if items_schema := schema_dict.get("items"):
         _fix_schema_dict_for_gapic_in_place(items_schema)
 
+    if prefixes := schema_dict.get("prefixItems"):
+        for prefix_schema in prefixes:
+            _fix_schema_dict_for_gapic_in_place(prefix_schema)
+
     if properties := schema_dict.get("properties"):
         for property_schema in properties.values():
             _fix_schema_dict_for_gapic_in_place(property_schema)
-        if (
-            "property_ordering" not in schema_dict
-            and "propertyOrdering" not in schema_dict
-        ):
-            schema_dict["property_ordering"] = list(properties.keys())
+        if "propertyOrdering" not in schema_dict:
+            schema_dict["propertyOrdering"] = list(properties.keys())
 
-    if any_of := (schema_dict.get("any_of") or schema_dict.get("anyOf")):
+    # The "additionalProperties" field may be set to a sub-schema or a boolean.
+    # To avoid this polymorphism, we eliminate boolean values as follows:
+    #   False: This means that no additional properties are allowed, besides
+    #          those listed in "properties".  We remove this because that is
+    #          already our default behavior.
+    #    True: This means that additional properties are allowed with any value
+    #          type.  We replace this with an equivalent empty dict:
+    #          https://screenshot.googleplex.com/yvgmAmZay5Dw7qY
+    if (additional := schema_dict.get("additionalProperties")) is not None:
+        if additional is False:
+            del schema_dict["additionalProperties"]
+        elif additional is True:
+            schema_dict["additionalProperties"] = {}
+        else:
+            _fix_schema_dict_for_gapic_in_place(additional)
+
+    if any_of := schema_dict.get("anyOf"):
         for any_of_schema in any_of:
             _fix_schema_dict_for_gapic_in_place(any_of_schema)
+
+    if defs := schema_dict.get("defs"):
+        for def_schema in defs.values():
+            _fix_schema_dict_for_gapic_in_place(def_schema)
 
 
 class CallableFunctionDeclaration(FunctionDeclaration):
@@ -3516,41 +3628,67 @@ class _PreviewGenerativeModel(_GenerativeModel):
             responder=responder,
         )
 
-    @classmethod
-    def from_cached_content(
-        cls,
-        cached_content: Union[str, "caching.CachedContent"],
+    def set_request_response_logging_config(
+        self,
         *,
-        generation_config: Optional[GenerationConfigType] = None,
-        safety_settings: Optional[SafetySettingsType] = None,
-    ) -> "_GenerativeModel":
-        """Creates a model from cached content.
-
-        Creates a model instance with an existing cached content. The cached
-        content becomes the prefix of the requesting contents.
+        enabled: bool,
+        sampling_rate: float,
+        bigquery_destination: str,
+        enable_otel_logging: Optional[bool] = None,
+    ) -> Union[aiplatform_types.PublisherModelConfig, aiplatform_types.Endpoint]:
+        """
+        Sets the request/response logging config.
 
         Args:
-            cached_content: The cached content resource name or object.
-            generation_config: The generation config to use for this model.
-            safety_settings: The safety settings to use for this model.
-
+            enabled: If logging is enabled or not.
+            sampling_rate: Percentage of requests to be logged, expressed as a
+                fraction in range(0,1].
+        bigquery_destination: BigQuery table for logging. If only given a project,
+            a new dataset will be created with name
+            ``logging_<endpoint-display-name>_<endpoint-id>`` where will
+            be made BigQuery-dataset-name compatible (e.g. most special
+            characters will become underscores). If no table name is
+            given, a new table will be created with name
+            ``request_response_logging``
+        enable_otel_logging: This field is used for large models. If true, in
+            addition to the original large model logs, logs will be converted in
+            OTel schema format, and saved in otel_log column. Default
+            value is false.
         Returns:
-            A model instance with the cached content wtih cached content as
-            prefix of all its requests.
+            The updated PublisherModelConfig or Endpoint.
         """
-        if isinstance(cached_content, str):
-            from vertexai.preview import caching
 
-            cached_content = caching.CachedContent.get(cached_content)
-        model_name = cached_content.model_name
-        model = cls(
-            model_name=model_name,
-            generation_config=generation_config,
-            safety_settings=safety_settings,
-            tools=None,
-            tool_config=None,
-            system_instruction=None,
+        logging_config = aiplatform_types.PredictRequestResponseLoggingConfig(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=aiplatform_types.BigQueryDestination(
+                output_uri=bigquery_destination
+            ),
+            enable_otel_logging=enable_otel_logging,
         )
-        model._cached_content = cached_content
 
-        return model
+        if self._endpoint_client.parse_endpoint_path(self._prediction_resource_name):
+            return self._endpoint_client.update_endpoint(
+                aiplatform_types.UpdateEndpointRequest(
+                    endpoint=aiplatform_types.Endpoint(
+                        name=self._prediction_resource_name,
+                        predict_request_response_logging_config=logging_config,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=["predict_request_response_logging_config"]
+                    ),
+                )
+            )
+
+        else:
+
+            operation = self._endpoint_client.set_publisher_model_config(
+                aiplatform_types.SetPublisherModelConfigRequest(
+                    name=self._prediction_resource_name,
+                    publisher_model_config=aiplatform_types.PublisherModelConfig(
+                        logging_config=logging_config
+                    ),
+                )
+            )
+
+            return operation.result()

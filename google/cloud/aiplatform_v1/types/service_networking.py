@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
         "PSCAutomationConfig",
         "PrivateServiceConnectConfig",
         "PscAutomatedEndpoints",
+        "PscInterfaceConfig",
     },
 )
 
@@ -114,6 +115,26 @@ class PscAutomatedEndpoints(proto.Message):
     match_address: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+
+
+class PscInterfaceConfig(proto.Message):
+    r"""Configuration for PSC-I.
+
+    Attributes:
+        network_attachment (str):
+            Optional. The name of the Compute Engine `network
+            attachment <https://cloud.google.com/vpc/docs/about-network-attachments>`__
+            to attach to the resource within the region and user
+            project. To specify this field, you must have already
+            [created a network attachment]
+            (https://cloud.google.com/vpc/docs/create-manage-network-attachments#create-network-attachments).
+            This field is only used for resources using PSC-I.
+    """
+
+    network_attachment: str = proto.Field(
+        proto.STRING,
+        number=1,
     )
 
 

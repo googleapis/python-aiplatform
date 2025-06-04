@@ -87,6 +87,24 @@ class TestRagRetrieval:
         )
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_corpora_config_rank_service_success(self):
+        response = rag.retrieval_query(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG_RANK_SERVICE,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_corpora_config_llm_ranker_success(self):
+        response = rag.retrieval_query(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG_LLM_RANKER,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
     @pytest.mark.usefixtures("rag_client_mock_exception")
     def test_retrieval_query_failure(self):
         with pytest.raises(RuntimeError) as e:

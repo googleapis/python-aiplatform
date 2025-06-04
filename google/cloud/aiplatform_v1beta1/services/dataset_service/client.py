@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
@@ -281,6 +282,28 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def cached_content_path(
+        project: str,
+        location: str,
+        cached_content: str,
+    ) -> str:
+        """Returns a fully-qualified cached_content string."""
+        return "projects/{project}/locations/{location}/cachedContents/{cached_content}".format(
+            project=project,
+            location=location,
+            cached_content=cached_content,
+        )
+
+    @staticmethod
+    def parse_cached_content_path(path: str) -> Dict[str, str]:
+        """Parses a cached_content path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/cachedContents/(?P<cached_content>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def data_item_path(
         project: str,
         location: str,
@@ -346,6 +369,50 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         """Parses a dataset_version path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)/datasetVersions/(?P<dataset_version>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def endpoint_path(
+        project: str,
+        location: str,
+        endpoint: str,
+    ) -> str:
+        """Returns a fully-qualified endpoint string."""
+        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+            project=project,
+            location=location,
+            endpoint=endpoint,
+        )
+
+    @staticmethod
+    def parse_endpoint_path(path: str) -> Dict[str, str]:
+        """Parses a endpoint path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def rag_corpus_path(
+        project: str,
+        location: str,
+        rag_corpus: str,
+    ) -> str:
+        """Returns a fully-qualified rag_corpus string."""
+        return "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(
+            project=project,
+            location=location,
+            rag_corpus=rag_corpus,
+        )
+
+    @staticmethod
+    def parse_rag_corpus_path(path: str) -> Dict[str, str]:
+        """Parses a rag_corpus path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/ragCorpora/(?P<rag_corpus>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -3154,7 +3221,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
     ) -> pagers.ListAnnotationsPager:
-        r"""Lists Annotations belongs to a dataitem
+        r"""Lists Annotations belongs to a dataitem.
 
         .. code-block:: python
 
@@ -3264,6 +3331,219 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             retry=retry,
             timeout=timeout,
             metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def assess_data(
+        self,
+        request: Optional[Union[dataset_service.AssessDataRequest, dict]] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> gac_operation.Operation:
+        r"""Assesses the state or validity of the dataset with
+        respect to a given use case.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_assess_data():
+                # Create a client
+                client = aiplatform_v1beta1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                tuning_validation_assessment_config = aiplatform_v1beta1.TuningValidationAssessmentConfig()
+                tuning_validation_assessment_config.model_name = "model_name_value"
+                tuning_validation_assessment_config.dataset_usage = "SFT_VALIDATION"
+
+                gemini_template_config = aiplatform_v1beta1.GeminiTemplateConfig()
+                gemini_template_config.gemini_example.contents.parts.text = "text_value"
+
+                request = aiplatform_v1beta1.AssessDataRequest(
+                    tuning_validation_assessment_config=tuning_validation_assessment_config,
+                    gemini_template_config=gemini_template_config,
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.assess_data(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.AssessDataRequest, dict]):
+                The request object. Request message for
+                [DatasetService.AssessData][google.cloud.aiplatform.v1beta1.DatasetService.AssessData].
+                Used only for MULTIMODAL datasets.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.AssessDataResponse` Response message for
+                   [DatasetService.AssessData][google.cloud.aiplatform.v1beta1.DatasetService.AssessData].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.AssessDataRequest):
+            request = dataset_service.AssessDataRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.assess_data]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            dataset_service.AssessDataResponse,
+            metadata_type=dataset_service.AssessDataOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def assemble_data(
+        self,
+        request: Optional[Union[dataset_service.AssembleDataRequest, dict]] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> gac_operation.Operation:
+        r"""Assembles each row of a multimodal dataset and writes
+        the result into a BigQuery table.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_assemble_data():
+                # Create a client
+                client = aiplatform_v1beta1.DatasetServiceClient()
+
+                # Initialize request argument(s)
+                gemini_template_config = aiplatform_v1beta1.GeminiTemplateConfig()
+                gemini_template_config.gemini_example.contents.parts.text = "text_value"
+
+                request = aiplatform_v1beta1.AssembleDataRequest(
+                    gemini_template_config=gemini_template_config,
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.assemble_data(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.AssembleDataRequest, dict]):
+                The request object. Request message for
+                [DatasetService.AssembleData][google.cloud.aiplatform.v1beta1.DatasetService.AssembleData].
+                Used only for MULTIMODAL datasets.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.AssembleDataResponse` Response message for
+                   [DatasetService.AssembleData][google.cloud.aiplatform.v1beta1.DatasetService.AssembleData].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, dataset_service.AssembleDataRequest):
+            request = dataset_service.AssembleDataRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.assemble_data]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            dataset_service.AssembleDataResponse,
+            metadata_type=dataset_service.AssembleDataOperationMetadata,
         )
 
         # Done; return the response.
@@ -4014,5 +4294,7 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
 
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 __all__ = ("DatasetServiceClient",)

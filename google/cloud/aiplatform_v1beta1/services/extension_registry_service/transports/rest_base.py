@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -875,6 +875,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -1032,6 +1036,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1268,6 +1276,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1445,6 +1457,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1705,6 +1721,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -1890,6 +1910,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2146,6 +2170,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2331,6 +2359,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                 },
                 {
                     "method": "get",
@@ -2595,6 +2627,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -2772,6 +2808,10 @@ class _BaseExtensionRegistryServiceRestTransport(ExtensionRegistryServiceTranspo
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                 },
                 {
                     "method": "post",

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -88,6 +88,7 @@ from google.cloud.aiplatform_v1.types import pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import pipeline_state
+from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.aiplatform_v1.types import training_pipeline
 from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
 from google.cloud.aiplatform_v1.types import value
@@ -9226,6 +9227,9 @@ def test_create_training_pipeline_rest_call_success(request_type):
             },
             "satisfies_pzs": True,
             "satisfies_pzi": True,
+            "checkpoints": [
+                {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
+            ],
         },
         "model_id": "model_id_value",
         "parent_model": "parent_model_value",
@@ -10075,6 +10079,7 @@ def test_create_pipeline_job_rest_call_success(request_type):
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
+        "psc_interface_config": {"network_attachment": "network_attachment_value"},
         "template_uri": "template_uri_value",
         "template_metadata": {"version": "version_value"},
         "schedule_name": "schedule_name_value",
@@ -12161,6 +12166,9 @@ async def test_create_training_pipeline_rest_asyncio_call_success(request_type):
             },
             "satisfies_pzs": True,
             "satisfies_pzi": True,
+            "checkpoints": [
+                {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
+            ],
         },
         "model_id": "model_id_value",
         "parent_model": "parent_model_value",
@@ -13090,6 +13098,7 @@ async def test_create_pipeline_job_rest_asyncio_call_success(request_type):
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
+        "psc_interface_config": {"network_attachment": "network_attachment_value"},
         "template_uri": "template_uri_value",
         "template_metadata": {"version": "version_value"},
         "schedule_name": "schedule_name_value",
@@ -15947,10 +15956,38 @@ def test_parse_network_path():
     assert expected == actual
 
 
-def test_pipeline_job_path():
+def test_network_attachment_path():
     project = "scallop"
-    location = "abalone"
-    pipeline_job = "squid"
+    region = "abalone"
+    networkattachment = "squid"
+    expected = "projects/{project}/regions/{region}/networkAttachments/{networkattachment}".format(
+        project=project,
+        region=region,
+        networkattachment=networkattachment,
+    )
+    actual = PipelineServiceClient.network_attachment_path(
+        project, region, networkattachment
+    )
+    assert expected == actual
+
+
+def test_parse_network_attachment_path():
+    expected = {
+        "project": "clam",
+        "region": "whelk",
+        "networkattachment": "octopus",
+    }
+    path = PipelineServiceClient.network_attachment_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = PipelineServiceClient.parse_network_attachment_path(path)
+    assert expected == actual
+
+
+def test_pipeline_job_path():
+    project = "oyster"
+    location = "nudibranch"
+    pipeline_job = "cuttlefish"
     expected = (
         "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
             project=project,
@@ -15964,9 +16001,9 @@ def test_pipeline_job_path():
 
 def test_parse_pipeline_job_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "pipeline_job": "octopus",
+        "project": "mussel",
+        "location": "winkle",
+        "pipeline_job": "nautilus",
     }
     path = PipelineServiceClient.pipeline_job_path(**expected)
 
@@ -15976,9 +16013,9 @@ def test_parse_pipeline_job_path():
 
 
 def test_training_pipeline_path():
-    project = "oyster"
-    location = "nudibranch"
-    training_pipeline = "cuttlefish"
+    project = "scallop"
+    location = "abalone"
+    training_pipeline = "squid"
     expected = "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
         project=project,
         location=location,
@@ -15992,9 +16029,9 @@ def test_training_pipeline_path():
 
 def test_parse_training_pipeline_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "training_pipeline": "nautilus",
+        "project": "clam",
+        "location": "whelk",
+        "training_pipeline": "octopus",
     }
     path = PipelineServiceClient.training_pipeline_path(**expected)
 
@@ -16004,7 +16041,7 @@ def test_parse_training_pipeline_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "oyster"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -16014,7 +16051,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "nudibranch",
     }
     path = PipelineServiceClient.common_billing_account_path(**expected)
 
@@ -16024,7 +16061,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "cuttlefish"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -16034,7 +16071,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "mussel",
     }
     path = PipelineServiceClient.common_folder_path(**expected)
 
@@ -16044,7 +16081,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "winkle"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -16054,7 +16091,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "nautilus",
     }
     path = PipelineServiceClient.common_organization_path(**expected)
 
@@ -16064,7 +16101,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "oyster"
+    project = "scallop"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -16074,7 +16111,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "abalone",
     }
     path = PipelineServiceClient.common_project_path(**expected)
 
@@ -16084,8 +16121,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "squid"
+    location = "clam"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -16096,8 +16133,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "whelk",
+        "location": "octopus",
     }
     path = PipelineServiceClient.common_location_path(**expected)
 

@@ -49,6 +49,10 @@ _TEST_NETWORK = test_constants.TrainingJobConstants._TEST_NETWORK
 _TEST_RESERVED_IP_RANGES = test_constants.TrainingJobConstants._TEST_RESERVED_IP_RANGES
 _TEST_KEY_NAME = test_constants.TrainingJobConstants._TEST_DEFAULT_ENCRYPTION_KEY_NAME
 _TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
+_TEST_ENABLE_CUSTOM_SERVICE_ACCOUNT_TRUE = (
+    test_constants.ProjectConstants._TEST_ENABLE_CUSTOM_SERVICE_ACCOUNT_TRUE
+)
+
 
 _TEST_PERSISTENT_RESOURCE_PROTO = persistent_resource_v1.PersistentResource(
     name=_TEST_PERSISTENT_RESOURCE_ID,
@@ -298,7 +302,7 @@ class TestPersistentResource:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_persistent_resource_with_service_account(
+    def test_create_persistent_resource_enable_custom_sa_true_with_sa(
         self,
         create_persistent_resource_mock,
         get_persistent_resource_mock,
@@ -309,6 +313,7 @@ class TestPersistentResource:
             resource_pools=[
                 test_constants.PersistentResourceConstants._TEST_RESOURCE_POOL,
             ],
+            enable_custom_service_account=_TEST_ENABLE_CUSTOM_SERVICE_ACCOUNT_TRUE,
             service_account=_TEST_SERVICE_ACCOUNT,
             sync=sync,
         )
@@ -321,13 +326,172 @@ class TestPersistentResource:
         )
 
         service_account_spec = persistent_resource_v1.ServiceAccountSpec(
-            enable_custom_service_account=True, service_account=_TEST_SERVICE_ACCOUNT
+            enable_custom_service_account=_TEST_ENABLE_CUSTOM_SERVICE_ACCOUNT_TRUE,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
         expected_persistent_resource_arg.resource_runtime_spec = (
             persistent_resource_v1.ResourceRuntimeSpec(
                 service_account_spec=service_account_spec
             )
         )
+
+        create_persistent_resource_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+            persistent_resource=expected_persistent_resource_arg,
+            timeout=None,
+        )
+        get_persistent_resource_mock.assert_called_once()
+        _, mock_kwargs = get_persistent_resource_mock.call_args
+        assert mock_kwargs["name"] == _get_resource_name(
+            name=_TEST_PERSISTENT_RESOURCE_ID
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_persistent_resource_enable_custom_sa_true_no_sa(
+        self,
+        create_persistent_resource_mock,
+        get_persistent_resource_mock,
+        sync,
+    ):
+        my_test_resource = persistent_resource.PersistentResource.create(
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+            resource_pools=[
+                test_constants.PersistentResourceConstants._TEST_RESOURCE_POOL,
+            ],
+            enable_custom_service_account=True,
+            sync=sync,
+        )
+
+        if not sync:
+            my_test_resource.wait()
+
+        expected_persistent_resource_arg = _get_persistent_resource_proto(
+            name=_TEST_PERSISTENT_RESOURCE_ID,
+        )
+        service_account_spec = persistent_resource_v1.ServiceAccountSpec(
+            enable_custom_service_account=True,
+            service_account=None,
+        )
+        expected_persistent_resource_arg.resource_runtime_spec = (
+            persistent_resource_v1.ResourceRuntimeSpec(
+                service_account_spec=service_account_spec
+            )
+        )
+
+        create_persistent_resource_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+            persistent_resource=expected_persistent_resource_arg,
+            timeout=None,
+        )
+        get_persistent_resource_mock.assert_called_once()
+        _, mock_kwargs = get_persistent_resource_mock.call_args
+        assert mock_kwargs["name"] == _get_resource_name(
+            name=_TEST_PERSISTENT_RESOURCE_ID
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_persistent_resource_enable_custom_sa_false_raises_error(
+        self,
+        create_persistent_resource_mock,
+        get_persistent_resource_mock,
+        sync,
+    ):
+        with pytest.raises(ValueError) as excinfo:
+            my_test_resource = persistent_resource.PersistentResource.create(
+                persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+                resource_pools=[
+                    test_constants.PersistentResourceConstants._TEST_RESOURCE_POOL,
+                ],
+                enable_custom_service_account=False,
+                service_account=_TEST_SERVICE_ACCOUNT,
+                sync=sync,
+            )
+            if not sync:
+                my_test_resource.wait()
+
+        assert str(excinfo.value) == (
+            "The parameter `enable_custom_service_account` was set to False, "
+            "but a value was provided for `service_account`. These two "
+            "settings are incompatible. If you want to use a custom "
+            "service account, set `enable_custom_service_account` to True."
+        )
+
+        create_persistent_resource_mock.assert_not_called()
+        get_persistent_resource_mock.assert_not_called()
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_persistent_resource_enable_custom_sa_none_with_sa(
+        self,
+        create_persistent_resource_mock,
+        get_persistent_resource_mock,
+        sync,
+    ):
+        my_test_resource = persistent_resource.PersistentResource.create(
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+            resource_pools=[
+                test_constants.PersistentResourceConstants._TEST_RESOURCE_POOL,
+            ],
+            enable_custom_service_account=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+        )
+
+        if not sync:
+            my_test_resource.wait()
+
+        expected_persistent_resource_arg = _get_persistent_resource_proto(
+            name=_TEST_PERSISTENT_RESOURCE_ID,
+        )
+        service_account_spec = persistent_resource_v1.ServiceAccountSpec(
+            enable_custom_service_account=True,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+        expected_persistent_resource_arg.resource_runtime_spec = (
+            persistent_resource_v1.ResourceRuntimeSpec(
+                service_account_spec=service_account_spec
+            )
+        )
+
+        create_persistent_resource_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+            persistent_resource=expected_persistent_resource_arg,
+            timeout=None,
+        )
+        get_persistent_resource_mock.assert_called_once()
+        _, mock_kwargs = get_persistent_resource_mock.call_args
+        assert mock_kwargs["name"] == _get_resource_name(
+            name=_TEST_PERSISTENT_RESOURCE_ID
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_persistent_resource_enable_custom_sa_none_no_sa(
+        self,
+        create_persistent_resource_mock,
+        get_persistent_resource_mock,
+        sync,
+    ):
+        my_test_resource = persistent_resource.PersistentResource.create(
+            persistent_resource_id=_TEST_PERSISTENT_RESOURCE_ID,
+            resource_pools=[
+                test_constants.PersistentResourceConstants._TEST_RESOURCE_POOL,
+            ],
+            enable_custom_service_account=None,
+            sync=sync,
+        )
+
+        if not sync:
+            my_test_resource.wait()
+
+        expected_persistent_resource_arg = _get_persistent_resource_proto(
+            name=_TEST_PERSISTENT_RESOURCE_ID,
+        )
+
+        # Assert that resource_runtime_spec is NOT set
+        call_args = create_persistent_resource_mock.call_args.kwargs
+        assert "resource_runtime_spec" not in call_args["persistent_resource"]
 
         create_persistent_resource_mock.assert_called_once_with(
             parent=_TEST_PARENT,

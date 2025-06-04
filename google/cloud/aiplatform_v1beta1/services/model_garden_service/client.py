@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
@@ -1264,6 +1265,375 @@ class ModelGardenServiceClient(metaclass=ModelGardenServiceClientMeta):
         # Done; return the response.
         return response
 
+    def export_publisher_model(
+        self,
+        request: Optional[
+            Union[model_garden_service.ExportPublisherModelRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> operation.Operation:
+        r"""Exports a publisher model to a user provided Google
+        Cloud Storage bucket.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_export_publisher_model():
+                # Create a client
+                client = aiplatform_v1beta1.ModelGardenServiceClient()
+
+                # Initialize request argument(s)
+                destination = aiplatform_v1beta1.GcsDestination()
+                destination.output_uri_prefix = "output_uri_prefix_value"
+
+                request = aiplatform_v1beta1.ExportPublisherModelRequest(
+                    name="name_value",
+                    destination=destination,
+                    parent="parent_value",
+                )
+
+                # Make the request
+                operation = client.export_publisher_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ExportPublisherModelRequest, dict]):
+                The request object. Request message for
+                [ModelGardenService.ExportPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.ExportPublisherModel].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.ExportPublisherModelResponse` Response message for
+                   [ModelGardenService.ExportPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.ExportPublisherModel].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, model_garden_service.ExportPublisherModelRequest):
+            request = model_garden_service.ExportPublisherModelRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.export_publisher_model]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (
+                    ("parent", request.parent),
+                    ("name", request.name),
+                )
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            model_garden_service.ExportPublisherModelResponse,
+            metadata_type=model_garden_service.ExportPublisherModelOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def check_publisher_model_eula_acceptance(
+        self,
+        request: Optional[
+            Union[model_garden_service.CheckPublisherModelEulaAcceptanceRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        publisher_model: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> model_garden_service.PublisherModelEulaAcceptance:
+        r"""Checks the EULA acceptance status of a publisher
+        model.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_check_publisher_model_eula_acceptance():
+                # Create a client
+                client = aiplatform_v1beta1.ModelGardenServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CheckPublisherModelEulaAcceptanceRequest(
+                    parent="parent_value",
+                    publisher_model="publisher_model_value",
+                )
+
+                # Make the request
+                response = client.check_publisher_model_eula_acceptance(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.CheckPublisherModelEulaAcceptanceRequest, dict]):
+                The request object. Request message for
+                [ModelGardenService.CheckPublisherModelEula][].
+            parent (str):
+                Required. The project requesting access for named model.
+                The format is ``projects/{project}``.
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            publisher_model (str):
+                Required. The name of the PublisherModel resource.
+                Format:
+                ``publishers/{publisher}/models/{publisher_model}``, or
+                ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}``
+
+                This corresponds to the ``publisher_model`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.PublisherModelEulaAcceptance:
+                Response message for
+                   [ModelGardenService.UpdatePublisherModelEula][].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [parent, publisher_model]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, model_garden_service.CheckPublisherModelEulaAcceptanceRequest
+        ):
+            request = model_garden_service.CheckPublisherModelEulaAcceptanceRequest(
+                request
+            )
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if publisher_model is not None:
+                request.publisher_model = publisher_model
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.check_publisher_model_eula_acceptance
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def accept_publisher_model_eula(
+        self,
+        request: Optional[
+            Union[model_garden_service.AcceptPublisherModelEulaRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        publisher_model: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> model_garden_service.PublisherModelEulaAcceptance:
+        r"""Accepts the EULA acceptance status of a publisher
+        model.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_accept_publisher_model_eula():
+                # Create a client
+                client = aiplatform_v1beta1.ModelGardenServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.AcceptPublisherModelEulaRequest(
+                    parent="parent_value",
+                    publisher_model="publisher_model_value",
+                )
+
+                # Make the request
+                response = client.accept_publisher_model_eula(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.AcceptPublisherModelEulaRequest, dict]):
+                The request object. Request message for
+                [ModelGardenService.AcceptPublisherModelEula][google.cloud.aiplatform.v1beta1.ModelGardenService.AcceptPublisherModelEula].
+            parent (str):
+                Required. The project requesting access for named model.
+                The format is ``projects/{project}``.
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            publisher_model (str):
+                Required. The name of the PublisherModel resource.
+                Format:
+                ``publishers/{publisher}/models/{publisher_model}``, or
+                ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}``
+
+                This corresponds to the ``publisher_model`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.PublisherModelEulaAcceptance:
+                Response message for
+                   [ModelGardenService.UpdatePublisherModelEula][].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [parent, publisher_model]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, model_garden_service.AcceptPublisherModelEulaRequest
+        ):
+            request = model_garden_service.AcceptPublisherModelEulaRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if publisher_model is not None:
+                request.publisher_model = publisher_model
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.accept_publisher_model_eula
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     def __enter__(self) -> "ModelGardenServiceClient":
         return self
 
@@ -2009,5 +2379,7 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
 
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 __all__ = ("ModelGardenServiceClient",)

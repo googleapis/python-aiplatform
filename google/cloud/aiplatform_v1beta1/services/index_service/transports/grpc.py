@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,12 +76,11 @@ class _LoggingClientInterceptor(grpc.UnaryUnaryClientInterceptor):  # pragma: NO
                 f"Sending request for {client_call_details.method}",
                 extra={
                     "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
-                    "rpcName": client_call_details.method,
+                    "rpcName": str(client_call_details.method),
                     "request": grpc_request,
                     "metadata": grpc_request["metadata"],
                 },
             )
-
         response = continuation(client_call_details, request)
         if logging_enabled:  # pragma: NO COVER
             response_metadata = response.trailing_metadata()
@@ -394,6 +393,33 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
                 response_deserializer=index.Index.deserialize,
             )
         return self._stubs["get_index"]
+
+    @property
+    def import_index(
+        self,
+    ) -> Callable[[index_service.ImportIndexRequest], operations_pb2.Operation]:
+        r"""Return a callable for the import index method over gRPC.
+
+        Imports an Index from an external source (e.g.,
+        BigQuery).
+
+        Returns:
+            Callable[[~.ImportIndexRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "import_index" not in self._stubs:
+            self._stubs["import_index"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.IndexService/ImportIndex",
+                request_serializer=index_service.ImportIndexRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["import_index"]
 
     @property
     def list_indexes(
