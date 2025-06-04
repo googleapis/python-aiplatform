@@ -137,6 +137,8 @@ from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
 from .types.content import Segment
 from .types.content import SpeechConfig
+from .types.content import UrlContextMetadata
+from .types.content import UrlMetadata
 from .types.content import VideoMetadata
 from .types.content import VoiceConfig
 from .types.content import HarmCategory
@@ -2448,6 +2450,8 @@ __all__ = (
     "UpsertExamplesRequest",
     "UpsertExamplesResponse",
     "UrlContext",
+    "UrlContextMetadata",
+    "UrlMetadata",
     "UserActionReference",
     "Value",
     "VertexAISearch",

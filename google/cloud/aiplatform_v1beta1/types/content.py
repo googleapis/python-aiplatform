@@ -46,6 +46,8 @@ __protobuf__ = proto.module(
         "CitationMetadata",
         "Citation",
         "Candidate",
+        "UrlContextMetadata",
+        "UrlMetadata",
         "LogprobsResult",
         "Segment",
         "GroundingChunk",
@@ -1104,6 +1106,9 @@ class Candidate(proto.Message):
         grounding_metadata (google.cloud.aiplatform_v1beta1.types.GroundingMetadata):
             Output only. Metadata specifies sources used
             to ground generated content.
+        url_context_metadata (google.cloud.aiplatform_v1beta1.types.UrlContextMetadata):
+            Output only. Metadata related to url context
+            retrieval tool.
     """
 
     class FinishReason(proto.Enum):
@@ -1197,6 +1202,62 @@ class Candidate(proto.Message):
         proto.MESSAGE,
         number=7,
         message="GroundingMetadata",
+    )
+    url_context_metadata: "UrlContextMetadata" = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message="UrlContextMetadata",
+    )
+
+
+class UrlContextMetadata(proto.Message):
+    r"""Metadata related to url context retrieval tool.
+
+    Attributes:
+        url_metadata (MutableSequence[google.cloud.aiplatform_v1beta1.types.UrlMetadata]):
+            Output only. List of url context.
+    """
+
+    url_metadata: MutableSequence["UrlMetadata"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="UrlMetadata",
+    )
+
+
+class UrlMetadata(proto.Message):
+    r"""Context of the a single url retrieval.
+
+    Attributes:
+        retrieved_url (str):
+            Retrieved url by the tool.
+        url_retrieval_status (google.cloud.aiplatform_v1beta1.types.UrlMetadata.UrlRetrievalStatus):
+            Status of the url retrieval.
+    """
+
+    class UrlRetrievalStatus(proto.Enum):
+        r"""Status of the url retrieval.
+
+        Values:
+            URL_RETRIEVAL_STATUS_UNSPECIFIED (0):
+                Default value. This value is unused.
+            URL_RETRIEVAL_STATUS_SUCCESS (1):
+                Url retrieval is successful.
+            URL_RETRIEVAL_STATUS_ERROR (2):
+                Url retrieval is failed due to error.
+        """
+        URL_RETRIEVAL_STATUS_UNSPECIFIED = 0
+        URL_RETRIEVAL_STATUS_SUCCESS = 1
+        URL_RETRIEVAL_STATUS_ERROR = 2
+
+    retrieved_url: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    url_retrieval_status: UrlRetrievalStatus = proto.Field(
+        proto.ENUM,
+        number=2,
+        enum=UrlRetrievalStatus,
     )
 
 
