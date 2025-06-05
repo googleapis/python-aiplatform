@@ -38,3 +38,5 @@ if sys.version_info > (3, 11):
         "vertexai/test_serializers.py",
         "vertexai/test_vizier_hyperparameter_tuner.py",
     ]
+
+collect_ignore.append("vertexai/genai/replays/**")
