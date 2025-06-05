@@ -18,21 +18,27 @@ import importlib
 import json
 import os
 from unittest import mock
+import warnings
 
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
+from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
+from google.genai import client
+from google.genai import errors as genai_errors
 from google.genai import types as genai_types
-import google.genai.errors as genai_errors
 import pandas as pd
 import pytest
-import warnings
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 
+
+_evals_common = _genai.evals._evals_common
+_evals_utils = _genai._evals_utils
 
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
 
@@ -48,47 +54,41 @@ class TestEvals:
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
+        self.client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     @pytest.mark.usefixtures("google_auth_mock")
-    def test_evaluate_instances(self):
-        test_client = _genai.client.Client(
-            project=_TEST_PROJECT, location=_TEST_LOCATION
-        )
+    @mock.patch.object(client.Client, "_get_api_client")
+    @mock.patch.object(evals.Evals, "_evaluate_instances")
+    def test_evaluate_instances(self, mock_evaluate, mock_get_api_client):
         with warnings.catch_warnings(record=True) as captured_warnings:
             warnings.simplefilter("always")
-            with mock.patch.object(
-                test_client.evals, "_evaluate_instances"
-            ) as mock_evaluate:
-                test_client.evals._evaluate_instances(
-                    bleu_input=_genai.types.BleuInput()
-                )
-                mock_evaluate.assert_called_once_with(
-                    bleu_input=_genai.types.BleuInput()
-                )
-                assert captured_warnings[0].category == genai_errors.ExperimentalWarning
+            self.client.evals._evaluate_instances(
+                bleu_input=vertexai_genai_types.BleuInput()
+            )
+            mock_evaluate.assert_called_once_with(
+                bleu_input=vertexai_genai_types.BleuInput()
+            )
+            assert captured_warnings[0].category == genai_errors.ExperimentalWarning
 
     @pytest.mark.usefixtures("google_auth_mock")
     def test_eval_run(self):
-        test_client = _genai.client.Client(
-            project=_TEST_PROJECT, location=_TEST_LOCATION
-        )
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with pytest.raises(NotImplementedError):
             test_client.evals.run()
 
     @pytest.mark.usefixtures("google_auth_mock")
-    def test_eval_batch_eval(self):
-        test_client = _genai.client.Client(
-            project=_TEST_PROJECT, location=_TEST_LOCATION
+    @mock.patch.object(client.Client, "_get_api_client")
+    @mock.patch.object(evals.Evals, "batch_eval")
+    def test_eval_batch_eval(self, mock_evaluate, mock_get_api_client):
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_client.evals.batch_eval(
+            dataset=vertexai_genai_types.EvaluationDataset(),
+            metrics=[vertexai_genai_types.Metric()],
+            output_config=vertexai_genai_types.OutputConfig(),
+            autorater_config=vertexai_genai_types.AutoraterConfig(),
+            config=vertexai_genai_types.EvaluateDatasetConfig(),
         )
-        with mock.patch.object(test_client.evals, "batch_eval") as mock_batch_eval:
-            test_client.evals.batch_eval(
-                dataset=_genai.types.EvaluationDataset(),
-                metrics=[_genai.types.Metric()],
-                output_config=_genai.types.OutputConfig(),
-                autorater_config=_genai.types.AutoraterConfig(),
-                config=_genai.types.EvaluateDatasetConfig(),
-            )
-            mock_batch_eval.assert_called_once()
+        mock_evaluate.assert_called_once()
 
 
 class TestEvalsClientInference:
@@ -99,20 +99,16 @@ class TestEvalsClientInference:
         importlib.reload(aiplatform)
         importlib.reload(vertexai)
         importlib.reload(_genai.client)
-        importlib.reload(_genai.types)
+        importlib.reload(vertexai_genai_types)
         importlib.reload(_genai.evals)
-        importlib.reload(_genai._evals_utils)
-        importlib.reload(_genai._evals_common)
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
-        self.client = _genai.client.Client(
-            project=_TEST_PROJECT, location=_TEST_LOCATION
-        )
+        self.client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-    @mock.patch(f"{_genai._evals_common.__name__}.Models")
-    @mock.patch(f"{_genai._evals_utils.__name__}.EvalDatasetLoader")
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_string_model_success(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -153,7 +149,7 @@ class TestEvalsClientInference:
             ),
         )
 
-    @mock.patch(f"{_genai._evals_utils.__name__}.EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_callable_model_success(self, mock_eval_dataset_loader):
         mock_df = pd.DataFrame({"prompt": ["test prompt"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
@@ -178,8 +174,8 @@ class TestEvalsClientInference:
             ),
         )
 
-    @mock.patch(f"{_genai._evals_common.__name__}.Models")
-    @mock.patch(f"{_genai._evals_utils.__name__}.EvalDatasetLoader")
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_prompt_template(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -202,7 +198,7 @@ class TestEvalsClientInference:
             mock_generate_content_response
         )
 
-        config = _genai.types.EvalRunInferenceConfig(
+        config = vertexai_genai_types.EvalRunInferenceConfig(
             prompt_template="Hello {text_input}"
         )
         result_df = self.client.evals.run_inference(
@@ -223,9 +219,9 @@ class TestEvalsClientInference:
             ),
         )
 
-    @mock.patch(f"{_genai._evals_common.__name__}.Models")
-    @mock.patch(f"{_genai._evals_utils.__name__}.EvalDatasetLoader")
-    @mock.patch(f"{_genai._evals_utils.__name__}.GcsUtils")
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "GcsUtils")
     def test_inference_with_gcs_destination(
         self, mock_gcs_utils, mock_eval_dataset_loader, mock_models
     ):
@@ -249,7 +245,7 @@ class TestEvalsClientInference:
         )
 
         gcs_dest_path = "gs://bucket/output.jsonl"
-        config = _genai.types.EvalRunInferenceConfig(dest=gcs_dest_path)
+        config = vertexai_genai_types.EvalRunInferenceConfig(dest=gcs_dest_path)
 
         result_df = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
@@ -270,8 +266,8 @@ class TestEvalsClientInference:
         )
         pd.testing.assert_frame_equal(result_df, expected_df_to_save)
 
-    @mock.patch(f"{_genai._evals_common.__name__}.Models")
-    @mock.patch(f"{_genai._evals_utils.__name__}.EvalDatasetLoader")
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch("pandas.DataFrame.to_json")
     @mock.patch("os.makedirs")
     def test_inference_with_local_destination(
@@ -301,7 +297,7 @@ class TestEvalsClientInference:
         )
 
         local_dest_path = "/tmp/test/output_dir/results.jsonl"
-        config = _genai.types.EvalRunInferenceConfig(dest=local_dest_path)
+        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_path)
 
         result_df = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
@@ -319,8 +315,8 @@ class TestEvalsClientInference:
         )
         pd.testing.assert_frame_equal(result_df, expected_df)
 
-    @mock.patch(f"{_genai._evals_common.__name__}.Models")
-    @mock.patch(f"{_genai._evals_utils.__name__}.EvalDatasetLoader")
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_from_request_column_save_locally(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -359,7 +355,7 @@ class TestEvalsClientInference:
         )
 
         local_dest_path = "/tmp/output.jsonl"
-        config = _genai.types.EvalRunInferenceConfig(dest=local_dest_path)
+        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_path)
 
         result_df = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
@@ -402,7 +398,7 @@ class TestEvalsClientInference:
         )
         os.remove(local_dest_path)
 
-    @mock.patch(f"{_genai._evals_common.__name__}.Models")
+    @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_jsonl_file(self, mock_models):
         # Create a temporary JSONL file
         local_src_path = "/tmp/input.jsonl"
@@ -474,7 +470,7 @@ class TestEvalsClientInference:
         )
         os.remove(local_src_path)
 
-    @mock.patch(f"{_genai._evals_common.__name__}.Models")
+    @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_csv_file(self, mock_models):
         # Create a temporary CSV file
         local_src_path = "/tmp/input.csv"
@@ -543,8 +539,8 @@ class TestEvalsClientInference:
         )
         os.remove(local_src_path)
 
-    @mock.patch(f"{_genai._evals_common.__name__}.Models")
-    @mock.patch(f"{_genai._evals_utils.__name__}.EvalDatasetLoader")
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_row_level_config_overrides(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -631,8 +627,8 @@ class TestEvalsClientInference:
             expected_df.sort_values(by="request").reset_index(drop=True),
         )
 
-    @mock.patch(f"{_genai._evals_common.__name__}.Models")
-    @mock.patch(f"{_genai._evals_utils.__name__}.EvalDatasetLoader")
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_multimodal_content(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -670,7 +666,7 @@ class TestEvalsClientInference:
             mock_generate_content_response
         )
 
-        config = _genai.types.EvalRunInferenceConfig(
+        config = vertexai_genai_types.EvalRunInferenceConfig(
             prompt_template="multimodal prompt: {media_content}{text_input}"
         )
         result_df = self.client.evals.run_inference(

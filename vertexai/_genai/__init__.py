@@ -14,8 +14,28 @@
 #
 """The vertexai module."""
 
-from . import evals
+import importlib
+
 from .client import Client
+
+_evals = None
+
+
+def __getattr__(name):
+    if name == "evals":
+        global _evals
+        if _evals is None:
+            try:
+                _evals = importlib.import_module(".evals", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'evals' module requires 'pandas' and 'tqdm'. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[evaluation]"
+                ) from e
+        return _evals
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+
 
 __all__ = [
     "Client",

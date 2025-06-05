@@ -47,7 +47,7 @@ def test_vertexai_import():
 
     # First let's check that the aiplatform and vertexai models are not loaded yet.
     # This is not trivial since in google3 all modules including this test are
-    # under google.cloud.aiplatform. Moudle names are different in google3.
+    # under google.cloud.aiplatform. Module names are different in google3.
     # My solution is to ignore modules that are parents of the current test module.
     modules_before_aip = set(sys.modules)
     for module_name in modules_before_aip:
@@ -89,6 +89,23 @@ def test_vertexai_import():
     # Testing that external modules are not loaded.
     new_modules = modules_after_vertexai - modules_before_aip
     _test_external_imports(new_modules)
+
+    # Tests the GenAI client module is lazy loaded.
+    from vertexai._genai import client as _  # noqa: F401,F811
+
+    modules_after_genai_client_import = set(sys.modules)
+
+    # The evals module has additional required deps that should not be required
+    # to instantiate a client.
+    assert "pandas" not in modules_after_genai_client_import
+    assert "pydantic" in modules_after_genai_client_import
+
+    # Tests the evals module is lazy loaded.
+    from vertexai._genai import evals as _  # noqa: F401,F811
+
+    modules_after_eval_import = set(sys.modules)
+
+    assert "pandas" in modules_after_eval_import
 
 
 def _test_external_imports(new_modules: list):
