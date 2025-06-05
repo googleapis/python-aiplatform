@@ -19,7 +19,6 @@ import logging
 import os
 import time
 from typing import Any, Callable, Optional, Union
-
 from google.api_core import exceptions as api_exceptions
 from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
