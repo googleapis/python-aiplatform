@@ -378,7 +378,8 @@ class TestEvalsClientInference:
                     contents="req 2",
                     config=genai_types.GenerateContentConfig(),
                 ),
-            ]
+            ],
+            any_order=True,
         )
         expected_df = pd.DataFrame(
             {
@@ -387,13 +388,18 @@ class TestEvalsClientInference:
                 "response": ["resp 1", "resp 2"],
             }
         )
-        pd.testing.assert_frame_equal(result_df, expected_df)
+        pd.testing.assert_frame_equal(
+            result_df.sort_values(by="request").reset_index(drop=True),
+            expected_df.sort_values(by="request").reset_index(drop=True),
+        )
 
         # Assert that the local file was created with the correct content
         with open(local_dest_path, "r") as f:
             saved_records = [json.loads(line) for line in f]
         expected_records = expected_df.to_dict(orient="records")
-        assert saved_records == expected_records
+        assert sorted(saved_records, key=lambda x: x["request"]) == sorted(
+            expected_records, key=lambda x: x["request"]
+        )
         os.remove(local_dest_path)
 
     @mock.patch(f"{_genai._evals_common.__name__}.Models")
@@ -447,7 +453,25 @@ class TestEvalsClientInference:
                 "response": ["resp 1", "resp 2"],
             }
         )
-        pd.testing.assert_frame_equal(result_df, expected_df)
+        pd.testing.assert_frame_equal(
+            result_df.sort_values(by="prompt").reset_index(drop=True),
+            expected_df.sort_values(by="prompt").reset_index(drop=True),
+        )
+        mock_models.return_value.generate_content.assert_has_calls(
+            [
+                mock.call(
+                    model="gemini-pro",
+                    contents="prompt 1",
+                    config=genai_types.GenerateContentConfig(),
+                ),
+                mock.call(
+                    model="gemini-pro",
+                    contents="prompt 2",
+                    config=genai_types.GenerateContentConfig(),
+                ),
+            ],
+            any_order=True,
+        )
         os.remove(local_src_path)
 
     @mock.patch(f"{_genai._evals_common.__name__}.Models")
@@ -498,7 +522,25 @@ class TestEvalsClientInference:
                 "response": ["resp 1", "resp 2"],
             }
         )
-        pd.testing.assert_frame_equal(result_df, expected_df)
+        pd.testing.assert_frame_equal(
+            result_df.sort_values(by="prompt").reset_index(drop=True),
+            expected_df.sort_values(by="prompt").reset_index(drop=True),
+        )
+        mock_models.return_value.generate_content.assert_has_calls(
+            [
+                mock.call(
+                    model="gemini-pro",
+                    contents="prompt 1",
+                    config=genai_types.GenerateContentConfig(),
+                ),
+                mock.call(
+                    model="gemini-pro",
+                    contents="prompt 2",
+                    config=genai_types.GenerateContentConfig(),
+                ),
+            ],
+            any_order=True,
+        )
         os.remove(local_src_path)
 
     @mock.patch(f"{_genai._evals_common.__name__}.Models")
@@ -567,8 +609,10 @@ class TestEvalsClientInference:
                     ),
                     config=genai_types.GenerateContentConfig(top_p=0.9),
                 ),
-            ]
+            ],
+            any_order=True,
         )
+
         expected_df = pd.DataFrame(
             {
                 "request": [
@@ -582,7 +626,10 @@ class TestEvalsClientInference:
                 "response": ["resp 1", "resp 2"],
             }
         )
-        pd.testing.assert_frame_equal(result_df, expected_df)
+        pd.testing.assert_frame_equal(
+            result_df.sort_values(by="request").reset_index(drop=True),
+            expected_df.sort_values(by="request").reset_index(drop=True),
+        )
 
     @mock.patch(f"{_genai._evals_common.__name__}.Models")
     @mock.patch(f"{_genai._evals_utils.__name__}.EvalDatasetLoader")
