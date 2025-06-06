@@ -13,15 +13,14 @@
 # limitations under the License.
 #
 
+import importlib
+
 from typing import Optional, Union
 
 import google.auth
 from google.genai import _common
 from google.genai import client
 from google.genai import types
-
-from .evals import AsyncEvals
-from .evals import Evals
 
 
 class AsyncClient:
@@ -30,15 +29,26 @@ class AsyncClient:
     def __init__(self, api_client: client.Client):
         self._api_client = api_client
         self._aio = AsyncClient(self._api_client)
-        self._evals = AsyncEvals(self._api_client)
+        self._evals = None
 
     @property
     @_common.experimental_warning(
         "The Vertex SDK GenAI evals module is experimental, and may change in future "
         "versions."
     )
-    def evals(self) -> AsyncEvals:
-        return self._evals
+    def evals(self):
+        if self._evals is None:
+            try:
+                # We need to lazy load the evals module to avoid ImportError when
+                # pandas/tqdm are not installed.
+                self._evals = importlib.import_module(".evals", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'evals' module requires 'pandas' and 'tqdm'. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[evaluation]"
+                ) from e
+        return self._evals.AsyncEvals(self._api_client)
 
 
 class Client:
@@ -90,13 +100,23 @@ class Client:
             debug_config=self._debug_config,
             http_options=http_options,
         )
-
-        self._evals = Evals(self._api_client)
+        self._evals = None
 
     @property
     @_common.experimental_warning(
         "The Vertex SDK GenAI evals module is experimental, and may change in future "
         "versions."
     )
-    def evals(self) -> Evals:
-        return self._evals
+    def evals(self):
+        if self._evals is None:
+            try:
+                # We need to lazy load the evals module to avoid ImportError when
+                # pandas/tqdm are not installed.
+                self._evals = importlib.import_module(".evals", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'evals' module requires 'pandas' and 'tqdm'. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[evaluation]"
+                ) from e
+        return self._evals.Evals(self._api_client)

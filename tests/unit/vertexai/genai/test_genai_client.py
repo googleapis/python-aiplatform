@@ -20,7 +20,6 @@ import importlib
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
-from vertexai import _genai
 import pytest
 
 _TEST_PROJECT = "test-project"
@@ -44,9 +43,7 @@ class TestGenAiClient:
 
     @pytest.mark.usefixtures("google_auth_mock")
     def test_genai_client(self):
-        test_client = _genai.client.Client(
-            project=_TEST_PROJECT, location=_TEST_LOCATION
-        )
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         assert test_client is not None
         assert test_client._api_client.vertexai
         assert test_client._api_client.project == _TEST_PROJECT

@@ -711,39 +711,6 @@ def _Metric_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["aggregation_metrics"]) is not None:
-        setv(
-            to_object,
-            ["aggregationMetrics"],
-            getv(from_object, ["aggregation_metrics"]),
-        )
-
-    if getv(from_object, ["bleu_spec"]) is not None:
-        setv(to_object, ["bleuSpec"], getv(from_object, ["bleu_spec"]))
-
-    if getv(from_object, ["exact_match_spec"]) is not None:
-        setv(
-            to_object,
-            ["exactMatchSpec"],
-            getv(from_object, ["exact_match_spec"]),
-        )
-
-    if getv(from_object, ["pairwise_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["pairwiseMetricSpec"],
-            getv(from_object, ["pairwise_metric_spec"]),
-        )
-
-    if getv(from_object, ["pointwise_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["pointwiseMetricSpec"],
-            getv(from_object, ["pointwise_metric_spec"]),
-        )
-
-    if getv(from_object, ["rouge_spec"]) is not None:
-        setv(to_object, ["rougeSpec"], getv(from_object, ["rouge_spec"]))
 
     return to_object
 

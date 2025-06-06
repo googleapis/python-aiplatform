@@ -40,33 +40,6 @@ class PairwiseChoice(_common.CaseInSensitiveEnum):
     """Winner cannot be determined"""
 
 
-class AggregationMetric(_common.CaseInSensitiveEnum):
-    """"""
-
-    AGGREGATION_METRIC_UNSPECIFIED = "AGGREGATION_METRIC_UNSPECIFIED"
-    """Unspecified aggregation metric."""
-    AVERAGE = "AVERAGE"
-    """Average aggregation metric."""
-    MODE = "MODE"
-    """Mode aggregation metric."""
-    STANDARD_DEVIATION = "STANDARD_DEVIATION"
-    """Standard deviation aggregation metric."""
-    VARIANCE = "VARIANCE"
-    """Variance aggregation metric."""
-    MINIMUM = "MINIMUM"
-    """Minimum aggregation metric."""
-    MAXIMUM = "MAXIMUM"
-    """Maximum aggregation metric."""
-    MEDIAN = "MEDIAN"
-    """Median aggregation metric."""
-    PERCENTILE_P90 = "PERCENTILE_P90"
-    """90th percentile aggregation metric."""
-    PERCENTILE_P95 = "PERCENTILE_P95"
-    """95th percentile aggregation metric."""
-    PERCENTILE_P99 = "PERCENTILE_P99"
-    """99th percentile aggregation metric."""
-
-
 class BleuInstance(_common.BaseModel):
     """Bleu instance."""
 
@@ -1895,49 +1868,15 @@ EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
 
 
 class Metric(_common.BaseModel):
-    """The metric used for dataset level evaluation."""
+    """The metric used for evaluation."""
 
-    aggregation_metrics: Optional[list[AggregationMetric]] = Field(
-        default=None,
-        description="""Optional. The aggregation metrics to use.""",
-    )
-    bleu_spec: Optional[BleuSpec] = Field(
-        default=None, description="""Spec for bleu metric."""
-    )
-    exact_match_spec: Optional[ExactMatchSpec] = Field(
-        default=None, description="""Spec for exact match metric."""
-    )
-    pairwise_metric_spec: Optional[PairwiseMetricSpec] = Field(
-        default=None, description="""Spec for pairwise metric."""
-    )
-    pointwise_metric_spec: Optional[PointwiseMetricSpec] = Field(
-        default=None, description="""Spec for pointwise metric."""
-    )
-    rouge_spec: Optional[RougeSpec] = Field(
-        default=None, description="""Spec for rouge metric."""
-    )
+    pass
 
 
 class MetricDict(TypedDict, total=False):
-    """The metric used for dataset level evaluation."""
+    """The metric used for evaluation."""
 
-    aggregation_metrics: Optional[list[AggregationMetric]]
-    """Optional. The aggregation metrics to use."""
-
-    bleu_spec: Optional[BleuSpecDict]
-    """Spec for bleu metric."""
-
-    exact_match_spec: Optional[ExactMatchSpecDict]
-    """Spec for exact match metric."""
-
-    pairwise_metric_spec: Optional[PairwiseMetricSpecDict]
-    """Spec for pairwise metric."""
-
-    pointwise_metric_spec: Optional[PointwiseMetricSpecDict]
-    """Spec for pointwise metric."""
-
-    rouge_spec: Optional[RougeSpecDict]
-    """Spec for rouge metric."""
+    pass
 
 
 MetricOrDict = Union[Metric, MetricDict]
