@@ -18,12 +18,20 @@
 import datetime
 import json
 import logging
+import os
 import re
 import typing
-from typing import Any, Callable, ClassVar, Optional, Tuple, Union
+from typing import Any, Callable, ClassVar, Optional, Tuple, TypeVar, Union
 from google.genai import _common
 from google.genai import types as genai_types
-from pydantic import Field, computed_field, field_validator
+from pydantic import (
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    computed_field,
+    field_validator,
+    model_validator,
+)
 from typing_extensions import TypedDict
 
 logger = logging.getLogger("vertexai_genai.types")
@@ -36,8 +44,18 @@ else:
         import pandas as pd
     except ImportError:
         pd = None
+if typing.TYPE_CHECKING:
+    import yaml
+else:
+    yaml: typing.Type = Any
+    try:
+        import yaml
+    except ImportError:
+        yaml = None
 
 logger = logging.getLogger("vertexai_genai.types")
+
+MetricSubclass = TypeVar("MetricSubclass", bound="Metric")
 
 
 class PairwiseChoice(_common.CaseInSensitiveEnum):
@@ -1909,6 +1927,8 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""Unique identifier for the evaluation case.""",
     )
+    # Allow extra fields to support custom metric prompts and stay backward compatible.
+    model_config = ConfigDict(frozen=True, extra="allow")
 
 
 class EvalCaseDict(TypedDict, total=False):
@@ -2016,6 +2036,11 @@ EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
 class Metric(_common.BaseModel):
     """The metric used for evaluation."""
 
+    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
+    custom_function: Optional[Callable] = Field(
+        default=None,
+        description="""The custom function that defines the end-to-end logic for metric computation.""",
+    )
     prompt_template: Optional[str] = Field(
         default=None, description="""The prompt template for the metric."""
     )
@@ -2041,14 +2066,142 @@ class Metric(_common.BaseModel):
         default=None,
         description="""The aggregate summary function for the judge model.""",
     )
-    custom_function: Optional[Callable] = Field(
-        default=None,
-        description="""The custom function that defines the end-to-end logic for metric computation.""",
-    )
+
+    _is_predefined: bool = PrivateAttr(default=False)
+    """A boolean indicating whether the metric is predefined."""
+
+    _config_source: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the source of the metric configuration."""
+
+    _version: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the version of the metric."""
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        if not value:
+            raise ValueError("Metric name cannot be empty.")
+        return value.lower()
+
+    @field_validator("prompt_template", mode="before")
+    @classmethod
+    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
+        """Validates prompt template to be a non-empty string."""
+        if isinstance(value, MetricPromptBuilder):
+            value = str(value)
+        if not value.strip():
+            raise ValueError("Prompt template cannot be an empty string.")
+        return value
+
+    @field_validator("judge_model_sampling_count")
+    @classmethod
+    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
+        """Validates judge_model_sampling_count to be between 1 and 32."""
+        if value is not None and (value < 1 or value > 32):
+            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
+        return value
+
+    @staticmethod
+    def _get_file_extension(file_path: str) -> str:
+        """Gets the file extension from a URI or local path."""
+        if file_path.startswith("gs://"):
+            blob_path = file_path.split("gs://", 1)[1].split("/", 1)[-1]
+            return os.path.splitext(blob_path)[1].lower()
+        return os.path.splitext(file_path)[1].lower()
+
+    @classmethod
+    def load(
+        cls: type[MetricSubclass], *, file_path: str, api_client: Any = None
+    ) -> MetricSubclass:
+        """Load from a yaml or json file if URI is provided.
+
+        Args:
+          file_path: The path to the file. Local and GCS files are supported.
+          api_client: The client for the GenAI SDK.
+        """
+        file_extension = cls._get_file_extension(file_path)
+
+        if file_path.startswith("gs://"):
+            if api_client is None:
+                raise ValueError("Client is required to load metric config from GCS.")
+            from . import _evals_utils
+
+            content_str = _evals_utils.GcsUtils(api_client).read_file_contents(
+                file_path
+            )
+        else:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content_str = f.read()
+
+        data: dict[str, Any]
+        if file_extension == ".yaml" or file_extension == ".yml":
+            data = yaml.safe_load(content_str)
+        elif file_extension == ".json":
+            data = json.loads(content_str)
+        else:
+            raise ValueError(
+                "Unsupported file extension for metric config:"
+                f" {file_extension}. Must be .yaml, .yml, or .json"
+            )
+
+        if not isinstance(data, dict):
+            raise ValueError("Metric config content did not parse into a dictionary.")
+
+        if "prompt_template" in data and isinstance(data["prompt_template"], dict):
+            data["prompt_template"] = MetricPromptBuilder(**data["prompt_template"])
+
+        metric = cls(**data)
+        metric._config_source = file_path
+        return metric
+
+    def dump(self, file_path: str, version: Optional[str] = None) -> None:
+        """Dumps a metric object to a YAML or JSON file, based on file_path extension.
+
+        Args:
+          file_path: The path to the file. Local and GCS files are supported.
+          version: The version of the metric.
+        """
+        file_extension = self._get_file_extension(file_path)
+
+        data_to_dump = self.model_dump(
+            exclude={"_is_predefined", "_config_source", "_version"},
+            mode="json",
+            exclude_defaults=True,
+        )
+        if version:
+            data_to_dump["version"] = version
+
+        if isinstance(self.prompt_template, MetricPromptBuilder):
+            data_to_dump["prompt_template"] = self.prompt_template.model_dump(
+                mode="json", exclude_defaults=True
+            )
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            if file_extension == ".yaml" or file_extension == ".yml":
+                yaml.dump(data_to_dump, f, sort_keys=False)
+            elif file_extension == ".json":
+                json.dump(data_to_dump, f, indent=2)
+            else:
+                raise ValueError(
+                    "Unsupported file extension for dumping metric config:"
+                    f" {file_extension}. Must be .yaml, .yml, or .json"
+                )
+
+
+class LLMMetric(Metric):
+    """A metric that uses LLM-as-a-judge for evaluation."""
+
+    pass
 
 
 class MetricDict(TypedDict, total=False):
     """The metric used for evaluation."""
+
+    name: Optional[str]
+    """The name of the metric."""
+
+    custom_function: Optional[Callable]
+    """The custom function that defines the end-to-end logic for metric computation."""
 
     prompt_template: Optional[str]
     """The prompt template for the metric."""
@@ -2070,9 +2223,6 @@ class MetricDict(TypedDict, total=False):
 
     aggregate_summary_fn: Optional[Callable]
     """The aggregate summary function for the judge model."""
-
-    custom_function: Optional[Callable]
-    """The custom function that defines the end-to-end logic for metric computation."""
 
 
 MetricOrDict = Union[Metric, MetricDict]
@@ -2461,6 +2611,173 @@ class PromptTemplate(_common.BaseModel):
 
     def __repr__(self) -> str:
         return f"PromptTemplate(text='{self.text}')"
+
+
+class MetricPromptBuilder(PromptTemplate):
+    """Builder class for structured LLM-based metric prompt template."""
+
+    criteria: Optional[dict[str, str]] = Field(
+        None,
+        description="""A dictionary of criteria used to evaluate the model responses.
+      The keys are criterion names, and the values are the corresponding
+      criterion definitions.
+      """,
+    )
+
+    rating_scores: Optional[dict[str, str]] = Field(
+        None,
+        description="""A dictionary mapping of rating score names to their definitions.""",
+    )
+
+    @staticmethod
+    def _get_default_instruction() -> str:
+        """Returns the default instruction for evaluation."""
+        return (
+            "You are an expert evaluator. Your task is to evaluate the quality"
+            " of the responses generated by AI models. We will provide you with"
+            " the user prompt and an AI-generated responses.\nYou should first"
+            " read the user input carefully for analyzing the task, and then"
+            " evaluate the quality of the responses based on the Criteria"
+            " provided in the Evaluation section below.\nYou will assign the"
+            " response a rating following the Rating Scores and Evaluation"
+            " Steps. Give step by step explanations for your rating, and only"
+            " choose ratings from the Rating Scores."
+        )
+
+    instruction: Optional[str] = Field(
+        default_factory=_get_default_instruction,
+        description="""The general instruction to guide the model in performing the evaluation.
+    If not provided, a default instruction for evaluation will be used.
+    """,
+    )
+
+    metric_definition: Optional[str] = Field(
+        None,
+        description="""An optional high-level description of the metric to be evaluated.
+      If not provided, this field will not be included in the prompt template.
+      """,
+    )
+
+    @staticmethod
+    def _get_default_evaluation_steps() -> dict[str, str]:
+        """Returns the default evaluation steps for metric evaluation."""
+        return {
+            "Step 1": (
+                "Assess the response in aspects of all criteria provided."
+                " Provide assessment according to each criterion."
+            ),
+            "Step 2": (
+                "Score based on the Rating Scores. Give a brief rationale to"
+                " explain your evaluation considering each individual"
+                " criterion."
+            ),
+        }
+
+    evaluation_steps: Optional[dict[str, str]] = Field(
+        default_factory=_get_default_evaluation_steps,
+        description="""An optional dictionary of evaluation steps.
+      The keys are the names of the evaluation steps, and the values are
+      descriptions of the corresponding evaluation steps. If not provided,
+      default metric evaluation steps will be used.
+      """,
+    )
+
+    few_shot_examples: Optional[list[str]] = Field(
+        None,
+        description="""An optional list of few-shot examples to guide the model's evaluation.
+      These examples demonstrate how to apply the criteria, rating scores,
+      and evaluation steps to assess model responses. Providing few-shot examples
+      can improve the accuracy of the evaluation. If not provided, this field
+      will not be included in the prompt template.
+      """,
+    )
+
+    @staticmethod
+    def _serialize_dict_in_order(elements: Optional[dict[str, str]]) -> str:
+        """Serializes dictionary to ordered string value without brackets."""
+        if elements is None:
+            return ""
+        return "\n".join(f"{key}: {value}" for key, value in sorted(elements.items()))
+
+    @model_validator(mode="before")
+    @classmethod
+    def _prepare_fields_and_construct_text(cls, data: Any) -> Any:
+        """Pydantic model validator (before mode) to prepare and construct prompt text.
+
+        This validator performs the following actions:
+          1. Apply default logic for fields (instruction, evaluation_steps).
+          2. Construct the 'text' string from all components.
+          3. Ensure 'text' is in the data dictionary for PromptTemplate
+          initialization.
+
+        Args:
+            data: Input data for the model, either a dictionary or an existing
+              model instance.
+
+        Returns:
+            Processed data dictionary with the 'text' field constructed.
+        """
+        if not isinstance(data, dict):
+            return data
+
+        if "text" in data:
+            raise ValueError(
+                "The 'text' field is automatically constructed and should not"
+                " be provided manually."
+            )
+
+        if data.get("criteria") is None or data.get("rating_scores") is None:
+            raise ValueError(
+                "Both 'criteria' and 'rating_scores' are required to construct"
+                " theLLM-based metric prompt template text."
+            )
+
+        instruction = data.get("instruction", cls._get_default_instruction())
+        metric_definition = data.get("metric_definition")
+        evaluation_steps = data.get(
+            "evaluation_steps", cls._get_default_evaluation_steps()
+        )
+        criteria = data.get("criteria")
+        rating_scores = data.get("rating_scores")
+        few_shot_examples = data.get("few_shot_examples")
+
+        template_parts = [
+            "# Instruction",
+            instruction,
+            "\n",
+            "# Evaluation",
+        ]
+
+        sections = {
+            "Metric Definition": metric_definition,
+            "Criteria": cls._serialize_dict_in_order(criteria),
+            "Rating Scores": cls._serialize_dict_in_order(rating_scores),
+            "Evaluation Steps": cls._serialize_dict_in_order(evaluation_steps),
+            "Evaluation Examples": (
+                "\n".join(few_shot_examples) if few_shot_examples else None
+            ),
+        }
+
+        for title, content in sections.items():
+            if content:
+                template_parts.extend([f"## {title}", f"{content}\n"])
+
+        template_parts.extend(
+            [
+                "\n# User Inputs and AI-generated Response",
+                "## User Inputs",
+            ]
+        )
+
+        template_parts.extend(["## AI-generated Response", "{response}"])
+        constructed_text = "\n".join(template_parts)
+
+        data["text"] = constructed_text
+        return data
+
+    def __str__(self) -> str:
+        """Returns the fully constructed prompt template text."""
+        return self.text
 
 
 class PromptTemplateDict(TypedDict, total=False):
