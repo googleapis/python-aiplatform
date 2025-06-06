@@ -125,6 +125,8 @@ from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
 from .types.content import Segment
+from .types.content import UrlContextMetadata
+from .types.content import UrlMetadata
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
 from .types.content import Modality
@@ -2001,6 +2003,8 @@ __all__ = (
     "UpsertDatapointsRequest",
     "UpsertDatapointsResponse",
     "UrlContext",
+    "UrlContextMetadata",
+    "UrlMetadata",
     "UserActionReference",
     "Value",
     "VertexAISearch",
