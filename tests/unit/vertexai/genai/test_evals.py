@@ -24,6 +24,7 @@ from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
+from vertexai._genai import _evals_data_converters
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
@@ -703,6 +704,117 @@ class TestEvalsClientInference:
         )
 
 
+class TestMetricPromptBuilder:
+    """Unit tests for the MetricPromptBuilder class."""
+
+    def test_metric_prompt_builder_minimal_fields(self):
+        criteria = {"criterion1": "definition1"}
+        rating_scores = {"score1": "description1"}
+        builder = vertexai_genai_types.MetricPromptBuilder(
+            criteria=criteria,
+            rating_scores=rating_scores,
+            metric_definition=None,
+            few_shot_examples=None,
+        )
+        assert builder.criteria == criteria
+        assert builder.rating_scores == rating_scores
+        assert (
+            builder.instruction
+            == vertexai_genai_types.MetricPromptBuilder._get_default_instruction()
+        )
+        assert (
+            builder.evaluation_steps
+            == vertexai_genai_types.MetricPromptBuilder._get_default_evaluation_steps()
+        )
+        assert "{response}" in builder.text
+
+    def test_metric_prompt_builder_all_fields(self):
+        criteria = {"criterion1": "definition1"}
+        rating_scores = {"score1": "description1"}
+        instruction = "Custom instruction."
+        metric_definition = "Custom metric definition."
+        evaluation_steps = {"step1": "custom step 1"}
+        few_shot_examples = ["example1", "example2"]
+        builder = vertexai_genai_types.MetricPromptBuilder(
+            criteria=criteria,
+            rating_scores=rating_scores,
+            instruction=instruction,
+            metric_definition=metric_definition,
+            evaluation_steps=evaluation_steps,
+            few_shot_examples=few_shot_examples,
+        )
+        assert builder.criteria == criteria
+        assert builder.rating_scores == rating_scores
+        assert builder.instruction == instruction
+        assert builder.metric_definition == metric_definition
+        assert builder.evaluation_steps == evaluation_steps
+        assert builder.few_shot_examples == few_shot_examples
+        assert instruction in builder.text
+        assert metric_definition in builder.text
+        assert "custom step 1" in builder.text
+        assert "example1" in builder.text
+
+    def test_metric_prompt_builder_default_instruction_and_steps_in_text(self):
+        criteria = {"c1": "v1"}
+        rating_scores = {"s1": "d1"}
+        builder = vertexai_genai_types.MetricPromptBuilder(
+            criteria=criteria,
+            rating_scores=rating_scores,
+            metric_definition=None,
+            few_shot_examples=None,
+        )
+        default_instruction = (
+            vertexai_genai_types.MetricPromptBuilder._get_default_instruction()
+        )
+        default_steps = (
+            vertexai_genai_types.MetricPromptBuilder._get_default_evaluation_steps()
+        )
+        assert default_instruction in builder.text
+        for step_desc in default_steps.values():
+            assert step_desc in builder.text
+
+    def test_metric_prompt_builder_custom_instruction_and_steps_in_text(self):
+        criteria = {"c1": "v1"}
+        rating_scores = {"s1": "d1"}
+        custom_instruction = "My custom instructions."
+        custom_steps = {"Step 1": "Do this first.", "Step 2": "Then do that."}
+        builder = vertexai_genai_types.MetricPromptBuilder(
+            criteria=criteria,
+            rating_scores=rating_scores,
+            instruction=custom_instruction,
+            evaluation_steps=custom_steps,
+            metric_definition=None,
+            few_shot_examples=None,
+        )
+        assert custom_instruction in builder.text
+        for step_desc in custom_steps.values():
+            assert step_desc in builder.text
+
+    def test_metric_prompt_builder_missing_criteria_raises_error(self):
+        with pytest.raises(
+            ValueError,
+            match="Both 'criteria' and 'rating_scores' are required",
+        ):
+            vertexai_genai_types.MetricPromptBuilder(
+                rating_scores={"score1": "description1"},
+                criteria=None,
+                metric_definition=None,
+                few_shot_examples=None,
+            )
+
+    def test_metric_prompt_builder_missing_rating_scores_raises_error(self):
+        with pytest.raises(
+            ValueError,
+            match="Both 'criteria' and 'rating_scores' are required",
+        ):
+            vertexai_genai_types.MetricPromptBuilder(
+                criteria={"criterion1": "definition1"},
+                rating_scores=None,
+                metric_definition=None,
+                few_shot_examples=None,
+            )
+
+
 class TestPromptTemplate:
     """Unit tests for the PromptTemplate class."""
 
@@ -814,3 +926,1014 @@ class TestPromptTemplate:
             assembled_content.parts[2].text
             == " and then answer: This is a simple text."
         )
+
+
+class TestGeminiEvalDataConverter:
+    """Unit tests for the _GeminiEvalDataConverter class."""
+
+    def setup_method(self):
+        self.converter = _evals_data_converters._GeminiEvalDataConverter()
+
+    def test_convert_simple_prompt_response(self):
+        raw_data = [
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Hello"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {"role": "model", "parts": [{"text": "Hi"}]},
+                            "finish_reason": "STOP",
+                        }
+                    ],
+                    "usage_metadata": {
+                        "prompt_token_count": 1,
+                        "candidates_token_count": 1,
+                        "total_token_count": 2,
+                    },
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        assert isinstance(result_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(result_dataset.eval_cases) == 1
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Hi")], role="model"
+        )
+        assert eval_case.reference.response is None
+        assert eval_case.system_instruction.parts is None
+        assert eval_case.conversation_history == []
+
+    def test_convert_with_system_instruction(self):
+        raw_data = [
+            {
+                "request": {
+                    "system_instruction": {
+                        "role": "system",
+                        "parts": [{"text": "Be nice."}],
+                    },
+                    "contents": [{"role": "user", "parts": [{"text": "Hello"}]}],
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Hi there!"}],
+                            }
+                        }
+                    ]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.system_instruction == genai_types.Content(
+            parts=[genai_types.Part(text="Be nice.")], role="system"
+        )
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+
+    def test_convert_with_conversation_history_and_reference(self):
+        raw_data_for_reference = [
+            {
+                "request": {
+                    "contents": [
+                        {
+                            "role": "user",
+                            "parts": [{"text": "Initial user"}],
+                        },  # history
+                        {
+                            "role": "model",
+                            "parts": [{"text": "Initial model"}],
+                        },  # history
+                        {
+                            "role": "user",
+                            "parts": [{"text": "Actual prompt"}],
+                        },  # prompt
+                        {
+                            "role": "model",
+                            "parts": [{"text": "This is reference"}],
+                        },  # reference
+                    ]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Actual response"}],
+                            }
+                        }
+                    ]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data_for_reference)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Actual prompt")], role="user"
+        )
+        assert eval_case.reference.response == genai_types.Content(
+            parts=[genai_types.Part(text="This is reference")], role="model"
+        )
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0].content == genai_types.Content(
+            parts=[genai_types.Part(text="Initial user")], role="user"
+        )
+        assert eval_case.conversation_history[1].content == genai_types.Content(
+            parts=[genai_types.Part(text="Initial model")], role="model"
+        )
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Actual response")], role="model"
+        )
+
+    def test_convert_with_conversation_history_no_reference(self):
+        # Last message in contents is from user, so it becomes the prompt.
+        raw_data = [
+            {
+                "request": {
+                    "contents": [
+                        {"role": "user", "parts": [{"text": "Old user msg"}]},
+                        {"role": "model", "parts": [{"text": "Old model msg"}]},
+                        {"role": "user", "parts": [{"text": "Current prompt"}]},
+                    ]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "A response"}],
+                            }
+                        }
+                    ]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Current prompt")], role="user"
+        )
+        assert eval_case.reference.response is None
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0].content.parts[0].text == "Old user msg"
+        assert (
+            eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
+        )
+
+    def test_convert_no_candidates_in_response(self):
+        raw_data = [
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Hello"}]}]
+                },
+                "response": {
+                    "candidates": [],
+                    "prompt_feedback": {"block_reason": "SAFETY"},
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response is None
+
+    def test_convert_invalid_content_structure_raises_value_error(self):
+        raw_data = [
+            {
+                "request": {"contents": ["not a dict"]},  # Invalid content
+                "response": {
+                    "candidates": [
+                        {"content": {"role": "model", "parts": [{"text": "Hi"}]}}
+                    ]
+                },
+            }
+        ]
+        with pytest.raises(
+            TypeError, match="Expected a dictionary for content at turn 0"
+        ):
+            self.converter.convert(raw_data)
+
+        raw_data_missing_parts = [
+            {
+                "request": {"contents": [{"role": "user"}]},  # Missing 'parts'
+                "response": {
+                    "candidates": [
+                        {"content": {"role": "model", "parts": [{"text": "Hi"}]}}
+                    ]
+                },
+            }
+        ]
+        with pytest.raises(
+            ValueError, match="Missing 'parts' key in content structure at turn 0"
+        ):
+            self.converter.convert(raw_data_missing_parts)
+
+    def test_convert_multiple_items(self):
+        raw_data = [
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Item 1"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Resp 1"}],
+                            }
+                        }
+                    ]
+                },
+            },
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Item 2"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Resp 2"}],
+                            }
+                        }
+                    ]
+                },
+            },
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        assert len(result_dataset.eval_cases) == 2
+        assert result_dataset.eval_cases[0].prompt.parts[0].text == "Item 1"
+        assert result_dataset.eval_cases[1].prompt.parts[0].text == "Item 2"
+
+
+class TestFlattenEvalDataConverter:
+    """Unit tests for the _FlattenEvalDataConverter class."""
+
+    def setup_method(self):
+        self.converter = _evals_data_converters._FlattenEvalDataConverter()
+
+    def test_convert_simple_prompt_response(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": ["Hi"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        assert isinstance(result_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(result_dataset.eval_cases) == 1
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")]
+        )
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Hi")]
+        )
+        assert eval_case.reference is None
+        assert eval_case.system_instruction is None
+        assert eval_case.conversation_history is None
+
+    def test_convert_with_system_instruction_and_reference(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": ["Hi there!"],
+                "instruction": ["Be nice."],
+                "reference": ["Hey"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.system_instruction == genai_types.Content(
+            parts=[genai_types.Part(text="Be nice.")]
+        )
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")]
+        )
+        assert eval_case.reference.response == genai_types.Content(
+            parts=[genai_types.Part(text="Hey")]
+        )
+
+    def test_convert_with_conversation_history(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Current prompt"],
+                "response": ["A response"],
+                "history": [
+                    [
+                        {"role": "user", "parts": [{"text": "Old user msg"}]},
+                        {"role": "model", "parts": [{"text": "Old model msg"}]},
+                    ]
+                ],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Current prompt")]
+        )
+        assert eval_case.reference is None
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0].content.parts[0].text == "Old user msg"
+        assert (
+            eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
+        )
+
+    def test_convert_missing_response_raises_value_error(self):
+        raw_data_df = pd.DataFrame({"prompt": ["Hello"]})  # Missing response
+        raw_data = raw_data_df.to_dict(orient="records")
+        with pytest.raises(
+            ValueError, match="Response is required but missing for eval_case_0"
+        ):
+            self.converter.convert(raw_data)
+
+    def test_convert_missing_prompt_raises_value_error(self):
+        raw_data_df = pd.DataFrame({"response": ["Hi"]})  # Missing prompt
+        raw_data = raw_data_df.to_dict(orient="records")
+        with pytest.raises(
+            ValueError, match="Prompt is required but missing for eval_case_0"
+        ):
+            self.converter.convert(raw_data)
+
+    def test_convert_invalid_prompt_type_raises_value_error(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": [123],  # Invalid prompt type
+                "response": ["Hi"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        with pytest.raises(ValueError, match="Invalid prompt type for case 0"):
+            self.converter.convert(raw_data)
+
+    def test_convert_invalid_response_type_raises_value_error(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": [123],  # Invalid response type
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        with pytest.raises(ValueError, match="Invalid response type for case 0"):
+            self.converter.convert(raw_data)
+
+    def test_convert_multiple_items(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Item 1", "Item 2"],
+                "response": ["Resp 1", "Resp 2"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        assert len(result_dataset.eval_cases) == 2
+        assert result_dataset.eval_cases[0].prompt.parts[0].text == "Item 1"
+        assert result_dataset.eval_cases[1].prompt.parts[0].text == "Item 2"
+
+    def test_convert_with_additional_columns(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": ["Hi"],
+                "custom_column": ["custom_value"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.custom_column == "custom_value"
+
+
+class TestMetric:
+    """Unit tests for the Metric class."""
+
+    def test_metric_creation_success(self):
+        metric = vertexai_genai_types.Metric(name="TestMetric")
+        assert metric.name == "testmetric"
+        assert metric.custom_function is None
+
+    def test_metric_creation_with_custom_function(self):
+        def my_custom_function(data: dict):
+            return 1.0
+
+        metric = vertexai_genai_types.Metric(
+            name="custom_metric", custom_function=my_custom_function
+        )
+        assert metric.name == "custom_metric"
+        assert metric.custom_function == my_custom_function
+
+    def test_metric_name_validation_empty_raises_error(self):
+        with pytest.raises(ValueError, match="Metric name cannot be empty."):
+            vertexai_genai_types.Metric(name="")
+
+    def test_metric_name_validation_lowercase(self):
+        metric = vertexai_genai_types.Metric(name="UPPERCASEMetric")
+        assert metric.name == "uppercasemetric"
+
+
+class TestMergeResponseDatasets:
+    """Unit tests for the merge_response_datasets_into_canonical_format function."""
+
+    def test_merge_two_flatten_datasets(self):
+        raw_dataset_1 = [
+            {"prompt": "Prompt 1", "response": "Response 1a"},
+            {"prompt": "Prompt 2", "response": "Response 2a"},
+        ]
+        raw_dataset_2 = [
+            {"prompt": "Prompt 1", "response": "Response 1b"},
+            {"prompt": "Prompt 2", "response": "Response 2b"},
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 2
+        assert merged_dataset.eval_cases[0].prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Prompt 1")]
+        )
+        assert len(merged_dataset.eval_cases[0].responses) == 2
+        assert merged_dataset.eval_cases[0].responses[
+            0
+        ].response == genai_types.Content(parts=[genai_types.Part(text="Response 1a")])
+        assert merged_dataset.eval_cases[0].responses[
+            1
+        ].response == genai_types.Content(parts=[genai_types.Part(text="Response 1b")])
+        assert merged_dataset.eval_cases[1].prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Prompt 2")]
+        )
+        assert len(merged_dataset.eval_cases[1].responses) == 2
+        assert merged_dataset.eval_cases[1].responses[
+            0
+        ].response == genai_types.Content(parts=[genai_types.Part(text="Response 2a")])
+        assert merged_dataset.eval_cases[1].responses[
+            1
+        ].response == genai_types.Content(parts=[genai_types.Part(text="Response 2b")])
+
+    def test_merge_flatten_and_gemini_datasets(self):
+        raw_dataset_1 = [
+            {"prompt": "Prompt 1", "response": "Response 1a"},
+            {"prompt": "Prompt 2", "response": "Response 2a"},
+        ]
+        raw_dataset_2 = [
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Prompt 1"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Response 1b"}],
+                            }
+                        }
+                    ]
+                },
+            },
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Prompt 2"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Response 2b"}],
+                            }
+                        }
+                    ]
+                },
+            },
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.GEMINI,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 2
+        assert merged_dataset.eval_cases[0].prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Prompt 1")]
+        )
+        assert len(merged_dataset.eval_cases[0].responses) == 2
+        assert merged_dataset.eval_cases[0].responses[
+            0
+        ].response == genai_types.Content(parts=[genai_types.Part(text="Response 1a")])
+        assert merged_dataset.eval_cases[0].responses[
+            1
+        ].response == genai_types.Content(
+            parts=[genai_types.Part(text="Response 1b")], role="model"
+        )
+        assert merged_dataset.eval_cases[1].prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Prompt 2")]
+        )
+        assert len(merged_dataset.eval_cases[1].responses) == 2
+        assert merged_dataset.eval_cases[1].responses[
+            0
+        ].response == genai_types.Content(parts=[genai_types.Part(text="Response 2a")])
+        assert merged_dataset.eval_cases[1].responses[
+            1
+        ].response == genai_types.Content(
+            parts=[genai_types.Part(text="Response 2b")], role="model"
+        )
+
+    def test_merge_empty_input_list(self):
+        with pytest.raises(ValueError, match="Input 'raw_datasets' cannot be empty."):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                raw_datasets=[], schemas=[]
+            )
+
+    def test_merge_mismatched_number_of_eval_cases(self):
+        raw_dataset_1 = [
+            {"prompt": "Prompt 1", "response": "Response 1a"},
+            {"prompt": "Prompt 2", "response": "Response 2a"},
+        ]
+        raw_dataset_2 = [
+            {"prompt": "Prompt 1", "response": "Response 1b"},
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+        ]
+
+        with pytest.raises(
+            ValueError,
+            match="All datasets must have the same number of evaluation cases",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+
+    def test_merge_mismatched_schemas_list_length(self):
+        raw_dataset_1 = [
+            {"prompt": "Prompt 1", "response": "Response 1a"},
+            {"prompt": "Prompt 2", "response": "Response 2a"},
+        ]
+        raw_dataset_2 = [
+            {"prompt": "Prompt 1", "response": "Response 1b"},
+            {"prompt": "Prompt 2", "response": "Response 2b"},
+        ]
+        raw_dataset_3 = [
+            {"prompt": "Prompt 1", "response": "Response 1c"},
+            {"prompt": "Prompt 2", "response": "Response 2c"},
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.GEMINI,
+        ]
+        with pytest.raises(
+            ValueError,
+            match="A list of schemas must be provided, one for each raw dataset.",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2, raw_dataset_3],
+                schemas=schemas,
+            )
+
+    def test_merge_empty_schemas_list(self):
+        raw_dataset_1 = [
+            {"prompt": "Prompt 1", "response": "Response 1a"},
+            {"prompt": "Prompt 2", "response": "Response 2a"},
+        ]
+        with pytest.raises(
+            ValueError,
+            match="A list of schemas must be provided, one for each raw dataset.",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1], schemas=[]
+            )
+
+    def test_merge_with_custom_columns(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1a",
+                "custom_col_1": "value_1_1",
+            },
+            {
+                "prompt": "Prompt 2",
+                "response": "Response 2a",
+                "custom_col_1": "value_2_1",
+            },
+        ]
+        raw_dataset_2 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1b",
+                "custom_col_2": "value_1_2",
+            },
+            {
+                "prompt": "Prompt 2",
+                "response": "Response 2b",
+                "custom_col_2": "value_2_2",
+            },
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 2
+        assert merged_dataset.eval_cases[0].custom_col_1 == "value_1_1"
+        assert merged_dataset.eval_cases[0].custom_col_2 == "value_1_2"
+        assert merged_dataset.eval_cases[1].custom_col_1 == "value_2_1"
+        assert merged_dataset.eval_cases[1].custom_col_2 == "value_2_2"
+
+    def test_merge_with_different_custom_columns(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1a",
+                "custom_col_1": "value_1_1",
+            },
+            {
+                "prompt": "Prompt 2",
+                "response": "Response 2a",
+                "custom_col_1": "value_2_1",
+            },
+        ]
+        raw_dataset_2 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1b",
+                "custom_col_2": "value_1_2",
+                "custom_col_3": "value_1_3",
+            },
+            {
+                "prompt": "Prompt 2",
+                "response": "Response 2b",
+                "custom_col_2": "value_2_2",
+                "custom_col_3": "value_2_3",
+            },
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 2
+        assert merged_dataset.eval_cases[0].custom_col_1 == "value_1_1"
+        assert merged_dataset.eval_cases[0].custom_col_2 == "value_1_2"
+        assert merged_dataset.eval_cases[0].custom_col_3 == "value_1_3"
+        assert merged_dataset.eval_cases[1].custom_col_1 == "value_2_1"
+        assert merged_dataset.eval_cases[1].custom_col_2 == "value_2_2"
+        assert merged_dataset.eval_cases[1].custom_col_3 == "value_2_3"
+
+    def test_merge_with_metadata(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1a",
+                "metadata": {"model": "model_1"},
+            }
+        ]
+        raw_dataset_2 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1b",
+            }
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 1
+
+    def test_merge_with_different_number_of_responses(self):
+        raw_dataset_1 = [{"prompt": "Prompt 1", "response": "Response 1a"}]
+        raw_dataset_2 = [
+            {
+                # Gemini schema
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Prompt 1"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Response 1b"}],
+                            }
+                        },
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Response 1c"}],
+                            }
+                        },
+                    ]
+                },
+            }
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.GEMINI,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 1
+        assert len(merged_dataset.eval_cases[0].responses) == 2
+        assert merged_dataset.eval_cases[0].responses[
+            0
+        ].response == genai_types.Content(parts=[genai_types.Part(text="Response 1a")])
+        assert merged_dataset.eval_cases[0].responses[
+            1
+        ].response == genai_types.Content(
+            parts=[genai_types.Part(text="Response 1b")], role="model"
+        )
+
+    def test_merge_with_conversation_history(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1a",
+                "history": [
+                    {"role": "user", "parts": [{"text": "Old user msg 1"}]},
+                    {"role": "model", "parts": [{"text": "Old model msg 1"}]},
+                ],
+            }
+        ]
+        raw_dataset_2 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1b",
+                "history": [
+                    {"role": "user", "parts": [{"text": "Old user msg 2"}]},
+                    {"role": "model", "parts": [{"text": "Old model msg 2"}]},
+                ],
+            }
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 1
+        assert len(merged_dataset.eval_cases[0].conversation_history) == 2
+        assert (
+            merged_dataset.eval_cases[0].conversation_history[0].content.parts[0].text
+            == "Old user msg 1"
+        )
+        assert (
+            merged_dataset.eval_cases[0].conversation_history[1].content.parts[0].text
+            == "Old model msg 1"
+        )
+
+    def test_merge_with_empty_conversation_history(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1a",
+                "history": [],
+            }
+        ]
+        raw_dataset_2 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1b",
+                "history": [],
+            }
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 1
+        assert len(merged_dataset.eval_cases[0].conversation_history) == 0
+
+    def test_merge_with_reference(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1a",
+                "reference": "Reference 1",
+            }
+        ]
+        raw_dataset_2 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1b",
+                "reference": "Reference 2",
+            }
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 1
+        assert merged_dataset.eval_cases[0].reference.response == genai_types.Content(
+            parts=[genai_types.Part(text="Reference 1")]
+        )
+
+    def test_merge_with_system_instruction(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1a",
+                "instruction": "Instruction 1",
+            }
+        ]
+        raw_dataset_2 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1b",
+                "instruction": "Instruction 2",
+            }
+        ]
+        schemas = [
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 1
+        assert merged_dataset.eval_cases[0].system_instruction == genai_types.Content(
+            parts=[genai_types.Part(text="Instruction 1")]
+        )
+
+    def test_merge_with_invalid_schema_type(self):
+        raw_dataset_1 = [
+            {"prompt": "Prompt 1", "response": "Response 1a"},
+        ]
+        with pytest.raises(
+            ValueError,
+            match="Unsupported dataset schema: invalid_schema",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                raw_datasets=[raw_dataset_1], schemas=["invalid_schema"]
+            )
+
+    def test_merge_with_invalid_raw_dataset_type(self):
+        with pytest.raises(
+            TypeError,
+            match="Input 'raw_datasets' must be a list",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                raw_datasets="invalid_dataset",
+                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+            )
+        with pytest.raises(
+            ValueError,
+            match="Input 'raw_datasets' cannot be empty and must be a list of lists",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                raw_datasets=["invalid_dataset"],
+                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+            )
+
+    def test_merge_with_invalid_eval_case_type(self):
+        raw_dataset_1 = [
+            "invalid_eval_case",
+        ]
+        with pytest.raises(
+            TypeError,
+            match="Expected a dictionary for item at index 0",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                raw_datasets=[raw_dataset_1],
+                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+            )
+
+    def test_merge_with_invalid_prompt_type(self):
+        raw_dataset_1 = [
+            {
+                "prompt": 123,
+                "response": "Response 1a",
+            },
+        ]
+        with pytest.raises(
+            ValueError,
+            match="Invalid prompt type for case 0",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                raw_datasets=[raw_dataset_1],
+                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+            )
+
+    def test_merge_with_invalid_response_type(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+                "response": 123,
+            },
+        ]
+        with pytest.raises(
+            ValueError,
+            match="Invalid response type",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                raw_datasets=[raw_dataset_1],
+                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+            )
+
+    def test_merge_with_missing_prompt(self):
+        raw_dataset_1 = [
+            {
+                "response": "Response 1a",
+            },
+        ]
+        with pytest.raises(
+            ValueError,
+            match="Prompt is required but missing for eval_case_0",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                raw_datasets=[raw_dataset_1],
+                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+            )
+
+    def test_merge_with_missing_response(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+            },
+        ]
+        with pytest.raises(
+            ValueError,
+            match="Response is required but missing for eval_case_0",
+        ):
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                raw_datasets=[raw_dataset_1],
+                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+            )
