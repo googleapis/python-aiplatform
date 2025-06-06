@@ -737,6 +737,9 @@ def set_corpus_type_config(
                 memory_corpus.llm_parser.custom_parsing_prompt = (
                     corpus_type_config.corpus_type_config.llm_parser.custom_parsing_prompt
                 )
+        rag_corpus.corpus_type_config = GapicRagCorpus.CorpusTypeConfig(
+            memory_corpus=memory_corpus
+        )
     else:
         raise TypeError
 
