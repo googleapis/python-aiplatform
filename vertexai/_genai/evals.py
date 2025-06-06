@@ -692,15 +692,19 @@ def _EvaluationDataset_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
+    if getv(from_object, ["gcs_source"]) is not None:
+        setv(
+            to_object,
+            ["dataset", "gcs_source"],
+            getv(from_object, ["gcs_source"]),
+        )
+
     if getv(from_object, ["bigquery_source"]) is not None:
         setv(
             to_object,
-            ["bigquerySource"],
+            ["dataset", "bigquery_source"],
             getv(from_object, ["bigquery_source"]),
         )
-
-    if getv(from_object, ["gcs_source"]) is not None:
-        setv(to_object, ["gcsSource"], getv(from_object, ["gcs_source"]))
 
     return to_object
 
@@ -711,6 +715,44 @@ def _Metric_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt_template"]) is not None:
+        setv(
+            to_object,
+            ["pointwise_metric_spec", "prompt_template"],
+            getv(from_object, ["prompt_template"]),
+        )
+
+    if getv(from_object, ["judge_model"]) is not None:
+        setv(
+            parent_object,
+            ["autorater_config", "autorater_model"],
+            getv(from_object, ["judge_model"]),
+        )
+
+    if getv(from_object, ["judge_model_sampling_count"]) is not None:
+        setv(
+            parent_object,
+            ["autorater_config", "sampling_count"],
+            getv(from_object, ["judge_model_sampling_count"]),
+        )
+
+    if getv(from_object, ["judge_model_system_instruction"]) is not None:
+        setv(
+            to_object,
+            ["pointwise_metric_spec", "system_instruction"],
+            getv(from_object, ["judge_model_system_instruction"]),
+        )
+
+    if getv(from_object, ["return_raw_output"]) is not None:
+        setv(
+            to_object,
+            [
+                "pointwise_metric_spec",
+                "custom_output_format_config",
+                "return_raw_output",
+            ],
+            getv(from_object, ["return_raw_output"]),
+        )
 
     return to_object
 
@@ -936,15 +978,19 @@ def _EvaluationDataset_from_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
-    if getv(from_object, ["bigquerySource"]) is not None:
+    if getv(from_object, ["dataset", "gcs_source"]) is not None:
+        setv(
+            to_object,
+            ["gcs_source"],
+            getv(from_object, ["dataset", "gcs_source"]),
+        )
+
+    if getv(from_object, ["dataset", "bigquery_source"]) is not None:
         setv(
             to_object,
             ["bigquery_source"],
-            getv(from_object, ["bigquerySource"]),
+            getv(from_object, ["dataset", "bigquery_source"]),
         )
-
-    if getv(from_object, ["gcsSource"]) is not None:
-        setv(to_object, ["gcs_source"], getv(from_object, ["gcsSource"]))
 
     return to_object
 
