@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.97.0](https://github.com/googleapis/python-aiplatform/compare/v1.96.0...v1.97.0) (2025-06-07)
+
+
+### Features
+
+* Add GenAI client (experimental) ([166b747](https://github.com/googleapis/python-aiplatform/commit/166b747b2f1676651cd020c9b66df169ca5920fa))
+* RAG - Introduce configuration to corpus types, with DocumentCorpus and MemoryCorpus options. ([ede4b5b](https://github.com/googleapis/python-aiplatform/commit/ede4b5b718197ba077e897e49f8079f3da21422e))
+
+
+### Bug Fixes
+
+* Set memory corpus configuration into RagCorpus object. ([39d3c70](https://github.com/googleapis/python-aiplatform/commit/39d3c702443af4c4ef2c804d1c43f890c8915878))
+
 ## [1.96.0](https://github.com/googleapis/python-aiplatform/compare/v1.95.1...v1.96.0) (2025-06-03)
 
 
