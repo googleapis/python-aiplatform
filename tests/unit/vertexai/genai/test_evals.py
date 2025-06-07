@@ -24,6 +24,7 @@ from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
+from vertexai._genai import _evals_data_converters
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
@@ -955,3 +956,255 @@ class TestPromptTemplate:
             assembled_content.parts[2].text
             == " and then answer: This is a simple text."
         )
+
+
+class TestGeminiEvalDataConverter:
+    """Unit tests for the _GeminiEvalDataConverter class."""
+
+    def setup_method(self):
+        self.converter = _evals_data_converters._GeminiEvalDataConverter()
+
+    def test_convert_simple_prompt_response(self):
+        raw_data = [
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Hello"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {"role": "model", "parts": [{"text": "Hi"}]},
+                            "finish_reason": "STOP",
+                        }
+                    ],
+                    "usage_metadata": {
+                        "prompt_token_count": 1,
+                        "candidates_token_count": 1,
+                        "total_token_count": 2,
+                    },
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        assert isinstance(result_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(result_dataset.eval_cases) == 1
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Hi")], role="model"
+        )
+        assert eval_case.reference.response is None
+        assert eval_case.system_instruction.parts is None
+        assert eval_case.conversation_history == []
+
+    def test_convert_with_system_instruction(self):
+        raw_data = [
+            {
+                "request": {
+                    "system_instruction": {
+                        "role": "system",
+                        "parts": [{"text": "Be nice."}],
+                    },
+                    "contents": [{"role": "user", "parts": [{"text": "Hello"}]}],
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Hi there!"}],
+                            }
+                        }
+                    ]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.system_instruction == genai_types.Content(
+            parts=[genai_types.Part(text="Be nice.")], role="system"
+        )
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+
+    def test_convert_with_conversation_history_and_reference(self):
+        raw_data_for_reference = [
+            {
+                "request": {
+                    "contents": [
+                        {
+                            "role": "user",
+                            "parts": [{"text": "Initial user"}],
+                        },  # history
+                        {
+                            "role": "model",
+                            "parts": [{"text": "Initial model"}],
+                        },  # history
+                        {
+                            "role": "user",
+                            "parts": [{"text": "Actual prompt"}],
+                        },  # prompt
+                        {
+                            "role": "model",
+                            "parts": [{"text": "This is reference"}],
+                        },  # reference
+                    ]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Actual response"}],
+                            }
+                        }
+                    ]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data_for_reference)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Actual prompt")], role="user"
+        )
+        assert eval_case.reference.response == genai_types.Content(
+            parts=[genai_types.Part(text="This is reference")], role="model"
+        )
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0].content == genai_types.Content(
+            parts=[genai_types.Part(text="Initial user")], role="user"
+        )
+        assert eval_case.conversation_history[1].content == genai_types.Content(
+            parts=[genai_types.Part(text="Initial model")], role="model"
+        )
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Actual response")], role="model"
+        )
+
+    def test_convert_with_conversation_history_no_reference(self):
+        # Last message in contents is from user, so it becomes the prompt.
+        raw_data = [
+            {
+                "request": {
+                    "contents": [
+                        {"role": "user", "parts": [{"text": "Old user msg"}]},
+                        {"role": "model", "parts": [{"text": "Old model msg"}]},
+                        {"role": "user", "parts": [{"text": "Current prompt"}]},
+                    ]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "A response"}],
+                            }
+                        }
+                    ]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Current prompt")], role="user"
+        )
+        assert eval_case.reference.response is None
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0].content.parts[0].text == "Old user msg"
+        assert (
+            eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
+        )
+
+    def test_convert_no_candidates_in_response(self):
+        raw_data = [
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Hello"}]}]
+                },
+                "response": {
+                    "candidates": [],
+                    "prompt_feedback": {"block_reason": "SAFETY"},
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response is None
+
+    def test_convert_invalid_content_structure_raises_value_error(self):
+        raw_data = [
+            {
+                "request": {"contents": ["not a dict"]},  # Invalid content
+                "response": {
+                    "candidates": [
+                        {"content": {"role": "model", "parts": [{"text": "Hi"}]}}
+                    ]
+                },
+            }
+        ]
+        with pytest.raises(
+            TypeError, match="Expected a dictionary for content at turn 0"
+        ):
+            self.converter.convert(raw_data)
+
+        raw_data_missing_parts = [
+            {
+                "request": {"contents": [{"role": "user"}]},  # Missing 'parts'
+                "response": {
+                    "candidates": [
+                        {"content": {"role": "model", "parts": [{"text": "Hi"}]}}
+                    ]
+                },
+            }
+        ]
+        with pytest.raises(
+            ValueError, match="Missing 'parts' key in content structure at turn 0"
+        ):
+            self.converter.convert(raw_data_missing_parts)
+
+    def test_convert_multiple_items(self):
+        raw_data = [
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Item 1"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Resp 1"}],
+                            }
+                        }
+                    ]
+                },
+            },
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Item 2"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {
+                            "content": {
+                                "role": "model",
+                                "parts": [{"text": "Resp 2"}],
+                            }
+                        }
+                    ]
+                },
+            },
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        assert len(result_dataset.eval_cases) == 2
+        assert result_dataset.eval_cases[0].prompt.parts[0].text == "Item 1"
+        assert result_dataset.eval_cases[1].prompt.parts[0].text == "Item 2"
