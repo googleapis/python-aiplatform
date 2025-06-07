@@ -1208,3 +1208,147 @@ class TestGeminiEvalDataConverter:
         assert len(result_dataset.eval_cases) == 2
         assert result_dataset.eval_cases[0].prompt.parts[0].text == "Item 1"
         assert result_dataset.eval_cases[1].prompt.parts[0].text == "Item 2"
+
+
+class TestFlattenEvalDataConverter:
+    """Unit tests for the _FlattenEvalDataConverter class."""
+
+    def setup_method(self):
+        self.converter = _evals_data_converters._FlattenEvalDataConverter()
+
+    def test_convert_simple_prompt_response(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": ["Hi"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        assert isinstance(result_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(result_dataset.eval_cases) == 1
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")]
+        )
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Hi")]
+        )
+        assert eval_case.reference is None
+        assert eval_case.system_instruction is None
+        assert eval_case.conversation_history is None
+
+    def test_convert_with_system_instruction_and_reference(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": ["Hi there!"],
+                "instruction": ["Be nice."],
+                "reference": ["Hey"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.system_instruction == genai_types.Content(
+            parts=[genai_types.Part(text="Be nice.")]
+        )
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")]
+        )
+        assert eval_case.reference.response == genai_types.Content(
+            parts=[genai_types.Part(text="Hey")]
+        )
+
+    def test_convert_with_conversation_history(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Current prompt"],
+                "response": ["A response"],
+                "history": [
+                    [
+                        {"role": "user", "parts": [{"text": "Old user msg"}]},
+                        {"role": "model", "parts": [{"text": "Old model msg"}]},
+                    ]
+                ],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Current prompt")]
+        )
+        assert eval_case.reference is None
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0].content.parts[0].text == "Old user msg"
+        assert (
+            eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
+        )
+
+    def test_convert_missing_response_raises_value_error(self):
+        raw_data_df = pd.DataFrame({"prompt": ["Hello"]})  # Missing response
+        raw_data = raw_data_df.to_dict(orient="records")
+        with pytest.raises(
+            ValueError, match="Response is required but missing for eval_case_0"
+        ):
+            self.converter.convert(raw_data)
+
+    def test_convert_missing_prompt_raises_value_error(self):
+        raw_data_df = pd.DataFrame({"response": ["Hi"]})  # Missing prompt
+        raw_data = raw_data_df.to_dict(orient="records")
+        with pytest.raises(
+            ValueError, match="Prompt is required but missing for eval_case_0"
+        ):
+            self.converter.convert(raw_data)
+
+    def test_convert_invalid_prompt_type_raises_value_error(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": [123],  # Invalid prompt type
+                "response": ["Hi"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        with pytest.raises(ValueError, match="Invalid prompt type for case 0"):
+            self.converter.convert(raw_data)
+
+    def test_convert_invalid_response_type_raises_value_error(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": [123],  # Invalid response type
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        with pytest.raises(ValueError, match="Invalid response type for case 0"):
+            self.converter.convert(raw_data)
+
+    def test_convert_multiple_items(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Item 1", "Item 2"],
+                "response": ["Resp 1", "Resp 2"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        assert len(result_dataset.eval_cases) == 2
+        assert result_dataset.eval_cases[0].prompt.parts[0].text == "Item 1"
+        assert result_dataset.eval_cases[1].prompt.parts[0].text == "Item 2"
+
+    def test_convert_with_additional_columns(self):
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": ["Hi"],
+                "custom_column": ["custom_value"],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.custom_column == "custom_value"

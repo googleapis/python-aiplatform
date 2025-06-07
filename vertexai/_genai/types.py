@@ -23,7 +23,7 @@ import typing
 from typing import Any, Callable, ClassVar, Optional, Tuple, Union
 from google.genai import _common
 from google.genai import types as genai_types
-from pydantic import Field, computed_field, field_validator, model_validator
+from pydantic import ConfigDict, Field, computed_field, field_validator, model_validator
 from typing_extensions import TypedDict
 
 logger = logging.getLogger("vertexai_genai.types")
@@ -1909,6 +1909,8 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""Unique identifier for the evaluation case.""",
     )
+    # Allow extra fields to support custom metric prompts and stay backward compatible.
+    model_config = ConfigDict(frozen=True, extra="allow")
 
 
 class EvalCaseDict(TypedDict, total=False):

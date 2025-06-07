@@ -16,7 +16,7 @@
 import abc
 import enum
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from google.genai import types as genai_types
 from typing_extensions import override
@@ -30,6 +30,7 @@ class _EvalDatasetSchema(enum.Enum):
     """Represents the schema of an evaluation dataset."""
 
     GEMINI = "gemini"
+    FLATTEN = "flatten"
     UNKNOWN = "unknown"
 
 
@@ -137,6 +138,118 @@ class _GeminiEvalDataConverter(_EvalDataConverter):
                 reference=reference,
                 system_instruction=system_instruction,
                 conversation_history=conversation_history,
+            )
+            eval_cases.append(eval_case)
+
+        return types.EvaluationDataset(eval_cases=eval_cases)
+
+
+class _FlattenEvalDataConverter(_EvalDataConverter):
+    """Converter for datasets in a structured table format."""
+
+    def convert(self, raw_data: list[dict[str, Any]]) -> types.EvaluationDataset:
+        """Converts a list of raw data into an EvaluationDataset."""
+        eval_cases = []
+        for i, item_dict in enumerate(raw_data):
+            item = item_dict.copy()
+            eval_case_id = f"eval_case_{i}"
+            prompt_data = item.pop("prompt", None)
+            if not prompt_data:
+                prompt_data = item.pop("source", None)
+
+            conversation_history_data = item.pop("history", None)
+            response_data = item.pop("response", None)
+            reference_data = item.pop("reference", None)
+            system_instruction_data = item.pop("instruction", None)
+
+            if not response_data:
+                raise ValueError(
+                    f"Response is required but missing for {eval_case_id}."
+                )
+            if not prompt_data:
+                raise ValueError(f"Prompt is required but missing for {eval_case_id}.")
+
+            prompt: genai_types.Content
+            if isinstance(prompt_data, str):
+                prompt = genai_types.Content(parts=[genai_types.Part(text=prompt_data)])
+            elif isinstance(prompt_data, dict):
+                prompt = genai_types.Content.model_validate(prompt_data)
+            elif isinstance(prompt_data, genai_types.Content):
+                prompt = prompt_data
+            else:
+                raise ValueError(
+                    f"Invalid prompt type for case {i}: {type(prompt_data)}"
+                )
+
+            conversation_history: Optional[list[types.Message]] = None
+            if isinstance(conversation_history_data, list):
+                conversation_history = [
+                    types.Message(
+                        turn_id=str(turn_id),
+                        content=genai_types.Content.model_validate(content),
+                    )
+                    for turn_id, content in enumerate(conversation_history_data)
+                ]
+
+            responses: list[types.ResponseCandidate]
+            if isinstance(response_data, dict):
+                responses = [
+                    types.ResponseCandidate(
+                        response=genai_types.Content.model_validate(response_data)
+                    )
+                ]
+            elif isinstance(response_data, str):
+                responses = [
+                    types.ResponseCandidate(
+                        response=genai_types.Content(
+                            parts=[genai_types.Part(text=response_data)]
+                        )
+                    )
+                ]
+            elif isinstance(response_data, genai_types.Content):
+                responses = [types.ResponseCandidate(response=response_data)]
+            else:
+                raise ValueError(
+                    f"Invalid response type for case {i}: {type(response_data)}"
+                )
+
+            reference: Optional[types.ResponseCandidate] = None
+            if reference_data:
+                if isinstance(reference_data, dict):
+                    reference = types.ResponseCandidate(
+                        response=genai_types.Content.model_validate(reference_data)
+                    )
+                elif isinstance(reference_data, str):
+                    reference = types.ResponseCandidate(
+                        response=genai_types.Content(
+                            parts=[genai_types.Part(text=reference_data)]
+                        )
+                    )
+                elif isinstance(reference_data, genai_types.Content):
+                    reference = types.ResponseCandidate(response=reference_data)
+
+            system_instruction: Optional[genai_types.Content] = None
+            if system_instruction_data:
+                if isinstance(system_instruction_data, dict):
+                    system_instruction = genai_types.Content.model_validate(
+                        system_instruction_data
+                    )
+                elif isinstance(system_instruction_data, str):
+                    system_instruction = genai_types.Content(
+                        parts=[genai_types.Part(text=system_instruction_data)]
+                    )
+                elif isinstance(system_instruction_data, genai_types.Content):
+                    system_instruction = system_instruction_data
+
+            eval_case = types.EvalCase(
+                eval_case_id=eval_case_id,
+                prompt=prompt,
+                responses=responses,
+                reference=reference,
+                conversation_history=conversation_history,
+                system_instruction=system_instruction,
+                **item,  # Pass remaining columns as extra fields to EvalCase.
+                # They can be used for custom metric prompt templates.
             )
             eval_cases.append(eval_case)
 
