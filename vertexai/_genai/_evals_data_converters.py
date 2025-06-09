@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Dataset converter for evals."""
+"""Dataset converters for evals."""
 import abc
 import enum
 import logging
@@ -151,6 +151,11 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
         """Converts a list of raw data into an EvaluationDataset."""
         eval_cases = []
         for i, item_dict in enumerate(raw_data):
+            if not isinstance(item_dict, dict):
+                raise TypeError(
+                    f"Expected a dictionary for item at index {i}, but got"
+                    f" {type(item_dict).__name__}: {item_dict}"
+                )
             item = item_dict.copy()
             eval_case_id = f"eval_case_{i}"
             prompt_data = item.pop("prompt", None)
@@ -254,3 +259,246 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
             eval_cases.append(eval_case)
 
         return types.EvaluationDataset(eval_cases=eval_cases)
+
+
+def auto_detect_dataset_schema(
+    raw_dataset: list[dict[str, Any]],
+) -> _EvalDatasetSchema:
+    """Detects the schema of a raw dataset."""
+    if not raw_dataset:
+        return _EvalDatasetSchema.UNKNOWN
+
+    first_item = raw_dataset[0]
+    try:
+        _GeminiEvalDataConverter().convert([first_item])
+        return _EvalDatasetSchema.GEMINI
+    except (ValueError, KeyError, AttributeError, TypeError) as e:
+        logger.debug(
+            "First item not parsable as Gemini schema (error: %s), "
+            "falling back to key-based checks.",
+            e,
+        )
+        pass
+
+    # Fallback to key-based detection for flatten schema
+    keys = set(first_item.keys())
+    if {"prompt", "response"}.issubset(keys) or {
+        "response",
+        "reference",
+    }.issubset(keys):
+        return _EvalDatasetSchema.FLATTEN
+    else:
+        return _EvalDatasetSchema.UNKNOWN
+
+
+_SCHEMA_TO_CONVERTER = {
+    _EvalDatasetSchema.GEMINI: _GeminiEvalDataConverter,
+    _EvalDatasetSchema.FLATTEN: _FlattenEvalDataConverter,
+}
+
+
+def get_dataset_converter(
+    dataset_schema: _EvalDatasetSchema,
+) -> _EvalDataConverter:
+    """Returns the appropriate dataset converter for the given schema."""
+    if dataset_schema in _SCHEMA_TO_CONVERTER:
+        return _SCHEMA_TO_CONVERTER[dataset_schema]()
+    else:
+        raise ValueError(f"Unsupported dataset schema: {dataset_schema}")
+
+
+def _get_first_part_text(content: genai_types.Content) -> str:
+    """Safely extracts text from the first part of a content."""
+    if (
+        content
+        and hasattr(content, "parts")
+        and isinstance(content.parts, list)
+        and content.parts
+    ):
+        first_part = content.parts[0]
+        if hasattr(first_part, "text"):
+            return str(first_part.text)
+    return ""
+
+
+def _get_text_from_reference(
+    reference: Optional[types.ResponseCandidate],
+) -> Optional[str]:
+    """Safely extracts text from a reference field."""
+    if reference and hasattr(reference, "response") and reference.response:
+        return _get_first_part_text(reference.response)
+    return None
+
+
+_PLACEHOLDER_RESPONSE_TEXT = "Error: Missing response for this candidate"
+
+
+def _create_placeholder_response_candidate(
+    text: str = _PLACEHOLDER_RESPONSE_TEXT,
+) -> types.ResponseCandidate:
+    """Creates a ResponseCandidate with placeholder text."""
+    return types.ResponseCandidate(
+        response=genai_types.Content(parts=[genai_types.Part(text=text)])
+    )
+
+
+def _validate_case_consistency(
+    base_case: types.EvalCase,
+    current_case: types.EvalCase,
+    case_idx: int,
+    dataset_idx: int,
+):
+    """Logs warnings if prompt or reference mismatches occur."""
+    if base_case.prompt != current_case.prompt:
+        base_prompt_text_preview = _get_first_part_text(base_case.prompt)[:50]
+        current_prompt_text_preview = _get_first_part_text(current_case.prompt)[:50]
+        logger.warning(
+            f"Prompt mismatch for case index {case_idx} between base dataset (0)"
+            f" and dataset {dataset_idx}. Using prompt from base. Base prompt"
+            f" preview: '{base_prompt_text_preview}...', Dataset"
+            f" {dataset_idx} prompt preview: '{current_prompt_text_preview}...'"
+        )
+
+    base_ref_text = _get_text_from_reference(base_case.reference)
+    current_ref_text = _get_text_from_reference(current_case.reference)
+
+    if bool(base_case.reference) != bool(current_case.reference):
+        logger.warning(
+            f"Reference presence mismatch for case index {case_idx} between base"
+            f" dataset (0) and dataset {dataset_idx}. Using reference (or lack"
+            " thereof) from base."
+        )
+    elif base_ref_text != current_ref_text:
+        logger.warning(
+            f"Reference text mismatch for case index {case_idx} between base"
+            f" dataset (0) and dataset {dataset_idx}. Using reference from base."
+            f" Base ref: '{str(base_ref_text)[:50]}...', Current ref:"
+            f" '{str(current_ref_text)[:50]}...'"
+        )
+
+
+def merge_response_datasets_into_canonical_format(
+    raw_datasets: list[list[dict[str, Any]]],
+    schemas: list[str],
+) -> types.EvaluationDataset:
+    """Merges multiple raw response datasets into a single EvaluationDataset.
+
+    Assumes that each dataset in raw_datasets has responses corresponding
+    to the same set of prompts, in the same order. The prompt, reference,
+    system_instruction, and conversation_history are taken from the first dataset.
+    """
+    if not isinstance(raw_datasets, list):
+        raise TypeError(
+            f"Input 'raw_datasets' must be a list, got {type(raw_datasets)}."
+        )
+    if not raw_datasets or not all(isinstance(ds, list) for ds in raw_datasets):
+        raise ValueError(
+            "Input 'raw_datasets' cannot be empty and must be a list of lists."
+        )
+    if not schemas or len(schemas) != len(raw_datasets):
+        raise ValueError(
+            "A list of schemas must be provided, one for each raw dataset. "
+            f"Got {len(schemas)} schemas for {len(raw_datasets)} datasets."
+        )
+
+    num_expected_cases = len(raw_datasets[0])
+    if num_expected_cases == 0:
+        logger.warning(
+            "The first dataset has no evaluation cases. Result will be empty."
+        )
+        return types.EvaluationDataset(eval_cases=[])
+
+    parsed_evaluation_datasets: list[types.EvaluationDataset] = []
+    for i, (raw_ds_entry, schema) in enumerate(zip(raw_datasets, schemas)):
+        if len(raw_ds_entry) != num_expected_cases:
+            raise ValueError(
+                "All datasets must have the same number of evaluation cases. "
+                f"Base dataset (0) has {num_expected_cases}, but dataset {i} "
+                f"(schema: {schema}) has {len(raw_ds_entry)}."
+            )
+        converter = get_dataset_converter(schema)
+        parsed_evaluation_datasets.append(converter.convert(raw_ds_entry))
+
+    merged_eval_cases: list[types.EvalCase] = []
+    base_parsed_dataset = parsed_evaluation_datasets[0]
+
+    for case_idx in range(num_expected_cases):
+        base_eval_case: types.EvalCase = base_parsed_dataset.eval_cases[case_idx]
+        candidate_responses: list[types.ResponseCandidate] = []
+
+        if base_eval_case.responses:
+            candidate_responses.append(base_eval_case.responses[0])
+        else:
+            logger.warning(
+                "No response found for base dataset (index 0) in case %s. "
+                "Adding placeholder.",
+                case_idx,
+            )
+            candidate_responses.append(
+                _create_placeholder_response_candidate(
+                    f"Missing response from base dataset (0) for case {case_idx}"
+                )
+            )
+
+        eval_case_custom_columns = base_eval_case.model_dump(
+            exclude={
+                "eval_case_id",
+                "prompt",
+                "responses",
+                "reference",
+                "system_instruction",
+                "conversation_history",
+            },
+            exclude_none=True,
+        )
+        for dataset_idx_offset, current_parsed_ds in enumerate(
+            parsed_evaluation_datasets[1:], start=1
+        ):
+            current_ds_eval_case: types.EvalCase = current_parsed_ds.eval_cases[
+                case_idx
+            ]
+
+            _validate_case_consistency(
+                base_eval_case, current_ds_eval_case, case_idx, dataset_idx_offset
+            )
+
+            current_ds_extra_attrs = current_ds_eval_case.model_dump(
+                exclude={
+                    "eval_case_id",
+                    "prompt",
+                    "responses",
+                    "reference",
+                    "system_instruction",
+                    "conversation_history",
+                },
+                exclude_none=True,
+            )
+            eval_case_custom_columns.update(current_ds_extra_attrs)
+
+            if current_ds_eval_case.responses:
+                candidate_responses.append(current_ds_eval_case.responses[0])
+            else:
+                logger.warning(
+                    "No response found for dataset %s in case %s. Adding placeholder.",
+                    dataset_idx_offset,
+                    case_idx,
+                )
+                candidate_responses.append(
+                    _create_placeholder_response_candidate(
+                        f"Missing response from dataset {dataset_idx_offset} "
+                        f"for case {case_idx}"
+                    )
+                )
+
+        merged_case = types.EvalCase(
+            eval_case_id=base_eval_case.eval_case_id or f"merged_eval_case_{case_idx}",
+            prompt=base_eval_case.prompt,
+            responses=candidate_responses,
+            reference=base_eval_case.reference,
+            system_instruction=base_eval_case.system_instruction,
+            conversation_history=base_eval_case.conversation_history,
+            **eval_case_custom_columns,
+        )
+        merged_eval_cases.append(merged_case)
+
+    return types.EvaluationDataset(eval_cases=merged_eval_cases)
