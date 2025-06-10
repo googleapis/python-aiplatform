@@ -93,6 +93,14 @@ _AGENT_FRAMEWORK_ATTR = "agent_framework"
 _DEFAULT_AGENT_FRAMEWORK = "custom"
 
 
+try:
+    from google.adk.agents import BaseAgent
+
+    ADKAgent = BaseAgent
+except (ImportError, AttributeError):
+    ADKAgent = None
+
+
 @typing.runtime_checkable
 class Queryable(Protocol):
     """Protocol for Agent Engines that can be queried."""
@@ -145,6 +153,16 @@ class OperationRegistrable(Protocol):
     @abc.abstractmethod
     def register_operations(self, **kwargs):
         """Register the user provided operations (modes and methods)."""
+
+
+_AgentEngineInterface = Union[
+    ADKAgent,
+    AsyncQueryable,
+    AsyncStreamQueryable,
+    OperationRegistrable,
+    Queryable,
+    StreamQueryable,
+]
 
 
 def _wrap_agent_operation(agent: Any, operation: str):
@@ -294,7 +312,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+        agent_engine: Optional[_AgentEngineInterface] = None,
         *,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
@@ -503,7 +521,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
     def update(
         self,
         *,
-        agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+        agent_engine: Optional[_AgentEngineInterface] = None,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
@@ -725,10 +743,8 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
 
 
 def _validate_agent_engine_or_raise(
-    agent_engine: Union[
-        Queryable, OperationRegistrable, StreamQueryable, AsyncStreamQueryable
-    ],
-) -> Union[Queryable, OperationRegistrable, StreamQueryable, AsyncStreamQueryable]:
+    agent_engine: _AgentEngineInterface,
+) -> _AgentEngineInterface:
     """Tries to validate the agent engine.
 
     The agent engine must have one of the following:
@@ -841,7 +857,7 @@ def _validate_agent_engine_or_raise(
 
 def _validate_requirements_or_raise(
     *,
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: _AgentEngineInterface,
     requirements: Optional[Sequence[str]] = None,
 ) -> Sequence[str]:
     """Tries to validate the requirements."""
@@ -890,7 +906,7 @@ def _get_gcs_bucket(
 
 def _upload_agent_engine(
     *,
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: _AgentEngineInterface,
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
 ) -> None:
@@ -947,7 +963,7 @@ def _upload_extra_packages(
 
 
 def _prepare(
-    agent_engine: Optional[Union[Queryable, OperationRegistrable]],
+    agent_engine: Optional[_AgentEngineInterface],
     requirements: Optional[Sequence[str]],
     extra_packages: Optional[Sequence[str]],
     project: str,
@@ -1072,7 +1088,7 @@ def _generate_deployment_spec_or_raise(
 
 
 def _get_agent_framework(
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: _AgentEngineInterface,
 ) -> str:
     if (
         hasattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
@@ -1087,7 +1103,7 @@ def _generate_update_request_or_raise(
     resource_name: str,
     staging_bucket: str,
     gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
-    agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+    agent_engine: Optional[_AgentEngineInterface] = None,
     requirements: Optional[Union[str, Sequence[str]]] = None,
     extra_packages: Optional[Sequence[str]] = None,
     display_name: Optional[str] = None,
@@ -1418,7 +1434,9 @@ def _register_api_methods_or_raise(obj: "AgentEngine"):
         setattr(obj, method_name, types.MethodType(method, obj))
 
 
-def _get_registered_operations(agent_engine: Any) -> Dict[str, List[str]]:
+def _get_registered_operations(
+    agent_engine: _AgentEngineInterface,
+) -> Dict[str, List[str]]:
     """Retrieves registered operations for a AgentEngine."""
     if isinstance(agent_engine, OperationRegistrable):
         return agent_engine.register_operations()
@@ -1436,7 +1454,7 @@ def _get_registered_operations(agent_engine: Any) -> Dict[str, List[str]]:
 
 
 def _generate_class_methods_spec_or_raise(
-    *, agent_engine: Any, operations: Dict[str, List[str]]
+    *, agent_engine: _AgentEngineInterface, operations: Dict[str, List[str]]
 ) -> List[proto.Message]:
     """Generates a ReasoningEngineSpec based on the registered operations.
 
