@@ -496,6 +496,7 @@ def import_files(
     transformation_config: Optional[TransformationConfig] = None,
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
+    global_max_embedding_requests_per_min: Optional[int] = None,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
@@ -605,6 +606,13 @@ def import_files(
             page on the project to set an appropriate value
             here. If unspecified, a default value of 1,000
             QPM would be used.
+        global_max_embedding_requests_per_min:
+            Optional. The max number of queries per minute that the indexing
+            pipeline job is allowed to make to the embedding model specified in
+            the project. Please follow the quota usage guideline of the embedding
+            model you use to set the value properly. If this value is not specified,
+            max_embedding_requests_per_min will be used by indexing pipeline job
+            as the global limit and this means parallel import jobs are not allowed.
         timeout: Default is 600 seconds.
         use_advanced_pdf_parsing: Whether to use advanced PDF
             parsing on uploaded files. This field is deprecated.
@@ -663,6 +671,7 @@ def import_files(
         chunk_overlap=chunk_overlap,
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
+        global_max_embedding_requests_per_min=global_max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
         layout_parser=layout_parser,
@@ -686,6 +695,7 @@ async def import_files_async(
     chunk_overlap: int = 200,
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
+    global_max_embedding_requests_per_min: Optional[int] = None,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
@@ -796,6 +806,13 @@ async def import_files_async(
             page on the project to set an appropriate value
             here. If unspecified, a default value of 1,000
             QPM would be used.
+        global_max_embedding_requests_per_min:
+            Optional. The max number of queries per minute that the indexing
+            pipeline job is allowed to make to the embedding model specified in
+            the project. Please follow the quota usage guideline of the embedding
+            model you use to set the value properly. If this value is not specified,
+            max_embedding_requests_per_min will be used by indexing pipeline job
+            as the global limit and this means parallel import jobs are not allowed.
         use_advanced_pdf_parsing: Whether to use advanced PDF
             parsing on uploaded files.
         partial_failures_sink: Either a GCS path to store partial failures or a
@@ -852,6 +869,7 @@ async def import_files_async(
         chunk_overlap=chunk_overlap,
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
+        global_max_embedding_requests_per_min=global_max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
         layout_parser=layout_parser,

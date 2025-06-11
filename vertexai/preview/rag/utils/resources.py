@@ -515,10 +515,19 @@ class LayoutParserConfig:
             https://cloud.google.com/document-ai/quotas and the Quota page for
             your project to set an appropriate value here. If unspecified, a
             default value of 120 QPM will be used.
+        global_max_parsing_requests_per_min (int):
+            The maximum number of requests the job is allowed to make to
+            the Document AI processor per minute in this project.
+            Consult https://cloud.google.com/document-ai/quotas and the
+            Quota page for your project to set an appropriate value
+            here. If this value is not specified,
+            max_parsing_requests_per_min will be used by indexing
+            pipeline as the global limit.
     """
 
     processor_name: str
     max_parsing_requests_per_min: Optional[int] = None
+    global_max_parsing_requests_per_min: Optional[int] = None
 
 
 @dataclasses.dataclass

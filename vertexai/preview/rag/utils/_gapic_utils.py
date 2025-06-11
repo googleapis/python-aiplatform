@@ -537,6 +537,7 @@ def prepare_import_files_request(
     chunk_overlap: int = 200,
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
+    global_max_embedding_requests_per_min: Optional[int] = None,
     use_advanced_pdf_parsing: bool = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
@@ -569,8 +570,15 @@ def prepare_import_files_request(
             )
         rag_file_parsing_config.layout_parser = RagFileParsingConfig.LayoutParser(
             processor_name=layout_parser.processor_name,
-            max_parsing_requests_per_min=layout_parser.max_parsing_requests_per_min,
         )
+        if layout_parser.max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.layout_parser.max_parsing_requests_per_min = (
+                layout_parser.max_parsing_requests_per_min
+            )
+        if layout_parser.global_max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.layout_parser.global_max_parsing_requests_per_min = (
+                layout_parser.global_max_parsing_requests_per_min
+            )
     if llm_parser is not None:
         rag_file_parsing_config.llm_parser = RagFileParsingConfig.LlmParser(
             model_name=llm_parser.model_name
@@ -609,6 +617,10 @@ def prepare_import_files_request(
         rebuild_ann_index=rebuild_ann_index,
     )
 
+    if global_max_embedding_requests_per_min is not None:
+        import_rag_files_config.global_max_embedding_requests_per_min = (
+            global_max_embedding_requests_per_min
+        )
     if source is not None:
         gapic_source = convert_source_for_rag_import(source)
         if isinstance(gapic_source, GapicSlackSource):

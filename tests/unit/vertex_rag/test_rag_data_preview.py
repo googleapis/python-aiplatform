@@ -659,6 +659,14 @@ def import_files_request_eq(returned_request, expected_request):
         returned_request.import_rag_files_config.rebuild_ann_index
         == expected_request.import_rag_files_config.rebuild_ann_index
     )
+    assert (
+        returned_request.import_rag_files_config.max_embedding_requests_per_min
+        == expected_request.import_rag_files_config.max_embedding_requests_per_min
+    )
+    assert (
+        returned_request.import_rag_files_config.global_max_embedding_requests_per_min
+        == expected_request.import_rag_files_config.global_max_embedding_requests_per_min
+    )
 
 
 def rag_engine_config_eq(returned_config, expected_config):
@@ -1347,6 +1355,20 @@ class TestRagDataManagement:
         )
         import_files_request_eq(
             request, test_rag_constants_preview.TEST_IMPORT_REQUEST_DRIVE_FILE
+        )
+
+    def test_prepare_import_files_request_drive_files_with_global_quota_control(self):
+        paths = [test_rag_constants_preview.TEST_DRIVE_FILE]
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=paths,
+            transformation_config=create_transformation_config(),
+            max_embedding_requests_per_min=800,
+            global_max_embedding_requests_per_min=8000,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants_preview.TEST_IMPORT_REQUEST_DRIVE_FILE_GLOBAL_QUOTA_CONTROL,
         )
 
     def test_prepare_import_files_request_invalid_drive_path(self):
