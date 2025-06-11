@@ -715,6 +715,7 @@ def _Metric_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+
     if getv(from_object, ["prompt_template"]) is not None:
         setv(
             to_object,

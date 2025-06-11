@@ -84,7 +84,7 @@ class TestEvals:
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_client.evals.batch_eval(
             dataset=vertexai_genai_types.EvaluationDataset(),
-            metrics=[vertexai_genai_types.Metric()],
+            metrics=[vertexai_genai_types.Metric(name="test")],
             output_config=vertexai_genai_types.OutputConfig(),
             autorater_config=vertexai_genai_types.AutoraterConfig(),
             config=vertexai_genai_types.EvaluateDatasetConfig(),
@@ -1352,6 +1352,73 @@ class TestFlattenEvalDataConverter:
         result_dataset = self.converter.convert(raw_data)
         eval_case = result_dataset.eval_cases[0]
         assert eval_case.custom_column == "custom_value"
+
+
+class TestMetric:
+    """Unit tests for the Metric class."""
+
+    def test_metric_creation_success(self):
+        metric = vertexai_genai_types.Metric(name="TestMetric")
+        assert metric.name == "testmetric"
+        assert metric.custom_function is None
+
+    def test_metric_creation_with_custom_function(self):
+        def my_custom_function(data: dict):
+            return 1.0
+
+        metric = vertexai_genai_types.Metric(
+            name="custom_metric", custom_function=my_custom_function
+        )
+        assert metric.name == "custom_metric"
+        assert metric.custom_function == my_custom_function
+
+    def test_metric_name_validation_empty_raises_error(self):
+        with pytest.raises(ValueError, match="Metric name cannot be empty."):
+            vertexai_genai_types.Metric(name="")
+        with pytest.raises(ValueError, match="Metric name cannot be empty."):
+            vertexai_genai_types.Metric(name=None)
+
+    def test_llm_metric_prompt_template_validation_empty_raises_error(self):
+        with pytest.raises(ValueError, match="Prompt template cannot be empty."):
+            vertexai_genai_types.LLMMetric(name="test_metric", prompt_template=None)
+        with pytest.raises(
+            ValueError, match="Prompt template cannot be an empty string."
+        ):
+            vertexai_genai_types.LLMMetric(name="test_metric", prompt_template="")
+        with pytest.raises(
+            ValueError, match="Prompt template cannot be an empty string."
+        ):
+            vertexai_genai_types.LLMMetric(name="test_metric", prompt_template="  ")
+
+    def test_llm_metric_sampling_count_validation_raise_errors(self):
+        with pytest.raises(
+            ValueError, match="judge_model_sampling_count must be between 1 and 32."
+        ):
+            vertexai_genai_types.LLMMetric(
+                name="test_metric",
+                prompt_template="test_prompt_template",
+                judge_model_sampling_count=0,
+            )
+        with pytest.raises(
+            ValueError, match="judge_model_sampling_count must be between 1 and 32."
+        ):
+            vertexai_genai_types.LLMMetric(
+                name="test_metric",
+                prompt_template="test_prompt_template",
+                judge_model_sampling_count=-1,
+            )
+        with pytest.raises(
+            ValueError, match="judge_model_sampling_count must be between 1 and 32."
+        ):
+            vertexai_genai_types.LLMMetric(
+                name="test_metric",
+                prompt_template="test_prompt_template",
+                judge_model_sampling_count=100,
+            )
+
+    def test_metric_name_validation_lowercase(self):
+        metric = vertexai_genai_types.Metric(name="UPPERCASEMetric")
+        assert metric.name == "uppercasemetric"
 
 
 class TestMergeResponseDatasets:

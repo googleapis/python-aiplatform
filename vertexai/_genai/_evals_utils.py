@@ -17,12 +17,17 @@ import io
 import json
 import logging
 import os
+import re
 import time
-from typing import Any, Union
+from typing import Any, Union, Optional
+
 from google.cloud import bigquery
 from google.cloud import storage
 from google.genai._api_client import BaseApiClient
 import pandas as pd
+import yaml
+
+from . import types
 
 logger = logging.getLogger(__name__)
 
@@ -275,3 +280,248 @@ class EvalDatasetLoader:
                 " a valid GCS path with `jsonl` or `csv` suffix, a local"
                 " file path, or a valid BigQuery table URI."
             )
+
+
+class LazyLoadedPrebuiltMetric:
+    """A proxy object representing a prebuilt metric that will be loaded on demand."""
+
+    _cache: dict[str, types.LLMMetric] = {}
+    _base_gcs_path = (
+        "gs://vertex-ai-generative-ai-eval-sdk-resources/metrics/{metric_name}/"
+    )
+
+    def __init__(self, name: str, version: Optional[str] = None):
+        self.name = name.lower()
+        self.version = version or "latest"
+        self._resolved_metric: Optional[types.LLMMetric] = None
+
+    def _get_latest_version_uri(self, api_client: Any, metric_gcs_dir: str) -> str:
+        """Lists files in GCS directory and determines the latest version URI."""
+        gcs_utils = GcsUtils(api_client)
+        bucket_name, prefix = gcs_utils.parse_gcs_path(metric_gcs_dir)
+
+        blobs = gcs_utils.storage_client.list_blobs(bucket_name, prefix=prefix)
+
+        version_files: list[
+            dict[str, Union[list[int], str]]
+        ] = []  # {'version_parts': [1,0,0], 'filename': 'v1.0.0.yaml'}
+
+        # Regex to capture versions like v1, v1.0, v1.0.0 (supports .yaml and .json)
+        # It prioritizes more specific versions (e.g., v1.2.3 over v1.2)
+        version_pattern = re.compile(
+            r"v(\d+)(?:\.(\d+))?(?:\.(\d+))?\.(yaml|yml|json)$", re.IGNORECASE
+        )
+
+        for blob in blobs:
+            match = version_pattern.match(os.path.basename(blob.name))
+            if match:
+                major = int(match.group(1))
+                minor = int(match.group(2)) if match.group(2) else 0
+                patch = int(match.group(3)) if match.group(3) else 0
+                version_files.append(
+                    {
+                        "version_parts": [major, minor, patch],
+                        "filename": os.path.basename(blob.name),
+                    }
+                )
+
+        if not version_files:
+            raise IOError(f"No versioned metric files found in {metric_gcs_dir}")
+
+        version_files.sort(key=lambda x: x["version_parts"], reverse=True)
+
+        latest_filename = version_files[0]["filename"]
+        return os.path.join(metric_gcs_dir, latest_filename)
+
+    def _fetch_and_parse(self, api_client: Any) -> types.LLMMetric:
+        """Fetches and parses the metric definition from the URI."""
+        metric_gcs_dir = self._base_gcs_path.format(metric_name=self.name)
+        uri: str
+        if self.version == "latest":
+            uri = self._get_latest_version_uri(api_client, metric_gcs_dir)
+            resolved_version_match = re.match(
+                r"(v\d+(?:\.\d+)*)\.(?:yaml|yml|json)",
+                os.path.basename(uri),
+                re.IGNORECASE,
+            )
+            if resolved_version_match:
+                self.version = resolved_version_match.group(1)
+            else:
+                self.version = os.path.splitext(
+                    os.path.splitext(os.path.basename(uri))[0]
+                )[0]
+        else:
+            yaml_uri = os.path.join(metric_gcs_dir, f"{self.version}.yaml")
+            json_uri = os.path.join(metric_gcs_dir, f"{self.version}.json")
+
+            gcs_utils = GcsUtils(api_client)
+            try:
+                bucket_name, blob_path = gcs_utils.parse_gcs_path(yaml_uri)
+                if (
+                    gcs_utils.storage_client.bucket(bucket_name)
+                    .blob(blob_path)
+                    .exists()
+                ):
+                    uri = yaml_uri
+                else:
+                    bucket_name_json, blob_path_json = gcs_utils.parse_gcs_path(
+                        json_uri
+                    )
+                    if (
+                        gcs_utils.storage_client.bucket(bucket_name_json)
+                        .blob(blob_path_json)
+                        .exists()
+                    ):
+                        uri = json_uri
+                    else:
+                        raise IOError(
+                            f"Metric file for version '{self.version}' not found as .yaml"
+                            f" or .json in {metric_gcs_dir}"
+                        )
+            except Exception as e:
+                raise IOError(
+                    f"Error checking for metric file version '{self.version}' in"
+                    f" {metric_gcs_dir}: {e}"
+                ) from e
+
+        logger.info(
+            "Fetching predefined metric '%s@%s' from %s...",
+            self.name,
+            self.version,
+            uri,
+        )
+
+        gcs_utils = GcsUtils(api_client)
+        content_str = gcs_utils.read_file_contents(uri)
+
+        file_extension = os.path.splitext(uri)[1].lower()
+        data: dict[str, Any]
+        if file_extension == ".yaml" or file_extension == ".yml":
+            if yaml is None:
+                raise ImportError(
+                    "YAML parsing requires the pyyaml library. Please install it"
+                    " using 'pip install google-cloud-aiplatform[evaluation]'."
+                )
+            data = yaml.safe_load(content_str)
+        elif file_extension == ".json":
+            data = json.loads(content_str)
+        else:
+            raise ValueError(
+                f"Unsupported file extension for metric config: {file_extension}."
+                " Must be .yaml, .yml, or .json"
+            )
+
+        if not isinstance(data, dict):
+            raise ValueError("Metric config content did not parse into a dictionary.")
+
+        if "prompt_template" in data and isinstance(data["prompt_template"], dict):
+            data["prompt_template"] = types.MetricPromptBuilder.model_validate(
+                data["prompt_template"]
+            )
+
+        metric_obj = types.LLMMetric.model_validate(data)
+
+        metric_obj._is_predefined = True
+        metric_obj._config_source = uri
+        metric_obj._version = self.version
+        return metric_obj
+
+    def resolve(self, api_client: Any) -> types.LLMMetric:
+        """Resolves the metric by loading it from the cache or fetching it if necessary."""
+        if self._resolved_metric is None:
+            temp_version_for_key = self.version
+
+            cache_key = f"{self.name}@{temp_version_for_key}"
+
+            if (
+                cache_key in LazyLoadedPrebuiltMetric._cache
+                and temp_version_for_key != "latest"
+            ):
+                self._resolved_metric = LazyLoadedPrebuiltMetric._cache[cache_key]
+                logger.debug(f"Metric '{cache_key}' found in cache.")
+            else:
+                logger.debug(
+                    f"Metric '{self.name}@{self.version}' not in cache or version is"
+                    " 'latest'. Fetching..."
+                )
+                try:
+                    fetched_metric = self._fetch_and_parse(api_client)
+                    final_cache_key = f"{self.name}@{self.version}"
+                    LazyLoadedPrebuiltMetric._cache[final_cache_key] = fetched_metric
+                    self._resolved_metric = fetched_metric
+                except Exception as e:
+                    logger.error(
+                        f"Error loading predefined metric {self.name} (requested version:"
+                        f" {self.version}): {e}"
+                    )
+                    raise
+        return self._resolved_metric
+
+    def __call__(self, version: Optional[str] = None) -> "LazyLoadedPrebuiltMetric":
+        """Allows setting a specific version."""
+        if version is not None:
+            return LazyLoadedPrebuiltMetric(name=self.name, version=version)
+        return self
+
+
+class PrebuiltMetricLoader:
+    """Provides access to predefined evaluation metrics via attributes.
+
+    This class provides a set of predefined LLM-based metrics (Autorater recipes)
+    for evaluation. These metrics are lazily loaded from a GCS repository
+    when they are first accessed.
+
+    Example:
+      metric = PrebuiltMetric.TEXT_QUALITY
+      metric = PrebuiltMetric.TEXT_QUALITY(version="v1")
+    """
+
+    def __getattr__(self, name: str) -> LazyLoadedPrebuiltMetric:
+        return LazyLoadedPrebuiltMetric(name=name)
+
+    @property
+    def TEXT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("TEXT_QUALITY")
+
+    @property
+    def INSTRUCTION_FOLLOWING(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("INSTRUCTION_FOLLOWING")
+
+    @property
+    def COHERENCE(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("COHERENCE")
+
+    @property
+    def FLUENCY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("FLUENCY")
+
+    @property
+    def GROUNDEDNESS(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("GROUNDEDNESS")
+
+    @property
+    def SAFETY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("SAFETY")
+
+    @property
+    def VERBOSITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("VERBOSITY")
+
+    @property
+    def SUMMARIZATION_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("SUMMARIZATION_QUALITY")
+
+    @property
+    def QUESTION_ANSWERING_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("QUESTION_ANSWERING_QUALITY")
+
+    @property
+    def MULTI_TURN_CHAT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_CHAT_QUALITY")
+
+    @property
+    def MULTI_TURN_SAFETY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_SAFETY")
+
+
+PrebuiltMetric = PrebuiltMetricLoader()
