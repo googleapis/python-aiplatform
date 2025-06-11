@@ -761,6 +761,39 @@ ToolParameterKVMatchInputOrDict = Union[
 ]
 
 
+class AutoraterConfig(_common.BaseModel):
+    """The configs for autorater."""
+
+    autorater_model: Optional[str] = Field(
+        default=None,
+        description="""Optional. The fully qualified name of the publisher model or tuned autorater endpoint to use. Publisher model format: `projects/{project}/locations/{location}/publishers/*/models/*` Tuned model endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`""",
+    )
+    flip_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Default is true. Whether to flip the candidate and baseline responses. This is only applicable to the pairwise metric. If enabled, also provide PairwiseMetricSpec.candidate_response_field_name and PairwiseMetricSpec.baseline_response_field_name. When rendering PairwiseMetricSpec.metric_prompt_template, the candidate and baseline fields will be flipped for half of the samples to reduce bias.""",
+    )
+    sampling_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. Number of samples for each instance in the dataset. If not specified, the default is 4. Minimum value is 1, maximum value is 32.""",
+    )
+
+
+class AutoraterConfigDict(TypedDict, total=False):
+    """The configs for autorater."""
+
+    autorater_model: Optional[str]
+    """Optional. The fully qualified name of the publisher model or tuned autorater endpoint to use. Publisher model format: `projects/{project}/locations/{location}/publishers/*/models/*` Tuned model endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`"""
+
+    flip_enabled: Optional[bool]
+    """Optional. Default is true. Whether to flip the candidate and baseline responses. This is only applicable to the pairwise metric. If enabled, also provide PairwiseMetricSpec.candidate_response_field_name and PairwiseMetricSpec.baseline_response_field_name. When rendering PairwiseMetricSpec.metric_prompt_template, the candidate and baseline fields will be flipped for half of the samples to reduce bias."""
+
+    sampling_count: Optional[int]
+    """Optional. Number of samples for each instance in the dataset. If not specified, the default is 4. Minimum value is 1, maximum value is 32."""
+
+
+AutoraterConfigOrDict = Union[AutoraterConfig, AutoraterConfigDict]
+
+
 class HttpOptions(_common.BaseModel):
     """HTTP options to be used in each of the requests."""
 
@@ -857,6 +890,9 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     tool_parameter_kv_match_input: Optional[ToolParameterKVMatchInput] = Field(
         default=None, description=""""""
     )
+    autorater_config: Optional[AutoraterConfig] = Field(
+        default=None, description=""""""
+    )
     config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
 
 
@@ -888,6 +924,9 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
     """"""
 
     tool_parameter_kv_match_input: Optional[ToolParameterKVMatchInputDict]
+    """"""
+
+    autorater_config: Optional[AutoraterConfigDict]
     """"""
 
     config: Optional[EvaluateInstancesConfigDict]
@@ -2243,39 +2282,6 @@ class OutputConfigDict(TypedDict, total=False):
 
 
 OutputConfigOrDict = Union[OutputConfig, OutputConfigDict]
-
-
-class AutoraterConfig(_common.BaseModel):
-    """The configs for autorater."""
-
-    autorater_model: Optional[str] = Field(
-        default=None,
-        description="""Optional. The fully qualified name of the publisher model or tuned autorater endpoint to use. Publisher model format: `projects/{project}/locations/{location}/publishers/*/models/*` Tuned model endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`""",
-    )
-    flip_enabled: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Default is true. Whether to flip the candidate and baseline responses. This is only applicable to the pairwise metric. If enabled, also provide PairwiseMetricSpec.candidate_response_field_name and PairwiseMetricSpec.baseline_response_field_name. When rendering PairwiseMetricSpec.metric_prompt_template, the candidate and baseline fields will be flipped for half of the samples to reduce bias.""",
-    )
-    sampling_count: Optional[int] = Field(
-        default=None,
-        description="""Optional. Number of samples for each instance in the dataset. If not specified, the default is 4. Minimum value is 1, maximum value is 32.""",
-    )
-
-
-class AutoraterConfigDict(TypedDict, total=False):
-    """The configs for autorater."""
-
-    autorater_model: Optional[str]
-    """Optional. The fully qualified name of the publisher model or tuned autorater endpoint to use. Publisher model format: `projects/{project}/locations/{location}/publishers/*/models/*` Tuned model endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`"""
-
-    flip_enabled: Optional[bool]
-    """Optional. Default is true. Whether to flip the candidate and baseline responses. This is only applicable to the pairwise metric. If enabled, also provide PairwiseMetricSpec.candidate_response_field_name and PairwiseMetricSpec.baseline_response_field_name. When rendering PairwiseMetricSpec.metric_prompt_template, the candidate and baseline fields will be flipped for half of the samples to reduce bias."""
-
-    sampling_count: Optional[int]
-    """Optional. Number of samples for each instance in the dataset. If not specified, the default is 4. Minimum value is 1, maximum value is 32."""
-
-
-AutoraterConfigOrDict = Union[AutoraterConfig, AutoraterConfigDict]
 
 
 class EvaluateDatasetConfig(_common.BaseModel):

@@ -31,7 +31,7 @@ from . import types
 
 logger = logging.getLogger(__name__)
 
-_MAX_WORKERS = 100
+MAX_WORKERS = 100
 
 
 def _generate_content_with_retry(
@@ -182,9 +182,7 @@ def _run_gemini_inference(
         )
 
     with tqdm(total=len(prompt_dataset), desc="Gemini Inference") as pbar:
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=_MAX_WORKERS
-        ) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             for index, row in prompt_dataset.iterrows():
                 request_dict = {}
                 contents_input = row[primary_prompt_column]
@@ -281,9 +279,7 @@ def _run_custom_inference(
         raise ValueError("Dataset must contain either 'prompt' or 'request'.")
 
     with tqdm(total=len(prompt_dataset), desc="Custom Inference") as pbar:
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=_MAX_WORKERS
-        ) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             for index, row in prompt_dataset.iterrows():
                 contents_input = row[primary_prompt_column]
 

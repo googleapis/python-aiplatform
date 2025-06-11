@@ -24,6 +24,7 @@ from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
+from vertexai._genai import _evals_metric_handlers
 from vertexai._genai import _evals_data_converters
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
@@ -1945,6 +1946,185 @@ class TestMergeResponseDatasets:
                 raw_datasets=[raw_dataset_1],
                 schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
             )
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestLLMMetricHandlerPayload:
+    def setup_method(self):
+        importlib.reload(aiplatform_initializer)
+        importlib.reload(aiplatform)
+        importlib.reload(vertexai)
+        importlib.reload(genai_types)
+        importlib.reload(vertexai_genai_types)
+        importlib.reload(_evals_data_converters)
+        importlib.reload(_evals_metric_handlers)
+
+        vertexai.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        self.mock_api_client = mock.Mock(spec=client.Client)
+        self.mock_evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+    def test_build_request_payload_basic_filtering_and_fields(self):
+        metric = vertexai_genai_types.LLMMetric(
+            name="test_quality",
+            prompt_template="Eval: {prompt} with {response}. Context: "
+            "{custom_context}. Ref: {reference}",
+        )
+        handler = _evals_metric_handlers.LLMMetricHandler(
+            module=self.mock_evals_module, metric=metric
+        )
+
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(
+                parts=[genai_types.Part(text="User prompt text")]
+            ),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(
+                        parts=[genai_types.Part(text="Model response text")]
+                    )
+                )
+            ],
+            reference=vertexai_genai_types.ResponseCandidate(
+                response=genai_types.Content(
+                    parts=[genai_types.Part(text="Ground truth text")]
+                )
+            ),
+            custom_context="Custom context value.",  # pylint: disable=unexpected-keyword-arg
+            extra_field_not_in_template="This should be excluded.",  # pylint: disable=unexpected-keyword-arg
+            eval_case_id="case-123",
+        )
+
+        payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
+
+        expected_json_instance_dict = {
+            "prompt": "User prompt text",
+            "response": "Model response text",
+            "custom_context": "Custom context value.",
+            "reference": "Ground truth text",
+        }
+
+        actual_json_instance_str = payload["pointwise_metric_input"]["instance"][
+            "json_instance"
+        ]
+        actual_json_instance_dict = json.loads(actual_json_instance_str)
+
+        assert actual_json_instance_dict == expected_json_instance_dict
+        assert "extra_field_not_in_template" not in actual_json_instance_dict
+        assert "eval_case_id" not in actual_json_instance_dict
+
+        assert (
+            "custom_output_format_config"
+            not in payload["pointwise_metric_input"]["metric_spec"]
+        )
+        assert (
+            "system_instruction" not in payload["pointwise_metric_input"]["metric_spec"]
+        )
+        assert "autorater_config" not in payload
+
+    def test_build_request_payload_various_field_types(self):
+        metric = vertexai_genai_types.LLMMetric(
+            name="complex_eval",
+            prompt_template=(
+                "P: {prompt}, R: {response}, Hist: {conversation_history}, "
+                "SysInstruct: {system_instruction}, "
+                "DictField: {dict_field}, ListField: {list_field}, "
+                "IntField: {int_field}, BoolField: {bool_field}"
+            ),
+        )
+        handler = _evals_metric_handlers.LLMMetricHandler(
+            module=self.mock_evals_module, metric=metric
+        )
+
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="The Prompt")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(
+                        parts=[genai_types.Part(text="The Response")]
+                    )
+                )
+            ],
+            conversation_history=[
+                vertexai_genai_types.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 user")], role="user"
+                    )
+                ),
+                vertexai_genai_types.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 model")], role="model"
+                    )
+                ),
+            ],
+            system_instruction=genai_types.Content(
+                parts=[genai_types.Part(text="System instructions here.")]
+            ),
+            dict_field={  # pylint: disable=unexpected-keyword-arg
+                "key1": "val1",
+                "key2": [1, 2],
+            },
+            list_field=["a", "b", {"c": 3}],  # pylint: disable=unexpected-keyword-arg
+            int_field=42,  # pylint: disable=unexpected-keyword-arg
+            bool_field=True,  # pylint: disable=unexpected-keyword-arg
+        )
+
+        payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
+        actual_json_instance_dict = json.loads(
+            payload["pointwise_metric_input"]["instance"]["json_instance"]
+        )
+
+        expected_json_instance_dict = {
+            "prompt": "The Prompt",
+            "response": "The Response",
+            "conversation_history": "user: Turn 1 user\nmodel: Turn 1 model",
+            "system_instruction": "System instructions here.",
+            "dict_field": json.dumps({"key1": "val1", "key2": [1, 2]}),
+            "list_field": json.dumps(["a", "b", {"c": 3}]),
+            "int_field": "42",
+            "bool_field": "True",
+        }
+        assert actual_json_instance_dict == expected_json_instance_dict
+
+    def test_build_request_payload_optional_metric_configs_set(self):
+        metric = vertexai_genai_types.LLMMetric(
+            name="configured_metric",
+            prompt_template="P: {prompt}, R: {response}",
+            return_raw_output=True,
+            judge_model_system_instruction="Be a fair judge.",
+            judge_model="gemini-pro",
+            judge_model_sampling_count=10,
+        )
+        handler = _evals_metric_handlers.LLMMetricHandler(
+            module=self.mock_evals_module, metric=metric
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="p")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="r")])
+                )
+            ],
+        )
+
+        payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
+
+        expected_json_instance = {"prompt": "p", "response": "r"}
+        actual_json_instance = json.loads(
+            payload["pointwise_metric_input"]["instance"]["json_instance"]
+        )
+        assert actual_json_instance == expected_json_instance
+
+        metric_spec_payload = payload["pointwise_metric_input"]["metric_spec"]
+        assert (
+            metric_spec_payload["metric_prompt_template"]
+            == "P: {prompt}, R: {response}"
+        )
+        assert metric_spec_payload["custom_output_format_config"]["return_raw_output"]
+        assert metric_spec_payload["system_instruction"] == "Be a fair judge."
+
+        autorater_config_payload = payload["autorater_config"]
+        assert autorater_config_payload["autorater_model"] == "gemini-pro"
+        assert autorater_config_payload["sampling_count"] == 10
 
     def test_merge_with_invalid_prompt_type(self):
         raw_dataset_1 = [
