@@ -580,6 +580,28 @@ def _ToolParameterKVMatchInput_to_vertex(
     return to_object
 
 
+def _AutoraterConfig_to_vertex(
+    api_client: BaseApiClient,
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["autorater_model"]) is not None:
+        setv(
+            to_object,
+            ["autoraterModel"],
+            getv(from_object, ["autorater_model"]),
+        )
+
+    if getv(from_object, ["flip_enabled"]) is not None:
+        setv(to_object, ["flipEnabled"], getv(from_object, ["flip_enabled"]))
+
+    if getv(from_object, ["sampling_count"]) is not None:
+        setv(to_object, ["samplingCount"], getv(from_object, ["sampling_count"]))
+
+    return to_object
+
+
 def _EvaluateInstancesRequestParameters_to_vertex(
     api_client: BaseApiClient,
     from_object: Union[dict[str, Any], object],
@@ -679,6 +701,15 @@ def _EvaluateInstancesRequestParameters_to_vertex(
             ),
         )
 
+    if getv(from_object, ["autorater_config"]) is not None:
+        setv(
+            to_object,
+            ["autoraterConfig"],
+            _AutoraterConfig_to_vertex(
+                api_client, getv(from_object, ["autorater_config"]), to_object
+            ),
+        )
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -770,28 +801,6 @@ def _OutputConfig_to_vertex(
             ["gcsDestination"],
             getv(from_object, ["gcs_destination"]),
         )
-
-    return to_object
-
-
-def _AutoraterConfig_to_vertex(
-    api_client: BaseApiClient,
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["autorater_model"]) is not None:
-        setv(
-            to_object,
-            ["autoraterModel"],
-            getv(from_object, ["autorater_model"]),
-        )
-
-    if getv(from_object, ["flip_enabled"]) is not None:
-        setv(to_object, ["flipEnabled"], getv(from_object, ["flip_enabled"]))
-
-    if getv(from_object, ["sampling_count"]) is not None:
-        setv(to_object, ["samplingCount"], getv(from_object, ["sampling_count"]))
 
     return to_object
 
@@ -1043,6 +1052,7 @@ class Evals(_api_module.BaseModule):
         tool_parameter_kv_match_input: Optional[
             types.ToolParameterKVMatchInputOrDict
         ] = None,
+        autorater_config: Optional[types.AutoraterConfigOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """Evaluates instances based on a given metric."""
@@ -1057,6 +1067,7 @@ class Evals(_api_module.BaseModule):
             tool_name_match_input=tool_name_match_input,
             tool_parameter_key_match_input=tool_parameter_key_match_input,
             tool_parameter_kv_match_input=tool_parameter_kv_match_input,
+            autorater_config=autorater_config,
             config=config,
         )
 
@@ -1228,6 +1239,7 @@ class AsyncEvals(_api_module.BaseModule):
         tool_parameter_kv_match_input: Optional[
             types.ToolParameterKVMatchInputOrDict
         ] = None,
+        autorater_config: Optional[types.AutoraterConfigOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """Evaluates instances based on a given metric."""
@@ -1242,6 +1254,7 @@ class AsyncEvals(_api_module.BaseModule):
             tool_name_match_input=tool_name_match_input,
             tool_parameter_key_match_input=tool_parameter_key_match_input,
             tool_parameter_kv_match_input=tool_parameter_kv_match_input,
+            autorater_config=autorater_config,
             config=config,
         )
 
