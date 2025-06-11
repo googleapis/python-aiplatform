@@ -45,6 +45,7 @@ from google.cloud.aiplatform.compat.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
     job_state_v1beta1 as gca_job_state_v1beta1,
     model_monitoring_v1beta1 as gca_model_monitoring_v1beta1,
+    service_networking as gca_service_networking,
 )  # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
 
 from google.cloud.aiplatform.constants import base as constants
@@ -2236,6 +2237,9 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> None:
         """Run this configured CustomJob.
 
@@ -2310,6 +2314,9 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 1 day.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
         """
         network = network or initializer.global_config.network
         service_account = service_account or initializer.global_config.service_account
@@ -2329,6 +2336,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
     @base.optional_sync()
@@ -2348,6 +2356,9 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> None:
         """Helper method to ensure network synchronization and to run the configured CustomJob.
 
@@ -2420,6 +2431,9 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 1 day.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
         """
         self.submit(
             service_account=service_account,
@@ -2435,6 +2449,7 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
         self._block_until_complete()
@@ -2455,6 +2470,9 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> None:
         """Submit the configured CustomJob.
 
@@ -2524,6 +2542,9 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 1 day.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
 
         Raises:
             ValueError:
@@ -2545,6 +2566,9 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
 
         if network:
             self._gca_resource.job_spec.network = network
+
+        if psc_interface_config:
+            self._gca_resource.job_spec.psc_interface_config = psc_interface_config
 
         if (
             timeout

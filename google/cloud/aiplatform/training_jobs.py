@@ -45,6 +45,7 @@ from google.cloud.aiplatform.compat.types import (
     training_pipeline as gca_training_pipeline,
     study as gca_study_compat,
     custom_job as gca_custom_job_compat,
+    service_networking as gca_service_networking,
 )
 
 from google.cloud.aiplatform.utils import _timestamped_gcs_dir
@@ -1553,6 +1554,9 @@ class _CustomTrainingJob(_TrainingJob):
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
 
@@ -1617,6 +1621,8 @@ class _CustomTrainingJob(_TrainingJob):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 30 minutes.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. The PSC interface config for the job.
         Returns:
             Training task inputs and Output directory for custom job.
         """
@@ -1645,6 +1651,8 @@ class _CustomTrainingJob(_TrainingJob):
             training_task_inputs["enable_dashboard_access"] = enable_dashboard_access
         if persistent_resource_id:
             training_task_inputs["persistent_resource_id"] = persistent_resource_id
+        if psc_interface_config:
+            training_task_inputs["psc_interface_config"] = psc_interface_config
 
         if (
             timeout
@@ -3055,6 +3063,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -3433,6 +3444,9 @@ class CustomTrainingJob(_CustomTrainingJob):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 30 minutes.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
 
         Returns:
             The trained Vertex AI model resource or None if the training
@@ -3504,6 +3518,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
     def submit(
@@ -3564,6 +3579,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -3887,6 +3905,9 @@ class CustomTrainingJob(_CustomTrainingJob):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 30 minutes.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3958,6 +3979,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -4007,6 +4029,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -4209,6 +4234,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 30 minutes.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. The PSC interface config for the job.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4265,6 +4292,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
         model = self._run_job(
@@ -4596,6 +4624,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -4912,6 +4943,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 30 minutes.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -4982,6 +5016,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
     def submit(
@@ -5042,6 +5077,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> Optional[models.Model]:
         """Submits the custom training job without blocking until completion.
 
@@ -5358,6 +5396,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 30 minutes.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5428,6 +5469,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -5476,6 +5518,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
@@ -5674,6 +5719,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 30 minutes.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5724,6 +5772,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
         model = self._run_job(
@@ -7755,6 +7804,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -8072,6 +8124,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 30 minutes.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -8137,6 +8192,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -8184,6 +8240,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         persistent_resource_id: Optional[str] = None,
         scheduling_strategy: Optional[gca_custom_job_compat.Scheduling.Strategy] = None,
         max_wait_duration: Optional[int] = None,
+        psc_interface_config: Optional[
+            gca_service_networking.PscInterfaceConfig
+        ] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -8367,6 +8426,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 This is the maximum duration that a job will wait for the
                 requested resources to be provisioned in seconds. If set to 0,
                 the job will wait indefinitely. The default is 30 minutes.
+            psc_interface_config (gca_service_networking.PscInterfaceConfig):
+                Optional. Configuration for Private Service Connect interface
+                used for training.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -8417,6 +8479,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             persistent_resource_id=persistent_resource_id,
             scheduling_strategy=scheduling_strategy,
             max_wait_duration=max_wait_duration,
+            psc_interface_config=psc_interface_config,
         )
 
         model = self._run_job(
