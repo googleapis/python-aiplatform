@@ -17,6 +17,7 @@
 import importlib
 import json
 import os
+import statistics
 from unittest import mock
 import warnings
 
@@ -24,8 +25,8 @@ from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
-from vertexai._genai import _evals_metric_handlers
 from vertexai._genai import _evals_data_converters
+from vertexai._genai import _evals_metric_handlers
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
@@ -102,7 +103,12 @@ class TestEvalsClientInference:
         importlib.reload(vertexai)
         importlib.reload(_genai.client)
         importlib.reload(vertexai_genai_types)
+        importlib.reload(_evals_utils)
+        importlib.reload(_evals_data_converters)
+        importlib.reload(_evals_common)
+        importlib.reload(_evals_metric_handlers)
         importlib.reload(_genai.evals)
+
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -134,7 +140,7 @@ class TestEvalsClientInference:
             mock_generate_content_response
         )
 
-        result_df = self.client.evals.run_inference(
+        inference_result = self.client.evals.run_inference(
             model="gemini-pro",
             src=mock_df,
         )
@@ -142,7 +148,7 @@ class TestEvalsClientInference:
         mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
         mock_models.return_value.generate_content.assert_called_once()
         pd.testing.assert_frame_equal(
-            result_df,
+            inference_result.eval_dataset_df,
             pd.DataFrame(
                 {
                     "prompt": ["test prompt"],
@@ -161,13 +167,13 @@ class TestEvalsClientInference:
         def mock_model_fn(contents):
             return "callable response"
 
-        result_df = self.client.evals.run_inference(
+        inference_result = self.client.evals.run_inference(
             model=mock_model_fn,
             src=mock_df,
         )
         mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
         pd.testing.assert_frame_equal(
-            result_df,
+            inference_result.eval_dataset_df,
             pd.DataFrame(
                 {
                     "prompt": ["test prompt"],
@@ -203,7 +209,7 @@ class TestEvalsClientInference:
         config = vertexai_genai_types.EvalRunInferenceConfig(
             prompt_template="Hello {text_input}"
         )
-        result_df = self.client.evals.run_inference(
+        inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
         )
         assert (
@@ -211,7 +217,7 @@ class TestEvalsClientInference:
             == "Hello world"
         )
         pd.testing.assert_frame_equal(
-            result_df,
+            inference_result.eval_dataset_df,
             pd.DataFrame(
                 {
                     "text_input": ["world"],
@@ -249,7 +255,7 @@ class TestEvalsClientInference:
         gcs_dest_path = "gs://bucket/output.jsonl"
         config = vertexai_genai_types.EvalRunInferenceConfig(dest=gcs_dest_path)
 
-        result_df = self.client.evals.run_inference(
+        inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
         )
 
@@ -266,7 +272,9 @@ class TestEvalsClientInference:
             gcs_destination_blob_path=gcs_dest_path,
             file_type="jsonl",
         )
-        pd.testing.assert_frame_equal(result_df, expected_df_to_save)
+        pd.testing.assert_frame_equal(
+            inference_result.eval_dataset_df, expected_df_to_save
+        )
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -301,7 +309,7 @@ class TestEvalsClientInference:
         local_dest_path = "/tmp/test/output_dir/results.jsonl"
         config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_path)
 
-        result_df = self.client.evals.run_inference(
+        inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
         )
 
@@ -315,7 +323,7 @@ class TestEvalsClientInference:
                 "response": ["local response"],
             }
         )
-        pd.testing.assert_frame_equal(result_df, expected_df)
+        pd.testing.assert_frame_equal(inference_result.eval_dataset_df, expected_df)
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -359,11 +367,10 @@ class TestEvalsClientInference:
         local_dest_path = "/tmp/output.jsonl"
         config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_path)
 
-        result_df = self.client.evals.run_inference(
+        inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
         )
 
-        # Assert that generate_content was called with the 'request' column
         mock_models.return_value.generate_content.assert_has_calls(
             [
                 mock.call(
@@ -387,11 +394,12 @@ class TestEvalsClientInference:
             }
         )
         pd.testing.assert_frame_equal(
-            result_df.sort_values(by="request").reset_index(drop=True),
+            inference_result.eval_dataset_df.sort_values(by="request").reset_index(
+                drop=True
+            ),
             expected_df.sort_values(by="request").reset_index(drop=True),
         )
 
-        # Assert that the local file was created with the correct content
         with open(local_dest_path, "r") as f:
             saved_records = [json.loads(line) for line in f]
         expected_records = expected_df.to_dict(orient="records")
@@ -402,7 +410,6 @@ class TestEvalsClientInference:
 
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_jsonl_file(self, mock_models):
-        # Create a temporary JSONL file
         local_src_path = "/tmp/input.jsonl"
         input_records = [
             {"prompt": "prompt 1", "other_col": "val 1"},
@@ -440,7 +447,7 @@ class TestEvalsClientInference:
             mock_generate_content_responses
         )
 
-        result_df = self.client.evals.run_inference(
+        inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=local_src_path
         )
 
@@ -452,7 +459,9 @@ class TestEvalsClientInference:
             }
         )
         pd.testing.assert_frame_equal(
-            result_df.sort_values(by="prompt").reset_index(drop=True),
+            inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
+                drop=True
+            ),
             expected_df.sort_values(by="prompt").reset_index(drop=True),
         )
         mock_models.return_value.generate_content.assert_has_calls(
@@ -474,7 +483,6 @@ class TestEvalsClientInference:
 
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_csv_file(self, mock_models):
-        # Create a temporary CSV file
         local_src_path = "/tmp/input.csv"
         input_df = pd.DataFrame(
             {"prompt": ["prompt 1", "prompt 2"], "other_col": ["val 1", "val 2"]}
@@ -509,7 +517,7 @@ class TestEvalsClientInference:
             mock_generate_content_responses
         )
 
-        result_df = self.client.evals.run_inference(
+        inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=local_src_path
         )
 
@@ -521,7 +529,9 @@ class TestEvalsClientInference:
             }
         )
         pd.testing.assert_frame_equal(
-            result_df.sort_values(by="prompt").reset_index(drop=True),
+            inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
+                drop=True
+            ),
             expected_df.sort_values(by="prompt").reset_index(drop=True),
         )
         mock_models.return_value.generate_content.assert_has_calls(
@@ -589,7 +599,9 @@ class TestEvalsClientInference:
             mock_generate_content_responses
         )
 
-        result_df = self.client.evals.run_inference(model="gemini-pro", src=mock_df)
+        inference_result = self.client.evals.run_inference(
+            model="gemini-pro", src=mock_df
+        )
 
         mock_models.return_value.generate_content.assert_has_calls(
             [
@@ -625,7 +637,9 @@ class TestEvalsClientInference:
             }
         )
         pd.testing.assert_frame_equal(
-            result_df.sort_values(by="request").reset_index(drop=True),
+            inference_result.eval_dataset_df.sort_values(by="request").reset_index(
+                drop=True
+            ),
             expected_df.sort_values(by="request").reset_index(drop=True),
         )
 
@@ -671,7 +685,7 @@ class TestEvalsClientInference:
         config = vertexai_genai_types.EvalRunInferenceConfig(
             prompt_template="multimodal prompt: {media_content}{text_input}"
         )
-        result_df = self.client.evals.run_inference(
+        inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
         )
         assembled_prompt_json = genai_types.Content(
@@ -693,7 +707,7 @@ class TestEvalsClientInference:
         )
 
         pd.testing.assert_frame_equal(
-            result_df,
+            inference_result.eval_dataset_df,
             pd.DataFrame(
                 {
                     "text_input": ["hello world"],
@@ -1041,19 +1055,19 @@ class TestGeminiEvalDataConverter:
                         {
                             "role": "user",
                             "parts": [{"text": "Initial user"}],
-                        },  # history
+                        },
                         {
                             "role": "model",
                             "parts": [{"text": "Initial model"}],
-                        },  # history
+                        },
                         {
                             "role": "user",
                             "parts": [{"text": "Actual prompt"}],
-                        },  # prompt
+                        },
                         {
                             "role": "model",
                             "parts": [{"text": "This is reference"}],
-                        },  # reference
+                        },
                     ]
                 },
                 "response": {
@@ -1089,7 +1103,6 @@ class TestGeminiEvalDataConverter:
         )
 
     def test_convert_with_conversation_history_no_reference(self):
-        # Last message in contents is from user, so it becomes the prompt.
         raw_data = [
             {
                 "request": {
@@ -1144,7 +1157,7 @@ class TestGeminiEvalDataConverter:
     def test_convert_invalid_content_structure_raises_value_error(self):
         raw_data = [
             {
-                "request": {"contents": ["not a dict"]},  # Invalid content
+                "request": {"contents": ["not a dict"]},
                 "response": {
                     "candidates": [
                         {"content": {"role": "model", "parts": [{"text": "Hi"}]}}
@@ -1421,6 +1434,72 @@ class TestMetric:
         metric = vertexai_genai_types.Metric(name="UPPERCASEMetric")
         assert metric.name == "uppercasemetric"
 
+    @mock.patch("vertexai._genai.types.yaml.dump")
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
+    def test_metric_to_yaml_file_with_version_and_set_fields(
+        self, mock_open_file, mock_yaml_dump
+    ):
+        metric_obj = vertexai_genai_types.Metric(
+            name="MyMetricToDump",
+            prompt_template="Evaluate: {input}",
+            judge_model="gemini-1.5-pro",
+            judge_model_sampling_count=5,
+            return_raw_output=False,
+            custom_function=lambda x: x,
+            judge_model_system_instruction=None,
+        )
+        test_file_path = "/fake/path/metric_output.yaml"
+        test_version = "v1.0.1"
+
+        metric_obj.to_yaml_file(test_file_path, version=test_version)
+
+        mock_open_file.assert_called_once_with(test_file_path, "w", encoding="utf-8")
+
+        expected_data_to_dump = {
+            "name": "mymetrictodump",
+            "prompt_template": "Evaluate: {input}",
+            "judge_model": "gemini-1.5-pro",
+            "judge_model_sampling_count": 5,
+            "return_raw_output": False,
+            "version": test_version,
+        }
+
+        mock_yaml_dump.assert_called_once_with(
+            expected_data_to_dump,
+            mock_open_file(),
+            sort_keys=False,
+            allow_unicode=True,
+        )
+
+    @mock.patch("vertexai._genai.types.yaml.dump")
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
+    def test_metric_to_yaml_file_without_version_minimal_fields(
+        self, mock_open_file, mock_yaml_dump
+    ):
+        metric_obj = vertexai_genai_types.Metric(name="MinimalMetric")
+        test_file_path = "/fake/path/minimal_metric.yaml"
+
+        metric_obj.to_yaml_file(test_file_path)
+
+        mock_open_file.assert_called_once_with(test_file_path, "w", encoding="utf-8")
+        expected_data_to_dump = {
+            "name": "minimalmetric",
+        }
+        mock_yaml_dump.assert_called_once_with(
+            expected_data_to_dump,
+            mock_open_file(),
+            sort_keys=False,
+            allow_unicode=True,
+        )
+
+    @mock.patch("vertexai._genai.types.yaml", None)
+    def test_metric_to_yaml_file_raises_importerror_if_yaml_is_none(self):
+        metric_obj = vertexai_genai_types.Metric(name="ErrorMetric")
+        with pytest.raises(
+            ImportError, match="YAML serialization requires the pyyaml library"
+        ):
+            metric_obj.to_yaml_file("/fake/path/error.yaml")
+
 
 class TestMergeResponseDatasets:
     """Unit tests for the merge_response_datasets_into_canonical_format function."""
@@ -1435,8 +1514,8 @@ class TestMergeResponseDatasets:
             {"prompt": "Prompt 2", "response": "Response 2b"},
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
         ]
 
         merged_dataset = (
@@ -1505,8 +1584,8 @@ class TestMergeResponseDatasets:
             },
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.GEMINI,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.GEMINI,
         ]
 
         merged_dataset = (
@@ -1556,8 +1635,8 @@ class TestMergeResponseDatasets:
             {"prompt": "Prompt 1", "response": "Response 1b"},
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
         ]
 
         with pytest.raises(
@@ -1582,8 +1661,8 @@ class TestMergeResponseDatasets:
             {"prompt": "Prompt 2", "response": "Response 2c"},
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.GEMINI,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.GEMINI,
         ]
         with pytest.raises(
             ValueError,
@@ -1633,8 +1712,8 @@ class TestMergeResponseDatasets:
             },
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
         ]
 
         merged_dataset = (
@@ -1677,8 +1756,8 @@ class TestMergeResponseDatasets:
             },
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
         ]
 
         merged_dataset = (
@@ -1710,8 +1789,8 @@ class TestMergeResponseDatasets:
             }
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
         ]
 
         merged_dataset = (
@@ -1749,8 +1828,8 @@ class TestMergeResponseDatasets:
             }
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.GEMINI,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.GEMINI,
         ]
 
         merged_dataset = (
@@ -1792,8 +1871,8 @@ class TestMergeResponseDatasets:
             }
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
         ]
 
         merged_dataset = (
@@ -1829,8 +1908,8 @@ class TestMergeResponseDatasets:
             }
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
         ]
 
         merged_dataset = (
@@ -1858,8 +1937,8 @@ class TestMergeResponseDatasets:
             }
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
         ]
 
         merged_dataset = (
@@ -1889,8 +1968,8 @@ class TestMergeResponseDatasets:
             }
         ]
         schemas = [
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
-            _evals_data_converters._EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
         ]
 
         merged_dataset = (
@@ -1923,15 +2002,15 @@ class TestMergeResponseDatasets:
         ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 raw_datasets="invalid_dataset",
-                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+                schemas=[_evals_data_converters.EvalDatasetSchema.FLATTEN],
             )
         with pytest.raises(
             ValueError,
-            match="Input 'raw_datasets' cannot be empty and must be a list of lists",
+            match=("Input 'raw_datasets' cannot be empty and must be a list of lists"),
         ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 raw_datasets=["invalid_dataset"],
-                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+                schemas=[_evals_data_converters.EvalDatasetSchema.FLATTEN],
             )
 
     def test_merge_with_invalid_eval_case_type(self):
@@ -1944,7 +2023,7 @@ class TestMergeResponseDatasets:
         ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 raw_datasets=[raw_dataset_1],
-                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+                schemas=[_evals_data_converters.EvalDatasetSchema.FLATTEN],
             )
 
 
@@ -1966,8 +2045,10 @@ class TestLLMMetricHandlerPayload:
     def test_build_request_payload_basic_filtering_and_fields(self):
         metric = vertexai_genai_types.LLMMetric(
             name="test_quality",
-            prompt_template="Eval: {prompt} with {response}. Context: "
-            "{custom_context}. Ref: {reference}",
+            prompt_template=(
+                "Eval: {prompt} with {response}. Context: "
+                "{custom_context}. Ref: {reference}"
+            ),
         )
         handler = _evals_metric_handlers.LLMMetricHandler(
             module=self.mock_evals_module, metric=metric
@@ -2139,7 +2220,7 @@ class TestLLMMetricHandlerPayload:
         ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 raw_datasets=[raw_dataset_1],
-                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+                schemas=[_evals_data_converters.EvalDatasetSchema.FLATTEN],
             )
 
     def test_merge_with_invalid_response_type(self):
@@ -2155,7 +2236,7 @@ class TestLLMMetricHandlerPayload:
         ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 raw_datasets=[raw_dataset_1],
-                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+                schemas=[_evals_data_converters.EvalDatasetSchema.FLATTEN],
             )
 
     def test_merge_with_missing_prompt(self):
@@ -2170,7 +2251,7 @@ class TestLLMMetricHandlerPayload:
         ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 raw_datasets=[raw_dataset_1],
-                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+                schemas=[_evals_data_converters.EvalDatasetSchema.FLATTEN],
             )
 
     def test_merge_with_missing_response(self):
@@ -2185,5 +2266,518 @@ class TestLLMMetricHandlerPayload:
         ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 raw_datasets=[raw_dataset_1],
-                schemas=[_evals_data_converters._EvalDatasetSchema.FLATTEN],
+                schemas=[_evals_data_converters.EvalDatasetSchema.FLATTEN],
             )
+
+
+@pytest.fixture
+def mock_api_client_fixture():
+    mock_client = mock.Mock(spec=client.Client)
+    mock_client.project = _TEST_PROJECT
+    mock_client.location = _TEST_LOCATION
+    mock_client._credentials = mock.Mock()
+    mock_client._evals_client = mock.Mock(spec=evals.Evals)
+    return mock_client
+
+
+@pytest.fixture
+def mock_eval_dependencies(mock_api_client_fixture):
+    with mock.patch("google.cloud.storage.Client") as mock_storage_client, mock.patch(
+        "google.cloud.bigquery.Client"
+    ) as mock_bq_client, mock.patch(
+        "vertexai._genai.evals.Evals.evaluate_instances"
+    ) as mock_evaluate_instances, mock.patch(
+        "vertexai._genai._evals_utils.GcsUtils.upload_json_to_prefix"
+    ) as mock_upload_to_gcs, mock.patch(
+        "vertexai._genai._evals_utils.LazyLoadedPrebuiltMetric._fetch_and_parse"
+    ) as mock_fetch_prebuilt_metric:
+
+        def mock_evaluate_instances_side_effect(*args, **kwargs):
+            metric_config = kwargs.get("metric_config", {})
+            if "exact_match_input" in metric_config:
+                return vertexai_genai_types.EvaluateInstancesResponse(
+                    exact_match_results=vertexai_genai_types.ExactMatchResults(
+                        exact_match_metric_values=[
+                            vertexai_genai_types.ExactMatchMetricValue(score=1.0)
+                        ]
+                    )
+                )
+            elif "rouge_input" in metric_config:
+                return vertexai_genai_types.EvaluateInstancesResponse(
+                    rouge_results=vertexai_genai_types.RougeResults(
+                        rouge_metric_values=[
+                            vertexai_genai_types.RougeMetricValue(score=0.8)
+                        ]
+                    )
+                )
+            elif "pointwise_metric_input" in metric_config:
+                return vertexai_genai_types.EvaluateInstancesResponse(
+                    pointwise_metric_result=vertexai_genai_types.PointwiseMetricResult(
+                        score=0.9, explanation="Mocked LLM explanation"
+                    )
+                )
+            elif "comet_input" in metric_config:
+                return vertexai_genai_types.EvaluateInstancesResponse(
+                    comet_result=vertexai_genai_types.CometResult(score=0.75)
+                )
+            return vertexai_genai_types.EvaluateInstancesResponse()
+
+        mock_evaluate_instances.side_effect = mock_evaluate_instances_side_effect
+        mock_upload_to_gcs.return_value = (
+            "gs://mock-bucket/mock_path/evaluation_result_timestamp.json"
+        )
+        mock_prebuilt_safety_metric = vertexai_genai_types.LLMMetric(
+            name="safety", prompt_template="Is this safe? {response}"
+        )
+        mock_prebuilt_safety_metric._is_predefined = True
+        mock_prebuilt_safety_metric._config_source = "gs://mock-metrics/safety/v1.yaml"
+        mock_prebuilt_safety_metric._version = "v1"
+
+        mock_fetch_prebuilt_metric.return_value = mock_prebuilt_safety_metric
+
+        yield {
+            "mock_storage_client": mock_storage_client,
+            "mock_bq_client": mock_bq_client,
+            "mock_evaluate_instances": mock_evaluate_instances,
+            "mock_upload_to_gcs": mock_upload_to_gcs,
+            "mock_fetch_prebuilt_metric": mock_fetch_prebuilt_metric,
+            "mock_prebuilt_safety_metric": mock_prebuilt_safety_metric,
+        }
+
+
+class TestEvalsRunEvaluation:
+    """Unit tests for the evaluate method."""
+
+    def test_execute_evaluation_computation_metric(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "Test prompt",
+                    "response": "Test response",
+                    "reference": "Test reference",
+                }
+            ]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        computation_metric = vertexai_genai_types.Metric(name="exact_match")
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[computation_metric],
+        )
+
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "exact_match"
+        assert summary_metric.mean_score == 1.0
+        assert summary_metric.num_cases_total == 1
+        assert summary_metric.num_cases_valid == 1
+        assert len(result.eval_case_results) == 1
+        case_result = result.eval_case_results[0]
+        assert case_result.eval_case_index == 0
+        assert len(case_result.response_candidate_results) == 1
+        candidate_result = case_result.response_candidate_results[0]
+        assert candidate_result.metric_results["exact_match"].score == 1.0
+
+        mock_eval_dependencies["mock_evaluate_instances"].assert_called_once()
+        call_args = mock_eval_dependencies["mock_evaluate_instances"].call_args
+        assert "exact_match_input" in call_args[1]["metric_config"]
+
+    def test_execute_evaluation_translation_metric(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "src lang",
+                    "response": "tgt lang",
+                    "reference": "ref lang",
+                }
+            ]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        translation_metric = vertexai_genai_types.Metric(name="comet")
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[translation_metric],
+        )
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "comet"
+        assert summary_metric.mean_score == 0.75
+        mock_eval_dependencies["mock_evaluate_instances"].assert_called_once()
+        call_args = mock_eval_dependencies["mock_evaluate_instances"].call_args
+        assert "comet_input" in call_args[1]["metric_config"]
+
+    def test_execute_evaluation_llm_metric(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        llm_metric = vertexai_genai_types.LLMMetric(
+            name="text_quality", prompt_template="Evaluate: {response}"
+        )
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[llm_metric],
+        )
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "text_quality"
+        assert summary_metric.mean_score == 0.9
+        case_result = result.eval_case_results[0]
+        candidate_result = case_result.response_candidate_results[0]
+        assert (
+            candidate_result.metric_results["text_quality"].explanation
+            == "Mocked LLM explanation"
+        )
+
+        mock_eval_dependencies["mock_evaluate_instances"].assert_called_once()
+        call_args = mock_eval_dependencies["mock_evaluate_instances"].call_args
+        assert "pointwise_metric_input" in call_args[1]["metric_config"]
+
+    def test_execute_evaluation_custom_metric(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+
+        def my_custom_metric_fn(data: dict):
+            return 0.5
+
+        custom_metric = vertexai_genai_types.Metric(
+            name="my_custom", custom_function=my_custom_metric_fn
+        )
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[custom_metric],
+        )
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "my_custom"
+        assert summary_metric.mean_score == 0.5
+        mock_eval_dependencies["mock_evaluate_instances"].assert_not_called()
+
+    @mock.patch("vertexai._genai._evals_metric_handlers.LLMMetricHandler.process")
+    def test_llm_metric_default_aggregation_mixed_results(
+        self, mock_llm_process, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [
+                {"prompt": "P1", "response": "R1"},
+                {"prompt": "P2", "response": "R2"},
+                {"prompt": "P3", "response": "R3"},
+            ]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        llm_metric = vertexai_genai_types.LLMMetric(
+            name="quality", prompt_template="Rate: {response}"
+        )
+
+        mock_llm_process.side_effect = [
+            vertexai_genai_types.EvalCaseMetricResult(
+                metric_name="quality", score=0.8, explanation="Good"
+            ),
+            vertexai_genai_types.EvalCaseMetricResult(
+                metric_name="quality", score=0.6, explanation="Okay"
+            ),
+            vertexai_genai_types.EvalCaseMetricResult(
+                metric_name="quality", error_message="Processing failed"
+            ),
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[llm_metric],
+        )
+
+        assert mock_llm_process.call_count == 3
+        assert len(result.summary_metrics) == 1
+        summary = result.summary_metrics[0]
+        assert summary.metric_name == "quality"
+        assert summary.num_cases_total == 3
+        assert summary.num_cases_valid == 2
+        assert summary.num_cases_error == 1
+        assert summary.mean_score == pytest.approx(0.7)
+        assert summary.stdev_score == pytest.approx(statistics.stdev([0.8, 0.6]))
+
+    @mock.patch("vertexai._genai._evals_metric_handlers.LLMMetricHandler.process")
+    def test_llm_metric_custom_aggregation_success(
+        self, mock_llm_process, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [
+                {"prompt": "P1", "response": "R1"},
+                {"prompt": "P2", "response": "R2"},
+            ]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+
+        def custom_agg_fn(results: list[vertexai_genai_types.EvalCaseMetricResult]):
+            return {
+                "my_custom_stat": 123,
+                "mean_score": 0.75,
+                "num_cases_valid": len(results),
+            }
+
+        llm_metric = vertexai_genai_types.LLMMetric(
+            name="custom_quality",
+            prompt_template="Rate: {response}",
+            aggregate_summary_fn=custom_agg_fn,
+        )
+
+        mock_llm_process.side_effect = [
+            vertexai_genai_types.EvalCaseMetricResult(
+                metric_name="custom_quality", score=0.8
+            ),
+            vertexai_genai_types.EvalCaseMetricResult(
+                metric_name="custom_quality", score=0.7
+            ),
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[llm_metric],
+        )
+        assert mock_llm_process.call_count == 2
+        assert len(result.summary_metrics) == 1
+        summary = result.summary_metrics[0]
+        assert summary.metric_name == "custom_quality"
+        assert summary.num_cases_total == 2
+        assert summary.num_cases_valid == 2
+        assert summary.mean_score == 0.75
+        assert summary.model_dump(exclude_none=True)["my_custom_stat"] == 123
+
+    @mock.patch("vertexai._genai._evals_metric_handlers.LLMMetricHandler.process")
+    def test_llm_metric_custom_aggregation_error_fallback(
+        self, mock_llm_process, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "P1", "response": "R1"}, {"prompt": "P2", "response": "R2"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+
+        def custom_agg_fn_error(
+            results: list[vertexai_genai_types.EvalCaseMetricResult],
+        ):
+            raise ValueError("Custom aggregation failed")
+
+        llm_metric = vertexai_genai_types.LLMMetric(
+            name="error_fallback_quality",
+            prompt_template="Rate: {response}",
+            aggregate_summary_fn=custom_agg_fn_error,
+        )
+        mock_llm_process.side_effect = [
+            vertexai_genai_types.EvalCaseMetricResult(
+                metric_name="error_fallback_quality", score=0.9
+            ),
+            vertexai_genai_types.EvalCaseMetricResult(
+                metric_name="error_fallback_quality", score=0.5
+            ),
+        ]
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[llm_metric],
+        )
+        assert mock_llm_process.call_count == 2
+        summary = result.summary_metrics[0]
+        assert summary.metric_name == "error_fallback_quality"
+        assert summary.num_cases_total == 2
+        assert summary.num_cases_valid == 2
+        assert summary.num_cases_error == 0
+        assert summary.mean_score == pytest.approx(0.7)
+        assert summary.stdev_score == pytest.approx(statistics.stdev([0.9, 0.5]))
+
+    @mock.patch("vertexai._genai._evals_metric_handlers.LLMMetricHandler.process")
+    def test_llm_metric_custom_aggregation_invalid_return_type_fallback(
+        self, mock_llm_process, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame([{"prompt": "P1", "response": "R1"}])
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+
+        def custom_agg_fn_invalid_type(
+            results: list[vertexai_genai_types.EvalCaseMetricResult],
+        ):
+            return "not a dict"
+
+        llm_metric = vertexai_genai_types.LLMMetric(
+            name="invalid_type_fallback",
+            prompt_template="Rate: {response}",
+            aggregate_summary_fn=custom_agg_fn_invalid_type,
+        )
+        mock_llm_process.return_value = vertexai_genai_types.EvalCaseMetricResult(
+            metric_name="invalid_type_fallback", score=0.8
+        )
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[llm_metric],
+        )
+        summary = result.summary_metrics[0]
+        assert summary.mean_score == 0.8
+        assert summary.num_cases_valid == 1
+
+    def test_execute_evaluation_lazy_loaded_prebuilt_metric_instance(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+
+        lazy_metric_instance = _evals_utils.LazyLoadedPrebuiltMetric(
+            name="safety", version="v1"
+        )
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[lazy_metric_instance],
+        )
+
+        mock_eval_dependencies["mock_fetch_prebuilt_metric"].assert_called_once_with(
+            mock_api_client_fixture
+        )
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "safety"
+        assert summary_metric.mean_score == 0.9
+
+    def test_execute_evaluation_prebuilt_metric_via_loader(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+
+        prebuilt_metric = vertexai_genai_types.PrebuiltMetric.SAFETY
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[prebuilt_metric],
+        )
+
+        mock_eval_dependencies["mock_fetch_prebuilt_metric"].assert_called_once_with(
+            mock_api_client_fixture
+        )
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "safety"
+        assert summary_metric.mean_score == 0.9
+
+    def test_execute_evaluation_with_gcs_destination(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "Test prompt",
+                    "response": "Test response",
+                    "reference": "Test response",
+                }
+            ]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        metric = vertexai_genai_types.Metric(name="exact_match")
+        gcs_dest = "gs://my-bucket/eval_results/"
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[metric],
+            dest=gcs_dest,
+        )
+
+        mock_eval_dependencies["mock_upload_to_gcs"].assert_called_once_with(
+            data=result.model_dump(mode="json", exclude_none=True),
+            gcs_dest_prefix=gcs_dest,
+            filename_prefix="evaluation_result",
+        )
+
+    def test_execute_evaluation_multiple_datasets(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        df1 = pd.DataFrame([{"prompt": "p1", "response": "r1a", "reference": "ref1"}])
+        df2 = pd.DataFrame([{"prompt": "p1", "response": "r1b", "reference": "ref1"}])
+        dataset1 = vertexai_genai_types.EvaluationDataset(eval_dataset_df=df1)
+        dataset2 = vertexai_genai_types.EvaluationDataset(eval_dataset_df=df2)
+        metric = vertexai_genai_types.Metric(name="exact_match")
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=[dataset1, dataset2],
+            metrics=[metric],
+        )
+
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.eval_case_results) == 1
+        case_result = result.eval_case_results[0]
+        assert len(case_result.response_candidate_results) == 2
+        assert case_result.response_candidate_results[0].response_index == 0
+        assert (
+            case_result.response_candidate_results[0]
+            .metric_results["exact_match"]
+            .score
+            == 1.0
+        )
+        assert case_result.response_candidate_results[1].response_index == 1
+        assert (
+            case_result.response_candidate_results[1]
+            .metric_results["exact_match"]
+            .score
+            == 1.0
+        )
+
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "exact_match"
+        assert summary_metric.num_cases_total == 2
+        assert summary_metric.mean_score == 1.0
+
+        assert mock_eval_dependencies["mock_evaluate_instances"].call_count == 2

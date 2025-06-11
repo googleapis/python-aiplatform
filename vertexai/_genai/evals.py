@@ -1206,12 +1206,13 @@ class Evals(_api_module.BaseModule):
         *,
         model: Union[str, Callable[[Any], Any]],
         src: Union[str, pd.DataFrame],
-        config: Optional[types.EvalRunInferenceConfig] = None,
-    ) -> pd.DataFrame:
+        config: Optional[types.EvalRunInferenceConfigOrDict] = None,
+    ) -> types.EvaluationDataset:
         """Runs inference on a dataset for evaluation."""
         if not config:
             config = types.EvalRunInferenceConfig()
-        # TODO: b/421006375 - return a types.EvaluationDataset instead of a DataFrame.
+        if isinstance(config, dict):
+            config = types.EvalRunInferenceConfig.model_validate(config)
         return _evals_common._execute_inference(
             api_client=self._api_client,
             model=model,
@@ -1219,6 +1220,39 @@ class Evals(_api_module.BaseModule):
             dest=config.dest,
             config=config.generate_content_config,
             prompt_template=config.prompt_template,
+        )
+
+    def evaluate(
+        self,
+        *,
+        dataset: Union[
+            types.EvaluationDatasetOrDict, list[types.EvaluationDatasetOrDict]
+        ],
+        metrics: list[types.MetricOrDict],
+        config: Optional[types.EvaluateMethodConfigOrDict] = None,
+    ) -> types.EvaluationResult:
+        """Evaluates a dataset using the provided metrics."""
+        if not config:
+            config = types.EvaluateMethodConfig()
+        if isinstance(config, dict):
+            config = types.EvaluateMethodConfig.model_validate(config)
+        if isinstance(dataset, list):
+            dataset = [
+                types.EvaluationDataset.model_validate(ds_item)
+                if isinstance(ds_item, dict)
+                else ds_item
+                for ds_item in dataset
+            ]
+        else:
+            if isinstance(dataset, dict):
+                dataset = types.EvaluationDataset.model_validate(dataset)
+
+        return _evals_common._execute_evaluation(
+            api_client=self._api_client,
+            dataset=dataset,
+            metrics=metrics,
+            dataset_schema=config.dataset_schema,
+            dest=config.dest,
         )
 
 
