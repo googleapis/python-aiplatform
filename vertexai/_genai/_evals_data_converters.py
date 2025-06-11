@@ -13,20 +13,22 @@
 # limitations under the License.
 #
 """Dataset converters for evals."""
+
 import abc
-import enum
 import logging
 from typing import Any, Optional
 
+from google.genai import _common
 from google.genai import types as genai_types
 from typing_extensions import override
 
 from . import types
 
+
 logger = logging.getLogger("vertexai_genai._evals_data_converters")
 
 
-class _EvalDatasetSchema(enum.Enum):
+class EvalDatasetSchema(_common.CaseInSensitiveEnum):
     """Represents the schema of an evaluation dataset."""
 
     GEMINI = "gemini"
@@ -38,8 +40,8 @@ class _EvalDataConverter(abc.ABC):
     """Abstract base class for dataset converters."""
 
     @abc.abstractmethod
-    def convert(self, raw_data: Any) -> list[types.EvalCase]:
-        """Converts a loaded raw dataset into a list of EvalCase objects."""
+    def convert(self, raw_data: Any) -> types.EvaluationDataset:
+        """Converts a loaded raw dataset into an EvaluationDataset."""
         raise NotImplementedError()
 
 
@@ -263,15 +265,15 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
 
 def auto_detect_dataset_schema(
     raw_dataset: list[dict[str, Any]],
-) -> _EvalDatasetSchema:
+) -> EvalDatasetSchema:
     """Detects the schema of a raw dataset."""
     if not raw_dataset:
-        return _EvalDatasetSchema.UNKNOWN
+        return EvalDatasetSchema.UNKNOWN
 
     first_item = raw_dataset[0]
     try:
         _GeminiEvalDataConverter().convert([first_item])
-        return _EvalDatasetSchema.GEMINI
+        return EvalDatasetSchema.GEMINI
     except (ValueError, KeyError, AttributeError, TypeError) as e:
         logger.debug(
             "First item not parsable as Gemini schema (error: %s), "
@@ -286,19 +288,19 @@ def auto_detect_dataset_schema(
         "response",
         "reference",
     }.issubset(keys):
-        return _EvalDatasetSchema.FLATTEN
+        return EvalDatasetSchema.FLATTEN
     else:
-        return _EvalDatasetSchema.UNKNOWN
+        return EvalDatasetSchema.UNKNOWN
 
 
 _SCHEMA_TO_CONVERTER = {
-    _EvalDatasetSchema.GEMINI: _GeminiEvalDataConverter,
-    _EvalDatasetSchema.FLATTEN: _FlattenEvalDataConverter,
+    EvalDatasetSchema.GEMINI: _GeminiEvalDataConverter,
+    EvalDatasetSchema.FLATTEN: _FlattenEvalDataConverter,
 }
 
 
 def get_dataset_converter(
-    dataset_schema: _EvalDatasetSchema,
+    dataset_schema: EvalDatasetSchema,
 ) -> _EvalDataConverter:
     """Returns the appropriate dataset converter for the given schema."""
     if dataset_schema in _SCHEMA_TO_CONVERTER:

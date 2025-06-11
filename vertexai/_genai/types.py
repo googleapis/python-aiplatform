@@ -21,7 +21,7 @@ import json
 import logging
 import re
 import typing
-from typing import Any, Callable, ClassVar, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, ClassVar, Literal, Optional, Tuple, TypeVar, Union
 from google.genai import _common
 from google.genai import types as genai_types
 from pydantic import (
@@ -3037,3 +3037,39 @@ class EvaluationResultDict(TypedDict, total=False):
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
+
+
+class EvaluateMethodConfig(_common.BaseModel):
+    """Optional parameters for the evaluate method."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    dataset_schema: Optional[Literal["gemini", "flatten"]] = Field(
+        default=None,
+        description="""The schema to use for the dataset.
+      If not specified, the dataset schema will be inferred from the first
+      example in the dataset.""",
+    )
+    dest: Optional[str] = Field(
+        default=None,
+        description="""The destination path for the evaluation results.""",
+    )
+
+
+class EvaluateMethodConfigDict(TypedDict, total=False):
+    """Optional parameters for the evaluate method."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    dataset_schema: Optional[Literal["gemini", "flatten"]]
+    """The schema to use for the dataset.
+      If not specified, the dataset schema will be inferred from the first
+      example in the dataset."""
+
+    dest: Optional[str]
+    """The destination path for the evaluation results."""
+
+
+EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]

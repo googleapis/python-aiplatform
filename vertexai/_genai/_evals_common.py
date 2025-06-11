@@ -18,7 +18,8 @@ import json
 import logging
 import os
 import time
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Literal, Optional, Union
+
 from google.api_core import exceptions as api_exceptions
 from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
@@ -26,7 +27,10 @@ from google.genai.models import Models
 import pandas as pd
 from tqdm import tqdm
 
+from . import _evals_data_converters
+from . import _evals_metric_handlers
 from . import _evals_utils
+from . import evals
 from . import types
 
 logger = logging.getLogger(__name__)
@@ -390,7 +394,6 @@ def _run_inference_internal(
         processed_responses = []
         for resp_item in responses_raw:
             if isinstance(resp_item, genai_types.GenerateContentResponse):
-                # Ensure text is not None, provide a default or specific error representation
                 text_response = resp_item.text
                 processed_responses.append(
                     text_response
@@ -399,12 +402,12 @@ def _run_inference_internal(
                 )
             elif isinstance(resp_item, dict) and "error" in resp_item:
                 processed_responses.append(json.dumps(resp_item))
-            else:  # Fallback for other unexpected types or structures
+            else:
                 error_payload = {
                     "error": "Unexpected response type from Gemini inference",
                     "response_type": str(type(resp_item)),
                 }
-                if hasattr(resp_item, "model_dump_json"):  # For Pydantic models
+                if hasattr(resp_item, "model_dump_json"):
                     error_payload["details"] = resp_item.model_dump_json()
                 elif isinstance(resp_item, (dict, list)):
                     error_payload["details"] = json.dumps(resp_item)
@@ -426,10 +429,8 @@ def _run_inference_internal(
                 processed_custom_responses.append(json.dumps(resp_item))
             else:
                 try:
-                    # Attempt to serialize other types to JSON string
                     processed_custom_responses.append(json.dumps(resp_item))
                 except TypeError:
-                    # If not serializable, convert to string
                     processed_custom_responses.append(str(resp_item))
         responses = processed_custom_responses
     else:
@@ -439,14 +440,12 @@ def _run_inference_internal(
         )
 
     if len(prompt_dataset) != len(responses):
-        # This should ideally not happen if responses list is pre-allocated and filled
         logger.error(
             "Critical prompt/response count mismatch: %d prompts vs %d responses."
             " This indicates an issue in response collection.",
             len(prompt_dataset),
             len(responses),
         )
-        # Pad responses with error messages if lengths mismatch, to allow DataFrame creation
         if len(responses) < len(prompt_dataset):
             responses.extend(
                 [json.dumps({"error": "Missing response"})]
@@ -544,4 +543,204 @@ def _execute_inference(
         config=config,
     )
 
-    return results_df
+    return types.EvaluationDataset(eval_dataset_df=results_df)
+
+
+def _get_dataset_source(
+    ds_item: types.EvaluationDataset,
+) -> Union[str, pd.DataFrame]:
+    """Returns the source of the dataset, either a DataFrame, GCS URI, or BigQuery URI."""
+    if ds_item.eval_dataset_df is not None:
+        return ds_item.eval_dataset_df
+    elif ds_item.gcs_source is not None and ds_item.gcs_source.uris:
+        if len(ds_item.gcs_source.uris) > 1:
+            logger.warning(
+                "Multiple GCS URIs in GcsSource. Using the first one: %s",
+                ds_item.gcs_source.uris[0],
+            )
+        return ds_item.gcs_source.uris[0]
+    elif ds_item.bigquery_source is not None and ds_item.bigquery_source.input_uri:
+        return ds_item.bigquery_source.input_uri
+    else:
+        raise ValueError(
+            "EvaluationDataset item has no valid source"
+            " (eval_dataset_df, gcs_source with uris, or bigquery_source with"
+            " input_uri)."
+        )
+
+
+def _resolve_dataset_inputs(
+    dataset: Union[types.EvaluationDataset, list[types.EvaluationDataset]],
+    dataset_schema: Optional[Literal["gemini", "flatten"]],
+    loader: _evals_utils.EvalDatasetLoader,
+) -> tuple[types.EvaluationDataset, int]:
+    """Loads and processes single or multiple datasets for evaluation.
+
+    Args:
+      dataset: The dataset(s) to process. Can be a single EvaluationDataset or a
+        list of them.
+      dataset_schema: The schema to use for the dataset(s). If None, it will be
+        auto-detected.
+      loader: An instance of EvalDatasetLoader to load data.
+
+    Returns:
+      A tuple containing:
+        - processed_eval_dataset: The processed EvaluationDataset containing
+        evaluation cases.
+        - num_response_candidates: The number of response candidates.
+    """
+    num_response_candidates: int
+    datasets_to_process: list[types.EvaluationDataset]
+
+    if isinstance(dataset, list):
+        if not dataset:
+            raise ValueError("Input dataset list cannot be empty.")
+        num_response_candidates = len(dataset)
+        datasets_to_process = dataset
+        logger.info("Processing %s datasets for comparison.", num_response_candidates)
+    else:
+        num_response_candidates = 1
+        datasets_to_process = [dataset]
+        logger.info("Processing a single dataset.")
+
+    loaded_raw_datasets: list[list[dict[str, Any]]] = []
+    schemas_for_merge: list[str] = []
+
+    for i, ds_item in enumerate(datasets_to_process):
+        if not isinstance(ds_item, types.EvaluationDataset):
+            logger.error(
+                "Unexpected item type in dataset list at index %d: %s. Expected"
+                " types.EvaluationDataset.",
+                i,
+                type(ds_item),
+            )
+            raise TypeError(
+                f"Item at index {i} is not an EvaluationDataset: {type(ds_item)}"
+            )
+
+        ds_source_for_loader = _get_dataset_source(ds_item)
+        current_loaded_data = loader.load(ds_source_for_loader)
+        loaded_raw_datasets.append(current_loaded_data)
+
+        if dataset_schema:
+            current_schema = _evals_data_converters.EvalDatasetSchema[dataset_schema]
+        else:
+            current_schema = _evals_data_converters.auto_detect_dataset_schema(
+                current_loaded_data
+            )
+        schemas_for_merge.append(current_schema)
+
+        logger.info(
+            "Dataset %d: Schema: %s. Using %s converter.",
+            i,
+            current_schema,
+            _evals_data_converters.get_dataset_converter(
+                current_schema
+            ).__class__.__name__,
+        )
+
+    processed_eval_dataset = (
+        _evals_data_converters.merge_response_datasets_into_canonical_format(
+            raw_datasets=loaded_raw_datasets, schemas=schemas_for_merge
+        )
+    )
+
+    if not processed_eval_dataset.eval_cases:
+        raise ValueError("No evaluation cases found in the dataset.")
+    return processed_eval_dataset, num_response_candidates
+
+
+def _resolve_metrics(
+    metrics: list[types.Metric], api_client: Any
+) -> list[types.Metric]:
+    """Resolves a list of metric instances, loading prebuilt metrics if necessary."""
+    resolved_metrics_list = []
+    for metric_instance in metrics:
+        if isinstance(metric_instance, _evals_utils.LazyLoadedPrebuiltMetric):
+            try:
+                resolved_metrics_list.append(
+                    metric_instance.resolve(api_client=api_client)
+                )
+            except Exception as e:
+                logger.error(
+                    "Failed to resolve prebuilt metric %s@%s: %s",
+                    metric_instance.name,
+                    metric_instance.version,
+                    e,
+                )
+                raise
+        elif isinstance(metric_instance, types.Metric):
+            resolved_metrics_list.append(metric_instance)
+        else:
+            try:
+                metric_name_str = str(metric_instance)
+                lazy_metric_instance = getattr(
+                    _evals_utils.PrebuiltMetric, metric_name_str.upper()
+                )
+                if isinstance(
+                    lazy_metric_instance, _evals_utils.LazyLoadedPrebuiltMetric
+                ):
+                    resolved_metrics_list.append(
+                        lazy_metric_instance.resolve(api_client=api_client)
+                    )
+                else:
+                    raise TypeError(
+                        f"PrebuiltMetric.{metric_name_str.upper()} did not return a"
+                        " LazyLoadedPrebuiltMetric proxy."
+                    )
+            except AttributeError as exc:
+                raise TypeError(
+                    "Unsupported metric type or invalid prebuilt metric name:"
+                    f" {metric_instance}"
+                ) from exc
+    return resolved_metrics_list
+
+
+def _execute_evaluation(
+    *,
+    api_client: Any,
+    dataset: Union[types.EvaluationDataset, list[types.EvaluationDataset]],
+    metrics: list[types.Metric],
+    dataset_schema: Optional[Literal["gemini", "flatten"]] = None,
+    dest: Optional[str] = None,
+) -> types.EvaluationResult:
+    """Evaluates a dataset using the provided metrics."""
+
+    logger.info("Preparing dataset(s) and metrics...")
+
+    loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
+
+    processed_eval_dataset, num_response_candidates = _resolve_dataset_inputs(
+        dataset=dataset, dataset_schema=dataset_schema, loader=loader
+    )
+
+    resolved_metrics = _resolve_metrics(metrics, api_client)
+
+    evaluation_run_config = _evals_metric_handlers.EvaluationRunConfig(
+        evals_module=evals.Evals(api_client_=api_client),
+        dataset=processed_eval_dataset,
+        metrics=resolved_metrics,
+        num_response_candidates=num_response_candidates,
+    )
+
+    logger.info("Running Metric Computation...")
+    t1 = time.perf_counter()
+    evaluation_result = _evals_metric_handlers.compute_metrics_and_aggregate(
+        evaluation_run_config
+    )
+    t2 = time.perf_counter()
+    logger.info("Evaluation took: %f seconds", t2 - t1)
+    logger.info("Evaluation run completed.")
+
+    if dest:
+        uploaded_path = _evals_utils.GcsUtils(
+            api_client=api_client
+        ).upload_json_to_prefix(
+            data=evaluation_result.model_dump(mode="json", exclude_none=True),
+            gcs_dest_prefix=dest,
+            filename_prefix="evaluation_result",
+        )
+        logger.info(
+            "Evaluation results uploaded successfully to GCS: %s", uploaded_path
+        )
+    return evaluation_result
