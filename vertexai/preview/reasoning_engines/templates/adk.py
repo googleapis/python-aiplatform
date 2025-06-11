@@ -627,15 +627,17 @@ class AdkApp:
                 asyncio.run(_invoke_agent_async())
             except RuntimeError as e:
                 event_queue.put(e)
+            finally:
+                # Use None as a sentinel to stop the main thread.
+                event_queue.put(None)
 
         thread = threading.Thread(target=_asyncio_thread_main)
         thread.start()
 
         try:
             while True:
-                try:
-                    event = event_queue.get(timeout=30)
-                except queue.Empty:
+                event = event_queue.get()
+                if event is None:
                     break
                 if isinstance(event, RuntimeError):
                     raise event
