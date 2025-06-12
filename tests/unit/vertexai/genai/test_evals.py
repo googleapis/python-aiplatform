@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# pylint: disable=protected-access,bad-continuation,missing-function-docstring
-
 import importlib
 import json
 import os
@@ -558,14 +556,42 @@ class TestEvalsClientInference:
     ):
         mock_df = pd.DataFrame(
             {
+                "id": [1, 2, 3],
                 "request": [
-                    json.dumps(
-                        {"prompt": "req 1", "generation_config": {"top_p": 0.5}}
-                    ),
-                    json.dumps(
-                        {"prompt": "req 2", "generation_config": {"top_p": 0.9}}
-                    ),
-                ]
+                    {
+                        "contents": [
+                            {
+                                "parts": [{"text": "Placeholder prompt 1"}],
+                                "role": "user",
+                            }
+                        ]
+                    },
+                    {
+                        "contents": [
+                            {
+                                "parts": [{"text": "Placeholder prompt 2.1"}],
+                                "role": "user",
+                            },
+                            {
+                                "parts": [{"text": "Placeholder model response 2.1"}],
+                                "role": "model",
+                            },
+                            {
+                                "parts": [{"text": "Placeholder prompt 2.2"}],
+                                "role": "user",
+                            },
+                        ],
+                        "generation_config": {"temperature": 0.7, "top_k": 5},
+                    },
+                    {
+                        "contents": [
+                            {
+                                "parts": [{"text": "Placeholder prompt 3"}],
+                                "role": "user",
+                            }
+                        ],
+                    },
+                ],
             }
         )
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
@@ -576,7 +602,7 @@ class TestEvalsClientInference:
                 candidates=[
                     genai_types.Candidate(
                         content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 1")]
+                            parts=[genai_types.Part(text="Placeholder response 1")]
                         ),
                         finish_reason=genai_types.FinishReason.STOP,
                     )
@@ -587,7 +613,18 @@ class TestEvalsClientInference:
                 candidates=[
                     genai_types.Candidate(
                         content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 2")]
+                            parts=[genai_types.Part(text="Placeholder response 2")]
+                        ),
+                        finish_reason=genai_types.FinishReason.STOP,
+                    )
+                ],
+                prompt_feedback=None,
+            ),
+            genai_types.GenerateContentResponse(
+                candidates=[
+                    genai_types.Candidate(
+                        content=genai_types.Content(
+                            parts=[genai_types.Part(text="Placeholder response 3")]
                         ),
                         finish_reason=genai_types.FinishReason.STOP,
                     )
@@ -607,40 +644,68 @@ class TestEvalsClientInference:
             [
                 mock.call(
                     model="gemini-pro",
-                    contents=json.dumps(
-                        {"prompt": "req 1", "generation_config": {"top_p": 0.5}}
-                    ),
-                    config=genai_types.GenerateContentConfig(top_p=0.5),
+                    contents=[
+                        {"parts": [{"text": "Placeholder prompt 1"}], "role": "user"}
+                    ],
+                    config=genai_types.GenerateContentConfig(),
                 ),
                 mock.call(
                     model="gemini-pro",
-                    contents=json.dumps(
-                        {"prompt": "req 2", "generation_config": {"top_p": 0.9}}
-                    ),
-                    config=genai_types.GenerateContentConfig(top_p=0.9),
+                    contents=[
+                        {"parts": [{"text": "Placeholder prompt 2.1"}], "role": "user"},
+                        {
+                            "parts": [{"text": "Placeholder model response 2.1"}],
+                            "role": "model",
+                        },
+                        {"parts": [{"text": "Placeholder prompt 2.2"}], "role": "user"},
+                    ],
+                    config=genai_types.GenerateContentConfig(temperature=0.7, top_k=5),
+                ),
+                mock.call(
+                    model="gemini-pro",
+                    contents=[
+                        {"parts": [{"text": "Placeholder prompt 3"}], "role": "user"}
+                    ],
+                    config=genai_types.GenerateContentConfig(),
                 ),
             ],
             any_order=True,
         )
 
+        request_obj_1 = {
+            "contents": [{"parts": [{"text": "Placeholder prompt 1"}], "role": "user"}]
+        }
+        request_obj_2 = {
+            "contents": [
+                {"parts": [{"text": "Placeholder prompt 2.1"}], "role": "user"},
+                {
+                    "parts": [{"text": "Placeholder model response 2.1"}],
+                    "role": "model",
+                },
+                {"parts": [{"text": "Placeholder prompt 2.2"}], "role": "user"},
+            ],
+            "generation_config": {"temperature": 0.7, "top_k": 5},
+        }
+        request_obj_3 = {
+            "contents": [{"parts": [{"text": "Placeholder prompt 3"}], "role": "user"}],
+        }
         expected_df = pd.DataFrame(
             {
-                "request": [
-                    json.dumps(
-                        {"prompt": "req 1", "generation_config": {"top_p": 0.5}}
-                    ),
-                    json.dumps(
-                        {"prompt": "req 2", "generation_config": {"top_p": 0.9}}
-                    ),
+                "id": [1, 2, 3],
+                "request": [request_obj_1, request_obj_2, request_obj_3],
+                "response": [
+                    "Placeholder response 1",
+                    "Placeholder response 2",
+                    "Placeholder response 3",
                 ],
-                "response": ["resp 1", "resp 2"],
             }
         )
         pd.testing.assert_frame_equal(
-            inference_result.eval_dataset_df.sort_values(by="request").reset_index(
+            inference_result.eval_dataset_df.sort_values(by="id").reset_index(
                 drop=True
             ),
-            expected_df.sort_values(by="request").reset_index(drop=True),
+            expected_df.sort_values(by="id").reset_index(drop=True),
+            check_dtype=False,
         )
 
     @mock.patch.object(_evals_common, "Models")
@@ -2483,9 +2548,8 @@ class TestEvalsRunEvaluation:
         assert summary_metric.mean_score == 0.5
         mock_eval_dependencies["mock_evaluate_instances"].assert_not_called()
 
-    @mock.patch("vertexai._genai._evals_metric_handlers.LLMMetricHandler.process")
     def test_llm_metric_default_aggregation_mixed_results(
-        self, mock_llm_process, mock_api_client_fixture, mock_eval_dependencies
+        self, mock_api_client_fixture, mock_eval_dependencies
     ):
         dataset_df = pd.DataFrame(
             [
@@ -2501,43 +2565,42 @@ class TestEvalsRunEvaluation:
             name="quality", prompt_template="Rate: {response}"
         )
 
-        mock_llm_process.side_effect = [
-            vertexai_genai_types.EvalCaseMetricResult(
-                metric_name="quality", score=0.8, explanation="Good"
-            ),
-            vertexai_genai_types.EvalCaseMetricResult(
-                metric_name="quality", score=0.6, explanation="Okay"
-            ),
-            vertexai_genai_types.EvalCaseMetricResult(
-                metric_name="quality", error_message="Processing failed"
-            ),
-        ]
+        with mock.patch(
+            "vertexai._genai._evals_metric_handlers.LLMMetricHandler.process"
+        ) as mock_llm_process:
+            mock_llm_process.side_effect = [
+                vertexai_genai_types.EvalCaseMetricResult(
+                    metric_name="quality", score=0.8, explanation="Good"
+                ),
+                vertexai_genai_types.EvalCaseMetricResult(
+                    metric_name="quality", score=0.6, explanation="Okay"
+                ),
+                vertexai_genai_types.EvalCaseMetricResult(
+                    metric_name="quality", error_message="Processing failed"
+                ),
+            ]
 
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[llm_metric],
-        )
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[llm_metric],
+            )
 
-        assert mock_llm_process.call_count == 3
-        assert len(result.summary_metrics) == 1
-        summary = result.summary_metrics[0]
-        assert summary.metric_name == "quality"
-        assert summary.num_cases_total == 3
-        assert summary.num_cases_valid == 2
-        assert summary.num_cases_error == 1
-        assert summary.mean_score == pytest.approx(0.7)
-        assert summary.stdev_score == pytest.approx(statistics.stdev([0.8, 0.6]))
+            assert mock_llm_process.call_count == 3
+            assert len(result.summary_metrics) == 1
+            summary = result.summary_metrics[0]
+            assert summary.metric_name == "quality"
+            assert summary.num_cases_total == 3
+            assert summary.num_cases_valid == 2
+            assert summary.num_cases_error == 1
+            assert summary.mean_score == pytest.approx(0.7)
+            assert summary.stdev_score == pytest.approx(statistics.stdev([0.8, 0.6]))
 
-    @mock.patch("vertexai._genai._evals_metric_handlers.LLMMetricHandler.process")
     def test_llm_metric_custom_aggregation_success(
-        self, mock_llm_process, mock_api_client_fixture, mock_eval_dependencies
+        self, mock_api_client_fixture, mock_eval_dependencies
     ):
         dataset_df = pd.DataFrame(
-            [
-                {"prompt": "P1", "response": "R1"},
-                {"prompt": "P2", "response": "R2"},
-            ]
+            [{"prompt": "P1", "response": "R1"}, {"prompt": "P2", "response": "R2"}]
         )
         input_dataset = vertexai_genai_types.EvaluationDataset(
             eval_dataset_df=dataset_df
@@ -2556,32 +2619,34 @@ class TestEvalsRunEvaluation:
             aggregate_summary_fn=custom_agg_fn,
         )
 
-        mock_llm_process.side_effect = [
-            vertexai_genai_types.EvalCaseMetricResult(
-                metric_name="custom_quality", score=0.8
-            ),
-            vertexai_genai_types.EvalCaseMetricResult(
-                metric_name="custom_quality", score=0.7
-            ),
-        ]
+        with mock.patch(
+            "vertexai._genai._evals_metric_handlers.LLMMetricHandler.process"
+        ) as mock_llm_process:
+            mock_llm_process.side_effect = [
+                vertexai_genai_types.EvalCaseMetricResult(
+                    metric_name="custom_quality", score=0.8
+                ),
+                vertexai_genai_types.EvalCaseMetricResult(
+                    metric_name="custom_quality", score=0.7
+                ),
+            ]
 
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[llm_metric],
-        )
-        assert mock_llm_process.call_count == 2
-        assert len(result.summary_metrics) == 1
-        summary = result.summary_metrics[0]
-        assert summary.metric_name == "custom_quality"
-        assert summary.num_cases_total == 2
-        assert summary.num_cases_valid == 2
-        assert summary.mean_score == 0.75
-        assert summary.model_dump(exclude_none=True)["my_custom_stat"] == 123
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[llm_metric],
+            )
+            assert mock_llm_process.call_count == 2
+            assert len(result.summary_metrics) == 1
+            summary = result.summary_metrics[0]
+            assert summary.metric_name == "custom_quality"
+            assert summary.num_cases_total == 2
+            assert summary.num_cases_valid == 2
+            assert summary.mean_score == 0.75
+            assert summary.model_dump(exclude_none=True)["my_custom_stat"] == 123
 
-    @mock.patch("vertexai._genai._evals_metric_handlers.LLMMetricHandler.process")
     def test_llm_metric_custom_aggregation_error_fallback(
-        self, mock_llm_process, mock_api_client_fixture, mock_eval_dependencies
+        self, mock_api_client_fixture, mock_eval_dependencies
     ):
         dataset_df = pd.DataFrame(
             [{"prompt": "P1", "response": "R1"}, {"prompt": "P2", "response": "R2"}]
@@ -2600,31 +2665,33 @@ class TestEvalsRunEvaluation:
             prompt_template="Rate: {response}",
             aggregate_summary_fn=custom_agg_fn_error,
         )
-        mock_llm_process.side_effect = [
-            vertexai_genai_types.EvalCaseMetricResult(
-                metric_name="error_fallback_quality", score=0.9
-            ),
-            vertexai_genai_types.EvalCaseMetricResult(
-                metric_name="error_fallback_quality", score=0.5
-            ),
-        ]
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[llm_metric],
-        )
-        assert mock_llm_process.call_count == 2
-        summary = result.summary_metrics[0]
-        assert summary.metric_name == "error_fallback_quality"
-        assert summary.num_cases_total == 2
-        assert summary.num_cases_valid == 2
-        assert summary.num_cases_error == 0
-        assert summary.mean_score == pytest.approx(0.7)
-        assert summary.stdev_score == pytest.approx(statistics.stdev([0.9, 0.5]))
+        with mock.patch(
+            "vertexai._genai._evals_metric_handlers.LLMMetricHandler.process"
+        ) as mock_llm_process:
+            mock_llm_process.side_effect = [
+                vertexai_genai_types.EvalCaseMetricResult(
+                    metric_name="error_fallback_quality", score=0.9
+                ),
+                vertexai_genai_types.EvalCaseMetricResult(
+                    metric_name="error_fallback_quality", score=0.5
+                ),
+            ]
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[llm_metric],
+            )
+            assert mock_llm_process.call_count == 2
+            summary = result.summary_metrics[0]
+            assert summary.metric_name == "error_fallback_quality"
+            assert summary.num_cases_total == 2
+            assert summary.num_cases_valid == 2
+            assert summary.num_cases_error == 0
+            assert summary.mean_score == pytest.approx(0.7)
+            assert summary.stdev_score == pytest.approx(statistics.stdev([0.9, 0.5]))
 
-    @mock.patch("vertexai._genai._evals_metric_handlers.LLMMetricHandler.process")
     def test_llm_metric_custom_aggregation_invalid_return_type_fallback(
-        self, mock_llm_process, mock_api_client_fixture, mock_eval_dependencies
+        self, mock_api_client_fixture, mock_eval_dependencies
     ):
         dataset_df = pd.DataFrame([{"prompt": "P1", "response": "R1"}])
         input_dataset = vertexai_genai_types.EvaluationDataset(
@@ -2641,17 +2708,20 @@ class TestEvalsRunEvaluation:
             prompt_template="Rate: {response}",
             aggregate_summary_fn=custom_agg_fn_invalid_type,
         )
-        mock_llm_process.return_value = vertexai_genai_types.EvalCaseMetricResult(
-            metric_name="invalid_type_fallback", score=0.8
-        )
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[llm_metric],
-        )
-        summary = result.summary_metrics[0]
-        assert summary.mean_score == 0.8
-        assert summary.num_cases_valid == 1
+        with mock.patch(
+            "vertexai._genai._evals_metric_handlers.LLMMetricHandler.process"
+        ) as mock_llm_process:
+            mock_llm_process.return_value = vertexai_genai_types.EvalCaseMetricResult(
+                metric_name="invalid_type_fallback", score=0.8
+            )
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[llm_metric],
+            )
+            summary = result.summary_metrics[0]
+            assert summary.mean_score == 0.8
+            assert summary.num_cases_valid == 1
 
     def test_execute_evaluation_lazy_loaded_prebuilt_metric_instance(
         self, mock_api_client_fixture, mock_eval_dependencies

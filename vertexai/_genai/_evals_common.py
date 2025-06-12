@@ -128,29 +128,29 @@ def _generate_content_with_retry(
 
 def _build_generate_content_config(
     request_dict: dict[str, Any],
-    config: Optional[genai_types.GenerateContentConfig] = None,
+    global_config: Optional[genai_types.GenerateContentConfig] = None,
 ) -> genai_types.GenerateContentConfig:
     """Builds a GenerateContentConfig from the request dictionary or provided config."""
-    if config:
-        # If a global config is provided, use it.
-        # User can still override parts of it if request_dict contains config fields.
-        merged_config_dict = config.model_dump(exclude_none=True)
+    if global_config:
+        # If a global config is provided, apply it as a base config. Parts of
+        # the global config can be overridden by providing configs in the
+        # request.
+        merged_config_dict = global_config.model_dump(exclude_none=True)
     else:
         merged_config_dict = {}
 
-    # Overlay or set fields from request_dict
-    if "system_instruction" in request_dict:
-        merged_config_dict["system_instruction"] = request_dict["system_instruction"]
-    if "tools" in request_dict:
-        merged_config_dict["tools"] = request_dict["tools"]
-    if "tools_config" in request_dict:  # Corrected variable name
-        merged_config_dict["tools_config"] = request_dict["tools_config"]
-    if "safety_settings" in request_dict:
-        merged_config_dict["safety_settings"] = request_dict["safety_settings"]
+    for key in [
+        "system_instruction",
+        "tools",
+        "tools_config",
+        "safety_settings",
+        "labels",
+    ]:
+        if key in request_dict:
+            merged_config_dict[key] = request_dict[key]
     if "generation_config" in request_dict and isinstance(
         request_dict["generation_config"], dict
     ):
-        # Merge generation_config dict into the main config dict
         merged_config_dict.update(request_dict["generation_config"])
     if "labels" in request_dict:
         merged_config_dict["labels"] = request_dict["labels"]
@@ -158,24 +158,40 @@ def _build_generate_content_config(
     return genai_types.GenerateContentConfig(**merged_config_dict)
 
 
-def _run_gemini_inference(
+def _extract_contents_for_inference(
+    request_dict_or_raw_text: Any,
+) -> Any:
+    """Extracts contents from a request dictionary or returns the raw text."""
+    if not request_dict_or_raw_text:
+        raise ValueError("Prompt cannot be empty.")
+    if isinstance(request_dict_or_raw_text, dict):
+        contents_for_fn = request_dict_or_raw_text.get("contents", None)
+        if not contents_for_fn:
+            raise ValueError("Contents in the request cannot be empty.")
+        return contents_for_fn
+    else:
+        return request_dict_or_raw_text
+
+
+def _execute_inference_concurrently(
     api_client: BaseApiClient,
-    model: str,
+    model_or_fn: Union[str, Callable[[Any], Any]],
     prompt_dataset: "pd.DataFrame",
-    config: Optional[genai_types.GenerateContentConfig] = None,
+    progress_desc: str,
+    gemini_config: Optional[genai_types.GenerateContentConfig] = None,
+    inference_fn: Optional[Callable[[Any, Any, Any, Any], Any]] = None,
 ) -> list[Union[genai_types.GenerateContentResponse, dict[str, Any]]]:
-    """Internal helper to run inference using Gemini model with concurrency."""
+    """Internal helper to run inference with concurrency."""
     logger.info(
-        "Generating responses for %d prompts using model: %s",
+        "Generating responses for %d prompts using model or function: %s",
         len(prompt_dataset),
-        model,
+        model_or_fn,
     )
     responses: list[
         Union[genai_types.GenerateContentResponse, dict[str, Any], None]
     ] = [None] * len(prompt_dataset)
     tasks = []
 
-    # Determine the primary column for prompts
     primary_prompt_column = (
         "request" if "request" in prompt_dataset.columns else "prompt"
     )
@@ -185,70 +201,36 @@ def _run_gemini_inference(
             f" Found: {prompt_dataset.columns.tolist()}"
         )
 
-    with tqdm(total=len(prompt_dataset), desc="Gemini Inference") as pbar:
+    with tqdm(total=len(prompt_dataset), desc=progress_desc) as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             for index, row in prompt_dataset.iterrows():
-                request_dict = {}
-                contents_input = row[primary_prompt_column]
+                request_dict_or_raw_text = row[primary_prompt_column]
+                try:
+                    contents = _extract_contents_for_inference(request_dict_or_raw_text)
+                except ValueError as e:
+                    error_message = (
+                        f"Failed to extract contents for prompt at index {index}: {e}. "
+                        "Skipping prompt."
+                    )
+                    logger.error(error_message)
+                    responses[index] = {"error": error_message}
+                    pbar.update(1)
+                    continue
 
-                if isinstance(contents_input, str):
-                    try:
-                        # Attempt to parse if it's a JSON string representing a complex request
-                        parsed_json = json.loads(contents_input)
-                        if isinstance(parsed_json, dict):
-                            request_dict = parsed_json
-                            contents = request_dict.get("contents", None)
-                            if (
-                                contents is None
-                            ):  # If 'contents' not in JSON, assume whole string was the content
-                                contents = contents_input
-                        else:  # Parsed to something other than dict (e.g. just a string literal in JSON)
-                            contents = contents_input
-                    except json.JSONDecodeError:
-                        # It's a raw text prompt string
-                        contents = contents_input
-                elif isinstance(contents_input, dict) or isinstance(
-                    contents_input, list
-                ):
-                    # Already in a structure that could be 'contents' or part of a larger request
-                    contents = contents_input  # Assume this is the 'contents' part
-                    # To extract other configs, we'd need a clearer contract on how full requests are passed in rows
-                    # For now, assume if it's dict/list, it's directly the 'contents'
+                if isinstance(model_or_fn, str):
+                    generation_content_config = _build_generate_content_config(
+                        request_dict_or_raw_text,
+                        gemini_config,
+                    )
+                    future = executor.submit(
+                        inference_fn,
+                        api_client=api_client,
+                        model=model_or_fn,
+                        contents=contents,
+                        config=generation_content_config,
+                    )
                 else:
-                    logger.error(
-                        f"Unsupported type for prompt/request column at index {index}:"
-                        f" {type(contents_input)}"
-                    )
-                    responses[index] = {
-                        "error": (
-                            f"Unsupported prompt/request type: {type(contents_input)}"
-                        )
-                    }
-                    pbar.update(1)
-                    continue
-
-                if contents is None:
-                    logger.error(
-                        f"Could not extract 'contents' for inference at index {index}."
-                        f" Row data: {row[primary_prompt_column]}"
-                    )
-                    responses[index] = {
-                        "error": "Could not extract 'contents' for inference."
-                    }
-                    pbar.update(1)
-                    continue
-
-                generation_content_config = _build_generate_content_config(
-                    request_dict,
-                    config,
-                )
-                future = executor.submit(
-                    _generate_content_with_retry,
-                    api_client=api_client,
-                    model=model,
-                    contents=contents,
-                    config=generation_content_config,
-                )
+                    future = executor.submit(model_or_fn, contents)
                 future.add_done_callback(lambda _: pbar.update(1))
                 tasks.append((future, index))
 
@@ -257,9 +239,30 @@ def _run_gemini_inference(
                     result = future.result()
                     responses[index] = result
                 except Exception as e:
-                    logger.error("Error processing prompt at index %d: %s", index, e)
-                    responses[index] = {"error": f"Gemini Inference task failed: {e}"}
+                    logger.error(
+                        "Error processing prompt at index %d: %s",
+                        index,
+                        e,
+                    )
+                    responses[index] = {"error": f"Inference task failed: {e}"}
     return responses
+
+
+def _run_gemini_inference(
+    api_client: BaseApiClient,
+    model: str,
+    prompt_dataset: "pd.DataFrame",
+    config: Optional[genai_types.GenerateContentConfig] = None,
+) -> list[Union[genai_types.GenerateContentResponse, dict[str, Any]]]:
+    """Internal helper to run inference using Gemini model with concurrency."""
+    return _execute_inference_concurrently(
+        api_client=api_client,
+        model_or_fn=model,
+        prompt_dataset=prompt_dataset,
+        progress_desc="Gemini Inference",
+        gemini_config=config,
+        inference_fn=_generate_content_with_retry,
+    )
 
 
 def _run_custom_inference(
@@ -267,67 +270,94 @@ def _run_custom_inference(
     prompt_dataset: pd.DataFrame,
 ) -> list[Any]:
     """Internal helper to run inference using a custom function with concurrency."""
-    logger.info(
-        "Generating responses for %d prompts using custom function.",
-        len(prompt_dataset),
+    return _execute_inference_concurrently(
+        api_client=None,
+        model_or_fn=model_fn,
+        prompt_dataset=prompt_dataset,
+        progress_desc="Custom Inference",
     )
-    responses: list[Union[Any, None]] = [None] * len(prompt_dataset)
-    tasks = []
-
-    # Determine the primary column for prompts
-    if "prompt" in prompt_dataset.columns:
-        primary_prompt_column = "prompt"
-    elif "request" in prompt_dataset.columns:
-        primary_prompt_column = "request"
-    else:
-        raise ValueError("Dataset must contain either 'prompt' or 'request'.")
-
-    with tqdm(total=len(prompt_dataset), desc="Custom Inference") as pbar:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            for index, row in prompt_dataset.iterrows():
-                contents_input = row[primary_prompt_column]
-
-                # For custom functions, we pass the content as is, assuming the function knows how to handle it.
-                if isinstance(contents_input, str):
-                    try:
-                        maybe_json = json.loads(contents_input)
-                        # If it's a dict and has 'contents', pass that, else pass the parsed object
-                        if isinstance(maybe_json, dict) and "contents" in maybe_json:
-                            contents_for_fn = maybe_json["contents"]
-                        else:
-                            contents_for_fn = maybe_json
-                    except json.JSONDecodeError:
-                        contents_for_fn = contents_input  # Pass as string
-                else:
-                    contents_for_fn = contents_input
-
-                future = executor.submit(model_fn, contents_for_fn)
-                future.add_done_callback(lambda _: pbar.update(1))
-                tasks.append((future, index))
-
-            for future, index in tasks:
-                try:
-                    result = future.result()
-                    responses[index] = result
-                except Exception as e:
-                    logger.error("Error processing prompt at index %d: %s", index, e)
-                    responses[index] = {"error": f"Custom Inference task failed: {e}"}
-    return responses
 
 
-def _load_dataframe(
-    api_client: BaseApiClient, src: Union[str, pd.DataFrame]
+def _run_inference_internal(
+    api_client: BaseApiClient,
+    model: Union[Callable[[Any], Any], str],
+    prompt_dataset: pd.DataFrame,
+    config: Optional[genai_types.GenerateContentConfig] = None,
 ) -> pd.DataFrame:
-    """Loads and prepares the prompt dataset for inference."""
-    logger.info("Loading prompt dataset from: %s", src)
-    try:
-        loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
-        dataset_list_of_dicts = loader.load(src)
-        df = pd.DataFrame(dataset_list_of_dicts)
-    except Exception as e:
-        logger.error("Failed to load prompt dataset from source: %s. Error: %s", src, e)
-        raise e
-    return df
+    """Runs inference on a given dataset using the specified model or function."""
+
+    if isinstance(model, str):
+        logger.info("Running inference with model name: %s", model)
+        raw_responses = _run_gemini_inference(
+            api_client=api_client,
+            model=model,
+            prompt_dataset=prompt_dataset,
+            config=config,
+        )
+        processed_responses = []
+        for resp_item in raw_responses:
+            if isinstance(resp_item, genai_types.GenerateContentResponse):
+                text_response = resp_item.text
+                processed_responses.append(
+                    text_response
+                    if text_response is not None
+                    else json.dumps({"error": "Empty response text"})
+                )
+            elif isinstance(resp_item, dict) and "error" in resp_item:
+                processed_responses.append(json.dumps(resp_item))
+            else:
+                error_payload = {
+                    "error": "Unexpected response type from Gemini inference",
+                    "response_type": str(type(resp_item)),
+                    "details": str(resp_item),
+                }
+                processed_responses.append(json.dumps(error_payload))
+        responses = processed_responses
+
+    elif callable(model):
+        logger.info("Running inference with custom callable function.")
+        custom_responses_raw = _run_custom_inference(
+            model_fn=model, prompt_dataset=prompt_dataset
+        )
+        processed_custom_responses = []
+        for resp_item in custom_responses_raw:
+            if isinstance(resp_item, str):
+                processed_custom_responses.append(resp_item)
+            elif isinstance(resp_item, dict) and "error" in resp_item:
+                processed_custom_responses.append(json.dumps(resp_item))
+            else:
+                try:
+                    processed_custom_responses.append(json.dumps(resp_item))
+                except TypeError:
+                    processed_custom_responses.append(str(resp_item))
+        responses = processed_custom_responses
+    else:
+        raise TypeError(
+            f"Unsupported model type: {type(model)}. Expecting string (model"
+            " name) or Callable."
+        )
+
+    if len(responses) != len(prompt_dataset):
+        raise RuntimeError(
+            "Critical prompt/response count mismatch: %d prompts vs %d"
+            " responses. This indicates an issue in response collection."
+            % (len(prompt_dataset), len(responses))
+        )
+
+    results_df_responses_only = pd.DataFrame(
+        {
+            "response": responses,
+        }
+    )
+
+    prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
+    results_df_responses_only_indexed = results_df_responses_only.reset_index(drop=True)
+
+    results_df = pd.concat(
+        [prompt_dataset_indexed, results_df_responses_only_indexed], axis=1
+    )
+
+    return results_df
 
 
 def _apply_prompt_template(
@@ -369,103 +399,81 @@ def _apply_prompt_template(
     df["request"] = templated_prompts
 
 
-def _run_inference_internal(
+def _load_dataframe(
+    api_client: BaseApiClient, src: Union[str, pd.DataFrame]
+) -> pd.DataFrame:
+    """Loads and prepares the prompt dataset for inference."""
+    logger.info("Loading prompt dataset from: %s", src)
+    try:
+        loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
+        dataset_list_of_dicts = loader.load(src)
+        if not dataset_list_of_dicts:
+            raise ValueError("Prompt dataset 'prompt_dataset' must not be empty.")
+        return pd.DataFrame(dataset_list_of_dicts)
+    except Exception as e:
+        logger.error("Failed to load prompt dataset from source: %s. Error: %s", src, e)
+        raise e
+
+
+def _execute_inference(
+    *,
     api_client: BaseApiClient,
     model: Union[Callable[[Any], Any], str],
-    prompt_dataset: pd.DataFrame,
+    src: Union[str, pd.DataFrame],
     dest: Optional[str] = None,
     config: Optional[genai_types.GenerateContentConfig] = None,
+    prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
 ) -> pd.DataFrame:
-    """Runs inference on a given dataset using the specified model or function."""
+    """Executes inference on a given dataset using the specified model.
+
+    Args:
+        api_client: The API client.
+        model: The model to use for inference. Can be a callable function or a
+          string representing a model.
+        src: The source of the dataset to use for inference. Can be a string
+          representing a file path or a pandas DataFrame.
+        dest: The destination to save the inference results. Can be a string
+          representing a file path or a GCS URI.
+        config: The generation configuration for the model.
+        prompt_template: The prompt template to use for inference.
+
+    Returns:
+        A pandas DataFrame containing the inference results.
+    """
+
+    if not api_client:
+        raise ValueError("'api_client' instance must be provided.")
+    prompt_dataset = _load_dataframe(api_client, src)
+
+    if prompt_template:
+        logger.info("Applying prompt template...")
+        if isinstance(prompt_template, str):
+            prompt_template = types.PromptTemplate(text=prompt_template)
+        elif isinstance(prompt_template, dict):
+            prompt_template = types.PromptTemplate.model_validate(prompt_template)
+
+        _apply_prompt_template(prompt_dataset, prompt_template)
+
+    if (
+        "prompt" not in prompt_dataset.columns
+        and "request" not in prompt_dataset.columns
+    ):
+        raise ValueError(
+            "Dataset must contain either 'prompt' or 'request' "
+            "column for inference after any templating. "
+            f"Found columns: {prompt_dataset.columns.tolist()}"
+        )
+
     start_time = time.time()
     logger.debug("Starting inference process ...")
-
-    if prompt_dataset.empty:
-        raise ValueError("Prompt dataset 'prompt_dataset' must not be empty.")
-
-    if isinstance(model, str):
-        logger.info("Running inference with model name: %s", model)
-        responses_raw = _run_gemini_inference(
-            api_client=api_client,
-            model=model,
-            prompt_dataset=prompt_dataset,
-            config=config,
-        )
-        processed_responses = []
-        for resp_item in responses_raw:
-            if isinstance(resp_item, genai_types.GenerateContentResponse):
-                text_response = resp_item.text
-                processed_responses.append(
-                    text_response
-                    if text_response is not None
-                    else json.dumps({"error": "Empty response text"})
-                )
-            elif isinstance(resp_item, dict) and "error" in resp_item:
-                processed_responses.append(json.dumps(resp_item))
-            else:
-                error_payload = {
-                    "error": "Unexpected response type from Gemini inference",
-                    "response_type": str(type(resp_item)),
-                }
-                if hasattr(resp_item, "model_dump_json"):
-                    error_payload["details"] = resp_item.model_dump_json()
-                elif isinstance(resp_item, (dict, list)):
-                    error_payload["details"] = json.dumps(resp_item)
-                else:
-                    error_payload["details"] = str(resp_item)
-                processed_responses.append(json.dumps(error_payload))
-        responses = processed_responses
-
-    elif callable(model):
-        logger.info("Running inference with custom callable function.")
-        custom_responses_raw = _run_custom_inference(
-            model_fn=model, prompt_dataset=prompt_dataset
-        )
-        processed_custom_responses = []
-        for resp_item in custom_responses_raw:
-            if isinstance(resp_item, str):
-                processed_custom_responses.append(resp_item)
-            elif isinstance(resp_item, dict) and "error" in resp_item:
-                processed_custom_responses.append(json.dumps(resp_item))
-            else:
-                try:
-                    processed_custom_responses.append(json.dumps(resp_item))
-                except TypeError:
-                    processed_custom_responses.append(str(resp_item))
-        responses = processed_custom_responses
-    else:
-        raise TypeError(
-            f"Unsupported model type: {type(model)}. Expecting string (model"
-            " name) or Callable."
-        )
-
-    if len(prompt_dataset) != len(responses):
-        logger.error(
-            "Critical prompt/response count mismatch: %d prompts vs %d responses."
-            " This indicates an issue in response collection.",
-            len(prompt_dataset),
-            len(responses),
-        )
-        if len(responses) < len(prompt_dataset):
-            responses.extend(
-                [json.dumps({"error": "Missing response"})]
-                * (len(prompt_dataset) - len(responses))
-            )
-        else:
-            responses = responses[: len(prompt_dataset)]
-
-    results_df_responses_only = pd.DataFrame(
-        {
-            "response": responses,
-        }
+    results_df = _run_inference_internal(
+        api_client=api_client,
+        model=model,
+        prompt_dataset=prompt_dataset,
+        config=config,
     )
-
-    prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
-    results_df_responses_only_indexed = results_df_responses_only.reset_index(drop=True)
-
-    results_df = pd.concat(
-        [prompt_dataset_indexed, results_df_responses_only_indexed], axis=1
-    )
+    end_time = time.time()
+    logger.info("Inference completed in %.2f seconds.", end_time - start_time)
 
     if dest:
         file_name = "inference_results.jsonl"
@@ -497,51 +505,6 @@ def _run_inference_internal(
                 logger.info("Results saved locally to: %s", full_dest_path)
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error("Failed to save results to %s. Error: %s", full_dest_path, e)
-
-    end_time = time.time()
-    logger.info("Inference completed in %.2f seconds.", end_time - start_time)
-    return results_df
-
-
-def _execute_inference(
-    *,
-    api_client: BaseApiClient,
-    model: Union[Callable[[Any], Any], str],
-    src: Union[str, pd.DataFrame],
-    dest: Optional[str] = None,
-    config: Optional[genai_types.GenerateContentConfig] = None,
-    prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
-) -> pd.DataFrame:
-    if not api_client:
-        raise ValueError("'api_client' instance must be provided.")
-    prompt_dataset = _load_dataframe(api_client, src)
-
-    if prompt_template:
-        logger.info("Applying prompt template...")
-        if isinstance(prompt_template, str):
-            prompt_template = types.PromptTemplate(text=prompt_template)
-        elif isinstance(prompt_template, dict):
-            prompt_template = types.PromptTemplate.model_validate(prompt_template)
-
-        _apply_prompt_template(prompt_dataset, prompt_template)
-
-    if (
-        "prompt" not in prompt_dataset.columns
-        and "request" not in prompt_dataset.columns
-    ):
-        raise ValueError(
-            "Dataset must contain either 'prompt' or 'request' "
-            "column for inference after any templating. "
-            f"Found columns: {prompt_dataset.columns.tolist()}"
-        )
-
-    results_df = _run_inference_internal(
-        api_client=api_client,
-        model=model,
-        prompt_dataset=prompt_dataset,
-        dest=dest,
-        config=config,
-    )
 
     return types.EvaluationDataset(eval_dataset_df=results_df)
 
