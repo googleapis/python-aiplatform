@@ -56,9 +56,7 @@ def _BleuSpec_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["use_effective_order"]) is not None:
         setv(
-            to_object,
-            ["useEffectiveOrder"],
-            getv(from_object, ["use_effective_order"]),
+            to_object, ["useEffectiveOrder"], getv(from_object, ["use_effective_order"])
         )
 
     return to_object
@@ -160,11 +158,7 @@ def _RougeSpec_to_vertex(
         setv(to_object, ["rougeType"], getv(from_object, ["rouge_type"]))
 
     if getv(from_object, ["split_summaries"]) is not None:
-        setv(
-            to_object,
-            ["splitSummaries"],
-            getv(from_object, ["split_summaries"]),
-        )
+        setv(to_object, ["splitSummaries"], getv(from_object, ["split_summaries"]))
 
     if getv(from_object, ["use_stemmer"]) is not None:
         setv(to_object, ["useStemmer"], getv(from_object, ["use_stemmer"]))
@@ -236,9 +230,7 @@ def _PointwiseMetricSpec_to_vertex(
 
     if getv(from_object, ["system_instruction"]) is not None:
         setv(
-            to_object,
-            ["systemInstruction"],
-            getv(from_object, ["system_instruction"]),
+            to_object, ["systemInstruction"], getv(from_object, ["system_instruction"])
         )
 
     return to_object
@@ -317,9 +309,7 @@ def _PairwiseMetricSpec_to_vertex(
 
     if getv(from_object, ["system_instruction"]) is not None:
         setv(
-            to_object,
-            ["systemInstruction"],
-            getv(from_object, ["system_instruction"]),
+            to_object, ["systemInstruction"], getv(from_object, ["system_instruction"])
         )
 
     return to_object
@@ -565,11 +555,7 @@ def _AutoraterConfig_to_vertex(
         setv(to_object, ["flipEnabled"], getv(from_object, ["flip_enabled"]))
 
     if getv(from_object, ["autorater_model"]) is not None:
-        setv(
-            to_object,
-            ["autoraterModel"],
-            getv(from_object, ["autorater_model"]),
-        )
+        setv(to_object, ["autoraterModel"], getv(from_object, ["autorater_model"]))
 
     return to_object
 
@@ -684,24 +670,14 @@ def _RubricGenerationSpec_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["prompt_template"]) is not None:
-        setv(
-            to_object,
-            ["promptTemplate"],
-            getv(from_object, ["prompt_template"]),
-        )
+        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
 
     if getv(from_object, ["generator_model_config"]) is not None:
-        setv(
-            to_object,
-            ["model_config"],
-            getv(from_object, ["generator_model_config"]),
-        )
+        setv(to_object, ["model_config"], getv(from_object, ["generator_model_config"]))
 
     if getv(from_object, ["rubric_content_type"]) is not None:
         setv(
-            to_object,
-            ["rubricContentType"],
-            getv(from_object, ["rubric_content_type"]),
+            to_object, ["rubricContentType"], getv(from_object, ["rubric_content_type"])
         )
 
     if getv(from_object, ["rubric_type_ontology"]) is not None:
@@ -758,9 +734,7 @@ def _EvaluateInstancesResponse_from_vertex(
 
     if getv(from_object, ["exactMatchResults"]) is not None:
         setv(
-            to_object,
-            ["exact_match_results"],
-            getv(from_object, ["exactMatchResults"]),
+            to_object, ["exact_match_results"], getv(from_object, ["exactMatchResults"])
         )
 
     if getv(from_object, ["metricxResult"]) is not None:
@@ -885,6 +859,7 @@ def _GenerateInstanceRubricsResponse_from_vertex(
 
 
 class Evals(_api_module.BaseModule):
+
     def _evaluate_instances(
         self,
         *,
@@ -905,7 +880,9 @@ class Evals(_api_module.BaseModule):
         autorater_config: Optional[types.AutoraterConfigOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
-        """Evaluates instances based on a given metric."""
+        """
+        Evaluates instances based on a given metric.
+        """
 
         parameter_model = types._EvaluateInstancesRequestParameters(
             bleu_input=bleu_input,
@@ -972,7 +949,9 @@ class Evals(_api_module.BaseModule):
         rubric_generation_spec: types.RubricGenerationSpecOrDict,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
-        """Generates rubrics for a given prompt."""
+        """
+        Generates rubrics for a given prompt.
+        """
 
         parameter_model = types._GenerateInstanceRubricsRequest(
             contents=contents,
@@ -1054,21 +1033,20 @@ class Evals(_api_module.BaseModule):
         """Runs inference on a dataset for evaluation.
 
         Args:
-          model: The model to use for inference. - For Google Gemini models,
-            provide the model name string (e.g., "gemini-2.5-flash"). - For
-            third-party models via LiteLLM, use the format "provider/model_name"
-            (e.g., "openai/gpt-4o"). Ensure the necessary API key (e.g.,
-            OPENAI_API_KEY) is set as an environment variable. - For custom
-            logic, provide a callable function that accepts a prompt and returns
-            a response.
+          model: The model to use for inference.
+              - For Google Gemini models, provide the model name string (e.g., "gemini-2.5-flash").
+              - For third-party models via LiteLLM, use the format "provider/model_name"
+                (e.g., "openai/gpt-4o"). Ensure the necessary API key (e.g., OPENAI_API_KEY)
+                is set as an environment variable.
+              - For custom logic, provide a callable function that accepts a prompt and
+                returns a response.
           src: The source of the dataset. Can be a string (path to a local file,
-            a GCS path, or a BigQuery table) or a Pandas DataFrame.
-          config: The optional configuration for the inference run. Must be a
-            dict or `types.EvalRunInferenceConfig` type. - dest: The destination
-            path for storage of the inference results. - prompt_template: The
-            template string to use for constructing prompts. -
-            generate_content_config: The config for the Gemini generate content
-              call.
+                a GCS path, or a BigQuery table) or a Pandas DataFrame.
+          config: The optional configuration for the inference run. Must be a dict or
+              `types.EvalRunInferenceConfig` type.
+                - dest: The destination path for storage of the inference results.
+                - prompt_template: The template string to use for constructing prompts.
+                - generate_content_config: The config for the Gemini generate content call.
 
         Returns:
           The evaluation dataset.
@@ -1098,14 +1076,11 @@ class Evals(_api_module.BaseModule):
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
         Args:
-          dataset: The dataset(s) to evaluate. Can be a single
-            `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
+          dataset: The dataset(s) to evaluate. Can be a single `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
           metrics: The list of metrics to use for evaluation.
-          config: Optional configuration for the evaluation. Can be a dictionary
-            or a `types.EvaluateMethodConfig` object. - dataset_schema: Schema
-            to use for the dataset. If not specified, the dataset schema will be
-            inferred from the dataset automatically. - dest: Destination path
-            for storing evaluation results.
+          config: Optional configuration for the evaluation. Can be a dictionary or a `types.EvaluateMethodConfig` object.
+            - dataset_schema: Schema to use for the dataset. If not specified, the dataset schema will be inferred from the dataset automatically.
+            - dest: Destination path for storing evaluation results.
 
         Returns:
           The evaluation result.
@@ -1116,9 +1091,11 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig.model_validate(config)
         if isinstance(dataset, list):
             dataset = [
-                types.EvaluationDataset.model_validate(ds_item)
-                if isinstance(ds_item, dict)
-                else ds_item
+                (
+                    types.EvaluationDataset.model_validate(ds_item)
+                    if isinstance(ds_item, dict)
+                    else ds_item
+                )
                 for ds_item in dataset
             ]
         else:
@@ -1215,32 +1192,26 @@ class Evals(_api_module.BaseModule):
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> "pd.DataFrame":
         """Generates rubrics for each prompt in the source and adds them as a new column
-
         structured as a dictionary.
 
         Args:
-            src: The source of the prompts. Can be a string (path to a local
-              file, a GCS path, or a BigQuery table) or a Pandas DataFrame. The
-              loaded data must contain either a 'prompt' column (for text) or a
-              'request' column (for text or multimodal Gemini Content).
-            prompt_template: Template for the rubric generation prompt. If using
-              a 'prompt' column, use {prompt} as the placeholder. If using a
-              'request' column, this template is passed to the service along
-              with the content.
-            rubric_group_name: Name for the key within the dictionary in the new
-              column.
-            generator_model_config: Optional. Configuration for the model used
-              in rubric generation, including the model name (e.g.,
-              "gemini-1.5-flash") within the 'autorater_model' field.
-            rubric_content_type: Optional. The type of rubric content to be
-              generated.
-            rubric_type_ontology: Optional. A pre-defined list of allowed types
-              for generated rubrics.
+            src: The source of the prompts. Can be a string (path to a local file,
+              a GCS path, or a BigQuery table) or a Pandas DataFrame.
+              The loaded data must contain either a 'prompt' column (for text) or
+              a 'request' column (for text or multimodal Gemini Content).
+            prompt_template: Template for the rubric generation prompt.
+              If using a 'prompt' column, use {prompt} as the placeholder.
+              If using a 'request' column, this template is passed to the service
+              along with the content.
+            rubric_group_name: Name for the key within the dictionary in the new column.
+            generator_model_config: Optional. Configuration for the model used in rubric generation,
+                including the model name (e.g., "gemini-1.5-flash") within the 'autorater_model' field.
+            rubric_content_type: Optional. The type of rubric content to be generated.
+            rubric_type_ontology: Optional. A pre-defined list of allowed types for generated rubrics.
 
         Returns:
             DataFrame with an added column named `rubric_groups`. Each cell in
-            this column contains a dictionary like: {rubric_group_name:
-            [list[Rubric]]}.
+            this column contains a dictionary like: {rubric_group_name: [list[Rubric]]}.
         """
         try:
             prompts_df = _evals_common._load_dataframe(self._api_client, src)
@@ -1278,8 +1249,7 @@ class Evals(_api_module.BaseModule):
                 contents = input_data
             else:
                 logger.warning(
-                    "Skipping row: Unexpected input format in column"
-                    f" '{input_column}'."
+                    f"Skipping row: Unexpected input format in column '{input_column}'."
                 )
                 all_rubric_groups.append({rubric_group_name: []})
                 continue
@@ -1312,6 +1282,7 @@ class Evals(_api_module.BaseModule):
 
 
 class AsyncEvals(_api_module.BaseModule):
+
     async def _evaluate_instances(
         self,
         *,
@@ -1332,7 +1303,9 @@ class AsyncEvals(_api_module.BaseModule):
         autorater_config: Optional[types.AutoraterConfigOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
-        """Evaluates instances based on a given metric."""
+        """
+        Evaluates instances based on a given metric.
+        """
 
         parameter_model = types._EvaluateInstancesRequestParameters(
             bleu_input=bleu_input,
@@ -1401,7 +1374,9 @@ class AsyncEvals(_api_module.BaseModule):
         rubric_generation_spec: types.RubricGenerationSpecOrDict,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
-        """Generates rubrics for a given prompt."""
+        """
+        Generates rubrics for a given prompt.
+        """
 
         parameter_model = types._GenerateInstanceRubricsRequest(
             contents=contents,
