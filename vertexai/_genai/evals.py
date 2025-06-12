@@ -21,7 +21,6 @@ from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
@@ -1092,7 +1091,7 @@ class Evals(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1155,7 +1154,7 @@ class Evals(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1195,12 +1194,12 @@ class Evals(_api_module.BaseModule):
         """Evaluates an instance of a model."""
 
         if isinstance(metric_config, types._EvaluateInstancesRequestParameters):
-            metric_config = metric_config.model_dump()
+            metric_config_dict = metric_config.model_dump()
         else:
-            metric_config = dict(metric_config)
+            metric_config_dict = dict(metric_config)
 
         return self._evaluate_instances(
-            **metric_config,
+            **metric_config_dict,
         )
 
     def run_inference(
@@ -1209,7 +1208,7 @@ class Evals(_api_module.BaseModule):
         model: Union[str, Callable[[Any], Any]],
         src: Union[str, pd.DataFrame],
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
-    ) -> types.EvaluationDataset:
+    ) -> pd.DataFrame:
         """Runs inference on a dataset for evaluation."""
         if not config:
             config = types.EvalRunInferenceConfig()
@@ -1240,11 +1239,9 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig.model_validate(config)
         if isinstance(dataset, list):
             dataset = [
-                (
-                    types.EvaluationDataset.model_validate(ds_item)
-                    if isinstance(ds_item, dict)
-                    else ds_item
-                )
+                types.EvaluationDataset.model_validate(ds_item)
+                if isinstance(ds_item, dict)
+                else ds_item
                 for ds_item in dataset
             ]
         else:
@@ -1315,7 +1312,7 @@ class AsyncEvals(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1378,7 +1375,7 @@ class AsyncEvals(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None

@@ -245,7 +245,7 @@ def _execute_inference_concurrently(
                         e,
                     )
                     responses[index] = {"error": f"Inference task failed: {e}"}
-    return responses
+    return responses  # type: ignore[return-value]
 
 
 def _run_gemini_inference(

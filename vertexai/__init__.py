@@ -26,7 +26,7 @@ _genai_client = None
 _genai_types = None
 
 
-def __getattr__(name):
+def __getattr__(name):  # type: ignore[no-untyped-def]
     # Lazy importing the preview submodule
     # See https://peps.python.org/pep-0562/
     if name == "preview":

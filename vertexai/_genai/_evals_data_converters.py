@@ -92,7 +92,11 @@ class _GeminiEvalDataConverter(_EvalDataConverter):
                 reference = types.ResponseCandidate(response=last_message.content)
                 if conversation_history:  # Ensure there's a previous message
                     second_to_last_message = conversation_history.pop()
-                    prompt = second_to_last_message.content
+                    prompt = (
+                        second_to_last_message.content
+                        if second_to_last_message.content
+                        else genai_types.Content()
+                    )
                 else:  # If only one model message, prompt is invalid.
                     prompt = genai_types.Content()
 
@@ -349,7 +353,7 @@ def _validate_case_consistency(
     current_case: types.EvalCase,
     case_idx: int,
     dataset_idx: int,
-):
+) -> None:
     """Logs warnings if prompt or reference mismatches occur."""
     if base_case.prompt != current_case.prompt:
         base_prompt_text_preview = _get_first_part_text(base_case.prompt)[:50]
@@ -425,7 +429,11 @@ def merge_response_datasets_into_canonical_format(
     base_parsed_dataset = parsed_evaluation_datasets[0]
 
     for case_idx in range(num_expected_cases):
-        base_eval_case: types.EvalCase = base_parsed_dataset.eval_cases[case_idx]
+        base_eval_case: types.EvalCase = (
+            base_parsed_dataset.eval_cases[case_idx]
+            if base_parsed_dataset.eval_cases
+            else types.EvalCase()
+        )
         candidate_responses: list[types.ResponseCandidate] = []
 
         if base_eval_case.responses:
@@ -456,9 +464,11 @@ def merge_response_datasets_into_canonical_format(
         for dataset_idx_offset, current_parsed_ds in enumerate(
             parsed_evaluation_datasets[1:], start=1
         ):
-            current_ds_eval_case: types.EvalCase = current_parsed_ds.eval_cases[
-                case_idx
-            ]
+            current_ds_eval_case: types.EvalCase = (
+                current_parsed_ds.eval_cases[case_idx]
+                if current_parsed_ds.eval_cases
+                else types.EvalCase()
+            )
 
             _validate_case_consistency(
                 base_eval_case, current_ds_eval_case, case_idx, dataset_idx_offset
