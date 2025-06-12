@@ -91,6 +91,7 @@ _FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE = (
 )
 _AGENT_FRAMEWORK_ATTR = "agent_framework"
 _DEFAULT_AGENT_FRAMEWORK = "custom"
+_BUILD_OPTIONS_INSTALLATION = "installation"
 
 
 try:
@@ -322,6 +323,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         env_vars: Optional[
             Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
         ] = None,
+        build_options: Optional[Dict[str, Sequence[str]]] = None,
     ) -> "AgentEngine":
         """Creates a new Agent Engine.
 
@@ -337,6 +339,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             |-- requirements.txt
             |-- user_code/
             |   |-- utils.py
+            |   |-- ...
+            |-- installation_scripts/
+            |   |-- install_package.sh
             |   |-- ...
             |-- ...
 
@@ -357,6 +362,12 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                     "./user_src_dir/user_code", # a directory
                     ...
                 ],
+                build_options={
+                    "installation": [
+                        "./user_src_dir/installation_scripts/install_package.sh",
+                        ...
+                    ],
+                },
             )
 
         Args:
@@ -383,6 +394,14 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 a valid key to `os.environ`. If it is a dictionary, the keys are
                 the environment variable names, and the values are the
                 corresponding values.
+            build_options (Dict[str, Sequence[str]]):
+                Optional. The build options for the Agent Engine.
+                The following keys are supported:
+                - installation:
+                    Optional. The paths to the installation scripts to be
+                    executed in the Docker image.
+                    The scripts must be located in the `installation_scripts`
+                    subdirectory and the path must be added to `extra_packages`.
 
         Returns:
             AgentEngine: The Agent Engine that was created.
@@ -421,7 +440,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             agent_engine=agent_engine,
             requirements=requirements,
         )
-        extra_packages = _validate_extra_packages_or_raise(extra_packages)
+        extra_packages = _validate_extra_packages_or_raise(
+            extra_packages=extra_packages,
+            build_options=build_options,
+        )
 
         sdk_resource = cls.__new__(cls)
         base.VertexAiResourceNounWithFutureManager.__init__(sdk_resource)
@@ -530,6 +552,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         env_vars: Optional[
             Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
         ] = None,
+        build_options: Optional[Dict[str, Sequence[str]]] = None,
     ) -> "AgentEngine":
         """Updates an existing Agent Engine.
 
@@ -571,6 +594,14 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 a valid key to `os.environ`. If it is a dictionary, the keys are
                 the environment variable names, and the values are the
                 corresponding values.
+            build_options (Dict[str, Sequence[str]]):
+                Optional. The build options for the Agent Engine.
+                The following keys are supported:
+                - installation:
+                    Optional. The paths to the installation scripts to be
+                    executed in the Docker image.
+                    The scripts must be located in the `installation_scripts`
+                    subdirectory and the path must be added to `extra_packages`.
 
         Returns:
             AgentEngine: The Agent Engine that was updated.
@@ -605,12 +636,13 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 display_name,
                 description,
                 env_vars,
+                build_options,
             ]
         ):
             raise ValueError(
                 "At least one of `agent_engine`, `requirements`, "
-                "`extra_packages`, `display_name`, `description`, or `env_vars` "
-                "must be specified."
+                "`extra_packages`, `display_name`, `description`, "
+                "`env_vars`, or `build_options` must be specified."
             )
         if requirements is not None:
             requirements = _validate_requirements_or_raise(
@@ -618,7 +650,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 requirements=requirements,
             )
         if extra_packages is not None:
-            extra_packages = _validate_extra_packages_or_raise(extra_packages)
+            extra_packages = _validate_extra_packages_or_raise(
+                extra_packages=extra_packages,
+                build_options=build_options,
+            )
         if agent_engine is not None:
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
 
@@ -876,9 +911,17 @@ def _validate_requirements_or_raise(
     return requirements
 
 
-def _validate_extra_packages_or_raise(extra_packages: Sequence[str]) -> Sequence[str]:
+def _validate_extra_packages_or_raise(
+    extra_packages: Sequence[str],
+    build_options: Optional[Dict[str, Sequence[str]]] = None,
+) -> Sequence[str]:
     """Tries to validates the extra packages."""
     extra_packages = extra_packages or []
+    if build_options and _BUILD_OPTIONS_INSTALLATION in build_options:
+        _utils.validate_installation_scripts_or_raise(
+            script_paths=build_options[_BUILD_OPTIONS_INSTALLATION],
+            extra_packages=extra_packages,
+        )
     for extra_package in extra_packages:
         if not os.path.exists(extra_package):
             raise FileNotFoundError(
