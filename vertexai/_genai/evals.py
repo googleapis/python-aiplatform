@@ -130,7 +130,9 @@ def _ExactMatchInput_to_vertex(
         setv(
             to_object,
             ["metricSpec"],
-            _ExactMatchSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
+            _ExactMatchSpec_to_vertex(
+                getv(from_object, ["metric_spec"]), to_object
+            ),
         )
 
     return to_object
@@ -385,7 +387,9 @@ def _ToolCallValidInput_to_vertex(
         setv(
             to_object,
             ["metricSpec"],
-            _ToolCallValidSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
+            _ToolCallValidSpec_to_vertex(
+                getv(from_object, ["metric_spec"]), to_object
+            ),
         )
 
     return to_object
@@ -433,7 +437,9 @@ def _ToolNameMatchInput_to_vertex(
         setv(
             to_object,
             ["metricSpec"],
-            _ToolNameMatchSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
+            _ToolNameMatchSpec_to_vertex(
+                getv(from_object, ["metric_spec"]), to_object
+            ),
         )
 
     return to_object
@@ -561,7 +567,9 @@ def _AutoraterConfig_to_vertex(
         setv(to_object, ["flipEnabled"], getv(from_object, ["flip_enabled"]))
 
     if getv(from_object, ["sampling_count"]) is not None:
-        setv(to_object, ["samplingCount"], getv(from_object, ["sampling_count"]))
+        setv(
+            to_object, ["samplingCount"], getv(from_object, ["sampling_count"])
+        )
 
     return to_object
 
@@ -591,7 +599,9 @@ def _EvaluateInstancesRequestParameters_to_vertex(
         setv(
             to_object,
             ["rougeInput"],
-            _RougeInput_to_vertex(getv(from_object, ["rouge_input"]), to_object),
+            _RougeInput_to_vertex(
+                getv(from_object, ["rouge_input"]), to_object
+            ),
         )
 
     if getv(from_object, ["pointwise_metric_input"]) is not None:
@@ -758,7 +768,9 @@ def _EvaluateDatasetRequestParameters_to_vertex(
         setv(
             to_object,
             ["dataset"],
-            _EvaluationDataset_to_vertex(getv(from_object, ["dataset"]), to_object),
+            _EvaluationDataset_to_vertex(
+                getv(from_object, ["dataset"]), to_object
+            ),
         )
 
     if getv(from_object, ["metrics"]) is not None:
@@ -775,7 +787,9 @@ def _EvaluateDatasetRequestParameters_to_vertex(
         setv(
             to_object,
             ["outputConfig"],
-            _OutputConfig_to_vertex(getv(from_object, ["output_config"]), to_object),
+            _OutputConfig_to_vertex(
+                getv(from_object, ["output_config"]), to_object
+            ),
         )
 
     if getv(from_object, ["autorater_config"]) is not None:
@@ -813,7 +827,9 @@ def _EvaluateInstancesResponse_from_vertex(
         )
 
     if getv(from_object, ["metricxResult"]) is not None:
-        setv(to_object, ["metricx_result"], getv(from_object, ["metricxResult"]))
+        setv(
+            to_object, ["metricx_result"], getv(from_object, ["metricxResult"])
+        )
 
     if getv(from_object, ["pairwiseMetricResult"]) is not None:
         setv(
@@ -963,20 +979,25 @@ def _EvaluateDatasetOperation_from_vertex(
         setv(
             to_object,
             ["response"],
-            _EvaluationDataset_from_vertex(getv(from_object, ["response"]), to_object),
+            _EvaluationDataset_from_vertex(
+                getv(from_object, ["response"]), to_object
+            ),
         )
 
     return to_object
 
 
 class Evals(_api_module.BaseModule):
+
     def _evaluate_instances(
         self,
         *,
         bleu_input: Optional[types.BleuInputOrDict] = None,
         exact_match_input: Optional[types.ExactMatchInputOrDict] = None,
         rouge_input: Optional[types.RougeInputOrDict] = None,
-        pointwise_metric_input: Optional[types.PointwiseMetricInputOrDict] = None,
+        pointwise_metric_input: Optional[
+            types.PointwiseMetricInputOrDict
+        ] = None,
         pairwise_metric_input: Optional[types.PairwiseMetricInputOrDict] = None,
         tool_call_valid_input: Optional[types.ToolCallValidInputOrDict] = None,
         tool_name_match_input: Optional[types.ToolNameMatchInputOrDict] = None,
@@ -1007,7 +1028,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Vertex AI client."
+            )
         else:
             request_dict = _EvaluateInstancesRequestParameters_to_vertex(
                 parameter_model
@@ -1034,12 +1057,16 @@ class Evals(_api_module.BaseModule):
         request_dict = _common.convert_to_dict(request_dict)
         request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = self._api_client.request("post", path, request_dict, http_options)
+        response = self._api_client.request(
+            "post", path, request_dict, http_options
+        )
 
         response_dict = "" if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluateInstancesResponse_from_vertex(response_dict)
+            response_dict = _EvaluateInstancesResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.EvaluateInstancesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1069,9 +1096,13 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Vertex AI client."
+            )
         else:
-            request_dict = _EvaluateDatasetRequestParameters_to_vertex(parameter_model)
+            request_dict = _EvaluateDatasetRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":evaluateDataset".format_map(request_url_dict)
@@ -1094,7 +1125,9 @@ class Evals(_api_module.BaseModule):
         request_dict = _common.convert_to_dict(request_dict)
         request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = self._api_client.request("post", path, request_dict, http_options)
+        response = self._api_client.request(
+            "post", path, request_dict, http_options
+        )
 
         response_dict = "" if not response.body else json.loads(response.body)
 
@@ -1222,13 +1255,16 @@ class Evals(_api_module.BaseModule):
 
 
 class AsyncEvals(_api_module.BaseModule):
+
     async def _evaluate_instances(
         self,
         *,
         bleu_input: Optional[types.BleuInputOrDict] = None,
         exact_match_input: Optional[types.ExactMatchInputOrDict] = None,
         rouge_input: Optional[types.RougeInputOrDict] = None,
-        pointwise_metric_input: Optional[types.PointwiseMetricInputOrDict] = None,
+        pointwise_metric_input: Optional[
+            types.PointwiseMetricInputOrDict
+        ] = None,
         pairwise_metric_input: Optional[types.PairwiseMetricInputOrDict] = None,
         tool_call_valid_input: Optional[types.ToolCallValidInputOrDict] = None,
         tool_name_match_input: Optional[types.ToolNameMatchInputOrDict] = None,
@@ -1259,7 +1295,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Vertex AI client."
+            )
         else:
             request_dict = _EvaluateInstancesRequestParameters_to_vertex(
                 parameter_model
@@ -1293,7 +1331,9 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = "" if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluateInstancesResponse_from_vertex(response_dict)
+            response_dict = _EvaluateInstancesResponse_from_vertex(
+                response_dict
+            )
 
         return_value = types.EvaluateInstancesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1323,9 +1363,13 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Vertex AI client."
+            )
         else:
-            request_dict = _EvaluateDatasetRequestParameters_to_vertex(parameter_model)
+            request_dict = _EvaluateDatasetRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":evaluateDataset".format_map(request_url_dict)

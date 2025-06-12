@@ -68,7 +68,9 @@ class PromptOptimizer(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Vertex AI client."
+            )
         else:
             request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -93,7 +95,9 @@ class PromptOptimizer(_api_module.BaseModule):
         request_dict = _common.convert_to_dict(request_dict)
         request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = self._api_client.request("post", path, request_dict, http_options)
+        response = self._api_client.request(
+            "post", path, request_dict, http_options
+        )
 
         response_dict = "" if not response.body else json.loads(response.body)
 
@@ -167,10 +171,12 @@ class PromptOptimizer(_api_module.BaseModule):
 
         region = self._api_client.location
         project = self._api_client.project
-        project_number = aiplatform.utils.resource_manager_utils.get_project_number(
-            project
+        project_number = (
+            aiplatform.utils.resource_manager_utils.get_project_number(project)
         )
-        service_account = f"{project_number}-compute@developer.gserviceaccount.com"
+        service_account = (
+            f"{project_number}-compute@developer.gserviceaccount.com"
+        )
 
         job = self._create_custom_job(
             display_name,
@@ -211,7 +217,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Vertex AI client."
+            )
         else:
             request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")

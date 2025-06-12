@@ -21,28 +21,10 @@ import json
 import logging
 import re
 import typing
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import Any, Callable, ClassVar, Dict, List, Literal, Optional, Tuple, TypeVar, Union
 from google.genai import _common
 from google.genai import types as genai_types
-from pydantic import (
-    ConfigDict,
-    Field,
-    PrivateAttr,
-    computed_field,
-    field_validator,
-    model_validator,
-)
+from pydantic import ConfigDict, Field, PrivateAttr, computed_field, field_validator, model_validator
 from typing_extensions import TypedDict
 
 logger = logging.getLogger("vertexai_genai.types")
@@ -399,7 +381,9 @@ class PointwiseMetricInputDict(TypedDict, total=False):
     """Required. Spec for pointwise metric."""
 
 
-PointwiseMetricInputOrDict = Union[PointwiseMetricInput, PointwiseMetricInputDict]
+PointwiseMetricInputOrDict = Union[
+    PointwiseMetricInput, PointwiseMetricInputDict
+]
 
 
 class PairwiseMetricInstance(_common.BaseModel):
@@ -418,7 +402,9 @@ class PairwiseMetricInstanceDict(TypedDict, total=False):
     """Instance specified as a json string. String key-value pairs are expected in the json_instance to render PairwiseMetricSpec.instance_prompt_template."""
 
 
-PairwiseMetricInstanceOrDict = Union[PairwiseMetricInstance, PairwiseMetricInstanceDict]
+PairwiseMetricInstanceOrDict = Union[
+    PairwiseMetricInstance, PairwiseMetricInstanceDict
+]
 
 
 class PairwiseMetricSpec(_common.BaseModel):
@@ -514,7 +500,9 @@ class ToolCallValidInstanceDict(TypedDict, total=False):
     """Required. Ground truth used to compare against the prediction."""
 
 
-ToolCallValidInstanceOrDict = Union[ToolCallValidInstance, ToolCallValidInstanceDict]
+ToolCallValidInstanceOrDict = Union[
+    ToolCallValidInstance, ToolCallValidInstanceDict
+]
 
 
 class ToolCallValidSpec(_common.BaseModel):
@@ -580,7 +568,9 @@ class ToolNameMatchInstanceDict(TypedDict, total=False):
     """Required. Ground truth used to compare against the prediction."""
 
 
-ToolNameMatchInstanceOrDict = Union[ToolNameMatchInstance, ToolNameMatchInstanceDict]
+ToolNameMatchInstanceOrDict = Union[
+    ToolNameMatchInstance, ToolNameMatchInstanceDict
+]
 
 
 class ToolNameMatchSpec(_common.BaseModel):
@@ -965,8 +955,8 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     tool_name_match_input: Optional[ToolNameMatchInput] = Field(
         default=None, description=""""""
     )
-    tool_parameter_key_match_input: Optional[ToolParameterKeyMatchInput] = Field(
-        default=None, description=""""""
+    tool_parameter_key_match_input: Optional[ToolParameterKeyMatchInput] = (
+        Field(default=None, description="""""")
     )
     tool_parameter_kv_match_input: Optional[ToolParameterKVMatchInput] = Field(
         default=None, description=""""""
@@ -974,7 +964,9 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     autorater_config: Optional[AutoraterConfig] = Field(
         default=None, description=""""""
     )
-    config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
+    config: Optional[EvaluateInstancesConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
@@ -1089,7 +1081,9 @@ class ExactMatchMetricValueDict(TypedDict, total=False):
     """Output only. Exact match score."""
 
 
-ExactMatchMetricValueOrDict = Union[ExactMatchMetricValue, ExactMatchMetricValueDict]
+ExactMatchMetricValueOrDict = Union[
+    ExactMatchMetricValue, ExactMatchMetricValueDict
+]
 
 
 class ExactMatchResults(_common.BaseModel):
@@ -1193,7 +1187,9 @@ class PairwiseMetricResultDict(TypedDict, total=False):
     """Output only. Pairwise metric choice."""
 
 
-PairwiseMetricResultOrDict = Union[PairwiseMetricResult, PairwiseMetricResultDict]
+PairwiseMetricResultOrDict = Union[
+    PairwiseMetricResult, PairwiseMetricResultDict
+]
 
 
 class PointwiseMetricResult(_common.BaseModel):
@@ -1224,7 +1220,9 @@ class PointwiseMetricResultDict(TypedDict, total=False):
     """Output only. Pointwise metric score."""
 
 
-PointwiseMetricResultOrDict = Union[PointwiseMetricResult, PointwiseMetricResultDict]
+PointwiseMetricResultOrDict = Union[
+    PointwiseMetricResult, PointwiseMetricResultDict
+]
 
 
 class RougeMetricValue(_common.BaseModel):
@@ -1285,7 +1283,9 @@ class RubricCritiqueResultDict(TypedDict, total=False):
     """Output only. Verdict for the rubric - true if the rubric is met, false otherwise."""
 
 
-RubricCritiqueResultOrDict = Union[RubricCritiqueResult, RubricCritiqueResultDict]
+RubricCritiqueResultOrDict = Union[
+    RubricCritiqueResult, RubricCritiqueResultDict
+]
 
 
 class RubricBasedInstructionFollowingResult(_common.BaseModel):
@@ -1375,9 +1375,11 @@ ToolCallValidMetricValueOrDict = Union[
 class ToolCallValidResults(_common.BaseModel):
     """Results for tool call valid metric."""
 
-    tool_call_valid_metric_values: Optional[list[ToolCallValidMetricValue]] = Field(
-        default=None,
-        description="""Output only. Tool call valid metric values.""",
+    tool_call_valid_metric_values: Optional[list[ToolCallValidMetricValue]] = (
+        Field(
+            default=None,
+            description="""Output only. Tool call valid metric values.""",
+        )
     )
 
 
@@ -1388,7 +1390,9 @@ class ToolCallValidResultsDict(TypedDict, total=False):
     """Output only. Tool call valid metric values."""
 
 
-ToolCallValidResultsOrDict = Union[ToolCallValidResults, ToolCallValidResultsDict]
+ToolCallValidResultsOrDict = Union[
+    ToolCallValidResults, ToolCallValidResultsDict
+]
 
 
 class ToolNameMatchMetricValue(_common.BaseModel):
@@ -1414,9 +1418,11 @@ ToolNameMatchMetricValueOrDict = Union[
 class ToolNameMatchResults(_common.BaseModel):
     """Results for tool name match metric."""
 
-    tool_name_match_metric_values: Optional[list[ToolNameMatchMetricValue]] = Field(
-        default=None,
-        description="""Output only. Tool name match metric values.""",
+    tool_name_match_metric_values: Optional[list[ToolNameMatchMetricValue]] = (
+        Field(
+            default=None,
+            description="""Output only. Tool name match metric values.""",
+        )
     )
 
 
@@ -1427,7 +1433,9 @@ class ToolNameMatchResultsDict(TypedDict, total=False):
     """Output only. Tool name match metric values."""
 
 
-ToolNameMatchResultsOrDict = Union[ToolNameMatchResults, ToolNameMatchResultsDict]
+ToolNameMatchResultsOrDict = Union[
+    ToolNameMatchResults, ToolNameMatchResultsDict
+]
 
 
 class ToolParameterKeyMatchMetricValue(_common.BaseModel):
@@ -1738,7 +1746,9 @@ class TrajectoryRecallResults(_common.BaseModel):
 class TrajectoryRecallResultsDict(TypedDict, total=False):
     """Results for TrajectoryRecall metric."""
 
-    trajectory_recall_metric_values: Optional[list[TrajectoryRecallMetricValueDict]]
+    trajectory_recall_metric_values: Optional[
+        list[TrajectoryRecallMetricValueDict]
+    ]
     """Output only. TrajectoryRecall metric values."""
 
 
@@ -1826,9 +1836,11 @@ class EvaluateInstancesResponse(_common.BaseModel):
         default=None,
         description="""Result for rubric based instruction following metric.""",
     )
-    summarization_verbosity_result: Optional[SummarizationVerbosityResult] = Field(
-        default=None,
-        description="""Result for summarization verbosity metric.""",
+    summarization_verbosity_result: Optional[SummarizationVerbosityResult] = (
+        Field(
+            default=None,
+            description="""Result for summarization verbosity metric.""",
+        )
     )
     tool_call_valid_results: Optional[ToolCallValidResults] = Field(
         default=None,
@@ -1837,13 +1849,17 @@ class EvaluateInstancesResponse(_common.BaseModel):
     tool_name_match_results: Optional[ToolNameMatchResults] = Field(
         default=None, description="""Results for tool name match metric."""
     )
-    tool_parameter_key_match_results: Optional[ToolParameterKeyMatchResults] = Field(
-        default=None,
-        description="""Results for tool parameter key match metric.""",
+    tool_parameter_key_match_results: Optional[ToolParameterKeyMatchResults] = (
+        Field(
+            default=None,
+            description="""Results for tool parameter key match metric.""",
+        )
     )
-    tool_parameter_kv_match_results: Optional[ToolParameterKVMatchResults] = Field(
-        default=None,
-        description="""Results for tool parameter key value match metric.""",
+    tool_parameter_kv_match_results: Optional[ToolParameterKVMatchResults] = (
+        Field(
+            default=None,
+            description="""Results for tool parameter key value match metric.""",
+        )
     )
     trajectory_any_order_match_results: Optional[
         TrajectoryAnyOrderMatchResults
@@ -1851,11 +1867,15 @@ class EvaluateInstancesResponse(_common.BaseModel):
         default=None,
         description="""Result for trajectory any order match metric.""",
     )
-    trajectory_exact_match_results: Optional[TrajectoryExactMatchResults] = Field(
-        default=None,
-        description="""Result for trajectory exact match metric.""",
+    trajectory_exact_match_results: Optional[TrajectoryExactMatchResults] = (
+        Field(
+            default=None,
+            description="""Result for trajectory exact match metric.""",
+        )
     )
-    trajectory_in_order_match_results: Optional[TrajectoryInOrderMatchResults] = Field(
+    trajectory_in_order_match_results: Optional[
+        TrajectoryInOrderMatchResults
+    ] = Field(
         default=None,
         description="""Result for trajectory in order match metric.""",
     )
@@ -1917,13 +1937,17 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
     tool_parameter_kv_match_results: Optional[ToolParameterKVMatchResultsDict]
     """Results for tool parameter key value match metric."""
 
-    trajectory_any_order_match_results: Optional[TrajectoryAnyOrderMatchResultsDict]
+    trajectory_any_order_match_results: Optional[
+        TrajectoryAnyOrderMatchResultsDict
+    ]
     """Result for trajectory any order match metric."""
 
     trajectory_exact_match_results: Optional[TrajectoryExactMatchResultsDict]
     """Result for trajectory exact match metric."""
 
-    trajectory_in_order_match_results: Optional[TrajectoryInOrderMatchResultsDict]
+    trajectory_in_order_match_results: Optional[
+        TrajectoryInOrderMatchResultsDict
+    ]
     """Result for trajectory in order match metric."""
 
     trajectory_precision_results: Optional[TrajectoryPrecisionResultsDict]
@@ -1932,7 +1956,9 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
     trajectory_recall_results: Optional[TrajectoryRecallResultsDict]
     """Results for trajectory recall metric."""
 
-    trajectory_single_tool_use_results: Optional[TrajectorySingleToolUseResultsDict]
+    trajectory_single_tool_use_results: Optional[
+        TrajectorySingleToolUseResultsDict
+    ]
     """Results for trajectory single tool use metric."""
 
 
@@ -2180,7 +2206,9 @@ EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
 class Metric(_common.BaseModel):
     """The metric used for evaluation."""
 
-    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
+    name: Optional[str] = Field(
+        default=None, description="""The name of the metric."""
+    )
     custom_function: Optional[Callable] = Field(
         default=None,
         description="""The custom function that defines the end-to-end logic for metric computation.""",
@@ -2231,7 +2259,9 @@ class Metric(_common.BaseModel):
         model.name = model.name.lower()
         return model
 
-    def to_yaml_file(self, file_path: str, version: Optional[str] = None) -> None:
+    def to_yaml_file(
+        self, file_path: str, version: Optional[str] = None
+    ) -> None:
         """Dumps the metric object to a YAML file.
 
         Args:
@@ -2287,7 +2317,9 @@ class LLMMetric(Metric):
 
     @field_validator("prompt_template", mode="before")
     @classmethod
-    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
+    def validate_prompt_template(
+        cls, value: Union[str, "MetricPromptBuilder"]
+    ) -> str:
         """Validates prompt template to be a non-empty string."""
         if value is None:
             raise ValueError("Prompt template cannot be empty.")
@@ -2299,10 +2331,14 @@ class LLMMetric(Metric):
 
     @field_validator("judge_model_sampling_count")
     @classmethod
-    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
+    def validate_judge_model_sampling_count(
+        cls, value: Optional[int]
+    ) -> Optional[int]:
         """Validates judge_model_sampling_count to be between 1 and 32."""
         if value is not None and (value < 1 or value > 32):
-            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
+            raise ValueError(
+                "judge_model_sampling_count must be between 1 and 32."
+            )
         return value
 
 
@@ -2393,19 +2429,27 @@ class EvaluateDatasetConfigDict(TypedDict, total=False):
     """Used to override HTTP request options."""
 
 
-EvaluateDatasetConfigOrDict = Union[EvaluateDatasetConfig, EvaluateDatasetConfigDict]
+EvaluateDatasetConfigOrDict = Union[
+    EvaluateDatasetConfig, EvaluateDatasetConfigDict
+]
 
 
 class _EvaluateDatasetRequestParameters(_common.BaseModel):
     """Parameters for batch dataset evaluation."""
 
-    dataset: Optional[EvaluationDataset] = Field(default=None, description="""""")
+    dataset: Optional[EvaluationDataset] = Field(
+        default=None, description=""""""
+    )
     metrics: Optional[list[Metric]] = Field(default=None, description="""""")
-    output_config: Optional[OutputConfig] = Field(default=None, description="""""")
+    output_config: Optional[OutputConfig] = Field(
+        default=None, description=""""""
+    )
     autorater_config: Optional[AutoraterConfig] = Field(
         default=None, description=""""""
     )
-    config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
+    config: Optional[EvaluateDatasetConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _EvaluateDatasetRequestParametersDict(TypedDict, total=False):
@@ -2450,7 +2494,9 @@ class EvaluateDatasetOperation(_common.BaseModel):
         default=None,
         description="""The error result of the operation in case of failure or cancellation.""",
     )
-    response: Optional[EvaluationDataset] = Field(default=None, description="""""")
+    response: Optional[EvaluationDataset] = Field(
+        default=None, description=""""""
+    )
 
 
 class EvaluateDatasetOperationDict(TypedDict, total=False):
@@ -2766,7 +2812,9 @@ CreateAgentEngineConfigOrDict = Union[
 class _CreateAgentEngineRequestParameters(_common.BaseModel):
     """Parameters for creating agent engines."""
 
-    config: Optional[CreateAgentEngineConfig] = Field(default=None, description="""""")
+    config: Optional[CreateAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _CreateAgentEngineRequestParametersDict(TypedDict, total=False):
@@ -2885,7 +2933,9 @@ class AgentEngineOperationDict(TypedDict, total=False):
     """The created Agent Engine."""
 
 
-AgentEngineOperationOrDict = Union[AgentEngineOperation, AgentEngineOperationDict]
+AgentEngineOperationOrDict = Union[
+    AgentEngineOperation, AgentEngineOperationDict
+]
 
 
 class DeleteAgentEngineConfig(_common.BaseModel):
@@ -2918,7 +2968,9 @@ class _DeleteAgentEngineRequestParameters(_common.BaseModel):
         default=False,
         description="""If set to true, any child resources will also be deleted.""",
     )
-    config: Optional[DeleteAgentEngineConfig] = Field(default=None, description="""""")
+    config: Optional[DeleteAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _DeleteAgentEngineRequestParametersDict(TypedDict, total=False):
@@ -2996,7 +3048,9 @@ class GetAgentEngineConfigDict(TypedDict, total=False):
     """Used to override HTTP request options."""
 
 
-GetAgentEngineConfigOrDict = Union[GetAgentEngineConfig, GetAgentEngineConfigDict]
+GetAgentEngineConfigOrDict = Union[
+    GetAgentEngineConfig, GetAgentEngineConfigDict
+]
 
 
 class _GetAgentEngineRequestParameters(_common.BaseModel):
@@ -3005,7 +3059,9 @@ class _GetAgentEngineRequestParameters(_common.BaseModel):
     name: Optional[str] = Field(
         default=None, description="""Name of the agent engine."""
     )
-    config: Optional[GetAgentEngineConfig] = Field(default=None, description="""""")
+    config: Optional[GetAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _GetAgentEngineRequestParametersDict(TypedDict, total=False):
@@ -3055,13 +3111,17 @@ class ListAgentEngineConfigDict(TypedDict, total=False):
       For field names both snake_case and camelCase are supported."""
 
 
-ListAgentEngineConfigOrDict = Union[ListAgentEngineConfig, ListAgentEngineConfigDict]
+ListAgentEngineConfigOrDict = Union[
+    ListAgentEngineConfig, ListAgentEngineConfigDict
+]
 
 
 class _ListAgentEngineRequestParameters(_common.BaseModel):
     """Parameters for listing agent engines."""
 
-    config: Optional[ListAgentEngineConfig] = Field(default=None, description="""""")
+    config: Optional[ListAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _ListAgentEngineRequestParametersDict(TypedDict, total=False):
@@ -3161,7 +3221,9 @@ class QueryAgentEngineConfig(_common.BaseModel):
     input: Optional[dict[str, Any]] = Field(
         default=None, description="""The input to the class method."""
     )
-    include_all_fields: Optional[bool] = Field(default=False, description="""""")
+    include_all_fields: Optional[bool] = Field(
+        default=False, description=""""""
+    )
 
 
 class QueryAgentEngineConfigDict(TypedDict, total=False):
@@ -3180,7 +3242,9 @@ class QueryAgentEngineConfigDict(TypedDict, total=False):
     """"""
 
 
-QueryAgentEngineConfigOrDict = Union[QueryAgentEngineConfig, QueryAgentEngineConfigDict]
+QueryAgentEngineConfigOrDict = Union[
+    QueryAgentEngineConfig, QueryAgentEngineConfigDict
+]
 
 
 class _QueryAgentEngineRequestParameters(_common.BaseModel):
@@ -3189,7 +3253,9 @@ class _QueryAgentEngineRequestParameters(_common.BaseModel):
     name: Optional[str] = Field(
         default=None, description="""Name of the agent engine."""
     )
-    config: Optional[QueryAgentEngineConfig] = Field(default=None, description="""""")
+    config: Optional[QueryAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _QueryAgentEngineRequestParametersDict(TypedDict, total=False):
@@ -3291,7 +3357,9 @@ class _UpdateAgentEngineRequestParameters(_common.BaseModel):
     name: Optional[str] = Field(
         default=None, description="""Name of the agent engine."""
     )
-    config: Optional[UpdateAgentEngineConfig] = Field(default=None, description="""""")
+    config: Optional[UpdateAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _UpdateAgentEngineRequestParametersDict(TypedDict, total=False):
@@ -3315,7 +3383,9 @@ class PromptOptimizerVAPOConfig(_common.BaseModel):
     config_path: Optional[str] = Field(
         default=None, description="""The gcs path to the config file."""
     )
-    wait_for_completion: Optional[bool] = Field(default=None, description="""""")
+    wait_for_completion: Optional[bool] = Field(
+        default=None, description=""""""
+    )
 
 
 class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
@@ -3346,7 +3416,8 @@ class PromptTemplate(_common.BaseModel):
     def text_must_not_be_empty(cls, value: str) -> str:
         if not value.strip():
             raise ValueError(
-                "Prompt template text cannot be empty or consist only of" " whitespace."
+                "Prompt template text cannot be empty or consist only of"
+                " whitespace."
             )
         return value
 
@@ -3389,7 +3460,9 @@ class PromptTemplate(_common.BaseModel):
                 current_text_buffer.append(part.text)
             else:
                 if current_text_buffer:
-                    merged.append(genai_types.Part(text="".join(current_text_buffer)))
+                    merged.append(
+                        genai_types.Part(text="".join(current_text_buffer))
+                    )
                     current_text_buffer = []
                 merged.append(part)
 
@@ -3414,7 +3487,10 @@ class PromptTemplate(_common.BaseModel):
                     if not data["contents"]:
                         return False
                     first_content = data["contents"][0]
-                    if isinstance(first_content, dict) and "parts" in first_content:
+                    if (
+                        isinstance(first_content, dict)
+                        and "parts" in first_content
+                    ):
                         try:
                             genai_types.Content.model_validate(first_content)
                             return True
@@ -3492,7 +3568,9 @@ class PromptTemplate(_common.BaseModel):
         # Check if all template variables are provided in kwargs
         for tpl_var in current_variables:
             if tpl_var not in kwargs:
-                raise ValueError(f"Missing value for template variable '{tpl_var}'.")
+                raise ValueError(
+                    f"Missing value for template variable '{tpl_var}'."
+                )
 
         template_segments = self._split_template_by_variables()
 
@@ -3502,25 +3580,35 @@ class PromptTemplate(_common.BaseModel):
         for segment_type, segment_value in template_segments:
             if segment_type == "text":
                 if segment_value:
-                    raw_assembled_parts.append(genai_types.Part(text=segment_value))
+                    raw_assembled_parts.append(
+                        genai_types.Part(text=segment_value)
+                    )
             elif segment_type == "var":
                 var_value = kwargs.get(segment_value)
 
                 str_var_value = str(var_value)
 
                 if self._is_multimodal_json_string(str_var_value):
-                    multimodal_parts = self._parse_multimodal_json_string_into_parts(
-                        str_var_value
+                    multimodal_parts = (
+                        self._parse_multimodal_json_string_into_parts(
+                            str_var_value
+                        )
                     )
                     if multimodal_parts:
                         contains_multimodal_variable_type = True
                         raw_assembled_parts.extend(multimodal_parts)
                     else:
-                        raw_assembled_parts.append(genai_types.Part(text=str_var_value))
+                        raw_assembled_parts.append(
+                            genai_types.Part(text=str_var_value)
+                        )
                 else:
-                    raw_assembled_parts.append(genai_types.Part(text=str_var_value))
+                    raw_assembled_parts.append(
+                        genai_types.Part(text=str_var_value)
+                    )
 
-        final_assembled_parts = self._merge_adjacent_text_parts(raw_assembled_parts)
+        final_assembled_parts = self._merge_adjacent_text_parts(
+            raw_assembled_parts
+        )
 
         # Condition for returning raw text string:
         # 1. No multimodal variable was *originally* a multimodal JSON string.
@@ -3633,7 +3721,9 @@ class MetricPromptBuilder(PromptTemplate):
         """Serializes dictionary to ordered string value without brackets."""
         if elements is None:
             return ""
-        return "\n".join(f"{key}: {value}" for key, value in sorted(elements.items()))
+        return "\n".join(
+            f"{key}: {value}" for key, value in sorted(elements.items())
+        )
 
     @model_validator(mode="before")
     @classmethod
@@ -3741,9 +3831,11 @@ class EvalRunInferenceConfig(_common.BaseModel):
         default=None,
         description="""The prompt template to use for inference.""",
     )
-    generate_content_config: Optional[genai_types.GenerateContentConfig] = Field(
-        default=None,
-        description="""The config for the generate content call.""",
+    generate_content_config: Optional[genai_types.GenerateContentConfig] = (
+        Field(
+            default=None,
+            description="""The config for the generate content call.""",
+        )
     )
 
 
@@ -3760,7 +3852,9 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
     """The config for the generate content call."""
 
 
-EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
+EvalRunInferenceConfigOrDict = Union[
+    EvalRunInferenceConfig, EvalRunInferenceConfigDict
+]
 
 
 class WinRateStats(_common.BaseModel):
@@ -3794,7 +3888,9 @@ class EvalCaseMetricResult(_common.BaseModel):
     metric_name: Optional[str] = Field(
         default=None, description="""Name of the metric."""
     )
-    score: Optional[float] = Field(default=None, description="""Score of the metric.""")
+    score: Optional[float] = Field(
+        default=None, description="""Score of the metric."""
+    )
     explanation: Optional[str] = Field(
         default=None, description="""Explanation of the metric."""
     )
@@ -3832,7 +3928,9 @@ class EvalCaseMetricResultDict(TypedDict, total=False):
     """Error message for the metric."""
 
 
-EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
+EvalCaseMetricResultOrDict = Union[
+    EvalCaseMetricResult, EvalCaseMetricResultDict
+]
 
 
 class ResponseCandidateResult(_common.BaseModel):
@@ -3937,7 +4035,9 @@ class AggregatedMetricResultDict(TypedDict, total=False):
     """Standard deviation of the metric."""
 
 
-AggregatedMetricResultOrDict = Union[AggregatedMetricResult, AggregatedMetricResultDict]
+AggregatedMetricResultOrDict = Union[
+    AggregatedMetricResult, AggregatedMetricResultDict
+]
 
 
 class EvaluationRunMetadata(_common.BaseModel):
@@ -3977,7 +4077,9 @@ class EvaluationRunMetadataDict(TypedDict, total=False):
     """Creation timestamp of the evaluation run."""
 
 
-EvaluationRunMetadataOrDict = Union[EvaluationRunMetadata, EvaluationRunMetadataDict]
+EvaluationRunMetadataOrDict = Union[
+    EvaluationRunMetadata, EvaluationRunMetadataDict
+]
 
 
 class EvaluationResult(_common.BaseModel):
@@ -4070,7 +4172,9 @@ class EvaluateMethodConfigDict(TypedDict, total=False):
     """The destination path for the evaluation results."""
 
 
-EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]
+EvaluateMethodConfigOrDict = Union[
+    EvaluateMethodConfig, EvaluateMethodConfigDict
+]
 
 
 class AgentEngine(_common.BaseModel):
@@ -4119,7 +4223,9 @@ class AgentEngine(_common.BaseModel):
         """
         if not isinstance(self.api_resource, ReasoningEngine):
             raise ValueError("api_resource is not initialized.")
-        self.api_client.delete(name=self.api_resource.name, force=force, config=config)
+        self.api_client.delete(
+            name=self.api_resource.name, force=force, config=config
+        )
 
 
 class AgentEngineDict(TypedDict, total=False):
