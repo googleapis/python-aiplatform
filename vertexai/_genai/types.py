@@ -2176,9 +2176,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=(
-                fields_to_exclude_callables if fields_to_exclude_callables else None
-            ),
+            exclude=fields_to_exclude_callables
+            if fields_to_exclude_callables
+            else None,
         )
 
         if version:
