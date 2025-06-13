@@ -75,6 +75,7 @@ from google.cloud.aiplatform_v1.services.vertex_rag_data_service import (
 from google.cloud.aiplatform_v1.services.vertex_rag_data_service import pagers
 from google.cloud.aiplatform_v1.services.vertex_rag_data_service import transports
 from google.cloud.aiplatform_v1.types import api_auth
+from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import vertex_rag_data
@@ -7807,6 +7808,7 @@ def test_create_rag_corpus_rest_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8036,6 +8038,7 @@ def test_update_rag_corpus_rest_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10176,6 +10179,7 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10421,6 +10425,7 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

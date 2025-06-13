@@ -48,6 +48,7 @@ except AttributeError:  # pragma: NO COVER
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.vertex_rag_data_service import pagers
+from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import vertex_rag_data
