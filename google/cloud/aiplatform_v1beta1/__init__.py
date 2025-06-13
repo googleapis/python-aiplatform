@@ -1202,6 +1202,7 @@ from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagEngineConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import RagFileMetadataConfig
 from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagManagedDbConfig
@@ -2128,6 +2129,7 @@ __all__ = (
     "RagEngineConfig",
     "RagFile",
     "RagFileChunkingConfig",
+    "RagFileMetadataConfig",
     "RagFileParsingConfig",
     "RagFileTransformationConfig",
     "RagManagedDbConfig",

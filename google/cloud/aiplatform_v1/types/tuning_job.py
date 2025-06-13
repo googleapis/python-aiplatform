@@ -529,9 +529,13 @@ class SupervisedTuningSpec(proto.Message):
 
     Attributes:
         training_dataset_uri (str):
-            Required. Training dataset used for tuning. The dataset can be specified as either a Cloud Storage path to a JSONL file or as the resource name of a Vertex Multimodal Dataset.
+            Required. Cloud Storage path to file
+            containing training dataset for tuning. The
+            dataset must be formatted as a JSONL file.
         validation_dataset_uri (str):
-            Optional. Validation dataset used for tuning. The dataset can be specified as either a Cloud Storage path to a JSONL file or as the resource name of a Vertex Multimodal Dataset.
+            Optional. Cloud Storage path to file
+            containing validation dataset for tuning. The
+            dataset must be formatted as a JSONL file.
         hyper_parameters (google.cloud.aiplatform_v1.types.SupervisedHyperParameters):
             Optional. Hyperparameters for SFT.
         export_last_checkpoint_only (bool):
