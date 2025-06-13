@@ -2824,12 +2824,16 @@ class MetricPromptBuilder(PromptTemplate):
 
         template_parts.extend(
             [
-                "\n# User Inputs and AI-generated Response",
-                "## User Inputs",
+                "\n",
+                "# User Inputs and AI-generated Response",
+                "## User Prompt",
+                "<prompt>{prompt}</prompt>",
+                "\n",
+                "## AI-generated Response",
+                "<response>{response}</response>",
             ]
         )
 
-        template_parts.extend(["## AI-generated Response", "{response}"])
         constructed_text = "\n".join(template_parts)
 
         data["text"] = constructed_text
