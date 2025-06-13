@@ -30,6 +30,7 @@ class AsyncClient:
         self._api_client = api_client
         self._aio = AsyncClient(self._api_client)
         self._evals = None
+        self._prompt_optimizer = None
 
     @property
     @_common.experimental_warning(
@@ -51,6 +52,12 @@ class AsyncClient:
         return self._evals.AsyncEvals(self._api_client)
 
     # TODO(b/424176979): add async prompt optimizer here.
+    def prompt_optimizer(self):
+        if self._prompt_optimizer is None:
+            self._prompt_optimizer = importlib.import_module(
+                ".prompt_optimizer", __package__
+            )
+        return self._prompt_optimizer.AsyncPromptOptimizer(self._api_client)
 
 
 class Client:
