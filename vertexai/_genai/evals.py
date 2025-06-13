@@ -18,6 +18,7 @@
 import logging
 from typing import Any, Callable, Optional, Union
 from urllib.parse import urlencode
+
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
@@ -25,6 +26,7 @@ from google.genai._api_client import BaseApiClient
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 import pandas as pd
+
 from . import _evals_common
 from . import types
 
@@ -1238,9 +1240,11 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig.model_validate(config)
         if isinstance(dataset, list):
             dataset = [
-                types.EvaluationDataset.model_validate(ds_item)
-                if isinstance(ds_item, dict)
-                else ds_item
+                (
+                    types.EvaluationDataset.model_validate(ds_item)
+                    if isinstance(ds_item, dict)
+                    else ds_item
+                )
                 for ds_item in dataset
             ]
         else:
