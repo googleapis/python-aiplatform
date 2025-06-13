@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.98.0](https://github.com/googleapis/python-aiplatform/compare/v1.97.0...v1.98.0) (2025-06-13)
+
+
+### Features
+
+* Add EncryptionSpec field for RagCorpus CMEK feature to v1 ([9b48d24](https://github.com/googleapis/python-aiplatform/commit/9b48d24ab90c57d4a49b3adf22a79cffbe065351))
+* Add PSC interface config support for Custom Training Jobs ([267b53d](https://github.com/googleapis/python-aiplatform/commit/267b53d4a7db87cdf70181f76adb5c6980a2136a))
+* Adding VAPO Prompt Optimizer (PO-data) to the genai SDK. ([701b8d4](https://github.com/googleapis/python-aiplatform/commit/701b8d40ba7b1265051a8b6a507e8a6b8e242a54))
+* Enable asia-south2 ([a1f4205](https://github.com/googleapis/python-aiplatform/commit/a1f420582908bc3d9a3201d36bf8d075758d4644))
+* Export global quota configs in preview sdk ([7f964d5](https://github.com/googleapis/python-aiplatform/commit/7f964d5625bea84fada767efc32661db34473a80))
+* Introduce RagFileMetadataConfig for importing metadata to Rag ([9b48d24](https://github.com/googleapis/python-aiplatform/commit/9b48d24ab90c57d4a49b3adf22a79cffbe065351))
+
+
+### Bug Fixes
+
+* Use none check to avoid 30s delay in agent run. ([84895b6](https://github.com/googleapis/python-aiplatform/commit/84895b6c6cd8d898d8472f0a1ace12a8b420717b))
+
 ## [1.97.0](https://github.com/googleapis/python-aiplatform/compare/v1.96.0...v1.97.0) (2025-06-11)
 
 
