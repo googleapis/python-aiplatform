@@ -14,7 +14,6 @@
 #
 
 import importlib
-
 from typing import Optional, Union
 
 import google.auth
@@ -24,6 +23,7 @@ from google.genai import types
 
 
 class AsyncClient:
+
     """Async Client for the GenAI SDK."""
 
     def __init__(self, api_client: client.Client):
@@ -49,6 +49,8 @@ class AsyncClient:
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
         return self._evals.AsyncEvals(self._api_client)
+
+    # TODO(b/424176979): add async prompt optimizer here.
 
 
 class Client:
@@ -101,6 +103,7 @@ class Client:
             http_options=http_options,
         )
         self._evals = None
+        self._prompt_optimizer = None
 
     @property
     @_common.experimental_warning(
@@ -120,3 +123,14 @@ class Client:
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
         return self._evals.Evals(self._api_client)
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI prompt optimizer module is experimental, "
+        "and may change in future versions."
+    )
+    def prompt_optimizer(self):
+        self._prompt_optimizer = importlib.import_module(
+            ".prompt_optimizer", __package__
+        )
+        return self._prompt_optimizer.PromptOptimizer(self._api_client)

@@ -2176,9 +2176,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=fields_to_exclude_callables
-            if fields_to_exclude_callables
-            else None,
+            exclude=(
+                fields_to_exclude_callables if fields_to_exclude_callables else None
+            ),
         )
 
         if version:
@@ -2379,6 +2379,81 @@ class EvaluateDatasetOperationDict(TypedDict, total=False):
 
 EvaluateDatasetOperationOrDict = Union[
     EvaluateDatasetOperation, EvaluateDatasetOperationDict
+]
+
+
+class OptimizeConfig(_common.BaseModel):
+    """Config for Prompt Optimizer."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class OptimizeConfigDict(TypedDict, total=False):
+    """Config for Prompt Optimizer."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+OptimizeConfigOrDict = Union[OptimizeConfig, OptimizeConfigDict]
+
+
+class _OptimizeRequestParameters(_common.BaseModel):
+    """Parameters for the optimize_prompt method."""
+
+    config: Optional[OptimizeConfig] = Field(default=None, description="""""")
+
+
+class _OptimizeRequestParametersDict(TypedDict, total=False):
+    """Parameters for the optimize_prompt method."""
+
+    config: Optional[OptimizeConfigDict]
+    """"""
+
+
+_OptimizeRequestParametersOrDict = Union[
+    _OptimizeRequestParameters, _OptimizeRequestParametersDict
+]
+
+
+class OptimizeResponse(_common.BaseModel):
+    """Response for the optimize_prompt method."""
+
+    pass
+
+
+class OptimizeResponseDict(TypedDict, total=False):
+    """Response for the optimize_prompt method."""
+
+    pass
+
+
+OptimizeResponseOrDict = Union[OptimizeResponse, OptimizeResponseDict]
+
+
+class PromptOptimizerVAPOConfig(_common.BaseModel):
+    """VAPO Prompt Optimizer Config."""
+
+    config_path: Optional[str] = Field(
+        default=None, description="""The gcs path to the config file."""
+    )
+    wait_for_completion: Optional[bool] = Field(default=None, description="""""")
+
+
+class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
+    """VAPO Prompt Optimizer Config."""
+
+    config_path: Optional[str]
+    """The gcs path to the config file."""
+
+    wait_for_completion: Optional[bool]
+    """"""
+
+
+PromptOptimizerVAPOConfigOrDict = Union[
+    PromptOptimizerVAPOConfig, PromptOptimizerVAPOConfigDict
 ]
 
 
