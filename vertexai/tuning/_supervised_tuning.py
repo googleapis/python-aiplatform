@@ -15,6 +15,7 @@
 
 from typing import Dict, Literal, Optional, Union
 
+from google.cloud.aiplatform.preview import datasets
 from google.cloud.aiplatform.utils import _ipython_utils
 from google.cloud.aiplatform_v1beta1.types import (
     tuning_job as gca_tuning_job_types,
@@ -26,8 +27,8 @@ from vertexai.tuning import _tuning
 def train(
     *,
     source_model: Union[str, generative_models.GenerativeModel],
-    train_dataset: str,
-    validation_dataset: Optional[str] = None,
+    train_dataset: Union[str, datasets.MultimodalDataset],
+    validation_dataset: Optional[Union[str, datasets.MultimodalDataset]] = None,
     tuned_model_display_name: Optional[str] = None,
     epochs: Optional[int] = None,
     learning_rate_multiplier: Optional[float] = None,
@@ -38,8 +39,8 @@ def train(
 
     Args:
         source_model (str): Model name for tuning, e.g., "gemini-1.0-pro-002".
-        train_dataset: Training dataset used for tuning. The dataset can be specified as either a Cloud Storage path to a JSONL file or as the resource name of a Vertex Multimodal Dataset.
-        validation_dataset: Validation dataset used for tuning. The dataset can be specified as either a Cloud Storage path to a JSONL file or as the resource name of a Vertex Multimodal Dataset.
+        train_dataset: Training dataset used for tuning. The dataset can be a JSONL file on Google Cloud Storage (specified as its GCS URI) or a Vertex Multimodal Dataset (either as the dataset object itself or as its resource name).
+        validation_dataset: Validation dataset used for tuning. The dataset can be a JSONL file on Google Cloud Storage (specified as its GCS URI) or a Vertex Multimodal Dataset (either as the dataset object itself or as the resource name).
         tuned_model_display_name: The display name of the
           [TunedModel][google.cloud.aiplatform.v1.Model]. The name can be up to
           128 characters long and can consist of any UTF-8 characters.
@@ -73,6 +74,10 @@ def train(
         raise ValueError(
             f"Unsupported adapter size: {adapter_size}. The supported sizes are [1, 4, 8, 16]"
         )
+    if isinstance(train_dataset, datasets.MultimodalDataset):
+        train_dataset = train_dataset.resource_name
+    if isinstance(validation_dataset, datasets.MultimodalDataset):
+        validation_dataset = validation_dataset.resource_name
     supervised_tuning_spec = gca_tuning_job_types.SupervisedTuningSpec(
         training_dataset_uri=train_dataset,
         validation_dataset_uri=validation_dataset,
