@@ -953,6 +953,7 @@ from .schedule_service import (
     UpdateScheduleRequest,
 )
 from .service_networking import (
+    DnsPeeringConfig,
     PrivateServiceConnectConfig,
     PscAutomatedEndpoints,
     PSCAutomationConfig,
@@ -1917,6 +1918,7 @@ __all__ = (
     "PauseScheduleRequest",
     "ResumeScheduleRequest",
     "UpdateScheduleRequest",
+    "DnsPeeringConfig",
     "PrivateServiceConnectConfig",
     "PscAutomatedEndpoints",
     "PSCAutomationConfig",

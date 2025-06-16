@@ -5336,7 +5336,16 @@ def test_create_persistent_resource_rest_call_success(request_type):
         "update_time": {},
         "labels": {},
         "network": "network_value",
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {
@@ -6025,7 +6034,16 @@ def test_update_persistent_resource_rest_call_success(request_type):
         "update_time": {},
         "labels": {},
         "network": "network_value",
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {
@@ -7219,7 +7237,16 @@ async def test_create_persistent_resource_rest_asyncio_call_success(request_type
         "update_time": {},
         "labels": {},
         "network": "network_value",
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {
@@ -7972,7 +7999,16 @@ async def test_update_persistent_resource_rest_asyncio_call_success(request_type
         "update_time": {},
         "labels": {},
         "network": "network_value",
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {

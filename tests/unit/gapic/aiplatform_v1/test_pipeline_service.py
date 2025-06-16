@@ -10079,7 +10079,16 @@ def test_create_pipeline_job_rest_call_success(request_type):
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "template_uri": "template_uri_value",
         "template_metadata": {"version": "version_value"},
         "schedule_name": "schedule_name_value",
@@ -13098,7 +13107,16 @@ async def test_create_pipeline_job_rest_asyncio_call_success(request_type):
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "template_uri": "template_uri_value",
         "template_metadata": {"version": "version_value"},
         "schedule_name": "schedule_name_value",

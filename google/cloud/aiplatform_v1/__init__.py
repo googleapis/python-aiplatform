@@ -858,6 +858,7 @@ from .types.schedule_service import ListSchedulesResponse
 from .types.schedule_service import PauseScheduleRequest
 from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
+from .types.service_networking import DnsPeeringConfig
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
@@ -1310,6 +1311,7 @@ __all__ = (
     "DirectRawPredictResponse",
     "DirectUploadSource",
     "DiskSpec",
+    "DnsPeeringConfig",
     "DoubleArray",
     "DynamicRetrievalConfig",
     "EncryptionSpec",
