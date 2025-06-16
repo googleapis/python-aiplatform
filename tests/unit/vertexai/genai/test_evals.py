@@ -632,8 +632,20 @@ class TestEvalsClientInference:
                 prompt_feedback=None,
             ),
         ]
+
+        def mock_generate_content_logic(*args, **kwargs):
+            contents = kwargs.get("contents")
+            first_part_text = contents[0]["parts"][0]["text"]
+            if "Placeholder prompt 1" in first_part_text:
+                return mock_generate_content_responses[0]
+            elif "Placeholder prompt 2.1" in first_part_text:
+                return mock_generate_content_responses[1]
+            elif "Placeholder prompt 3" in first_part_text:
+                return mock_generate_content_responses[2]
+            return genai_types.GenerateContentResponse()
+
         mock_models.return_value.generate_content.side_effect = (
-            mock_generate_content_responses
+            mock_generate_content_logic
         )
 
         inference_result = self.client.evals.run_inference(
@@ -2437,6 +2449,7 @@ class TestEvalsRunEvaluation:
         )
 
         assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert result.evaluation_dataset == [input_dataset]
         assert len(result.summary_metrics) == 1
         summary_metric = result.summary_metrics[0]
         assert summary_metric.metric_name == "exact_match"
@@ -2477,6 +2490,7 @@ class TestEvalsRunEvaluation:
             metrics=[translation_metric],
         )
         assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert result.evaluation_dataset == [input_dataset]
         assert len(result.summary_metrics) == 1
         summary_metric = result.summary_metrics[0]
         assert summary_metric.metric_name == "comet"
@@ -2504,6 +2518,7 @@ class TestEvalsRunEvaluation:
             metrics=[llm_metric],
         )
         assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert result.evaluation_dataset == [input_dataset]
         assert len(result.summary_metrics) == 1
         summary_metric = result.summary_metrics[0]
         assert summary_metric.metric_name == "text_quality"
@@ -2542,6 +2557,7 @@ class TestEvalsRunEvaluation:
             metrics=[custom_metric],
         )
         assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert result.evaluation_dataset == [input_dataset]
         assert len(result.summary_metrics) == 1
         summary_metric = result.summary_metrics[0]
         assert summary_metric.metric_name == "my_custom"
@@ -2587,6 +2603,7 @@ class TestEvalsRunEvaluation:
             )
 
             assert mock_llm_process.call_count == 3
+            assert result.evaluation_dataset == [input_dataset]
             assert len(result.summary_metrics) == 1
             summary = result.summary_metrics[0]
             assert summary.metric_name == "quality"
@@ -2637,6 +2654,7 @@ class TestEvalsRunEvaluation:
                 metrics=[llm_metric],
             )
             assert mock_llm_process.call_count == 2
+            assert result.evaluation_dataset == [input_dataset]
             assert len(result.summary_metrics) == 1
             summary = result.summary_metrics[0]
             assert summary.metric_name == "custom_quality"
@@ -2682,6 +2700,7 @@ class TestEvalsRunEvaluation:
                 metrics=[llm_metric],
             )
             assert mock_llm_process.call_count == 2
+            assert result.evaluation_dataset == [input_dataset]
             summary = result.summary_metrics[0]
             assert summary.metric_name == "error_fallback_quality"
             assert summary.num_cases_total == 2
@@ -2719,6 +2738,7 @@ class TestEvalsRunEvaluation:
                 dataset=input_dataset,
                 metrics=[llm_metric],
             )
+            assert result.evaluation_dataset == [input_dataset]
             summary = result.summary_metrics[0]
             assert summary.mean_score == 0.8
             assert summary.num_cases_valid == 1
@@ -2747,6 +2767,7 @@ class TestEvalsRunEvaluation:
             mock_api_client_fixture
         )
         assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert result.evaluation_dataset == [input_dataset]
         assert len(result.summary_metrics) == 1
         summary_metric = result.summary_metrics[0]
         assert summary_metric.metric_name == "safety"
@@ -2774,6 +2795,7 @@ class TestEvalsRunEvaluation:
             mock_api_client_fixture
         )
         assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert result.evaluation_dataset == [input_dataset]
         assert len(result.summary_metrics) == 1
         summary_metric = result.summary_metrics[0]
         assert summary_metric.metric_name == "safety"
@@ -2805,7 +2827,9 @@ class TestEvalsRunEvaluation:
         )
 
         mock_eval_dependencies["mock_upload_to_gcs"].assert_called_once_with(
-            data=result.model_dump(mode="json", exclude_none=True),
+            data=result.model_dump(
+                mode="json", exclude_none=True, exclude={"evaluation_dataset"}
+            ),
             gcs_dest_prefix=gcs_dest,
             filename_prefix="evaluation_result",
         )
