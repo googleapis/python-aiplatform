@@ -28,8 +28,8 @@ class AsyncClient:
 
     def __init__(self, api_client: client.Client):
         self._api_client = api_client
-        self._aio = AsyncClient(self._api_client)
         self._evals = None
+        self._prompt_optimizer = None
 
     @property
     @_common.experimental_warning(
@@ -51,6 +51,12 @@ class AsyncClient:
         return self._evals.AsyncEvals(self._api_client)
 
     # TODO(b/424176979): add async prompt optimizer here.
+    def prompt_optimizer(self):
+        if self._prompt_optimizer is None:
+            self._prompt_optimizer = importlib.import_module(
+                ".prompt_optimizer", __package__
+            )
+        return self._prompt_optimizer.AsyncPromptOptimizer(self._api_client)
 
 
 class Client:
@@ -102,6 +108,7 @@ class Client:
             debug_config=self._debug_config,
             http_options=http_options,
         )
+        self._aio = AsyncClient(self._api_client)
         self._evals = None
         self._prompt_optimizer = None
 
@@ -134,3 +141,11 @@ class Client:
             ".prompt_optimizer", __package__
         )
         return self._prompt_optimizer.PromptOptimizer(self._api_client)
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI async client is experimental, "
+        "and may change in future versions."
+    )
+    def aio(self):
+        return self._aio
