@@ -19,6 +19,7 @@ import dataclasses
 from typing import List, Optional, Sequence, Union
 
 from google.protobuf import timestamp_pb2
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 
 
 @dataclasses.dataclass
@@ -190,6 +191,7 @@ class RagCorpus:
         vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
         backend_config: The backend config of the RagCorpus. It can be a data
             store and/or retrieval engine.
+        encryption_spec: The encryption spec of the RagCorpus. Immutable.
     """
 
     name: Optional[str] = None
@@ -202,6 +204,7 @@ class RagCorpus:
             None,
         ]
     ] = None
+    encryption_spec: Optional[EncryptionSpec] = None
 
 
 @dataclasses.dataclass

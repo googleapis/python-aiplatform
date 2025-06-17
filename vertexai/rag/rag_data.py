@@ -46,6 +46,7 @@ from vertexai.rag.rag_inline_citations import (
 from vertexai.rag.utils import (
     _gapic_utils,
 )
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 from vertexai.rag.utils.resources import (
     JiraSource,
     LayoutParserConfig,
@@ -71,6 +72,7 @@ def create_corpus(
             None,
         ]
     ] = None,
+    encryption_spec: Optional[EncryptionSpec] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -96,6 +98,7 @@ def create_corpus(
             specified.
         backend_config: The backend config of the RagCorpus, specifying a
           data store and/or embedding model.
+        encryption_spec: The encryption spec of the RagCorpus.
     Returns:
         RagCorpus.
     Raises:
@@ -121,6 +124,12 @@ def create_corpus(
     elif vertex_ai_search_config:
         _gapic_utils.set_vertex_ai_search_config(
             vertex_ai_search_config=vertex_ai_search_config,
+            rag_corpus=rag_corpus,
+        )
+
+    if encryption_spec:
+        _gapic_utils.set_encryption_spec(
+            encryption_spec=encryption_spec,
             rag_corpus=rag_corpus,
         )
 
