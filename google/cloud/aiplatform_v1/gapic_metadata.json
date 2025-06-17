@@ -5066,6 +5066,11 @@
                 "get_rag_corpus"
               ]
             },
+            "GetRagEngineConfig": {
+              "methods": [
+                "get_rag_engine_config"
+              ]
+            },
             "GetRagFile": {
               "methods": [
                 "get_rag_file"
@@ -5089,6 +5094,11 @@
             "UpdateRagCorpus": {
               "methods": [
                 "update_rag_corpus"
+              ]
+            },
+            "UpdateRagEngineConfig": {
+              "methods": [
+                "update_rag_engine_config"
               ]
             },
             "UploadRagFile": {
@@ -5121,6 +5131,11 @@
                 "get_rag_corpus"
               ]
             },
+            "GetRagEngineConfig": {
+              "methods": [
+                "get_rag_engine_config"
+              ]
+            },
             "GetRagFile": {
               "methods": [
                 "get_rag_file"
@@ -5144,6 +5159,11 @@
             "UpdateRagCorpus": {
               "methods": [
                 "update_rag_corpus"
+              ]
+            },
+            "UpdateRagEngineConfig": {
+              "methods": [
+                "update_rag_engine_config"
               ]
             },
             "UploadRagFile": {
@@ -5176,6 +5196,11 @@
                 "get_rag_corpus"
               ]
             },
+            "GetRagEngineConfig": {
+              "methods": [
+                "get_rag_engine_config"
+              ]
+            },
             "GetRagFile": {
               "methods": [
                 "get_rag_file"
@@ -5199,6 +5224,11 @@
             "UpdateRagCorpus": {
               "methods": [
                 "update_rag_corpus"
+              ]
+            },
+            "UpdateRagEngineConfig": {
+              "methods": [
+                "update_rag_engine_config"
               ]
             },
             "UploadRagFile": {
