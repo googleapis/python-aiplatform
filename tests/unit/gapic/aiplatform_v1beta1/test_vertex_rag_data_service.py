@@ -10512,7 +10512,12 @@ def test_update_rag_engine_config_rest_call_success(request_type):
     }
     request_init["rag_engine_config"] = {
         "name": "projects/sample1/locations/sample2/ragEngineConfig",
-        "rag_managed_db_config": {"enterprise": {}, "basic": {}},
+        "rag_managed_db_config": {
+            "enterprise": {},
+            "scaled": {},
+            "basic": {},
+            "unprovisioned": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -13486,7 +13491,12 @@ async def test_update_rag_engine_config_rest_asyncio_call_success(request_type):
     }
     request_init["rag_engine_config"] = {
         "name": "projects/sample1/locations/sample2/ragEngineConfig",
-        "rag_managed_db_config": {"enterprise": {}, "basic": {}},
+        "rag_managed_db_config": {
+            "enterprise": {},
+            "scaled": {},
+            "basic": {},
+            "unprovisioned": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
