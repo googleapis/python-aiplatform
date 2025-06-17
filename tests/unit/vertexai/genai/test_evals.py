@@ -92,8 +92,8 @@ class TestEvals:
         mock_evaluate.assert_called_once()
 
 
-class TestEvalsClientInference:
-    """Unit tests for the Evals client inference method."""
+class TestEvalsRunInference:
+    """Unit tests for the Evals run_inference method."""
 
     def setup_method(self):
         importlib.reload(aiplatform_initializer)
@@ -1229,7 +1229,10 @@ class TestGeminiEvalDataConverter:
         result_dataset = self.converter.convert(raw_data)
         eval_case = result_dataset.eval_cases[0]
         assert len(eval_case.responses) == 1
-        assert eval_case.responses[0].response is None
+        assert (
+            eval_case.responses[0].response.parts[0].text
+            == _evals_data_converters._PLACEHOLDER_RESPONSE_TEXT
+        )
 
     def test_convert_invalid_content_structure_raises_value_error(self):
         raw_data = [
@@ -1299,6 +1302,29 @@ class TestGeminiEvalDataConverter:
         assert len(result_dataset.eval_cases) == 2
         assert result_dataset.eval_cases[0].prompt.parts[0].text == "Item 1"
         assert result_dataset.eval_cases[1].prompt.parts[0].text == "Item 2"
+
+    def test_convert_with_raw_string_response(self):
+        """Tests conversion when the response is a raw string."""
+        raw_data = [
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Hello"}]}]
+                },
+                "response": "Hi from a raw string",
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        assert isinstance(result_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(result_dataset.eval_cases) == 1
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Hi from a raw string")],
+        )
 
 
 class TestFlattenEvalDataConverter:
