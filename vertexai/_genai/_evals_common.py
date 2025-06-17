@@ -176,7 +176,7 @@ def _extract_contents_for_inference(
 def _execute_inference_concurrently(
     api_client: BaseApiClient,
     model_or_fn: Union[str, Callable[[Any], Any]],
-    prompt_dataset: "pd.DataFrame",
+    prompt_dataset: pd.DataFrame,
     progress_desc: str,
     gemini_config: Optional[genai_types.GenerateContentConfig] = None,
     inference_fn: Optional[Callable[[Any, Any, Any, Any], Any]] = None,
@@ -251,7 +251,7 @@ def _execute_inference_concurrently(
 def _run_gemini_inference(
     api_client: BaseApiClient,
     model: str,
-    prompt_dataset: "pd.DataFrame",
+    prompt_dataset: pd.DataFrame,
     config: Optional[genai_types.GenerateContentConfig] = None,
 ) -> list[Union[genai_types.GenerateContentResponse, dict[str, Any]]]:
     """Internal helper to run inference using Gemini model with concurrency."""
@@ -533,7 +533,7 @@ def _get_dataset_source(
 
 
 def _resolve_dataset_inputs(
-    dataset: Union[types.EvaluationDataset, list[types.EvaluationDataset]],
+    dataset: list[types.EvaluationDataset],
     dataset_schema: Optional[Literal["gemini", "flatten"]],
     loader: _evals_utils.EvalDatasetLoader,
 ) -> tuple[types.EvaluationDataset, int]:
@@ -552,19 +552,12 @@ def _resolve_dataset_inputs(
         evaluation cases.
         - num_response_candidates: The number of response candidates.
     """
-    num_response_candidates: int
-    datasets_to_process: list[types.EvaluationDataset]
+    if not dataset:
+        raise ValueError("Input dataset list cannot be empty.")
 
-    if isinstance(dataset, list):
-        if not dataset:
-            raise ValueError("Input dataset list cannot be empty.")
-        num_response_candidates = len(dataset)
-        datasets_to_process = dataset
-        logger.info("Processing %s datasets for comparison.", num_response_candidates)
-    else:
-        num_response_candidates = 1
-        datasets_to_process = [dataset]
-        logger.info("Processing a single dataset.")
+    num_response_candidates = len(dataset)
+    datasets_to_process = dataset
+    logger.info("Processing %s dataset(s).", num_response_candidates)
 
     loaded_raw_datasets: list[list[dict[str, Any]]] = []
     schemas_for_merge: list[str] = []
@@ -667,14 +660,40 @@ def _execute_evaluation(
     dataset_schema: Optional[Literal["gemini", "flatten"]] = None,
     dest: Optional[str] = None,
 ) -> types.EvaluationResult:
-    """Evaluates a dataset using the provided metrics."""
+    """Evaluates a dataset using the provided metrics.
+
+    Args:
+        api_client: The API client.
+        dataset: The dataset to evaluate.
+        metrics: The metrics to evaluate the dataset against.
+        dataset_schema: The schema of the dataset.
+        dest: The destination to save the evaluation results.
+
+    Returns:
+        The evaluation result.
+    """
 
     logger.info("Preparing dataset(s) and metrics...")
 
-    loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
+    if isinstance(dataset, types.EvaluationDataset):
+        dataset_list = [dataset]
+    elif isinstance(dataset, list):
+        for item in dataset:
+            if not isinstance(item, types.EvaluationDataset):
+                raise TypeError(
+                    f"Unsupported dataset type: {type(item)}. "
+                    "Must be EvaluationDataset."
+                )
+        dataset_list = dataset
+    else:
+        raise TypeError(
+            f"Unsupported dataset type: {type(dataset)}. Must be an"
+            " EvaluationDataset or a list of EvaluationDataset."
+        )
 
+    loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
     processed_eval_dataset, num_response_candidates = _resolve_dataset_inputs(
-        dataset=dataset, dataset_schema=dataset_schema, loader=loader
+        dataset=dataset_list, dataset_schema=dataset_schema, loader=loader
     )
 
     resolved_metrics = _resolve_metrics(metrics, api_client)
@@ -693,13 +712,19 @@ def _execute_evaluation(
     )
     t2 = time.perf_counter()
     logger.info("Evaluation took: %f seconds", t2 - t1)
+
+    evaluation_result.evaluation_dataset = dataset_list
     logger.info("Evaluation run completed.")
 
     if dest:
         uploaded_path = _evals_utils.GcsUtils(
             api_client=api_client
         ).upload_json_to_prefix(
-            data=evaluation_result.model_dump(mode="json", exclude_none=True),
+            data=evaluation_result.model_dump(
+                mode="json",
+                exclude_none=True,
+                exclude={"evaluation_dataset"},
+            ),
             gcs_dest_prefix=dest,
             filename_prefix="evaluation_result",
         )

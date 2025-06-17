@@ -2176,9 +2176,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=(
-                fields_to_exclude_callables if fields_to_exclude_callables else None
-            ),
+            exclude=fields_to_exclude_callables
+            if fields_to_exclude_callables
+            else None,
         )
 
         if version:
@@ -2824,12 +2824,16 @@ class MetricPromptBuilder(PromptTemplate):
 
         template_parts.extend(
             [
-                "\n# User Inputs and AI-generated Response",
-                "## User Inputs",
+                "\n",
+                "# User Inputs and AI-generated Response",
+                "## User Prompt",
+                "<prompt>{prompt}</prompt>",
+                "\n",
+                "## AI-generated Response",
+                "<response>{response}</response>",
             ]
         )
 
-        template_parts.extend(["## AI-generated Response", "{response}"])
         constructed_text = "\n".join(template_parts)
 
         data["text"] = constructed_text
@@ -3093,6 +3097,10 @@ class EvaluationResult(_common.BaseModel):
         default=None,
         description="""A list of summary-level evaluation results for each metric.""",
     )
+    evaluation_dataset: Optional[list[EvaluationDataset]] = Field(
+        default=None,
+        description="""The input evaluation dataset(s) for the evaluation run.""",
+    )
     metadata: Optional[EvaluationRunMetadata] = Field(
         default=None, description="""Metadata for the evaluation run."""
     )
@@ -3106,6 +3114,9 @@ class EvaluationResultDict(TypedDict, total=False):
 
     summary_metrics: Optional[list[AggregatedMetricResultDict]]
     """A list of summary-level evaluation results for each metric."""
+
+    evaluation_dataset: Optional[list[EvaluationDatasetDict]]
+    """The input evaluation dataset(s) for the evaluation run."""
 
     metadata: Optional[EvaluationRunMetadataDict]
     """Metadata for the evaluation run."""

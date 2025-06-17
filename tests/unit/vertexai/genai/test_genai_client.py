@@ -16,11 +16,12 @@
 # pylint: disable=protected-access,bad-continuation
 
 import importlib
+import pytest
 
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
-import pytest
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -48,3 +49,9 @@ class TestGenAiClient:
         assert test_client._api_client.vertexai
         assert test_client._api_client.project == _TEST_PROJECT
         assert test_client._api_client.location == _TEST_LOCATION
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("google_auth_mock")
+    async def test_async_client(self):
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        assert isinstance(test_client.aio, vertexai._genai.client.AsyncClient)
