@@ -858,6 +858,7 @@ from .types.schedule_service import ListSchedulesResponse
 from .types.schedule_service import PauseScheduleRequest
 from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
+from .types.service_networking import DnsPeeringConfig
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
@@ -980,10 +981,12 @@ from .types.vertex_rag_data import ImportRagFilesConfig
 from .types.vertex_rag_data import RagChunk
 from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
+from .types.vertex_rag_data import RagEngineConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
 from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
+from .types.vertex_rag_data import RagManagedDbConfig
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
 from .types.vertex_rag_data import VertexAiSearchConfig
@@ -992,6 +995,7 @@ from .types.vertex_rag_data_service import CreateRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagFileRequest
 from .types.vertex_rag_data_service import GetRagCorpusRequest
+from .types.vertex_rag_data_service import GetRagEngineConfigRequest
 from .types.vertex_rag_data_service import GetRagFileRequest
 from .types.vertex_rag_data_service import ImportRagFilesOperationMetadata
 from .types.vertex_rag_data_service import ImportRagFilesRequest
@@ -1002,6 +1006,8 @@ from .types.vertex_rag_data_service import ListRagFilesRequest
 from .types.vertex_rag_data_service import ListRagFilesResponse
 from .types.vertex_rag_data_service import UpdateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import UpdateRagCorpusRequest
+from .types.vertex_rag_data_service import UpdateRagEngineConfigOperationMetadata
+from .types.vertex_rag_data_service import UpdateRagEngineConfigRequest
 from .types.vertex_rag_data_service import UploadRagFileRequest
 from .types.vertex_rag_data_service import UploadRagFileResponse
 from .types.vertex_rag_service import AugmentPromptRequest
@@ -1310,6 +1316,7 @@ __all__ = (
     "DirectRawPredictResponse",
     "DirectUploadSource",
     "DiskSpec",
+    "DnsPeeringConfig",
     "DoubleArray",
     "DynamicRetrievalConfig",
     "EncryptionSpec",
@@ -1446,6 +1453,7 @@ __all__ = (
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
     "GetRagCorpusRequest",
+    "GetRagEngineConfigRequest",
     "GetRagFileRequest",
     "GetReasoningEngineRequest",
     "GetScheduleRequest",
@@ -1754,10 +1762,12 @@ __all__ = (
     "RagContexts",
     "RagCorpus",
     "RagEmbeddingModelConfig",
+    "RagEngineConfig",
     "RagFile",
     "RagFileChunkingConfig",
     "RagFileParsingConfig",
     "RagFileTransformationConfig",
+    "RagManagedDbConfig",
     "RagQuery",
     "RagRetrievalConfig",
     "RagVectorDbConfig",
@@ -1981,6 +1991,8 @@ __all__ = (
     "UpdatePersistentResourceRequest",
     "UpdateRagCorpusOperationMetadata",
     "UpdateRagCorpusRequest",
+    "UpdateRagEngineConfigOperationMetadata",
+    "UpdateRagEngineConfigRequest",
     "UpdateReasoningEngineOperationMetadata",
     "UpdateReasoningEngineRequest",
     "UpdateScheduleRequest",

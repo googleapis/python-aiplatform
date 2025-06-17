@@ -27,6 +27,7 @@ __protobuf__ = proto.module(
         "PrivateServiceConnectConfig",
         "PscAutomatedEndpoints",
         "PscInterfaceConfig",
+        "DnsPeeringConfig",
     },
 )
 
@@ -145,11 +146,59 @@ class PscInterfaceConfig(proto.Message):
             attachment]
             (https://cloud.google.com/vpc/docs/create-manage-network-attachments#create-network-attachments).
             This field is only used for resources using PSC-I.
+        dns_peering_configs (MutableSequence[google.cloud.aiplatform_v1beta1.types.DnsPeeringConfig]):
+            Optional. DNS peering configurations. When
+            specified, Vertex AI will attempt to configure
+            DNS peering zones in the tenant project VPC to
+            resolve the specified domains using the target
+            network's Cloud DNS. The user must grant the
+            dns.peer role to the Vertex AI Service Agent on
+            the target project.
     """
 
     network_attachment: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    dns_peering_configs: MutableSequence["DnsPeeringConfig"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="DnsPeeringConfig",
+    )
+
+
+class DnsPeeringConfig(proto.Message):
+    r"""DNS peering configuration. These configurations are used to
+    create DNS peering zones in the Vertex tenant project VPC,
+    enabling resolution of records within the specified domain
+    hosted in the target network's Cloud DNS.
+
+    Attributes:
+        domain (str):
+            Required. The DNS name suffix of the zone
+            being peered to, e.g.,
+            "my-internal-domain.corp.". Must end with a dot.
+        target_project (str):
+            Required. The project ID hosting the Cloud
+            DNS managed zone that contains the 'domain'. The
+            Vertex AI Service Agent requires the dns.peer
+            role on this project.
+        target_network (str):
+            Required. The VPC network name in the target_project where
+            the DNS zone specified by 'domain' is visible.
+    """
+
+    domain: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    target_project: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    target_network: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 

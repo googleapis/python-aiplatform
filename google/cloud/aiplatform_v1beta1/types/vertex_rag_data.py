@@ -1497,23 +1497,38 @@ class RagManagedDbConfig(proto.Message):
 
     Attributes:
         enterprise (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Enterprise):
-            Sets the RagManagedDb to the Enterprise tier.
-            This is the default tier if not explicitly
-            chosen.
+            Deprecated: Please use ``Scaled`` tier instead. Sets the
+            RagManagedDb to the Enterprise tier. This is the default
+            tier if not explicitly chosen.
+
+            This field is a member of `oneof`_ ``tier``.
+        scaled (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Scaled):
+            Sets the RagManagedDb to the Scaled tier.
 
             This field is a member of `oneof`_ ``tier``.
         basic (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Basic):
             Sets the RagManagedDb to the Basic tier.
 
             This field is a member of `oneof`_ ``tier``.
+        unprovisioned (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Unprovisioned):
+            Sets the RagManagedDb to the Unprovisioned
+            tier.
+
+            This field is a member of `oneof`_ ``tier``.
     """
 
     class Enterprise(proto.Message):
-        r"""Enterprise tier offers production grade performance along
-        with autoscaling functionality. It is suitable for customers
-        with large amounts of data or performance sensitive workloads.
+        r"""Deprecated: Please use ``Scaled`` tier instead. Enterprise tier
+        offers production grade performance along with autoscaling
+        functionality. It is suitable for customers with large amounts of
+        data or performance sensitive workloads.
 
-        NOTE: This is the default tier if not explicitly chosen.
+        """
+
+    class Scaled(proto.Message):
+        r"""Scaled tier offers production grade performance along with
+        autoscaling functionality. It is suitable for customers with
+        large amounts of data or performance sensitive workloads.
 
         """
 
@@ -1526,6 +1541,19 @@ class RagManagedDbConfig(proto.Message):
         -  Latency insensitive workload.
         -  Only using RAG Engine with external vector DBs.
 
+        NOTE: This is the default tier if not explicitly chosen.
+
+        """
+
+    class Unprovisioned(proto.Message):
+        r"""Disables the RAG Engine service and deletes all your data
+        held within this service. This will halt the billing of the
+        service.
+
+        NOTE: Once deleted the data cannot be recovered. To start using
+        RAG Engine again, you will need to update the tier by calling
+        the UpdateRagEngineConfig API.
+
         """
 
     enterprise: Enterprise = proto.Field(
@@ -1534,11 +1562,23 @@ class RagManagedDbConfig(proto.Message):
         oneof="tier",
         message=Enterprise,
     )
+    scaled: Scaled = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="tier",
+        message=Scaled,
+    )
     basic: Basic = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="tier",
         message=Basic,
+    )
+    unprovisioned: Unprovisioned = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="tier",
+        message=Unprovisioned,
     )
 
 
