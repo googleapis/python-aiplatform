@@ -27,6 +27,17 @@ from . import types
 
 logger = logging.getLogger("vertexai_genai._evals_data_converters")
 
+_PLACEHOLDER_RESPONSE_TEXT = "Error: Missing response for this candidate"
+
+
+def _create_placeholder_response_candidate(
+    text: str = _PLACEHOLDER_RESPONSE_TEXT,
+) -> types.ResponseCandidate:
+    """Creates a ResponseCandidate with placeholder text."""
+    return types.ResponseCandidate(
+        response=genai_types.Content(parts=[genai_types.Part(text=text)])
+    )
+
 
 class EvalDatasetSchema(_common.CaseInSensitiveEnum):
     """Represents the schema of an evaluation dataset."""
@@ -115,23 +126,40 @@ class _GeminiEvalDataConverter(_EvalDataConverter):
                 reference,
             ) = self._parse_request(request_data)
 
-            generate_content_response = (
-                genai_types.GenerateContentResponse.model_validate(response_data)
-            )
-
             responses = []
-            if generate_content_response.candidates:
-                candidate = generate_content_response.candidates[0]
-                if candidate.content:
-                    responses.append(
-                        types.ResponseCandidate(
-                            response=genai_types.Content.model_validate(
-                                candidate.content
-                            )
+            if isinstance(response_data, str):
+                responses.append(
+                    types.ResponseCandidate(
+                        response=genai_types.Content(
+                            parts=[genai_types.Part(text=response_data)]
                         )
                     )
-            else:  # Handle cases where there are no candidates (e.g., prompt blocked)
-                responses.append(types.ResponseCandidate(response=None))
+                )
+            elif isinstance(response_data, dict):
+                try:
+                    generate_content_response = (
+                        genai_types.GenerateContentResponse.model_validate(
+                            response_data
+                        )
+                    )
+                    if generate_content_response.candidates:
+                        candidate = generate_content_response.candidates[0]
+                        if candidate.content:
+                            responses.append(
+                                types.ResponseCandidate(
+                                    response=genai_types.Content.model_validate(
+                                        candidate.content
+                                    )
+                                )
+                            )
+                    else:  # Handle cases where there are no candidates.
+                        responses.append(_create_placeholder_response_candidate())
+                except Exception:
+                    # Fallback for dicts that don't match the schema, treat as empty.
+                    responses.append(_create_placeholder_response_candidate())
+            else:
+                # For any other type, treat as an empty/invalid response.
+                responses.append(_create_placeholder_response_candidate())
 
             eval_case = types.EvalCase(
                 eval_case_id=eval_case_id,
@@ -268,29 +296,56 @@ def auto_detect_dataset_schema(
 ) -> EvalDatasetSchema:
     """Detects the schema of a raw dataset."""
     if not raw_dataset:
+        logger.debug("Empty dataset, returning UNKNOWN schema.")
         return EvalDatasetSchema.UNKNOWN
 
     first_item = raw_dataset[0]
-    try:
-        _GeminiEvalDataConverter().convert([first_item])
-        return EvalDatasetSchema.GEMINI
-    except (ValueError, KeyError, AttributeError, TypeError) as e:
-        logger.debug(
-            "First item not parsable as Gemini schema (error: %s), "
-            "falling back to key-based checks.",
-            e,
+    if not isinstance(first_item, dict):
+        logger.warning(
+            "First item in dataset is not a dictionary. Cannot determine schema."
         )
-        pass
+        return EvalDatasetSchema.UNKNOWN
 
-    # Fallback to key-based detection for flatten schema
     keys = set(first_item.keys())
+
+    request_field = first_item.get("request")
+    if isinstance(request_field, dict) and isinstance(
+        request_field.get("contents"), list
+    ):
+        try:
+            _GeminiEvalDataConverter().convert([first_item])
+            logger.debug(
+                "Detected GEMINI schema based on 'request.contents' presence and"
+                " successful conversion."
+            )
+            return EvalDatasetSchema.GEMINI
+        except (ValueError, KeyError, AttributeError, TypeError) as e:
+            logger.debug(
+                "First item looked like Gemini schema (due to 'request.contents') but"
+                " conversion failed (error: %s). Will try other schemas.",
+                e,
+            )
+
+    # Check for flatten schema if Gemini check failed or wasn't applicable
     if {"prompt", "response"}.issubset(keys) or {
         "response",
         "reference",
     }.issubset(keys):
-        return EvalDatasetSchema.FLATTEN
-    else:
-        return EvalDatasetSchema.UNKNOWN
+        try:
+            _FlattenEvalDataConverter().convert([first_item])
+            logger.debug(
+                "Detected FLATTEN schema based on key presence and successful"
+                " conversion."
+            )
+            return EvalDatasetSchema.FLATTEN
+        except (ValueError, KeyError, AttributeError, TypeError) as e:
+            logger.debug(
+                "Flatten schema key check passed, but conversion failed (error: %s).",
+                e,
+            )
+
+    logger.debug("Could not confidently determine schema. Returning UNKNOWN.")
+    return EvalDatasetSchema.UNKNOWN
 
 
 _SCHEMA_TO_CONVERTER = {
@@ -330,18 +385,6 @@ def _get_text_from_reference(
     if reference and hasattr(reference, "response") and reference.response:
         return _get_first_part_text(reference.response)
     return None
-
-
-_PLACEHOLDER_RESPONSE_TEXT = "Error: Missing response for this candidate"
-
-
-def _create_placeholder_response_candidate(
-    text: str = _PLACEHOLDER_RESPONSE_TEXT,
-) -> types.ResponseCandidate:
-    """Creates a ResponseCandidate with placeholder text."""
-    return types.ResponseCandidate(
-        response=genai_types.Content(parts=[genai_types.Part(text=text)])
-    )
 
 
 def _validate_case_consistency(
