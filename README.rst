@@ -1,6 +1,28 @@
 Vertex AI SDK for Python
 =================================================
 
+|GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
+
+`Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
+
+- `Client Library Documentation`_
+- `Product Documentation`_
+
+.. |GA| image:: https://img.shields.io/badge/support-ga-gold.svg
+   :target: https://github.com/googleapis/google-cloud-python/blob/main/README.rst#general-availability
+.. |pypi| image:: https://img.shields.io/pypi/v/google-cloud-aiplatform.svg
+   :target: https://pypi.org/project/google-cloud-aiplatform/
+.. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
+   :target: https://pypi.org/project/google-cloud-aiplatform/
+.. |unit-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.svg
+   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.html
+.. |system-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.svg
+   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.html
+.. |sample-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.svg
+   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.html
+.. _Vertex AI: https://cloud.google.com/vertex-ai/docs
+.. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
+.. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
 Gemini API and Generative AI on Vertex AI
 -----------------------------------------
@@ -70,29 +92,6 @@ Then run evaluation by providing the inference results and specifying the metric
     )
 
 -----------------------------------------
-
-|GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
-
-`Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
-
-- `Client Library Documentation`_
-- `Product Documentation`_
-
-.. |GA| image:: https://img.shields.io/badge/support-ga-gold.svg
-   :target: https://github.com/googleapis/google-cloud-python/blob/main/README.rst#general-availability
-.. |pypi| image:: https://img.shields.io/pypi/v/google-cloud-aiplatform.svg
-   :target: https://pypi.org/project/google-cloud-aiplatform/
-.. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
-   :target: https://pypi.org/project/google-cloud-aiplatform/
-.. |unit-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.svg
-   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.html
-.. |system-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.svg
-   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.html
-.. |sample-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.svg
-   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.html
-.. _Vertex AI: https://cloud.google.com/vertex-ai/docs
-.. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
-.. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
 Quick Start
 -----------
