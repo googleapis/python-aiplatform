@@ -1917,11 +1917,61 @@ class TestEndpoint:
             if not sync:
                 test_endpoint.wait()
 
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_autoscaling_target_request_count_per_minute(
+        self, deploy_model_mock, sync
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint.deploy(
+            model=test_model,
+            machine_type=_TEST_MACHINE_TYPE,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            autoscaling_target_request_count_per_minute=600,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
+            machine_spec=gca_machine_resources.MachineSpec(
+                machine_type=_TEST_MACHINE_TYPE,
+            ),
+            min_replica_count=1,
+            max_replica_count=1,
+            autoscaling_metric_specs=[
+                gca_machine_resources.AutoscalingMetricSpec(
+                    metric_name=_TEST_METRIC_NAME_REQUEST_COUNT,
+                    target=600,
+                ),
+            ],
+        )
+
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures(
         "get_endpoint_mock", "get_model_mock", "preview_deploy_model_mock"
     )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_with_autoscaling_target_request_count_per_minute(
+    def test_deploy_with_autoscaling_target_request_count_per_minute_preview(
         self, preview_deploy_model_mock, sync
     ):
         test_endpoint = preview_models.Endpoint(_TEST_ENDPOINT_NAME)
