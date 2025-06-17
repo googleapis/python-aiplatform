@@ -41,6 +41,8 @@ __protobuf__ = proto.module(
         "RagFileParsingConfig",
         "UploadRagFileConfig",
         "ImportRagFilesConfig",
+        "RagManagedDbConfig",
+        "RagEngineConfig",
     },
 )
 
@@ -985,6 +987,106 @@ class ImportRagFilesConfig(proto.Message):
     rebuild_ann_index: bool = proto.Field(
         proto.BOOL,
         number=19,
+    )
+
+
+class RagManagedDbConfig(proto.Message):
+    r"""Configuration message for RagManagedDb used by RagEngine.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        scaled (google.cloud.aiplatform_v1.types.RagManagedDbConfig.Scaled):
+            Sets the RagManagedDb to the Scaled tier.
+
+            This field is a member of `oneof`_ ``tier``.
+        basic (google.cloud.aiplatform_v1.types.RagManagedDbConfig.Basic):
+            Sets the RagManagedDb to the Basic tier.
+
+            This field is a member of `oneof`_ ``tier``.
+        unprovisioned (google.cloud.aiplatform_v1.types.RagManagedDbConfig.Unprovisioned):
+            Sets the RagManagedDb to the Unprovisioned
+            tier.
+
+            This field is a member of `oneof`_ ``tier``.
+    """
+
+    class Scaled(proto.Message):
+        r"""Scaled tier offers production grade performance along with
+        autoscaling functionality. It is suitable for customers with
+        large amounts of data or performance sensitive workloads.
+
+        """
+
+    class Basic(proto.Message):
+        r"""Basic tier is a cost-effective and low compute tier suitable for the
+        following cases:
+
+        -  Experimenting with RagManagedDb.
+        -  Small data size.
+        -  Latency insensitive workload.
+        -  Only using RAG Engine with external vector DBs.
+
+        NOTE: This is the default tier if not explicitly chosen.
+
+        """
+
+    class Unprovisioned(proto.Message):
+        r"""Disables the RAG Engine service and deletes all your data
+        held within this service. This will halt the billing of the
+        service.
+
+        NOTE: Once deleted the data cannot be recovered. To start using
+        RAG Engine again, you will need to update the tier by calling
+        the UpdateRagEngineConfig API.
+
+        """
+
+    scaled: Scaled = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="tier",
+        message=Scaled,
+    )
+    basic: Basic = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="tier",
+        message=Basic,
+    )
+    unprovisioned: Unprovisioned = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="tier",
+        message=Unprovisioned,
+    )
+
+
+class RagEngineConfig(proto.Message):
+    r"""Config for RagEngine.
+
+    Attributes:
+        name (str):
+            Identifier. The name of the RagEngineConfig. Format:
+            ``projects/{project}/locations/{location}/ragEngineConfig``
+        rag_managed_db_config (google.cloud.aiplatform_v1.types.RagManagedDbConfig):
+            The config of the RagManagedDb used by
+            RagEngine.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    rag_managed_db_config: "RagManagedDbConfig" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="RagManagedDbConfig",
     )
 
 
