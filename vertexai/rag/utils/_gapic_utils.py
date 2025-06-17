@@ -17,6 +17,7 @@
 import re
 from typing import Any, Dict, Optional, Sequence, Union
 from google.cloud.aiplatform_v1.types import api_auth
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 from google.cloud.aiplatform_v1 import (
     RagEmbeddingModelConfig as GapicRagEmbeddingModelConfig,
     GoogleDriveSource,
@@ -203,6 +204,7 @@ def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
         backend_config=convert_gapic_to_backend_config(
             gapic_rag_corpus.vector_db_config
         ),
+        encryption_spec=gapic_rag_corpus.encryption_spec,
     )
     return rag_corpus
 
@@ -223,6 +225,7 @@ def convert_gapic_to_rag_corpus_no_embedding_model_config(
         backend_config=convert_gapic_to_backend_config(
             rag_vector_db_config_no_embedding_model_config
         ),
+        encryption_spec=gapic_rag_corpus.encryption_spec,
     )
     return rag_corpus
 
@@ -658,6 +661,28 @@ def set_backend_config(
         set_embedding_model_config(
             backend_config.rag_embedding_model_config, rag_corpus
         )
+
+
+def set_encryption_spec(
+    encryption_spec: EncryptionSpec,
+    rag_corpus: GapicRagCorpus,
+) -> None:
+    """Sets the encryption spec for the rag corpus."""
+    # Raises value error if encryption_spec.kms_key_name is None or empty,
+    if encryption_spec.kms_key_name is None or not encryption_spec.kms_key_name:
+        raise ValueError("kms_key_name must be set if encryption_spec is set.")
+
+    # Raises value error if encryption_spec.kms_key_name is not a valid KMS key name.
+    if not re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/keyRings/(?P<key_ring>.+?)/cryptoKeys/(?P<crypto_key>.+?)$",
+        encryption_spec.kms_key_name,
+    ):
+        raise ValueError(
+            "kms_key_name must be of the format "
+            "`projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`"
+        )
+
+    rag_corpus.encryption_spec = encryption_spec
 
 
 def set_vertex_ai_search_config(

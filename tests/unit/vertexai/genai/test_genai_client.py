@@ -55,3 +55,8 @@ class TestGenAiClient:
     async def test_async_client(self):
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         assert isinstance(test_client.aio, vertexai._genai.client.AsyncClient)
+
+    @pytest.mark.usefixtures("google_auth_mock")
+    def test_types(self):
+        assert vertexai.types is not None
+        assert vertexai.types.LLMMetric is not None

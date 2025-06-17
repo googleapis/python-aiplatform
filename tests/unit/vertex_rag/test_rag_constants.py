@@ -62,6 +62,7 @@ from google.cloud.aiplatform_v1 import (
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform_v1.types import api_auth
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform_v1.types import content
@@ -82,6 +83,9 @@ TEST_WEAVIATE_HTTP_ENDPOINT = "test.weaviate.com"
 TEST_WEAVIATE_COLLECTION_NAME = "test-collection"
 TEST_WEAVIATE_API_KEY_SECRET_VERSION = (
     "projects/test-project/secrets/test-secret/versions/1"
+)
+TEST_ENCRYPTION_SPEC = EncryptionSpec(
+    kms_key_name="projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key"
 )
 TEST_PINECONE_INDEX_NAME = "test-pinecone-index"
 TEST_PINECONE_API_KEY_SECRET_VERSION = (
@@ -105,6 +109,14 @@ TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
 )
 TEST_GAPIC_RAG_CORPUS.vector_db_config.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
     TEST_PROJECT, TEST_REGION
+)
+TEST_GAPIC_CMEK_RAG_CORPUS = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    encryption_spec=EncryptionSpec(
+        kms_key_name="projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key"
+    ),
 )
 TEST_GAPIC_RAG_CORPUS_VERTEX_VECTOR_SEARCH = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
@@ -147,6 +159,14 @@ TEST_RAG_CORPUS = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     backend_config=TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
+)
+TEST_CMEK_RAG_CORPUS = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    encryption_spec=EncryptionSpec(
+        kms_key_name="projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key"
+    ),
 )
 TEST_BACKEND_CONFIG_PINECONE_CONFIG = RagVectorDbConfig(
     vector_db=TEST_PINECONE_CONFIG,
