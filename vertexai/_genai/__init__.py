@@ -29,7 +29,7 @@ def __getattr__(name):
                 _evals = importlib.import_module(".evals", __package__)
             except ImportError as e:
                 raise ImportError(
-                    "The 'evals' module requires 'pandas' and 'tqdm'. "
+                    "The 'evals' module requires additional dependencies. "
                     "Please install them using pip install "
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
