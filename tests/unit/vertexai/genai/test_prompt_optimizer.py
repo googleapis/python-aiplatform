@@ -29,8 +29,9 @@ from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state_compat,
 )
 
-# from google.cloud.aiplatform.utils import gcs_utils
-# from google.genai import client
+from google.cloud.aiplatform.utils import gcs_utils
+from google.genai import client
+from vertexai._genai import types
 import pytest
 
 
@@ -77,29 +78,27 @@ class TestPromptOptimizer:
             location=_TEST_LOCATION,
         )
 
-    # @pytest.mark.usefixtures("google_auth_mock")
-    # def test_prompt_optimizer_client(self):
-    #     test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-    #     assert test_client is not None
-    #     assert test_client._api_client.vertexai
-    #     assert test_client._api_client.project == _TEST_PROJECT
-    #     assert test_client._api_client.location == _TEST_LOCATION
+    @pytest.mark.usefixtures("google_auth_mock")
+    def test_prompt_optimizer_client(self):
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        assert test_client.prompt_optimizer is not None
 
-    # @mock.patch.object(client.Client, "_get_api_client")
-    # @mock.patch.object(
-    #     gcs_utils.resource_manager_utils, "get_project_number", return_value=12345
-    # )
-    # def test_prompt_optimizer_optimize(
-    #     self, mock_get_project_number, mock_client, mock_create_custom_job
-    # ):
-    #     """Test that prompt_optimizer.optimize method creates a custom job."""
-    #     test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-    #     test_client.prompt_optimizer.optimize(
-    #         method="vapo",
-    #         config={
-    #             "config_path": "gs://ssusie-vapo-sdk-test/config.json",
-    #             "wait_for_completion": False,
-    #         },
-    #     )
-    #     mock_create_custom_job.assert_called_once()
-    #     mock_get_project_number.assert_called_once()
+    @mock.patch.object(client.Client, "_get_api_client")
+    @mock.patch.object(
+        gcs_utils.resource_manager_utils, "get_project_number", return_value=12345
+    )
+    def test_prompt_optimizer_optimize(
+        self, mock_get_project_number, mock_client, mock_create_custom_job
+    ):
+        """Test that prompt_optimizer.optimize method creates a custom job."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_client.prompt_optimizer.optimize(
+            method="vapo",
+            config=types.PromptOptimizerVAPOConfig(
+                config_path="gs://ssusie-vapo-sdk-test/config.json",
+                wait_for_completion=False,
+                service_account="test-service-account",
+            )
+        )
+        mock_create_custom_job.assert_called_once()
+        # mock_get_project_number.assert_called_once()
