@@ -67,10 +67,12 @@ from vertexai.preview.rag import (
     RagVectorDbConfig,
     RankService,
     Ranking,
+    Scaled,
     SharePointSource,
     SharePointSources,
     SlackChannel,
     SlackChannelsSource,
+    Unprovisioned,
     VertexAiSearchConfig,
     VertexFeatureStore,
     VertexPredictionEndpoint,
@@ -561,6 +563,14 @@ TEST_RAG_ENGINE_CONFIG_BASIC = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=RagManagedDbConfig(tier=Basic()),
 )
+TEST_RAG_ENGINE_CONFIG_SCALED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Scaled()),
+)
+TEST_RAG_ENGINE_CONFIG_UNPROVISIONED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Unprovisioned()),
+)
 TEST_RAG_ENGINE_CONFIG_ENTERPRISE = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=RagManagedDbConfig(tier=Enterprise()),
@@ -573,6 +583,18 @@ TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC = GapicRagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=GapicRagManagedDbConfig(
         basic=GapicRagManagedDbConfig.Basic()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SCALED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        scaled=GapicRagManagedDbConfig.Scaled()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_UNPROVISIONED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        unprovisioned=GapicRagManagedDbConfig.Unprovisioned()
     ),
 )
 TEST_GAPIC_RAG_ENGINE_CONFIG_ENTERPRISE = GapicRagEngineConfig(
