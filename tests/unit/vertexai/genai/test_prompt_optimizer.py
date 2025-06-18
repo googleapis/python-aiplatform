@@ -102,3 +102,23 @@ class TestPromptOptimizer:
         )
         mock_create_custom_job.assert_called_once()
         mock_get_project_number.assert_called_once()
+
+    @pytest.mark.asyncio
+    @mock.patch.object(client.Client, "_get_api_client")
+    @mock.patch.object(
+        gcs_utils.resource_manager_utils, "get_project_number", return_value=12345
+    )
+    async def test_async_prompt_optimizer_optimize(
+        self, mock_get_project_number, mock_client, mock_create_custom_job
+    ):
+        """Test that prompt_optimizer.optimize method creates a custom job."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        await test_client.aio.prompt_optimizer.optimize(
+            method="vapo",
+            config={
+                "config_path": "gs://ssusie-vapo-sdk-test/config.json",
+                "wait_for_completion": False,
+            },
+        )
+        mock_create_custom_job.assert_called_once()
+        mock_get_project_number.assert_called_once()
