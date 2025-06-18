@@ -23,6 +23,7 @@ import google.api_core
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 import google.protobuf
@@ -143,6 +144,11 @@ class ModelGardenServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.deploy: gapic_v1.method.wrap_method(
+                self.deploy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -205,6 +211,11 @@ class ModelGardenServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def operations_client(self):
+        """Return the client designed to process long-running operations."""
+        raise NotImplementedError()
+
+    @property
     def get_publisher_model(
         self,
     ) -> Callable[
@@ -212,6 +223,15 @@ class ModelGardenServiceTransport(abc.ABC):
         Union[
             publisher_model.PublisherModel, Awaitable[publisher_model.PublisherModel]
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def deploy(
+        self,
+    ) -> Callable[
+        [model_garden_service.DeployRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
