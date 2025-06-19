@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.98.0](https://github.com/googleapis/python-aiplatform/compare/v1.97.0...v1.98.0) (2025-06-19)
+
+
+### Features
+
+* Add DnsPeeringConfig in service_networking.proto ([c5bb99b](https://github.com/googleapis/python-aiplatform/commit/c5bb99b80dbbc76ababdba1228154717370eb5dd))
+* Add DnsPeeringConfig in service_networking.proto ([c5bb99b](https://github.com/googleapis/python-aiplatform/commit/c5bb99b80dbbc76ababdba1228154717370eb5dd))
+* Add EncryptionSpec field for RagCorpus CMEK feature to v1 ([9b48d24](https://github.com/googleapis/python-aiplatform/commit/9b48d24ab90c57d4a49b3adf22a79cffbe065351))
+* Add PSC interface config support for Custom Training Jobs ([267b53d](https://github.com/googleapis/python-aiplatform/commit/267b53d4a7db87cdf70181f76adb5c6980a2136a))
+* Add RagEngineConfig update/get APIs to v1 ([c5bb99b](https://github.com/googleapis/python-aiplatform/commit/c5bb99b80dbbc76ababdba1228154717370eb5dd))
+* Add Scaled tier for RagEngineConfig to v1beta, equivalent to Enterprise ([c5bb99b](https://github.com/googleapis/python-aiplatform/commit/c5bb99b80dbbc76ababdba1228154717370eb5dd))
+* Added `autoscaling_target_request_count_per_minute` to model deployment on Endpoint and Model classes ([4df909c](https://github.com/googleapis/python-aiplatform/commit/4df909cdfddf071c4b87a7d1dabed56437d528a2))
+* Adding VAPO Prompt Optimizer (PO-data) to the genai SDK. ([701b8d4](https://github.com/googleapis/python-aiplatform/commit/701b8d40ba7b1265051a8b6a507e8a6b8e242a54))
+* Enable asia-south2 ([a1f4205](https://github.com/googleapis/python-aiplatform/commit/a1f420582908bc3d9a3201d36bf8d075758d4644))
+* Enable Vertex Multimodal Dataset as input to supervised fine-tuning. ([959d798](https://github.com/googleapis/python-aiplatform/commit/959d79869468c1fa66b7691eb8c4071a5af3eec4))
+* Export global quota configs in preview sdk ([7f964d5](https://github.com/googleapis/python-aiplatform/commit/7f964d5625bea84fada767efc32661db34473a80))
+* GenAI SDK client - add `show` method for `EvaluationResult` and `EvaluationDataset` classes in IPython environment ([c43de0a](https://github.com/googleapis/python-aiplatform/commit/c43de0ab174b22adf95f1b97c701ec2c4b4581fb))
+* Introduce RagFileMetadataConfig for importing metadata to Rag ([9b48d24](https://github.com/googleapis/python-aiplatform/commit/9b48d24ab90c57d4a49b3adf22a79cffbe065351))
+* RAG - Add Basic, Scaled and Unprovisioned tier in v1. ([726d3a2](https://github.com/googleapis/python-aiplatform/commit/726d3a26c81b95163416af5b3da2367086317573))
+* RAG - Add Scaled and Unprovisioned tier in preview. ([726d3a2](https://github.com/googleapis/python-aiplatform/commit/726d3a26c81b95163416af5b3da2367086317573))
+* RAG - Implement v1 `get_rag_engine_config` in `rag_data.py` ([726d3a2](https://github.com/googleapis/python-aiplatform/commit/726d3a26c81b95163416af5b3da2367086317573))
+* RAG - Implement v1 `update_rag_engine_config` in `rag_data.py` ([726d3a2](https://github.com/googleapis/python-aiplatform/commit/726d3a26c81b95163416af5b3da2367086317573))
+* Update v1 `create_corpus` to accept `encryption_spec` in `rag_data.py` ([865a68c](https://github.com/googleapis/python-aiplatform/commit/865a68c1273aa4e4e946a203bf226b80a723523f))
+
+
+### Bug Fixes
+
+* Update supported python version for create_reasoning_engine ([0059c01](https://github.com/googleapis/python-aiplatform/commit/0059c01b7395fc93be8d9214c938299678f67d3e))
+* Use none check to avoid 30s delay in agent run. ([84895b6](https://github.com/googleapis/python-aiplatform/commit/84895b6c6cd8d898d8472f0a1ace12a8b420717b))
+
+
+### Documentation
+
+* Add GenAI client examples to readme ([f1e17a6](https://github.com/googleapis/python-aiplatform/commit/f1e17a6b35fb31b7a5eb589a132df5df0ad7e3e4))
+
 ## [1.97.0](https://github.com/googleapis/python-aiplatform/compare/v1.96.0...v1.97.0) (2025-06-11)
 
 
