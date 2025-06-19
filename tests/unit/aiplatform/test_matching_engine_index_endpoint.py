@@ -1647,6 +1647,7 @@ class TestMatchingEngineIndexEndpoint:
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
                             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
                             numeric_restricts=_TEST_NUMERIC_NAMESPACE,
+                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
                         )
                         for test_query in _TEST_QUERIES
                     ],
@@ -1700,6 +1701,7 @@ class TestMatchingEngineIndexEndpoint:
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
                             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
                             numeric_restricts=_TEST_NUMERIC_NAMESPACE,
+                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
                         )
                         for test_query in _TEST_QUERIES
                     ],
@@ -1756,6 +1758,7 @@ class TestMatchingEngineIndexEndpoint:
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
                             fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
                             numeric_restricts=_TEST_NUMERIC_NAMESPACE,
+                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
                         )
                         for test_query in _TEST_QUERIES
                     ],
@@ -1786,6 +1789,7 @@ class TestMatchingEngineIndexEndpoint:
             filter=_TEST_FILTER,
             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
         )
 
         batch_request = match_service_pb2.BatchMatchRequest(
@@ -1806,6 +1810,7 @@ class TestMatchingEngineIndexEndpoint:
                             ],
                             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
                         )
                     ],
                 )
@@ -1836,6 +1841,7 @@ class TestMatchingEngineIndexEndpoint:
             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
             psc_network=_TEST_PSC_NETWORK1,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
         )
 
         batch_request = match_service_pb2.BatchMatchRequest(
@@ -1856,6 +1862,7 @@ class TestMatchingEngineIndexEndpoint:
                             ],
                             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
                         )
                     ],
                 )
@@ -1888,6 +1895,7 @@ class TestMatchingEngineIndexEndpoint:
             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
             psc_network=_TEST_PSC_NETWORK3,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
         )
 
         batch_request = match_service_pb2.BatchMatchRequest(
@@ -1908,6 +1916,7 @@ class TestMatchingEngineIndexEndpoint:
                             ],
                             per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
                             approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                            embedding_enabled=_TEST_RETURN_FULL_DATAPOINT,
                         )
                     ],
                 )
