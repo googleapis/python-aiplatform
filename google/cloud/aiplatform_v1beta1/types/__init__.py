@@ -769,6 +769,25 @@ from .match_service import (
     ReadIndexDatapointsRequest,
     ReadIndexDatapointsResponse,
 )
+from .memory_bank import (
+    Memory,
+)
+from .memory_bank_service import (
+    CreateMemoryOperationMetadata,
+    CreateMemoryRequest,
+    DeleteMemoryOperationMetadata,
+    DeleteMemoryRequest,
+    GenerateMemoriesOperationMetadata,
+    GenerateMemoriesRequest,
+    GenerateMemoriesResponse,
+    GetMemoryRequest,
+    ListMemoriesRequest,
+    ListMemoriesResponse,
+    RetrieveMemoriesRequest,
+    RetrieveMemoriesResponse,
+    UpdateMemoryOperationMetadata,
+    UpdateMemoryRequest,
+)
 from .metadata_schema import (
     MetadataSchema,
 )
@@ -1129,6 +1148,7 @@ from .publisher_model import (
 )
 from .reasoning_engine import (
     ReasoningEngine,
+    ReasoningEngineContextSpec,
     ReasoningEngineSpec,
 )
 from .reasoning_engine_execution_service import (
@@ -2044,6 +2064,21 @@ __all__ = (
     "FindNeighborsResponse",
     "ReadIndexDatapointsRequest",
     "ReadIndexDatapointsResponse",
+    "Memory",
+    "CreateMemoryOperationMetadata",
+    "CreateMemoryRequest",
+    "DeleteMemoryOperationMetadata",
+    "DeleteMemoryRequest",
+    "GenerateMemoriesOperationMetadata",
+    "GenerateMemoriesRequest",
+    "GenerateMemoriesResponse",
+    "GetMemoryRequest",
+    "ListMemoriesRequest",
+    "ListMemoriesResponse",
+    "RetrieveMemoriesRequest",
+    "RetrieveMemoriesResponse",
+    "UpdateMemoryOperationMetadata",
+    "UpdateMemoryRequest",
     "MetadataSchema",
     "AddContextArtifactsAndExecutionsRequest",
     "AddContextArtifactsAndExecutionsResponse",
@@ -2329,6 +2364,7 @@ __all__ = (
     "StreamRawPredictRequest",
     "PublisherModel",
     "ReasoningEngine",
+    "ReasoningEngineContextSpec",
     "ReasoningEngineSpec",
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",

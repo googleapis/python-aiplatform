@@ -29,6 +29,7 @@ __protobuf__ = proto.module(
     manifest={
         "ReasoningEngineSpec",
         "ReasoningEngine",
+        "ReasoningEngineContextSpec",
     },
 )
 
@@ -52,7 +53,8 @@ class ReasoningEngineSpec(proto.Message):
         agent_framework (str):
             Optional. The OSS agent framework used to
             develop the agent. Currently supported values:
-            "langchain", "langgraph", "ag2", "custom".
+            "google-adk", "langchain", "langgraph", "ag2",
+            "llama-index", "custom".
     """
 
     class PackageSpec(proto.Message):
@@ -148,8 +150,9 @@ class ReasoningEngine(proto.Message):
 
     Attributes:
         name (str):
-            Identifier. The resource name of the
-            ReasoningEngine.
+            Identifier. The resource name of the ReasoningEngine.
+            Format:
+            ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
         display_name (str):
             Required. The display name of the
             ReasoningEngine.
@@ -169,6 +172,9 @@ class ReasoningEngine(proto.Message):
             Optional. Used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
+        context_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec):
+            Optional. Configuration for how Agent Engine
+            sub-resources should manage context.
     """
 
     name: str = proto.Field(
@@ -201,6 +207,86 @@ class ReasoningEngine(proto.Message):
     etag: str = proto.Field(
         proto.STRING,
         number=6,
+    )
+    context_spec: "ReasoningEngineContextSpec" = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message="ReasoningEngineContextSpec",
+    )
+
+
+class ReasoningEngineContextSpec(proto.Message):
+    r"""Configuration for how Agent Engine sub-resources should
+    manage context.
+
+    Attributes:
+        memory_bank_config (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec.MemoryBankConfig):
+            Optional. Specification for a Memory Bank,
+            which manages memories for the Agent Engine.
+    """
+
+    class MemoryBankConfig(proto.Message):
+        r"""Specification for a Memory Bank.
+
+        Attributes:
+            generation_config (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec.MemoryBankConfig.GenerationConfig):
+                Optional. Configuration for how to generate
+                memories for the Memory Bank.
+            similarity_search_config (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig):
+                Optional. Configuration for how to perform similarity search
+                on memories. If not set, the Memory Bank will use the
+                default embedding model ``text-embedding-005``.
+        """
+
+        class GenerationConfig(proto.Message):
+            r"""Configuration for how to generate memories.
+
+            Attributes:
+                model (str):
+                    Required. The model used to generate memories. Format:
+                    ``projects/{project}/locations/{location}/publishers/google/models/{model}``
+                    or
+                    ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+            """
+
+            model: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+
+        class SimilaritySearchConfig(proto.Message):
+            r"""Configuration for how to perform similarity search on
+            memories.
+
+            Attributes:
+                embedding_model (str):
+                    Required. The model used to generate embeddings to lookup
+                    similar memories. Format:
+                    ``projects/{project}/locations/{location}/publishers/google/models/{model}``
+                    or
+                    ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+            """
+
+            embedding_model: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+
+        generation_config: "ReasoningEngineContextSpec.MemoryBankConfig.GenerationConfig" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message="ReasoningEngineContextSpec.MemoryBankConfig.GenerationConfig",
+        )
+        similarity_search_config: "ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message="ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig",
+        )
+
+    memory_bank_config: MemoryBankConfig = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=MemoryBankConfig,
     )
 
 

@@ -68,6 +68,8 @@ from .services.llm_utility_service import LlmUtilityServiceClient
 from .services.llm_utility_service import LlmUtilityServiceAsyncClient
 from .services.match_service import MatchServiceClient
 from .services.match_service import MatchServiceAsyncClient
+from .services.memory_bank_service import MemoryBankServiceClient
+from .services.memory_bank_service import MemoryBankServiceAsyncClient
 from .services.metadata_service import MetadataServiceClient
 from .services.metadata_service import MetadataServiceAsyncClient
 from .services.migration_service import MigrationServiceClient
@@ -737,6 +739,21 @@ from .types.match_service import FindNeighborsRequest
 from .types.match_service import FindNeighborsResponse
 from .types.match_service import ReadIndexDatapointsRequest
 from .types.match_service import ReadIndexDatapointsResponse
+from .types.memory_bank import Memory
+from .types.memory_bank_service import CreateMemoryOperationMetadata
+from .types.memory_bank_service import CreateMemoryRequest
+from .types.memory_bank_service import DeleteMemoryOperationMetadata
+from .types.memory_bank_service import DeleteMemoryRequest
+from .types.memory_bank_service import GenerateMemoriesOperationMetadata
+from .types.memory_bank_service import GenerateMemoriesRequest
+from .types.memory_bank_service import GenerateMemoriesResponse
+from .types.memory_bank_service import GetMemoryRequest
+from .types.memory_bank_service import ListMemoriesRequest
+from .types.memory_bank_service import ListMemoriesResponse
+from .types.memory_bank_service import RetrieveMemoriesRequest
+from .types.memory_bank_service import RetrieveMemoriesResponse
+from .types.memory_bank_service import UpdateMemoryOperationMetadata
+from .types.memory_bank_service import UpdateMemoryRequest
 from .types.metadata_schema import MetadataSchema
 from .types.metadata_service import AddContextArtifactsAndExecutionsRequest
 from .types.metadata_service import AddContextArtifactsAndExecutionsResponse
@@ -1030,6 +1047,7 @@ from .types.prediction_service import StreamingRawPredictResponse
 from .types.prediction_service import StreamRawPredictRequest
 from .types.publisher_model import PublisherModel
 from .types.reasoning_engine import ReasoningEngine
+from .types.reasoning_engine import ReasoningEngineContextSpec
 from .types.reasoning_engine import ReasoningEngineSpec
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
@@ -1283,6 +1301,7 @@ __all__ = (
     "JobServiceAsyncClient",
     "LlmUtilityServiceAsyncClient",
     "MatchServiceAsyncClient",
+    "MemoryBankServiceAsyncClient",
     "MetadataServiceAsyncClient",
     "MigrationServiceAsyncClient",
     "ModelGardenServiceAsyncClient",
@@ -1455,6 +1474,8 @@ __all__ = (
     "CreateIndexEndpointRequest",
     "CreateIndexOperationMetadata",
     "CreateIndexRequest",
+    "CreateMemoryOperationMetadata",
+    "CreateMemoryRequest",
     "CreateMetadataSchemaRequest",
     "CreateMetadataStoreOperationMetadata",
     "CreateMetadataStoreRequest",
@@ -1531,6 +1552,8 @@ __all__ = (
     "DeleteHyperparameterTuningJobRequest",
     "DeleteIndexEndpointRequest",
     "DeleteIndexRequest",
+    "DeleteMemoryOperationMetadata",
+    "DeleteMemoryRequest",
     "DeleteMetadataStoreOperationMetadata",
     "DeleteMetadataStoreRequest",
     "DeleteModelDeploymentMonitoringJobRequest",
@@ -1719,6 +1742,9 @@ __all__ = (
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
+    "GenerateMemoriesOperationMetadata",
+    "GenerateMemoriesRequest",
+    "GenerateMemoriesResponse",
     "GenerateVideoResponse",
     "GenerationConfig",
     "GenericOperationMetadata",
@@ -1749,6 +1775,7 @@ __all__ = (
     "GetHyperparameterTuningJobRequest",
     "GetIndexEndpointRequest",
     "GetIndexRequest",
+    "GetMemoryRequest",
     "GetMetadataSchemaRequest",
     "GetMetadataStoreRequest",
     "GetModelDeploymentMonitoringJobRequest",
@@ -1880,6 +1907,8 @@ __all__ = (
     "ListIndexEndpointsResponse",
     "ListIndexesRequest",
     "ListIndexesResponse",
+    "ListMemoriesRequest",
+    "ListMemoriesResponse",
     "ListMetadataSchemasRequest",
     "ListMetadataSchemasResponse",
     "ListMetadataStoresRequest",
@@ -1955,6 +1984,8 @@ __all__ = (
     "ManualBatchTuningParameters",
     "MatchServiceClient",
     "Measurement",
+    "Memory",
+    "MemoryBankServiceClient",
     "MergeVersionAliasesRequest",
     "MetadataSchema",
     "MetadataServiceClient",
@@ -2156,6 +2187,7 @@ __all__ = (
     "ReadTensorboardUsageRequest",
     "ReadTensorboardUsageResponse",
     "ReasoningEngine",
+    "ReasoningEngineContextSpec",
     "ReasoningEngineExecutionServiceClient",
     "ReasoningEngineServiceClient",
     "ReasoningEngineSpec",
@@ -2183,6 +2215,8 @@ __all__ = (
     "RetrievalMetadata",
     "RetrieveContextsRequest",
     "RetrieveContextsResponse",
+    "RetrieveMemoriesRequest",
+    "RetrieveMemoriesResponse",
     "RolloutOptions",
     "RougeInput",
     "RougeInstance",
@@ -2417,6 +2451,8 @@ __all__ = (
     "UpdateIndexEndpointRequest",
     "UpdateIndexOperationMetadata",
     "UpdateIndexRequest",
+    "UpdateMemoryOperationMetadata",
+    "UpdateMemoryRequest",
     "UpdateModelDeploymentMonitoringJobOperationMetadata",
     "UpdateModelDeploymentMonitoringJobRequest",
     "UpdateModelMonitorOperationMetadata",
