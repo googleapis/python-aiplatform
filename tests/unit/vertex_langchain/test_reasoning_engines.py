@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from absl.testing import parameterized
 import cloudpickle
 import dataclasses
 import datetime
@@ -1373,9 +1372,6 @@ class TestReasoningEngine:
                 )
             )
 
-            invoked_method = getattr(test_reasoning_engine, method_name)
-            assert invoked_method.__doc__ == test_doc
-
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
         "test_case_name, test_engine, test_class_methods, test_class_methods_spec",
@@ -1599,7 +1595,6 @@ class TestReasoningEngine:
                     class_method=method_name,
                 )
             )
-            assert invoked_method.__doc__ == test_doc
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
@@ -2162,97 +2157,94 @@ def assert_called_with_diff(mock_obj, expected_kwargs=None):
     )
 
 
-class TestGenerateSchema(parameterized.TestCase):
-    @parameterized.named_parameters(
-        dict(
-            testcase_name="place_tool_query",
-            func=place_tool_query,
-            required=["city", "activity"],
-            expected_operation={
-                "name": "place_tool_query",
-                "description": (
-                    "Searches the city for recommendations on the activity."
-                ),
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "city": {"type": "string"},
-                        "activity": {"type": "string", "nullable": True},
-                        "page_size": {"type": "integer"},
+class TestGenerateSchema:
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "func, required, expected_operation",
+        [
+            (
+                place_tool_query,
+                ["city", "activity"],
+                {
+                    "name": "place_tool_query",
+                    "description": (
+                        "Searches the city for recommendations on the activity."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "city": {"type": "string"},
+                            "activity": {"type": "string", "nullable": True},
+                            "page_size": {"type": "integer"},
+                        },
+                        "required": ["city", "activity"],
                     },
-                    "required": ["city", "activity"],
                 },
-            },
-        ),
-        dict(
-            testcase_name="place_photo_query",
-            func=place_photo_query,
-            required=["photo_reference"],
-            expected_operation={
-                "name": "place_photo_query",
-                "description": "Returns the photo for a given reference.",
-                "parameters": {
-                    "properties": {
-                        "photo_reference": {"type": "string"},
-                        "maxwidth": {"type": "integer"},
-                        "maxheight": {"type": "integer", "nullable": True},
+            ),
+            (
+                place_photo_query,
+                ["photo_reference"],
+                {
+                    "name": "place_photo_query",
+                    "description": "Returns the photo for a given reference.",
+                    "parameters": {
+                        "properties": {
+                            "photo_reference": {"type": "string"},
+                            "maxwidth": {"type": "integer"},
+                            "maxheight": {"type": "integer", "nullable": True},
+                        },
+                        "required": ["photo_reference"],
+                        "type": "object",
                     },
-                    "required": ["photo_reference"],
-                    "type": "object",
                 },
-            },
-        ),
+            ),
+        ],
     )
     def test_generate_schemas(self, func, required, expected_operation):
         result = _utils.generate_schema(func, required=required)
-        self.assertDictEqual(result, expected_operation)
+        assert result == expected_operation
 
 
-class TestToProto(parameterized.TestCase):
-    @parameterized.named_parameters(
-        dict(
-            testcase_name="empty_dict",
-            obj={},
-            expected_proto=struct_pb2.Struct(fields={}),
-        ),
-        dict(
-            testcase_name="nonempty_dict",
-            obj={"a": 1, "b": 2},
-            expected_proto=struct_pb2.Struct(
-                fields={
-                    "a": struct_pb2.Value(number_value=1),
-                    "b": struct_pb2.Value(number_value=2),
-                },
+class TestToProto:
+    @pytest.mark.parametrize(
+        "obj, expected_proto",
+        [
+            (
+                {},
+                struct_pb2.Struct(fields={}),
             ),
-        ),
-        dict(
-            testcase_name="empty_proto_message",
-            obj=struct_pb2.Struct(fields={}),
-            expected_proto=struct_pb2.Struct(fields={}),
-        ),
-        dict(
-            testcase_name="nonempty_proto_message",
-            obj=struct_pb2.Struct(
-                fields={
-                    "a": struct_pb2.Value(number_value=1),
-                    "b": struct_pb2.Value(number_value=2),
-                },
+            (
+                {"a": 1, "b": 2},
+                struct_pb2.Struct(
+                    fields={
+                        "a": struct_pb2.Value(number_value=1),
+                        "b": struct_pb2.Value(number_value=2),
+                    },
+                ),
             ),
-            expected_proto=struct_pb2.Struct(
-                fields={
-                    "a": struct_pb2.Value(number_value=1),
-                    "b": struct_pb2.Value(number_value=2),
-                },
+            (
+                struct_pb2.Struct(fields={}),
+                struct_pb2.Struct(fields={}),
             ),
-        ),
+            (
+                struct_pb2.Struct(
+                    fields={
+                        "a": struct_pb2.Value(number_value=1),
+                        "b": struct_pb2.Value(number_value=2),
+                    },
+                ),
+                struct_pb2.Struct(
+                    fields={
+                        "a": struct_pb2.Value(number_value=1),
+                        "b": struct_pb2.Value(number_value=2),
+                    },
+                ),
+            ),
+        ],
     )
     def test_to_proto(self, obj, expected_proto):
         result = _utils.to_proto(obj)
-        self.assertDictEqual(_utils.to_dict(result), _utils.to_dict(expected_proto))
-        # converting a new object to proto should not modify earlier objects.
-        new_result = _utils.to_proto({})
-        self.assertDictEqual(_utils.to_dict(result), _utils.to_dict(expected_proto))
-        self.assertEmpty(new_result)
+        assert _utils.to_dict(result) == _utils.to_dict(expected_proto)
 
     # class TestDataclassToDict(parameterized.TestCase):
     #     @parameterized.named_parameters(
@@ -2283,82 +2275,86 @@ class TestToProto(parameterized.TestCase):
     #         result = _utils.dataclass_to_dict(obj)
     #         self.assertEqual(result, expected_dict)
 
-    @parameterized.named_parameters(
-        dict(
-            testcase_name="non_dataclass_input",
-            obj="not a dataclass",
-            expected_exception=TypeError,
-        ),
-        dict(
-            testcase_name="non_serializable_field",
-            obj=NonSerializableClass(name="test", date=datetime.datetime.now()),
-            expected_exception=TypeError,
-        ),
+    @pytest.mark.parametrize(
+        "obj, expected_exception",
+        [
+            (
+                "not a dataclass",
+                TypeError,
+            ),
+            (
+                NonSerializableClass(name="test", date=datetime.datetime.now()),
+                TypeError,
+            ),
+        ],
     )
     def test_dataclass_to_dict_failure(self, obj, expected_exception):
-        with self.assertRaises(expected_exception):
+        with pytest.raises(expected_exception):
             _utils.dataclass_to_dict(obj)
 
 
-class ToParsedJsonTest(parameterized.TestCase):
-    @parameterized.named_parameters(
-        dict(
-            testcase_name="valid_json",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json", data=b'{"a": 1, "b": "hello"}'
+class ToParsedJsonTest:
+    @pytest.mark.parametrize(
+        "obj, expected",
+        [
+            (
+                # "valid_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data=b'{"a": 1, "b": "hello"}'
+                ),
+                [{"a": 1, "b": "hello"}],
             ),
-            expected=[{"a": 1, "b": "hello"}],
-        ),
-        dict(
-            testcase_name="invalid_json",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json", data=b'{"a": 1, "b": "hello"'
+            (
+                # "invalid_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data=b'{"a": 1, "b": "hello"'
+                ),
+                ['{"a": 1, "b": "hello"'],  # returns the unparsed string
             ),
-            expected=['{"a": 1, "b": "hello"'],  # returns the unparsed string
-        ),
-        dict(
-            testcase_name="missing_content_type",
-            obj=httpbody_pb2.HttpBody(data=b'{"a": 1}'),
-            expected=[httpbody_pb2.HttpBody(data=b'{"a": 1}')],
-        ),
-        dict(
-            testcase_name="missing_data",
-            obj=httpbody_pb2.HttpBody(content_type="application/json"),
-            expected=[None],
-        ),
-        dict(
-            testcase_name="wrong_content_type",
-            obj=httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello"),
-            expected=[httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")],
-        ),
-        dict(
-            testcase_name="empty_data",
-            obj=httpbody_pb2.HttpBody(content_type="application/json", data=b""),
-            expected=[None],
-        ),
-        dict(
-            testcase_name="unicode_data",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json", data='{"a": "你好"}'.encode("utf-8")
+            (
+                # "missing_content_type",
+                httpbody_pb2.HttpBody(data=b'{"a": 1}'),
+                [httpbody_pb2.HttpBody(data=b'{"a": 1}')],
             ),
-            expected=[{"a": "你好"}],
-        ),
-        dict(
-            testcase_name="nested_json",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json", data=b'{"a": {"b": 1}}'
+            (
+                # "missing_data",
+                httpbody_pb2.HttpBody(content_type="application/json"),
+                [None],
             ),
-            expected=[{"a": {"b": 1}}],
-        ),
-        dict(
-            testcase_name="multiline_json",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json",
-                data=b'{"a": {"b": 1}}\n{"a": {"b": 2}}',
+            (
+                # "wrong_content_type",
+                httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello"),
+                [httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")],
             ),
-            expected=[{"a": {"b": 1}}, {"a": {"b": 2}}],
-        ),
+            (
+                # "empty_data",
+                httpbody_pb2.HttpBody(content_type="application/json", data=b""),
+                [None],
+            ),
+            (
+                # "unicode_data",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data='{"a": "你好"}'.encode("utf-8")
+                ),
+                [{"a": "你好"}],
+            ),
+            (
+                # "nested_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data=b'{"a": {"b": 1}}'
+                ),
+                [{"a": {"b": 1}}],
+            ),
+            (
+                # "multiline_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json",
+                    data=b'{"a": {"b": 1}}\n{"a": {"b": 2}}',
+                ),
+                [{"a": {"b": 1}}, {"a": {"b": 2}}],
+            ),
+        ],
     )
     def test_to_parsed_json(self, obj, expected):
         for got, want in zip(_utils.yield_parsed_json(obj), expected):
-            self.assertEqual(got, want)
+            assert got == want

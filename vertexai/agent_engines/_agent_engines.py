@@ -71,15 +71,12 @@ _DEFAULT_STREAM_METHOD_RETURN_TYPE = "Iterable[Any]"
 _DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE = "AsyncIterable[Any]"
 _DEFAULT_METHOD_DOCSTRING_TEMPLATE = """
     Runs the Agent Engine to serve the user request.
-
     This will be based on the `.{method_name}(...)` of the python object that
     was passed in when creating the Agent Engine. The method will invoke the
     `{default_method_name}` API client of the python object.
-
     Args:
         **kwargs:
             Optional. The arguments of the `.{method_name}(...)` method.
-
     Returns:
         {return_type}: The response from serving the user request.
 """
@@ -91,6 +88,18 @@ _FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE = (
 )
 _AGENT_FRAMEWORK_ATTR = "agent_framework"
 _DEFAULT_AGENT_FRAMEWORK = "custom"
+_DEFAULT_METHOD_NAME_MAP = {
+    _STANDARD_API_MODE: _DEFAULT_METHOD_NAME,
+    _ASYNC_API_MODE: _DEFAULT_ASYNC_METHOD_NAME,
+    _STREAM_API_MODE: _DEFAULT_STREAM_METHOD_NAME,
+    _ASYNC_STREAM_API_MODE: _DEFAULT_ASYNC_STREAM_METHOD_NAME,
+}
+_DEFAULT_METHOD_RETURN_TYPE_MAP = {
+    _STANDARD_API_MODE: _DEFAULT_METHOD_RETURN_TYPE,
+    _ASYNC_API_MODE: _DEFAULT_ASYNC_METHOD_RETURN_TYPE,
+    _STREAM_API_MODE: _DEFAULT_STREAM_METHOD_RETURN_TYPE,
+    _ASYNC_STREAM_API_MODE: _DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE,
+}
 
 
 try:
@@ -1179,7 +1188,7 @@ def _generate_update_request_or_raise(
     )
 
 
-def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.JsonDict]:
+def _wrap_query_operation(method_name: str) -> Callable[..., _utils.JsonDict]:
     """Wraps an Agent Engine method, creating a callable for `query` API.
 
     This function creates a callable object that executes the specified
@@ -1206,13 +1215,10 @@ def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.Js
         output = _utils.to_dict(response)
         return output.get("output", output)
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
-
     return _method
 
 
-def _wrap_async_query_operation(method_name: str, doc: str) -> Callable[..., Coroutine]:
+def _wrap_async_query_operation(method_name: str) -> Callable[..., Coroutine]:
     """Wraps an Agent Engine method, creating an async callable for `query` API.
 
     This function creates a callable object that executes the specified
@@ -1239,15 +1245,10 @@ def _wrap_async_query_operation(method_name: str, doc: str) -> Callable[..., Cor
         output = _utils.to_dict(response)
         return output.get("output", output)
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
-
     return _method
 
 
-def _wrap_stream_query_operation(
-    *, method_name: str, doc: str
-) -> Callable[..., Iterable[Any]]:
+def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterable[Any]]:
     """Wraps an Agent Engine method, creating a callable for `stream_query` API.
 
     This function creates a callable object that executes the specified
@@ -1276,14 +1277,11 @@ def _wrap_stream_query_operation(
                 if parsed_json is not None:
                     yield parsed_json
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
-
     return _method
 
 
 def _wrap_async_stream_query_operation(
-    *, method_name: str, doc: str
+    *, method_name: str
 ) -> Callable[..., AsyncIterable[Any]]:
     """Wraps an Agent Engine method, creating an async callable for `stream_query` API.
 
@@ -1313,9 +1311,6 @@ def _wrap_async_stream_query_operation(
                 if parsed_json is not None:
                     yield parsed_json
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
-
     return _method
 
 
@@ -1340,7 +1335,12 @@ def _unregister_api_methods(
                 delattr(obj, method_name)
 
 
-def _register_api_methods_or_raise(obj: "AgentEngine"):
+def _register_api_methods_or_raise(
+    obj: "AgentEngine",
+    wrap_operation_fn: Optional[
+        dict[str, Callable[[str, str], Callable[..., Any]]]
+    ] = None,
+):
     """Registers Agent Engine API methods based on operation schemas.
 
     This function iterates through operation schemas provided by the
@@ -1351,6 +1351,8 @@ def _register_api_methods_or_raise(obj: "AgentEngine"):
 
     Args:
         obj: The AgentEngine object to augment with API methods.
+        wrap_operation_fn: A dictionary of API modes and method wrapping
+            functions.
 
     Raises:
         ValueError: If the API mode is not supported or if the operation schema
@@ -1369,68 +1371,43 @@ def _register_api_methods_or_raise(obj: "AgentEngine"):
                 f" contain a `{_METHOD_NAME_KEY_IN_SCHEMA}` field."
             )
         method_name = operation_schema.get(_METHOD_NAME_KEY_IN_SCHEMA)
-        method_description = operation_schema.get("description")
-
-        if api_mode == _STANDARD_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_METHOD_NAME,
-                    return_type=_DEFAULT_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_query_operation(
+        method_description = operation_schema.get(
+            "description",
+            _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
                 method_name=method_name,
-                doc=method_description,
-            )
-        elif api_mode == _ASYNC_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_ASYNC_METHOD_NAME,
-                    return_type=_DEFAULT_ASYNC_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_async_query_operation(
-                method_name=method_name,
-                doc=method_description,
-            )
-        elif api_mode == _STREAM_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_STREAM_METHOD_NAME,
-                    return_type=_DEFAULT_STREAM_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_stream_query_operation(
-                method_name=method_name,
-                doc=method_description,
-            )
-        elif api_mode == _ASYNC_STREAM_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_ASYNC_STREAM_METHOD_NAME,
-                    return_type=_DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_async_stream_query_operation(
-                method_name=method_name,
-                doc=method_description,
-            )
+                default_method_name=_DEFAULT_METHOD_NAME_MAP.get(
+                    api_mode, _DEFAULT_METHOD_NAME
+                ),
+                return_type=_DEFAULT_METHOD_RETURN_TYPE_MAP.get(
+                    api_mode,
+                    _DEFAULT_METHOD_RETURN_TYPE,
+                ),
+            ),
+        )
+        _wrap_operation_map = {
+            _STANDARD_API_MODE: _wrap_query_operation,
+            _ASYNC_API_MODE: _wrap_async_query_operation,
+            _STREAM_API_MODE: _wrap_stream_query_operation,
+            _ASYNC_STREAM_API_MODE: _wrap_async_stream_query_operation,
+        }
+        if isinstance(wrap_operation_fn, dict) and api_mode in wrap_operation_fn:
+            # Override the default function with user-specified function if it exists.
+            _wrap_operation = wrap_operation_fn[api_mode]
+        elif api_mode in _wrap_operation_map:
+            _wrap_operation = _wrap_operation_map[api_mode]
         else:
+            supported_api_modes = ", ".join(
+                f"`{mode}`" for mode in sorted(_wrap_operation_map.keys())
+            )
             raise ValueError(
                 f"Unsupported api mode: `{api_mode}`,"
-                f" Supported modes are: `{_STANDARD_API_MODE}`, `{_ASYNC_API_MODE}`,"
-                f" `{_STREAM_API_MODE}` and `{_ASYNC_STREAM_API_MODE}`."
+                f" Supported modes are: {supported_api_modes}."
             )
 
-        # Binds the method to the object.
+        # Bind the method to the object.
+        method = _wrap_operation(method_name=method_name)
+        method.__name__ = method_name
+        method.__doc__ = method_description
         setattr(obj, method_name, types.MethodType(method, obj))
 
 
