@@ -154,6 +154,49 @@ class TestEvalsRunInference:
                 }
             ),
         )
+        assert inference_result.candidate_name == "gemini-pro"
+        assert inference_result.gcs_source is None
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_inference_with_callable_model_sets_candidate_name(
+        self, mock_eval_dataset_loader
+    ):
+        mock_df = pd.DataFrame({"prompt": ["test prompt"]})
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        def my_model_fn(contents):
+            return "callable response"
+
+        inference_result = self.client.evals.run_inference(
+            model=my_model_fn,
+            src=mock_df,
+        )
+        assert inference_result.candidate_name == "my_model_fn"
+        assert inference_result.gcs_source is None
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_inference_with_lambda_model_candidate_name_is_none(
+        self, mock_eval_dataset_loader
+    ):
+        mock_df = pd.DataFrame({"prompt": ["test prompt"]})
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        inference_result = self.client.evals.run_inference(
+            model=lambda x: "lambda response",  # pylint: disable=unnecessary-lambda
+            src=mock_df,
+        )
+        # Lambdas may or may not have a __name__ depending on Python version/env
+        # but it's typically '<lambda>' if it exists.
+        # The code under test uses getattr(model, "__name__", None)
+        assert (
+            inference_result.candidate_name == "<lambda>"
+            or inference_result.candidate_name is None
+        )
+        assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_callable_model_success(self, mock_eval_dataset_loader):
@@ -179,6 +222,8 @@ class TestEvalsRunInference:
                 }
             ),
         )
+        assert inference_result.candidate_name == "mock_model_fn"
+        assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -224,6 +269,8 @@ class TestEvalsRunInference:
                 }
             ),
         )
+        assert inference_result.candidate_name == "gemini-pro"
+        assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -272,6 +319,10 @@ class TestEvalsRunInference:
         )
         pd.testing.assert_frame_equal(
             inference_result.eval_dataset_df, expected_df_to_save
+        )
+        assert inference_result.candidate_name == "gemini-pro"
+        assert inference_result.gcs_source == vertexai_genai_types.GcsSource(
+            uris=[gcs_dest_path]
         )
 
     @mock.patch.object(_evals_common, "Models")
@@ -322,6 +373,8 @@ class TestEvalsRunInference:
             }
         )
         pd.testing.assert_frame_equal(inference_result.eval_dataset_df, expected_df)
+        assert inference_result.candidate_name == "gemini-pro"
+        assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -405,6 +458,8 @@ class TestEvalsRunInference:
             expected_records, key=lambda x: x["request"]
         )
         os.remove(local_dest_path)
+        assert inference_result.candidate_name == "gemini-pro"
+        assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_jsonl_file(self, mock_models):
@@ -478,6 +533,8 @@ class TestEvalsRunInference:
             any_order=True,
         )
         os.remove(local_src_path)
+        assert inference_result.candidate_name == "gemini-pro"
+        assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_csv_file(self, mock_models):
@@ -548,6 +605,8 @@ class TestEvalsRunInference:
             any_order=True,
         )
         os.remove(local_src_path)
+        assert inference_result.candidate_name == "gemini-pro"
+        assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -719,6 +778,8 @@ class TestEvalsRunInference:
             expected_df.sort_values(by="id").reset_index(drop=True),
             check_dtype=False,
         )
+        assert inference_result.candidate_name == "gemini-pro"
+        assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -794,6 +855,8 @@ class TestEvalsRunInference:
                 }
             ),
         )
+        assert inference_result.candidate_name == "gemini-pro"
+        assert inference_result.gcs_source is None
 
 
 class TestMetricPromptBuilder:
@@ -3295,3 +3358,76 @@ class TestEvalsRunEvaluation:
         assert summary_metric.mean_score == 1.0
 
         assert mock_eval_dependencies["mock_evaluate_instances"].call_count == 2
+
+    def test_execute_evaluation_deduplicates_candidate_names(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        """Tests that duplicate candidate names are indexed."""
+        dataset1 = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [{"prompt": "p1", "response": "r1", "reference": "ref1"}]
+            ),
+            candidate_name="gemini-pro",
+        )
+        dataset2 = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [{"prompt": "p1", "response": "r2", "reference": "ref1"}]
+            ),
+            candidate_name="gemini-flash",
+        )
+        dataset3 = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [{"prompt": "p1", "response": "r3", "reference": "ref1"}]
+            ),
+            candidate_name="gemini-pro",
+        )
+
+        mock_eval_dependencies[
+            "mock_evaluate_instances"
+        ].return_value = vertexai_genai_types.EvaluateInstancesResponse(
+            exact_match_results=vertexai_genai_types.ExactMatchResults(
+                exact_match_metric_values=[
+                    vertexai_genai_types.ExactMatchMetricValue(score=1.0)
+                ]
+            )
+        )
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=[dataset1, dataset2, dataset3],
+            metrics=[vertexai_genai_types.Metric(name="exact_match")],
+        )
+
+        assert result.metadata.candidate_names == [
+            "gemini-pro #1",
+            "gemini-flash",
+            "gemini-pro #2",
+        ]
+
+    @mock.patch("vertexai._genai._evals_common.datetime")
+    def test_execute_evaluation_adds_creation_timestamp(
+        self, mock_datetime, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        """Tests that creation_timestamp is added to the result metadata."""
+        import datetime
+
+        mock_now = datetime.datetime(
+            2025, 6, 18, 12, 0, 0, tzinfo=datetime.timezone.utc
+        )
+        mock_datetime.datetime.now.return_value = mock_now
+
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [{"prompt": "p", "response": "r", "reference": "r"}]
+            )
+        )
+        metric = vertexai_genai_types.Metric(name="exact_match")
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=dataset,
+            metrics=[metric],
+        )
+
+        assert result.metadata is not None
+        assert result.metadata.creation_timestamp == mock_now

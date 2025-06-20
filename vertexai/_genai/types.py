@@ -2064,6 +2064,10 @@ class EvaluationDataset(_common.BaseModel):
         default=None,
         description="""The evaluation dataset in the form of a Pandas DataFrame.""",
     )
+    candidate_name: Optional[str] = Field(
+        default=None,
+        description="""The name of the candidate model or agent for this evaluation dataset.""",
+    )
     gcs_source: Optional[GcsSource] = Field(
         default=None,
         description="""The GCS source for the evaluation dataset.""",
@@ -2088,6 +2092,9 @@ class EvaluationDatasetDict(TypedDict, total=False):
 
     eval_dataset_df: Optional[pd.DataFrame]
     """The evaluation dataset in the form of a Pandas DataFrame."""
+
+    candidate_name: Optional[str]
+    """The name of the candidate model or agent for this evaluation dataset."""
 
     gcs_source: Optional[GcsSourceDict]
     """The GCS source for the evaluation dataset."""
