@@ -3183,7 +3183,7 @@ class EvaluateMethodConfig(_common.BaseModel):
     http_options: Optional[HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
-    dataset_schema: Optional[Literal["gemini", "flatten"]] = Field(
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = Field(
         default=None,
         description="""The schema to use for the dataset.
       If not specified, the dataset schema will be inferred from the first
@@ -3201,7 +3201,7 @@ class EvaluateMethodConfigDict(TypedDict, total=False):
     http_options: Optional[HttpOptionsDict]
     """Used to override HTTP request options."""
 
-    dataset_schema: Optional[Literal["gemini", "flatten"]]
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]]
     """The schema to use for the dataset.
       If not specified, the dataset schema will be inferred from the first
       example in the dataset."""

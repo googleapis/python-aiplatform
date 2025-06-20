@@ -1471,6 +1471,146 @@ class TestFlattenEvalDataConverter:
         assert eval_case.custom_column == "custom_value"
 
 
+class TestOpenAIDataConverter:
+    """Unit tests for the _OpenAIDataConverter class."""
+
+    def setup_method(self):
+        self.converter = _evals_data_converters._OpenAIDataConverter()
+
+    def test_convert_simple_prompt_response(self):
+        raw_data = [
+            {
+                "request": {"messages": [{"role": "user", "content": "Hello"}]},
+                "response": {
+                    "choices": [{"message": {"role": "assistant", "content": "Hi"}}]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        assert isinstance(result_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(result_dataset.eval_cases) == 1
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Hi")]
+        )
+        assert eval_case.reference is None
+        assert eval_case.system_instruction is None
+        assert eval_case.conversation_history == []
+
+    def test_convert_with_system_instruction(self):
+        raw_data = [
+            {
+                "request": {
+                    "messages": [
+                        {"role": "system", "content": "Be helpful."},
+                        {"role": "user", "content": "Hello"},
+                    ]
+                },
+                "response": {
+                    "choices": [{"message": {"role": "assistant", "content": "Hi"}}]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.system_instruction == genai_types.Content(
+            parts=[genai_types.Part(text="Be helpful.")]
+        )
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+
+    def test_convert_with_conversation_history_and_reference(self):
+        raw_data = [
+            {
+                "request": {
+                    "messages": [
+                        {"role": "user", "content": "Initial user"},
+                        {"role": "assistant", "content": "Initial model (ref)"},
+                    ]
+                },
+                "response": {
+                    "choices": [
+                        {
+                            "message": {
+                                "role": "assistant",
+                                "content": "Actual response",
+                            }
+                        }
+                    ]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Initial user")], role="user"
+        )
+        assert eval_case.reference.response == genai_types.Content(
+            parts=[genai_types.Part(text="Initial model (ref)")], role="assistant"
+        )
+        assert len(eval_case.conversation_history) == 0  # History before prompt and ref
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Actual response")]
+        )
+
+    def test_convert_with_conversation_history_no_reference(self):
+        raw_data = [
+            {
+                "request": {
+                    "messages": [
+                        {"role": "user", "content": "Old user msg"},
+                        {"role": "assistant", "content": "Old model msg"},
+                        {"role": "user", "content": "Current prompt"},
+                    ]
+                },
+                "response": {
+                    "choices": [
+                        {"message": {"role": "assistant", "content": "A response"}}
+                    ]
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Current prompt")], role="user"
+        )
+        assert eval_case.reference is None
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0].content.parts[0].text == "Old user msg"
+        assert (
+            eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
+        )
+
+    def test_convert_empty_choices_uses_placeholder(self):
+        raw_data = [
+            {
+                "request": {"messages": [{"role": "user", "content": "Hello"}]},
+                "response": {"choices": []},
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert len(eval_case.responses) == 1
+        assert (
+            eval_case.responses[0].response.parts[0].text
+            == _evals_data_converters._PLACEHOLDER_RESPONSE_TEXT
+        )
+
+    def test_convert_skips_missing_request_or_response(self):
+        raw_data = [{"response": {"choices": []}}, {"request": {"messages": []}}]
+        result_dataset = self.converter.convert(raw_data)
+        assert len(result_dataset.eval_cases) == 0
+
+
 class TestMetric:
     """Unit tests for the Metric class."""
 
@@ -1648,6 +1788,113 @@ class TestMergeResponseDatasets:
         assert merged_dataset.eval_cases[1].responses[
             1
         ].response == genai_types.Content(parts=[genai_types.Part(text="Response 2b")])
+
+    def test_merge_flatten_and_openai_datasets(self):
+        raw_dataset_flatten = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1 Flatten",
+                "reference": "Ref 1",
+            },
+        ]
+        raw_dataset_openai = [
+            {
+                "request": {
+                    "messages": [
+                        {"role": "user", "content": "Prompt 1"},
+                        {"role": "assistant", "content": "Ref 1"},
+                    ]
+                },
+                "response": {
+                    "choices": [
+                        {
+                            "message": {
+                                "role": "assistant",
+                                "content": "Response 1 OpenAI",
+                            }
+                        }
+                    ]
+                },
+            }
+        ]
+        schemas = [
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.OPENAI,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_flatten, raw_dataset_openai], schemas=schemas
+            )
+        )
+        assert len(merged_dataset.eval_cases) == 1
+        case0 = merged_dataset.eval_cases[0]
+        assert case0.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Prompt 1")]
+        )
+        assert case0.reference.response == genai_types.Content(
+            parts=[genai_types.Part(text="Ref 1")]
+        )
+        assert len(case0.responses) == 2
+        assert case0.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Response 1 Flatten")]
+        )
+        assert case0.responses[1].response == genai_types.Content(
+            parts=[genai_types.Part(text="Response 1 OpenAI")]
+        )
+
+    def test_merge_two_openai_datasets(self):
+        raw_dataset_openai_1 = [
+            {
+                "request": {
+                    "messages": [
+                        {"role": "developer", "content": "Sys1"},
+                        {"role": "user", "content": "P1"},
+                    ]
+                },
+                "response": {
+                    "choices": [{"message": {"role": "assistant", "content": "R1a"}}]
+                },
+            }
+        ]
+        raw_dataset_openai_2 = [
+            {
+                "request": {
+                    "messages": [
+                        {"role": "system", "content": "Sys1"},
+                        {"role": "user", "content": "P1"},
+                    ]
+                },
+                "response": {
+                    "choices": [{"message": {"role": "assistant", "content": "R1b"}}]
+                },
+            }
+        ]
+        schemas = [
+            _evals_data_converters.EvalDatasetSchema.OPENAI,
+            _evals_data_converters.EvalDatasetSchema.OPENAI,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_openai_1, raw_dataset_openai_2], schemas=schemas
+            )
+        )
+        assert len(merged_dataset.eval_cases) == 1
+        case0 = merged_dataset.eval_cases[0]
+        assert case0.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="P1")], role="user"
+        )
+        assert case0.system_instruction == genai_types.Content(
+            parts=[genai_types.Part(text="Sys1")]
+        )
+        assert len(case0.responses) == 2
+        assert case0.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="R1a")]
+        )
+        assert case0.responses[1].response == genai_types.Content(
+            parts=[genai_types.Part(text="R1b")]
+        )
 
     def test_merge_flatten_and_gemini_datasets(self):
         raw_dataset_1 = [
@@ -2373,6 +2620,61 @@ class TestLLMMetricHandlerPayload:
             )
 
 
+@pytest.mark.usefixtures("google_auth_mock")
+class TestAutoDetectDatasetSchema:
+    def test_auto_detect_gemini_schema(self):
+        raw_data = [
+            {
+                "request": {
+                    "contents": [{"role": "user", "parts": [{"text": "Hello"}]}]
+                },
+                "response": {
+                    "candidates": [
+                        {"content": {"role": "model", "parts": [{"text": "Hi"}]}}
+                    ]
+                },
+            }
+        ]
+        assert (
+            _evals_data_converters.auto_detect_dataset_schema(raw_data)
+            == _evals_data_converters.EvalDatasetSchema.GEMINI
+        )
+
+    def test_auto_detect_flatten_schema(self):
+        raw_data = [{"prompt": "Hello", "response": "Hi"}]
+        assert (
+            _evals_data_converters.auto_detect_dataset_schema(raw_data)
+            == _evals_data_converters.EvalDatasetSchema.FLATTEN
+        )
+
+    def test_auto_detect_openai_schema(self):
+        raw_data = [
+            {
+                "request": {"messages": [{"role": "user", "content": "Hello"}]},
+                "response": {
+                    "choices": [{"message": {"role": "assistant", "content": "Hi"}}]
+                },
+            }
+        ]
+        assert (
+            _evals_data_converters.auto_detect_dataset_schema(raw_data)
+            == _evals_data_converters.EvalDatasetSchema.OPENAI
+        )
+
+    def test_auto_detect_unknown_schema(self):
+        raw_data = [{"foo": "bar"}]
+        assert (
+            _evals_data_converters.auto_detect_dataset_schema(raw_data)
+            == _evals_data_converters.EvalDatasetSchema.UNKNOWN
+        )
+
+    def test_auto_detect_empty_dataset(self):
+        assert (
+            _evals_data_converters.auto_detect_dataset_schema([])
+            == _evals_data_converters.EvalDatasetSchema.UNKNOWN
+        )
+
+
 @pytest.fixture
 def mock_api_client_fixture():
     mock_client = mock.Mock(spec=client.Client)
@@ -2559,6 +2861,98 @@ class TestEvalsRunEvaluation:
         mock_eval_dependencies["mock_evaluate_instances"].assert_called_once()
         call_args = mock_eval_dependencies["mock_evaluate_instances"].call_args
         assert "pointwise_metric_input" in call_args[1]["metric_config"]
+
+    @mock.patch.object(_evals_data_converters, "get_dataset_converter")
+    def test_execute_evaluation_with_openai_schema(
+        self,
+        mock_get_converter,
+        mock_api_client_fixture,
+        mock_eval_dependencies,
+    ):
+        mock_openai_raw_data = [
+            {
+                "request": {"messages": [{"role": "user", "content": "OpenAI Prompt"}]},
+                "response": {
+                    "choices": [
+                        {
+                            "message": {
+                                "index": 0,
+                                "message": {
+                                    "role": "assistant",
+                                    "content": "OpenAI Response",
+                                    "refusal": None,
+                                    "annotations": [],
+                                },
+                                "logprobs": None,
+                                "finish_reason": "stop",
+                            }
+                        }
+                    ]
+                },
+            }
+        ]
+        converted_eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(
+                parts=[genai_types.Part(text="OpenAI Prompt")], role="user"
+            ),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(
+                        parts=[genai_types.Part(text="Candidate Response")]
+                    )
+                )
+            ],
+        )
+        mock_converted_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_cases=[converted_eval_case]
+        )
+
+        mock_converter_instance = mock.Mock(
+            spec=_evals_data_converters._OpenAIDataConverter
+        )
+        mock_converter_instance.convert.return_value = mock_converted_dataset
+        mock_get_converter.return_value = mock_converter_instance
+
+        input_dataset_for_loader = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(mock_openai_raw_data)
+        )
+        llm_metric = vertexai_genai_types.LLMMetric(
+            name="test_metric", prompt_template="Evaluate: {response}"
+        )
+
+        with mock.patch.object(_evals_utils, "EvalDatasetLoader") as mock_loader_class:
+            mock_loader_instance = mock_loader_class.return_value
+            mock_loader_instance.load.return_value = mock_openai_raw_data
+
+            with mock.patch.object(
+                _evals_metric_handlers.LLMMetricHandler, "process"
+            ) as mock_llm_process:
+                mock_llm_process.return_value = (
+                    vertexai_genai_types.EvalCaseMetricResult(
+                        metric_name="test_metric", score=0.75
+                    )
+                )
+
+                result = _evals_common._execute_evaluation(
+                    api_client=mock_api_client_fixture,
+                    dataset=input_dataset_for_loader,
+                    metrics=[llm_metric],
+                    dataset_schema="OPENAI",
+                )
+
+        mock_loader_instance.load.assert_called_once_with(
+            input_dataset_for_loader.eval_dataset_df
+        )
+        mock_get_converter.assert_called_with(
+            _evals_data_converters.EvalDatasetSchema.OPENAI
+        )
+        mock_converter_instance.convert.assert_called_once_with(mock_openai_raw_data)
+
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "test_metric"
+        assert summary_metric.mean_score == 0.75
 
     def test_execute_evaluation_custom_metric(
         self, mock_api_client_fixture, mock_eval_dependencies

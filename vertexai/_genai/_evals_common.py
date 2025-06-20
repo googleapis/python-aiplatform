@@ -534,7 +534,7 @@ def _get_dataset_source(
 
 def _resolve_dataset_inputs(
     dataset: list[types.EvaluationDataset],
-    dataset_schema: Optional[Literal["gemini", "flatten"]],
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
     loader: _evals_utils.EvalDatasetLoader,
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
@@ -657,7 +657,7 @@ def _execute_evaluation(
     api_client: Any,
     dataset: Union[types.EvaluationDataset, list[types.EvaluationDataset]],
     metrics: list[types.Metric],
-    dataset_schema: Optional[Literal["gemini", "flatten"]] = None,
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = None,
     dest: Optional[str] = None,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.

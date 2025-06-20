@@ -27,23 +27,13 @@ from . import types
 
 logger = logging.getLogger("vertexai_genai._evals_data_converters")
 
-_PLACEHOLDER_RESPONSE_TEXT = "Error: Missing response for this candidate"
-
-
-def _create_placeholder_response_candidate(
-    text: str = _PLACEHOLDER_RESPONSE_TEXT,
-) -> types.ResponseCandidate:
-    """Creates a ResponseCandidate with placeholder text."""
-    return types.ResponseCandidate(
-        response=genai_types.Content(parts=[genai_types.Part(text=text)])
-    )
-
 
 class EvalDatasetSchema(_common.CaseInSensitiveEnum):
     """Represents the schema of an evaluation dataset."""
 
     GEMINI = "gemini"
     FLATTEN = "flatten"
+    OPENAI = "openai"
     UNKNOWN = "unknown"
 
 
@@ -54,6 +44,18 @@ class _EvalDataConverter(abc.ABC):
     def convert(self, raw_data: Any) -> types.EvaluationDataset:
         """Converts a loaded raw dataset into an EvaluationDataset."""
         raise NotImplementedError()
+
+
+_PLACEHOLDER_RESPONSE_TEXT = "Error: Missing response for this candidate"
+
+
+def _create_placeholder_response_candidate(
+    text: str = _PLACEHOLDER_RESPONSE_TEXT,
+) -> types.ResponseCandidate:
+    """Creates a ResponseCandidate with placeholder text."""
+    return types.ResponseCandidate(
+        response=genai_types.Content(parts=[genai_types.Part(text=text)])
+    )
 
 
 class _GeminiEvalDataConverter(_EvalDataConverter):
@@ -96,15 +98,17 @@ class _GeminiEvalDataConverter(_EvalDataConverter):
             )
         if conversation_history:
             last_message = conversation_history.pop()
-            if last_message.content and last_message.content.role == "user":
+            last_message_role = (
+                last_message.content.role if last_message.content else "user"
+            )
+            if last_message_role in ["user", None]:
                 prompt = last_message.content
-            elif last_message.content and last_message.content.role == "model":
-                # If the last message is from the model, then it's the reference.
+            elif last_message_role == "model":
                 reference = types.ResponseCandidate(response=last_message.content)
-                if conversation_history:  # Ensure there's a previous message
+                if conversation_history:
                     second_to_last_message = conversation_history.pop()
                     prompt = second_to_last_message.content
-                else:  # If only one model message, prompt is invalid.
+                else:
                     prompt = genai_types.Content()
 
         return prompt, system_instruction, conversation_history, reference
@@ -152,13 +156,11 @@ class _GeminiEvalDataConverter(_EvalDataConverter):
                                     )
                                 )
                             )
-                    else:  # Handle cases where there are no candidates.
+                    else:
                         responses.append(_create_placeholder_response_candidate())
                 except Exception:
-                    # Fallback for dicts that don't match the schema, treat as empty.
                     responses.append(_create_placeholder_response_candidate())
             else:
-                # For any other type, treat as an empty/invalid response.
                 responses.append(_create_placeholder_response_candidate())
 
             eval_case = types.EvalCase(
@@ -291,66 +293,171 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
         return types.EvaluationDataset(eval_cases=eval_cases)
 
 
+class _OpenAIDataConverter(_EvalDataConverter):
+    """Converter for dataset in OpenAI's Chat Completion format."""
+
+    def _parse_messages(
+        self, messages: list[dict[str, Any]]
+    ) -> tuple[
+        Optional[genai_types.Content],
+        list[types.Message],
+        Optional[genai_types.Content],
+        Optional[types.ResponseCandidate],
+    ]:
+        """Parses a list of messages into instruction, history, prompt, and reference."""
+        system_instruction = None
+        prompt = None
+        reference = None
+        conversation_history = []
+
+        if messages and messages[0].get("role") in ["system", "developer"]:
+            system_instruction = genai_types.Content(
+                parts=[genai_types.Part(text=messages[0].get("content"))]
+            )
+            messages = messages[1:]
+
+        for turn_id, msg in enumerate(messages):
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            conversation_history.append(
+                types.Message(
+                    turn_id=str(turn_id),
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text=content)], role=role
+                    ),
+                    author=role,
+                )
+            )
+
+        if conversation_history:
+            last_message = conversation_history.pop()
+            if last_message.content and last_message.content.role == "user":
+                prompt = last_message.content
+            elif last_message.content and last_message.content.role == "assistant":
+                reference = types.ResponseCandidate(response=last_message.content)
+                if conversation_history:
+                    second_to_last_message = conversation_history.pop()
+                    prompt = second_to_last_message.content
+
+        return system_instruction, conversation_history, prompt, reference
+
+    @override
+    def convert(self, raw_data: list[dict[str, Any]]) -> types.EvaluationDataset:
+        """Converts a list of OpenAI ChatCompletion data into an EvaluationDataset."""
+        eval_cases = []
+        for i, item in enumerate(raw_data):
+            eval_case_id = f"openai_eval_case_{i}"
+
+            if "request" not in item or "response" not in item:
+                logger.warning(
+                    f"Skipping case {i} due to missing 'request' or 'response' key."
+                )
+                continue
+
+            request_data = item.get("request", {})
+            response_data = item.get("response", {})
+
+            messages = request_data.get("messages", [])
+            choices = response_data.get("choices", [])
+
+            (
+                system_instruction,
+                conversation_history,
+                prompt,
+                reference,
+            ) = self._parse_messages(messages)
+
+            if prompt is None and reference is None:
+                logger.warning(
+                    "Could not determine a user prompt or reference for case %s."
+                    " Skipping.",
+                    i,
+                )
+                continue
+
+            responses = []
+            if (
+                choices
+                and isinstance(choices, list)
+                and isinstance(choices[0], dict)
+                and choices[0].get("message")
+            ):
+                response_content = choices[0]["message"].get("content", "")
+                responses.append(
+                    types.ResponseCandidate(
+                        response=genai_types.Content(
+                            parts=[genai_types.Part(text=response_content)]
+                        )
+                    )
+                )
+            else:
+                responses.append(_create_placeholder_response_candidate())
+
+            other_fields = {
+                k: v for k, v in item.items() if k not in ["request", "response"]
+            }
+
+            eval_case = types.EvalCase(
+                eval_case_id=eval_case_id,
+                prompt=prompt,
+                responses=responses,
+                reference=reference,
+                system_instruction=system_instruction,
+                conversation_history=conversation_history,
+                **other_fields,
+            )
+            eval_cases.append(eval_case)
+
+        return types.EvaluationDataset(eval_cases=eval_cases)
+
+
 def auto_detect_dataset_schema(
     raw_dataset: list[dict[str, Any]],
 ) -> EvalDatasetSchema:
     """Detects the schema of a raw dataset."""
     if not raw_dataset:
-        logger.debug("Empty dataset, returning UNKNOWN schema.")
         return EvalDatasetSchema.UNKNOWN
 
     first_item = raw_dataset[0]
-    if not isinstance(first_item, dict):
-        logger.warning(
-            "First item in dataset is not a dictionary. Cannot determine schema."
-        )
-        return EvalDatasetSchema.UNKNOWN
-
     keys = set(first_item.keys())
 
-    request_field = first_item.get("request")
-    if isinstance(request_field, dict) and isinstance(
-        request_field.get("contents"), list
-    ):
-        try:
-            _GeminiEvalDataConverter().convert([first_item])
-            logger.debug(
-                "Detected GEMINI schema based on 'request.contents' presence and"
-                " successful conversion."
-            )
-            return EvalDatasetSchema.GEMINI
-        except (ValueError, KeyError, AttributeError, TypeError) as e:
-            logger.debug(
-                "First item looked like Gemini schema (due to 'request.contents') but"
-                " conversion failed (error: %s). Will try other schemas.",
-                e,
-            )
+    if "request" in keys and "response" in keys:
+        request_content = first_item.get("request", {})
+        if isinstance(request_content, dict) and "contents" in request_content:
+            contents_list = request_content.get("contents")
+            if (
+                contents_list
+                and isinstance(contents_list, list)
+                and isinstance(contents_list[0], dict)
+            ):
+                if "parts" in contents_list[0]:
+                    return EvalDatasetSchema.GEMINI
 
-    # Check for flatten schema if Gemini check failed or wasn't applicable
+    if "request" in keys and "response" in keys:
+        request_content = first_item.get("request", {})
+        if isinstance(request_content, dict) and "messages" in request_content:
+            messages_list = request_content.get("messages")
+            if (
+                messages_list
+                and isinstance(messages_list, list)
+                and isinstance(messages_list[0], dict)
+            ):
+                if "role" in messages_list[0] and "content" in messages_list[0]:
+                    return EvalDatasetSchema.OPENAI
+
     if {"prompt", "response"}.issubset(keys) or {
         "response",
         "reference",
     }.issubset(keys):
-        try:
-            _FlattenEvalDataConverter().convert([first_item])
-            logger.debug(
-                "Detected FLATTEN schema based on key presence and successful"
-                " conversion."
-            )
-            return EvalDatasetSchema.FLATTEN
-        except (ValueError, KeyError, AttributeError, TypeError) as e:
-            logger.debug(
-                "Flatten schema key check passed, but conversion failed (error: %s).",
-                e,
-            )
-
-    logger.debug("Could not confidently determine schema. Returning UNKNOWN.")
-    return EvalDatasetSchema.UNKNOWN
+        return EvalDatasetSchema.FLATTEN
+    else:
+        return EvalDatasetSchema.UNKNOWN
 
 
-_SCHEMA_TO_CONVERTER = {
+_CONVERTER_REGISTRY = {
     EvalDatasetSchema.GEMINI: _GeminiEvalDataConverter,
     EvalDatasetSchema.FLATTEN: _FlattenEvalDataConverter,
+    EvalDatasetSchema.OPENAI: _OpenAIDataConverter,
 }
 
 
@@ -358,8 +465,8 @@ def get_dataset_converter(
     dataset_schema: EvalDatasetSchema,
 ) -> _EvalDataConverter:
     """Returns the appropriate dataset converter for the given schema."""
-    if dataset_schema in _SCHEMA_TO_CONVERTER:
-        return _SCHEMA_TO_CONVERTER[dataset_schema]()
+    if dataset_schema in _CONVERTER_REGISTRY:
+        return _CONVERTER_REGISTRY[dataset_schema]()
     else:
         raise ValueError(f"Unsupported dataset schema: {dataset_schema}")
 
@@ -398,10 +505,15 @@ def _validate_case_consistency(
         base_prompt_text_preview = _get_first_part_text(base_case.prompt)[:50]
         current_prompt_text_preview = _get_first_part_text(current_case.prompt)[:50]
         logger.warning(
-            f"Prompt mismatch for case index {case_idx} between base dataset (0)"
-            f" and dataset {dataset_idx}. Using prompt from base. Base prompt"
-            f" preview: '{base_prompt_text_preview}...', Dataset"
-            f" {dataset_idx} prompt preview: '{current_prompt_text_preview}...'"
+            "Prompt mismatch for case index %d between base dataset (0)"
+            " and dataset %d. Using prompt from base. Base prompt"
+            " preview: '%s...', Dataset"
+            " %d prompt preview: '%s...'",
+            case_idx,
+            dataset_idx,
+            base_prompt_text_preview,
+            dataset_idx,
+            current_prompt_text_preview,
         )
 
     base_ref_text = _get_text_from_reference(base_case.reference)
@@ -409,16 +521,22 @@ def _validate_case_consistency(
 
     if bool(base_case.reference) != bool(current_case.reference):
         logger.warning(
-            f"Reference presence mismatch for case index {case_idx} between base"
-            f" dataset (0) and dataset {dataset_idx}. Using reference (or lack"
-            " thereof) from base."
+            "Reference presence mismatch for case index %d between base"
+            " dataset (0) and dataset %d. Using reference (or lack"
+            " thereof) from base.",
+            case_idx,
+            dataset_idx,
         )
     elif base_ref_text != current_ref_text:
         logger.warning(
-            f"Reference text mismatch for case index {case_idx} between base"
-            f" dataset (0) and dataset {dataset_idx}. Using reference from base."
-            f" Base ref: '{str(base_ref_text)[:50]}...', Current ref:"
-            f" '{str(current_ref_text)[:50]}...'"
+            "Reference text mismatch for case index %d between base"
+            " dataset (0) and dataset %d. Using reference from base. "
+            " Base ref: '%s...', Current ref:"
+            " '%s...'",
+            case_idx,
+            dataset_idx,
+            str(base_ref_text)[:50],
+            str(current_ref_text)[:50],
         )
 
 
