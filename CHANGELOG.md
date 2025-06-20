@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.99.0](https://github.com/googleapis/python-aiplatform/compare/v1.98.0...v1.99.0) (2025-06-20)
+
+
+### Features
+
+* GenAI SDK client - Add automatic candidate naming and creation timestamp to evaluation dataset metadata ([e8897e7](https://github.com/googleapis/python-aiplatform/commit/e8897e7bee243fe9ac9996d451ad313e9ff6484c))
+* GenAI SDK client - Add support for OpenAI data format for evals ([f8f66f1](https://github.com/googleapis/python-aiplatform/commit/f8f66f1420271c9278236c6c1bf0b652126c4959))
+
 ## [1.98.0](https://github.com/googleapis/python-aiplatform/compare/v1.97.0...v1.98.0) (2025-06-19)
 
 
