@@ -21,6 +21,8 @@ from google.genai import _common
 from google.genai import client
 from google.genai import types
 
+from .prompt_optimizer import PromptOptimizer
+
 
 class AsyncClient:
 
@@ -103,7 +105,7 @@ class Client:
         )
         self._aio = AsyncClient(self._api_client)
         self._evals = None
-        self._prompt_optimizer = None
+        self._prompt_optimizer = PromptOptimizer(self._api_client)
 
     @property
     @_common.experimental_warning(
@@ -123,6 +125,14 @@ class Client:
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
         return self._evals.Evals(self._api_client)
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI prompt optimizer module is experimental, and may "
+        "change in future versions."
+    )
+    def prompt_optimizer(self) -> PromptOptimizer:
+        return self._prompt_optimizer
 
     @property
     @_common.experimental_warning(
