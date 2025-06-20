@@ -23,7 +23,6 @@ from urllib.parse import urlencode
 from google.cloud import aiplatform
 from google.genai import _api_module
 from google.genai import _common
-from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
@@ -87,7 +86,7 @@ class PromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -165,8 +164,10 @@ class PromptOptimizer(_api_module.BaseModule):
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         display_name = f"vapo-optimizer-{timestamp}"
-        wait_for_completion = config["wait_for_completion"]
-        bucket = "/".join(config["config_path"].split("/")[:-1])
+        wait_for_completion = config.wait_for_completion
+        if not config.config_path:
+            raise ValueError("config_path is required.")
+        bucket = "/".join(config.config_path.split("/")[:-1])
 
         container_uri = "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0"
 
@@ -182,7 +183,7 @@ class PromptOptimizer(_api_module.BaseModule):
             container_uri,
             bucket,
             {
-                "config": config["config_path"],
+                "config": config.config_path,
             },
             service_account,
         )
@@ -233,7 +234,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None

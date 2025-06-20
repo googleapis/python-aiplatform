@@ -2103,7 +2103,7 @@ class Metric(_common.BaseModel):
     """The metric used for evaluation."""
 
     name: Optional[str] = Field(default=None, description="""The name of the metric.""")
-    custom_function: Optional[Callable] = Field(
+    custom_function: Optional[Callable[..., Any]] = Field(
         default=None,
         description="""The custom function that defines the end-to-end logic for metric computation.""",
     )
@@ -2124,11 +2124,11 @@ class Metric(_common.BaseModel):
         default=None,
         description="""Whether to return the raw output from the judge model.""",
     )
-    parse_and_reduce_fn: Optional[Callable] = Field(
+    parse_and_reduce_fn: Optional[Callable[..., Any]] = Field(
         default=None,
         description="""The parse and reduce function for the judge model.""",
     )
-    aggregate_summary_fn: Optional[Callable] = Field(
+    aggregate_summary_fn: Optional[Callable[..., Any]] = Field(
         default=None,
         description="""The aggregate summary function for the judge model.""",
     )
@@ -2175,7 +2175,7 @@ class Metric(_common.BaseModel):
             origin = typing.get_origin(annotation)
 
             is_field_callable_type = False
-            if annotation is Callable or origin is Callable:
+            if annotation is Callable or origin is Callable:  # type: ignore[comparison-overlap]
                 is_field_callable_type = True
             elif origin is Union:
                 args = typing.get_args(annotation)
@@ -2234,7 +2234,7 @@ class MetricDict(TypedDict, total=False):
     name: Optional[str]
     """The name of the metric."""
 
-    custom_function: Optional[Callable]
+    custom_function: Optional[Callable[..., Any]]
     """The custom function that defines the end-to-end logic for metric computation."""
 
     prompt_template: Optional[str]
@@ -2252,10 +2252,10 @@ class MetricDict(TypedDict, total=False):
     return_raw_output: Optional[bool]
     """Whether to return the raw output from the judge model."""
 
-    parse_and_reduce_fn: Optional[Callable]
+    parse_and_reduce_fn: Optional[Callable[..., Any]]
     """The parse and reduce function for the judge model."""
 
-    aggregate_summary_fn: Optional[Callable]
+    aggregate_summary_fn: Optional[Callable[..., Any]]
     """The aggregate summary function for the judge model."""
 
 
@@ -2490,23 +2490,26 @@ class PromptTemplate(_common.BaseModel):
             )
         return value
 
-    @computed_field
     @property
+    @computed_field
     def variables(self) -> set[str]:
-        return set(re.findall(self._VARIABLE_NAME_REGEX, self.text))
+        if self.text:
+            return set(re.findall(self._VARIABLE_NAME_REGEX, self.text))
+        return set()
 
     def _split_template_by_variables(self) -> list[Tuple[str, str]]:
         parts = []
         last_end = 0
-        for match in re.finditer(self._VARIABLE_NAME_REGEX, self.text):
-            start, end = match.span()
-            var_name = match.group(1)
-            if start > last_end:
-                parts.append(("text", self.text[last_end:start]))
-            parts.append(("var", var_name))
-            last_end = end
-        if last_end < len(self.text):
-            parts.append(("text", self.text[last_end:]))
+        if self.text:
+            for match in re.finditer(self._VARIABLE_NAME_REGEX, self.text):
+                start, end = match.span()
+                var_name = match.group(1)
+                if start > last_end:
+                    parts.append(("text", self.text[last_end:start]))
+                parts.append(("var", var_name))
+                last_end = end
+            if last_end < len(self.text):
+                parts.append(("text", self.text[last_end:]))
         return parts
 
     def _merge_adjacent_text_parts(
@@ -2526,7 +2529,8 @@ class PromptTemplate(_common.BaseModel):
             )
 
             if is_purely_text:
-                current_text_buffer.append(part.text)
+                if part.text:
+                    current_text_buffer.append(part.text)
             else:
                 if current_text_buffer:
                     merged.append(genai_types.Part(text="".join(current_text_buffer)))
@@ -2578,7 +2582,7 @@ class PromptTemplate(_common.BaseModel):
         """Parses a multimodal JSON string and returns its list of Parts."""
         try:
             content = genai_types.Content.model_validate_json(value)
-            return content.parts
+            return content.parts if content.parts else []
         except Exception:
             return [genai_types.Part(text=value)]
 
@@ -2683,7 +2687,7 @@ class PromptTemplate(_common.BaseModel):
         return final_content_obj.model_dump_json(exclude_none=True)
 
     def __str__(self) -> str:
-        return self.text
+        return self.text if self.text else ""
 
     def __repr__(self) -> str:
         return f"PromptTemplate(text='{self.text}')"
@@ -2857,7 +2861,7 @@ class MetricPromptBuilder(PromptTemplate):
 
     def __str__(self) -> str:
         """Returns the fully constructed prompt template text."""
-        return self.text
+        return self.text if self.text else ""
 
 
 class PromptTemplateDict(TypedDict, total=False):

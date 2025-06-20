@@ -16,12 +16,12 @@
 
 import importlib
 
-from .client import Client
+from .client import Client  # type: ignore[attr-defined]
 
 _evals = None
 
 
-def __getattr__(name):
+def __getattr__(name):  # type: ignore[no-untyped-def]
     if name == "evals":
         global _evals
         if _evals is None:
