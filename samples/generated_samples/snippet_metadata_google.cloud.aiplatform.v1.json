@@ -4495,12 +4495,12 @@
       "regionTag": "aiplatform_v1_generated_EndpointService_DeployModel_async",
       "segments": [
         {
-          "end": 60,
+          "end": 59,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 60,
+          "end": 59,
           "start": 27,
           "type": "SHORT"
         },
@@ -4510,18 +4510,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 50,
+          "end": 49,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 57,
-          "start": 51,
+          "end": 56,
+          "start": 50,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 61,
-          "start": 58,
+          "end": 60,
+          "start": 57,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -4583,12 +4583,12 @@
       "regionTag": "aiplatform_v1_generated_EndpointService_DeployModel_sync",
       "segments": [
         {
-          "end": 60,
+          "end": 59,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 60,
+          "end": 59,
           "start": 27,
           "type": "SHORT"
         },
@@ -4598,18 +4598,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 50,
+          "end": 49,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 57,
-          "start": 51,
+          "end": 56,
+          "start": 50,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 61,
-          "start": 58,
+          "end": 60,
+          "start": 57,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -4994,12 +4994,12 @@
       "regionTag": "aiplatform_v1_generated_EndpointService_MutateDeployedModel_async",
       "segments": [
         {
-          "end": 60,
+          "end": 59,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 60,
+          "end": 59,
           "start": 27,
           "type": "SHORT"
         },
@@ -5009,18 +5009,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 50,
+          "end": 49,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 57,
-          "start": 51,
+          "end": 56,
+          "start": 50,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 61,
-          "start": 58,
+          "end": 60,
+          "start": 57,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -5082,12 +5082,12 @@
       "regionTag": "aiplatform_v1_generated_EndpointService_MutateDeployedModel_sync",
       "segments": [
         {
-          "end": 60,
+          "end": 59,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 60,
+          "end": 59,
           "start": 27,
           "type": "SHORT"
         },
@@ -5097,18 +5097,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 50,
+          "end": 49,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 57,
-          "start": 51,
+          "end": 56,
+          "start": 50,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 61,
-          "start": 58,
+          "end": 60,
+          "start": 57,
           "type": "RESPONSE_HANDLING"
         }
       ],
