@@ -3161,6 +3161,114 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             explanations=explain_response.explanations,
         )
 
+    def invoke(
+        self,
+        request_path: str,
+        body: bytes,
+        headers: Dict[str, str],
+        deployed_model_id: Optional[str] = None,
+        stream: bool = False,
+        timeout: Optional[float] = None,
+    ) -> Union[requests.models.Response, Iterator[requests.models.Response]]:
+        """Makes a prediction request using arbitrary headers.
+
+        Example usage:
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            response = my_endpoint.invoke(
+                request_path="/arbitrary/path",
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
+                headers = {'Content-Type':'application/json'}
+            )
+            status_code = response.status_code
+            results = json.dumps(response.text)
+
+        Args:
+            request_path (str):
+                The request url to the model server. The request path must be
+                a string that starts with a forward slash. Root can't be
+                accessed.
+
+            body (bytes):
+                The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
+
+            deployed_model_id (str):
+                Optional. If specified, this InvokeRequest will be served by the
+                chosen DeployedModel, overriding this Endpoint's traffic split.
+
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no restrictions on the header.
+
+            stream (bool): If set to True, streaming will be enabled.
+
+            timeout (float): Optional. The timeout for this request in seconds.
+
+        Returns:
+            By default, a requests.models.Response object containing the status code and prediction results is returned.
+            For stream=True, the response will be of type Iterator[requests.models.Response].
+
+        Raises:
+            ImportError: If there is an issue importing the `TCPKeepAliveAdapter` package.
+        """
+        if not self.authorized_session:
+            self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.authorized_session = google_auth_requests.AuthorizedSession(
+                self.credentials
+            )
+        if not self.dedicated_endpoint_enabled:
+            raise ValueError(
+                "Invoke method is only supported on dedicated endpoints. Please"
+                "make sure endpoint and model are correctly configured."
+            )
+        if self.dedicated_endpoint_dns is None:
+            raise ValueError(
+                "Dedicated endpoint DNS is empty. Please make sure endpoint"
+                "and model are ready before making a prediction."
+            )
+        if len(request_path) < 0 or request_path[0] != "/":
+            raise ValueError(
+                "container path must be a string that starts with a forward slash."
+            )
+        url = f"https://{self.dedicated_endpoint_dns}/v1/{self.resource_name}"
+        if deployed_model_id:
+            url += f"/deployedModels/{deployed_model_id}"
+        url += "/invoke" + request_path
+
+        if timeout is not None and timeout > google_auth_requests._DEFAULT_TIMEOUT:
+            try:
+                from requests_toolbelt.adapters.socket_options import (
+                    TCPKeepAliveAdapter,
+                )
+            except ImportError:
+                raise ImportError(
+                    "Cannot import the requests-toolbelt library."
+                    "Please install requests-toolbelt."
+                )
+            # count * interval need to be larger than 1 hr (3600s)
+            keep_alive = TCPKeepAliveAdapter(idle=120, count=100, interval=100)
+            self.authorized_session.mount("https://", keep_alive)
+        def invoke_stream_response():
+            if not self.authorized_session:
+                self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+                self.authorized_session = google_auth_requests.AuthorizedSession(
+                    self.credentials
+                )
+            with self.authorized_session.post(
+                    url=url,
+                    data=body,
+                    headers=headers,
+                    timeout=timeout,
+                    stream=True,
+                ) as resp:
+                for line in resp.iter_lines():
+                    yield line
+        if stream:
+            # This wrapping allows a Response object is returned for
+            # non-streaming requests.
+            return invoke_stream_response()
+        return self.authorized_session.post(
+            url=url, data=body, headers=headers, timeout=timeout)
+
+
     @classmethod
     def list(
         cls,
