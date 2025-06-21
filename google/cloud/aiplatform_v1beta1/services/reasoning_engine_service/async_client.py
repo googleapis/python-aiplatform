@@ -87,6 +87,8 @@ class ReasoningEngineServiceAsyncClient:
     _DEFAULT_ENDPOINT_TEMPLATE = ReasoningEngineServiceClient._DEFAULT_ENDPOINT_TEMPLATE
     _DEFAULT_UNIVERSE = ReasoningEngineServiceClient._DEFAULT_UNIVERSE
 
+    endpoint_path = staticmethod(ReasoningEngineServiceClient.endpoint_path)
+    parse_endpoint_path = staticmethod(ReasoningEngineServiceClient.parse_endpoint_path)
     reasoning_engine_path = staticmethod(
         ReasoningEngineServiceClient.reasoning_engine_path
     )

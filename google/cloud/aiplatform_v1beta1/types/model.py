@@ -987,6 +987,16 @@ class ModelContainerSpec(proto.Message):
                available to your container code as the
                ```AIP_DEPLOYED_MODEL_ID`` environment
                variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
+        invoke_route_prefix (str):
+            Immutable. Invoke route prefix for the custom container.
+            "/*" is the only supported value right now. By setting this
+            field, any non-root route on this model will be accessible
+            with [PredictionService.Invoke] eg: "/invoke/foo/bar".
+
+            Only one of ``predict_route`` or ``invoke_route_prefix`` can
+            be set, and we default to using ``predict_route`` if this
+            field is not set. If this field is set, the Model can only
+            be deployed to dedicated endpoint.
         grpc_ports (MutableSequence[google.cloud.aiplatform_v1beta1.types.Port]):
             Immutable. List of ports to expose from the container.
             Vertex AI sends gRPC prediction requests that it receives to
@@ -1046,6 +1056,10 @@ class ModelContainerSpec(proto.Message):
     health_route: str = proto.Field(
         proto.STRING,
         number=7,
+    )
+    invoke_route_prefix: str = proto.Field(
+        proto.STRING,
+        number=15,
     )
     grpc_ports: MutableSequence["Port"] = proto.RepeatedField(
         proto.MESSAGE,

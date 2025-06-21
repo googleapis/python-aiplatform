@@ -1685,7 +1685,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 # Initialize request argument(s)
                 deployed_model = aiplatform_v1beta1.DeployedModel()
                 deployed_model.dedicated_resources.min_replica_count = 1803
-                deployed_model.model = "model_value"
 
                 request = aiplatform_v1beta1.DeployModelRequest(
                     endpoint="endpoint_value",
@@ -2008,7 +2007,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 # Initialize request argument(s)
                 deployed_model = aiplatform_v1beta1.DeployedModel()
                 deployed_model.dedicated_resources.min_replica_count = 1803
-                deployed_model.model = "model_value"
 
                 request = aiplatform_v1beta1.MutateDeployedModelRequest(
                     endpoint="endpoint_value",

@@ -40,7 +40,6 @@ async def sample_append_event():
 
     # Initialize request argument(s)
     event = aiplatform_v1beta1.SessionEvent()
-    event.name = "name_value"
     event.author = "author_value"
     event.invocation_id = "invocation_id_value"
 

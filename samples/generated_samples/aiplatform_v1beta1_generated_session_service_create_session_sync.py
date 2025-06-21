@@ -40,7 +40,6 @@ def sample_create_session():
 
     # Initialize request argument(s)
     session = aiplatform_v1beta1.Session()
-    session.name = "name_value"
     session.user_id = "user_id_value"
 
     request = aiplatform_v1beta1.CreateSessionRequest(

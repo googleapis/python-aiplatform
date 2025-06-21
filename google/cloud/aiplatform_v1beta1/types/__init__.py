@@ -167,10 +167,12 @@ from .endpoint import (
     DeployedModel,
     Endpoint,
     FasterDeploymentConfig,
+    GenAiAdvancedFeaturesConfig,
     PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
     PublisherModelConfig,
     RolloutOptions,
+    SpeculativeDecodingSpec,
 )
 from .endpoint_service import (
     CreateEndpointOperationMetadata,
@@ -769,6 +771,25 @@ from .match_service import (
     ReadIndexDatapointsRequest,
     ReadIndexDatapointsResponse,
 )
+from .memory_bank import (
+    Memory,
+)
+from .memory_bank_service import (
+    CreateMemoryOperationMetadata,
+    CreateMemoryRequest,
+    DeleteMemoryOperationMetadata,
+    DeleteMemoryRequest,
+    GenerateMemoriesOperationMetadata,
+    GenerateMemoriesRequest,
+    GenerateMemoriesResponse,
+    GetMemoryRequest,
+    ListMemoriesRequest,
+    ListMemoriesResponse,
+    RetrieveMemoriesRequest,
+    RetrieveMemoriesResponse,
+    UpdateMemoryOperationMetadata,
+    UpdateMemoryRequest,
+)
 from .metadata_schema import (
     MetadataSchema,
 )
@@ -1129,6 +1150,7 @@ from .publisher_model import (
 )
 from .reasoning_engine import (
     ReasoningEngine,
+    ReasoningEngineContextSpec,
     ReasoningEngineSpec,
 )
 from .reasoning_engine_execution_service import (
@@ -1171,6 +1193,7 @@ from .service_networking import (
     PscAutomatedEndpoints,
     PSCAutomationConfig,
     PscInterfaceConfig,
+    PSCAutomationState,
 )
 from .session import (
     EventActions,
@@ -1535,10 +1558,12 @@ __all__ = (
     "DeployedModel",
     "Endpoint",
     "FasterDeploymentConfig",
+    "GenAiAdvancedFeaturesConfig",
     "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "PublisherModelConfig",
     "RolloutOptions",
+    "SpeculativeDecodingSpec",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
     "DeleteEndpointRequest",
@@ -2044,6 +2069,21 @@ __all__ = (
     "FindNeighborsResponse",
     "ReadIndexDatapointsRequest",
     "ReadIndexDatapointsResponse",
+    "Memory",
+    "CreateMemoryOperationMetadata",
+    "CreateMemoryRequest",
+    "DeleteMemoryOperationMetadata",
+    "DeleteMemoryRequest",
+    "GenerateMemoriesOperationMetadata",
+    "GenerateMemoriesRequest",
+    "GenerateMemoriesResponse",
+    "GetMemoryRequest",
+    "ListMemoriesRequest",
+    "ListMemoriesResponse",
+    "RetrieveMemoriesRequest",
+    "RetrieveMemoriesResponse",
+    "UpdateMemoryOperationMetadata",
+    "UpdateMemoryRequest",
     "MetadataSchema",
     "AddContextArtifactsAndExecutionsRequest",
     "AddContextArtifactsAndExecutionsResponse",
@@ -2329,6 +2369,7 @@ __all__ = (
     "StreamRawPredictRequest",
     "PublisherModel",
     "ReasoningEngine",
+    "ReasoningEngineContextSpec",
     "ReasoningEngineSpec",
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",
@@ -2357,6 +2398,7 @@ __all__ = (
     "PscAutomatedEndpoints",
     "PSCAutomationConfig",
     "PscInterfaceConfig",
+    "PSCAutomationState",
     "EventActions",
     "EventMetadata",
     "Session",

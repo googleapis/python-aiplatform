@@ -117,6 +117,11 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}:appendEvent",
                     "body": "event",
                 },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=reasoningEngines/*/sessions/*}:appendEvent",
+                    "body": "event",
+                },
             ]
             return http_options
 
@@ -172,6 +177,11 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{parent=projects/*/locations/*/reasoningEngines/*}/sessions",
+                    "body": "session",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=reasoningEngines/*}/sessions",
                     "body": "session",
                 },
             ]
@@ -230,6 +240,10 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}",
                 },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=reasoningEngines/*/sessions/*}",
+                },
             ]
             return http_options
 
@@ -276,6 +290,10 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=reasoningEngines/*/sessions/*}",
                 },
             ]
             return http_options
@@ -324,6 +342,10 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                     "method": "get",
                     "uri": "/v1beta1/{parent=projects/*/locations/*/reasoningEngines/*/sessions/*}/events",
                 },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{parent=reasoningEngines/*/sessions/*}/events",
+                },
             ]
             return http_options
 
@@ -371,6 +393,10 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                     "method": "get",
                     "uri": "/v1beta1/{parent=projects/*/locations/*/reasoningEngines/*}/sessions",
                 },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{parent=reasoningEngines/*}/sessions",
+                },
             ]
             return http_options
 
@@ -417,6 +443,11 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 {
                     "method": "patch",
                     "uri": "/v1beta1/{session.name=projects/*/locations/*/reasoningEngines/*/sessions/*}",
+                    "body": "session",
+                },
+                {
+                    "method": "patch",
+                    "uri": "/v1beta1/{session.name=reasoningEngines/*/sessions/*}",
                     "body": "session",
                 },
             ]
@@ -1173,6 +1204,14 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
                 },
                 {
@@ -1575,6 +1614,14 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2031,6 +2078,14 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
                 },
                 {
@@ -2480,6 +2535,14 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*}/operations",
                 },
                 {
@@ -2926,6 +2989,14 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

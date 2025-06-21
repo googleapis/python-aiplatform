@@ -203,6 +203,7 @@ from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
 from .types.endpoint import FasterDeploymentConfig
+from .types.endpoint import GenAiAdvancedFeaturesConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint import SpeculativeDecodingSpec
@@ -680,6 +681,9 @@ from .types.model_deployment_monitoring_job import (
 )
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
+from .types.model_garden_service import DeployOperationMetadata
+from .types.model_garden_service import DeployRequest
+from .types.model_garden_service import DeployResponse
 from .types.model_garden_service import GetPublisherModelRequest
 from .types.model_garden_service import PublisherModelView
 from .types.model_monitoring import ModelMonitoringAlertConfig
@@ -863,6 +867,7 @@ from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
 from .types.service_networking import PscInterfaceConfig
+from .types.service_networking import PSCAutomationState
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -1302,6 +1307,9 @@ __all__ = (
     "DeployModelOperationMetadata",
     "DeployModelRequest",
     "DeployModelResponse",
+    "DeployOperationMetadata",
+    "DeployRequest",
+    "DeployResponse",
     "DeployedIndex",
     "DeployedIndexAuthConfig",
     "DeployedIndexRef",
@@ -1409,6 +1417,7 @@ __all__ = (
     "FunctionResponse",
     "GcsDestination",
     "GcsSource",
+    "GenAiAdvancedFeaturesConfig",
     "GenAiCacheServiceClient",
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
@@ -1678,6 +1687,7 @@ __all__ = (
     "NotebookServiceClient",
     "NotebookSoftwareConfig",
     "PSCAutomationConfig",
+    "PSCAutomationState",
     "PairwiseChoice",
     "PairwiseMetricInput",
     "PairwiseMetricInstance",

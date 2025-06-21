@@ -4637,6 +4637,14 @@ def test_create_reasoning_engine_rest_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
+        "context_spec": {
+            "memory_bank_config": {
+                "generation_config": {"model": "model_value"},
+                "similarity_search_config": {
+                    "embedding_model": "embedding_model_value"
+                },
+            }
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5143,6 +5151,14 @@ def test_update_reasoning_engine_rest_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
+        "context_spec": {
+            "memory_bank_config": {
+                "generation_config": {"model": "model_value"},
+                "similarity_search_config": {
+                    "embedding_model": "embedding_model_value"
+                },
+            }
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6273,6 +6289,14 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
+        "context_spec": {
+            "memory_bank_config": {
+                "generation_config": {"model": "model_value"},
+                "similarity_search_config": {
+                    "embedding_model": "embedding_model_value"
+                },
+            }
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6833,6 +6857,14 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
+        "context_spec": {
+            "memory_bank_config": {
+                "generation_config": {"model": "model_value"},
+                "similarity_search_config": {
+                    "embedding_model": "embedding_model_value"
+                },
+            }
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8553,10 +8585,36 @@ def test_reasoning_engine_service_grpc_lro_async_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_reasoning_engine_path():
+def test_endpoint_path():
     project = "squid"
     location = "clam"
-    reasoning_engine = "whelk"
+    endpoint = "whelk"
+    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+        project=project,
+        location=location,
+        endpoint=endpoint,
+    )
+    actual = ReasoningEngineServiceClient.endpoint_path(project, location, endpoint)
+    assert expected == actual
+
+
+def test_parse_endpoint_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "endpoint": "nudibranch",
+    }
+    path = ReasoningEngineServiceClient.endpoint_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ReasoningEngineServiceClient.parse_endpoint_path(path)
+    assert expected == actual
+
+
+def test_reasoning_engine_path():
+    project = "cuttlefish"
+    location = "mussel"
+    reasoning_engine = "winkle"
     expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}".format(
         project=project,
         location=location,
@@ -8570,9 +8628,9 @@ def test_reasoning_engine_path():
 
 def test_parse_reasoning_engine_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "reasoning_engine": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "reasoning_engine": "abalone",
     }
     path = ReasoningEngineServiceClient.reasoning_engine_path(**expected)
 
@@ -8582,7 +8640,7 @@ def test_parse_reasoning_engine_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -8592,7 +8650,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = ReasoningEngineServiceClient.common_billing_account_path(**expected)
 
@@ -8602,7 +8660,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -8612,7 +8670,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = ReasoningEngineServiceClient.common_folder_path(**expected)
 
@@ -8622,7 +8680,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -8632,7 +8690,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = ReasoningEngineServiceClient.common_organization_path(**expected)
 
@@ -8642,7 +8700,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -8652,7 +8710,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = ReasoningEngineServiceClient.common_project_path(**expected)
 
@@ -8662,8 +8720,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -8674,8 +8732,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = ReasoningEngineServiceClient.common_location_path(**expected)
 

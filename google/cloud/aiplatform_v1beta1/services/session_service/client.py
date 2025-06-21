@@ -223,6 +223,28 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
         return self._transport
 
     @staticmethod
+    def reasoning_engine_path(
+        project: str,
+        location: str,
+        reasoning_engine: str,
+    ) -> str:
+        """Returns a fully-qualified reasoning_engine string."""
+        return "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}".format(
+            project=project,
+            location=location,
+            reasoning_engine=reasoning_engine,
+        )
+
+    @staticmethod
+    def parse_reasoning_engine_path(path: str) -> Dict[str, str]:
+        """Parses a reasoning_engine path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/reasoningEngines/(?P<reasoning_engine>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def session_path(
         project: str,
         location: str,
@@ -819,7 +841,6 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
 
                 # Initialize request argument(s)
                 session = aiplatform_v1beta1.Session()
-                session.name = "name_value"
                 session.user_id = "user_id_value"
 
                 request = aiplatform_v1beta1.CreateSessionRequest(
@@ -1192,7 +1213,6 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
 
                 # Initialize request argument(s)
                 session = aiplatform_v1beta1.Session()
-                session.name = "name_value"
                 session.user_id = "user_id_value"
 
                 request = aiplatform_v1beta1.UpdateSessionRequest(
@@ -1574,7 +1594,6 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
 
                 # Initialize request argument(s)
                 event = aiplatform_v1beta1.SessionEvent()
-                event.name = "name_value"
                 event.author = "author_value"
                 event.invocation_id = "invocation_id_value"
 

@@ -224,6 +224,28 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
         return self._transport
 
     @staticmethod
+    def endpoint_path(
+        project: str,
+        location: str,
+        endpoint: str,
+    ) -> str:
+        """Returns a fully-qualified endpoint string."""
+        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+            project=project,
+            location=location,
+            endpoint=endpoint,
+        )
+
+    @staticmethod
+    def parse_endpoint_path(path: str) -> Dict[str, str]:
+        """Parses a endpoint path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def reasoning_engine_path(
         project: str,
         location: str,

@@ -45,6 +45,8 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
+from google.api_core import operation  # type: ignore
+from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model_garden_service
 from google.cloud.aiplatform_v1.types import publisher_model
@@ -78,6 +80,10 @@ class ModelGardenServiceAsyncClient:
     _DEFAULT_ENDPOINT_TEMPLATE = ModelGardenServiceClient._DEFAULT_ENDPOINT_TEMPLATE
     _DEFAULT_UNIVERSE = ModelGardenServiceClient._DEFAULT_UNIVERSE
 
+    endpoint_path = staticmethod(ModelGardenServiceClient.endpoint_path)
+    parse_endpoint_path = staticmethod(ModelGardenServiceClient.parse_endpoint_path)
+    model_path = staticmethod(ModelGardenServiceClient.model_path)
+    parse_model_path = staticmethod(ModelGardenServiceClient.parse_model_path)
     publisher_model_path = staticmethod(ModelGardenServiceClient.publisher_model_path)
     parse_publisher_model_path = staticmethod(
         ModelGardenServiceClient.parse_publisher_model_path
@@ -409,6 +415,107 @@ class ModelGardenServiceAsyncClient:
             retry=retry,
             timeout=timeout,
             metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def deploy(
+        self,
+        request: Optional[Union[model_garden_service.DeployRequest, dict]] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Deploys a model to a new endpoint.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_deploy():
+                # Create a client
+                client = aiplatform_v1.ModelGardenServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeployRequest(
+                    publisher_model_name="publisher_model_name_value",
+                    destination="destination_value",
+                )
+
+                # Make the request
+                operation = client.deploy(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeployRequest, dict]]):
+                The request object. Request message for
+                [ModelGardenService.Deploy][google.cloud.aiplatform.v1.ModelGardenService.Deploy].
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.DeployResponse` Response message for
+                   [ModelGardenService.Deploy][google.cloud.aiplatform.v1.ModelGardenService.Deploy].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, model_garden_service.DeployRequest):
+            request = model_garden_service.DeployRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[self._client._transport.deploy]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("destination", request.destination),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            model_garden_service.DeployResponse,
+            metadata_type=model_garden_service.DeployOperationMetadata,
         )
 
         # Done; return the response.
