@@ -167,10 +167,12 @@ from .endpoint import (
     DeployedModel,
     Endpoint,
     FasterDeploymentConfig,
+    GenAiAdvancedFeaturesConfig,
     PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
     PublisherModelConfig,
     RolloutOptions,
+    SpeculativeDecodingSpec,
 )
 from .endpoint_service import (
     CreateEndpointOperationMetadata,
@@ -1191,6 +1193,7 @@ from .service_networking import (
     PscAutomatedEndpoints,
     PSCAutomationConfig,
     PscInterfaceConfig,
+    PSCAutomationState,
 )
 from .session import (
     EventActions,
@@ -1555,10 +1558,12 @@ __all__ = (
     "DeployedModel",
     "Endpoint",
     "FasterDeploymentConfig",
+    "GenAiAdvancedFeaturesConfig",
     "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "PublisherModelConfig",
     "RolloutOptions",
+    "SpeculativeDecodingSpec",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
     "DeleteEndpointRequest",
@@ -2393,6 +2398,7 @@ __all__ = (
     "PscAutomatedEndpoints",
     "PSCAutomationConfig",
     "PscInterfaceConfig",
+    "PSCAutomationState",
     "EventActions",
     "EventMetadata",
     "Session",

@@ -226,10 +226,12 @@ from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
 from .types.endpoint import FasterDeploymentConfig
+from .types.endpoint import GenAiAdvancedFeaturesConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint import PublisherModelConfig
 from .types.endpoint import RolloutOptions
+from .types.endpoint import SpeculativeDecodingSpec
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
 from .types.endpoint_service import DeleteEndpointRequest
@@ -1076,6 +1078,7 @@ from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
 from .types.service_networking import PscInterfaceConfig
+from .types.service_networking import PSCAutomationState
 from .types.session import EventActions
 from .types.session import EventMetadata
 from .types.session import Session
@@ -1738,6 +1741,7 @@ __all__ = (
     "GeminiExample",
     "GeminiRequestReadConfig",
     "GeminiTemplateConfig",
+    "GenAiAdvancedFeaturesConfig",
     "GenAiCacheServiceClient",
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
@@ -2066,6 +2070,7 @@ __all__ = (
     "OutputConfig",
     "OutputInfo",
     "PSCAutomationConfig",
+    "PSCAutomationState",
     "PairwiseChoice",
     "PairwiseMetricInput",
     "PairwiseMetricInstance",
@@ -2279,6 +2284,7 @@ __all__ = (
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
+    "SpeculativeDecodingSpec",
     "SpeechConfig",
     "StartNotebookRuntimeOperationMetadata",
     "StartNotebookRuntimeRequest",
