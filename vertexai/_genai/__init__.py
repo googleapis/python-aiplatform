@@ -19,6 +19,7 @@ import importlib
 from .client import Client
 
 _evals = None
+_prompt_optimizer = None
 
 
 def __getattr__(name):
@@ -34,10 +35,18 @@ def __getattr__(name):
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
         return _evals
+    elif name == "prompt_optimizer":
+        global _prompt_optimizer
+        if _prompt_optimizer is None:
+            _prompt_optimizer = importlib.import_module(
+                ".prompt_optimizer", __package__
+            )
+        return _prompt_optimizer
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 __all__ = [
     "Client",
     "evals",
+    "prompt_optimizer",
 ]
