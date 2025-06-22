@@ -344,7 +344,7 @@ To get a model:
 
 .. code-block:: Python
 
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
 
 
@@ -426,7 +426,7 @@ To create a batch prediction job:
 
 .. code-block:: Python
 
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
   batch_prediction_job = model.batch_predict(
     job_display_name='my-batch-prediction-job',
@@ -466,7 +466,7 @@ To deploy a model to a created endpoint:
 
 .. code-block:: Python
 
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
   endpoint.deploy(model,
                   min_replica_count=1,
