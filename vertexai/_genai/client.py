@@ -29,6 +29,7 @@ class AsyncClient:
     def __init__(self, api_client: genai_client.Client):
         self._api_client = api_client
         self._evals = None
+        self._agent_engines = None
 
     @property
     @_common.experimental_warning(
@@ -50,6 +51,28 @@ class AsyncClient:
         return self._evals.AsyncEvals(self._api_client)
 
     # TODO(b/424176979): add async prompt optimizer here.
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI agent engines module is experimental, "
+        "and may change in future versions."
+    )
+    def agent_engines(self):
+        if self._agent_engines is None:
+            try:
+                # We need to lazy load the agent_engines module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._agent_engines = importlib.import_module(
+                    ".agent_engines",
+                    __package__,
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines' module requires 'additional packages'. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._agent_engines.AsyncAgentEngines(self._api_client)
 
 
 class Client:
@@ -104,6 +127,7 @@ class Client:
         self._aio = AsyncClient(self._api_client)
         self._evals = None
         self._prompt_optimizer = None
+        self._agent_engines = None
 
     @property
     @_common.experimental_warning(
@@ -158,3 +182,25 @@ class Client:
                 location=location,
                 http_options=http_options,
             )
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI agent engines module is experimental, "
+        "and may change in future versions."
+    )
+    def agent_engines(self):
+        if self._agent_engines is None:
+            try:
+                # We need to lazy load the agent_engines module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._agent_engines = importlib.import_module(
+                    ".agent_engines",
+                    __package__,
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines' module requires 'additional packages'. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._agent_engines.AgentEngines(self._api_client)
