@@ -18,7 +18,7 @@ from typing import Optional, Union
 
 import google.auth
 from google.genai import _common
-from google.genai import client
+from google.genai import client as genai_client
 from google.genai import types
 
 
@@ -26,7 +26,7 @@ class AsyncClient:
 
     """Async Client for the GenAI SDK."""
 
-    def __init__(self, api_client: client.Client):
+    def __init__(self, api_client: genai_client.Client):
         self._api_client = api_client
         self._evals = None
 
@@ -64,7 +64,7 @@ class Client:
         credentials: Optional[google.auth.credentials.Credentials] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
-        debug_config: Optional[client.DebugConfig] = None,
+        debug_config: Optional[genai_client.DebugConfig] = None,
         http_options: Optional[Union[types.HttpOptions, types.HttpOptionsDict]] = None,
     ):
         """Initializes the client.
@@ -89,11 +89,11 @@ class Client:
              for the client.
         """
 
-        self._debug_config = debug_config or client.DebugConfig()
+        self._debug_config = debug_config or genai_client.DebugConfig()
         if isinstance(http_options, dict):
             http_options = types.HttpOptions(**http_options)
 
-        self._api_client = client.Client._get_api_client(
+        self._api_client = genai_client.Client._get_api_client(
             vertexai=True,
             credentials=credentials,
             project=project,
@@ -131,3 +131,30 @@ class Client:
     )
     def aio(self):
         return self._aio
+
+    # This is only used for replay tests
+    @staticmethod
+    def _get_api_client(
+        api_key: Optional[str] = None,
+        credentials: Optional[google.auth.credentials.Credentials] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        debug_config: Optional[genai_client.DebugConfig] = None,
+        http_options: Optional[genai_client.HttpOptions] = None,
+    ) -> Optional[genai_client.BaseApiClient]:
+        if debug_config and debug_config.client_mode in [
+            "record",
+            "replay",
+            "auto",
+        ]:
+            return genai_client.ReplayApiClient(
+                mode=debug_config.client_mode,  # type: ignore[arg-type]
+                replay_id=debug_config.replay_id,  # type: ignore[arg-type]
+                replays_directory=debug_config.replays_directory,
+                vertexai=True,  # type: ignore[arg-type]
+                api_key=api_key,
+                credentials=credentials,
+                project=project,
+                location=location,
+                http_options=http_options,
+            )
