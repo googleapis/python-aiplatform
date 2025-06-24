@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.99.0](https://github.com/googleapis/python-aiplatform/compare/v1.98.0...v1.99.0) (2025-06-24)
+
+
+### Features
+
+* [vertexai] Added concise option name to `OpenModel.list_deploy_options()` ([9a0eec6](https://github.com/googleapis/python-aiplatform/commit/9a0eec64544630ca3681acf1ba6bb79280ee8c11))
+* Add resource usage assessment for batch prediction. ([f63e436](https://github.com/googleapis/python-aiplatform/commit/f63e436ed0cb30316dc8569a6e1adfe5cb2cced8))
+* Add support for ADK memory service to AdkApp template ([733fddd](https://github.com/googleapis/python-aiplatform/commit/733fdddb7dd61ae9b9e5180e832776b0c4e2682b))
+* GenAI SDK client - Add automatic candidate naming and creation timestamp to evaluation dataset metadata ([e8897e7](https://github.com/googleapis/python-aiplatform/commit/e8897e7bee243fe9ac9996d451ad313e9ff6484c))
+* GenAI SDK client - Add support for OpenAI data format for evals ([f8f66f1](https://github.com/googleapis/python-aiplatform/commit/f8f66f1420271c9278236c6c1bf0b652126c4959))
+* GenAI SDK client - Adding client-based SDKs for Agent Engine ([7b51d9e](https://github.com/googleapis/python-aiplatform/commit/7b51d9e0a06662def2275c84cda6d08fed796740))
+
+
+### Documentation
+
+* Add deprecation notice to readme for Generative AI submodules: vertexai.generative_models, vertexai.language_models, vertexai.vision_models, vertexai.tuning, vertexai.caching ([beae2e3](https://github.com/googleapis/python-aiplatform/commit/beae2e3c39904c83a63f77be5bb7dc9958abd19d))
+* Add deprecation notice to readme for Generative AI submodules: vertexai.generative_models, vertexai.language_models, vertexai.vision_models, vertexai.tuning, vertexai.caching ([cdee7c2](https://github.com/googleapis/python-aiplatform/commit/cdee7c2406ad50dd2d3af0075f1c84d38b684b33))
+* Add deprecation notice to readme for Generative AI submodules: vertexai.generative_models, vertexai.language_models, vertexai.vision_models, vertexai.tuning, vertexai.caching ([9b0beae](https://github.com/googleapis/python-aiplatform/commit/9b0beae22be2f7618618ef52971f0b3603ae3885))
+
 ## [1.98.0](https://github.com/googleapis/python-aiplatform/compare/v1.97.0...v1.98.0) (2025-06-19)
 
 
