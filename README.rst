@@ -1,6 +1,15 @@
 Vertex AI SDK for Python
 =================================================
 
+.. note::
+
+   The following Generative AI modules in the Vertex AI SDK are deprecated as of June 24, 2025 and will be removed on June 24, 2026:
+   `vertexai.generative_models`, `vertexai.language_models`, `vertexai.vision_models`, `vertexai.tuning`, `vertexai.batch_prediction`, `vertexai.caching`. Please use the
+   [Google Gen AI SDK](https://pypi.org/project/google-genai/) to access these features. See
+   [the migration guide](https://cloud.google.com/vertex-ai/generative-ai/docs/deprecations/genai-vertexai-sdk) for details.
+   You can continue using all other Vertex AI SDK modules, as they are the recommended way to use the API.
+
+
 |GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
 
 `Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.

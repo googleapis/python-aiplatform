@@ -42,6 +42,8 @@ from vertexai._model_garden import _model_garden_models
 from vertexai.language_models import (
     _evaluatable_language_models,
 )
+from vertexai._utils import deprecation_warning
+
 
 try:
     import pandas
@@ -1157,6 +1159,7 @@ class VertexAISearch(_GroundingSourceBase):
         }
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 @dataclasses.dataclass
 class GroundingSource:
 
@@ -1236,6 +1239,7 @@ class GroundingMetadata:
         self.search_queries = response.get("searchQueries", [])
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 @dataclasses.dataclass
 class TextGenerationResponse:
     """TextGenerationResponse represents a response of a language model.
@@ -1950,6 +1954,7 @@ class _PreviewModelWithBatchPredict(_ModelWithBatchPredict):
         )
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 class TextGenerationModel(
     _TextGenerationModel,
     _TunableTextModelMixin,
@@ -2070,6 +2075,7 @@ class _ChatSession:
         return response_obj
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 @dataclasses.dataclass
 class TextEmbeddingInput:
     """Structural text embedding input.
@@ -2422,6 +2428,7 @@ class _TunableTextEmbeddingModelMixin(_PreviewTunableTextEmbeddingModelMixin):
     pass
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 class TextEmbeddingModel(
     _TextEmbeddingModel,
     _ModelWithBatchPredict,
@@ -2451,6 +2458,7 @@ class TextEmbeddingStatistics:
     truncated: bool
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 @dataclasses.dataclass
 class TextEmbedding:
     """Text embedding vector and statistics."""
@@ -2492,6 +2500,7 @@ class TextEmbedding:
             return cls(values=prediction, _prediction_response=prediction_response)
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 @dataclasses.dataclass
 class InputOutputTextPair:
     """InputOutputTextPair represents a pair of input and output texts."""
@@ -2502,6 +2511,7 @@ class InputOutputTextPair:
     output_text: str
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 @dataclasses.dataclass
 class ChatMessage:
     """A chat message.
@@ -2562,6 +2572,7 @@ class _ChatModelBase(_LanguageModel):
         )
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 class ChatModel(_ChatModelBase, _TunableChatModelMixin, _RlhfTunableModelMixin):
     """ChatModel represents a language model that is capable of chat.
 
@@ -2638,6 +2649,7 @@ class _PreviewChatModel(ChatModel, _PreviewTunableChatModelMixin):
         )
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 class CodeChatModel(_ChatModelBase, _TunableChatModelMixin):
     """CodeChatModel represents a model that is capable of completing code.
 
@@ -3255,6 +3267,7 @@ class _PreviewCodeChatSession(_ChatSessionBaseWithCountTokensMixin):
     __module__ = "vertexai.preview.language_models"
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 class ChatSession(_ChatSessionBase):
     """ChatSession represents a chat session with a language model.
 
@@ -3288,6 +3301,7 @@ class ChatSession(_ChatSessionBase):
         )
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 class CodeChatSession(_ChatSessionBase):
     """CodeChatSession represents a chat session with code chat language model.
 
@@ -3720,6 +3734,7 @@ class _CountTokensCodeGenerationMixin(_LanguageModel):
         )
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 class CodeGenerationModel(
     _CodeGenerationModel,
     _TunableTextModelMixin,

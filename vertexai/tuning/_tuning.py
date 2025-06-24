@@ -39,6 +39,8 @@ from google.cloud.aiplatform_v1beta1 import types as gca_types
 
 from google.rpc import status_pb2  # type: ignore
 
+from vertexai._utils import deprecation_warning
+
 
 _LOGGER = aiplatform_base.Logger(__name__)
 
@@ -52,6 +54,7 @@ class TuningJobClientWithOverride(aiplatform_utils.ClientWithOverride):
     )
 
 
+@deprecation_warning.genai_class_deprecation_warning()
 class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
     """Represents a TuningJob that runs with Google owned models."""
 
