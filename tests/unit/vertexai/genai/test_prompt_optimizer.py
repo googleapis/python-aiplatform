@@ -47,6 +47,10 @@ class TestPromptOptimizer:
     def test_prompt_optimizer_client(self):
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         assert test_client.prompt_optimizer is not None
+        assert test_client._api_client.vertexai
+        assert test_client._api_client.project == _TEST_PROJECT
+        assert test_client._api_client.location == _TEST_LOCATION
+        assert test_client._api_client._credentials is None
 
     @mock.patch.object(client.Client, "_get_api_client")
     @mock.patch.object(prompt_optimizer.PromptOptimizer, "_create_custom_job_resource")

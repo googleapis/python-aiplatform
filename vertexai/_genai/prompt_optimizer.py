@@ -22,6 +22,7 @@ import time
 from typing import Any, Optional, Union
 from urllib.parse import urlencode
 
+from google.cloud import resourcemanager
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
@@ -576,6 +577,21 @@ class PromptOptimizer(_api_module.BaseModule):
         else:
             logger.info(f"Job completed with state: {job.state}")
 
+    def _get_service_account(self) -> str:
+        """Get the service account for the project."""
+
+        project_id = self._api_client.project
+        logger.info("api client: %s", self._api_client)
+        logger.info("api client attributes: %s", dir(self._api_client))
+        projects_client = resourcemanager.ProjectsClient(
+            credentials=self._api_client._credentials
+        )
+
+        project = projects_client.get_project(name=f"projects/{project_id}")
+        project_number = project.name.split("/", 1)[1]
+
+        return f"{project_number}-compute@developer.gserviceaccount.com"
+
     def optimize(
         self,
         method: str,
@@ -626,6 +642,7 @@ class PromptOptimizer(_api_module.BaseModule):
             }
         ]
 
+        service_account = self._get_service_account()
         job_spec = types.CustomJobSpec(
             worker_pool_specs=worker_pool_specs,
             base_output_directory=types.GcsDestination(output_uri_prefix=bucket),
