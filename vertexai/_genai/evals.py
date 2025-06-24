@@ -1138,7 +1138,28 @@ class Evals(_api_module.BaseModule):
         src: Union[str, pd.DataFrame],
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
     ) -> types.EvaluationDataset:
-        """Runs inference on a dataset for evaluation."""
+        """Runs inference on a dataset for evaluation.
+
+        Args:
+          model: The model to use for inference. - For Google Gemini models,
+            provide the model name string (e.g., "gemini-2.5-flash"). - For
+            third-party models via LiteLLM, use the format "provider/model_name"
+            (e.g., "openai/gpt-4o"). Ensure the necessary API key (e.g.,
+            OPENAI_API_KEY) is set as an environment variable. - For custom
+            logic, provide a callable function that accepts a prompt and returns
+            a response.
+          src: The source of the dataset. Can be a string (path to a local file,
+            a GCS path, or a BigQuery table) or a Pandas DataFrame.
+          config: The optional configuration for the inference run. Must be a
+            dict or `types.EvalRunInferenceConfig` type. - dest: The destination
+            path for storage of the inference results. - prompt_template: The
+            template string to use for constructing prompts. -
+            generate_content_config: The config for the Gemini generate content
+              call.
+
+        Returns:
+          The evaluation dataset.
+        """
         if not config:
             config = types.EvalRunInferenceConfig()
         if isinstance(config, dict):
@@ -1161,7 +1182,21 @@ class Evals(_api_module.BaseModule):
         metrics: list[types.MetricOrDict],
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
     ) -> types.EvaluationResult:
-        """Evaluates a dataset using the provided metrics."""
+        """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
+
+        Args:
+          dataset: The dataset(s) to evaluate. Can be a single
+            `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
+          metrics: The list of metrics to use for evaluation.
+          config: Optional configuration for the evaluation. Can be a dictionary
+            or a `types.EvaluateMethodConfig` object. - dataset_schema: Schema
+            to use for the dataset. If not specified, the dataset schema will be
+            inferred from the dataset automatically. - dest: Destination path
+            for storing evaluation results.
+
+        Returns:
+          The evaluation result.
+        """
         if not config:
             config = types.EvaluateMethodConfig()
         if isinstance(config, dict):

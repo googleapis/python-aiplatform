@@ -35,6 +35,12 @@ from . import _evals_utils
 from . import evals
 from . import types
 
+try:
+    import litellm
+except ImportError:
+    litellm = None
+
+
 logger = logging.getLogger(__name__)
 
 MAX_WORKERS = 100
@@ -280,6 +286,104 @@ def _run_custom_inference(
     )
 
 
+def _convert_prompt_row_to_litellm_messages(row: pd.Series) -> list[dict[str, Any]]:
+    """Converts a DataFrame row into LiteLLM's messages format by detecting the input schema."""
+    messages = []
+    row_dict = row.to_dict()
+
+    # Case 1: The row is an OpenAI request body itself.
+    if "messages" in row_dict and isinstance(row_dict.get("messages"), list):
+        return row_dict["messages"]
+
+    # Case 2: The row contains a 'request' key with an OpenAI request body.
+    elif "request" in row_dict and isinstance(row_dict.get("request"), dict):
+        request_body = row_dict["request"]
+        if "messages" in request_body and isinstance(
+            request_body.get("messages"), list
+        ):
+            return request_body["messages"]
+
+        # Case 3: The 'request' key is in Gemini 'contents' format.
+        elif "contents" in request_body and isinstance(
+            request_body.get("contents"), list
+        ):
+            for content in request_body["contents"]:
+                role = content.get("role", "user")
+                text_parts = [part.get("text", "") for part in content.get("parts", [])]
+                messages.append({"role": role, "content": " ".join(text_parts)})
+            return messages
+
+    # Case 4: Fallback to a simple 'prompt' key with a raw string.
+    elif "prompt" in row_dict and isinstance(row_dict.get("prompt"), str):
+        return [{"role": "user", "content": row_dict["prompt"]}]
+
+    raise ValueError(
+        "Could not determine prompt/messages format from input row. "
+        "Expected OpenAI request body with a 'messages' key, or a 'request' key"
+        " with OpenAI request body, or Gemini request body with a 'contents'"
+        f" key, or a 'prompt' key with a raw string. Found keys: {list(row_dict.keys())}"
+    )
+
+
+def _call_litellm_completion(model: str, messages: list[dict[str, Any]]) -> dict:
+    """Wrapper for a single litellm.completion call."""
+    try:
+        response = litellm.completion(model=model, messages=messages)
+        return response.model_dump()
+    except Exception as e:
+        logger.error("LiteLLM completion failed for model %s: %s", model, e)
+        return {"error": str(e)}
+
+
+def _run_litellm_inference(
+    model: str, prompt_dataset: pd.DataFrame
+) -> list[dict[str, Any]]:
+    """Runs inference using LiteLLM with concurrency."""
+    logger.info(
+        "Generating responses for %d prompts using LiteLLM for third party model: %s",
+        len(prompt_dataset),
+        model,
+    )
+    responses = [None] * len(prompt_dataset)
+    tasks = []
+
+    with tqdm(total=len(prompt_dataset), desc=f"LiteLLM Inference ({model})") as pbar:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            for index, row in prompt_dataset.iterrows():
+                messages = _convert_prompt_row_to_litellm_messages(row)
+                future = executor.submit(
+                    _call_litellm_completion, model=model, messages=messages
+                )
+                future.add_done_callback(lambda _: pbar.update(1))
+                tasks.append((future, index))
+
+            for future, index in tasks:
+                try:
+                    result = future.result()
+                    responses[index] = result
+                except Exception as e:
+                    logger.error("Error processing prompt at index %d: %s", index, e)
+                    responses[index] = {"error": f"LiteLLM task failed: {e}"}
+
+    return responses
+
+
+def _is_litellm_model(model: str) -> bool:
+    """Checks if the model name corresponds to a valid LiteLLM model name."""
+    return model in litellm.utils.get_valid_models(model)
+
+
+def _is_gemini_model(model: str) -> bool:
+    """Checks if the model name corresponds to a Gemini/Vertex AI model."""
+    return (
+        model.startswith("gemini-")
+        or model.startswith("projects/")
+        or model.startswith("models/")
+        or model.startswith("publishers/")
+        or model.startswith("tunedModels/")
+    )
+
+
 def _run_inference_internal(
     api_client: BaseApiClient,
     model: Union[Callable[[Any], Any], str],
@@ -288,8 +392,18 @@ def _run_inference_internal(
 ) -> pd.DataFrame:
     """Runs inference on a given dataset using the specified model or function."""
 
-    if isinstance(model, str):
-        logger.info("Running inference with model name: %s", model)
+    if isinstance(model, str) and _is_gemini_model(model):
+        if (
+            "prompt" not in prompt_dataset.columns
+            and "request" not in prompt_dataset.columns
+        ):
+            raise ValueError(
+                "Prompt dataset for Gemini model must contain either 'prompt' or"
+                " 'request' column for inference. "
+                f"Found columns: {prompt_dataset.columns.tolist()}"
+            )
+
+        logger.info("Running inference with Gemini model name: %s", model)
         raw_responses = _run_gemini_inference(
             api_client=api_client,
             model=model,
@@ -315,7 +429,30 @@ def _run_inference_internal(
                 }
                 processed_responses.append(json.dumps(error_payload))
         responses = processed_responses
-
+    elif isinstance(model, str):
+        if litellm is None:
+            raise ImportError(
+                "The 'litellm' library is required to use third-party models."
+                " Please install it using 'pip install"
+                " google-cloud-aiplatform[evaluation]'."
+            )
+        if _is_litellm_model(model):
+            logger.info("Running inference with LiteLLM for model: %s", model)
+            raw_responses = _run_litellm_inference(
+                model=model, prompt_dataset=prompt_dataset
+            )
+            responses = [json.dumps(resp) for resp in raw_responses]
+        else:
+            raise TypeError(
+                f"Unsupported string model name: {model}. Expecting a Gemini model"
+                " name (e.g., 'gemini-2.5-pro', 'projects/.../models/...') or a"
+                " LiteLLM supported model name (e.g., 'openai/gpt-4o')."
+                " If using a third-party model via LiteLLM, ensure the"
+                " necessary environment variables are set (e.g., for OpenAI:"
+                " `os.environ['OPENAI_API_KEY'] = 'Your API Key'`). See"
+                " LiteLLM documentation for details:"
+                " https://docs.litellm.ai/docs/set_keys#environment-variables"
+            )
     elif callable(model):
         logger.info("Running inference with custom callable function.")
         custom_responses_raw = _run_custom_inference(
@@ -432,8 +569,8 @@ def _execute_inference(
         api_client: The API client.
         model: The model to use for inference. Can be a callable function or a
           string representing a model.
-        src: The source of the dataset to use for inference. Can be a string
-          representing a file path or a pandas DataFrame.
+        src: The source of the dataset. Can be a string (path to a local file,
+          a GCS path, or a BigQuery table) or a Pandas DataFrame.
         dest: The destination to save the inference results. Can be a string
           representing a file path or a GCS URI.
         config: The generation configuration for the model.
@@ -455,16 +592,6 @@ def _execute_inference(
             prompt_template = types.PromptTemplate.model_validate(prompt_template)
 
         _apply_prompt_template(prompt_dataset, prompt_template)
-
-    if (
-        "prompt" not in prompt_dataset.columns
-        and "request" not in prompt_dataset.columns
-    ):
-        raise ValueError(
-            "Dataset must contain either 'prompt' or 'request' "
-            "column for inference after any templating. "
-            f"Found columns: {prompt_dataset.columns.tolist()}"
-        )
 
     start_time = time.time()
     logger.debug("Starting inference process ...")
