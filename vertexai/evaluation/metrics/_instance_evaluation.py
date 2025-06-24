@@ -125,6 +125,16 @@ def build_request(
                 metric_column_mapping.get(variable),
                 "",
             )
+        if isinstance(metric, pairwise_metric.PairwiseMetric):
+            metric_column_mapping = evaluation_run_config.metric_column_mapping
+            metric_spec.candidate_response_field_name = metric_column_mapping.get(
+                constants.Dataset.MODEL_RESPONSE_COLUMN,
+                constants.Dataset.MODEL_RESPONSE_COLUMN,
+            )
+            metric_spec.baseline_response_field_name = metric_column_mapping.get(
+                constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
+                constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
+            )
     elif isinstance(metric, _rouge.Rouge):
         metric_spec.rouge_type = metric.rouge_type
         metric_spec.use_stemmer = metric.use_stemmer
