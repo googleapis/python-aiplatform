@@ -23,6 +23,7 @@ import proto  # type: ignore
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
+        "PSCAutomationState",
         "PSCAutomationConfig",
         "PrivateServiceConnectConfig",
         "PscAutomatedEndpoints",
@@ -32,9 +33,25 @@ __protobuf__ = proto.module(
 )
 
 
+class PSCAutomationState(proto.Enum):
+    r"""The state of the PSC service automation.
+
+    Values:
+        PSC_AUTOMATION_STATE_UNSPECIFIED (0):
+            Should not be used.
+        PSC_AUTOMATION_STATE_SUCCESSFUL (1):
+            The PSC service automation is successful.
+        PSC_AUTOMATION_STATE_FAILED (2):
+            The PSC service automation has failed.
+    """
+    PSC_AUTOMATION_STATE_UNSPECIFIED = 0
+    PSC_AUTOMATION_STATE_SUCCESSFUL = 1
+    PSC_AUTOMATION_STATE_FAILED = 2
+
+
 class PSCAutomationConfig(proto.Message):
-    r"""PSC config that is used to automatically create forwarding
-    rule via ServiceConnectionMap.
+    r"""PSC config that is used to automatically create PSC endpoints
+    in the user projects.
 
     Attributes:
         project_id (str):
@@ -43,10 +60,20 @@ class PSCAutomationConfig(proto.Message):
         network (str):
             Required. The full name of the Google Compute Engine
             `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__.
-            `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
-            ``projects/{project}/global/networks/{network}``. Where
-            {project} is a project number, as in '12345', and {network}
-            is network name.
+            `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/get>`__:
+            ``projects/{project}/global/networks/{network}``.
+        ip_address (str):
+            Output only. IP address rule created by the
+            PSC service automation.
+        forwarding_rule (str):
+            Output only. Forwarding rule created by the
+            PSC service automation.
+        state (google.cloud.aiplatform_v1.types.PSCAutomationState):
+            Output only. The state of the PSC service
+            automation.
+        error_message (str):
+            Output only. Error message if the PSC service
+            automation failed.
     """
 
     project_id: str = proto.Field(
@@ -56,6 +83,23 @@ class PSCAutomationConfig(proto.Message):
     network: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    ip_address: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    forwarding_rule: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    state: "PSCAutomationState" = proto.Field(
+        proto.ENUM,
+        number=5,
+        enum="PSCAutomationState",
+    )
+    error_message: str = proto.Field(
+        proto.STRING,
+        number=6,
     )
 
 
@@ -69,6 +113,10 @@ class PrivateServiceConnectConfig(proto.Message):
         project_allowlist (MutableSequence[str]):
             A list of Projects from which the forwarding
             rule will target the service attachment.
+        psc_automation_configs (MutableSequence[google.cloud.aiplatform_v1.types.PSCAutomationConfig]):
+            Optional. List of projects and networks where
+            the PSC endpoints will be created. This field is
+            used by Online Inference(Prediction) only.
         service_attachment (str):
             Output only. The name of the generated
             service attachment resource. This is only
@@ -83,6 +131,13 @@ class PrivateServiceConnectConfig(proto.Message):
     project_allowlist: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
+    )
+    psc_automation_configs: MutableSequence[
+        "PSCAutomationConfig"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="PSCAutomationConfig",
     )
     service_attachment: str = proto.Field(
         proto.STRING,

@@ -116,6 +116,11 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                     "uri": "/v1beta1/{parent=projects/*/locations/*}/reasoningEngines",
                     "body": "reasoning_engine",
                 },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/reasoningEngines",
+                    "body": "reasoning_engine",
+                },
             ]
             return http_options
 
@@ -174,6 +179,10 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}",
                 },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=reasoningEngines/*}",
+                },
             ]
             return http_options
 
@@ -223,6 +232,10 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}",
                 },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=reasoningEngines/*}",
+                },
             ]
             return http_options
 
@@ -269,6 +282,10 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{parent=projects/*/locations/*}/reasoningEngines",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/reasoningEngines",
                 },
             ]
             return http_options
@@ -318,6 +335,11 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 {
                     "method": "patch",
                     "uri": "/v1beta1/{reasoning_engine.name=projects/*/locations/*/reasoningEngines/*}",
+                    "body": "reasoning_engine",
+                },
+                {
+                    "method": "patch",
+                    "uri": "/v1beta1/{reasoning_engine.name=reasoningEngines/*}",
                     "body": "reasoning_engine",
                 },
             ]
@@ -1076,6 +1098,14 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
                 },
                 {
@@ -1478,6 +1508,14 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1934,6 +1972,14 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
                 },
                 {
@@ -2383,6 +2429,14 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*}/operations",
                 },
                 {
@@ -2829,6 +2883,14 @@ class _BaseReasoningEngineServiceRestTransport(ReasoningEngineServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

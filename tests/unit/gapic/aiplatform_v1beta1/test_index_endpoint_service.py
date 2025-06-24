@@ -6504,7 +6504,14 @@ def test_create_index_endpoint_rest_call_success(request_type):
                 ],
                 "deployment_group": "deployment_group_value",
                 "psc_automation_configs": [
-                    {"project_id": "project_id_value", "network": "network_value"}
+                    {
+                        "project_id": "project_id_value",
+                        "network": "network_value",
+                        "ip_address": "ip_address_value",
+                        "forwarding_rule": "forwarding_rule_value",
+                        "state": 1,
+                        "error_message": "error_message_value",
+                    }
                 ],
             }
         ],
@@ -6520,6 +6527,7 @@ def test_create_index_endpoint_rest_call_success(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "psc_automation_configs": {},
             "enable_secure_private_service_connect": True,
             "service_attachment": "service_attachment_value",
         },
@@ -7076,7 +7084,14 @@ def test_update_index_endpoint_rest_call_success(request_type):
                 ],
                 "deployment_group": "deployment_group_value",
                 "psc_automation_configs": [
-                    {"project_id": "project_id_value", "network": "network_value"}
+                    {
+                        "project_id": "project_id_value",
+                        "network": "network_value",
+                        "ip_address": "ip_address_value",
+                        "forwarding_rule": "forwarding_rule_value",
+                        "state": 1,
+                        "error_message": "error_message_value",
+                    }
                 ],
             }
         ],
@@ -7092,6 +7107,7 @@ def test_update_index_endpoint_rest_call_success(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "psc_automation_configs": {},
             "enable_secure_private_service_connect": True,
             "service_attachment": "service_attachment_value",
         },
@@ -7754,7 +7770,14 @@ def test_mutate_deployed_index_rest_call_success(request_type):
         ],
         "deployment_group": "deployment_group_value",
         "psc_automation_configs": [
-            {"project_id": "project_id_value", "network": "network_value"}
+            {
+                "project_id": "project_id_value",
+                "network": "network_value",
+                "ip_address": "ip_address_value",
+                "forwarding_rule": "forwarding_rule_value",
+                "state": 1,
+                "error_message": "error_message_value",
+            }
         ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
@@ -8854,7 +8877,14 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                 ],
                 "deployment_group": "deployment_group_value",
                 "psc_automation_configs": [
-                    {"project_id": "project_id_value", "network": "network_value"}
+                    {
+                        "project_id": "project_id_value",
+                        "network": "network_value",
+                        "ip_address": "ip_address_value",
+                        "forwarding_rule": "forwarding_rule_value",
+                        "state": 1,
+                        "error_message": "error_message_value",
+                    }
                 ],
             }
         ],
@@ -8870,6 +8900,7 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "psc_automation_configs": {},
             "enable_secure_private_service_connect": True,
             "service_attachment": "service_attachment_value",
         },
@@ -9475,7 +9506,14 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                 ],
                 "deployment_group": "deployment_group_value",
                 "psc_automation_configs": [
-                    {"project_id": "project_id_value", "network": "network_value"}
+                    {
+                        "project_id": "project_id_value",
+                        "network": "network_value",
+                        "ip_address": "ip_address_value",
+                        "forwarding_rule": "forwarding_rule_value",
+                        "state": 1,
+                        "error_message": "error_message_value",
+                    }
                 ],
             }
         ],
@@ -9491,6 +9529,7 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "psc_automation_configs": {},
             "enable_secure_private_service_connect": True,
             "service_attachment": "service_attachment_value",
         },
@@ -10219,7 +10258,14 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
         ],
         "deployment_group": "deployment_group_value",
         "psc_automation_configs": [
-            {"project_id": "project_id_value", "network": "network_value"}
+            {
+                "project_id": "project_id_value",
+                "network": "network_value",
+                "ip_address": "ip_address_value",
+                "forwarding_rule": "forwarding_rule_value",
+                "state": 1,
+                "error_message": "error_message_value",
+            }
         ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.

@@ -41,8 +41,7 @@ class Session(proto.Message):
 
     Attributes:
         name (str):
-            Required. Identifier. The resource name of the session.
-            Format:
+            Identifier. The resource name of the session. Format:
             'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when the session was
@@ -94,7 +93,7 @@ class SessionEvent(proto.Message):
 
     Attributes:
         name (str):
-            Required. Identifier. The resource name of the event.
+            Identifier. The resource name of the event.
             Format:\ ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}``.
         author (str):
             Required. The name of the agent that sent the

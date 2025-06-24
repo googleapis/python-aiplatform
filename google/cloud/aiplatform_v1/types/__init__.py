@@ -156,6 +156,7 @@ from .endpoint import (
     DeployedModel,
     Endpoint,
     FasterDeploymentConfig,
+    GenAiAdvancedFeaturesConfig,
     PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
     SpeculativeDecodingSpec,
@@ -717,6 +718,9 @@ from .model_evaluation_slice import (
     ModelEvaluationSlice,
 )
 from .model_garden_service import (
+    DeployOperationMetadata,
+    DeployRequest,
+    DeployResponse,
     GetPublisherModelRequest,
     PublisherModelView,
 )
@@ -958,6 +962,7 @@ from .service_networking import (
     PscAutomatedEndpoints,
     PSCAutomationConfig,
     PscInterfaceConfig,
+    PSCAutomationState,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -1280,6 +1285,7 @@ __all__ = (
     "DeployedModel",
     "Endpoint",
     "FasterDeploymentConfig",
+    "GenAiAdvancedFeaturesConfig",
     "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "SpeculativeDecodingSpec",
@@ -1745,6 +1751,9 @@ __all__ = (
     "ModelDeploymentMonitoringObjectiveType",
     "ModelEvaluation",
     "ModelEvaluationSlice",
+    "DeployOperationMetadata",
+    "DeployRequest",
+    "DeployResponse",
     "GetPublisherModelRequest",
     "PublisherModelView",
     "ModelMonitoringAlertConfig",
@@ -1928,6 +1937,7 @@ __all__ = (
     "PscAutomatedEndpoints",
     "PSCAutomationConfig",
     "PscInterfaceConfig",
+    "PSCAutomationState",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
