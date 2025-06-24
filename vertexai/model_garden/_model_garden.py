@@ -661,7 +661,7 @@ class OpenModel:
 
         Args:
             concise: If true, returns a human-readable string with container and
-              machine specs.
+            machine specs.
 
         Returns:
             A list of deploy options or a concise formatted string.
@@ -694,8 +694,10 @@ class OpenModel:
                 if option.dedicated_resources
                 else None
             )
+            option_name = getattr(option, "deploy_task_name", None)
 
             return {
+                "option_name": option_name,
                 "serving_container_image_uri": container,
                 "machine_type": getattr(machine, "machine_type", None),
                 "accelerator_type": getattr(
@@ -706,11 +708,15 @@ class OpenModel:
 
         concise_deploy_options = [_extract_config(opt) for opt in deploy_options]
         return "\n\n".join(
-            f"[Option {i + 1}]\n"
+            (
+                f"[Option {i + 1}: {config['option_name']}]\n"
+                if config.get("option_name")
+                else f"[Option {i + 1}]\n"
+            )
             + "\n".join(
-                f'  {k}="{v}",' if k != "accelerator_count" else f"  {k}={v},"
+                f'    {k}="{v}",' if k != "accelerator_count" else f"    {k}={v},"
                 for k, v in config.items()
-                if v is not None
+                if v is not None and k != "option_name"
             )
             for i, config in enumerate(concise_deploy_options)
         )

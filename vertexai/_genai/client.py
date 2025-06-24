@@ -18,7 +18,7 @@ from typing import Optional, Union
 
 import google.auth
 from google.genai import _common
-from google.genai import client
+from google.genai import client as genai_client
 from google.genai import types
 
 
@@ -26,9 +26,10 @@ class AsyncClient:
 
     """Async Client for the GenAI SDK."""
 
-    def __init__(self, api_client: client.Client):
+    def __init__(self, api_client: genai_client.Client):
         self._api_client = api_client
         self._evals = None
+        self._agent_engines = None
 
     @property
     @_common.experimental_warning(
@@ -51,6 +52,28 @@ class AsyncClient:
 
     # TODO(b/424176979): add async prompt optimizer here.
 
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI agent engines module is experimental, "
+        "and may change in future versions."
+    )
+    def agent_engines(self):
+        if self._agent_engines is None:
+            try:
+                # We need to lazy load the agent_engines module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._agent_engines = importlib.import_module(
+                    ".agent_engines",
+                    __package__,
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines' module requires 'additional packages'. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._agent_engines.AsyncAgentEngines(self._api_client)
+
 
 class Client:
     """Client for the GenAI SDK.
@@ -64,7 +87,7 @@ class Client:
         credentials: Optional[google.auth.credentials.Credentials] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
-        debug_config: Optional[client.DebugConfig] = None,
+        debug_config: Optional[genai_client.DebugConfig] = None,
         http_options: Optional[Union[types.HttpOptions, types.HttpOptionsDict]] = None,
     ):
         """Initializes the client.
@@ -89,11 +112,11 @@ class Client:
              for the client.
         """
 
-        self._debug_config = debug_config or client.DebugConfig()
+        self._debug_config = debug_config or genai_client.DebugConfig()
         if isinstance(http_options, dict):
             http_options = types.HttpOptions(**http_options)
 
-        self._api_client = client.Client._get_api_client(
+        self._api_client = genai_client.Client._get_api_client(
             vertexai=True,
             credentials=credentials,
             project=project,
@@ -104,6 +127,7 @@ class Client:
         self._aio = AsyncClient(self._api_client)
         self._evals = None
         self._prompt_optimizer = None
+        self._agent_engines = None
 
     @property
     @_common.experimental_warning(
@@ -118,22 +142,11 @@ class Client:
                 self._evals = importlib.import_module(".evals", __package__)
             except ImportError as e:
                 raise ImportError(
-                    "The 'evals' module requires 'pandas' and 'tqdm'. "
+                    "The 'evals' module requires additional dependencies. "
                     "Please install them using pip install "
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
         return self._evals.Evals(self._api_client)
-
-    @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI prompt optimizer module is experimental, "
-        "and may change in future versions."
-    )
-    def prompt_optimizer(self):
-        self._prompt_optimizer = importlib.import_module(
-            ".prompt_optimizer", __package__
-        )
-        return self._prompt_optimizer.PromptOptimizer(self._api_client)
 
     @property
     @_common.experimental_warning(
@@ -142,3 +155,52 @@ class Client:
     )
     def aio(self):
         return self._aio
+
+    # This is only used for replay tests
+    @staticmethod
+    def _get_api_client(
+        api_key: Optional[str] = None,
+        credentials: Optional[google.auth.credentials.Credentials] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        debug_config: Optional[genai_client.DebugConfig] = None,
+        http_options: Optional[genai_client.HttpOptions] = None,
+    ) -> Optional[genai_client.BaseApiClient]:
+        if debug_config and debug_config.client_mode in [
+            "record",
+            "replay",
+            "auto",
+        ]:
+            return genai_client.ReplayApiClient(
+                mode=debug_config.client_mode,  # type: ignore[arg-type]
+                replay_id=debug_config.replay_id,  # type: ignore[arg-type]
+                replays_directory=debug_config.replays_directory,
+                vertexai=True,  # type: ignore[arg-type]
+                api_key=api_key,
+                credentials=credentials,
+                project=project,
+                location=location,
+                http_options=http_options,
+            )
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI agent engines module is experimental, "
+        "and may change in future versions."
+    )
+    def agent_engines(self):
+        if self._agent_engines is None:
+            try:
+                # We need to lazy load the agent_engines module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._agent_engines = importlib.import_module(
+                    ".agent_engines",
+                    __package__,
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines' module requires 'additional packages'. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._agent_engines.AgentEngines(self._api_client)

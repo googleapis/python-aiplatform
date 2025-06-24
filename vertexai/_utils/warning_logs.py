@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-__version__ = "1.99.0"
+
+import warnings
+
+
+GENAI_DEPRECATION_WARNING_MESSAGE = (
+    "This feature is deprecated as of June 24, 2025 and will be removed on June"
+    " 24, 2026. For details, see"
+    " https://cloud.google.com/vertex-ai/generative-ai/docs/deprecations/genai-vertexai-sdk."
+)
+
+
+def show_deprecation_warning() -> None:
+    warnings.warn(
+        message=GENAI_DEPRECATION_WARNING_MESSAGE,
+        category=UserWarning,
+        stacklevel=2,
+    )

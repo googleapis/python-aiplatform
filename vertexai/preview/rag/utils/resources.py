@@ -569,7 +569,16 @@ class Enterprise:
     autoscaling functionality. It is suitable for customers with large
     amounts of data or performance sensitive workloads.
 
-    NOTE: This is the default tier if not explicitly chosen.
+    NOTE: This is deprecated. Use Scaled tier instead.
+    """
+
+
+@dataclasses.dataclass
+class Scaled:
+    """Scaled tier offers production grade performance along with
+
+    autoscaling functionality. It is suitable for customers with large
+    amounts of data or performance sensitive workloads.
     """
 
 
@@ -581,6 +590,19 @@ class Basic:
     * Small data size.
     * Latency insensitive workload.
     * Only using RAG Engine with external vector DBs.
+
+    NOTE: This is the default tier if not explicitly chosen.
+    """
+
+
+@dataclasses.dataclass
+class Unprovisioned:
+    """Disables the RAG Engine service and deletes all your data held within
+    this service. This will halt the billing of the service.
+
+    NOTE: Once deleted the data cannot be recovered. To start using
+    RAG Engine again, you will need to update the tier by calling the
+    UpdateRagEngineConfig API.
     """
 
 
@@ -591,10 +613,10 @@ class RagManagedDbConfig:
     The config of the RagManagedDb used by RagEngine.
 
     Attributes:
-        tier: The tier of the RagManagedDb. The default tier is Enterprise.
+        tier: The tier of the RagManagedDb. The default tier is Basic.
     """
 
-    tier: Optional[Union[Enterprise, Basic]] = None
+    tier: Optional[Union[Enterprise, Basic, Scaled, Unprovisioned]] = None
 
 
 @dataclasses.dataclass
@@ -605,7 +627,7 @@ class RagEngineConfig:
         name: Generated resource name for singleton resource. Format:
           ``projects/{project}/locations/{location}/ragEngineConfig``
         rag_managed_db_config: The config of the RagManagedDb used by RagEngine.
-          The default tier is Enterprise.
+          The default tier is Basic.
     """
 
     name: str

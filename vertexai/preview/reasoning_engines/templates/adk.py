@@ -59,6 +59,13 @@ if TYPE_CHECKING:
         BaseArtifactService = Any
 
     try:
+        from google.adk.memory import BaseMemoryService
+
+        BaseMemoryService = BaseMemoryService
+    except (ImportError, AttributeError):
+        BaseMemoryService = Any
+
+    try:
         from opentelemetry.sdk import trace
 
         TracerProvider = trace.TracerProvider
@@ -281,6 +288,7 @@ class AdkApp:
         enable_tracing: bool = False,
         session_service_builder: Optional[Callable[..., "BaseSessionService"]] = None,
         artifact_service_builder: Optional[Callable[..., "BaseArtifactService"]] = None,
+        memory_service_builder: Optional[Callable[..., "BaseMemoryService"]] = None,
         env_vars: Optional[Dict[str, str]] = None,
     ):
         """An ADK Application."""
@@ -301,6 +309,7 @@ class AdkApp:
             "enable_tracing": enable_tracing,
             "session_service_builder": session_service_builder,
             "artifact_service_builder": artifact_service_builder,
+            "memory_service_builder": memory_service_builder,
             "app_name": _DEFAULT_APP_NAME,
             "env_vars": env_vars or {},
         }
@@ -410,6 +419,7 @@ class AdkApp:
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             session_service_builder=self._tmpl_attrs.get("session_service_builder"),
             artifact_service_builder=self._tmpl_attrs.get("artifact_service_builder"),
+            memory_service_builder=self._tmpl_attrs.get("memory_service_builder"),
             env_vars=self._tmpl_attrs.get("env_vars"),
         )
 
@@ -421,6 +431,7 @@ class AdkApp:
         from google.adk.artifacts.in_memory_artifact_service import (
             InMemoryArtifactService,
         )
+        from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
         project = self._tmpl_attrs.get("project")
@@ -460,18 +471,27 @@ class AdkApp:
         else:
             self._tmpl_attrs["session_service"] = InMemorySessionService()
 
+        memory_service_builder = self._tmpl_attrs.get("memory_service_builder")
+        if memory_service_builder:
+            self._tmpl_attrs["memory_service"] = memory_service_builder()
+        else:
+            self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
+
         self._tmpl_attrs["runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
             session_service=self._tmpl_attrs.get("session_service"),
             artifact_service=self._tmpl_attrs.get("artifact_service"),
+            memory_service=self._tmpl_attrs.get("memory_service"),
             app_name=self._tmpl_attrs.get("app_name"),
         )
         self._tmpl_attrs["in_memory_session_service"] = InMemorySessionService()
         self._tmpl_attrs["in_memory_artifact_service"] = InMemoryArtifactService()
+        self._tmpl_attrs["in_memory_memory_service"] = InMemoryMemoryService()
         self._tmpl_attrs["in_memory_runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
             session_service=self._tmpl_attrs.get("in_memory_session_service"),
             artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
+            memory_service=self._tmpl_attrs.get("in_memory_memory_service"),
             app_name=self._tmpl_attrs.get("app_name"),
         )
 

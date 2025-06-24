@@ -13,7 +13,9 @@
 # limitations under the License.
 #
 """Common utilities for evals."""
+import collections
 import concurrent.futures
+import datetime
 import json
 import logging
 import os
@@ -475,6 +477,17 @@ def _execute_inference(
     end_time = time.time()
     logger.info("Inference completed in %.2f seconds.", end_time - start_time)
 
+    candidate_name = None
+    if isinstance(model, str):
+        candidate_name = model
+    elif callable(model):
+        candidate_name = getattr(model, "__name__", None)
+
+    evaluation_dataset = types.EvaluationDataset(
+        eval_dataset_df=results_df,
+        candidate_name=candidate_name,
+    )
+
     if dest:
         file_name = "inference_results.jsonl"
         full_dest_path = dest
@@ -500,13 +513,14 @@ def _execute_inference(
                     file_type="jsonl",
                 )
                 logger.info("Results saved to GCS: %s", full_dest_path)
+                evaluation_dataset.gcs_source = types.GcsSource(uris=[full_dest_path])
             else:
                 results_df.to_json(full_dest_path, orient="records", lines=True)
                 logger.info("Results saved locally to: %s", full_dest_path)
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error("Failed to save results to %s. Error: %s", full_dest_path, e)
 
-    return types.EvaluationDataset(eval_dataset_df=results_df)
+    return evaluation_dataset
 
 
 def _get_dataset_source(
@@ -534,7 +548,7 @@ def _get_dataset_source(
 
 def _resolve_dataset_inputs(
     dataset: list[types.EvaluationDataset],
-    dataset_schema: Optional[Literal["gemini", "flatten"]],
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
     loader: _evals_utils.EvalDatasetLoader,
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
@@ -657,7 +671,7 @@ def _execute_evaluation(
     api_client: Any,
     dataset: Union[types.EvaluationDataset, list[types.EvaluationDataset]],
     metrics: list[types.Metric],
-    dataset_schema: Optional[Literal["gemini", "flatten"]] = None,
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = None,
     dest: Optional[str] = None,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.
@@ -690,6 +704,19 @@ def _execute_evaluation(
             f"Unsupported dataset type: {type(dataset)}. Must be an"
             " EvaluationDataset or a list of EvaluationDataset."
         )
+    original_candidate_names = [
+        ds.candidate_name or f"candidate_{i+1}" for i, ds in enumerate(dataset_list)
+    ]
+    name_counts = collections.Counter(original_candidate_names)
+    deduped_candidate_names = []
+    current_name_counts = collections.defaultdict(int)
+
+    for name in original_candidate_names:
+        if name_counts[name] > 1:
+            current_name_counts[name] += 1
+            deduped_candidate_names.append(f"{name} #{current_name_counts[name]}")
+        else:
+            deduped_candidate_names.append(name)
 
     loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
     processed_eval_dataset, num_response_candidates = _resolve_dataset_inputs(
@@ -714,6 +741,17 @@ def _execute_evaluation(
     logger.info("Evaluation took: %f seconds", t2 - t1)
 
     evaluation_result.evaluation_dataset = dataset_list
+
+    if not evaluation_result.metadata:
+        evaluation_result.metadata = types.EvaluationRunMetadata()
+
+    evaluation_result.metadata.creation_timestamp = datetime.datetime.now(
+        datetime.timezone.utc
+    )
+
+    if deduped_candidate_names:
+        evaluation_result.metadata.candidate_names = deduped_candidate_names
+
     logger.info("Evaluation run completed.")
 
     if dest:

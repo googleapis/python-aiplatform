@@ -62,9 +62,11 @@ from vertexai.preview.rag.utils.resources import (
     RagVectorDbConfig,
     Basic,
     Enterprise,
+    Scaled,
     SharePointSources,
     SlackChannelsSource,
     TransformationConfig,
+    Unprovisioned,
     VertexAiSearchConfig,
     VertexFeatureStore,
     VertexPredictionEndpoint,
@@ -993,6 +995,10 @@ def convert_gapic_to_rag_engine_config(
         rag_managed_db_config.tier = Enterprise()
     elif response.rag_managed_db_config.__contains__("basic"):
         rag_managed_db_config.tier = Basic()
+    elif response.rag_managed_db_config.__contains__("unprovisioned"):
+        rag_managed_db_config.tier = Unprovisioned()
+    elif response.rag_managed_db_config.__contains__("scaled"):
+        rag_managed_db_config.tier = Scaled()
     else:
         raise ValueError("At least one of rag_managed_db_config must be set.")
     return RagEngineConfig(
@@ -1011,13 +1017,19 @@ def convert_rag_engine_config_to_gapic(
         or rag_engine_config.rag_managed_db_config.tier is None
     ):
         rag_managed_db_config = GapicRagManagedDbConfig(
-            enterprise=GapicRagManagedDbConfig.Enterprise()
+            basic=GapicRagManagedDbConfig.Basic()
         )
     else:
         if isinstance(rag_engine_config.rag_managed_db_config.tier, Enterprise):
             rag_managed_db_config.enterprise = GapicRagManagedDbConfig.Enterprise()
         elif isinstance(rag_engine_config.rag_managed_db_config.tier, Basic):
             rag_managed_db_config.basic = GapicRagManagedDbConfig.Basic()
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Unprovisioned):
+            rag_managed_db_config.unprovisioned = (
+                GapicRagManagedDbConfig.Unprovisioned()
+            )
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Scaled):
+            rag_managed_db_config.scaled = GapicRagManagedDbConfig.Scaled()
     return GapicRagEngineConfig(
         name=rag_engine_config.name,
         rag_managed_db_config=rag_managed_db_config,

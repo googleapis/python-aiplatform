@@ -23,11 +23,13 @@ from google.cloud.aiplatform_v1 import (
     GoogleDriveSource,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
+    RagEngineConfig as GapicRagEngineConfig,
     RagFileChunkingConfig,
     RagFileParsingConfig,
     RagFileTransformationConfig,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
+    RagManagedDbConfig as GapicRagManagedDbConfig,
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
     JiraSource as GapicJiraSource,
@@ -41,22 +43,27 @@ from google.cloud.aiplatform.utils import (
     VertexRagClientWithOverride,
 )
 from vertexai.rag.utils.resources import (
+    Basic,
+    JiraSource,
     LayoutParserConfig,
     LlmParserConfig,
     Pinecone,
+    RagCitedGenerationResponse,
     RagCorpus,
     RagEmbeddingModelConfig,
+    RagEngineConfig,
     RagFile,
     RagManagedDb,
+    RagManagedDbConfig,
     RagVectorDbConfig,
+    Scaled,
     SharePointSources,
     SlackChannelsSource,
     TransformationConfig,
-    JiraSource,
+    Unprovisioned,
     VertexAiSearchConfig,
     VertexVectorSearch,
     VertexPredictionEndpoint,
-    RagCitedGenerationResponse,
 )
 
 
@@ -707,3 +714,51 @@ def set_vertex_ai_search_config(
         raise ValueError(
             "serving_config must be of the format `projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}` or `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}`"
         )
+
+
+def convert_gapic_to_rag_engine_config(
+    response: GapicRagEngineConfig,
+) -> RagEngineConfig:
+    """Converts a GapicRagEngineConfig to a RagEngineConfig."""
+    rag_managed_db_config = RagManagedDbConfig()
+    # If future fields are added with similar names, beware that __contains__
+    # may match them.
+    if response.rag_managed_db_config.__contains__("basic"):
+        rag_managed_db_config.tier = Basic()
+    elif response.rag_managed_db_config.__contains__("unprovisioned"):
+        rag_managed_db_config.tier = Unprovisioned()
+    elif response.rag_managed_db_config.__contains__("scaled"):
+        rag_managed_db_config.tier = Scaled()
+    else:
+        raise ValueError("At least one of rag_managed_db_config must be set.")
+    return RagEngineConfig(
+        name=response.name,
+        rag_managed_db_config=rag_managed_db_config,
+    )
+
+
+def convert_rag_engine_config_to_gapic(
+    rag_engine_config: RagEngineConfig,
+) -> GapicRagEngineConfig:
+    """Converts a RagEngineConfig to a GapicRagEngineConfig."""
+    rag_managed_db_config = GapicRagManagedDbConfig()
+    if (
+        rag_engine_config.rag_managed_db_config is None
+        or rag_engine_config.rag_managed_db_config.tier is None
+    ):
+        rag_managed_db_config = GapicRagManagedDbConfig(
+            basic=GapicRagManagedDbConfig.Basic()
+        )
+    else:
+        if isinstance(rag_engine_config.rag_managed_db_config.tier, Basic):
+            rag_managed_db_config.basic = GapicRagManagedDbConfig.Basic()
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Unprovisioned):
+            rag_managed_db_config.unprovisioned = (
+                GapicRagManagedDbConfig.Unprovisioned()
+            )
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Scaled):
+            rag_managed_db_config.scaled = GapicRagManagedDbConfig.Scaled()
+    return GapicRagEngineConfig(
+        name=rag_engine_config.name,
+        rag_managed_db_config=rag_managed_db_config,
+    )

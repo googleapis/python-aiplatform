@@ -602,6 +602,21 @@ class TuningValidationAssessmentResult:
     errors: List[str]
 
 
+@dataclasses.dataclass(frozen=True)
+class BatchPredictionResourceUsageAssessmentResult:
+    """The result of a batch prediction resource usage assessment.
+
+    Attributes:
+        token_count (int):
+            Number of tokens in the dataset.
+        audio_token_count (int):
+            Number of audio tokens in the dataset.
+    """
+
+    token_count: int
+    audio_token_count: int
+
+
 class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
     """A class representing a unified multimodal dataset."""
 
@@ -1497,6 +1512,48 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         assessment_result = assess_lro.result(timeout=None)
         return TuningValidationAssessmentResult(
             errors=assessment_result.tuning_validation_assessment_result.errors
+        )
+
+    def assess_batch_prediction_resources(
+        self,
+        *,
+        model_name: str,
+        template_config: Optional[GeminiTemplateConfig] = None,
+        assess_request_timeout: Optional[float] = None,
+    ) -> BatchPredictionResourceUsageAssessmentResult:
+        """Assess the batch prediction resources required for a given model.
+
+        Args:
+            model_name (str):
+                Required. The name of the model to assess the batch prediction resources
+                for.
+            template_config (GeminiTemplateConfig):
+                Optional. The template config used to assemble the dataset
+                before assessing the batch prediction resources. If not provided, the
+                template config attached to the dataset will be used. Required
+                if no template config is attached to the dataset.
+            assess_request_timeout (float):
+                Optional. The timeout for the assess batch prediction resources request.
+        Returns:
+            A dict containing the batch prediction resource usage assessment result. The
+            dict contains the following keys:
+            - token_count: The number of tokens in the dataset.
+            - audio_token_count: The number of audio tokens in the dataset.
+
+        """
+        request = self._build_assess_data_request(template_config)
+        request.batch_prediction_resource_usage_assessment_config = gca_dataset_service.AssessDataRequest.BatchPredictionResourceUsageAssessmentConfig(
+            model_name=model_name
+        )
+
+        assessment_result = (
+            self.api_client.assess_data(request=request, timeout=assess_request_timeout)
+            .result(timeout=None)
+            .batch_prediction_resource_usage_assessment_result
+        )
+        return BatchPredictionResourceUsageAssessmentResult(
+            token_count=assessment_result.token_count,
+            audio_token_count=assessment_result.audio_token_count,
         )
 
     def _build_assess_data_request(

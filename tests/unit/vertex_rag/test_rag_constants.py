@@ -19,24 +19,29 @@
 from google.cloud import aiplatform
 
 from vertexai.rag import (
+    Basic,
     Filter,
     LayoutParserConfig,
     LlmParserConfig,
     LlmRanker,
     Pinecone,
     RagCorpus,
+    RagEngineConfig,
     RagFile,
+    RagManagedDbConfig,
     RagResource,
     RagRetrievalConfig,
     RagVectorDbConfig,
     Ranking,
     RankService,
+    Scaled,
     SharePointSource,
     SharePointSources,
     SlackChannelsSource,
     SlackChannel,
     JiraSource,
     JiraQuery,
+    Unprovisioned,
     VertexVectorSearch,
     RagEmbeddingModelConfig,
     VertexAiSearchConfig,
@@ -45,9 +50,11 @@ from vertexai.rag import (
 
 from google.cloud.aiplatform_v1 import (
     GoogleDriveSource,
+    RagEngineConfig as GapicRagEngineConfig,
     RagFileChunkingConfig,
     RagFileParsingConfig,
     RagFileTransformationConfig,
+    RagManagedDbConfig as GapicRagManagedDbConfig,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
     ImportRagFilesResponse,
@@ -675,6 +682,45 @@ TEST_IMPORT_FILES_CONFIG_LLM_PARSER.rag_file_parsing_config = RagFileParsingConf
 TEST_IMPORT_REQUEST_LLM_PARSER = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_LLM_PARSER,
+)
+
+# RagEngineConfig Resource
+TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME = (
+    f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/ragEngineConfig"
+)
+TEST_RAG_ENGINE_CONFIG_BASIC = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Basic()),
+)
+TEST_RAG_ENGINE_CONFIG_SCALED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Scaled()),
+)
+TEST_RAG_ENGINE_CONFIG_UNPROVISIONED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Unprovisioned()),
+)
+TEST_DEFAULT_RAG_ENGINE_CONFIG = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=None,
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        basic=GapicRagManagedDbConfig.Basic()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SCALED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        scaled=GapicRagManagedDbConfig.Scaled()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_UNPROVISIONED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        unprovisioned=GapicRagManagedDbConfig.Unprovisioned()
+    ),
 )
 
 # Inline Citations test constants

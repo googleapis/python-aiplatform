@@ -743,6 +743,55 @@ def get_handler_for_metric(
     raise ValueError(f"Unsupported metric: {metric.name}")
 
 
+def calculate_win_rates(eval_result: types.EvaluationResult) -> dict[str, Any]:
+    """Calculates win/tie rates for comparison results."""
+    if not eval_result.eval_case_results:
+        return {}
+    max_models = max(
+        (
+            len(case.response_candidate_results)
+            for case in eval_result.eval_case_results
+            if case.response_candidate_results
+        ),
+        default=0,
+    )
+    if max_models == 0:
+        return {}
+    stats = collections.defaultdict(
+        lambda: {"wins": [0] * max_models, "ties": 0, "valid_comparisons": 0}
+    )
+    for case in eval_result.eval_case_results:
+        if not case.response_candidate_results:
+            continue
+        scores_by_metric = collections.defaultdict(list)
+        for idx, candidate in enumerate(case.response_candidate_results):
+            for name, res in (
+                candidate.metric_results.items() if candidate.metric_results else {}
+            ):
+                if res.score is not None:
+                    scores_by_metric[name].append({"score": res.score, "cand_idx": idx})
+        for name, scores in scores_by_metric.items():
+            if not scores:
+                continue
+            stats[name]["valid_comparisons"] += 1
+            max_score = max(s["score"] for s in scores)
+            winners = [s["cand_idx"] for s in scores if s["score"] == max_score]
+            if len(winners) == 1:
+                stats[name]["wins"][winners[0]] += 1
+            else:
+                stats[name]["ties"] += 1
+    win_rates = {}
+    for name, metric_stats in stats.items():
+        if metric_stats["valid_comparisons"] > 0:
+            win_rates[name] = {
+                "win_rates": [
+                    w / metric_stats["valid_comparisons"] for w in metric_stats["wins"]
+                ],
+                "tie_rate": metric_stats["ties"] / metric_stats["valid_comparisons"],
+            }
+    return win_rates
+
+
 def _aggregate_metric_results(
     metric_handlers: list[MetricHandler],
     eval_case_results: list[types.EvalCaseResult],
@@ -1001,10 +1050,6 @@ def compute_metrics_and_aggregate(
             )
             final_eval_case_results.append(eval_case_result)
 
-    aggregated_metric_results = _aggregate_metric_results(
-        metric_handlers, final_eval_case_results
-    )
-
     if submission_errors:
         logger.warning("Encountered %d submission errors.", len(submission_errors))
         logger.warning("Submission errors: %s", submission_errors)
@@ -1012,7 +1057,20 @@ def compute_metrics_and_aggregate(
         logger.warning("Encountered %d execution errors.", len(execution_errors))
         logger.warning("Execution errors: %s", execution_errors)
 
-    return types.EvaluationResult(
+    aggregated_metric_results = _aggregate_metric_results(
+        metric_handlers, final_eval_case_results
+    )
+    eval_result = types.EvaluationResult(
         eval_case_results=final_eval_case_results,
         summary_metrics=aggregated_metric_results,
     )
+    if evaluation_run_config.num_response_candidates > 1:
+        try:
+            eval_result.win_rates = calculate_win_rates(eval_result)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error(
+                "Error calculating win rates: %s",
+                e,
+                exc_info=True,
+            )
+    return eval_result
