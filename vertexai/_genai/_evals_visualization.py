@@ -16,7 +16,7 @@
 
 import json
 import logging
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import errors
 import pandas as pd
@@ -89,6 +89,9 @@ def _get_evaluation_html(eval_result_json: str) -> str:
         .reference-container {{ background-color: #e6f4ea; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; }}
         .response-container {{ background-color: #f9f9f9; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #eee; }}
         .explanation {{ color: #5f6368; font-style: italic; font-size: 0.9em; padding-top: 6px; }}
+        .raw-json-details {{ margin-top: 12px; border: 1px solid #eee; border-radius: 4px; padding: 8px; background-color: #f9f9f9; }}
+        .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368;}}
+        .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
     </style>
 </head>
 <body>
@@ -114,23 +117,36 @@ def _get_evaluation_html(eval_result_json: str) -> str:
             container.innerHTML = '<h2>Detailed Results</h2>';
             if (!caseResults || caseResults.length === 0) {{ container.innerHTML += '<p>No detailed results.</p>'; return; }}
             const datasetRows = metadata && metadata.dataset ? metadata.dataset : [];
+
             caseResults.forEach((caseResult, i) => {{
                 const original_case = datasetRows[caseResult.eval_case_index] || {{}};
-                const prompt = original_case.prompt || '(prompt not found)';
+                const promptText = original_case.prompt_display_text || '(prompt not found)';
+                const promptJson = original_case.prompt_raw_json;
                 const reference = original_case.reference || '';
+                const responseText = original_case.response_display_text || '(response not found)';
+                const responseJson = original_case.response_raw_json;
+
                 let card = `<details><summary>Case #${{caseResult.eval_case_index != null ? caseResult.eval_case_index : i}}</summary>`;
-                card += `<div class="prompt-container"><strong>Prompt:</strong><br>${{DOMPurify.sanitize(marked.parse(String(prompt)))}}</div>`;
+
+                card += `<div class="prompt-container"><strong>Prompt:</strong><br>${{DOMPurify.sanitize(marked.parse(String(promptText)))}}</div>`;
+                if (promptJson) {{
+                    card += `<details class="raw-json-details"><summary>View Raw Prompt JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(promptJson)}}</pre></details>`;
+                }}
+
                 if (reference) {{ card += `<div class="reference-container"><strong>Reference:</strong><br>${{DOMPurify.sanitize(marked.parse(String(reference)))}}</div>`; }}
-                (caseResult.response_candidate_results || []).forEach(candidate => {{
-                    const candidateResponse = candidate.response_text || '(response not found)';
-                    card += `<div class="response-container"><h4>Candidate Response</h4>${{DOMPurify.sanitize(marked.parse(String(candidateResponse)))}}</div>`;
-                    let metricTable = '<h4>Metrics</h4><table><tbody>';
-                    Object.entries(candidate.metric_results || {{}}).forEach(([name, val]) => {{
-                        metricTable += `<tr><td>${{name}}</td><td><b>${{val.score != null ? val.score.toFixed(2) : 'N/A'}}</b></td></tr>`;
-                        if (val.explanation) {{ metricTable += `<tr><td colspan="2"><div class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</div></td></tr>`; }}
-                    }});
-                    card += metricTable + '</tbody></table>';
+
+                card += `<div class="response-container"><h4>Candidate Response</h4>${{DOMPurify.sanitize(marked.parse(String(responseText)))}}</div>`;
+                if (responseJson) {{
+                    card += `<details class="raw-json-details"><summary>View Raw Response JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(responseJson)}}</pre></details>`;
+                }}
+
+                let metricTable = '<h4>Metrics</h4><table><tbody>';
+                const candidateMetrics = (caseResult.response_candidate_results && caseResult.response_candidate_results[0] && caseResult.response_candidate_results[0].metric_results) || {{}};
+                Object.entries(candidateMetrics).forEach(([name, val]) => {{
+                    metricTable += `<tr><td>${{name}}</td><td><b>${{val.score != null ? val.score.toFixed(2) : 'N/A'}}</b></td></tr>`;
+                    if (val.explanation) {{ metricTable += `<tr><td colspan="2"><div class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</div></td></tr>`; }}
                 }});
+                card += metricTable + '</tbody></table>';
                 container.innerHTML += card + '</details>';
             }});
         }}
@@ -168,6 +184,9 @@ def _get_comparison_html(eval_result_json: str) -> str:
         .response-column {{ border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; background: #f9f9f9; }}
         .response-text-container {{ background-color: #fff; padding: 12px; margin-top: 8px; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; }}
         .explanation {{ color: #5f6368; font-style: italic; font-size: 0.9em; padding-top: 8px; }}
+        .raw-json-details {{ margin-top: 12px; border: 1px solid #eee; border-radius: 4px; padding: 8px; background-color: #f9f9f9; }}
+        .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368;}}
+        .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
     </style>
 </head>
 <body>
@@ -202,13 +221,31 @@ def _get_comparison_html(eval_result_json: str) -> str:
 
             caseResults.forEach((caseResult, i) => {{
                 const original_case = datasetRows[caseResult.eval_case_index] || {{}};
-                let card = `<details open><summary>Case #${{caseResult.eval_case_index}}</summary><div class="prompt-container">${{DOMPurify.sanitize(marked.parse(String(original_case.prompt || '')))}}</div><div class="responses-grid">`;
+                const promptText = original_case.prompt_display_text || '(prompt not found)';
+                const promptJson = original_case.prompt_raw_json;
+
+                let card = `<details open><summary>Case #${{caseResult.eval_case_index}}</summary>`;
+                card += `<div class="prompt-container">${{DOMPurify.sanitize(marked.parse(String(promptText)))}}</div>`;
+                if (promptJson) {{
+                    card += `<details class="raw-json-details"><summary>View Raw Prompt JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(promptJson)}}</pre></details>`;
+                }}
+
+                card += `<div class="responses-grid">`;
+
                 (caseResult.response_candidate_results || []).forEach((candidate, j) => {{
                     const candidateName = candidateNames ? candidateNames[j] : `Candidate #${{j + 1}}`;
-                    card += `<div class="response-column"><h4>${{candidateName}}</h4><div class="response-text-container">${{DOMPurify.sanitize(marked.parse(String(candidate.response_text || '')))}}</div><h5>Metrics</h5><table><tbody>`;
+                    const displayText = candidate.display_text || '(response not found)';
+                    const rawJsonResponse = candidate.raw_json;
+
+                    card += `<div class="response-column"><h4>${{candidateName}}</h4><div class="response-text-container">${{DOMPurify.sanitize(marked.parse(String(displayText)))}}</div>`;
+                    if (rawJsonResponse) {{
+                        card += `<details class="raw-json-details"><summary>View Raw Response JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(rawJsonResponse)}}</pre></details>`;
+                    }}
+
+                    card += `<h5>Metrics</h5><table><tbody>`;
                     Object.entries(candidate.metric_results || {{}}).forEach(([name, val]) => {{
-                        card += `<tr><td>${{name}}</td><td><b>${{val.score.toFixed(2)}}</b></td></tr>`;
-                        if(val.explanation) card += `<tr><td colspan="2" class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</td></tr>`;
+                        card += `<tr><td>${{name}}</td><td><b>${{val.score != null ? val.score.toFixed(2) : 'N/A'}}</b></td></tr>`;
+                        if(val.explanation) card += `<tr class="explanation-row"><td colspan="2" class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</td></tr>`;
                     }});
                     card += '</tbody></table></div>';
                 }});
@@ -241,6 +278,9 @@ def _get_inference_html(dataframe_json: str) -> str:
         th, td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
         th {{ background-color: #f2f2f2; font-weight: 500;}}
         td > div {{ white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; }}
+        .raw-json-details {{ margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px; }}
+        .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368; }}
+        .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
     </style>
 </head>
 <body>
@@ -249,8 +289,23 @@ def _get_inference_html(dataframe_json: str) -> str:
         <div id="results-table"></div>
     </div>
     <script>
-        const data = JSON.parse({dataframe_json});
+        const data = {dataframe_json};
         const container = document.getElementById('results-table');
+
+        function renderCell(cellValue) {{
+            let cellContent = '';
+            if (cellValue && typeof cellValue === 'object' && cellValue.display_text !== undefined) {{
+                cellContent += `<div>${{DOMPurify.sanitize(marked.parse(String(cellValue.display_text)))}}</div>`;
+                if (cellValue.raw_json) {{
+                    cellContent += `<details class="raw-json-details"><summary>View Raw JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(cellValue.raw_json)}}</pre></details>`;
+                }}
+            }} else {{
+                const cellDisplay = cellValue === null || cellValue === undefined ? '' : String(cellValue);
+                cellContent = `<div>${{DOMPurify.sanitize(marked.parse(cellDisplay))}}</div>`;
+            }}
+            return `<td>${{cellContent}}</td>`;
+        }}
+
         if (!data || data.length === 0) {{ container.innerHTML = "<p>No data.</p>"; }}
         else {{
             let table = '<table><thead><tr>';
@@ -260,9 +315,7 @@ def _get_inference_html(dataframe_json: str) -> str:
             data.forEach(row => {{
                 table += '<tr>';
                 headers.forEach(header => {{
-                    const cellValue = row[header];
-                    const cellDisplay = cellValue === null || cellValue === undefined ? '' : String(cellValue);
-                    table += `<td><div>${{DOMPurify.sanitize(marked.parse(cellDisplay))}}</div></td>`;
+                    table += renderCell(row[header]);
                 }});
                 table += '</tr>';
             }});
@@ -272,6 +325,71 @@ def _get_inference_html(dataframe_json: str) -> str:
 </body>
 </html>
 """
+
+
+def _extract_text_and_raw_json(content: Any) -> dict[str, str]:
+    """Extracts display text and raw JSON from a content object.
+
+    This function handles raw strings, Gemini's `contents` format, and
+    OpenAI's `messages` format.
+
+    Args:
+        content: The content from a 'prompt', 'request', or 'response' column.
+
+    Returns:
+        A dictionary with 'display_text' for direct rendering and 'raw_json'
+        for an expandable view.
+    """
+    if not isinstance(content, (str, dict)):
+        return {"display_text": str(content or ""), "raw_json": ""}
+
+    try:
+        data = json.loads(content) if isinstance(content, str) else content
+
+        if not isinstance(data, dict):
+            return {"display_text": str(content), "raw_json": ""}
+
+        pretty_json = json.dumps(data, indent=2, ensure_ascii=False)
+
+        # Gemini format check.
+        if (
+            "contents" in data
+            and isinstance(data.get("contents"), list)
+            and data["contents"]
+        ):
+            first_part = data["contents"][0].get("parts", [{}])[0]
+            display_text = first_part.get("text", str(data))
+            return {"display_text": display_text, "raw_json": pretty_json}
+
+        # OpenAI response format check.
+        elif (
+            "choices" in data
+            and isinstance(data.get("choices"), list)
+            and data["choices"]
+        ):
+            message = data["choices"][0].get("message", {})
+            display_text = message.get("content", str(data))
+            return {"display_text": display_text, "raw_json": pretty_json}
+
+        # OpenAI request format check.
+        elif (
+            "messages" in data
+            and isinstance(data.get("messages"), list)
+            and data["messages"]
+        ):
+            user_messages = [
+                message.get("content", "")
+                for message in data["messages"]
+                if message.get("role") == "user"
+            ]
+            display_text = user_messages[-1] if user_messages else str(data)
+            return {"display_text": display_text, "raw_json": pretty_json}
+        else:
+            # Not a recognized format.
+            return {"display_text": str(content), "raw_json": pretty_json}
+
+    except (json.JSONDecodeError, TypeError, IndexError):
+        return {"display_text": str(content), "raw_json": ""}
 
 
 def display_evaluation_result(
@@ -315,9 +433,18 @@ def display_evaluation_result(
             and input_dataset_list[0]
             and input_dataset_list[0].eval_dataset_df is not None
         ):
-            metadata_payload["dataset"] = _preprocess_df_for_json(
-                input_dataset_list[0].eval_dataset_df
-            ).to_dict(orient="records")
+            base_df = _preprocess_df_for_json(input_dataset_list[0].eval_dataset_df)
+            processed_rows = []
+            for _, row in base_df.iterrows():
+                prompt_key = "request" if "request" in row else "prompt"
+                prompt_info = _extract_text_and_raw_json(row.get(prompt_key))
+                processed_row = {
+                    "prompt_display_text": prompt_info["display_text"],
+                    "prompt_raw_json": prompt_info["raw_json"],
+                    "reference": row.get("reference", ""),
+                }
+                processed_rows.append(processed_row)
+            metadata_payload["dataset"] = processed_rows
 
         if "eval_case_results" in result_dump:
             for case_res in result_dump["eval_case_results"]:
@@ -337,9 +464,10 @@ def display_evaluation_result(
                             and case_idx is not None
                             and case_idx < len(df)
                         ):
-                            cand_res["response_text"] = df.iloc[case_idx].get(
-                                "response"
-                            )
+                            response_content = df.iloc[case_idx].get("response")
+                            display_info = _extract_text_and_raw_json(response_content)
+                            cand_res["display_text"] = display_info["display_text"]
+                            cand_res["raw_json"] = display_info["raw_json"]
 
         win_rates = eval_result_obj.win_rates if eval_result_obj.win_rates else {}
         if "summary_metrics" in result_dump:
@@ -351,25 +479,41 @@ def display_evaluation_result(
         html_content = _get_comparison_html(json.dumps(result_dump))
     else:
         single_dataset = input_dataset_list[0] if input_dataset_list else None
-
+        processed_rows = []
         if (
             single_dataset is not None
             and isinstance(single_dataset, types.EvaluationDataset)
             and single_dataset.eval_dataset_df is not None
         ):
             processed_df = _preprocess_df_for_json(single_dataset.eval_dataset_df)
-            metadata_payload["dataset"] = processed_df.to_dict(orient="records")
-            if "eval_case_results" in result_dump and processed_df is not None:
+            for _, row in processed_df.iterrows():
+                prompt_key = "request" if "request" in row else "prompt"
+                prompt_info = _extract_text_and_raw_json(row.get(prompt_key))
+                response_info = _extract_text_and_raw_json(row.get("response"))
+                processed_row = {
+                    "prompt_display_text": prompt_info["display_text"],
+                    "prompt_raw_json": prompt_info["raw_json"],
+                    "reference": row.get("reference", ""),
+                    "response_display_text": response_info["display_text"],
+                    "response_raw_json": response_info["raw_json"],
+                }
+                processed_rows.append(processed_row)
+            metadata_payload["dataset"] = processed_rows
+
+            if "eval_case_results" in result_dump and processed_rows:
                 for case_res in result_dump["eval_case_results"]:
                     case_idx = case_res.get("eval_case_index")
                     if (
                         case_idx is not None
-                        and case_idx < len(processed_df)
+                        and case_idx < len(processed_rows)
                         and case_res.get("response_candidate_results")
                     ):
-                        case_res["response_candidate_results"][0][
-                            "response_text"
-                        ] = processed_df.iloc[case_idx].get("response")
+                        original_case = processed_rows[case_idx]
+                        cand_res = case_res["response_candidate_results"][0]
+                        cand_res["display_text"] = original_case[
+                            "response_display_text"
+                        ]
+                        cand_res["raw_json"] = original_case["response_raw_json"]
 
         result_dump["metadata"] = metadata_payload
         html_content = _get_evaluation_html(json.dumps(result_dump))
@@ -392,7 +536,21 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
         logger.warning("No inference data to display.")
         return
 
-    processed_df = _preprocess_df_for_json(eval_dataset_obj.eval_dataset_df)
-    dataframe_json_string = json.dumps(processed_df.to_json(orient="records"))
+    processed_rows = []
+    df = eval_dataset_obj.eval_dataset_df
+
+    for _, row in df.iterrows():
+        processed_row = {}
+        for col_name, cell_value in row.items():
+            if col_name in ["prompt", "request", "response"]:
+                processed_row[col_name] = _extract_text_and_raw_json(cell_value)
+            else:
+                if isinstance(cell_value, (dict, list)):
+                    processed_row[col_name] = json.dumps(cell_value, ensure_ascii=False)
+                else:
+                    processed_row[col_name] = cell_value
+        processed_rows.append(processed_row)
+
+    dataframe_json_string = json.dumps(processed_rows, ensure_ascii=False, default=str)
     html_content = _get_inference_html(dataframe_json_string)
     display.display(display.HTML(html_content))
