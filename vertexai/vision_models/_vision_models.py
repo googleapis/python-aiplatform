@@ -29,7 +29,6 @@ from google.cloud import storage
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai._model_garden import _model_garden_models
-from vertexai._utils import deprecation_warning
 
 # pylint: disable=g-import-not-at-top
 try:
@@ -130,7 +129,6 @@ class SubjectImageConfig:
     ]
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class Image:
     """Image."""
 
@@ -469,7 +467,6 @@ class SubjectReferenceImage(ReferenceImage):
         )
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class Video:
     """Video."""
 
@@ -575,7 +572,6 @@ class Video:
         return base64.b64encode(self._video_bytes).decode("ascii")
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class VideoSegmentConfig:
     """The specific video segments (in seconds) the embeddings are generated for."""
 
@@ -603,7 +599,6 @@ class VideoSegmentConfig:
         self.interval_sec = interval_sec
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class VideoEmbedding:
     """Embeddings generated from video with offset times."""
 
@@ -628,7 +623,6 @@ class VideoEmbedding:
         self.embedding = embedding
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class ImageGenerationModel(
     _model_garden_models._ModelGardenModel  # pylint: disable=protected-access
 ):
@@ -1383,7 +1377,6 @@ class ImageGenerationModel(
         )
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 @dataclasses.dataclass
 class ImageGenerationResponse:
     """Image generation response.
@@ -1411,7 +1404,6 @@ _IMAGE_GENERATION_PARAMETERS_EXIF_KEY = (
 )
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class GeneratedImage(Image):
     """Generated image."""
 
@@ -1483,7 +1475,6 @@ class GeneratedImage(Image):
             super().save(location=location)
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class ImageCaptioningModel(
     _model_garden_models._ModelGardenModel  # pylint: disable=protected-access
 ):
@@ -1549,7 +1540,6 @@ class ImageCaptioningModel(
         return response.predictions
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class ImageQnAModel(
     _model_garden_models._ModelGardenModel  # pylint: disable=protected-access
 ):
@@ -1609,7 +1599,6 @@ class ImageQnAModel(
         return response.predictions
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
     """Generates embedding vectors from images and videos.
 
@@ -1735,7 +1724,6 @@ class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
         )
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 @dataclasses.dataclass
 class MultiModalEmbeddingResponse:
     """The multimodal embedding response.
@@ -1757,7 +1745,6 @@ class MultiModalEmbeddingResponse:
     text_embedding: Optional[List[float]] = None
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
     """Generates text from images.
 

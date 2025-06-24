@@ -49,7 +49,6 @@ from vertexai.generative_models._generative_models import (
     ContentsType,
 )
 from google.protobuf import field_mask_pb2
-from vertexai._utils import deprecation_warning
 
 
 def _prepare_create_request(
@@ -128,7 +127,6 @@ def _prepare_get_cached_content_request(name: str) -> GetCachedContentRequest:
     return types_v1.GetCachedContentRequest(name=name)
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
     """A cached content resource."""
 

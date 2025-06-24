@@ -63,8 +63,6 @@ from google.protobuf import json_format
 from google.protobuf import field_mask_pb2
 import warnings
 
-from vertexai._utils import deprecation_warning
-
 if TYPE_CHECKING:
     from vertexai.caching import CachedContent
 
@@ -3408,7 +3406,6 @@ class AutomaticFunctionCallingResponder:
             return function_response_content
 
 
-@deprecation_warning.genai_class_deprecation_warning()
 class GenerativeModel(_GenerativeModel):
     __module__ = "vertexai.generative_models"
 
