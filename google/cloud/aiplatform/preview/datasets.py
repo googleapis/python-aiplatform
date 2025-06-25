@@ -1556,6 +1556,42 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             audio_token_count=assessment_result.audio_token_count,
         )
 
+    def assess_batch_prediction_validity(
+        self,
+        *,
+        model_name: str,
+        template_config: Optional[GeminiTemplateConfig] = None,
+        assess_request_timeout: Optional[float] = None,
+    ) -> None:
+        """Assess if the assembled dataset is valid in terms of batch prediction
+        for a given model. Raises an error if the dataset is invalid, otherwise
+        returns None.
+
+        Args:
+            model_name (str):
+                Required. The name of the model to assess the batch prediction
+                validity for.
+            dataset_usage (str):
+                Required. The dataset usage to assess the batch prediction
+                validity for.
+                Must be one of the following: SFT_TRAINING, SFT_VALIDATION.
+            template_config (GeminiTemplateConfig):
+                Optional. The template config used to assemble the dataset
+                before assessing the batch prediction validity. If not provided, the
+                template config attached to the dataset will be used. Required
+                if no template config is attached to the dataset.
+            assess_request_timeout (float):
+                Optional. The timeout for the assess batch prediction validity request.
+        """
+        request = self._build_assess_data_request(template_config)
+        request.batch_prediction_validation_assessment_config = gca_dataset_service.AssessDataRequest.BatchPredictionValidationAssessmentConfig(
+            model_name=model_name,
+        )
+        assess_lro = self.api_client.assess_data(
+            request=request, timeout=assess_request_timeout
+        )
+        assess_lro.result(timeout=None)
+
     def _build_assess_data_request(
         self,
         template_config: Optional[GeminiTemplateConfig] = None,

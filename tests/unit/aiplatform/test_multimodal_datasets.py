@@ -298,6 +298,19 @@ def assess_data_batch_prediction_resources_mock():
 
 
 @pytest.fixture
+def assess_data_batch_prediction_validation_mock():
+    with mock.patch.object(
+        dataset_service.DatasetServiceClient, "assess_data"
+    ) as assess_data_mock:
+        assess_data_lro_mock = mock.Mock(operation.Operation)
+        assess_data_lro_mock.result.return_value = gca_dataset_service.AssessDataResponse(
+            batch_prediction_validation_assessment_result=gca_dataset_service.AssessDataResponse.BatchPredictionValidationAssessmentResult()
+        )
+        assess_data_mock.return_value = assess_data_lro_mock
+        yield assess_data_mock
+
+
+@pytest.fixture
 def assemble_data_mock():
     with mock.patch.object(
         dataset_service.DatasetServiceClient, "assemble_data"
@@ -809,6 +822,33 @@ class TestMultimodalDataset:
             ),
             timeout=None,
         )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_assess_batch_prediction_validity(
+        self, assess_data_batch_prediction_validation_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        template_config = ummd.GeminiTemplateConfig(
+            field_mapping={"question": "questionColumn"},
+        )
+        result = dataset.assess_batch_prediction_validity(
+            model_name="gemini-1.5-flash-exp",
+            template_config=template_config,
+        )
+        assess_data_batch_prediction_validation_mock.assert_called_once_with(
+            request=gca_dataset_service.AssessDataRequest(
+                name=_TEST_NAME,
+                batch_prediction_validation_assessment_config=gca_dataset_service.AssessDataRequest.BatchPredictionValidationAssessmentConfig(
+                    model_name="gemini-1.5-flash-exp",
+                ),
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
+            ),
+            timeout=None,
+        )
+        assert result is None
 
     @pytest.mark.usefixtures("get_dataset_request_column_name_mock")
     def test_assess_tuning_validity_request_column_name(
