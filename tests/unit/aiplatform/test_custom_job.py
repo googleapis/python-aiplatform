@@ -65,6 +65,9 @@ _TEST_TRAINING_CONTAINER_IMAGE = (
 )
 _TEST_PREBUILT_CONTAINER_IMAGE = "gcr.io/cloud-aiplatform/container:image"
 _TEST_SPOT_STRATEGY = test_constants.TrainingJobConstants._TEST_SPOT_STRATEGY
+_TEST_PSC_INTERFACE_CONFIG = (
+    test_constants.TrainingJobConstants._TEST_PSC_INTERFACE_CONFIG
+)
 
 _TEST_RUN_ARGS = test_constants.TrainingJobConstants._TEST_RUN_ARGS
 _TEST_EXPERIMENT = "test-experiment"
@@ -245,6 +248,12 @@ def _get_custom_tpu_job_proto(state=None, name=None, error=None, tpu_version=Non
 def _get_custom_job_proto_with_spot_strategy(state=None, name=None, error=None):
     custom_job_proto = _get_custom_job_proto(state=state, name=name, error=error)
     custom_job_proto.job_spec.scheduling.strategy = _TEST_SPOT_STRATEGY
+    return custom_job_proto
+
+
+def _get_custom_job_proto_with_psc_interface_config(state=None, name=None, error=None):
+    custom_job_proto = _get_custom_job_proto(state=state, name=name, error=error)
+    custom_job_proto.job_spec.psc_interface_config = _TEST_PSC_INTERFACE_CONFIG
     return custom_job_proto
 
 
@@ -463,6 +472,29 @@ def get_custom_job_mock_with_spot_strategy():
 
 
 @pytest.fixture
+def get_custom_job_mock_with_psc_interface_config():
+    """Fixture for mocking get_custom_job with psc interface config."""
+    with patch.object(
+        job_service_client.JobServiceClient, "get_custom_job"
+    ) as get_custom_job_mock:
+        get_custom_job_mock.side_effect = [
+            _get_custom_job_proto_with_psc_interface_config(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            ),
+            _get_custom_job_proto_with_psc_interface_config(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_RUNNING,
+            ),
+            _get_custom_job_proto_with_psc_interface_config(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED,
+            ),
+        ]
+        yield get_custom_job_mock
+
+
+@pytest.fixture
 def create_custom_job_mock():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_custom_job"
@@ -519,6 +551,20 @@ def create_custom_job_mock_with_spot_strategy():
         create_custom_job_mock.return_value = _get_custom_job_proto_with_spot_strategy(
             name=_TEST_CUSTOM_JOB_NAME,
             state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        )
+        yield create_custom_job_mock
+
+
+@pytest.fixture
+def create_custom_job_mock_with_psc_interface_config():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "create_custom_job"
+    ) as create_custom_job_mock:
+        create_custom_job_mock.return_value = (
+            _get_custom_job_proto_with_psc_interface_config(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            )
         )
         yield create_custom_job_mock
 
@@ -1666,4 +1712,106 @@ class TestCustomJob:
         assert job.job_spec == expected_custom_job.job_spec
         assert (
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+
+    def test_create_custom_job_with_psc_interface_config(
+        self,
+        create_custom_job_mock_with_psc_interface_config,
+        get_custom_job_mock_with_psc_interface_config,
+    ):
+        """Tests creating a custom job with psc interface config."""
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
+            psc_interface_config=_TEST_PSC_INTERFACE_CONFIG,
+        )
+
+        job.wait_for_resource_creation()
+
+        job.wait()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        expected_custom_job = _get_custom_job_proto_with_psc_interface_config()
+
+        create_custom_job_mock_with_psc_interface_config.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        assert job.job_spec == expected_custom_job.job_spec
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+
+    def test_submit_custom_job_with_psc_interface_config(
+        self,
+        create_custom_job_mock_with_psc_interface_config,
+        get_custom_job_mock_with_psc_interface_config,
+    ):
+        """Tests submitting a custom job with psc interface config."""
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=_TEST_MAX_WAIT_DURATION,
+            psc_interface_config=_TEST_PSC_INTERFACE_CONFIG,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto_with_psc_interface_config()
+
+        create_custom_job_mock_with_psc_interface_config.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        assert job.job_spec == expected_custom_job.job_spec
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_PENDING
         )

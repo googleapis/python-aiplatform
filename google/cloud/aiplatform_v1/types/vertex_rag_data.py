@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import api_auth as gca_api_auth
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -40,6 +41,8 @@ __protobuf__ = proto.module(
         "RagFileParsingConfig",
         "UploadRagFileConfig",
         "ImportRagFilesConfig",
+        "RagManagedDbConfig",
+        "RagEngineConfig",
     },
 )
 
@@ -414,6 +417,12 @@ class RagCorpus(proto.Message):
             was last updated.
         corpus_status (google.cloud.aiplatform_v1.types.CorpusStatus):
             Output only. RagCorpus state.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Optional. Immutable. The CMEK key name used
+            to encrypt at-rest data related to this Corpus.
+            Only applicable to RagManagedDb option for
+            Vector DB. This field can only be set at corpus
+            creation time, and cannot be updated or deleted.
     """
 
     vector_db_config: "RagVectorDbConfig" = proto.Field(
@@ -454,6 +463,11 @@ class RagCorpus(proto.Message):
         proto.MESSAGE,
         number=8,
         message="CorpusStatus",
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -973,6 +987,106 @@ class ImportRagFilesConfig(proto.Message):
     rebuild_ann_index: bool = proto.Field(
         proto.BOOL,
         number=19,
+    )
+
+
+class RagManagedDbConfig(proto.Message):
+    r"""Configuration message for RagManagedDb used by RagEngine.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        scaled (google.cloud.aiplatform_v1.types.RagManagedDbConfig.Scaled):
+            Sets the RagManagedDb to the Scaled tier.
+
+            This field is a member of `oneof`_ ``tier``.
+        basic (google.cloud.aiplatform_v1.types.RagManagedDbConfig.Basic):
+            Sets the RagManagedDb to the Basic tier.
+
+            This field is a member of `oneof`_ ``tier``.
+        unprovisioned (google.cloud.aiplatform_v1.types.RagManagedDbConfig.Unprovisioned):
+            Sets the RagManagedDb to the Unprovisioned
+            tier.
+
+            This field is a member of `oneof`_ ``tier``.
+    """
+
+    class Scaled(proto.Message):
+        r"""Scaled tier offers production grade performance along with
+        autoscaling functionality. It is suitable for customers with
+        large amounts of data or performance sensitive workloads.
+
+        """
+
+    class Basic(proto.Message):
+        r"""Basic tier is a cost-effective and low compute tier suitable for the
+        following cases:
+
+        -  Experimenting with RagManagedDb.
+        -  Small data size.
+        -  Latency insensitive workload.
+        -  Only using RAG Engine with external vector DBs.
+
+        NOTE: This is the default tier if not explicitly chosen.
+
+        """
+
+    class Unprovisioned(proto.Message):
+        r"""Disables the RAG Engine service and deletes all your data
+        held within this service. This will halt the billing of the
+        service.
+
+        NOTE: Once deleted the data cannot be recovered. To start using
+        RAG Engine again, you will need to update the tier by calling
+        the UpdateRagEngineConfig API.
+
+        """
+
+    scaled: Scaled = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="tier",
+        message=Scaled,
+    )
+    basic: Basic = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="tier",
+        message=Basic,
+    )
+    unprovisioned: Unprovisioned = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="tier",
+        message=Unprovisioned,
+    )
+
+
+class RagEngineConfig(proto.Message):
+    r"""Config for RagEngine.
+
+    Attributes:
+        name (str):
+            Identifier. The name of the RagEngineConfig. Format:
+            ``projects/{project}/locations/{location}/ragEngineConfig``
+        rag_managed_db_config (google.cloud.aiplatform_v1.types.RagManagedDbConfig):
+            The config of the RagManagedDb used by
+            RagEngine.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    rag_managed_db_config: "RagManagedDbConfig" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="RagManagedDbConfig",
     )
 
 

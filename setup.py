@@ -171,6 +171,8 @@ evaluation_extra_require = [
     "scikit-learn; python_version>'3.10'",
     "jsonschema",
     "ruamel.yaml",
+    "pyyaml",
+    "litellm >= 1.72.4",
 ]
 
 langchain_extra_require = [

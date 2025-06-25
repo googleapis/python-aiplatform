@@ -19,24 +19,29 @@
 from google.cloud import aiplatform
 
 from vertexai.rag import (
+    Basic,
     Filter,
     LayoutParserConfig,
     LlmParserConfig,
     LlmRanker,
     Pinecone,
     RagCorpus,
+    RagEngineConfig,
     RagFile,
+    RagManagedDbConfig,
     RagResource,
     RagRetrievalConfig,
     RagVectorDbConfig,
     Ranking,
     RankService,
+    Scaled,
     SharePointSource,
     SharePointSources,
     SlackChannelsSource,
     SlackChannel,
     JiraSource,
     JiraQuery,
+    Unprovisioned,
     VertexVectorSearch,
     RagEmbeddingModelConfig,
     VertexAiSearchConfig,
@@ -45,9 +50,11 @@ from vertexai.rag import (
 
 from google.cloud.aiplatform_v1 import (
     GoogleDriveSource,
+    RagEngineConfig as GapicRagEngineConfig,
     RagFileChunkingConfig,
     RagFileParsingConfig,
     RagFileTransformationConfig,
+    RagManagedDbConfig as GapicRagManagedDbConfig,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
     ImportRagFilesResponse,
@@ -62,6 +69,7 @@ from google.cloud.aiplatform_v1 import (
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform_v1.types import api_auth
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform_v1.types import content
@@ -82,6 +90,9 @@ TEST_WEAVIATE_HTTP_ENDPOINT = "test.weaviate.com"
 TEST_WEAVIATE_COLLECTION_NAME = "test-collection"
 TEST_WEAVIATE_API_KEY_SECRET_VERSION = (
     "projects/test-project/secrets/test-secret/versions/1"
+)
+TEST_ENCRYPTION_SPEC = EncryptionSpec(
+    kms_key_name="projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key"
 )
 TEST_PINECONE_INDEX_NAME = "test-pinecone-index"
 TEST_PINECONE_API_KEY_SECRET_VERSION = (
@@ -105,6 +116,14 @@ TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
 )
 TEST_GAPIC_RAG_CORPUS.vector_db_config.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
     TEST_PROJECT, TEST_REGION
+)
+TEST_GAPIC_CMEK_RAG_CORPUS = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    encryption_spec=EncryptionSpec(
+        kms_key_name="projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key"
+    ),
 )
 TEST_GAPIC_RAG_CORPUS_VERTEX_VECTOR_SEARCH = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
@@ -147,6 +166,14 @@ TEST_RAG_CORPUS = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     backend_config=TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
+)
+TEST_CMEK_RAG_CORPUS = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    encryption_spec=EncryptionSpec(
+        kms_key_name="projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key"
+    ),
 )
 TEST_BACKEND_CONFIG_PINECONE_CONFIG = RagVectorDbConfig(
     vector_db=TEST_PINECONE_CONFIG,
@@ -655,6 +682,45 @@ TEST_IMPORT_FILES_CONFIG_LLM_PARSER.rag_file_parsing_config = RagFileParsingConf
 TEST_IMPORT_REQUEST_LLM_PARSER = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_LLM_PARSER,
+)
+
+# RagEngineConfig Resource
+TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME = (
+    f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/ragEngineConfig"
+)
+TEST_RAG_ENGINE_CONFIG_BASIC = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Basic()),
+)
+TEST_RAG_ENGINE_CONFIG_SCALED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Scaled()),
+)
+TEST_RAG_ENGINE_CONFIG_UNPROVISIONED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Unprovisioned()),
+)
+TEST_DEFAULT_RAG_ENGINE_CONFIG = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=None,
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        basic=GapicRagManagedDbConfig.Basic()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SCALED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        scaled=GapicRagManagedDbConfig.Scaled()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_UNPROVISIONED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        unprovisioned=GapicRagManagedDbConfig.Unprovisioned()
+    ),
 )
 
 # Inline Citations test constants

@@ -28,12 +28,14 @@ from google.cloud.aiplatform_v1 import (
     DeleteRagCorpusRequest,
     DeleteRagFileRequest,
     GetRagCorpusRequest,
+    GetRagEngineConfigRequest,
     GetRagFileRequest,
     ImportRagFilesResponse,
     ListRagCorporaRequest,
     ListRagFilesRequest,
     RagCorpus as GapicRagCorpus,
     UpdateRagCorpusRequest,
+    UpdateRagEngineConfigRequest,
 )
 from google.cloud.aiplatform_v1.services.vertex_rag_data_service.pagers import (
     ListRagCorporaPager,
@@ -46,12 +48,14 @@ from vertexai.rag.rag_inline_citations import (
 from vertexai.rag.utils import (
     _gapic_utils,
 )
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 from vertexai.rag.utils.resources import (
     JiraSource,
     LayoutParserConfig,
     LlmParserConfig,
     RagCitedGenerationResponse,
     RagCorpus,
+    RagEngineConfig,
     RagFile,
     RagVectorDbConfig,
     SharePointSources,
@@ -71,6 +75,7 @@ def create_corpus(
             None,
         ]
     ] = None,
+    encryption_spec: Optional[EncryptionSpec] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -96,6 +101,7 @@ def create_corpus(
             specified.
         backend_config: The backend config of the RagCorpus, specifying a
           data store and/or embedding model.
+        encryption_spec: The encryption spec of the RagCorpus.
     Returns:
         RagCorpus.
     Raises:
@@ -121,6 +127,12 @@ def create_corpus(
     elif vertex_ai_search_config:
         _gapic_utils.set_vertex_ai_search_config(
             vertex_ai_search_config=vertex_ai_search_config,
+            rag_corpus=rag_corpus,
+        )
+
+    if encryption_spec:
+        _gapic_utils.set_encryption_spec(
+            encryption_spec=encryption_spec,
             rag_corpus=rag_corpus,
         )
 
@@ -886,6 +898,76 @@ def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
     except Exception as e:
         raise RuntimeError("Failed in RagFile deletion due to: ", e) from e
     return None
+
+
+def update_rag_engine_config(
+    rag_engine_config: RagEngineConfig,
+) -> RagEngineConfig:
+    """Update RagEngineConfig.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai import rag
+    vertexai.init(project="my-project")
+    rag_engine_config = rag.RagEngineConfig(
+        rag_managed_db_config=rag.RagManagedDbConfig(
+            rag_managed_db=rag.RagManagedDb(
+                db_basic_tier=rag.Basic(),
+            ),
+        )
+        ),
+    )
+    rag.update_rag_engine_config(rag_engine_config=rag_engine_config)
+    ```
+
+    Args:
+        rag_engine_config: The RagEngineConfig to update.
+
+    Raises:
+        RuntimeError: Failed in RagEngineConfig update due to exception.
+    """
+    gapic_rag_engine_config = _gapic_utils.convert_rag_engine_config_to_gapic(
+        rag_engine_config
+    )
+    request = UpdateRagEngineConfigRequest(
+        rag_engine_config=gapic_rag_engine_config,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.update_rag_engine_config(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in RagEngineConfig update due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_engine_config(response.result(timeout=600))
+
+
+def get_rag_engine_config(name: str) -> RagEngineConfig:
+    """Get an existing RagEngineConfig.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai import rag
+    vertexai.init(project="my-project")
+    rag_engine_config = rag.get_rag_engine_config(
+        name="projects/my-project/locations/us-central1/ragEngineConfig"
+    )
+    ```
+    Args:
+        name: The RagEngineConfig resource name pattern of the singleton resource.
+
+    Returns:
+        RagEngineConfig.
+    Raises:
+        RuntimeError: Failed in getting the RagEngineConfig.
+    """
+    request = GetRagEngineConfigRequest(name=name)
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.get_rag_engine_config(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in getting the RagEngineConfig due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_engine_config(response)
 
 
 def add_inline_citations_and_references(

@@ -181,6 +181,7 @@ def get_publisher_model_mock():
                     multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
                         multi_deploy_vertex=[
                             types.PublisherModel.CallToAction.Deploy(
+                                deploy_task_name="vLLM 32K context",
                                 container_spec=types.ModelContainerSpec(
                                     image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
                                     command=["python", "main.py"],
@@ -198,6 +199,7 @@ def get_publisher_model_mock():
                                 ),
                             ),
                             types.PublisherModel.CallToAction.Deploy(
+                                deploy_task_name="vLLM 128K context",
                                 container_spec=types.ModelContainerSpec(
                                     image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
                                     command=["python", "main.py"],
@@ -1032,17 +1034,17 @@ class TestModelGardenOpenModel:
         result = model.list_deploy_options(concise=True)
         expected_result = textwrap.dedent(
             """\
-        [Option 1]
-          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
-          machine_type="g2-standard-16",
-          accelerator_type="NVIDIA_L4",
-          accelerator_count=1,
+        [Option 1: vLLM 32K context]
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+            machine_type="g2-standard-16",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=1,
 
-        [Option 2]
-          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
-          machine_type="g2-standard-32",
-          accelerator_type="NVIDIA_L4",
-          accelerator_count=4,"""
+        [Option 2: vLLM 128K context]
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+            machine_type="g2-standard-32",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=4,"""
         )
         assert result == expected_result
         get_publisher_model_mock.assert_called_with(
@@ -1058,16 +1060,16 @@ class TestModelGardenOpenModel:
         expected_hf_result = textwrap.dedent(
             """\
         [Option 1]
-          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
-          machine_type="g2-standard-16",
-          accelerator_type="NVIDIA_L4",
-          accelerator_count=1,
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+            machine_type="g2-standard-16",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=1,
 
         [Option 2]
-          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
-          machine_type="g2-standard-32",
-          accelerator_type="NVIDIA_L4",
-          accelerator_count=4,"""
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+            machine_type="g2-standard-32",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=4,"""
         )
         assert hf_result == expected_hf_result
         get_publisher_model_mock.assert_called_with(

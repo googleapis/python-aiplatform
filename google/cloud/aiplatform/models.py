@@ -1363,6 +1363,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         enable_access_logging=False,
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
@@ -1456,6 +1457,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            autoscaling_target_request_count_per_minute (int):
+                Optional. The target number of requests per minute for autoscaling.
+                If set, the model will be scaled based on the number of requests it receives.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
             disable_container_logging (bool):
@@ -1536,6 +1540,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
             spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
@@ -1568,6 +1573,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
@@ -1664,6 +1670,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            autoscaling_target_request_count_per_minute (int):
+                Optional. The target number of requests per minute for autoscaling.
+                If set, the model will be scaled based on the number of requests it receives.
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
@@ -1721,6 +1730,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
             spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
@@ -3353,6 +3363,8 @@ class PrivateEndpoint(Endpoint):
             return None
         return self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
 
+    # PrivateServiceConnectConfig is deprecated.
+    # Use service_networking.PrivateServiceConnectConfig instead.
     class PrivateServiceConnectConfig:
         """Represents a Vertex AI PrivateServiceConnectConfig resource."""
 
@@ -3389,7 +3401,10 @@ class PrivateEndpoint(Endpoint):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
-        private_service_connect_config: Optional[PrivateServiceConnectConfig] = None,
+        private_service_connect_config: Union[
+            Optional[PrivateServiceConnectConfig],
+            Optional[gca_service_networking.PrivateServiceConnectConfig],
+        ] = None,
         enable_request_response_logging=False,
         request_response_logging_sampling_rate: Optional[float] = None,
         request_response_logging_bq_destination_table: Optional[str] = None,
@@ -3418,7 +3433,8 @@ class PrivateEndpoint(Endpoint):
                 display_name="my_endpoint_name",
                 project="my_project_id",
                 location="us-central1",
-                private_service_connect=aiplatform.PrivateEndpoint.PrivateServiceConnectConfig(
+                private_service_connect=aiplatform.compat.types.service_networking.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
                     project_allowlist=["test-project"]),
             )
 
@@ -3426,7 +3442,8 @@ class PrivateEndpoint(Endpoint):
 
             my_private_endpoint = aiplatform.PrivateEndpoint.create(
                 display_name="my_endpoint_name",
-                private_service_connect=aiplatform.PrivateEndpoint.PrivateServiceConnectConfig(
+                private_service_connect=aiplatform.compat.types.service_networking.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
                     project_allowlist=["test-project"]),
             )
         Args:
@@ -3465,12 +3482,11 @@ class PrivateEndpoint(Endpoint):
             sync (bool): Whether to execute this method synchronously. If False,
               this method will be executed in concurrent Future and any downstream
               object will be immediately returned and synced when the Future has
-              completed. private_service_connect_config
-              (aiplatform.PrivateEndpoint.PrivateServiceConnectConfig): [Private
-              Service
-              Connect](https://cloud.google.com/vpc/docs/private-service-connect)
-              configuration for the endpoint. Cannot be set when network is
-              specified.
+              completed.
+            private_service_connect_config
+              (aiplatform.compat.types.service_networking.PrivateServiceConnectConfig): [Private
+              Service Connect Configuration](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/PrivateServiceConnectConfig)
+            for the endpoint. Cannot be set when network is specified.
             enable_request_response_logging (bool): Optional. Whether to enable
               request & response logging for this endpoint.
             request_response_logging_sampling_rate (float): Optional. The request
@@ -3517,9 +3533,15 @@ class PrivateEndpoint(Endpoint):
 
         config = None
         if private_service_connect_config:
-            config = (
-                private_service_connect_config._gapic_private_service_connect_config
-            )
+            if hasattr(
+                private_service_connect_config,
+                "_gapic_private_service_connect_config",
+            ):
+                config = (
+                    private_service_connect_config._gapic_private_service_connect_config
+                )
+            else:
+                config = private_service_connect_config
 
         predict_request_response_logging_config = None
         if enable_request_response_logging:
@@ -5339,6 +5361,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         enable_access_logging=False,
         disable_container_logging: bool = False,
         private_service_connect_config: Optional[
@@ -5454,6 +5477,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            autoscaling_target_request_count_per_minute (int):
+                Optional. The target number of requests per minute for autoscaling.
+                If set, the model will be scaled based on the number of requests it receives.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
             disable_container_logging (bool):
@@ -5561,6 +5587,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
             spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
@@ -5603,6 +5630,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
@@ -5720,6 +5748,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            autoscaling_target_request_count_per_minute (int):
+                Optional. The target number of requests per minute for autoscaling.
+                If set, the model will be scaled based on the number of requests it receives.
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
@@ -5808,6 +5839,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
             spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,

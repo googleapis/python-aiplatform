@@ -37,6 +37,7 @@ __protobuf__ = proto.module(
         "PredictRequestResponseLoggingConfig",
         "ClientConnectionConfig",
         "FasterDeploymentConfig",
+        "GenAiAdvancedFeaturesConfig",
         "SpeculativeDecodingSpec",
     },
 )
@@ -152,8 +153,11 @@ class Endpoint(proto.Message):
             removed soon.
         dedicated_endpoint_dns (str):
             Output only. DNS of the dedicated endpoint. Will only be
-            populated if dedicated_endpoint_enabled is true. Format:
-            ``https://{endpoint_id}.{region}-{project_number}.prediction.vertexai.goog``.
+            populated if dedicated_endpoint_enabled is true. Depending
+            on the features enabled, uid might be a random number or a
+            string. For example, if fast_tryout is enabled, uid will be
+            fasttryout. Format:
+            ``https://{endpoint_id}.{region}-{uid}.prediction.vertexai.goog``.
         client_connection_config (google.cloud.aiplatform_v1.types.ClientConnectionConfig):
             Configurations that are applied to the
             endpoint for online prediction.
@@ -161,6 +165,13 @@ class Endpoint(proto.Message):
             Output only. Reserved for future use.
         satisfies_pzi (bool):
             Output only. Reserved for future use.
+        gen_ai_advanced_features_config (google.cloud.aiplatform_v1.types.GenAiAdvancedFeaturesConfig):
+            Optional. Configuration for
+            GenAiAdvancedFeatures. If the endpoint is
+            serving GenAI models, advanced features like
+            native RAG integration can be configured.
+            Currently, only Model Garden models are
+            supported.
     """
 
     name: str = proto.Field(
@@ -256,6 +267,11 @@ class Endpoint(proto.Message):
         proto.BOOL,
         number=28,
     )
+    gen_ai_advanced_features_config: "GenAiAdvancedFeaturesConfig" = proto.Field(
+        proto.MESSAGE,
+        number=29,
+        message="GenAiAdvancedFeaturesConfig",
+    )
 
 
 class DeployedModel(proto.Message):
@@ -295,9 +311,9 @@ class DeployedModel(proto.Message):
             This value should be 1-10 characters, and valid characters
             are ``/[0-9]/``.
         model (str):
-            Required. The resource name of the Model that this is the
-            deployment of. Note that the Model may be in a different
-            location than the DeployedModel's Endpoint.
+            The resource name of the Model that this is the deployment
+            of. Note that the Model may be in a different location than
+            the DeployedModel's Endpoint.
 
             The resource name may contain version id or version alias to
             specify the version. Example:
@@ -616,6 +632,39 @@ class FasterDeploymentConfig(proto.Message):
     fast_tryout_enabled: bool = proto.Field(
         proto.BOOL,
         number=2,
+    )
+
+
+class GenAiAdvancedFeaturesConfig(proto.Message):
+    r"""Configuration for GenAiAdvancedFeatures.
+
+    Attributes:
+        rag_config (google.cloud.aiplatform_v1.types.GenAiAdvancedFeaturesConfig.RagConfig):
+            Configuration for Retrieval Augmented
+            Generation feature.
+    """
+
+    class RagConfig(proto.Message):
+        r"""Configuration for Retrieval Augmented Generation feature.
+
+        Attributes:
+            enable_rag (bool):
+                If true, enable Retrieval Augmented
+                Generation in ChatCompletion request. Once
+                enabled, the endpoint will be identified as
+                GenAI endpoint and Arthedain router will be
+                used.
+        """
+
+        enable_rag: bool = proto.Field(
+            proto.BOOL,
+            number=1,
+        )
+
+    rag_config: RagConfig = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=RagConfig,
     )
 
 

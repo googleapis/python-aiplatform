@@ -67,10 +67,12 @@ from vertexai.preview.rag import (
     RagVectorDbConfig,
     RankService,
     Ranking,
+    Scaled,
     SharePointSource,
     SharePointSources,
     SlackChannel,
     SlackChannelsSource,
+    Unprovisioned,
     VertexAiSearchConfig,
     VertexFeatureStore,
     VertexPredictionEndpoint,
@@ -485,10 +487,12 @@ TEST_RAG_FILE_TRANSFORMATION_CONFIG = RagFileTransformationConfig(
 TEST_IMPORT_FILES_CONFIG_GCS = ImportRagFilesConfig(
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     rebuild_ann_index=False,
+    max_embedding_requests_per_min=1000,
 )
 TEST_IMPORT_FILES_CONFIG_GCS_REBUILD_ANN_INDEX = ImportRagFilesConfig(
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     rebuild_ann_index=True,
+    max_embedding_requests_per_min=1000,
 )
 TEST_IMPORT_FILES_CONFIG_GCS_REBUILD_ANN_INDEX.gcs_source.uris = [TEST_GCS_PATH]
 TEST_IMPORT_FILES_CONFIG_GCS_REBUILD_ANN_INDEX.rag_file_parsing_config.advanced_parser.use_advanced_pdf_parsing = (
@@ -517,6 +521,7 @@ TEST_DRIVE_FOLDER_2 = (
 TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER = ImportRagFilesConfig(
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     rebuild_ann_index=False,
+    max_embedding_requests_per_min=1000,
 )
 TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER.google_drive_source.resource_ids = [
     GoogleDriveSource.ResourceId(
@@ -530,6 +535,7 @@ TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER.rag_file_parsing_config.advanced_parser.us
 TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING = ImportRagFilesConfig(
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     rebuild_ann_index=False,
+    max_embedding_requests_per_min=1000,
 )
 TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING.google_drive_source.resource_ids = [
     GoogleDriveSource.ResourceId(
@@ -557,6 +563,14 @@ TEST_RAG_ENGINE_CONFIG_BASIC = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=RagManagedDbConfig(tier=Basic()),
 )
+TEST_RAG_ENGINE_CONFIG_SCALED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Scaled()),
+)
+TEST_RAG_ENGINE_CONFIG_UNPROVISIONED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Unprovisioned()),
+)
 TEST_RAG_ENGINE_CONFIG_ENTERPRISE = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=RagManagedDbConfig(tier=Enterprise()),
@@ -569,6 +583,18 @@ TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC = GapicRagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=GapicRagManagedDbConfig(
         basic=GapicRagManagedDbConfig.Basic()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SCALED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        scaled=GapicRagManagedDbConfig.Scaled()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_UNPROVISIONED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        unprovisioned=GapicRagManagedDbConfig.Unprovisioned()
     ),
 )
 TEST_GAPIC_RAG_ENGINE_CONFIG_ENTERPRISE = GapicRagEngineConfig(
@@ -589,6 +615,7 @@ TEST_IMPORT_FILES_CONFIG_DRIVE_FILE = ImportRagFilesConfig(
         )
     ),
     rebuild_ann_index=False,
+    max_embedding_requests_per_min=1000,
 )
 TEST_IMPORT_FILES_CONFIG_DRIVE_FILE.max_embedding_requests_per_min = 800
 
@@ -601,6 +628,14 @@ TEST_IMPORT_FILES_CONFIG_DRIVE_FILE.google_drive_source.resource_ids = [
 TEST_IMPORT_REQUEST_DRIVE_FILE = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_DRIVE_FILE,
+)
+
+TEST_IMPORT_REQUEST_DRIVE_FILE_GLOBAL_QUOTA_CONTROL = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_DRIVE_FILE,
+)
+TEST_IMPORT_REQUEST_DRIVE_FILE_GLOBAL_QUOTA_CONTROL.import_rag_files_config.global_max_embedding_requests_per_min = (
+    8000
 )
 
 TEST_IMPORT_RESPONSE = ImportRagFilesResponse(imported_rag_files_count=2)
@@ -649,6 +684,7 @@ TEST_IMPORT_FILES_CONFIG_SLACK_SOURCE = ImportRagFilesConfig(
     rag_file_parsing_config=TEST_RAG_FILE_PARSING_CONFIG,
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     rebuild_ann_index=False,
+    max_embedding_requests_per_min=1000,
 )
 TEST_IMPORT_FILES_CONFIG_SLACK_SOURCE.slack_source.channels = [
     GapicSlackSource.SlackChannels(
@@ -703,6 +739,7 @@ TEST_IMPORT_FILES_CONFIG_JIRA_SOURCE = ImportRagFilesConfig(
     rag_file_parsing_config=TEST_RAG_FILE_PARSING_CONFIG,
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     rebuild_ann_index=False,
+    max_embedding_requests_per_min=1000,
 )
 TEST_IMPORT_FILES_CONFIG_JIRA_SOURCE.jira_source.jira_queries = [
     GapicJiraSource.JiraQueries(
@@ -736,6 +773,7 @@ TEST_SHARE_POINT_SOURCE = SharePointSources(
 TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE = ImportRagFilesConfig(
     rag_file_parsing_config=TEST_RAG_FILE_PARSING_CONFIG,
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
+    max_embedding_requests_per_min=1000,
     share_point_sources=GapicSharePointSources(
         share_point_sources=[
             GapicSharePointSources.SharePointSource(
@@ -813,6 +851,7 @@ TEST_SHARE_POINT_SOURCE_NO_FOLDERS = SharePointSources(
 TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG = LayoutParserConfig(
     processor_name="projects/test-project/locations/us/processors/abc123",
     max_parsing_requests_per_min=100,
+    global_max_parsing_requests_per_min=1000,
 )
 
 TEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH_CONFIG = LayoutParserConfig(
@@ -885,6 +924,7 @@ TEST_GAPIC_RAG_DOCUMENT_CORPUS = GapicRagCorpus(
 
 TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesConfig(
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
+    max_embedding_requests_per_min=1000,
     share_point_sources=GapicSharePointSources(
         share_point_sources=[
             GapicSharePointSources.SharePointSource(
@@ -914,6 +954,7 @@ TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_PATH.rag_file_parsing_conf
         layout_parser=RagFileParsingConfig.LayoutParser(
             processor_name="projects/test-project/locations/us/processors/abc123",
             max_parsing_requests_per_min=100,
+            global_max_parsing_requests_per_min=1000,
         )
     )
 )

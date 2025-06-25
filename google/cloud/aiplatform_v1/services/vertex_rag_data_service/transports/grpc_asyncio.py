@@ -641,6 +641,64 @@ class VertexRagDataServiceGrpcAsyncIOTransport(VertexRagDataServiceTransport):
             )
         return self._stubs["delete_rag_file"]
 
+    @property
+    def update_rag_engine_config(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.UpdateRagEngineConfigRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the update rag engine config method over gRPC.
+
+        Updates a RagEngineConfig.
+
+        Returns:
+            Callable[[~.UpdateRagEngineConfigRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_rag_engine_config" not in self._stubs:
+            self._stubs["update_rag_engine_config"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.VertexRagDataService/UpdateRagEngineConfig",
+                request_serializer=vertex_rag_data_service.UpdateRagEngineConfigRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["update_rag_engine_config"]
+
+    @property
+    def get_rag_engine_config(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.GetRagEngineConfigRequest],
+        Awaitable[vertex_rag_data.RagEngineConfig],
+    ]:
+        r"""Return a callable for the get rag engine config method over gRPC.
+
+        Gets a RagEngineConfig.
+
+        Returns:
+            Callable[[~.GetRagEngineConfigRequest],
+                    Awaitable[~.RagEngineConfig]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_rag_engine_config" not in self._stubs:
+            self._stubs["get_rag_engine_config"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.VertexRagDataService/GetRagEngineConfig",
+                request_serializer=vertex_rag_data_service.GetRagEngineConfigRequest.serialize,
+                response_deserializer=vertex_rag_data.RagEngineConfig.deserialize,
+            )
+        return self._stubs["get_rag_engine_config"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -691,6 +749,16 @@ class VertexRagDataServiceGrpcAsyncIOTransport(VertexRagDataServiceTransport):
             ),
             self.delete_rag_file: self._wrap_method(
                 self.delete_rag_file,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_rag_engine_config: self._wrap_method(
+                self.update_rag_engine_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_rag_engine_config: self._wrap_method(
+                self.get_rag_engine_config,
                 default_timeout=None,
                 client_info=client_info,
             ),

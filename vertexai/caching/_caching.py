@@ -49,6 +49,7 @@ from vertexai.generative_models._generative_models import (
     ContentsType,
 )
 from google.protobuf import field_mask_pb2
+from vertexai._utils import warning_logs
 
 
 def _prepare_create_request(
@@ -157,6 +158,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
                 ID. Example: "projects/.../locations/../cachedContents/456" or
                 "456".
         """
+        warning_logs.show_deprecation_warning()
         super().__init__(resource_name=cached_content_name)
         self._gca_resource = self._get_gca_resource(cached_content_name)
 

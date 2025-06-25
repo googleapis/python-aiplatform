@@ -476,6 +476,40 @@ def update_rag_engine_config_enterprise_mock():
 
 
 @pytest.fixture()
+def update_rag_engine_config_scaled_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_scaled_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SCALED
+        )
+        update_rag_engine_config_scaled_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_scaled_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_unprovisioned_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_unprovisioned_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_UNPROVISIONED
+        )
+        update_rag_engine_config_unprovisioned_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_unprovisioned_mock
+
+
+@pytest.fixture()
 def update_rag_engine_config_mock_exception():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -495,6 +529,30 @@ def get_rag_engine_basic_config_mock():
             test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC
         )
         yield get_rag_engine_basic_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_scaled_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_scaled_config_mock:
+        get_rag_engine_scaled_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SCALED
+        )
+        yield get_rag_engine_scaled_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_unprovisioned_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_unprovisioned_config_mock:
+        get_rag_engine_unprovisioned_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_UNPROVISIONED
+        )
+        yield get_rag_engine_unprovisioned_config_mock
 
 
 @pytest.fixture()
@@ -658,6 +716,14 @@ def import_files_request_eq(returned_request, expected_request):
     assert (
         returned_request.import_rag_files_config.rebuild_ann_index
         == expected_request.import_rag_files_config.rebuild_ann_index
+    )
+    assert (
+        returned_request.import_rag_files_config.max_embedding_requests_per_min
+        == expected_request.import_rag_files_config.max_embedding_requests_per_min
+    )
+    assert (
+        returned_request.import_rag_files_config.global_max_embedding_requests_per_min
+        == expected_request.import_rag_files_config.global_max_embedding_requests_per_min
     )
 
 
@@ -1349,6 +1415,20 @@ class TestRagDataManagement:
             request, test_rag_constants_preview.TEST_IMPORT_REQUEST_DRIVE_FILE
         )
 
+    def test_prepare_import_files_request_drive_files_with_global_quota_control(self):
+        paths = [test_rag_constants_preview.TEST_DRIVE_FILE]
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=paths,
+            transformation_config=create_transformation_config(),
+            max_embedding_requests_per_min=800,
+            global_max_embedding_requests_per_min=8000,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants_preview.TEST_IMPORT_REQUEST_DRIVE_FILE_GLOBAL_QUOTA_CONTROL,
+        )
+
     def test_prepare_import_files_request_invalid_drive_path(self):
         with pytest.raises(ValueError) as e:
             paths = ["https://drive.google.com/bslalsdfk/whichever_file/456"]
@@ -1620,6 +1700,42 @@ class TestRagDataManagement:
             test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_BASIC,
         )
 
+    def test_update_rag_engine_config_enterprise_success(
+        self, update_rag_engine_config_enterprise_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE,
+        )
+        assert update_rag_engine_config_enterprise_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE,
+        )
+
+    def test_update_rag_engine_config_scaled_success(
+        self, update_rag_engine_config_scaled_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SCALED,
+        )
+        assert update_rag_engine_config_scaled_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SCALED,
+        )
+
+    def test_update_rag_engine_config_unprovisioned_success(
+        self, update_rag_engine_config_unprovisioned_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_UNPROVISIONED,
+        )
+        assert update_rag_engine_config_unprovisioned_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_UNPROVISIONED,
+        )
+
     @pytest.mark.usefixtures("update_rag_engine_config_mock_exception")
     def test_update_rag_engine_config_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -1628,17 +1744,17 @@ class TestRagDataManagement:
             )
         e.match("Failed in RagEngineConfig update due to")
 
-    @pytest.mark.usefixtures("update_rag_engine_config_enterprise_mock")
+    @pytest.mark.usefixtures("update_rag_engine_config_basic_mock")
     def test_update_rag_engine_config_bad_input(
-        self, update_rag_engine_config_enterprise_mock
+        self, update_rag_engine_config_basic_mock
     ):
         rag_config = rag.update_rag_engine_config(
             rag_engine_config=test_rag_constants_preview.TEST_DEFAULT_RAG_ENGINE_CONFIG,
         )
-        assert update_rag_engine_config_enterprise_mock.call_count == 1
+        assert update_rag_engine_config_basic_mock.call_count == 1
         rag_engine_config_eq(
             rag_config,
-            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_BASIC,
         )
 
     @pytest.mark.usefixtures("get_rag_engine_basic_config_mock")
@@ -1657,6 +1773,24 @@ class TestRagDataManagement:
         )
         rag_engine_config_eq(
             rag_config, test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_scaled_config_mock")
+    def test_get_rag_engine_config_scaled_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config, test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SCALED
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_unprovisioned_config_mock")
+    def test_get_rag_engine_config_unprovisioned_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config, test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_UNPROVISIONED
         )
 
     @pytest.mark.usefixtures("get_rag_engine_config_mock_exception")

@@ -65,7 +65,7 @@ class TestInit:
         assert initializer.global_config.project == _TEST_PROJECT
 
     def test_not_init_project_gets_default_project(self, monkeypatch):
-        def mock_auth_default():
+        def mock_auth_default(scopes=None):
             return None, _TEST_PROJECT
 
         monkeypatch.setattr(google.auth, "default", mock_auth_default)

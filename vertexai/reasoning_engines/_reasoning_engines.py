@@ -224,7 +224,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
                 use for staging the artifacts needed.
             sys_version (str):
                 Optional. The Python system version used. Currently supports any
-                of "3.8", "3.9", "3.10", "3.11", "3.12". If not specified,
+                of "3.9", "3.10", "3.11", "3.12", "3.13". If not specified,
                 it defaults to the "{major}.{minor}" attributes of
                 sys.version_info.
             extra_packages (Sequence[str]):

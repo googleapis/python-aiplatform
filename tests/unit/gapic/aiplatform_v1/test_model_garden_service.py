@@ -55,9 +55,13 @@ except ImportError:  # pragma: NO COVER
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
+from google.api_core import future
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
+from google.api_core import operation
+from google.api_core import operation_async  # type: ignore
+from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
@@ -69,15 +73,20 @@ from google.cloud.aiplatform_v1.services.model_garden_service import (
     ModelGardenServiceClient,
 )
 from google.cloud.aiplatform_v1.services.model_garden_service import transports
+from google.cloud.aiplatform_v1.types import accelerator_type
+from google.cloud.aiplatform_v1.types import env_var
+from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model_garden_service
 from google.cloud.aiplatform_v1.types import publisher_model
+from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
+from google.protobuf import duration_pb2  # type: ignore
 import google.auth
 
 
@@ -1559,6 +1568,253 @@ async def test_get_publisher_model_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_garden_service.DeployRequest,
+        dict,
+    ],
+)
+def test_deploy(request_type, transport: str = "grpc"):
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.deploy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.deploy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = model_garden_service.DeployRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_deploy_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = model_garden_service.DeployRequest(
+        publisher_model_name="publisher_model_name_value",
+        hugging_face_model_id="hugging_face_model_id_value",
+        destination="destination_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.deploy), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.deploy(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_garden_service.DeployRequest(
+            publisher_model_name="publisher_model_name_value",
+            hugging_face_model_id="hugging_face_model_id_value",
+            destination="destination_value",
+        )
+
+
+def test_deploy_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelGardenServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.deploy in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.deploy] = mock_rpc
+        request = {}
+        client.deploy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.deploy(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_deploy_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ModelGardenServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.deploy
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.deploy
+        ] = mock_rpc
+
+        request = {}
+        await client.deploy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.deploy(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_deploy_async(
+    transport: str = "grpc_asyncio", request_type=model_garden_service.DeployRequest
+):
+    client = ModelGardenServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.deploy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.deploy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = model_garden_service.DeployRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_deploy_async_from_dict():
+    await test_deploy_async(request_type=dict)
+
+
+def test_deploy_field_headers():
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_garden_service.DeployRequest()
+
+    request.destination = "destination_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.deploy), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.deploy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "destination=destination_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_deploy_field_headers_async():
+    client = ModelGardenServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_garden_service.DeployRequest()
+
+    request.destination = "destination_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.deploy), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.deploy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "destination=destination_value",
+    ) in kw["metadata"]
+
+
 def test_get_publisher_model_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -1758,6 +2014,126 @@ def test_get_publisher_model_rest_flattened_error(transport: str = "rest"):
         )
 
 
+def test_deploy_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelGardenServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.deploy in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.deploy] = mock_rpc
+
+        request = {}
+        client.deploy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.deploy(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_deploy_rest_required_fields(request_type=model_garden_service.DeployRequest):
+    transport_class = transports.ModelGardenServiceRestTransport
+
+    request_init = {}
+    request_init["destination"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).deploy._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["destination"] = "destination_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).deploy._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "destination" in jsonified_request
+    assert jsonified_request["destination"] == "destination_value"
+
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+
+            response = client.deploy(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_deploy_rest_unset_required_fields():
+    transport = transports.ModelGardenServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.deploy._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("destination",)))
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.ModelGardenServiceGrpcTransport(
@@ -1887,6 +2263,27 @@ def test_get_publisher_model_empty_call_grpc():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_deploy_empty_call_grpc():
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.deploy), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.deploy(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_garden_service.DeployRequest()
+
+        assert args[0] == request_msg
+
+
 def test_transport_kind_grpc_asyncio():
     transport = ModelGardenServiceAsyncClient.get_transport_class("grpc_asyncio")(
         credentials=async_anonymous_credentials()
@@ -1932,6 +2329,31 @@ async def test_get_publisher_model_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = model_garden_service.GetPublisherModelRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_deploy_empty_call_grpc_asyncio():
+    client = ModelGardenServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.deploy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.deploy(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_garden_service.DeployRequest()
 
         assert args[0] == request_msg
 
@@ -2081,6 +2503,127 @@ def test_get_publisher_model_rest_interceptors(null_interceptor):
         post_with_metadata.return_value = publisher_model.PublisherModel(), metadata
 
         client.get_publisher_model(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+def test_deploy_rest_bad_request(request_type=model_garden_service.DeployRequest):
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"destination": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        client.deploy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_garden_service.DeployRequest,
+        dict,
+    ],
+)
+def test_deploy_rest_call_success(request_type):
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"destination": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = client.deploy(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_deploy_rest_interceptors(null_interceptor):
+    transport = transports.ModelGardenServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelGardenServiceRestInterceptor(),
+    )
+    client = ModelGardenServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.ModelGardenServiceRestInterceptor, "post_deploy"
+    ) as post, mock.patch.object(
+        transports.ModelGardenServiceRestInterceptor, "post_deploy_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
+        transports.ModelGardenServiceRestInterceptor, "pre_deploy"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = model_garden_service.DeployRequest.pb(
+            model_garden_service.DeployRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = model_garden_service.DeployRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
+
+        client.deploy(
             request,
             metadata=[
                 ("key", "val"),
@@ -2747,6 +3290,43 @@ def test_get_publisher_model_empty_call_rest():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_deploy_empty_call_rest():
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.deploy), "__call__") as call:
+        client.deploy(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_garden_service.DeployRequest()
+
+        assert args[0] == request_msg
+
+
+def test_model_garden_service_rest_lro_client():
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    transport = client.transport
+
+    # Ensure that we have an api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AbstractOperationsClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
+
+
 def test_transport_kind_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
         pytest.skip(
@@ -2912,6 +3492,145 @@ async def test_get_publisher_model_rest_asyncio_interceptors(null_interceptor):
         post_with_metadata.return_value = publisher_model.PublisherModel(), metadata
 
         await client.get_publisher_model(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_deploy_rest_asyncio_bad_request(
+    request_type=model_garden_service.DeployRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelGardenServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"destination": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        await client.deploy(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_garden_service.DeployRequest,
+        dict,
+    ],
+)
+async def test_deploy_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelGardenServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"destination": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = await client.deploy(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_deploy_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncModelGardenServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelGardenServiceRestInterceptor(),
+    )
+    client = ModelGardenServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncModelGardenServiceRestInterceptor, "post_deploy"
+    ) as post, mock.patch.object(
+        transports.AsyncModelGardenServiceRestInterceptor, "post_deploy_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelGardenServiceRestInterceptor, "pre_deploy"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = model_garden_service.DeployRequest.pb(
+            model_garden_service.DeployRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = model_garden_service.DeployRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
+
+        await client.deploy(
             request,
             metadata=[
                 ("key", "val"),
@@ -3699,6 +4418,52 @@ async def test_get_publisher_model_empty_call_rest_asyncio():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_deploy_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelGardenServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.deploy), "__call__") as call:
+        await client.deploy(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_garden_service.DeployRequest()
+
+        assert args[0] == request_msg
+
+
+def test_model_garden_service_rest_asyncio_lro_client():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelGardenServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    transport = client.transport
+
+    # Ensure that we have an api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AsyncOperationsRestClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
+
+
 def test_unsupported_parameter_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
         pytest.skip(
@@ -3747,6 +4512,7 @@ def test_model_garden_service_base_transport():
     # raise NotImplementedError.
     methods = (
         "get_publisher_model",
+        "deploy",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -3764,6 +4530,11 @@ def test_model_garden_service_base_transport():
 
     with pytest.raises(NotImplementedError):
         transport.close()
+
+    # Additionally, the LRO client (a property) should
+    # also raise NotImplementedError
+    with pytest.raises(NotImplementedError):
+        transport.operations_client
 
     # Catch all for all remaining methods and properties
     remainder = [
@@ -4020,6 +4791,9 @@ def test_model_garden_service_client_transport_session_collision(transport_name)
     session1 = client1.transport.get_publisher_model._session
     session2 = client2.transport.get_publisher_model._session
     assert session1 != session2
+    session1 = client1.transport.deploy._session
+    session2 = client2.transport.deploy._session
+    assert session1 != session2
 
 
 def test_model_garden_service_grpc_transport_channel():
@@ -4146,6 +4920,92 @@ def test_model_garden_service_transport_channel_mtls_with_adc(transport_class):
                 ],
             )
             assert transport.grpc_channel == mock_grpc_channel
+
+
+def test_model_garden_service_grpc_lro_client():
+    client = ModelGardenServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+    transport = client.transport
+
+    # Ensure that we have a api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
+
+
+def test_model_garden_service_grpc_lro_async_client():
+    client = ModelGardenServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
+    )
+    transport = client.transport
+
+    # Ensure that we have a api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
+
+
+def test_endpoint_path():
+    project = "squid"
+    location = "clam"
+    endpoint = "whelk"
+    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+        project=project,
+        location=location,
+        endpoint=endpoint,
+    )
+    actual = ModelGardenServiceClient.endpoint_path(project, location, endpoint)
+    assert expected == actual
+
+
+def test_parse_endpoint_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "endpoint": "nudibranch",
+    }
+    path = ModelGardenServiceClient.endpoint_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ModelGardenServiceClient.parse_endpoint_path(path)
+    assert expected == actual
+
+
+def test_model_path():
+    project = "cuttlefish"
+    location = "mussel"
+    model = "winkle"
+    expected = "projects/{project}/locations/{location}/models/{model}".format(
+        project=project,
+        location=location,
+        model=model,
+    )
+    actual = ModelGardenServiceClient.model_path(project, location, model)
+    assert expected == actual
+
+
+def test_parse_model_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "model": "abalone",
+    }
+    path = ModelGardenServiceClient.model_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ModelGardenServiceClient.parse_model_path(path)
+    assert expected == actual
 
 
 def test_publisher_model_path():

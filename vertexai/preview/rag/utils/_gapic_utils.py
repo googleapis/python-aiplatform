@@ -62,9 +62,11 @@ from vertexai.preview.rag.utils.resources import (
     RagVectorDbConfig,
     Basic,
     Enterprise,
+    Scaled,
     SharePointSources,
     SlackChannelsSource,
     TransformationConfig,
+    Unprovisioned,
     VertexAiSearchConfig,
     VertexFeatureStore,
     VertexPredictionEndpoint,
@@ -537,6 +539,7 @@ def prepare_import_files_request(
     chunk_overlap: int = 200,
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
+    global_max_embedding_requests_per_min: Optional[int] = None,
     use_advanced_pdf_parsing: bool = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
@@ -569,8 +572,15 @@ def prepare_import_files_request(
             )
         rag_file_parsing_config.layout_parser = RagFileParsingConfig.LayoutParser(
             processor_name=layout_parser.processor_name,
-            max_parsing_requests_per_min=layout_parser.max_parsing_requests_per_min,
         )
+        if layout_parser.max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.layout_parser.max_parsing_requests_per_min = (
+                layout_parser.max_parsing_requests_per_min
+            )
+        if layout_parser.global_max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.layout_parser.global_max_parsing_requests_per_min = (
+                layout_parser.global_max_parsing_requests_per_min
+            )
     if llm_parser is not None:
         rag_file_parsing_config.llm_parser = RagFileParsingConfig.LlmParser(
             model_name=llm_parser.model_name
@@ -609,6 +619,10 @@ def prepare_import_files_request(
         rebuild_ann_index=rebuild_ann_index,
     )
 
+    if global_max_embedding_requests_per_min is not None:
+        import_rag_files_config.global_max_embedding_requests_per_min = (
+            global_max_embedding_requests_per_min
+        )
     if source is not None:
         gapic_source = convert_source_for_rag_import(source)
         if isinstance(gapic_source, GapicSlackSource):
@@ -737,6 +751,9 @@ def set_corpus_type_config(
                 memory_corpus.llm_parser.custom_parsing_prompt = (
                     corpus_type_config.corpus_type_config.llm_parser.custom_parsing_prompt
                 )
+        rag_corpus.corpus_type_config = GapicRagCorpus.CorpusTypeConfig(
+            memory_corpus=memory_corpus
+        )
     else:
         raise TypeError
 
@@ -978,6 +995,10 @@ def convert_gapic_to_rag_engine_config(
         rag_managed_db_config.tier = Enterprise()
     elif response.rag_managed_db_config.__contains__("basic"):
         rag_managed_db_config.tier = Basic()
+    elif response.rag_managed_db_config.__contains__("unprovisioned"):
+        rag_managed_db_config.tier = Unprovisioned()
+    elif response.rag_managed_db_config.__contains__("scaled"):
+        rag_managed_db_config.tier = Scaled()
     else:
         raise ValueError("At least one of rag_managed_db_config must be set.")
     return RagEngineConfig(
@@ -996,13 +1017,19 @@ def convert_rag_engine_config_to_gapic(
         or rag_engine_config.rag_managed_db_config.tier is None
     ):
         rag_managed_db_config = GapicRagManagedDbConfig(
-            enterprise=GapicRagManagedDbConfig.Enterprise()
+            basic=GapicRagManagedDbConfig.Basic()
         )
     else:
         if isinstance(rag_engine_config.rag_managed_db_config.tier, Enterprise):
             rag_managed_db_config.enterprise = GapicRagManagedDbConfig.Enterprise()
         elif isinstance(rag_engine_config.rag_managed_db_config.tier, Basic):
             rag_managed_db_config.basic = GapicRagManagedDbConfig.Basic()
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Unprovisioned):
+            rag_managed_db_config.unprovisioned = (
+                GapicRagManagedDbConfig.Unprovisioned()
+            )
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Scaled):
+            rag_managed_db_config.scaled = GapicRagManagedDbConfig.Scaled()
     return GapicRagEngineConfig(
         name=rag_engine_config.name,
         rag_managed_db_config=rag_managed_db_config,
