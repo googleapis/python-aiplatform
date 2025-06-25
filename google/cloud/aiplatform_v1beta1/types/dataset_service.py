@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import annotation
+from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import data_item as gca_data_item
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset_version
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import saved_query as gca_saved_query
+from google.cloud.aiplatform_v1beta1.types import tool
 from google.protobuf import field_mask_pb2  # type: ignore
 
 
@@ -64,6 +66,15 @@ __protobuf__ = proto.module(
         "GetAnnotationSpecRequest",
         "ListAnnotationsRequest",
         "ListAnnotationsResponse",
+        "AssessDataRequest",
+        "AssessDataResponse",
+        "AssessDataOperationMetadata",
+        "GeminiTemplateConfig",
+        "GeminiRequestReadConfig",
+        "GeminiExample",
+        "AssembleDataRequest",
+        "AssembleDataResponse",
+        "AssembleDataOperationMetadata",
     },
 )
 
@@ -1117,6 +1128,586 @@ class ListAnnotationsResponse(proto.Message):
     next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class AssessDataRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.AssessData][google.cloud.aiplatform.v1beta1.DatasetService.AssessData].
+    Used only for MULTIMODAL datasets.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        tuning_validation_assessment_config (google.cloud.aiplatform_v1beta1.types.AssessDataRequest.TuningValidationAssessmentConfig):
+            Optional. Configuration for the tuning
+            validation assessment.
+
+            This field is a member of `oneof`_ ``assessment_config``.
+        tuning_resource_usage_assessment_config (google.cloud.aiplatform_v1beta1.types.AssessDataRequest.TuningResourceUsageAssessmentConfig):
+            Optional. Configuration for the tuning
+            resource usage assessment.
+
+            This field is a member of `oneof`_ ``assessment_config``.
+        batch_prediction_validation_assessment_config (google.cloud.aiplatform_v1beta1.types.AssessDataRequest.BatchPredictionValidationAssessmentConfig):
+            Optional. Configuration for the batch
+            prediction validation assessment.
+
+            This field is a member of `oneof`_ ``assessment_config``.
+        batch_prediction_resource_usage_assessment_config (google.cloud.aiplatform_v1beta1.types.AssessDataRequest.BatchPredictionResourceUsageAssessmentConfig):
+            Optional. Configuration for the batch
+            prediction resource usage assessment.
+
+            This field is a member of `oneof`_ ``assessment_config``.
+        gemini_template_config (google.cloud.aiplatform_v1beta1.types.GeminiTemplateConfig):
+            Optional. Config for assembling templates
+            with a Gemini API structure to assess assembled
+            data.
+
+            This field is a member of `oneof`_ ``read_config``.
+        request_column_name (str):
+            Optional. The column name in the underlying
+            table that contains already fully assembled
+            requests.
+
+            This field is a member of `oneof`_ ``read_config``.
+        name (str):
+            Required. The name of the Dataset resource. Used only for
+            MULTIMODAL datasets. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}``
+        gemini_request_read_config (google.cloud.aiplatform_v1beta1.types.GeminiRequestReadConfig):
+            Optional. The Gemini request read config for
+            the dataset.
+    """
+
+    class TuningValidationAssessmentConfig(proto.Message):
+        r"""Configuration for the tuning validation assessment.
+
+        Attributes:
+            model_name (str):
+                Required. The name of the model used for
+                tuning.
+            dataset_usage (google.cloud.aiplatform_v1beta1.types.AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage):
+                Required. The dataset usage (e.g.
+                training/validation).
+        """
+
+        class DatasetUsage(proto.Enum):
+            r"""The dataset usage (e.g. training/validation).
+
+            Values:
+                DATASET_USAGE_UNSPECIFIED (0):
+                    Default value. Should not be used.
+                SFT_TRAINING (1):
+                    Supervised fine-tuning training dataset.
+                SFT_VALIDATION (2):
+                    Supervised fine-tuning validation dataset.
+            """
+            DATASET_USAGE_UNSPECIFIED = 0
+            SFT_TRAINING = 1
+            SFT_VALIDATION = 2
+
+        model_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        dataset_usage: "AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage" = proto.Field(
+            proto.ENUM,
+            number=2,
+            enum="AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage",
+        )
+
+    class TuningResourceUsageAssessmentConfig(proto.Message):
+        r"""Configuration for the tuning resource usage assessment.
+
+        Attributes:
+            model_name (str):
+                Required. The name of the model used for
+                tuning.
+        """
+
+        model_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    class BatchPredictionValidationAssessmentConfig(proto.Message):
+        r"""Configuration for the batch prediction validation assessment.
+
+        Attributes:
+            model_name (str):
+                Required. The name of the model used for
+                batch prediction.
+        """
+
+        model_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    class BatchPredictionResourceUsageAssessmentConfig(proto.Message):
+        r"""Configuration for the batch prediction resource usage
+        assessment.
+
+        Attributes:
+            model_name (str):
+                Required. The name of the model used for
+                batch prediction.
+        """
+
+        model_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    tuning_validation_assessment_config: TuningValidationAssessmentConfig = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="assessment_config",
+        message=TuningValidationAssessmentConfig,
+    )
+    tuning_resource_usage_assessment_config: TuningResourceUsageAssessmentConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=3,
+            oneof="assessment_config",
+            message=TuningResourceUsageAssessmentConfig,
+        )
+    )
+    batch_prediction_validation_assessment_config: BatchPredictionValidationAssessmentConfig = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="assessment_config",
+        message=BatchPredictionValidationAssessmentConfig,
+    )
+    batch_prediction_resource_usage_assessment_config: BatchPredictionResourceUsageAssessmentConfig = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        oneof="assessment_config",
+        message=BatchPredictionResourceUsageAssessmentConfig,
+    )
+    gemini_template_config: "GeminiTemplateConfig" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="read_config",
+        message="GeminiTemplateConfig",
+    )
+    request_column_name: str = proto.Field(
+        proto.STRING,
+        number=5,
+        oneof="read_config",
+    )
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    gemini_request_read_config: "GeminiRequestReadConfig" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="GeminiRequestReadConfig",
+    )
+
+
+class AssessDataResponse(proto.Message):
+    r"""Response message for
+    [DatasetService.AssessData][google.cloud.aiplatform.v1beta1.DatasetService.AssessData].
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        tuning_validation_assessment_result (google.cloud.aiplatform_v1beta1.types.AssessDataResponse.TuningValidationAssessmentResult):
+            Optional. The result of the tuning validation
+            assessment.
+
+            This field is a member of `oneof`_ ``assessment_result``.
+        tuning_resource_usage_assessment_result (google.cloud.aiplatform_v1beta1.types.AssessDataResponse.TuningResourceUsageAssessmentResult):
+            Optional. The result of the tuning resource
+            usage assessment.
+
+            This field is a member of `oneof`_ ``assessment_result``.
+        batch_prediction_validation_assessment_result (google.cloud.aiplatform_v1beta1.types.AssessDataResponse.BatchPredictionValidationAssessmentResult):
+            Optional. The result of the batch prediction
+            validation assessment.
+
+            This field is a member of `oneof`_ ``assessment_result``.
+        batch_prediction_resource_usage_assessment_result (google.cloud.aiplatform_v1beta1.types.AssessDataResponse.BatchPredictionResourceUsageAssessmentResult):
+            Optional. The result of the batch prediction
+            resource usage assessment.
+
+            This field is a member of `oneof`_ ``assessment_result``.
+    """
+
+    class TuningValidationAssessmentResult(proto.Message):
+        r"""The result of the tuning validation assessment.
+
+        Attributes:
+            errors (MutableSequence[str]):
+                Optional. A list containing the first
+                validation errors.
+        """
+
+        errors: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=1,
+        )
+
+    class TuningResourceUsageAssessmentResult(proto.Message):
+        r"""The result of the tuning resource usage assessment.
+
+        Attributes:
+            token_count (int):
+                Number of tokens in the tuning dataset.
+            billable_character_count (int):
+                Number of billable tokens in the tuning
+                dataset.
+        """
+
+        token_count: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        billable_character_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+
+    class BatchPredictionValidationAssessmentResult(proto.Message):
+        r"""The result of the batch prediction validation assessment."""
+
+    class BatchPredictionResourceUsageAssessmentResult(proto.Message):
+        r"""The result of the batch prediction resource usage assessment.
+
+        Attributes:
+            token_count (int):
+                Number of tokens in the batch prediction
+                dataset.
+            audio_token_count (int):
+                Number of audio tokens in the batch
+                prediction dataset.
+        """
+
+        token_count: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        audio_token_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+
+    tuning_validation_assessment_result: TuningValidationAssessmentResult = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="assessment_result",
+        message=TuningValidationAssessmentResult,
+    )
+    tuning_resource_usage_assessment_result: TuningResourceUsageAssessmentResult = (
+        proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="assessment_result",
+            message=TuningResourceUsageAssessmentResult,
+        )
+    )
+    batch_prediction_validation_assessment_result: BatchPredictionValidationAssessmentResult = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="assessment_result",
+        message=BatchPredictionValidationAssessmentResult,
+    )
+    batch_prediction_resource_usage_assessment_result: BatchPredictionResourceUsageAssessmentResult = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="assessment_result",
+        message=BatchPredictionResourceUsageAssessmentResult,
+    )
+
+
+class AssessDataOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [DatasetService.AssessData][google.cloud.aiplatform.v1beta1.DatasetService.AssessData].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class GeminiTemplateConfig(proto.Message):
+    r"""Template configuration to create Gemini examples from a
+    multimodal dataset.
+
+    Attributes:
+        gemini_example (google.cloud.aiplatform_v1beta1.types.GeminiExample):
+            Required. The template that will be used for
+            assembling the request to use for downstream
+            applications.
+        field_mapping (MutableMapping[str, str]):
+            Required. Map of template parameters to the
+            columns in the dataset table.
+    """
+
+    gemini_example: "GeminiExample" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="GeminiExample",
+    )
+    field_mapping: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=2,
+    )
+
+
+class GeminiRequestReadConfig(proto.Message):
+    r"""Configuration for how to read Gemini requests from a
+    multimodal dataset.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        template_config (google.cloud.aiplatform_v1beta1.types.GeminiTemplateConfig):
+            Gemini request template with placeholders.
+
+            This field is a member of `oneof`_ ``read_config``.
+        assembled_request_column_name (str):
+            Optional. Column name in the dataset table
+            that contains already fully assembled Gemini
+            requests.
+
+            This field is a member of `oneof`_ ``read_config``.
+    """
+
+    template_config: "GeminiTemplateConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="read_config",
+        message="GeminiTemplateConfig",
+    )
+    assembled_request_column_name: str = proto.Field(
+        proto.STRING,
+        number=4,
+        oneof="read_config",
+    )
+
+
+class GeminiExample(proto.Message):
+    r"""Format for Gemini examples used for Vertex Multimodal
+    datasets.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        model (str):
+            Optional. The fully qualified name of the publisher model or
+            tuned model endpoint to use.
+
+            Publisher model format:
+            ``projects/{project}/locations/{location}/publishers/*/models/*``
+
+            Tuned model endpoint format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        contents (MutableSequence[google.cloud.aiplatform_v1beta1.types.Content]):
+            Required. The content of the current
+            conversation with the model.
+            For single-turn queries, this is a single
+            instance. For multi-turn queries, this is a
+            repeated field that contains conversation
+            history + latest request.
+        system_instruction (google.cloud.aiplatform_v1beta1.types.Content):
+            Optional. The user provided system
+            instructions for the model. Note: only text
+            should be used in parts and content in each part
+            will be in a separate paragraph.
+
+            This field is a member of `oneof`_ ``_system_instruction``.
+        cached_content (str):
+            Optional. The name of the cached content used as context to
+            serve the prediction. Note: only used in explicit caching,
+            where users can have control over caching (e.g. what content
+            to cache) and enjoy guaranteed cost savings. Format:
+            ``projects/{project}/locations/{location}/cachedContents/{cachedContent}``
+        tools (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tool]):
+            Optional. A list of ``Tools`` the model may use to generate
+            the next response.
+
+            A ``Tool`` is a piece of code that enables the system to
+            interact with external systems to perform an action, or set
+            of actions, outside of knowledge and scope of the model.
+        tool_config (google.cloud.aiplatform_v1beta1.types.ToolConfig):
+            Optional. Tool config. This config is shared
+            for all tools provided in the request.
+        labels (MutableMapping[str, str]):
+            Optional. The labels with user-defined
+            metadata for the request. It is used for billing
+            and reporting only.
+
+            Label keys and values can be no longer than 63
+            characters (Unicode codepoints) and can only
+            contain lowercase letters, numeric characters,
+            underscores, and dashes. International
+            characters are allowed. Label values are
+            optional. Label keys must start with a letter.
+        safety_settings (MutableSequence[google.cloud.aiplatform_v1beta1.types.SafetySetting]):
+            Optional. Per request settings for blocking
+            unsafe content. Enforced on
+            GenerateContentResponse.candidates.
+        generation_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig):
+            Optional. Generation config.
+    """
+
+    model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    contents: MutableSequence[content.Content] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=content.Content,
+    )
+    system_instruction: content.Content = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        optional=True,
+        message=content.Content,
+    )
+    cached_content: str = proto.Field(
+        proto.STRING,
+        number=9,
+    )
+    tools: MutableSequence[tool.Tool] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=6,
+        message=tool.Tool,
+    )
+    tool_config: tool.ToolConfig = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=tool.ToolConfig,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=10,
+    )
+    safety_settings: MutableSequence[content.SafetySetting] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=content.SafetySetting,
+    )
+    generation_config: content.GenerationConfig = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=content.GenerationConfig,
+    )
+
+
+class AssembleDataRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.AssembleData][google.cloud.aiplatform.v1beta1.DatasetService.AssembleData].
+    Used only for MULTIMODAL datasets.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        gemini_template_config (google.cloud.aiplatform_v1beta1.types.GeminiTemplateConfig):
+            Optional. Config for assembling templates
+            with a Gemini API structure.
+
+            This field is a member of `oneof`_ ``read_config``.
+        request_column_name (str):
+            Optional. The column name in the underlying
+            table that contains already fully assembled
+            requests. If this field is set, the original
+            request will be copied to the output table.
+
+            This field is a member of `oneof`_ ``read_config``.
+        name (str):
+            Required. The name of the Dataset resource (used only for
+            MULTIMODAL datasets). Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}``
+        gemini_request_read_config (google.cloud.aiplatform_v1beta1.types.GeminiRequestReadConfig):
+            Optional. The read config for the dataset.
+    """
+
+    gemini_template_config: "GeminiTemplateConfig" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="read_config",
+        message="GeminiTemplateConfig",
+    )
+    request_column_name: str = proto.Field(
+        proto.STRING,
+        number=5,
+        oneof="read_config",
+    )
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    gemini_request_read_config: "GeminiRequestReadConfig" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message="GeminiRequestReadConfig",
+    )
+
+
+class AssembleDataResponse(proto.Message):
+    r"""Response message for
+    [DatasetService.AssembleData][google.cloud.aiplatform.v1beta1.DatasetService.AssembleData].
+
+    Attributes:
+        bigquery_destination (str):
+            Destination BigQuery table path containing
+            the assembled data as a single column.
+    """
+
+    bigquery_destination: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class AssembleDataOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [DatasetService.AssembleData][google.cloud.aiplatform.v1beta1.DatasetService.AssembleData].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 

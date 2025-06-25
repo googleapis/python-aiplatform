@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ from google.cloud.aiplatform_v1.services.notebook_service import pagers
 from google.cloud.aiplatform_v1.services.notebook_service import transports
 from google.cloud.aiplatform_v1.types import accelerator_type
 from google.cloud.aiplatform_v1.types import encryption_spec
+from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import network_spec
@@ -87,6 +88,7 @@ from google.cloud.aiplatform_v1.types import notebook_runtime
 from google.cloud.aiplatform_v1.types import notebook_runtime as gca_notebook_runtime
 from google.cloud.aiplatform_v1.types import notebook_runtime_template_ref
 from google.cloud.aiplatform_v1.types import notebook_service
+from google.cloud.aiplatform_v1.types import notebook_software_config
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.location import locations_pb2
@@ -102,6 +104,14 @@ from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -359,6 +369,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         NotebookServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = NotebookServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = NotebookServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -6320,6 +6373,7 @@ def test_get_notebook_execution_job(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             schedule_resource_name="schedule_resource_name_value",
             job_state=job_state.JobState.JOB_STATE_QUEUED,
+            kernel_name="kernel_name_value",
             notebook_runtime_template_resource_name="notebook_runtime_template_resource_name_value",
             gcs_output_uri="gcs_output_uri_value",
             execution_user="execution_user_value",
@@ -6338,6 +6392,7 @@ def test_get_notebook_execution_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.schedule_resource_name == "schedule_resource_name_value"
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == "kernel_name_value"
 
 
 def test_get_notebook_execution_job_non_empty_request_with_auto_populated_field():
@@ -6477,6 +6532,7 @@ async def test_get_notebook_execution_job_async(
                 display_name="display_name_value",
                 schedule_resource_name="schedule_resource_name_value",
                 job_state=job_state.JobState.JOB_STATE_QUEUED,
+                kernel_name="kernel_name_value",
             )
         )
         response = await client.get_notebook_execution_job(request)
@@ -6493,6 +6549,7 @@ async def test_get_notebook_execution_job_async(
     assert response.display_name == "display_name_value"
     assert response.schedule_resource_name == "schedule_resource_name_value"
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == "kernel_name_value"
 
 
 @pytest.mark.asyncio
@@ -7667,6 +7724,7 @@ def test_create_notebook_runtime_template_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_notebook_runtime_template(request)
 
@@ -7724,6 +7782,7 @@ def test_create_notebook_runtime_template_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_notebook_runtime_template(**mock_args)
 
@@ -7864,6 +7923,7 @@ def test_get_notebook_runtime_template_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_notebook_runtime_template(request)
 
@@ -7913,6 +7973,7 @@ def test_get_notebook_runtime_template_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_notebook_runtime_template(**mock_args)
 
@@ -8061,6 +8122,7 @@ def test_list_notebook_runtime_templates_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_notebook_runtime_templates(request)
 
@@ -8121,6 +8183,7 @@ def test_list_notebook_runtime_templates_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_notebook_runtime_templates(**mock_args)
 
@@ -8326,6 +8389,7 @@ def test_delete_notebook_runtime_template_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_notebook_runtime_template(request)
 
@@ -8373,6 +8437,7 @@ def test_delete_notebook_runtime_template_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_notebook_runtime_template(**mock_args)
 
@@ -8507,6 +8572,7 @@ def test_update_notebook_runtime_template_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_notebook_runtime_template(request)
 
@@ -8569,6 +8635,7 @@ def test_update_notebook_runtime_template_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_notebook_runtime_template(**mock_args)
 
@@ -8717,6 +8784,7 @@ def test_assign_notebook_runtime_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.assign_notebook_runtime(request)
 
@@ -8772,6 +8840,7 @@ def test_assign_notebook_runtime_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.assign_notebook_runtime(**mock_args)
 
@@ -8910,6 +8979,7 @@ def test_get_notebook_runtime_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_notebook_runtime(request)
 
@@ -8957,6 +9027,7 @@ def test_get_notebook_runtime_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_notebook_runtime(**mock_args)
 
@@ -9105,6 +9176,7 @@ def test_list_notebook_runtimes_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_notebook_runtimes(request)
 
@@ -9161,6 +9233,7 @@ def test_list_notebook_runtimes_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_notebook_runtimes(**mock_args)
 
@@ -9361,6 +9434,7 @@ def test_delete_notebook_runtime_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_notebook_runtime(request)
 
@@ -9406,6 +9480,7 @@ def test_delete_notebook_runtime_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_notebook_runtime(**mock_args)
 
@@ -9544,6 +9619,7 @@ def test_upgrade_notebook_runtime_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.upgrade_notebook_runtime(request)
 
@@ -9589,6 +9665,7 @@ def test_upgrade_notebook_runtime_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.upgrade_notebook_runtime(**mock_args)
 
@@ -9727,6 +9804,7 @@ def test_start_notebook_runtime_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.start_notebook_runtime(request)
 
@@ -9772,6 +9850,7 @@ def test_start_notebook_runtime_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.start_notebook_runtime(**mock_args)
 
@@ -9910,6 +9989,7 @@ def test_stop_notebook_runtime_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.stop_notebook_runtime(request)
 
@@ -9955,6 +10035,7 @@ def test_stop_notebook_runtime_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.stop_notebook_runtime(**mock_args)
 
@@ -10095,6 +10176,7 @@ def test_create_notebook_execution_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_notebook_execution_job(request)
 
@@ -10154,6 +10236,7 @@ def test_create_notebook_execution_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_notebook_execution_job(**mock_args)
 
@@ -10298,6 +10381,7 @@ def test_get_notebook_execution_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_notebook_execution_job(request)
 
@@ -10345,6 +10429,7 @@ def test_get_notebook_execution_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_notebook_execution_job(**mock_args)
 
@@ -10493,6 +10578,7 @@ def test_list_notebook_execution_jobs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_notebook_execution_jobs(request)
 
@@ -10551,6 +10637,7 @@ def test_list_notebook_execution_jobs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_notebook_execution_jobs(**mock_args)
 
@@ -10754,6 +10841,7 @@ def test_delete_notebook_execution_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_notebook_execution_job(request)
 
@@ -10801,6 +10889,7 @@ def test_delete_notebook_execution_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_notebook_execution_job(**mock_args)
 
@@ -11726,6 +11815,7 @@ async def test_get_notebook_execution_job_empty_call_grpc_asyncio():
                 display_name="display_name_value",
                 schedule_resource_name="schedule_resource_name_value",
                 job_state=job_state.JobState.JOB_STATE_QUEUED,
+                kernel_name="kernel_name_value",
             )
         )
         await client.get_notebook_execution_job(request=None)
@@ -11822,6 +11912,7 @@ def test_create_notebook_runtime_template_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_notebook_runtime_template(request)
 
 
@@ -11878,6 +11969,14 @@ def test_create_notebook_runtime_template_rest_call_success(request_type):
         "shielded_vm_config": {"enable_secure_boot": True},
         "network_tags": ["network_tags_value1", "network_tags_value2"],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "software_config": {
+            "env": [{"name": "name_value", "value": "value_value"}],
+            "post_startup_script_config": {
+                "post_startup_script": "post_startup_script_value",
+                "post_startup_script_url": "post_startup_script_url_value",
+                "post_startup_script_behavior": 1,
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11965,6 +12064,7 @@ def test_create_notebook_runtime_template_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
@@ -11992,10 +12092,14 @@ def test_create_notebook_runtime_template_rest_interceptors(null_interceptor):
         "post_create_notebook_runtime_template",
     ) as post, mock.patch.object(
         transports.NotebookServiceRestInterceptor,
+        "post_create_notebook_runtime_template_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
         "pre_create_notebook_runtime_template",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.CreateNotebookRuntimeTemplateRequest.pb(
             notebook_service.CreateNotebookRuntimeTemplateRequest()
         )
@@ -12008,6 +12112,7 @@ def test_create_notebook_runtime_template_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -12018,6 +12123,7 @@ def test_create_notebook_runtime_template_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_notebook_runtime_template(
             request,
@@ -12029,6 +12135,7 @@ def test_create_notebook_runtime_template_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_notebook_runtime_template_rest_bad_request(
@@ -12054,6 +12161,7 @@ def test_get_notebook_runtime_template_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_notebook_runtime_template(request)
 
 
@@ -12098,6 +12206,7 @@ def test_get_notebook_runtime_template_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
@@ -12132,10 +12241,14 @@ def test_get_notebook_runtime_template_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_get_notebook_runtime_template"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_get_notebook_runtime_template_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_get_notebook_runtime_template"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.GetNotebookRuntimeTemplateRequest.pb(
             notebook_service.GetNotebookRuntimeTemplateRequest()
         )
@@ -12148,6 +12261,7 @@ def test_get_notebook_runtime_template_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_runtime.NotebookRuntimeTemplate.to_json(
             notebook_runtime.NotebookRuntimeTemplate()
         )
@@ -12160,6 +12274,10 @@ def test_get_notebook_runtime_template_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_runtime.NotebookRuntimeTemplate()
+        post_with_metadata.return_value = (
+            notebook_runtime.NotebookRuntimeTemplate(),
+            metadata,
+        )
 
         client.get_notebook_runtime_template(
             request,
@@ -12171,6 +12289,7 @@ def test_get_notebook_runtime_template_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_notebook_runtime_templates_rest_bad_request(
@@ -12194,6 +12313,7 @@ def test_list_notebook_runtime_templates_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_notebook_runtime_templates(request)
 
 
@@ -12231,6 +12351,7 @@ def test_list_notebook_runtime_templates_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_notebook_runtime_templates(request)
 
     # Establish that the response is the type that we expect.
@@ -12256,10 +12377,14 @@ def test_list_notebook_runtime_templates_rest_interceptors(null_interceptor):
         transports.NotebookServiceRestInterceptor,
         "post_list_notebook_runtime_templates",
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_list_notebook_runtime_templates_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_list_notebook_runtime_templates"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.ListNotebookRuntimeTemplatesRequest.pb(
             notebook_service.ListNotebookRuntimeTemplatesRequest()
         )
@@ -12272,6 +12397,7 @@ def test_list_notebook_runtime_templates_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_service.ListNotebookRuntimeTemplatesResponse.to_json(
             notebook_service.ListNotebookRuntimeTemplatesResponse()
         )
@@ -12284,6 +12410,10 @@ def test_list_notebook_runtime_templates_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
+        post_with_metadata.return_value = (
+            notebook_service.ListNotebookRuntimeTemplatesResponse(),
+            metadata,
+        )
 
         client.list_notebook_runtime_templates(
             request,
@@ -12295,6 +12425,7 @@ def test_list_notebook_runtime_templates_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_notebook_runtime_template_rest_bad_request(
@@ -12320,6 +12451,7 @@ def test_delete_notebook_runtime_template_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_notebook_runtime_template(request)
 
 
@@ -12352,6 +12484,7 @@ def test_delete_notebook_runtime_template_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
@@ -12379,10 +12512,14 @@ def test_delete_notebook_runtime_template_rest_interceptors(null_interceptor):
         "post_delete_notebook_runtime_template",
     ) as post, mock.patch.object(
         transports.NotebookServiceRestInterceptor,
+        "post_delete_notebook_runtime_template_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
         "pre_delete_notebook_runtime_template",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.DeleteNotebookRuntimeTemplateRequest.pb(
             notebook_service.DeleteNotebookRuntimeTemplateRequest()
         )
@@ -12395,6 +12532,7 @@ def test_delete_notebook_runtime_template_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -12405,6 +12543,7 @@ def test_delete_notebook_runtime_template_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_notebook_runtime_template(
             request,
@@ -12416,6 +12555,7 @@ def test_delete_notebook_runtime_template_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_notebook_runtime_template_rest_bad_request(
@@ -12443,6 +12583,7 @@ def test_update_notebook_runtime_template_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_notebook_runtime_template(request)
 
 
@@ -12503,6 +12644,14 @@ def test_update_notebook_runtime_template_rest_call_success(request_type):
         "shielded_vm_config": {"enable_secure_boot": True},
         "network_tags": ["network_tags_value1", "network_tags_value2"],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "software_config": {
+            "env": [{"name": "name_value", "value": "value_value"}],
+            "post_startup_script_config": {
+                "post_startup_script": "post_startup_script_value",
+                "post_startup_script_url": "post_startup_script_url_value",
+                "post_startup_script_behavior": 1,
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12602,6 +12751,7 @@ def test_update_notebook_runtime_template_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
@@ -12638,10 +12788,14 @@ def test_update_notebook_runtime_template_rest_interceptors(null_interceptor):
         "post_update_notebook_runtime_template",
     ) as post, mock.patch.object(
         transports.NotebookServiceRestInterceptor,
+        "post_update_notebook_runtime_template_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
         "pre_update_notebook_runtime_template",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.UpdateNotebookRuntimeTemplateRequest.pb(
             notebook_service.UpdateNotebookRuntimeTemplateRequest()
         )
@@ -12654,6 +12808,7 @@ def test_update_notebook_runtime_template_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_runtime.NotebookRuntimeTemplate.to_json(
             notebook_runtime.NotebookRuntimeTemplate()
         )
@@ -12666,6 +12821,10 @@ def test_update_notebook_runtime_template_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_runtime.NotebookRuntimeTemplate()
+        post_with_metadata.return_value = (
+            notebook_runtime.NotebookRuntimeTemplate(),
+            metadata,
+        )
 
         client.update_notebook_runtime_template(
             request,
@@ -12677,6 +12836,7 @@ def test_update_notebook_runtime_template_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_assign_notebook_runtime_rest_bad_request(
@@ -12700,6 +12860,7 @@ def test_assign_notebook_runtime_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.assign_notebook_runtime(request)
 
 
@@ -12730,6 +12891,7 @@ def test_assign_notebook_runtime_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.assign_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -12755,10 +12917,14 @@ def test_assign_notebook_runtime_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_assign_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_assign_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_assign_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.AssignNotebookRuntimeRequest.pb(
             notebook_service.AssignNotebookRuntimeRequest()
         )
@@ -12771,6 +12937,7 @@ def test_assign_notebook_runtime_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -12781,6 +12948,7 @@ def test_assign_notebook_runtime_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.assign_notebook_runtime(
             request,
@@ -12792,6 +12960,7 @@ def test_assign_notebook_runtime_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_notebook_runtime_rest_bad_request(
@@ -12817,6 +12986,7 @@ def test_get_notebook_runtime_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_notebook_runtime(request)
 
 
@@ -12867,6 +13037,7 @@ def test_get_notebook_runtime_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -12909,10 +13080,14 @@ def test_get_notebook_runtime_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_get_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_get_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_get_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.GetNotebookRuntimeRequest.pb(
             notebook_service.GetNotebookRuntimeRequest()
         )
@@ -12925,6 +13100,7 @@ def test_get_notebook_runtime_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_runtime.NotebookRuntime.to_json(
             notebook_runtime.NotebookRuntime()
         )
@@ -12937,6 +13113,7 @@ def test_get_notebook_runtime_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_runtime.NotebookRuntime()
+        post_with_metadata.return_value = notebook_runtime.NotebookRuntime(), metadata
 
         client.get_notebook_runtime(
             request,
@@ -12948,6 +13125,7 @@ def test_get_notebook_runtime_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_notebook_runtimes_rest_bad_request(
@@ -12971,6 +13149,7 @@ def test_list_notebook_runtimes_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_notebook_runtimes(request)
 
 
@@ -13006,6 +13185,7 @@ def test_list_notebook_runtimes_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_notebook_runtimes(request)
 
     # Establish that the response is the type that we expect.
@@ -13030,10 +13210,14 @@ def test_list_notebook_runtimes_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_list_notebook_runtimes"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_list_notebook_runtimes_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_list_notebook_runtimes"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.ListNotebookRuntimesRequest.pb(
             notebook_service.ListNotebookRuntimesRequest()
         )
@@ -13046,6 +13230,7 @@ def test_list_notebook_runtimes_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_service.ListNotebookRuntimesResponse.to_json(
             notebook_service.ListNotebookRuntimesResponse()
         )
@@ -13058,6 +13243,10 @@ def test_list_notebook_runtimes_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_service.ListNotebookRuntimesResponse()
+        post_with_metadata.return_value = (
+            notebook_service.ListNotebookRuntimesResponse(),
+            metadata,
+        )
 
         client.list_notebook_runtimes(
             request,
@@ -13069,6 +13258,7 @@ def test_list_notebook_runtimes_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_notebook_runtime_rest_bad_request(
@@ -13094,6 +13284,7 @@ def test_delete_notebook_runtime_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_notebook_runtime(request)
 
 
@@ -13126,6 +13317,7 @@ def test_delete_notebook_runtime_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -13151,10 +13343,14 @@ def test_delete_notebook_runtime_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_delete_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_delete_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_delete_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.DeleteNotebookRuntimeRequest.pb(
             notebook_service.DeleteNotebookRuntimeRequest()
         )
@@ -13167,6 +13363,7 @@ def test_delete_notebook_runtime_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -13177,6 +13374,7 @@ def test_delete_notebook_runtime_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_notebook_runtime(
             request,
@@ -13188,6 +13386,7 @@ def test_delete_notebook_runtime_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_upgrade_notebook_runtime_rest_bad_request(
@@ -13213,6 +13412,7 @@ def test_upgrade_notebook_runtime_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.upgrade_notebook_runtime(request)
 
 
@@ -13245,6 +13445,7 @@ def test_upgrade_notebook_runtime_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.upgrade_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -13270,10 +13471,14 @@ def test_upgrade_notebook_runtime_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_upgrade_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_upgrade_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_upgrade_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.UpgradeNotebookRuntimeRequest.pb(
             notebook_service.UpgradeNotebookRuntimeRequest()
         )
@@ -13286,6 +13491,7 @@ def test_upgrade_notebook_runtime_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -13296,6 +13502,7 @@ def test_upgrade_notebook_runtime_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.upgrade_notebook_runtime(
             request,
@@ -13307,6 +13514,7 @@ def test_upgrade_notebook_runtime_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_start_notebook_runtime_rest_bad_request(
@@ -13332,6 +13540,7 @@ def test_start_notebook_runtime_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.start_notebook_runtime(request)
 
 
@@ -13364,6 +13573,7 @@ def test_start_notebook_runtime_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.start_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -13389,10 +13599,14 @@ def test_start_notebook_runtime_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_start_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_start_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_start_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.StartNotebookRuntimeRequest.pb(
             notebook_service.StartNotebookRuntimeRequest()
         )
@@ -13405,6 +13619,7 @@ def test_start_notebook_runtime_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -13415,6 +13630,7 @@ def test_start_notebook_runtime_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.start_notebook_runtime(
             request,
@@ -13426,6 +13642,7 @@ def test_start_notebook_runtime_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_stop_notebook_runtime_rest_bad_request(
@@ -13451,6 +13668,7 @@ def test_stop_notebook_runtime_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.stop_notebook_runtime(request)
 
 
@@ -13483,6 +13701,7 @@ def test_stop_notebook_runtime_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.stop_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -13508,10 +13727,14 @@ def test_stop_notebook_runtime_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_stop_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_stop_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_stop_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.StopNotebookRuntimeRequest.pb(
             notebook_service.StopNotebookRuntimeRequest()
         )
@@ -13524,6 +13747,7 @@ def test_stop_notebook_runtime_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -13534,6 +13758,7 @@ def test_stop_notebook_runtime_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.stop_notebook_runtime(
             request,
@@ -13545,6 +13770,7 @@ def test_stop_notebook_runtime_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_notebook_execution_job_rest_bad_request(
@@ -13568,6 +13794,7 @@ def test_create_notebook_execution_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_notebook_execution_job(request)
 
 
@@ -13618,6 +13845,7 @@ def test_create_notebook_execution_job_rest_call_success(request_type):
         "gcs_output_uri": "gcs_output_uri_value",
         "execution_user": "execution_user_value",
         "service_account": "service_account_value",
+        "workbench_runtime": {},
         "name": "name_value",
         "display_name": "display_name_value",
         "execution_timeout": {"seconds": 751, "nanos": 543},
@@ -13636,6 +13864,7 @@ def test_create_notebook_execution_job_rest_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "labels": {},
+        "kernel_name": "kernel_name_value",
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
@@ -13722,6 +13951,7 @@ def test_create_notebook_execution_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_notebook_execution_job(request)
 
     # Establish that the response is the type that we expect.
@@ -13747,10 +13977,14 @@ def test_create_notebook_execution_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_create_notebook_execution_job"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_create_notebook_execution_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_create_notebook_execution_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.CreateNotebookExecutionJobRequest.pb(
             notebook_service.CreateNotebookExecutionJobRequest()
         )
@@ -13763,6 +13997,7 @@ def test_create_notebook_execution_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -13773,6 +14008,7 @@ def test_create_notebook_execution_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_notebook_execution_job(
             request,
@@ -13784,6 +14020,7 @@ def test_create_notebook_execution_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_notebook_execution_job_rest_bad_request(
@@ -13809,6 +14046,7 @@ def test_get_notebook_execution_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_notebook_execution_job(request)
 
 
@@ -13838,6 +14076,7 @@ def test_get_notebook_execution_job_rest_call_success(request_type):
             display_name="display_name_value",
             schedule_resource_name="schedule_resource_name_value",
             job_state=job_state.JobState.JOB_STATE_QUEUED,
+            kernel_name="kernel_name_value",
             notebook_runtime_template_resource_name="notebook_runtime_template_resource_name_value",
             gcs_output_uri="gcs_output_uri_value",
             execution_user="execution_user_value",
@@ -13852,6 +14091,7 @@ def test_get_notebook_execution_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_notebook_execution_job(request)
 
     # Establish that the response is the type that we expect.
@@ -13860,6 +14100,7 @@ def test_get_notebook_execution_job_rest_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.schedule_resource_name == "schedule_resource_name_value"
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == "kernel_name_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -13879,10 +14120,14 @@ def test_get_notebook_execution_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_get_notebook_execution_job"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_get_notebook_execution_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_get_notebook_execution_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.GetNotebookExecutionJobRequest.pb(
             notebook_service.GetNotebookExecutionJobRequest()
         )
@@ -13895,6 +14140,7 @@ def test_get_notebook_execution_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_execution_job.NotebookExecutionJob.to_json(
             notebook_execution_job.NotebookExecutionJob()
         )
@@ -13907,6 +14153,10 @@ def test_get_notebook_execution_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_execution_job.NotebookExecutionJob()
+        post_with_metadata.return_value = (
+            notebook_execution_job.NotebookExecutionJob(),
+            metadata,
+        )
 
         client.get_notebook_execution_job(
             request,
@@ -13918,6 +14168,7 @@ def test_get_notebook_execution_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_notebook_execution_jobs_rest_bad_request(
@@ -13941,6 +14192,7 @@ def test_list_notebook_execution_jobs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_notebook_execution_jobs(request)
 
 
@@ -13978,6 +14230,7 @@ def test_list_notebook_execution_jobs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_notebook_execution_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -14002,10 +14255,14 @@ def test_list_notebook_execution_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_list_notebook_execution_jobs"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_list_notebook_execution_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_list_notebook_execution_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.ListNotebookExecutionJobsRequest.pb(
             notebook_service.ListNotebookExecutionJobsRequest()
         )
@@ -14018,6 +14275,7 @@ def test_list_notebook_execution_jobs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_service.ListNotebookExecutionJobsResponse.to_json(
             notebook_service.ListNotebookExecutionJobsResponse()
         )
@@ -14030,6 +14288,10 @@ def test_list_notebook_execution_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_service.ListNotebookExecutionJobsResponse()
+        post_with_metadata.return_value = (
+            notebook_service.ListNotebookExecutionJobsResponse(),
+            metadata,
+        )
 
         client.list_notebook_execution_jobs(
             request,
@@ -14041,6 +14303,7 @@ def test_list_notebook_execution_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_notebook_execution_job_rest_bad_request(
@@ -14066,6 +14329,7 @@ def test_delete_notebook_execution_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_notebook_execution_job(request)
 
 
@@ -14098,6 +14362,7 @@ def test_delete_notebook_execution_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_notebook_execution_job(request)
 
     # Establish that the response is the type that we expect.
@@ -14123,10 +14388,14 @@ def test_delete_notebook_execution_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.NotebookServiceRestInterceptor, "post_delete_notebook_execution_job"
     ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_delete_notebook_execution_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.NotebookServiceRestInterceptor, "pre_delete_notebook_execution_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.DeleteNotebookExecutionJobRequest.pb(
             notebook_service.DeleteNotebookExecutionJobRequest()
         )
@@ -14139,6 +14408,7 @@ def test_delete_notebook_execution_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14149,6 +14419,7 @@ def test_delete_notebook_execution_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_notebook_execution_job(
             request,
@@ -14160,6 +14431,7 @@ def test_delete_notebook_execution_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -14183,6 +14455,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -14213,6 +14486,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -14241,6 +14515,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -14271,6 +14546,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -14302,6 +14578,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -14334,6 +14611,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -14365,6 +14643,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -14397,6 +14676,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -14428,6 +14708,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -14460,6 +14741,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -14490,6 +14772,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -14520,6 +14803,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -14550,6 +14834,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -14580,6 +14865,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -14610,6 +14896,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -14640,6 +14927,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -14670,6 +14958,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -14700,6 +14989,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -14730,6 +15020,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -14760,6 +15051,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -15179,6 +15471,7 @@ async def test_create_notebook_runtime_template_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_notebook_runtime_template(request)
 
 
@@ -15240,6 +15533,14 @@ async def test_create_notebook_runtime_template_rest_asyncio_call_success(reques
         "shielded_vm_config": {"enable_secure_boot": True},
         "network_tags": ["network_tags_value1", "network_tags_value2"],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "software_config": {
+            "env": [{"name": "name_value", "value": "value_value"}],
+            "post_startup_script_config": {
+                "post_startup_script": "post_startup_script_value",
+                "post_startup_script_url": "post_startup_script_url_value",
+                "post_startup_script_behavior": 1,
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -15329,6 +15630,7 @@ async def test_create_notebook_runtime_template_rest_asyncio_call_success(reques
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
@@ -15363,10 +15665,14 @@ async def test_create_notebook_runtime_template_rest_asyncio_interceptors(
         "post_create_notebook_runtime_template",
     ) as post, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor,
+        "post_create_notebook_runtime_template_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
         "pre_create_notebook_runtime_template",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.CreateNotebookRuntimeTemplateRequest.pb(
             notebook_service.CreateNotebookRuntimeTemplateRequest()
         )
@@ -15379,6 +15685,7 @@ async def test_create_notebook_runtime_template_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -15389,6 +15696,7 @@ async def test_create_notebook_runtime_template_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_notebook_runtime_template(
             request,
@@ -15400,6 +15708,7 @@ async def test_create_notebook_runtime_template_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -15429,6 +15738,7 @@ async def test_get_notebook_runtime_template_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_notebook_runtime_template(request)
 
 
@@ -15480,6 +15790,7 @@ async def test_get_notebook_runtime_template_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
@@ -15523,10 +15834,14 @@ async def test_get_notebook_runtime_template_rest_asyncio_interceptors(
         "post_get_notebook_runtime_template",
     ) as post, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor,
+        "post_get_notebook_runtime_template_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
         "pre_get_notebook_runtime_template",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.GetNotebookRuntimeTemplateRequest.pb(
             notebook_service.GetNotebookRuntimeTemplateRequest()
         )
@@ -15539,6 +15854,7 @@ async def test_get_notebook_runtime_template_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_runtime.NotebookRuntimeTemplate.to_json(
             notebook_runtime.NotebookRuntimeTemplate()
         )
@@ -15551,6 +15867,10 @@ async def test_get_notebook_runtime_template_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_runtime.NotebookRuntimeTemplate()
+        post_with_metadata.return_value = (
+            notebook_runtime.NotebookRuntimeTemplate(),
+            metadata,
+        )
 
         await client.get_notebook_runtime_template(
             request,
@@ -15562,6 +15882,7 @@ async def test_get_notebook_runtime_template_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -15589,6 +15910,7 @@ async def test_list_notebook_runtime_templates_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_notebook_runtime_templates(request)
 
 
@@ -15633,6 +15955,7 @@ async def test_list_notebook_runtime_templates_rest_asyncio_call_success(request
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_notebook_runtime_templates(request)
 
     # Establish that the response is the type that we expect.
@@ -15666,10 +15989,14 @@ async def test_list_notebook_runtime_templates_rest_asyncio_interceptors(
         "post_list_notebook_runtime_templates",
     ) as post, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor,
+        "post_list_notebook_runtime_templates_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
         "pre_list_notebook_runtime_templates",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.ListNotebookRuntimeTemplatesRequest.pb(
             notebook_service.ListNotebookRuntimeTemplatesRequest()
         )
@@ -15682,6 +16009,7 @@ async def test_list_notebook_runtime_templates_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_service.ListNotebookRuntimeTemplatesResponse.to_json(
             notebook_service.ListNotebookRuntimeTemplatesResponse()
         )
@@ -15694,6 +16022,10 @@ async def test_list_notebook_runtime_templates_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
+        post_with_metadata.return_value = (
+            notebook_service.ListNotebookRuntimeTemplatesResponse(),
+            metadata,
+        )
 
         await client.list_notebook_runtime_templates(
             request,
@@ -15705,6 +16037,7 @@ async def test_list_notebook_runtime_templates_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -15734,6 +16067,7 @@ async def test_delete_notebook_runtime_template_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_notebook_runtime_template(request)
 
 
@@ -15773,6 +16107,7 @@ async def test_delete_notebook_runtime_template_rest_asyncio_call_success(reques
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
@@ -15807,10 +16142,14 @@ async def test_delete_notebook_runtime_template_rest_asyncio_interceptors(
         "post_delete_notebook_runtime_template",
     ) as post, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor,
+        "post_delete_notebook_runtime_template_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
         "pre_delete_notebook_runtime_template",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.DeleteNotebookRuntimeTemplateRequest.pb(
             notebook_service.DeleteNotebookRuntimeTemplateRequest()
         )
@@ -15823,6 +16162,7 @@ async def test_delete_notebook_runtime_template_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -15833,6 +16173,7 @@ async def test_delete_notebook_runtime_template_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_notebook_runtime_template(
             request,
@@ -15844,6 +16185,7 @@ async def test_delete_notebook_runtime_template_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -15875,6 +16217,7 @@ async def test_update_notebook_runtime_template_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_notebook_runtime_template(request)
 
 
@@ -15940,6 +16283,14 @@ async def test_update_notebook_runtime_template_rest_asyncio_call_success(reques
         "shielded_vm_config": {"enable_secure_boot": True},
         "network_tags": ["network_tags_value1", "network_tags_value2"],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "software_config": {
+            "env": [{"name": "name_value", "value": "value_value"}],
+            "post_startup_script_config": {
+                "post_startup_script": "post_startup_script_value",
+                "post_startup_script_url": "post_startup_script_url_value",
+                "post_startup_script_behavior": 1,
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -16041,6 +16392,7 @@ async def test_update_notebook_runtime_template_rest_asyncio_call_success(reques
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_notebook_runtime_template(request)
 
     # Establish that the response is the type that we expect.
@@ -16084,10 +16436,14 @@ async def test_update_notebook_runtime_template_rest_asyncio_interceptors(
         "post_update_notebook_runtime_template",
     ) as post, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor,
+        "post_update_notebook_runtime_template_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
         "pre_update_notebook_runtime_template",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.UpdateNotebookRuntimeTemplateRequest.pb(
             notebook_service.UpdateNotebookRuntimeTemplateRequest()
         )
@@ -16100,6 +16456,7 @@ async def test_update_notebook_runtime_template_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_runtime.NotebookRuntimeTemplate.to_json(
             notebook_runtime.NotebookRuntimeTemplate()
         )
@@ -16112,6 +16469,10 @@ async def test_update_notebook_runtime_template_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_runtime.NotebookRuntimeTemplate()
+        post_with_metadata.return_value = (
+            notebook_runtime.NotebookRuntimeTemplate(),
+            metadata,
+        )
 
         await client.update_notebook_runtime_template(
             request,
@@ -16123,6 +16484,7 @@ async def test_update_notebook_runtime_template_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -16150,6 +16512,7 @@ async def test_assign_notebook_runtime_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.assign_notebook_runtime(request)
 
 
@@ -16187,6 +16550,7 @@ async def test_assign_notebook_runtime_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.assign_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -16217,10 +16581,14 @@ async def test_assign_notebook_runtime_rest_asyncio_interceptors(null_intercepto
     ), mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "post_assign_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
+        "post_assign_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "pre_assign_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.AssignNotebookRuntimeRequest.pb(
             notebook_service.AssignNotebookRuntimeRequest()
         )
@@ -16233,6 +16601,7 @@ async def test_assign_notebook_runtime_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -16243,6 +16612,7 @@ async def test_assign_notebook_runtime_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.assign_notebook_runtime(
             request,
@@ -16254,6 +16624,7 @@ async def test_assign_notebook_runtime_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -16283,6 +16654,7 @@ async def test_get_notebook_runtime_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_notebook_runtime(request)
 
 
@@ -16340,6 +16712,7 @@ async def test_get_notebook_runtime_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -16387,10 +16760,14 @@ async def test_get_notebook_runtime_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "post_get_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
+        "post_get_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "pre_get_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.GetNotebookRuntimeRequest.pb(
             notebook_service.GetNotebookRuntimeRequest()
         )
@@ -16403,6 +16780,7 @@ async def test_get_notebook_runtime_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_runtime.NotebookRuntime.to_json(
             notebook_runtime.NotebookRuntime()
         )
@@ -16415,6 +16793,7 @@ async def test_get_notebook_runtime_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_runtime.NotebookRuntime()
+        post_with_metadata.return_value = notebook_runtime.NotebookRuntime(), metadata
 
         await client.get_notebook_runtime(
             request,
@@ -16426,6 +16805,7 @@ async def test_get_notebook_runtime_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -16453,6 +16833,7 @@ async def test_list_notebook_runtimes_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_notebook_runtimes(request)
 
 
@@ -16495,6 +16876,7 @@ async def test_list_notebook_runtimes_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_notebook_runtimes(request)
 
     # Establish that the response is the type that we expect.
@@ -16524,10 +16906,14 @@ async def test_list_notebook_runtimes_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "post_list_notebook_runtimes"
     ) as post, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
+        "post_list_notebook_runtimes_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "pre_list_notebook_runtimes"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.ListNotebookRuntimesRequest.pb(
             notebook_service.ListNotebookRuntimesRequest()
         )
@@ -16540,6 +16926,7 @@ async def test_list_notebook_runtimes_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_service.ListNotebookRuntimesResponse.to_json(
             notebook_service.ListNotebookRuntimesResponse()
         )
@@ -16552,6 +16939,10 @@ async def test_list_notebook_runtimes_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_service.ListNotebookRuntimesResponse()
+        post_with_metadata.return_value = (
+            notebook_service.ListNotebookRuntimesResponse(),
+            metadata,
+        )
 
         await client.list_notebook_runtimes(
             request,
@@ -16563,6 +16954,7 @@ async def test_list_notebook_runtimes_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -16592,6 +16984,7 @@ async def test_delete_notebook_runtime_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_notebook_runtime(request)
 
 
@@ -16631,6 +17024,7 @@ async def test_delete_notebook_runtime_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -16661,10 +17055,14 @@ async def test_delete_notebook_runtime_rest_asyncio_interceptors(null_intercepto
     ), mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "post_delete_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
+        "post_delete_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "pre_delete_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.DeleteNotebookRuntimeRequest.pb(
             notebook_service.DeleteNotebookRuntimeRequest()
         )
@@ -16677,6 +17075,7 @@ async def test_delete_notebook_runtime_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -16687,6 +17086,7 @@ async def test_delete_notebook_runtime_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_notebook_runtime(
             request,
@@ -16698,6 +17098,7 @@ async def test_delete_notebook_runtime_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -16727,6 +17128,7 @@ async def test_upgrade_notebook_runtime_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.upgrade_notebook_runtime(request)
 
 
@@ -16766,6 +17168,7 @@ async def test_upgrade_notebook_runtime_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.upgrade_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -16796,10 +17199,14 @@ async def test_upgrade_notebook_runtime_rest_asyncio_interceptors(null_intercept
     ), mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "post_upgrade_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
+        "post_upgrade_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "pre_upgrade_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.UpgradeNotebookRuntimeRequest.pb(
             notebook_service.UpgradeNotebookRuntimeRequest()
         )
@@ -16812,6 +17219,7 @@ async def test_upgrade_notebook_runtime_rest_asyncio_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -16822,6 +17230,7 @@ async def test_upgrade_notebook_runtime_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.upgrade_notebook_runtime(
             request,
@@ -16833,6 +17242,7 @@ async def test_upgrade_notebook_runtime_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -16862,6 +17272,7 @@ async def test_start_notebook_runtime_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.start_notebook_runtime(request)
 
 
@@ -16901,6 +17312,7 @@ async def test_start_notebook_runtime_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.start_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -16931,10 +17343,14 @@ async def test_start_notebook_runtime_rest_asyncio_interceptors(null_interceptor
     ), mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "post_start_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
+        "post_start_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "pre_start_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.StartNotebookRuntimeRequest.pb(
             notebook_service.StartNotebookRuntimeRequest()
         )
@@ -16947,6 +17363,7 @@ async def test_start_notebook_runtime_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -16957,6 +17374,7 @@ async def test_start_notebook_runtime_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.start_notebook_runtime(
             request,
@@ -16968,6 +17386,7 @@ async def test_start_notebook_runtime_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -16997,6 +17416,7 @@ async def test_stop_notebook_runtime_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.stop_notebook_runtime(request)
 
 
@@ -17036,6 +17456,7 @@ async def test_stop_notebook_runtime_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.stop_notebook_runtime(request)
 
     # Establish that the response is the type that we expect.
@@ -17066,10 +17487,14 @@ async def test_stop_notebook_runtime_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "post_stop_notebook_runtime"
     ) as post, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
+        "post_stop_notebook_runtime_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "pre_stop_notebook_runtime"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.StopNotebookRuntimeRequest.pb(
             notebook_service.StopNotebookRuntimeRequest()
         )
@@ -17082,6 +17507,7 @@ async def test_stop_notebook_runtime_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17092,6 +17518,7 @@ async def test_stop_notebook_runtime_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.stop_notebook_runtime(
             request,
@@ -17103,6 +17530,7 @@ async def test_stop_notebook_runtime_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17130,6 +17558,7 @@ async def test_create_notebook_execution_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_notebook_execution_job(request)
 
 
@@ -17185,6 +17614,7 @@ async def test_create_notebook_execution_job_rest_asyncio_call_success(request_t
         "gcs_output_uri": "gcs_output_uri_value",
         "execution_user": "execution_user_value",
         "service_account": "service_account_value",
+        "workbench_runtime": {},
         "name": "name_value",
         "display_name": "display_name_value",
         "execution_timeout": {"seconds": 751, "nanos": 543},
@@ -17203,6 +17633,7 @@ async def test_create_notebook_execution_job_rest_asyncio_call_success(request_t
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "labels": {},
+        "kernel_name": "kernel_name_value",
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
@@ -17291,6 +17722,7 @@ async def test_create_notebook_execution_job_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_notebook_execution_job(request)
 
     # Establish that the response is the type that we expect.
@@ -17325,10 +17757,14 @@ async def test_create_notebook_execution_job_rest_asyncio_interceptors(
         "post_create_notebook_execution_job",
     ) as post, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor,
+        "post_create_notebook_execution_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
         "pre_create_notebook_execution_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.CreateNotebookExecutionJobRequest.pb(
             notebook_service.CreateNotebookExecutionJobRequest()
         )
@@ -17341,6 +17777,7 @@ async def test_create_notebook_execution_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17351,6 +17788,7 @@ async def test_create_notebook_execution_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_notebook_execution_job(
             request,
@@ -17362,6 +17800,7 @@ async def test_create_notebook_execution_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17391,6 +17830,7 @@ async def test_get_notebook_execution_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_notebook_execution_job(request)
 
 
@@ -17425,6 +17865,7 @@ async def test_get_notebook_execution_job_rest_asyncio_call_success(request_type
             display_name="display_name_value",
             schedule_resource_name="schedule_resource_name_value",
             job_state=job_state.JobState.JOB_STATE_QUEUED,
+            kernel_name="kernel_name_value",
             notebook_runtime_template_resource_name="notebook_runtime_template_resource_name_value",
             gcs_output_uri="gcs_output_uri_value",
             execution_user="execution_user_value",
@@ -17441,6 +17882,7 @@ async def test_get_notebook_execution_job_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_notebook_execution_job(request)
 
     # Establish that the response is the type that we expect.
@@ -17449,6 +17891,7 @@ async def test_get_notebook_execution_job_rest_asyncio_call_success(request_type
     assert response.display_name == "display_name_value"
     assert response.schedule_resource_name == "schedule_resource_name_value"
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == "kernel_name_value"
 
 
 @pytest.mark.asyncio
@@ -17474,10 +17917,14 @@ async def test_get_notebook_execution_job_rest_asyncio_interceptors(null_interce
         transports.AsyncNotebookServiceRestInterceptor,
         "post_get_notebook_execution_job",
     ) as post, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
+        "post_get_notebook_execution_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor, "pre_get_notebook_execution_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.GetNotebookExecutionJobRequest.pb(
             notebook_service.GetNotebookExecutionJobRequest()
         )
@@ -17490,6 +17937,7 @@ async def test_get_notebook_execution_job_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_execution_job.NotebookExecutionJob.to_json(
             notebook_execution_job.NotebookExecutionJob()
         )
@@ -17502,6 +17950,10 @@ async def test_get_notebook_execution_job_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_execution_job.NotebookExecutionJob()
+        post_with_metadata.return_value = (
+            notebook_execution_job.NotebookExecutionJob(),
+            metadata,
+        )
 
         await client.get_notebook_execution_job(
             request,
@@ -17513,6 +17965,7 @@ async def test_get_notebook_execution_job_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17540,6 +17993,7 @@ async def test_list_notebook_execution_jobs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_notebook_execution_jobs(request)
 
 
@@ -17584,6 +18038,7 @@ async def test_list_notebook_execution_jobs_rest_asyncio_call_success(request_ty
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_notebook_execution_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -17615,10 +18070,14 @@ async def test_list_notebook_execution_jobs_rest_asyncio_interceptors(null_inter
         "post_list_notebook_execution_jobs",
     ) as post, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor,
+        "post_list_notebook_execution_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
         "pre_list_notebook_execution_jobs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.ListNotebookExecutionJobsRequest.pb(
             notebook_service.ListNotebookExecutionJobsRequest()
         )
@@ -17631,6 +18090,7 @@ async def test_list_notebook_execution_jobs_rest_asyncio_interceptors(null_inter
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = notebook_service.ListNotebookExecutionJobsResponse.to_json(
             notebook_service.ListNotebookExecutionJobsResponse()
         )
@@ -17643,6 +18103,10 @@ async def test_list_notebook_execution_jobs_rest_asyncio_interceptors(null_inter
         ]
         pre.return_value = request, metadata
         post.return_value = notebook_service.ListNotebookExecutionJobsResponse()
+        post_with_metadata.return_value = (
+            notebook_service.ListNotebookExecutionJobsResponse(),
+            metadata,
+        )
 
         await client.list_notebook_execution_jobs(
             request,
@@ -17654,6 +18118,7 @@ async def test_list_notebook_execution_jobs_rest_asyncio_interceptors(null_inter
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17683,6 +18148,7 @@ async def test_delete_notebook_execution_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_notebook_execution_job(request)
 
 
@@ -17722,6 +18188,7 @@ async def test_delete_notebook_execution_job_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_notebook_execution_job(request)
 
     # Establish that the response is the type that we expect.
@@ -17756,10 +18223,14 @@ async def test_delete_notebook_execution_job_rest_asyncio_interceptors(
         "post_delete_notebook_execution_job",
     ) as post, mock.patch.object(
         transports.AsyncNotebookServiceRestInterceptor,
+        "post_delete_notebook_execution_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncNotebookServiceRestInterceptor,
         "pre_delete_notebook_execution_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = notebook_service.DeleteNotebookExecutionJobRequest.pb(
             notebook_service.DeleteNotebookExecutionJobRequest()
         )
@@ -17772,6 +18243,7 @@ async def test_delete_notebook_execution_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17782,6 +18254,7 @@ async def test_delete_notebook_execution_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_notebook_execution_job(
             request,
@@ -17793,6 +18266,7 @@ async def test_delete_notebook_execution_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17822,6 +18296,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -17859,6 +18334,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -17891,6 +18367,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -17928,6 +18405,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -17963,6 +18441,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -18002,6 +18481,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -18037,6 +18517,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -18076,6 +18557,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -18111,6 +18593,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -18150,6 +18633,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -18184,6 +18668,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -18221,6 +18706,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -18255,6 +18741,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -18292,6 +18779,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -18326,6 +18814,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -18363,6 +18852,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -18397,6 +18887,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -18434,6 +18925,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -18468,6 +18960,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -18505,6 +18998,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

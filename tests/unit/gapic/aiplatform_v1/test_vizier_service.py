@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,6 +84,14 @@ from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.protobuf import wrappers_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -337,6 +345,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         VizierServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = VizierServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = VizierServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -6170,6 +6221,7 @@ def test_create_study_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_study(request)
 
@@ -6224,6 +6276,7 @@ def test_create_study_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_study(**mock_args)
 
@@ -6353,6 +6406,7 @@ def test_get_study_rest_required_fields(request_type=vizier_service.GetStudyRequ
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_study(request)
 
@@ -6398,6 +6452,7 @@ def test_get_study_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_study(**mock_args)
 
@@ -6535,6 +6590,7 @@ def test_list_studies_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_studies(request)
 
@@ -6588,6 +6644,7 @@ def test_list_studies_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_studies(**mock_args)
 
@@ -6778,6 +6835,7 @@ def test_delete_study_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_study(request)
 
@@ -6821,6 +6879,7 @@ def test_delete_study_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_study(**mock_args)
 
@@ -6956,6 +7015,7 @@ def test_lookup_study_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.lookup_study(request)
 
@@ -7009,6 +7069,7 @@ def test_lookup_study_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.lookup_study(**mock_args)
 
@@ -7150,6 +7211,7 @@ def test_suggest_trials_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.suggest_trials(request)
 
@@ -7279,6 +7341,7 @@ def test_create_trial_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_trial(request)
 
@@ -7335,6 +7398,7 @@ def test_create_trial_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_trial(**mock_args)
 
@@ -7465,6 +7529,7 @@ def test_get_trial_rest_required_fields(request_type=vizier_service.GetTrialRequ
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_trial(request)
 
@@ -7512,6 +7577,7 @@ def test_get_trial_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_trial(**mock_args)
 
@@ -7650,6 +7716,7 @@ def test_list_trials_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_trials(request)
 
@@ -7705,6 +7772,7 @@ def test_list_trials_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_trials(**mock_args)
 
@@ -7905,6 +7973,7 @@ def test_add_trial_measurement_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.add_trial_measurement(request)
 
@@ -8033,6 +8102,7 @@ def test_complete_trial_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.complete_trial(request)
 
@@ -8149,6 +8219,7 @@ def test_delete_trial_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_trial(request)
 
@@ -8194,6 +8265,7 @@ def test_delete_trial_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_trial(**mock_args)
 
@@ -8332,6 +8404,7 @@ def test_check_trial_early_stopping_state_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.check_trial_early_stopping_state(request)
 
@@ -8452,6 +8525,7 @@ def test_stop_trial_rest_required_fields(request_type=vizier_service.StopTrialRe
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.stop_trial(request)
 
@@ -8576,6 +8650,7 @@ def test_list_optimal_trials_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_optimal_trials(request)
 
@@ -8623,6 +8698,7 @@ def test_list_optimal_trials_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_optimal_trials(**mock_args)
 
@@ -9550,6 +9626,7 @@ def test_create_study_rest_bad_request(request_type=vizier_service.CreateStudyRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_study(request)
 
 
@@ -9733,6 +9810,7 @@ def test_create_study_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_study(request)
 
     # Establish that the response is the type that we expect.
@@ -9760,10 +9838,13 @@ def test_create_study_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_create_study"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_create_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_create_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CreateStudyRequest.pb(
             vizier_service.CreateStudyRequest()
         )
@@ -9776,6 +9857,7 @@ def test_create_study_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_study.Study.to_json(gca_study.Study())
         req.return_value.content = return_value
 
@@ -9786,6 +9868,7 @@ def test_create_study_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_study.Study()
+        post_with_metadata.return_value = gca_study.Study(), metadata
 
         client.create_study(
             request,
@@ -9797,6 +9880,7 @@ def test_create_study_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_study_rest_bad_request(request_type=vizier_service.GetStudyRequest):
@@ -9818,6 +9902,7 @@ def test_get_study_rest_bad_request(request_type=vizier_service.GetStudyRequest)
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_study(request)
 
 
@@ -9856,6 +9941,7 @@ def test_get_study_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_study(request)
 
     # Establish that the response is the type that we expect.
@@ -9883,10 +9969,13 @@ def test_get_study_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_get_study"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_get_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_get_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.GetStudyRequest.pb(vizier_service.GetStudyRequest())
         transcode.return_value = {
             "method": "post",
@@ -9897,6 +9986,7 @@ def test_get_study_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Study.to_json(study.Study())
         req.return_value.content = return_value
 
@@ -9907,6 +9997,7 @@ def test_get_study_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Study()
+        post_with_metadata.return_value = study.Study(), metadata
 
         client.get_study(
             request,
@@ -9918,6 +10009,7 @@ def test_get_study_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_studies_rest_bad_request(request_type=vizier_service.ListStudiesRequest):
@@ -9939,6 +10031,7 @@ def test_list_studies_rest_bad_request(request_type=vizier_service.ListStudiesRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_studies(request)
 
 
@@ -9974,6 +10067,7 @@ def test_list_studies_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_studies(request)
 
     # Establish that the response is the type that we expect.
@@ -9998,10 +10092,13 @@ def test_list_studies_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_list_studies"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_list_studies_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_list_studies"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListStudiesRequest.pb(
             vizier_service.ListStudiesRequest()
         )
@@ -10014,6 +10111,7 @@ def test_list_studies_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = vizier_service.ListStudiesResponse.to_json(
             vizier_service.ListStudiesResponse()
         )
@@ -10026,6 +10124,7 @@ def test_list_studies_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListStudiesResponse()
+        post_with_metadata.return_value = vizier_service.ListStudiesResponse(), metadata
 
         client.list_studies(
             request,
@@ -10037,6 +10136,7 @@ def test_list_studies_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_study_rest_bad_request(request_type=vizier_service.DeleteStudyRequest):
@@ -10058,6 +10158,7 @@ def test_delete_study_rest_bad_request(request_type=vizier_service.DeleteStudyRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_study(request)
 
 
@@ -10088,6 +10189,7 @@ def test_delete_study_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_study(request)
 
     # Establish that the response is the type that we expect.
@@ -10124,6 +10226,7 @@ def test_delete_study_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = vizier_service.DeleteStudyRequest()
         metadata = [
@@ -10162,6 +10265,7 @@ def test_lookup_study_rest_bad_request(request_type=vizier_service.LookupStudyRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.lookup_study(request)
 
 
@@ -10200,6 +10304,7 @@ def test_lookup_study_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.lookup_study(request)
 
     # Establish that the response is the type that we expect.
@@ -10227,10 +10332,13 @@ def test_lookup_study_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_lookup_study"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_lookup_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_lookup_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.LookupStudyRequest.pb(
             vizier_service.LookupStudyRequest()
         )
@@ -10243,6 +10351,7 @@ def test_lookup_study_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Study.to_json(study.Study())
         req.return_value.content = return_value
 
@@ -10253,6 +10362,7 @@ def test_lookup_study_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Study()
+        post_with_metadata.return_value = study.Study(), metadata
 
         client.lookup_study(
             request,
@@ -10264,6 +10374,7 @@ def test_lookup_study_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_suggest_trials_rest_bad_request(
@@ -10287,6 +10398,7 @@ def test_suggest_trials_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.suggest_trials(request)
 
 
@@ -10317,6 +10429,7 @@ def test_suggest_trials_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.suggest_trials(request)
 
     # Establish that the response is the type that we expect.
@@ -10342,10 +10455,13 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_suggest_trials"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_suggest_trials_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_suggest_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.SuggestTrialsRequest.pb(
             vizier_service.SuggestTrialsRequest()
         )
@@ -10358,6 +10474,7 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -10368,6 +10485,7 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.suggest_trials(
             request,
@@ -10379,6 +10497,7 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_trial_rest_bad_request(request_type=vizier_service.CreateTrialRequest):
@@ -10400,6 +10519,7 @@ def test_create_trial_rest_bad_request(request_type=vizier_service.CreateTrialRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_trial(request)
 
 
@@ -10537,6 +10657,7 @@ def test_create_trial_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -10566,10 +10687,13 @@ def test_create_trial_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_create_trial"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_create_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_create_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CreateTrialRequest.pb(
             vizier_service.CreateTrialRequest()
         )
@@ -10582,6 +10706,7 @@ def test_create_trial_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.content = return_value
 
@@ -10592,6 +10717,7 @@ def test_create_trial_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.create_trial(
             request,
@@ -10603,6 +10729,7 @@ def test_create_trial_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_trial_rest_bad_request(request_type=vizier_service.GetTrialRequest):
@@ -10626,6 +10753,7 @@ def test_get_trial_rest_bad_request(request_type=vizier_service.GetTrialRequest)
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_trial(request)
 
 
@@ -10668,6 +10796,7 @@ def test_get_trial_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -10697,10 +10826,13 @@ def test_get_trial_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_get_trial"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_get_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_get_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.GetTrialRequest.pb(vizier_service.GetTrialRequest())
         transcode.return_value = {
             "method": "post",
@@ -10711,6 +10843,7 @@ def test_get_trial_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.content = return_value
 
@@ -10721,6 +10854,7 @@ def test_get_trial_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.get_trial(
             request,
@@ -10732,6 +10866,7 @@ def test_get_trial_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_trials_rest_bad_request(request_type=vizier_service.ListTrialsRequest):
@@ -10753,6 +10888,7 @@ def test_list_trials_rest_bad_request(request_type=vizier_service.ListTrialsRequ
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_trials(request)
 
 
@@ -10788,6 +10924,7 @@ def test_list_trials_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_trials(request)
 
     # Establish that the response is the type that we expect.
@@ -10812,10 +10949,13 @@ def test_list_trials_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_list_trials"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_list_trials_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_list_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListTrialsRequest.pb(
             vizier_service.ListTrialsRequest()
         )
@@ -10828,6 +10968,7 @@ def test_list_trials_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = vizier_service.ListTrialsResponse.to_json(
             vizier_service.ListTrialsResponse()
         )
@@ -10840,6 +10981,7 @@ def test_list_trials_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListTrialsResponse()
+        post_with_metadata.return_value = vizier_service.ListTrialsResponse(), metadata
 
         client.list_trials(
             request,
@@ -10851,6 +10993,7 @@ def test_list_trials_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_add_trial_measurement_rest_bad_request(
@@ -10876,6 +11019,7 @@ def test_add_trial_measurement_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.add_trial_measurement(request)
 
 
@@ -10918,6 +11062,7 @@ def test_add_trial_measurement_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.add_trial_measurement(request)
 
     # Establish that the response is the type that we expect.
@@ -10947,10 +11092,14 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_add_trial_measurement"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor,
+        "post_add_trial_measurement_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_add_trial_measurement"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.AddTrialMeasurementRequest.pb(
             vizier_service.AddTrialMeasurementRequest()
         )
@@ -10963,6 +11112,7 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.content = return_value
 
@@ -10973,6 +11123,7 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.add_trial_measurement(
             request,
@@ -10984,6 +11135,7 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_complete_trial_rest_bad_request(
@@ -11009,6 +11161,7 @@ def test_complete_trial_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.complete_trial(request)
 
 
@@ -11051,6 +11204,7 @@ def test_complete_trial_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.complete_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -11080,10 +11234,13 @@ def test_complete_trial_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_complete_trial"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_complete_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_complete_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CompleteTrialRequest.pb(
             vizier_service.CompleteTrialRequest()
         )
@@ -11096,6 +11253,7 @@ def test_complete_trial_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.content = return_value
 
@@ -11106,6 +11264,7 @@ def test_complete_trial_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.complete_trial(
             request,
@@ -11117,6 +11276,7 @@ def test_complete_trial_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_trial_rest_bad_request(request_type=vizier_service.DeleteTrialRequest):
@@ -11140,6 +11300,7 @@ def test_delete_trial_rest_bad_request(request_type=vizier_service.DeleteTrialRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_trial(request)
 
 
@@ -11172,6 +11333,7 @@ def test_delete_trial_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -11208,6 +11370,7 @@ def test_delete_trial_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = vizier_service.DeleteTrialRequest()
         metadata = [
@@ -11250,6 +11413,7 @@ def test_check_trial_early_stopping_state_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.check_trial_early_stopping_state(request)
 
 
@@ -11282,6 +11446,7 @@ def test_check_trial_early_stopping_state_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.check_trial_early_stopping_state(request)
 
     # Establish that the response is the type that we expect.
@@ -11307,10 +11472,14 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_check_trial_early_stopping_state"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor,
+        "post_check_trial_early_stopping_state_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_check_trial_early_stopping_state"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CheckTrialEarlyStoppingStateRequest.pb(
             vizier_service.CheckTrialEarlyStoppingStateRequest()
         )
@@ -11323,6 +11492,7 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -11333,6 +11503,7 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.check_trial_early_stopping_state(
             request,
@@ -11344,6 +11515,7 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_stop_trial_rest_bad_request(request_type=vizier_service.StopTrialRequest):
@@ -11367,6 +11539,7 @@ def test_stop_trial_rest_bad_request(request_type=vizier_service.StopTrialReques
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.stop_trial(request)
 
 
@@ -11409,6 +11582,7 @@ def test_stop_trial_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.stop_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -11438,10 +11612,13 @@ def test_stop_trial_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_stop_trial"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_stop_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_stop_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.StopTrialRequest.pb(
             vizier_service.StopTrialRequest()
         )
@@ -11454,6 +11631,7 @@ def test_stop_trial_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.content = return_value
 
@@ -11464,6 +11642,7 @@ def test_stop_trial_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.stop_trial(
             request,
@@ -11475,6 +11654,7 @@ def test_stop_trial_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_optimal_trials_rest_bad_request(
@@ -11498,6 +11678,7 @@ def test_list_optimal_trials_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_optimal_trials(request)
 
 
@@ -11531,6 +11712,7 @@ def test_list_optimal_trials_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_optimal_trials(request)
 
     # Establish that the response is the type that we expect.
@@ -11554,10 +11736,14 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_list_optimal_trials"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor,
+        "post_list_optimal_trials_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_list_optimal_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListOptimalTrialsRequest.pb(
             vizier_service.ListOptimalTrialsRequest()
         )
@@ -11570,6 +11756,7 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = vizier_service.ListOptimalTrialsResponse.to_json(
             vizier_service.ListOptimalTrialsResponse()
         )
@@ -11582,6 +11769,10 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListOptimalTrialsResponse()
+        post_with_metadata.return_value = (
+            vizier_service.ListOptimalTrialsResponse(),
+            metadata,
+        )
 
         client.list_optimal_trials(
             request,
@@ -11593,6 +11784,7 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -11616,6 +11808,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -11646,6 +11839,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -11674,6 +11868,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -11704,6 +11899,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -11735,6 +11931,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -11767,6 +11964,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -11798,6 +11996,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -11830,6 +12029,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -11861,6 +12061,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -11893,6 +12094,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -11923,6 +12125,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -11953,6 +12156,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -11983,6 +12187,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -12013,6 +12218,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -12043,6 +12249,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -12073,6 +12280,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -12103,6 +12311,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -12133,6 +12342,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -12163,6 +12373,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -12193,6 +12404,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -12566,6 +12778,7 @@ async def test_create_study_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_study(request)
 
 
@@ -12756,6 +12969,7 @@ async def test_create_study_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_study(request)
 
     # Establish that the response is the type that we expect.
@@ -12788,10 +13002,13 @@ async def test_create_study_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_create_study"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_create_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_create_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CreateStudyRequest.pb(
             vizier_service.CreateStudyRequest()
         )
@@ -12804,6 +13021,7 @@ async def test_create_study_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_study.Study.to_json(gca_study.Study())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -12814,6 +13032,7 @@ async def test_create_study_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_study.Study()
+        post_with_metadata.return_value = gca_study.Study(), metadata
 
         await client.create_study(
             request,
@@ -12825,6 +13044,7 @@ async def test_create_study_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -12852,6 +13072,7 @@ async def test_get_study_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_study(request)
 
 
@@ -12897,6 +13118,7 @@ async def test_get_study_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_study(request)
 
     # Establish that the response is the type that we expect.
@@ -12929,10 +13151,13 @@ async def test_get_study_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_get_study"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_get_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_get_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.GetStudyRequest.pb(vizier_service.GetStudyRequest())
         transcode.return_value = {
             "method": "post",
@@ -12943,6 +13168,7 @@ async def test_get_study_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Study.to_json(study.Study())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -12953,6 +13179,7 @@ async def test_get_study_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Study()
+        post_with_metadata.return_value = study.Study(), metadata
 
         await client.get_study(
             request,
@@ -12964,6 +13191,7 @@ async def test_get_study_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -12991,6 +13219,7 @@ async def test_list_studies_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_studies(request)
 
 
@@ -13033,6 +13262,7 @@ async def test_list_studies_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_studies(request)
 
     # Establish that the response is the type that we expect.
@@ -13062,10 +13292,13 @@ async def test_list_studies_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_list_studies"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_list_studies_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_list_studies"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListStudiesRequest.pb(
             vizier_service.ListStudiesRequest()
         )
@@ -13078,6 +13311,7 @@ async def test_list_studies_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = vizier_service.ListStudiesResponse.to_json(
             vizier_service.ListStudiesResponse()
         )
@@ -13090,6 +13324,7 @@ async def test_list_studies_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListStudiesResponse()
+        post_with_metadata.return_value = vizier_service.ListStudiesResponse(), metadata
 
         await client.list_studies(
             request,
@@ -13101,6 +13336,7 @@ async def test_list_studies_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13128,6 +13364,7 @@ async def test_delete_study_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_study(request)
 
 
@@ -13165,6 +13402,7 @@ async def test_delete_study_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_study(request)
 
     # Establish that the response is the type that we expect.
@@ -13206,6 +13444,7 @@ async def test_delete_study_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = vizier_service.DeleteStudyRequest()
         metadata = [
@@ -13250,6 +13489,7 @@ async def test_lookup_study_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.lookup_study(request)
 
 
@@ -13295,6 +13535,7 @@ async def test_lookup_study_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.lookup_study(request)
 
     # Establish that the response is the type that we expect.
@@ -13327,10 +13568,13 @@ async def test_lookup_study_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_lookup_study"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_lookup_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_lookup_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.LookupStudyRequest.pb(
             vizier_service.LookupStudyRequest()
         )
@@ -13343,6 +13587,7 @@ async def test_lookup_study_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Study.to_json(study.Study())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -13353,6 +13598,7 @@ async def test_lookup_study_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Study()
+        post_with_metadata.return_value = study.Study(), metadata
 
         await client.lookup_study(
             request,
@@ -13364,6 +13610,7 @@ async def test_lookup_study_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13391,6 +13638,7 @@ async def test_suggest_trials_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.suggest_trials(request)
 
 
@@ -13428,6 +13676,7 @@ async def test_suggest_trials_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.suggest_trials(request)
 
     # Establish that the response is the type that we expect.
@@ -13458,10 +13707,14 @@ async def test_suggest_trials_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_suggest_trials"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
+        "post_suggest_trials_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_suggest_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.SuggestTrialsRequest.pb(
             vizier_service.SuggestTrialsRequest()
         )
@@ -13474,6 +13727,7 @@ async def test_suggest_trials_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -13484,6 +13738,7 @@ async def test_suggest_trials_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.suggest_trials(
             request,
@@ -13495,6 +13750,7 @@ async def test_suggest_trials_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13522,6 +13778,7 @@ async def test_create_trial_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_trial(request)
 
 
@@ -13666,6 +13923,7 @@ async def test_create_trial_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -13700,10 +13958,13 @@ async def test_create_trial_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_create_trial"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_create_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_create_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CreateTrialRequest.pb(
             vizier_service.CreateTrialRequest()
         )
@@ -13716,6 +13977,7 @@ async def test_create_trial_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -13726,6 +13988,7 @@ async def test_create_trial_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.create_trial(
             request,
@@ -13737,6 +14000,7 @@ async def test_create_trial_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13766,6 +14030,7 @@ async def test_get_trial_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_trial(request)
 
 
@@ -13815,6 +14080,7 @@ async def test_get_trial_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -13849,10 +14115,13 @@ async def test_get_trial_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_get_trial"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_get_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_get_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.GetTrialRequest.pb(vizier_service.GetTrialRequest())
         transcode.return_value = {
             "method": "post",
@@ -13863,6 +14132,7 @@ async def test_get_trial_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -13873,6 +14143,7 @@ async def test_get_trial_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.get_trial(
             request,
@@ -13884,6 +14155,7 @@ async def test_get_trial_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13911,6 +14183,7 @@ async def test_list_trials_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_trials(request)
 
 
@@ -13953,6 +14226,7 @@ async def test_list_trials_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_trials(request)
 
     # Establish that the response is the type that we expect.
@@ -13982,10 +14256,13 @@ async def test_list_trials_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_list_trials"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_list_trials_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_list_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListTrialsRequest.pb(
             vizier_service.ListTrialsRequest()
         )
@@ -13998,6 +14275,7 @@ async def test_list_trials_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = vizier_service.ListTrialsResponse.to_json(
             vizier_service.ListTrialsResponse()
         )
@@ -14010,6 +14288,7 @@ async def test_list_trials_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListTrialsResponse()
+        post_with_metadata.return_value = vizier_service.ListTrialsResponse(), metadata
 
         await client.list_trials(
             request,
@@ -14021,6 +14300,7 @@ async def test_list_trials_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14050,6 +14330,7 @@ async def test_add_trial_measurement_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.add_trial_measurement(request)
 
 
@@ -14099,6 +14380,7 @@ async def test_add_trial_measurement_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.add_trial_measurement(request)
 
     # Establish that the response is the type that we expect.
@@ -14133,10 +14415,14 @@ async def test_add_trial_measurement_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_add_trial_measurement"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
+        "post_add_trial_measurement_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_add_trial_measurement"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.AddTrialMeasurementRequest.pb(
             vizier_service.AddTrialMeasurementRequest()
         )
@@ -14149,6 +14435,7 @@ async def test_add_trial_measurement_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -14159,6 +14446,7 @@ async def test_add_trial_measurement_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.add_trial_measurement(
             request,
@@ -14170,6 +14458,7 @@ async def test_add_trial_measurement_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14199,6 +14488,7 @@ async def test_complete_trial_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.complete_trial(request)
 
 
@@ -14248,6 +14538,7 @@ async def test_complete_trial_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.complete_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -14282,10 +14573,14 @@ async def test_complete_trial_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_complete_trial"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
+        "post_complete_trial_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_complete_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CompleteTrialRequest.pb(
             vizier_service.CompleteTrialRequest()
         )
@@ -14298,6 +14593,7 @@ async def test_complete_trial_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -14308,6 +14604,7 @@ async def test_complete_trial_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.complete_trial(
             request,
@@ -14319,6 +14616,7 @@ async def test_complete_trial_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14348,6 +14646,7 @@ async def test_delete_trial_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_trial(request)
 
 
@@ -14387,6 +14686,7 @@ async def test_delete_trial_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -14428,6 +14728,7 @@ async def test_delete_trial_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = vizier_service.DeleteTrialRequest()
         metadata = [
@@ -14474,6 +14775,7 @@ async def test_check_trial_early_stopping_state_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.check_trial_early_stopping_state(request)
 
 
@@ -14513,6 +14815,7 @@ async def test_check_trial_early_stopping_state_rest_asyncio_call_success(reques
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.check_trial_early_stopping_state(request)
 
     # Establish that the response is the type that we expect.
@@ -14547,10 +14850,14 @@ async def test_check_trial_early_stopping_state_rest_asyncio_interceptors(
         "post_check_trial_early_stopping_state",
     ) as post, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor,
+        "post_check_trial_early_stopping_state_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
         "pre_check_trial_early_stopping_state",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CheckTrialEarlyStoppingStateRequest.pb(
             vizier_service.CheckTrialEarlyStoppingStateRequest()
         )
@@ -14563,6 +14870,7 @@ async def test_check_trial_early_stopping_state_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -14573,6 +14881,7 @@ async def test_check_trial_early_stopping_state_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.check_trial_early_stopping_state(
             request,
@@ -14584,6 +14893,7 @@ async def test_check_trial_early_stopping_state_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14613,6 +14923,7 @@ async def test_stop_trial_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.stop_trial(request)
 
 
@@ -14662,6 +14973,7 @@ async def test_stop_trial_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.stop_trial(request)
 
     # Establish that the response is the type that we expect.
@@ -14696,10 +15008,13 @@ async def test_stop_trial_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_stop_trial"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_stop_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_stop_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.StopTrialRequest.pb(
             vizier_service.StopTrialRequest()
         )
@@ -14712,6 +15027,7 @@ async def test_stop_trial_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = study.Trial.to_json(study.Trial())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -14722,6 +15038,7 @@ async def test_stop_trial_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.stop_trial(
             request,
@@ -14733,6 +15050,7 @@ async def test_stop_trial_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14760,6 +15078,7 @@ async def test_list_optimal_trials_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_optimal_trials(request)
 
 
@@ -14800,6 +15119,7 @@ async def test_list_optimal_trials_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_optimal_trials(request)
 
     # Establish that the response is the type that we expect.
@@ -14828,10 +15148,14 @@ async def test_list_optimal_trials_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_list_optimal_trials"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
+        "post_list_optimal_trials_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_list_optimal_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListOptimalTrialsRequest.pb(
             vizier_service.ListOptimalTrialsRequest()
         )
@@ -14844,6 +15168,7 @@ async def test_list_optimal_trials_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = vizier_service.ListOptimalTrialsResponse.to_json(
             vizier_service.ListOptimalTrialsResponse()
         )
@@ -14856,6 +15181,10 @@ async def test_list_optimal_trials_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListOptimalTrialsResponse()
+        post_with_metadata.return_value = (
+            vizier_service.ListOptimalTrialsResponse(),
+            metadata,
+        )
 
         await client.list_optimal_trials(
             request,
@@ -14867,6 +15196,7 @@ async def test_list_optimal_trials_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14896,6 +15226,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -14933,6 +15264,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -14965,6 +15297,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -15002,6 +15335,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -15037,6 +15371,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -15076,6 +15411,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -15111,6 +15447,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -15150,6 +15487,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -15185,6 +15523,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -15224,6 +15563,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -15258,6 +15598,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -15295,6 +15636,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -15329,6 +15671,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -15366,6 +15709,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -15400,6 +15744,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -15437,6 +15782,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -15471,6 +15817,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -15508,6 +15855,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -15542,6 +15890,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -15579,6 +15928,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

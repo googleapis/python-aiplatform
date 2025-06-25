@@ -17,6 +17,7 @@
 """Vertex Gen AI Evaluation Service Module."""
 
 from vertexai.preview.evaluation import _base
+from vertexai.preview.evaluation import autorater_utils
 from vertexai.preview.evaluation import eval_task
 from vertexai.preview.evaluation import metrics
 from vertexai.preview.evaluation import prompt_template
@@ -31,6 +32,11 @@ PromptTemplate = prompt_template.PromptTemplate
 PairwiseMetricPromptTemplate = metrics.PairwiseMetricPromptTemplate
 PointwiseMetricPromptTemplate = metrics.PointwiseMetricPromptTemplate
 MetricPromptTemplateExamples = metrics.MetricPromptTemplateExamples
+AutoraterConfig = autorater_utils.AutoraterConfig
+CustomOutputConfig = metrics.CustomOutputConfig
+RubricBasedMetric = metrics.RubricBasedMetric
+RubricGenerationConfig = metrics.RubricGenerationConfig
+PredefinedRubricMetrics = metrics.PredefinedRubricMetrics
 
 __all__ = [
     "EvalTask",
@@ -42,4 +48,9 @@ __all__ = [
     "PairwiseMetricPromptTemplate",
     "PointwiseMetricPromptTemplate",
     "MetricPromptTemplateExamples",
+    "AutoraterConfig",
+    "CustomOutputConfig",
+    "RubricBasedMetric",
+    "RubricGenerationConfig",
+    "PredefinedRubricMetrics",
 ]

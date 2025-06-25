@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
 from .services.evaluation_service import EvaluationServiceClient
 from .services.evaluation_service import EvaluationServiceAsyncClient
+from .services.example_store_service import ExampleStoreServiceClient
+from .services.example_store_service import ExampleStoreServiceAsyncClient
 from .services.extension_execution_service import ExtensionExecutionServiceClient
 from .services.extension_execution_service import ExtensionExecutionServiceAsyncClient
 from .services.extension_registry_service import ExtensionRegistryServiceClient
@@ -66,6 +68,8 @@ from .services.llm_utility_service import LlmUtilityServiceClient
 from .services.llm_utility_service import LlmUtilityServiceAsyncClient
 from .services.match_service import MatchServiceClient
 from .services.match_service import MatchServiceAsyncClient
+from .services.memory_bank_service import MemoryBankServiceClient
+from .services.memory_bank_service import MemoryBankServiceAsyncClient
 from .services.metadata_service import MetadataServiceClient
 from .services.metadata_service import MetadataServiceAsyncClient
 from .services.migration_service import MigrationServiceClient
@@ -94,6 +98,8 @@ from .services.reasoning_engine_service import ReasoningEngineServiceClient
 from .services.reasoning_engine_service import ReasoningEngineServiceAsyncClient
 from .services.schedule_service import ScheduleServiceClient
 from .services.schedule_service import ScheduleServiceAsyncClient
+from .services.session_service import SessionServiceClient
+from .services.session_service import SessionServiceAsyncClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
 from .services.tensorboard_service import TensorboardServiceClient
@@ -124,14 +130,21 @@ from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
+from .types.content import ModalityTokenCount
 from .types.content import Part
+from .types.content import PrebuiltVoiceConfig
 from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
 from .types.content import Segment
+from .types.content import SpeechConfig
+from .types.content import UrlContextMetadata
+from .types.content import UrlMetadata
 from .types.content import VideoMetadata
+from .types.content import VoiceConfig
 from .types.content import HarmCategory
+from .types.content import Modality
 from .types.context import Context
 from .types.custom_job import ContainerSpec
 from .types.custom_job import CustomJob
@@ -148,6 +161,12 @@ from .types.dataset import Dataset
 from .types.dataset import ExportDataConfig
 from .types.dataset import ExportFractionSplit
 from .types.dataset import ImportDataConfig
+from .types.dataset_service import AssembleDataOperationMetadata
+from .types.dataset_service import AssembleDataRequest
+from .types.dataset_service import AssembleDataResponse
+from .types.dataset_service import AssessDataOperationMetadata
+from .types.dataset_service import AssessDataRequest
+from .types.dataset_service import AssessDataResponse
 from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
 from .types.dataset_service import CreateDatasetVersionOperationMetadata
@@ -159,6 +178,9 @@ from .types.dataset_service import DeleteSavedQueryRequest
 from .types.dataset_service import ExportDataOperationMetadata
 from .types.dataset_service import ExportDataRequest
 from .types.dataset_service import ExportDataResponse
+from .types.dataset_service import GeminiExample
+from .types.dataset_service import GeminiRequestReadConfig
+from .types.dataset_service import GeminiTemplateConfig
 from .types.dataset_service import GetAnnotationSpecRequest
 from .types.dataset_service import GetDatasetRequest
 from .types.dataset_service import GetDatasetVersionRequest
@@ -204,20 +226,27 @@ from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
 from .types.endpoint import FasterDeploymentConfig
+from .types.endpoint import GenAiAdvancedFeaturesConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
+from .types.endpoint import PublisherModelConfig
+from .types.endpoint import RolloutOptions
+from .types.endpoint import SpeculativeDecodingSpec
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
 from .types.endpoint_service import DeleteEndpointRequest
 from .types.endpoint_service import DeployModelOperationMetadata
 from .types.endpoint_service import DeployModelRequest
 from .types.endpoint_service import DeployModelResponse
+from .types.endpoint_service import FetchPublisherModelConfigRequest
 from .types.endpoint_service import GetEndpointRequest
 from .types.endpoint_service import ListEndpointsRequest
 from .types.endpoint_service import ListEndpointsResponse
 from .types.endpoint_service import MutateDeployedModelOperationMetadata
 from .types.endpoint_service import MutateDeployedModelRequest
 from .types.endpoint_service import MutateDeployedModelResponse
+from .types.endpoint_service import SetPublisherModelConfigOperationMetadata
+from .types.endpoint_service import SetPublisherModelConfigRequest
 from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
@@ -226,9 +255,12 @@ from .types.endpoint_service import UpdateEndpointOperationMetadata
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
+from .types.env_var import SecretEnvVar
+from .types.env_var import SecretRef
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
+from .types.evaluation_service import AutoraterConfig
 from .types.evaluation_service import BleuInput
 from .types.evaluation_service import BleuInstance
 from .types.evaluation_service import BleuMetricValue
@@ -238,8 +270,19 @@ from .types.evaluation_service import CoherenceInput
 from .types.evaluation_service import CoherenceInstance
 from .types.evaluation_service import CoherenceResult
 from .types.evaluation_service import CoherenceSpec
+from .types.evaluation_service import CometInput
+from .types.evaluation_service import CometInstance
+from .types.evaluation_service import CometResult
+from .types.evaluation_service import CometSpec
+from .types.evaluation_service import ContentMap
+from .types.evaluation_service import CustomOutput
+from .types.evaluation_service import CustomOutputFormatConfig
+from .types.evaluation_service import EvaluateDatasetOperationMetadata
+from .types.evaluation_service import EvaluateDatasetRequest
+from .types.evaluation_service import EvaluateDatasetResponse
 from .types.evaluation_service import EvaluateInstancesRequest
 from .types.evaluation_service import EvaluateInstancesResponse
+from .types.evaluation_service import EvaluationDataset
 from .types.evaluation_service import ExactMatchInput
 from .types.evaluation_service import ExactMatchInstance
 from .types.evaluation_service import ExactMatchMetricValue
@@ -257,6 +300,13 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import Metric
+from .types.evaluation_service import MetricxInput
+from .types.evaluation_service import MetricxInstance
+from .types.evaluation_service import MetricxResult
+from .types.evaluation_service import MetricxSpec
+from .types.evaluation_service import OutputConfig
+from .types.evaluation_service import OutputInfo
 from .types.evaluation_service import PairwiseMetricInput
 from .types.evaluation_service import PairwiseMetricInstance
 from .types.evaluation_service import PairwiseMetricResult
@@ -289,11 +339,17 @@ from .types.evaluation_service import QuestionAnsweringRelevanceInput
 from .types.evaluation_service import QuestionAnsweringRelevanceInstance
 from .types.evaluation_service import QuestionAnsweringRelevanceResult
 from .types.evaluation_service import QuestionAnsweringRelevanceSpec
+from .types.evaluation_service import RawOutput
 from .types.evaluation_service import RougeInput
 from .types.evaluation_service import RougeInstance
 from .types.evaluation_service import RougeMetricValue
 from .types.evaluation_service import RougeResults
 from .types.evaluation_service import RougeSpec
+from .types.evaluation_service import RubricBasedInstructionFollowingInput
+from .types.evaluation_service import RubricBasedInstructionFollowingInstance
+from .types.evaluation_service import RubricBasedInstructionFollowingResult
+from .types.evaluation_service import RubricBasedInstructionFollowingSpec
+from .types.evaluation_service import RubricCritiqueResult
 from .types.evaluation_service import SafetyInput
 from .types.evaluation_service import SafetyInstance
 from .types.evaluation_service import SafetyResult
@@ -364,6 +420,31 @@ from .types.evaluation_service import TrajectorySingleToolUseResults
 from .types.evaluation_service import TrajectorySingleToolUseSpec
 from .types.evaluation_service import PairwiseChoice
 from .types.event import Event
+from .types.example import ContentsExample
+from .types.example import StoredContentsExample
+from .types.example_store import ExamplesArrayFilter
+from .types.example_store import ExampleStore
+from .types.example_store import ExampleStoreConfig
+from .types.example_store import StoredContentsExampleFilter
+from .types.example_store import StoredContentsExampleParameters
+from .types.example_store_service import CreateExampleStoreOperationMetadata
+from .types.example_store_service import CreateExampleStoreRequest
+from .types.example_store_service import DeleteExampleStoreOperationMetadata
+from .types.example_store_service import DeleteExampleStoreRequest
+from .types.example_store_service import Example
+from .types.example_store_service import FetchExamplesRequest
+from .types.example_store_service import FetchExamplesResponse
+from .types.example_store_service import GetExampleStoreRequest
+from .types.example_store_service import ListExampleStoresRequest
+from .types.example_store_service import ListExampleStoresResponse
+from .types.example_store_service import RemoveExamplesRequest
+from .types.example_store_service import RemoveExamplesResponse
+from .types.example_store_service import SearchExamplesRequest
+from .types.example_store_service import SearchExamplesResponse
+from .types.example_store_service import UpdateExampleStoreOperationMetadata
+from .types.example_store_service import UpdateExampleStoreRequest
+from .types.example_store_service import UpsertExamplesRequest
+from .types.example_store_service import UpsertExamplesResponse
 from .types.execution import Execution
 from .types.explanation import Attribution
 from .types.explanation import BlurBaselineConfig
@@ -439,6 +520,8 @@ from .types.feature_online_store_admin_service import UpdateFeatureOnlineStoreRe
 from .types.feature_online_store_admin_service import UpdateFeatureViewOperationMetadata
 from .types.feature_online_store_admin_service import UpdateFeatureViewRequest
 from .types.feature_online_store_service import FeatureViewDataKey
+from .types.feature_online_store_service import FeatureViewDirectWriteRequest
+from .types.feature_online_store_service import FeatureViewDirectWriteResponse
 from .types.feature_online_store_service import FetchFeatureValuesRequest
 from .types.feature_online_store_service import FetchFeatureValuesResponse
 from .types.feature_online_store_service import NearestNeighborQuery
@@ -467,6 +550,8 @@ from .types.feature_registry_service import ListFeatureMonitorsRequest
 from .types.feature_registry_service import ListFeatureMonitorsResponse
 from .types.feature_registry_service import UpdateFeatureGroupOperationMetadata
 from .types.feature_registry_service import UpdateFeatureGroupRequest
+from .types.feature_registry_service import UpdateFeatureMonitorOperationMetadata
+from .types.feature_registry_service import UpdateFeatureMonitorRequest
 from .types.feature_registry_service import UpdateFeatureOperationMetadata
 from .types.feature_selector import FeatureSelector
 from .types.feature_selector import IdMatcher
@@ -567,6 +652,8 @@ from .types.index_service import CreateIndexOperationMetadata
 from .types.index_service import CreateIndexRequest
 from .types.index_service import DeleteIndexRequest
 from .types.index_service import GetIndexRequest
+from .types.index_service import ImportIndexOperationMetadata
+from .types.index_service import ImportIndexRequest
 from .types.index_service import ListIndexesRequest
 from .types.index_service import ListIndexesResponse
 from .types.index_service import NearestNeighborSearchOperationMetadata
@@ -654,6 +741,21 @@ from .types.match_service import FindNeighborsRequest
 from .types.match_service import FindNeighborsResponse
 from .types.match_service import ReadIndexDatapointsRequest
 from .types.match_service import ReadIndexDatapointsResponse
+from .types.memory_bank import Memory
+from .types.memory_bank_service import CreateMemoryOperationMetadata
+from .types.memory_bank_service import CreateMemoryRequest
+from .types.memory_bank_service import DeleteMemoryOperationMetadata
+from .types.memory_bank_service import DeleteMemoryRequest
+from .types.memory_bank_service import GenerateMemoriesOperationMetadata
+from .types.memory_bank_service import GenerateMemoriesRequest
+from .types.memory_bank_service import GenerateMemoriesResponse
+from .types.memory_bank_service import GetMemoryRequest
+from .types.memory_bank_service import ListMemoriesRequest
+from .types.memory_bank_service import ListMemoriesResponse
+from .types.memory_bank_service import RetrieveMemoriesRequest
+from .types.memory_bank_service import RetrieveMemoriesResponse
+from .types.memory_bank_service import UpdateMemoryOperationMetadata
+from .types.memory_bank_service import UpdateMemoryRequest
 from .types.metadata_schema import MetadataSchema
 from .types.metadata_service import AddContextArtifactsAndExecutionsRequest
 from .types.metadata_service import AddContextArtifactsAndExecutionsResponse
@@ -713,6 +815,7 @@ from .types.migration_service import MigrateResourceRequest
 from .types.migration_service import MigrateResourceResponse
 from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
+from .types.model import Checkpoint
 from .types.model import GenieSource
 from .types.model import LargeModelReference
 from .types.model import Model
@@ -738,9 +841,21 @@ from .types.model_deployment_monitoring_job import (
 )
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
+from .types.model_garden_service import AcceptPublisherModelEulaRequest
+from .types.model_garden_service import CheckPublisherModelEulaAcceptanceRequest
+from .types.model_garden_service import DeployOperationMetadata
+from .types.model_garden_service import DeployPublisherModelOperationMetadata
+from .types.model_garden_service import DeployPublisherModelRequest
+from .types.model_garden_service import DeployPublisherModelResponse
+from .types.model_garden_service import DeployRequest
+from .types.model_garden_service import DeployResponse
+from .types.model_garden_service import ExportPublisherModelOperationMetadata
+from .types.model_garden_service import ExportPublisherModelRequest
+from .types.model_garden_service import ExportPublisherModelResponse
 from .types.model_garden_service import GetPublisherModelRequest
 from .types.model_garden_service import ListPublisherModelsRequest
 from .types.model_garden_service import ListPublisherModelsResponse
+from .types.model_garden_service import PublisherModelEulaAcceptance
 from .types.model_garden_service import PublisherModelView
 from .types.model_monitor import ModelMonitor
 from .types.model_monitor import ModelMonitoringSchema
@@ -802,9 +917,12 @@ from .types.model_service import ListModelEvaluationsRequest
 from .types.model_service import ListModelEvaluationsResponse
 from .types.model_service import ListModelsRequest
 from .types.model_service import ListModelsResponse
+from .types.model_service import ListModelVersionCheckpointsRequest
+from .types.model_service import ListModelVersionCheckpointsResponse
 from .types.model_service import ListModelVersionsRequest
 from .types.model_service import ListModelVersionsResponse
 from .types.model_service import MergeVersionAliasesRequest
+from .types.model_service import ModelVersionCheckpoint
 from .types.model_service import UpdateExplanationDatasetOperationMetadata
 from .types.model_service import UpdateExplanationDatasetRequest
 from .types.model_service import UpdateExplanationDatasetResponse
@@ -854,6 +972,8 @@ from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
 from .types.notebook_service import UpgradeNotebookRuntimeResponse
 from .types.notebook_service import NotebookExecutionJobView
+from .types.notebook_software_config import NotebookSoftwareConfig
+from .types.notebook_software_config import PostStartupScriptConfig
 from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
@@ -929,9 +1049,11 @@ from .types.prediction_service import StreamingRawPredictResponse
 from .types.prediction_service import StreamRawPredictRequest
 from .types.publisher_model import PublisherModel
 from .types.reasoning_engine import ReasoningEngine
+from .types.reasoning_engine import ReasoningEngineContextSpec
 from .types.reasoning_engine import ReasoningEngineSpec
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
+from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
 from .types.reasoning_engine_service import CreateReasoningEngineOperationMetadata
 from .types.reasoning_engine_service import CreateReasoningEngineRequest
 from .types.reasoning_engine_service import DeleteReasoningEngineRequest
@@ -951,10 +1073,27 @@ from .types.schedule_service import ListSchedulesResponse
 from .types.schedule_service import PauseScheduleRequest
 from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
+from .types.service_networking import DnsPeeringConfig
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
 from .types.service_networking import PscInterfaceConfig
+from .types.service_networking import PSCAutomationState
+from .types.session import EventActions
+from .types.session import EventMetadata
+from .types.session import Session
+from .types.session import SessionEvent
+from .types.session_service import AppendEventRequest
+from .types.session_service import AppendEventResponse
+from .types.session_service import CreateSessionOperationMetadata
+from .types.session_service import CreateSessionRequest
+from .types.session_service import DeleteSessionRequest
+from .types.session_service import GetSessionRequest
+from .types.session_service import ListEventsRequest
+from .types.session_service import ListEventsResponse
+from .types.session_service import ListSessionsRequest
+from .types.session_service import ListSessionsResponse
+from .types.session_service import UpdateSessionRequest
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -1028,16 +1167,20 @@ from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
 from .types.tool import CodeExecutionResult
 from .types.tool import DynamicRetrievalConfig
+from .types.tool import EnterpriseWebSearch
 from .types.tool import ExecutableCode
 from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
 from .types.tool import GoogleSearchRetrieval
+from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
+from .types.tool import RetrievalConfig
 from .types.tool import Tool
 from .types.tool import ToolConfig
 from .types.tool import ToolUseExample
+from .types.tool import UrlContext
 from .types.tool import VertexAISearch
 from .types.tool import VertexRagStore
 from .types.training_pipeline import FilterSplit
@@ -1058,6 +1201,7 @@ from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
 from .types.tuning_job import SupervisedTuningSpec
 from .types.tuning_job import TunedModel
+from .types.tuning_job import TunedModelCheckpoint
 from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
@@ -1074,18 +1218,25 @@ from .types.value import Value
 from .types.vertex_rag_data import CorpusStatus
 from .types.vertex_rag_data import FileStatus
 from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import RagChunk
 from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
+from .types.vertex_rag_data import RagEngineConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import RagFileMetadataConfig
 from .types.vertex_rag_data import RagFileParsingConfig
+from .types.vertex_rag_data import RagFileTransformationConfig
+from .types.vertex_rag_data import RagManagedDbConfig
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import VertexAiSearchConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagFileRequest
 from .types.vertex_rag_data_service import GetRagCorpusRequest
+from .types.vertex_rag_data_service import GetRagEngineConfigRequest
 from .types.vertex_rag_data_service import GetRagFileRequest
 from .types.vertex_rag_data_service import ImportRagFilesOperationMetadata
 from .types.vertex_rag_data_service import ImportRagFilesRequest
@@ -1096,8 +1247,16 @@ from .types.vertex_rag_data_service import ListRagFilesRequest
 from .types.vertex_rag_data_service import ListRagFilesResponse
 from .types.vertex_rag_data_service import UpdateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import UpdateRagCorpusRequest
+from .types.vertex_rag_data_service import UpdateRagEngineConfigOperationMetadata
+from .types.vertex_rag_data_service import UpdateRagEngineConfigRequest
 from .types.vertex_rag_data_service import UploadRagFileRequest
 from .types.vertex_rag_data_service import UploadRagFileResponse
+from .types.vertex_rag_service import AugmentPromptRequest
+from .types.vertex_rag_service import AugmentPromptResponse
+from .types.vertex_rag_service import Claim
+from .types.vertex_rag_service import CorroborateContentRequest
+from .types.vertex_rag_service import CorroborateContentResponse
+from .types.vertex_rag_service import Fact
 from .types.vertex_rag_service import RagContexts
 from .types.vertex_rag_service import RagQuery
 from .types.vertex_rag_service import RetrieveContextsRequest
@@ -1130,6 +1289,7 @@ __all__ = (
     "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
     "EvaluationServiceAsyncClient",
+    "ExampleStoreServiceAsyncClient",
     "ExtensionExecutionServiceAsyncClient",
     "ExtensionRegistryServiceAsyncClient",
     "FeatureOnlineStoreAdminServiceAsyncClient",
@@ -1144,6 +1304,7 @@ __all__ = (
     "JobServiceAsyncClient",
     "LlmUtilityServiceAsyncClient",
     "MatchServiceAsyncClient",
+    "MemoryBankServiceAsyncClient",
     "MetadataServiceAsyncClient",
     "MigrationServiceAsyncClient",
     "ModelGardenServiceAsyncClient",
@@ -1156,12 +1317,14 @@ __all__ = (
     "ReasoningEngineExecutionServiceAsyncClient",
     "ReasoningEngineServiceAsyncClient",
     "ScheduleServiceAsyncClient",
+    "SessionServiceAsyncClient",
     "SpecialistPoolServiceAsyncClient",
     "TensorboardServiceAsyncClient",
     "VertexRagDataServiceAsyncClient",
     "VertexRagServiceAsyncClient",
     "VizierServiceAsyncClient",
     "AcceleratorType",
+    "AcceptPublisherModelEulaRequest",
     "ActiveLearningConfig",
     "AddContextArtifactsAndExecutionsRequest",
     "AddContextArtifactsAndExecutionsResponse",
@@ -1173,14 +1336,25 @@ __all__ = (
     "Annotation",
     "AnnotationSpec",
     "ApiAuth",
+    "AppendEventRequest",
+    "AppendEventResponse",
     "Artifact",
     "ArtifactTypeSchema",
+    "AssembleDataOperationMetadata",
+    "AssembleDataRequest",
+    "AssembleDataResponse",
+    "AssessDataOperationMetadata",
+    "AssessDataRequest",
+    "AssessDataResponse",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
     "Attribution",
+    "AugmentPromptRequest",
+    "AugmentPromptResponse",
     "AuthConfig",
     "AuthType",
     "AutomaticResources",
+    "AutoraterConfig",
     "AutoscalingMetricSpec",
     "AvroSource",
     "BatchCancelPipelineJobsOperationMetadata",
@@ -1230,17 +1404,24 @@ __all__ = (
     "CancelTuningJobRequest",
     "Candidate",
     "ChatCompletionsRequest",
+    "CheckPublisherModelEulaAcceptanceRequest",
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
     "CheckTrialEarlyStoppingStateResponse",
+    "Checkpoint",
     "Citation",
     "CitationMetadata",
+    "Claim",
     "ClientConnectionConfig",
     "CodeExecutionResult",
     "CoherenceInput",
     "CoherenceInstance",
     "CoherenceResult",
     "CoherenceSpec",
+    "CometInput",
+    "CometInstance",
+    "CometResult",
+    "CometSpec",
     "CompleteTrialRequest",
     "CompletionStats",
     "ComputeTokensRequest",
@@ -1248,11 +1429,15 @@ __all__ = (
     "ContainerRegistryDestination",
     "ContainerSpec",
     "Content",
+    "ContentMap",
+    "ContentsExample",
     "Context",
     "CopyModelOperationMetadata",
     "CopyModelRequest",
     "CopyModelResponse",
     "CorpusStatus",
+    "CorroborateContentRequest",
+    "CorroborateContentResponse",
     "CountTokensRequest",
     "CountTokensResponse",
     "CreateArtifactRequest",
@@ -1271,6 +1456,8 @@ __all__ = (
     "CreateEndpointRequest",
     "CreateEntityTypeOperationMetadata",
     "CreateEntityTypeRequest",
+    "CreateExampleStoreOperationMetadata",
+    "CreateExampleStoreRequest",
     "CreateExecutionRequest",
     "CreateFeatureGroupOperationMetadata",
     "CreateFeatureGroupRequest",
@@ -1290,6 +1477,8 @@ __all__ = (
     "CreateIndexEndpointRequest",
     "CreateIndexOperationMetadata",
     "CreateIndexRequest",
+    "CreateMemoryOperationMetadata",
+    "CreateMemoryRequest",
     "CreateMetadataSchemaRequest",
     "CreateMetadataStoreOperationMetadata",
     "CreateMetadataStoreRequest",
@@ -1311,6 +1500,8 @@ __all__ = (
     "CreateReasoningEngineRequest",
     "CreateRegistryFeatureOperationMetadata",
     "CreateScheduleRequest",
+    "CreateSessionOperationMetadata",
+    "CreateSessionRequest",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
     "CreateStudyRequest",
@@ -1326,6 +1517,8 @@ __all__ = (
     "CsvSource",
     "CustomJob",
     "CustomJobSpec",
+    "CustomOutput",
+    "CustomOutputFormatConfig",
     "DataItem",
     "DataItemView",
     "DataLabelingJob",
@@ -1346,6 +1539,8 @@ __all__ = (
     "DeleteDeploymentResourcePoolRequest",
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
+    "DeleteExampleStoreOperationMetadata",
+    "DeleteExampleStoreRequest",
     "DeleteExecutionRequest",
     "DeleteExtensionRequest",
     "DeleteFeatureGroupRequest",
@@ -1360,6 +1555,8 @@ __all__ = (
     "DeleteHyperparameterTuningJobRequest",
     "DeleteIndexEndpointRequest",
     "DeleteIndexRequest",
+    "DeleteMemoryOperationMetadata",
+    "DeleteMemoryRequest",
     "DeleteMetadataStoreOperationMetadata",
     "DeleteMetadataStoreRequest",
     "DeleteModelDeploymentMonitoringJobRequest",
@@ -1379,6 +1576,7 @@ __all__ = (
     "DeleteReasoningEngineRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
+    "DeleteSessionRequest",
     "DeleteSpecialistPoolRequest",
     "DeleteStudyRequest",
     "DeleteTensorboardExperimentRequest",
@@ -1393,6 +1591,12 @@ __all__ = (
     "DeployModelOperationMetadata",
     "DeployModelRequest",
     "DeployModelResponse",
+    "DeployOperationMetadata",
+    "DeployPublisherModelOperationMetadata",
+    "DeployPublisherModelRequest",
+    "DeployPublisherModelResponse",
+    "DeployRequest",
+    "DeployResponse",
     "DeployedIndex",
     "DeployedIndexAuthConfig",
     "DeployedIndexRef",
@@ -1410,27 +1614,40 @@ __all__ = (
     "DistillationDataStats",
     "DistillationHyperParameters",
     "DistillationSpec",
+    "DnsPeeringConfig",
     "DoubleArray",
     "DynamicRetrievalConfig",
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
+    "EnterpriseWebSearch",
     "EntityIdSelector",
     "EntityType",
     "EnvVar",
     "ErrorAnalysisAnnotation",
+    "EvaluateDatasetOperationMetadata",
+    "EvaluateDatasetRequest",
+    "EvaluateDatasetResponse",
     "EvaluateInstancesRequest",
     "EvaluateInstancesResponse",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
+    "EvaluationDataset",
     "EvaluationServiceClient",
     "Event",
+    "EventActions",
+    "EventMetadata",
     "ExactMatchInput",
     "ExactMatchInstance",
     "ExactMatchMetricValue",
     "ExactMatchResults",
     "ExactMatchSpec",
+    "Example",
+    "ExampleStore",
+    "ExampleStoreConfig",
+    "ExampleStoreServiceClient",
     "Examples",
+    "ExamplesArrayFilter",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
     "ExecutableCode",
@@ -1456,6 +1673,9 @@ __all__ = (
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
+    "ExportPublisherModelOperationMetadata",
+    "ExportPublisherModelRequest",
+    "ExportPublisherModelResponse",
     "ExportTensorboardTimeSeriesDataRequest",
     "ExportTensorboardTimeSeriesDataResponse",
     "Extension",
@@ -1464,6 +1684,7 @@ __all__ = (
     "ExtensionOperation",
     "ExtensionPrivateServiceConnectConfig",
     "ExtensionRegistryServiceClient",
+    "Fact",
     "FasterDeploymentConfig",
     "Feature",
     "FeatureGroup",
@@ -1485,13 +1706,18 @@ __all__ = (
     "FeatureView",
     "FeatureViewDataFormat",
     "FeatureViewDataKey",
+    "FeatureViewDirectWriteRequest",
+    "FeatureViewDirectWriteResponse",
     "FeatureViewSync",
     "Featurestore",
     "FeaturestoreMonitoringConfig",
     "FeaturestoreOnlineServingServiceClient",
     "FeaturestoreServiceClient",
+    "FetchExamplesRequest",
+    "FetchExamplesResponse",
     "FetchFeatureValuesRequest",
     "FetchFeatureValuesResponse",
+    "FetchPublisherModelConfigRequest",
     "FileData",
     "FileStatus",
     "FilterSplit",
@@ -1512,10 +1738,17 @@ __all__ = (
     "FunctionResponse",
     "GcsDestination",
     "GcsSource",
+    "GeminiExample",
+    "GeminiRequestReadConfig",
+    "GeminiTemplateConfig",
+    "GenAiAdvancedFeaturesConfig",
     "GenAiCacheServiceClient",
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
+    "GenerateMemoriesOperationMetadata",
+    "GenerateMemoriesRequest",
+    "GenerateMemoriesResponse",
     "GenerateVideoResponse",
     "GenerationConfig",
     "GenericOperationMetadata",
@@ -1532,6 +1765,7 @@ __all__ = (
     "GetDeploymentResourcePoolRequest",
     "GetEndpointRequest",
     "GetEntityTypeRequest",
+    "GetExampleStoreRequest",
     "GetExecutionRequest",
     "GetExtensionRequest",
     "GetFeatureGroupRequest",
@@ -1545,6 +1779,7 @@ __all__ = (
     "GetHyperparameterTuningJobRequest",
     "GetIndexEndpointRequest",
     "GetIndexRequest",
+    "GetMemoryRequest",
     "GetMetadataSchemaRequest",
     "GetMetadataStoreRequest",
     "GetModelDeploymentMonitoringJobRequest",
@@ -1562,9 +1797,11 @@ __all__ = (
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
     "GetRagCorpusRequest",
+    "GetRagEngineConfigRequest",
     "GetRagFileRequest",
     "GetReasoningEngineRequest",
     "GetScheduleRequest",
+    "GetSessionRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
     "GetTensorboardExperimentRequest",
@@ -1596,6 +1833,8 @@ __all__ = (
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
+    "ImportIndexOperationMetadata",
+    "ImportIndexRequest",
     "ImportModelEvaluationRequest",
     "ImportRagFilesConfig",
     "ImportRagFilesOperationMetadata",
@@ -1642,6 +1881,10 @@ __all__ = (
     "ListEndpointsResponse",
     "ListEntityTypesRequest",
     "ListEntityTypesResponse",
+    "ListEventsRequest",
+    "ListEventsResponse",
+    "ListExampleStoresRequest",
+    "ListExampleStoresResponse",
     "ListExecutionsRequest",
     "ListExecutionsResponse",
     "ListExtensionsRequest",
@@ -1668,6 +1911,8 @@ __all__ = (
     "ListIndexEndpointsResponse",
     "ListIndexesRequest",
     "ListIndexesResponse",
+    "ListMemoriesRequest",
+    "ListMemoriesResponse",
     "ListMetadataSchemasRequest",
     "ListMetadataSchemasResponse",
     "ListMetadataStoresRequest",
@@ -1682,6 +1927,8 @@ __all__ = (
     "ListModelMonitoringJobsResponse",
     "ListModelMonitorsRequest",
     "ListModelMonitorsResponse",
+    "ListModelVersionCheckpointsRequest",
+    "ListModelVersionCheckpointsResponse",
     "ListModelVersionsRequest",
     "ListModelVersionsResponse",
     "ListModelsRequest",
@@ -1714,6 +1961,8 @@ __all__ = (
     "ListSavedQueriesResponse",
     "ListSchedulesRequest",
     "ListSchedulesResponse",
+    "ListSessionsRequest",
+    "ListSessionsResponse",
     "ListSpecialistPoolsRequest",
     "ListSpecialistPoolsResponse",
     "ListStudiesRequest",
@@ -1739,14 +1988,23 @@ __all__ = (
     "ManualBatchTuningParameters",
     "MatchServiceClient",
     "Measurement",
+    "Memory",
+    "MemoryBankServiceClient",
     "MergeVersionAliasesRequest",
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
+    "Metric",
+    "MetricxInput",
+    "MetricxInstance",
+    "MetricxResult",
+    "MetricxSpec",
     "MigratableResource",
     "MigrateResourceRequest",
     "MigrateResourceResponse",
     "MigrationServiceClient",
+    "Modality",
+    "ModalityTokenCount",
     "Model",
     "ModelContainerSpec",
     "ModelDeploymentMonitoringBigQueryTable",
@@ -1781,6 +2039,7 @@ __all__ = (
     "ModelMonitoringTabularStats",
     "ModelServiceClient",
     "ModelSourceInfo",
+    "ModelVersionCheckpoint",
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
@@ -1807,7 +2066,11 @@ __all__ = (
     "NotebookRuntimeTemplateRef",
     "NotebookRuntimeType",
     "NotebookServiceClient",
+    "NotebookSoftwareConfig",
+    "OutputConfig",
+    "OutputInfo",
     "PSCAutomationConfig",
+    "PSCAutomationState",
     "PairwiseChoice",
     "PairwiseMetricInput",
     "PairwiseMetricInstance",
@@ -1842,6 +2105,8 @@ __all__ = (
     "PointwiseMetricResult",
     "PointwiseMetricSpec",
     "Port",
+    "PostStartupScriptConfig",
+    "PrebuiltVoiceConfig",
     "PredefinedSplit",
     "PredictLongRunningMetadata",
     "PredictLongRunningResponse",
@@ -1857,6 +2122,8 @@ __all__ = (
     "PscAutomatedEndpoints",
     "PscInterfaceConfig",
     "PublisherModel",
+    "PublisherModelConfig",
+    "PublisherModelEulaAcceptance",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
     "PurgeArtifactsRequest",
@@ -1893,14 +2160,21 @@ __all__ = (
     "QuestionAnsweringRelevanceInstance",
     "QuestionAnsweringRelevanceResult",
     "QuestionAnsweringRelevanceSpec",
+    "RagChunk",
     "RagContexts",
     "RagCorpus",
     "RagEmbeddingModelConfig",
+    "RagEngineConfig",
     "RagFile",
     "RagFileChunkingConfig",
+    "RagFileMetadataConfig",
     "RagFileParsingConfig",
+    "RagFileTransformationConfig",
+    "RagManagedDbConfig",
     "RagQuery",
+    "RagRetrievalConfig",
     "RagVectorDbConfig",
+    "RawOutput",
     "RawPredictRequest",
     "RayLogsSpec",
     "RayMetricSpec",
@@ -1918,6 +2192,7 @@ __all__ = (
     "ReadTensorboardUsageRequest",
     "ReadTensorboardUsageResponse",
     "ReasoningEngine",
+    "ReasoningEngineContextSpec",
     "ReasoningEngineExecutionServiceClient",
     "ReasoningEngineServiceClient",
     "ReasoningEngineSpec",
@@ -1929,6 +2204,8 @@ __all__ = (
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
+    "RemoveExamplesRequest",
+    "RemoveExamplesResponse",
     "ReservationAffinity",
     "ResourcePool",
     "ResourceRuntime",
@@ -1939,14 +2216,23 @@ __all__ = (
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "Retrieval",
+    "RetrievalConfig",
     "RetrievalMetadata",
     "RetrieveContextsRequest",
     "RetrieveContextsResponse",
+    "RetrieveMemoriesRequest",
+    "RetrieveMemoriesResponse",
+    "RolloutOptions",
     "RougeInput",
     "RougeInstance",
     "RougeMetricValue",
     "RougeResults",
     "RougeSpec",
+    "RubricBasedInstructionFollowingInput",
+    "RubricBasedInstructionFollowingInstance",
+    "RubricBasedInstructionFollowingResult",
+    "RubricBasedInstructionFollowingSpec",
+    "RubricCritiqueResult",
     "RuntimeArtifact",
     "RuntimeConfig",
     "SafetyInput",
@@ -1968,6 +2254,8 @@ __all__ = (
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
     "SearchEntryPoint",
+    "SearchExamplesRequest",
+    "SearchExamplesResponse",
     "SearchFeaturesRequest",
     "SearchFeaturesResponse",
     "SearchMigratableResourcesRequest",
@@ -1981,14 +2269,23 @@ __all__ = (
     "SearchModelMonitoringStatsResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
+    "SecretEnvVar",
+    "SecretRef",
     "Segment",
     "ServiceAccountSpec",
+    "Session",
+    "SessionEvent",
+    "SessionServiceClient",
+    "SetPublisherModelConfigOperationMetadata",
+    "SetPublisherModelConfigRequest",
     "SharePointSources",
     "ShieldedVmConfig",
     "SlackSource",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
+    "SpeculativeDecodingSpec",
+    "SpeechConfig",
     "StartNotebookRuntimeOperationMetadata",
     "StartNotebookRuntimeRequest",
     "StartNotebookRuntimeResponse",
@@ -1996,11 +2293,15 @@ __all__ = (
     "StopNotebookRuntimeRequest",
     "StopNotebookRuntimeResponse",
     "StopTrialRequest",
+    "StoredContentsExample",
+    "StoredContentsExampleFilter",
+    "StoredContentsExampleParameters",
     "StratifiedSplit",
     "StreamDirectPredictRequest",
     "StreamDirectPredictResponse",
     "StreamDirectRawPredictRequest",
     "StreamDirectRawPredictResponse",
+    "StreamQueryReasoningEngineRequest",
     "StreamRawPredictRequest",
     "StreamingFetchFeatureValuesRequest",
     "StreamingFetchFeatureValuesResponse",
@@ -2111,6 +2412,7 @@ __all__ = (
     "Trial",
     "TrialContext",
     "TunedModel",
+    "TunedModelCheckpoint",
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
@@ -2133,6 +2435,8 @@ __all__ = (
     "UpdateEndpointOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
+    "UpdateExampleStoreOperationMetadata",
+    "UpdateExampleStoreRequest",
     "UpdateExecutionRequest",
     "UpdateExplanationDatasetOperationMetadata",
     "UpdateExplanationDatasetRequest",
@@ -2140,6 +2444,8 @@ __all__ = (
     "UpdateExtensionRequest",
     "UpdateFeatureGroupOperationMetadata",
     "UpdateFeatureGroupRequest",
+    "UpdateFeatureMonitorOperationMetadata",
+    "UpdateFeatureMonitorRequest",
     "UpdateFeatureOnlineStoreOperationMetadata",
     "UpdateFeatureOnlineStoreRequest",
     "UpdateFeatureOperationMetadata",
@@ -2151,6 +2457,8 @@ __all__ = (
     "UpdateIndexEndpointRequest",
     "UpdateIndexOperationMetadata",
     "UpdateIndexRequest",
+    "UpdateMemoryOperationMetadata",
+    "UpdateMemoryRequest",
     "UpdateModelDeploymentMonitoringJobOperationMetadata",
     "UpdateModelDeploymentMonitoringJobRequest",
     "UpdateModelMonitorOperationMetadata",
@@ -2161,9 +2469,12 @@ __all__ = (
     "UpdatePersistentResourceRequest",
     "UpdateRagCorpusOperationMetadata",
     "UpdateRagCorpusRequest",
+    "UpdateRagEngineConfigOperationMetadata",
+    "UpdateRagEngineConfigRequest",
     "UpdateReasoningEngineOperationMetadata",
     "UpdateReasoningEngineRequest",
     "UpdateScheduleRequest",
+    "UpdateSessionRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
     "UpdateTensorboardExperimentRequest",
@@ -2182,14 +2493,21 @@ __all__ = (
     "UploadRagFileResponse",
     "UpsertDatapointsRequest",
     "UpsertDatapointsResponse",
+    "UpsertExamplesRequest",
+    "UpsertExamplesResponse",
+    "UrlContext",
+    "UrlContextMetadata",
+    "UrlMetadata",
     "UserActionReference",
     "Value",
     "VertexAISearch",
+    "VertexAiSearchConfig",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",
     "VideoMetadata",
     "VizierServiceClient",
+    "VoiceConfig",
     "WorkerPoolSpec",
     "WriteFeatureValuesPayload",
     "WriteFeatureValuesRequest",

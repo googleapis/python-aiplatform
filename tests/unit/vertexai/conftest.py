@@ -63,8 +63,10 @@ from feature_store_constants import (
     _TEST_FG1_F1,
     _TEST_FG1_F2,
     _TEST_FG1_FM1,
+    _TEST_FV_LIST,
     _TEST_FV1,
     _TEST_FV3,
+    _TEST_FV4,
     _TEST_OPTIMIZED_EMBEDDING_FV,
     _TEST_OPTIMIZED_FV1,
     _TEST_OPTIMIZED_FV2,
@@ -444,6 +446,26 @@ def get_rag_fv_mock():
 
 
 @pytest.fixture
+def get_registry_fv_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "get_feature_view",
+    ) as get_rag_fv_mock:
+        get_rag_fv_mock.return_value = _TEST_FV4
+        yield get_rag_fv_mock
+
+
+@pytest.fixture
+def list_fv_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "list_feature_views",
+    ) as list_fv:
+        list_fv.return_value = _TEST_FV_LIST
+        yield list_fv
+
+
+@pytest.fixture
 def create_bq_fv_mock():
     with patch.object(
         feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
@@ -465,6 +487,18 @@ def create_rag_fv_mock():
         create_rag_fv_lro_mock.result.return_value = _TEST_FV3
         create_rag_fv_mock.return_value = create_rag_fv_lro_mock
         yield create_rag_fv_mock
+
+
+@pytest.fixture
+def create_registry_fv_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "create_feature_view",
+    ) as create_registry_fv_mock:
+        create_registry_fv_lro_mock = mock.Mock(ga_operation.Operation)
+        create_registry_fv_lro_mock.result.return_value = _TEST_FV4
+        create_registry_fv_mock.return_value = create_registry_fv_lro_mock
+        yield create_registry_fv_mock
 
 
 @pytest.fixture

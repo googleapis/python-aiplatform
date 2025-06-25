@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ __protobuf__ = proto.module(
         "Port",
         "ModelSourceInfo",
         "Probe",
+        "Checkpoint",
     },
 )
 
@@ -80,6 +81,8 @@ class Model(proto.Message):
             The description of the Model.
         version_description (str):
             The description of this version.
+        default_checkpoint_id (str):
+            The default checkpoint id of a model version.
         predict_schemata (google.cloud.aiplatform_v1.types.PredictSchemata):
             The schemata that describe formats of the Model's
             predictions and explanations as given and returned via
@@ -320,6 +323,9 @@ class Model(proto.Message):
             Output only. Reserved for future use.
         satisfies_pzi (bool):
             Output only. Reserved for future use.
+        checkpoints (MutableSequence[google.cloud.aiplatform_v1.types.Checkpoint]):
+            Optional. Output only. The checkpoints of the
+            model.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -556,6 +562,10 @@ class Model(proto.Message):
         proto.STRING,
         number=30,
     )
+    default_checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=53,
+    )
     predict_schemata: "PredictSchemata" = proto.Field(
         proto.MESSAGE,
         number=4,
@@ -675,6 +685,11 @@ class Model(proto.Message):
         proto.BOOL,
         number=52,
     )
+    checkpoints: MutableSequence["Checkpoint"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=57,
+        message="Checkpoint",
+    )
 
 
 class LargeModelReference(proto.Message):
@@ -703,11 +718,25 @@ class ModelGardenSource(proto.Message):
         public_model_name (str):
             Required. The model garden source model
             resource name.
+        version_id (str):
+            Optional. The model garden source model
+            version ID.
+        skip_hf_model_cache (bool):
+            Optional. Whether to avoid pulling the model
+            from the HF cache.
     """
 
     public_model_name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    version_id: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    skip_hf_model_cache: bool = proto.Field(
+        proto.BOOL,
+        number=4,
     )
 
 
@@ -1056,6 +1085,9 @@ class ModelContainerSpec(proto.Message):
         health_probe (google.cloud.aiplatform_v1.types.Probe):
             Immutable. Specification for Kubernetes
             readiness probe.
+        liveness_probe (google.cloud.aiplatform_v1.types.Probe):
+            Immutable. Specification for Kubernetes
+            liveness probe.
     """
 
     image_uri: str = proto.Field(
@@ -1110,6 +1142,11 @@ class ModelContainerSpec(proto.Message):
     health_probe: "Probe" = proto.Field(
         proto.MESSAGE,
         number=13,
+        message="Probe",
+    )
+    liveness_probe: "Probe" = proto.Field(
+        proto.MESSAGE,
+        number=14,
         message="Probe",
     )
 
@@ -1196,6 +1233,10 @@ class Probe(proto.Message):
     container to determine whether it is alive or ready to receive
     traffic.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -1203,6 +1244,21 @@ class Probe(proto.Message):
         exec_ (google.cloud.aiplatform_v1.types.Probe.ExecAction):
             ExecAction probes the health of a container
             by executing a command.
+
+            This field is a member of `oneof`_ ``probe_type``.
+        http_get (google.cloud.aiplatform_v1.types.Probe.HttpGetAction):
+            HttpGetAction probes the health of a
+            container by sending an HTTP GET request.
+
+            This field is a member of `oneof`_ ``probe_type``.
+        grpc (google.cloud.aiplatform_v1.types.Probe.GrpcAction):
+            GrpcAction probes the health of a container
+            by sending a gRPC request.
+
+            This field is a member of `oneof`_ ``probe_type``.
+        tcp_socket (google.cloud.aiplatform_v1.types.Probe.TcpSocketAction):
+            TcpSocketAction probes the health of a
+            container by opening a TCP socket connection.
 
             This field is a member of `oneof`_ ``probe_type``.
         period_seconds (int):
@@ -1217,6 +1273,26 @@ class Probe(proto.Message):
             period_seconds.
 
             Maps to Kubernetes probe argument 'timeoutSeconds'.
+        failure_threshold (int):
+            Number of consecutive failures before the
+            probe is considered failed. Defaults to 3.
+            Minimum value is 1.
+
+            Maps to Kubernetes probe argument
+            'failureThreshold'.
+        success_threshold (int):
+            Number of consecutive successes before the
+            probe is considered successful. Defaults to 1.
+            Minimum value is 1.
+
+            Maps to Kubernetes probe argument
+            'successThreshold'.
+        initial_delay_seconds (int):
+            Number of seconds to wait before starting the
+            probe. Defaults to 0. Minimum value is 0.
+
+            Maps to Kubernetes probe argument
+            'initialDelaySeconds'.
     """
 
     class ExecAction(proto.Message):
@@ -1238,11 +1314,146 @@ class Probe(proto.Message):
             number=1,
         )
 
+    class HttpGetAction(proto.Message):
+        r"""HttpGetAction describes an action based on HTTP Get requests.
+
+        Attributes:
+            path (str):
+                Path to access on the HTTP server.
+            port (int):
+                Number of the port to access on the
+                container. Number must be in the range 1 to
+                65535.
+            host (str):
+                Host name to connect to, defaults to the
+                model serving container's IP. You probably want
+                to set "Host" in httpHeaders instead.
+            scheme (str):
+                Scheme to use for connecting to the host.
+                Defaults to HTTP. Acceptable values are "HTTP"
+                or "HTTPS".
+            http_headers (MutableSequence[google.cloud.aiplatform_v1.types.Probe.HttpHeader]):
+                Custom headers to set in the request. HTTP
+                allows repeated headers.
+        """
+
+        path: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        port: int = proto.Field(
+            proto.INT32,
+            number=2,
+        )
+        host: str = proto.Field(
+            proto.STRING,
+            number=3,
+        )
+        scheme: str = proto.Field(
+            proto.STRING,
+            number=4,
+        )
+        http_headers: MutableSequence["Probe.HttpHeader"] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=5,
+            message="Probe.HttpHeader",
+        )
+
+    class GrpcAction(proto.Message):
+        r"""GrpcAction checks the health of a container using a gRPC
+        service.
+
+        Attributes:
+            port (int):
+                Port number of the gRPC service. Number must
+                be in the range 1 to 65535.
+            service (str):
+                Service is the name of the service to place
+                in the gRPC HealthCheckRequest (see
+                https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+                If this is not specified, the default behavior
+                is defined by gRPC.
+        """
+
+        port: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+        service: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
+    class TcpSocketAction(proto.Message):
+        r"""TcpSocketAction probes the health of a container by opening a
+        TCP socket connection.
+
+        Attributes:
+            port (int):
+                Number of the port to access on the
+                container. Number must be in the range 1 to
+                65535.
+            host (str):
+                Optional: Host name to connect to, defaults
+                to the model serving container's IP.
+        """
+
+        port: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+        host: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
+    class HttpHeader(proto.Message):
+        r"""HttpHeader describes a custom header to be used in HTTP
+        probes
+
+        Attributes:
+            name (str):
+                The header field name.
+                This will be canonicalized upon output, so
+                case-variant names will be understood as the
+                same header.
+            value (str):
+                The header field value
+        """
+
+        name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        value: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
     exec_: ExecAction = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="probe_type",
         message=ExecAction,
+    )
+    http_get: HttpGetAction = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="probe_type",
+        message=HttpGetAction,
+    )
+    grpc: GrpcAction = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="probe_type",
+        message=GrpcAction,
+    )
+    tcp_socket: TcpSocketAction = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="probe_type",
+        message=TcpSocketAction,
     )
     period_seconds: int = proto.Field(
         proto.INT32,
@@ -1250,6 +1461,44 @@ class Probe(proto.Message):
     )
     timeout_seconds: int = proto.Field(
         proto.INT32,
+        number=3,
+    )
+    failure_threshold: int = proto.Field(
+        proto.INT32,
+        number=7,
+    )
+    success_threshold: int = proto.Field(
+        proto.INT32,
+        number=8,
+    )
+    initial_delay_seconds: int = proto.Field(
+        proto.INT32,
+        number=9,
+    )
+
+
+class Checkpoint(proto.Message):
+    r"""Describes the machine learning model version checkpoint.
+
+    Attributes:
+        checkpoint_id (str):
+            The ID of the checkpoint.
+        epoch (int):
+            The epoch of the checkpoint.
+        step (int):
+            The step of the checkpoint.
+    """
+
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    epoch: int = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    step: int = proto.Field(
+        proto.INT64,
         number=3,
     )
 

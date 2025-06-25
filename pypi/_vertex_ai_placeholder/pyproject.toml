@@ -11,7 +11,7 @@ authors = [
 license = {text = "Apache 2.0"}
 description = "Please run pip install vertexai to use the Vertex SDK."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.urls]
 repository = "https://github.com/googleapis/python-aiplatform.git"

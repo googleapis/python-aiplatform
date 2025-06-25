@@ -29,6 +29,7 @@ from google.cloud import storage
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai._model_garden import _model_garden_models
+from vertexai._utils import warning_logs
 
 # pylint: disable=g-import-not-at-top
 try:
@@ -149,6 +150,7 @@ class Image:
             image_bytes: Image file bytes. Image can be in PNG or JPEG format.
             gcs_uri: Image URI in Google Cloud Storage.
         """
+        warning_logs.show_deprecation_warning()
         if bool(image_bytes) == bool(gcs_uri):
             raise ValueError("Either image_bytes or gcs_uri must be provided.")
 
@@ -487,6 +489,7 @@ class Video:
                 MP4, MPEG, MPG, WEBM, and WMV formats.
             gcs_uri: Image URI in Google Cloud Storage.
         """
+        warning_logs.show_deprecation_warning()
         if bool(video_bytes) == bool(gcs_uri):
             raise ValueError("Either video_bytes or gcs_uri must be provided.")
 
@@ -594,6 +597,7 @@ class VideoSegmentConfig:
             end_offset_sec: End time offset (in seconds) to generate embeddings for.
             interval_sec: Interval to divide video for generated embeddings.
         """
+        warning_logs.show_deprecation_warning()
         self.start_offset_sec = start_offset_sec
         self.end_offset_sec = end_offset_sec
         self.interval_sec = interval_sec
@@ -618,6 +622,7 @@ class VideoEmbedding:
             end_offset_sec: End time offset (in seconds) of generated embeddings.
             embedding: Generated embedding for interval.
         """
+        warning_logs.show_deprecation_warning()
         self.start_offset_sec = start_offset_sec
         self.end_offset_sec = end_offset_sec
         self.embedding = embedding
@@ -665,6 +670,7 @@ class ImageGenerationModel(
                 "inpainting-remove",
                 "outpainting",
                 "product-image",
+                "background-swap",
                 "default",
             ]
         ] = None,
@@ -723,6 +729,8 @@ class ImageGenerationModel(
                 * outpainting: extend the image based on the mask area. (Requires
                   mask)
                 * product-image: Changes the background for the predominant
+                  product or subject in the image
+                * background-swap: Changes the background for the predominant
                   product or subject in the image
                 * default: Default editing mode
             mask_mode: Solicits generation of the mask (v/s providing mask as an
@@ -884,7 +892,9 @@ class ImageGenerationModel(
                 if isinstance(reference_image.config, ControlImageConfig):
                     reference_image_instance["controlImageConfig"] = {
                         "controlType": reference_image.config.control_type,
-                        "enableControlImageComputation": reference_image.config.enable_control_image_computation,
+                        "enableControlImageComputation": (
+                            reference_image.config.enable_control_image_computation
+                        ),
                     }
                     shared_generation_parameters[
                         f"reference_image_control_config_{reference_image.reference_id}"
@@ -952,6 +962,7 @@ class ImageGenerationModel(
                     "inpainting-insert": "EDIT_MODE_INPAINT_INSERTION",
                     "inpainting-remove": "EDIT_MODE_INPAINT_REMOVAL",
                     "outpainting": "EDIT_MODE_OUTPAINT",
+                    "background-swap": "EDIT_MODE_BGSWAP",
                 }
                 capability_mode = (
                     edit_mode_to_enum_map[edit_mode]
@@ -961,7 +972,9 @@ class ImageGenerationModel(
                 parameters["editMode"] = capability_mode
                 shared_generation_parameters["edit_mode"] = capability_mode
             else:
-                edit_config["editMode"] = edit_mode
+                edit_config["editMode"] = (
+                    edit_mode if edit_mode != "background-swap" else "inpainting-insert"
+                )
                 shared_generation_parameters["edit_mode"] = edit_mode
 
         if mask is None and edit_mode is not None and edit_mode != "product-image":
@@ -1414,6 +1427,7 @@ class GeneratedImage(Image):
             generation_parameters: Image generation parameter values.
             gcs_uri: Image file Google Cloud Storage uri.
         """
+        warning_logs.show_deprecation_warning()
         super().__init__(image_bytes=image_bytes, gcs_uri=gcs_uri)
         self._generation_parameters = generation_parameters
 
@@ -1930,6 +1944,7 @@ class ImageSegmentationModel(_model_garden_models._ModelGardenModel):
         max_predictions: Optional[int] = None,
         confidence_threshold: Optional[float] = 0.1,
         mask_dilation: Optional[float] = None,
+        binary_color_threshold: Optional[float] = None,
     ) -> ImageSegmentationResponse:
         """Segments an image.
 
@@ -1959,6 +1974,10 @@ class ImageSegmentationModel(_model_garden_models._ModelGardenModel):
             mask_dilation: A value to dilate the masks by. The value must be in the
                 range of 0.0 (no dilation) and 1.0 (the whole image will be masked).
                 The default is 0.0.
+            binary_color_threshold: The threshold to convert the grayscale soft
+                mask to a binary color black and white mask. The value must be
+                in the range of 0 and 255, or -1 to disable the thresholding.
+                The default is 96.
 
         Returns:
             An `ImageSegmentationResponse` object with the generated masks,
@@ -1992,6 +2011,8 @@ class ImageSegmentationModel(_model_garden_models._ModelGardenModel):
             parameters["confidenceThreshold"] = confidence_threshold
         if mask_dilation:
             parameters["maskDilation"] = mask_dilation
+        if binary_color_threshold:
+            parameters["binaryColorThreshold"] = binary_color_threshold
 
         response = self._endpoint.predict(
             instances=[instance],

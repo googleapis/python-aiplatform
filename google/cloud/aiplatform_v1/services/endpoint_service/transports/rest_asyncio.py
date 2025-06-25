@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
-
+import google.protobuf
 
 from google.protobuf import json_format
 from google.api_core import operations_v1
@@ -60,6 +60,18 @@ from .rest_base import _BaseEndpointServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
+
+import logging
+
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
+
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -70,6 +82,9 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     grpc_version=None,
     rest_version=f"google-auth@{google.auth.__version__}",
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class AsyncEndpointServiceRestInterceptor:
@@ -168,8 +183,10 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_create_endpoint(
         self,
         request: endpoint_service.CreateEndpointRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[endpoint_service.CreateEndpointRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        endpoint_service.CreateEndpointRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for create_endpoint
 
         Override in a subclass to manipulate the request or metadata
@@ -182,17 +199,42 @@ class AsyncEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_endpoint
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_endpoint_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_endpoint` interceptor runs
+        before the `post_create_endpoint_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_endpoint_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_endpoint
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_create_endpoint_with_metadata`
+        interceptor in new development instead of the `post_create_endpoint` interceptor.
+        When both interceptors are used, this `post_create_endpoint_with_metadata` interceptor runs after the
+        `post_create_endpoint` interceptor. The (possibly modified) response returned by
+        `post_create_endpoint` will be passed to
+        `post_create_endpoint_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_endpoint(
         self,
         request: endpoint_service.DeleteEndpointRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[endpoint_service.DeleteEndpointRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        endpoint_service.DeleteEndpointRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_endpoint
 
         Override in a subclass to manipulate the request or metadata
@@ -205,17 +247,42 @@ class AsyncEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_endpoint
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_endpoint_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_endpoint` interceptor runs
+        before the `post_delete_endpoint_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_endpoint_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_endpoint
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_endpoint_with_metadata`
+        interceptor in new development instead of the `post_delete_endpoint` interceptor.
+        When both interceptors are used, this `post_delete_endpoint_with_metadata` interceptor runs after the
+        `post_delete_endpoint` interceptor. The (possibly modified) response returned by
+        `post_delete_endpoint` will be passed to
+        `post_delete_endpoint_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_deploy_model(
         self,
         request: endpoint_service.DeployModelRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[endpoint_service.DeployModelRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        endpoint_service.DeployModelRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for deploy_model
 
         Override in a subclass to manipulate the request or metadata
@@ -228,17 +295,42 @@ class AsyncEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for deploy_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_deploy_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_deploy_model` interceptor runs
+        before the `post_deploy_model_with_metadata` interceptor.
         """
         return response
+
+    async def post_deploy_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for deploy_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_deploy_model_with_metadata`
+        interceptor in new development instead of the `post_deploy_model` interceptor.
+        When both interceptors are used, this `post_deploy_model_with_metadata` interceptor runs after the
+        `post_deploy_model` interceptor. The (possibly modified) response returned by
+        `post_deploy_model` will be passed to
+        `post_deploy_model_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_endpoint(
         self,
         request: endpoint_service.GetEndpointRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[endpoint_service.GetEndpointRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        endpoint_service.GetEndpointRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_endpoint
 
         Override in a subclass to manipulate the request or metadata
@@ -249,17 +341,42 @@ class AsyncEndpointServiceRestInterceptor:
     async def post_get_endpoint(self, response: endpoint.Endpoint) -> endpoint.Endpoint:
         """Post-rpc interceptor for get_endpoint
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_endpoint_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_endpoint` interceptor runs
+        before the `post_get_endpoint_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_endpoint_with_metadata(
+        self,
+        response: endpoint.Endpoint,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[endpoint.Endpoint, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_endpoint
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_get_endpoint_with_metadata`
+        interceptor in new development instead of the `post_get_endpoint` interceptor.
+        When both interceptors are used, this `post_get_endpoint_with_metadata` interceptor runs after the
+        `post_get_endpoint` interceptor. The (possibly modified) response returned by
+        `post_get_endpoint` will be passed to
+        `post_get_endpoint_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_endpoints(
         self,
         request: endpoint_service.ListEndpointsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[endpoint_service.ListEndpointsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        endpoint_service.ListEndpointsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_endpoints
 
         Override in a subclass to manipulate the request or metadata
@@ -272,17 +389,45 @@ class AsyncEndpointServiceRestInterceptor:
     ) -> endpoint_service.ListEndpointsResponse:
         """Post-rpc interceptor for list_endpoints
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_endpoints_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_endpoints` interceptor runs
+        before the `post_list_endpoints_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_endpoints_with_metadata(
+        self,
+        response: endpoint_service.ListEndpointsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        endpoint_service.ListEndpointsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_endpoints
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_list_endpoints_with_metadata`
+        interceptor in new development instead of the `post_list_endpoints` interceptor.
+        When both interceptors are used, this `post_list_endpoints_with_metadata` interceptor runs after the
+        `post_list_endpoints` interceptor. The (possibly modified) response returned by
+        `post_list_endpoints` will be passed to
+        `post_list_endpoints_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_mutate_deployed_model(
         self,
         request: endpoint_service.MutateDeployedModelRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[endpoint_service.MutateDeployedModelRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        endpoint_service.MutateDeployedModelRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for mutate_deployed_model
 
         Override in a subclass to manipulate the request or metadata
@@ -295,17 +440,42 @@ class AsyncEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for mutate_deployed_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_mutate_deployed_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_mutate_deployed_model` interceptor runs
+        before the `post_mutate_deployed_model_with_metadata` interceptor.
         """
         return response
+
+    async def post_mutate_deployed_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for mutate_deployed_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_mutate_deployed_model_with_metadata`
+        interceptor in new development instead of the `post_mutate_deployed_model` interceptor.
+        When both interceptors are used, this `post_mutate_deployed_model_with_metadata` interceptor runs after the
+        `post_mutate_deployed_model` interceptor. The (possibly modified) response returned by
+        `post_mutate_deployed_model` will be passed to
+        `post_mutate_deployed_model_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_undeploy_model(
         self,
         request: endpoint_service.UndeployModelRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[endpoint_service.UndeployModelRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        endpoint_service.UndeployModelRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for undeploy_model
 
         Override in a subclass to manipulate the request or metadata
@@ -318,17 +488,42 @@ class AsyncEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for undeploy_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_undeploy_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_undeploy_model` interceptor runs
+        before the `post_undeploy_model_with_metadata` interceptor.
         """
         return response
+
+    async def post_undeploy_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for undeploy_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_undeploy_model_with_metadata`
+        interceptor in new development instead of the `post_undeploy_model` interceptor.
+        When both interceptors are used, this `post_undeploy_model_with_metadata` interceptor runs after the
+        `post_undeploy_model` interceptor. The (possibly modified) response returned by
+        `post_undeploy_model` will be passed to
+        `post_undeploy_model_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_endpoint(
         self,
         request: endpoint_service.UpdateEndpointRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[endpoint_service.UpdateEndpointRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        endpoint_service.UpdateEndpointRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for update_endpoint
 
         Override in a subclass to manipulate the request or metadata
@@ -341,18 +536,42 @@ class AsyncEndpointServiceRestInterceptor:
     ) -> gca_endpoint.Endpoint:
         """Post-rpc interceptor for update_endpoint
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_endpoint_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_endpoint` interceptor runs
+        before the `post_update_endpoint_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_endpoint_with_metadata(
+        self,
+        response: gca_endpoint.Endpoint,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_endpoint.Endpoint, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_endpoint
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_update_endpoint_with_metadata`
+        interceptor in new development instead of the `post_update_endpoint` interceptor.
+        When both interceptors are used, this `post_update_endpoint_with_metadata` interceptor runs after the
+        `post_update_endpoint` interceptor. The (possibly modified) response returned by
+        `post_update_endpoint` will be passed to
+        `post_update_endpoint_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_endpoint_long_running(
         self,
         request: endpoint_service.UpdateEndpointLongRunningRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        endpoint_service.UpdateEndpointLongRunningRequest, Sequence[Tuple[str, str]]
+        endpoint_service.UpdateEndpointLongRunningRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for update_endpoint_long_running
 
@@ -366,17 +585,42 @@ class AsyncEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_endpoint_long_running
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_endpoint_long_running_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_endpoint_long_running` interceptor runs
+        before the `post_update_endpoint_long_running_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_endpoint_long_running_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_endpoint_long_running
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_update_endpoint_long_running_with_metadata`
+        interceptor in new development instead of the `post_update_endpoint_long_running` interceptor.
+        When both interceptors are used, this `post_update_endpoint_long_running_with_metadata` interceptor runs after the
+        `post_update_endpoint_long_running` interceptor. The (possibly modified) response returned by
+        `post_update_endpoint_long_running` will be passed to
+        `post_update_endpoint_long_running_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -398,8 +642,10 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -421,8 +667,10 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -444,8 +692,10 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -467,8 +717,11 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -490,8 +743,10 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -511,8 +766,10 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -532,8 +789,10 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -555,8 +814,10 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -578,8 +839,10 @@ class AsyncEndpointServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -805,7 +1068,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create endpoint method over HTTP.
 
@@ -816,8 +1079,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -830,6 +1095,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseCreateEndpoint._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_create_endpoint(
                 request, metadata
             )
@@ -845,6 +1111,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseCreateEndpoint._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.CreateEndpoint",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "CreateEndpoint",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -876,6 +1169,32 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_endpoint(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_endpoint_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.create_endpoint",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "CreateEndpoint",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _DeleteEndpoint(
@@ -914,7 +1233,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete endpoint method over HTTP.
 
@@ -925,8 +1244,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -939,6 +1260,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseDeleteEndpoint._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_endpoint(
                 request, metadata
             )
@@ -950,6 +1272,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseDeleteEndpoint._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.DeleteEndpoint",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "DeleteEndpoint",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -980,6 +1329,32 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_endpoint(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_endpoint_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.delete_endpoint",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "DeleteEndpoint",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _DeployModel(
@@ -1018,7 +1393,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the deploy model method over HTTP.
 
@@ -1029,8 +1404,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1043,6 +1420,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseDeployModel._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_deploy_model(
                 request, metadata
             )
@@ -1058,6 +1436,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseDeployModel._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.DeployModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "DeployModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -1089,6 +1494,32 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_deploy_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_deploy_model_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.deploy_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "DeployModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _GetEndpoint(
@@ -1126,7 +1557,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> endpoint.Endpoint:
             r"""Call the get endpoint method over HTTP.
 
@@ -1137,8 +1568,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.endpoint.Endpoint:
@@ -1151,6 +1584,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseGetEndpoint._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_endpoint(
                 request, metadata
             )
@@ -1162,6 +1596,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseGetEndpoint._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.GetEndpoint",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "GetEndpoint",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -1192,6 +1653,32 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_endpoint(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_endpoint_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = endpoint.Endpoint.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.get_endpoint",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "GetEndpoint",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ListEndpoints(
@@ -1230,7 +1717,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> endpoint_service.ListEndpointsResponse:
             r"""Call the list endpoints method over HTTP.
 
@@ -1241,8 +1728,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.endpoint_service.ListEndpointsResponse:
@@ -1254,6 +1743,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseListEndpoints._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_endpoints(
                 request, metadata
             )
@@ -1265,6 +1755,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseListEndpoints._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.ListEndpoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "ListEndpoints",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -1295,6 +1812,34 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_endpoints(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_endpoints_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = endpoint_service.ListEndpointsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.list_endpoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "ListEndpoints",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _MutateDeployedModel(
@@ -1334,7 +1879,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the mutate deployed model method over HTTP.
 
@@ -1345,8 +1890,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1359,6 +1906,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseMutateDeployedModel._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_mutate_deployed_model(
                 request, metadata
             )
@@ -1374,6 +1922,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseMutateDeployedModel._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.MutateDeployedModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "MutateDeployedModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncEndpointServiceRestTransport._MutateDeployedModel._get_response(
@@ -1403,6 +1978,32 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_mutate_deployed_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_mutate_deployed_model_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.mutate_deployed_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "MutateDeployedModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _UndeployModel(
@@ -1442,7 +2043,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the undeploy model method over HTTP.
 
@@ -1453,8 +2054,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1467,6 +2070,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseUndeployModel._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_undeploy_model(
                 request, metadata
             )
@@ -1482,6 +2086,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseUndeployModel._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.UndeployModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "UndeployModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -1513,6 +2144,32 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_undeploy_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_undeploy_model_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.undeploy_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "UndeployModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _UpdateEndpoint(
@@ -1552,7 +2209,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_endpoint.Endpoint:
             r"""Call the update endpoint method over HTTP.
 
@@ -1563,8 +2220,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_endpoint.Endpoint:
@@ -1577,6 +2236,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseUpdateEndpoint._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_update_endpoint(
                 request, metadata
             )
@@ -1592,6 +2252,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseUpdateEndpoint._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.UpdateEndpoint",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "UpdateEndpoint",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -1623,6 +2310,32 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_endpoint(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_endpoint_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_endpoint.Endpoint.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.update_endpoint",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "UpdateEndpoint",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _UpdateEndpointLongRunning(
@@ -1662,7 +2375,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update endpoint long
             running method over HTTP.
@@ -1674,8 +2387,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -1688,6 +2403,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseUpdateEndpointLongRunning._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -1706,6 +2422,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseUpdateEndpointLongRunning._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.UpdateEndpointLongRunning",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "UpdateEndpointLongRunning",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncEndpointServiceRestTransport._UpdateEndpointLongRunning._get_response(
@@ -1735,6 +2478,35 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_endpoint_long_running(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_update_endpoint_long_running_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.update_endpoint_long_running",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "UpdateEndpointLongRunning",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     @property
@@ -1910,6 +2682,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -2046,11 +2822,19 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -2256,6 +3040,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -2281,6 +3069,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2396,11 +3188,19 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2626,6 +3426,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -2663,6 +3467,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2778,11 +3586,19 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -3004,6 +3820,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -3041,6 +3861,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -3156,6 +3980,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                     },
                     {
@@ -3173,6 +4001,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -3390,6 +4222,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -3419,6 +4255,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3530,11 +4370,19 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3713,7 +4561,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -3724,8 +4572,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -3734,6 +4584,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -3745,6 +4596,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3773,6 +4651,27 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3815,7 +4714,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -3826,8 +4725,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -3836,6 +4737,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -3847,6 +4749,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3875,6 +4804,27 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3917,7 +4867,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -3928,8 +4878,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -3938,6 +4890,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -3949,6 +4902,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3977,6 +4957,27 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4020,7 +5021,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -4031,8 +5032,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -4041,6 +5044,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -4056,6 +5060,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4085,6 +5116,27 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4127,7 +5179,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -4138,8 +5190,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -4148,6 +5202,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -4159,6 +5214,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncEndpointServiceRestTransport._TestIamPermissions._get_response(
@@ -4185,6 +5267,27 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4227,7 +5330,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -4238,13 +5341,16 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -4256,6 +5362,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4322,7 +5455,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -4333,13 +5466,16 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -4351,6 +5487,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4417,7 +5580,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -4428,8 +5591,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -4438,6 +5603,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -4449,6 +5615,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4477,6 +5670,27 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4519,7 +5733,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -4530,8 +5744,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -4540,6 +5756,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -4551,6 +5768,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4579,6 +5823,27 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4621,7 +5886,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -4632,8 +5897,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -4642,6 +5909,7 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             http_options = (
                 _BaseEndpointServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -4653,6 +5921,33 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             query_params = _BaseEndpointServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.EndpointServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4681,6 +5976,27 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.EndpointServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property

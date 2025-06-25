@@ -1,10 +1,18 @@
-# Vertex AI API
+[
+This is a templated file. Adding content to this file may result in it being
+reverted. Instead, if you want to place additional content, create an
+"overview_content.md" file in `docs/` directory. The Sphinx tool will
+pick up on the content and merge the content.
+]: #
 
-Overview of the APIs available for Vertex AI API.
+# AI Platform API
+
+Overview of the APIs available for AI Platform API.
 
 ## All entries
 
-Classes, methods and properties & attributes for Vertex AI API.
+Classes, methods and properties & attributes for
+AI Platform API.
 
 [classes](https://cloud.google.com/python/docs/reference/aiplatform/latest/summary_class.html)
 

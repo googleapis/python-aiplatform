@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
-
+import google.protobuf
 
 from google.protobuf import json_format
 from google.api_core import operations_v1
@@ -63,6 +63,18 @@ from .rest_base import _BaseModelMonitoringServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
+
+import logging
+
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
+
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -73,6 +85,9 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     grpc_version=None,
     rest_version=f"google-auth@{google.auth.__version__}",
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class AsyncModelMonitoringServiceRestInterceptor:
@@ -187,9 +202,10 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_create_model_monitor(
         self,
         request: model_monitoring_service.CreateModelMonitorRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_monitoring_service.CreateModelMonitorRequest, Sequence[Tuple[str, str]]
+        model_monitoring_service.CreateModelMonitorRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_model_monitor
 
@@ -203,19 +219,42 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_model_monitor
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_model_monitor_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_model_monitor` interceptor runs
+        before the `post_create_model_monitor_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_model_monitor_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_model_monitor
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_create_model_monitor_with_metadata`
+        interceptor in new development instead of the `post_create_model_monitor` interceptor.
+        When both interceptors are used, this `post_create_model_monitor_with_metadata` interceptor runs after the
+        `post_create_model_monitor` interceptor. The (possibly modified) response returned by
+        `post_create_model_monitor` will be passed to
+        `post_create_model_monitor_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_model_monitoring_job(
         self,
         request: model_monitoring_service.CreateModelMonitoringJobRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         model_monitoring_service.CreateModelMonitoringJobRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_model_monitoring_job
 
@@ -229,18 +268,45 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> gca_model_monitoring_job.ModelMonitoringJob:
         """Post-rpc interceptor for create_model_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_model_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_model_monitoring_job` interceptor runs
+        before the `post_create_model_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_model_monitoring_job_with_metadata(
+        self,
+        response: gca_model_monitoring_job.ModelMonitoringJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_model_monitoring_job.ModelMonitoringJob,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for create_model_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_create_model_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_create_model_monitoring_job` interceptor.
+        When both interceptors are used, this `post_create_model_monitoring_job_with_metadata` interceptor runs after the
+        `post_create_model_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_create_model_monitoring_job` will be passed to
+        `post_create_model_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_model_monitor(
         self,
         request: model_monitoring_service.DeleteModelMonitorRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_monitoring_service.DeleteModelMonitorRequest, Sequence[Tuple[str, str]]
+        model_monitoring_service.DeleteModelMonitorRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_model_monitor
 
@@ -254,19 +320,42 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_model_monitor
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_model_monitor_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_model_monitor` interceptor runs
+        before the `post_delete_model_monitor_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_model_monitor_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_model_monitor
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_model_monitor_with_metadata`
+        interceptor in new development instead of the `post_delete_model_monitor` interceptor.
+        When both interceptors are used, this `post_delete_model_monitor_with_metadata` interceptor runs after the
+        `post_delete_model_monitor` interceptor. The (possibly modified) response returned by
+        `post_delete_model_monitor` will be passed to
+        `post_delete_model_monitor_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_model_monitoring_job(
         self,
         request: model_monitoring_service.DeleteModelMonitoringJobRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         model_monitoring_service.DeleteModelMonitoringJobRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_model_monitoring_job
 
@@ -280,18 +369,42 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_model_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_model_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_model_monitoring_job` interceptor runs
+        before the `post_delete_model_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_model_monitoring_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_model_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_model_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_delete_model_monitoring_job` interceptor.
+        When both interceptors are used, this `post_delete_model_monitoring_job_with_metadata` interceptor runs after the
+        `post_delete_model_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_delete_model_monitoring_job` will be passed to
+        `post_delete_model_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_model_monitor(
         self,
         request: model_monitoring_service.GetModelMonitorRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_monitoring_service.GetModelMonitorRequest, Sequence[Tuple[str, str]]
+        model_monitoring_service.GetModelMonitorRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for get_model_monitor
 
@@ -305,18 +418,42 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> model_monitor.ModelMonitor:
         """Post-rpc interceptor for get_model_monitor
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_model_monitor_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_model_monitor` interceptor runs
+        before the `post_get_model_monitor_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_model_monitor_with_metadata(
+        self,
+        response: model_monitor.ModelMonitor,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[model_monitor.ModelMonitor, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_model_monitor
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_get_model_monitor_with_metadata`
+        interceptor in new development instead of the `post_get_model_monitor` interceptor.
+        When both interceptors are used, this `post_get_model_monitor_with_metadata` interceptor runs after the
+        `post_get_model_monitor` interceptor. The (possibly modified) response returned by
+        `post_get_model_monitor` will be passed to
+        `post_get_model_monitor_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_model_monitoring_job(
         self,
         request: model_monitoring_service.GetModelMonitoringJobRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_monitoring_service.GetModelMonitoringJobRequest, Sequence[Tuple[str, str]]
+        model_monitoring_service.GetModelMonitoringJobRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for get_model_monitoring_job
 
@@ -330,19 +467,44 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_job.ModelMonitoringJob:
         """Post-rpc interceptor for get_model_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_model_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_model_monitoring_job` interceptor runs
+        before the `post_get_model_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_model_monitoring_job_with_metadata(
+        self,
+        response: model_monitoring_job.ModelMonitoringJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_job.ModelMonitoringJob, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for get_model_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_get_model_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_get_model_monitoring_job` interceptor.
+        When both interceptors are used, this `post_get_model_monitoring_job_with_metadata` interceptor runs after the
+        `post_get_model_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_get_model_monitoring_job` will be passed to
+        `post_get_model_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_model_monitoring_jobs(
         self,
         request: model_monitoring_service.ListModelMonitoringJobsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         model_monitoring_service.ListModelMonitoringJobsRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_model_monitoring_jobs
 
@@ -356,18 +518,45 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_service.ListModelMonitoringJobsResponse:
         """Post-rpc interceptor for list_model_monitoring_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_model_monitoring_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_model_monitoring_jobs` interceptor runs
+        before the `post_list_model_monitoring_jobs_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_model_monitoring_jobs_with_metadata(
+        self,
+        response: model_monitoring_service.ListModelMonitoringJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_service.ListModelMonitoringJobsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_model_monitoring_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_list_model_monitoring_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_model_monitoring_jobs` interceptor.
+        When both interceptors are used, this `post_list_model_monitoring_jobs_with_metadata` interceptor runs after the
+        `post_list_model_monitoring_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_model_monitoring_jobs` will be passed to
+        `post_list_model_monitoring_jobs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_model_monitors(
         self,
         request: model_monitoring_service.ListModelMonitorsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_monitoring_service.ListModelMonitorsRequest, Sequence[Tuple[str, str]]
+        model_monitoring_service.ListModelMonitorsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_model_monitors
 
@@ -381,19 +570,45 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_service.ListModelMonitorsResponse:
         """Post-rpc interceptor for list_model_monitors
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_model_monitors_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_model_monitors` interceptor runs
+        before the `post_list_model_monitors_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_model_monitors_with_metadata(
+        self,
+        response: model_monitoring_service.ListModelMonitorsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_service.ListModelMonitorsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_model_monitors
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_list_model_monitors_with_metadata`
+        interceptor in new development instead of the `post_list_model_monitors` interceptor.
+        When both interceptors are used, this `post_list_model_monitors_with_metadata` interceptor runs after the
+        `post_list_model_monitors` interceptor. The (possibly modified) response returned by
+        `post_list_model_monitors` will be passed to
+        `post_list_model_monitors_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_search_model_monitoring_alerts(
         self,
         request: model_monitoring_service.SearchModelMonitoringAlertsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         model_monitoring_service.SearchModelMonitoringAlertsRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for search_model_monitoring_alerts
 
@@ -407,19 +622,45 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_service.SearchModelMonitoringAlertsResponse:
         """Post-rpc interceptor for search_model_monitoring_alerts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_search_model_monitoring_alerts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_search_model_monitoring_alerts` interceptor runs
+        before the `post_search_model_monitoring_alerts_with_metadata` interceptor.
         """
         return response
+
+    async def post_search_model_monitoring_alerts_with_metadata(
+        self,
+        response: model_monitoring_service.SearchModelMonitoringAlertsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_service.SearchModelMonitoringAlertsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for search_model_monitoring_alerts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_search_model_monitoring_alerts_with_metadata`
+        interceptor in new development instead of the `post_search_model_monitoring_alerts` interceptor.
+        When both interceptors are used, this `post_search_model_monitoring_alerts_with_metadata` interceptor runs after the
+        `post_search_model_monitoring_alerts` interceptor. The (possibly modified) response returned by
+        `post_search_model_monitoring_alerts` will be passed to
+        `post_search_model_monitoring_alerts_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_search_model_monitoring_stats(
         self,
         request: model_monitoring_service.SearchModelMonitoringStatsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         model_monitoring_service.SearchModelMonitoringStatsRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for search_model_monitoring_stats
 
@@ -433,18 +674,45 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_service.SearchModelMonitoringStatsResponse:
         """Post-rpc interceptor for search_model_monitoring_stats
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_search_model_monitoring_stats_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_search_model_monitoring_stats` interceptor runs
+        before the `post_search_model_monitoring_stats_with_metadata` interceptor.
         """
         return response
+
+    async def post_search_model_monitoring_stats_with_metadata(
+        self,
+        response: model_monitoring_service.SearchModelMonitoringStatsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_service.SearchModelMonitoringStatsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for search_model_monitoring_stats
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_search_model_monitoring_stats_with_metadata`
+        interceptor in new development instead of the `post_search_model_monitoring_stats` interceptor.
+        When both interceptors are used, this `post_search_model_monitoring_stats_with_metadata` interceptor runs after the
+        `post_search_model_monitoring_stats` interceptor. The (possibly modified) response returned by
+        `post_search_model_monitoring_stats` will be passed to
+        `post_search_model_monitoring_stats_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_model_monitor(
         self,
         request: model_monitoring_service.UpdateModelMonitorRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_monitoring_service.UpdateModelMonitorRequest, Sequence[Tuple[str, str]]
+        model_monitoring_service.UpdateModelMonitorRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for update_model_monitor
 
@@ -458,17 +726,42 @@ class AsyncModelMonitoringServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_model_monitor
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_model_monitor_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_model_monitor` interceptor runs
+        before the `post_update_model_monitor_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_model_monitor_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_model_monitor
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_update_model_monitor_with_metadata`
+        interceptor in new development instead of the `post_update_model_monitor` interceptor.
+        When both interceptors are used, this `post_update_model_monitor_with_metadata` interceptor runs after the
+        `post_update_model_monitor` interceptor. The (possibly modified) response returned by
+        `post_update_model_monitor` will be passed to
+        `post_update_model_monitor_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -490,8 +783,10 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -513,8 +808,10 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -536,8 +833,10 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -559,8 +858,11 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -582,8 +884,10 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -603,8 +907,10 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -624,8 +930,10 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -647,8 +955,10 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -670,8 +980,10 @@ class AsyncModelMonitoringServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -911,7 +1223,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create model monitor method over HTTP.
 
@@ -922,8 +1234,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -936,6 +1250,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitor._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_create_model_monitor(
                 request, metadata
             )
@@ -951,6 +1266,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitor._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.CreateModelMonitor",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "CreateModelMonitor",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._CreateModelMonitor._get_response(
@@ -980,6 +1322,32 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_model_monitor(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_model_monitor_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.create_model_monitor",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "CreateModelMonitor",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _CreateModelMonitoringJob(
@@ -1021,7 +1389,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_model_monitoring_job.ModelMonitoringJob:
             r"""Call the create model monitoring
             job method over HTTP.
@@ -1033,8 +1401,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.gca_model_monitoring_job.ModelMonitoringJob:
@@ -1047,6 +1417,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitoringJob._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_create_model_monitoring_job(
                 request, metadata
             )
@@ -1062,6 +1433,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseCreateModelMonitoringJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.CreateModelMonitoringJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "CreateModelMonitoringJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._CreateModelMonitoringJob._get_response(
@@ -1091,6 +1489,37 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_model_monitoring_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_create_model_monitoring_job_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        gca_model_monitoring_job.ModelMonitoringJob.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.create_model_monitoring_job",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "CreateModelMonitoringJob",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _DeleteModelMonitor(
@@ -1129,7 +1558,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete model monitor method over HTTP.
 
@@ -1140,8 +1569,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1154,6 +1585,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitor._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_model_monitor(
                 request, metadata
             )
@@ -1165,6 +1597,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitor._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.DeleteModelMonitor",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "DeleteModelMonitor",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._DeleteModelMonitor._get_response(
@@ -1193,6 +1652,32 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_model_monitor(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_model_monitor_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.delete_model_monitor",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "DeleteModelMonitor",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _DeleteModelMonitoringJob(
@@ -1233,7 +1718,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete model monitoring
             job method over HTTP.
@@ -1245,8 +1730,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -1259,6 +1746,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitoringJob._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_model_monitoring_job(
                 request, metadata
             )
@@ -1270,6 +1758,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseDeleteModelMonitoringJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.DeleteModelMonitoringJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "DeleteModelMonitoringJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._DeleteModelMonitoringJob._get_response(
@@ -1298,6 +1813,35 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_model_monitoring_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_delete_model_monitoring_job_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.delete_model_monitoring_job",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "DeleteModelMonitoringJob",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _GetModelMonitor(
@@ -1336,7 +1880,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_monitor.ModelMonitor:
             r"""Call the get model monitor method over HTTP.
 
@@ -1347,8 +1891,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.model_monitor.ModelMonitor:
@@ -1365,6 +1911,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitor._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_model_monitor(
                 request, metadata
             )
@@ -1376,6 +1923,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitor._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.GetModelMonitor",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetModelMonitor",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._GetModelMonitor._get_response(
@@ -1404,6 +1978,32 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_model_monitor(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_model_monitor_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model_monitor.ModelMonitor.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.get_model_monitor",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetModelMonitor",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _GetModelMonitoringJob(
@@ -1444,7 +2044,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_monitoring_job.ModelMonitoringJob:
             r"""Call the get model monitoring job method over HTTP.
 
@@ -1455,8 +2055,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.model_monitoring_job.ModelMonitoringJob:
@@ -1469,6 +2071,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitoringJob._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_model_monitoring_job(
                 request, metadata
             )
@@ -1480,6 +2083,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseGetModelMonitoringJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.GetModelMonitoringJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetModelMonitoringJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._GetModelMonitoringJob._get_response(
@@ -1508,6 +2138,37 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_model_monitoring_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_get_model_monitoring_job_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model_monitoring_job.ModelMonitoringJob.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.get_model_monitoring_job",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetModelMonitoringJob",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ListModelMonitoringJobs(
@@ -1548,7 +2209,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_monitoring_service.ListModelMonitoringJobsResponse:
             r"""Call the list model monitoring
             jobs method over HTTP.
@@ -1560,8 +2221,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.model_monitoring_service.ListModelMonitoringJobsResponse:
@@ -1573,6 +2236,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseListModelMonitoringJobs._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_model_monitoring_jobs(
                 request, metadata
             )
@@ -1584,6 +2248,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseListModelMonitoringJobs._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.ListModelMonitoringJobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "ListModelMonitoringJobs",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._ListModelMonitoringJobs._get_response(
@@ -1612,6 +2303,37 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_model_monitoring_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_list_model_monitoring_jobs_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model_monitoring_service.ListModelMonitoringJobsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.list_model_monitoring_jobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "ListModelMonitoringJobs",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ListModelMonitors(
@@ -1650,7 +2372,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_monitoring_service.ListModelMonitorsResponse:
             r"""Call the list model monitors method over HTTP.
 
@@ -1661,8 +2383,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.model_monitoring_service.ListModelMonitorsResponse:
@@ -1674,6 +2398,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseListModelMonitors._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_model_monitors(
                 request, metadata
             )
@@ -1685,6 +2410,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseListModelMonitors._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.ListModelMonitors",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "ListModelMonitors",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._ListModelMonitors._get_response(
@@ -1713,6 +2465,36 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_model_monitors(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_model_monitors_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_monitoring_service.ListModelMonitorsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.list_model_monitors",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "ListModelMonitors",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _SearchModelMonitoringAlerts(
@@ -1754,7 +2536,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_monitoring_service.SearchModelMonitoringAlertsResponse:
             r"""Call the search model monitoring
             alerts method over HTTP.
@@ -1766,8 +2548,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.model_monitoring_service.SearchModelMonitoringAlertsResponse:
@@ -1779,6 +2563,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringAlerts._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -1797,6 +2582,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringAlerts._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.SearchModelMonitoringAlerts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "SearchModelMonitoringAlerts",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._SearchModelMonitoringAlerts._get_response(
@@ -1828,6 +2640,37 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_search_model_monitoring_alerts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_search_model_monitoring_alerts_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model_monitoring_service.SearchModelMonitoringAlertsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.search_model_monitoring_alerts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "SearchModelMonitoringAlerts",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _SearchModelMonitoringStats(
@@ -1869,7 +2712,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_monitoring_service.SearchModelMonitoringStatsResponse:
             r"""Call the search model monitoring
             stats method over HTTP.
@@ -1881,8 +2724,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.model_monitoring_service.SearchModelMonitoringStatsResponse:
@@ -1894,6 +2739,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringStats._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -1912,6 +2758,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringStats._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.SearchModelMonitoringStats",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "SearchModelMonitoringStats",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._SearchModelMonitoringStats._get_response(
@@ -1943,6 +2816,37 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_search_model_monitoring_stats(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_search_model_monitoring_stats_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model_monitoring_service.SearchModelMonitoringStatsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.search_model_monitoring_stats",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "SearchModelMonitoringStats",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _UpdateModelMonitor(
@@ -1982,7 +2886,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update model monitor method over HTTP.
 
@@ -1993,8 +2897,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2007,6 +2913,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseUpdateModelMonitor._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_update_model_monitor(
                 request, metadata
             )
@@ -2022,6 +2929,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseUpdateModelMonitor._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.UpdateModelMonitor",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "UpdateModelMonitor",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._UpdateModelMonitor._get_response(
@@ -2051,6 +2985,32 @@ class AsyncModelMonitoringServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_model_monitor(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_model_monitor_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.update_model_monitor",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "UpdateModelMonitor",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     @property
@@ -2226,6 +3186,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -2386,6 +3350,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
                     },
                     {
@@ -2411,6 +3379,14 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -2600,6 +3576,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -2625,6 +3605,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2776,6 +3760,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
@@ -2785,6 +3773,14 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2841,6 +3837,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -3010,6 +4010,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -3047,6 +4051,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -3194,6 +4202,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
@@ -3203,6 +4215,14 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -3263,6 +4283,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -3424,6 +4448,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -3461,6 +4489,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -3608,6 +4640,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*}/operations",
                     },
                     {
@@ -3617,6 +4653,14 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
                     },
                     {
                         "method": "get",
@@ -3677,6 +4721,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -3846,6 +4894,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -3875,6 +4927,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -4022,6 +5078,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                     },
                     {
@@ -4031,6 +5091,14 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -4087,6 +5155,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                 ],
             }
@@ -4241,7 +5313,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -4252,8 +5324,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -4262,6 +5336,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -4273,6 +5348,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._GetLocation._get_response(
@@ -4299,6 +5401,27 @@ class AsyncModelMonitoringServiceRestTransport(
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4341,7 +5464,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -4352,8 +5475,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -4362,6 +5487,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -4373,6 +5499,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._ListLocations._get_response(
@@ -4399,6 +5552,27 @@ class AsyncModelMonitoringServiceRestTransport(
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4442,7 +5616,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -4453,8 +5627,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -4463,6 +5639,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -4478,6 +5655,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._GetIamPolicy._get_response(
@@ -4505,6 +5709,27 @@ class AsyncModelMonitoringServiceRestTransport(
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4548,7 +5773,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -4559,8 +5784,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -4569,6 +5796,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -4584,6 +5812,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._SetIamPolicy._get_response(
@@ -4611,6 +5866,27 @@ class AsyncModelMonitoringServiceRestTransport(
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4654,7 +5930,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -4665,8 +5941,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -4675,6 +5953,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -4690,6 +5969,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._TestIamPermissions._get_response(
@@ -4717,6 +6023,27 @@ class AsyncModelMonitoringServiceRestTransport(
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4759,7 +6086,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -4770,13 +6097,16 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -4788,6 +6118,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._CancelOperation._get_response(
@@ -4852,7 +6209,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -4863,13 +6220,16 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -4881,6 +6241,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._DeleteOperation._get_response(
@@ -4945,7 +6332,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -4956,8 +6343,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -4966,6 +6355,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -4977,6 +6367,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._GetOperation._get_response(
@@ -5003,6 +6420,27 @@ class AsyncModelMonitoringServiceRestTransport(
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5045,7 +6483,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -5056,8 +6494,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -5066,6 +6506,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -5077,6 +6518,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._ListOperations._get_response(
@@ -5103,6 +6571,27 @@ class AsyncModelMonitoringServiceRestTransport(
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5145,7 +6634,7 @@ class AsyncModelMonitoringServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -5156,8 +6645,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -5166,6 +6657,7 @@ class AsyncModelMonitoringServiceRestTransport(
             http_options = (
                 _BaseModelMonitoringServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -5177,6 +6669,33 @@ class AsyncModelMonitoringServiceRestTransport(
             query_params = _BaseModelMonitoringServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncModelMonitoringServiceRestTransport._WaitOperation._get_response(
@@ -5203,6 +6722,27 @@ class AsyncModelMonitoringServiceRestTransport(
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property

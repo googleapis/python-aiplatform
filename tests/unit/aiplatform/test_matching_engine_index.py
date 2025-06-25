@@ -32,6 +32,10 @@ from google.cloud.aiplatform.compat.services import (
     index_service_client,
 )
 
+from google.cloud.aiplatform.matching_engine import (
+    matching_engine_index_config,
+)
+
 from google.cloud.aiplatform.compat.types import (
     index as gca_index,
     encryption_spec as gca_encryption_spec,
@@ -52,8 +56,12 @@ _TEST_INDEX_DISPLAY_NAME = (
     test_constants.MatchingEngineConstants._TEST_INDEX_DISPLAY_NAME
 )
 _TEST_CONTENTS_DELTA_URI = "gs://contents"
-_TEST_INDEX_DISTANCE_MEASURE_TYPE = "SQUARED_L2_DISTANCE"
-_TEST_INDEX_FEATURE_NORM_TYPE = "UNIT_L2_NORM"
+_TEST_INDEX_DISTANCE_MEASURE_TYPE = (
+    matching_engine_index_config.DistanceMeasureType.SQUARED_L2_DISTANCE
+)
+_TEST_INDEX_FEATURE_NORM_TYPE = (
+    matching_engine_index_config.FeatureNormType.UNIT_L2_NORM
+)
 
 _TEST_CONTENTS_DELTA_URI_UPDATE = "gs://contents_update"
 _TEST_IS_COMPLETE_OVERWRITE_UPDATE = True
@@ -510,8 +518,8 @@ class TestMatchingEngineIndex:
             contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
             dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
             approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
-            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE,
-            feature_norm_type=_TEST_INDEX_FEATURE_NORM_TYPE,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE.value,
+            feature_norm_type=_TEST_INDEX_FEATURE_NORM_TYPE.value,
             leaf_node_embedding_count=_TEST_LEAF_NODE_EMBEDDING_COUNT,
             leaf_nodes_to_search_percent=_TEST_LEAF_NODES_TO_SEARCH_PERCENT,
             description=_TEST_INDEX_DESCRIPTION,

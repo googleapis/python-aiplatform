@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,6 +43,9 @@ __protobuf__ = proto.module(
         "ListModelsResponse",
         "ListModelVersionsRequest",
         "ListModelVersionsResponse",
+        "ListModelVersionCheckpointsRequest",
+        "ModelVersionCheckpoint",
+        "ListModelVersionCheckpointsResponse",
         "UpdateModelRequest",
         "UpdateExplanationDatasetRequest",
         "UpdateExplanationDatasetOperationMetadata",
@@ -384,6 +387,102 @@ class ListModelVersionsResponse(proto.Message):
         proto.MESSAGE,
         number=1,
         message=gca_model.Model,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class ListModelVersionCheckpointsRequest(proto.Message):
+    r"""Request message for
+    [ModelService.ListModelVersionCheckpoints][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersionCheckpoints].
+
+    Attributes:
+        name (str):
+            Required. The name of the model version to list checkpoints
+            for.
+            ``projects/{project}/locations/{location}/models/{model}@{version}``
+            Example:
+            ``projects/{project}/locations/{location}/models/{model}@2``
+            or
+            ``projects/{project}/locations/{location}/models/{model}@golden``
+            If no version ID or alias is specified, the latest version
+            will be used.
+        page_size (int):
+            Optional. The standard list page size.
+        page_token (str):
+            Optional. The standard list page token. Typically obtained
+            via
+            [next_page_token][google.cloud.aiplatform.v1beta1.ListModelVersionCheckpointsResponse.next_page_token]
+            of the previous
+            [ListModelVersionCheckpoints][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersionCheckpoints]
+            call.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class ModelVersionCheckpoint(proto.Message):
+    r"""A proto representation of a Spanner-stored
+    ModelVersionCheckpoint. The meaning of the fields is equivalent
+    to their in-Spanner counterparts.
+
+    Attributes:
+        checkpoint_id (str):
+            The ID of the checkpoint.
+        epoch (int):
+            The epoch of the checkpoint.
+        step (int):
+            The step of the checkpoint.
+    """
+
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    epoch: int = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    step: int = proto.Field(
+        proto.INT64,
+        number=3,
+    )
+
+
+class ListModelVersionCheckpointsResponse(proto.Message):
+    r"""Response message for
+    [ModelService.ListModelVersionCheckpoints][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersionCheckpoints]
+
+    Attributes:
+        checkpoints (MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelVersionCheckpoint]):
+            List of Model Version checkpoints.
+        next_page_token (str):
+            A token to retrieve the next page of results. Pass to
+            [ListModelVersionCheckpointsRequest.page_token][google.cloud.aiplatform.v1beta1.ListModelVersionCheckpointsRequest.page_token]
+            to obtain that page.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    checkpoints: MutableSequence["ModelVersionCheckpoint"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="ModelVersionCheckpoint",
     )
     next_page_token: str = proto.Field(
         proto.STRING,

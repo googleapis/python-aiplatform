@@ -285,7 +285,7 @@ class _ExperimentTracker:
                 f"{self.experiment.resource_name}-",
                 "",
             )
-            self._experiment_run = experiment_run_resource.ExperimentRun(
+            self._experiment_run = experiment_run_resource.ExperimentRun.get(
                 env_experiment_run,
                 experiment=self.experiment,
             )
@@ -303,6 +303,7 @@ class _ExperimentTracker:
         ] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
+        display_button: bool = True,
     ):
         """Set the experiment. Will retrieve the Experiment if it exists or create one with the provided name.
 
@@ -326,6 +327,8 @@ class _ExperimentTracker:
             location (str):
                 Optional. Location where this experiment will be retrieved from or created. Overrides location set in
                 aiplatform.init.
+            display_button (bool):
+                Optional. If set to `True`, displays a button to the experiment in the IPython notebook.
         """
         self.reset()
 
@@ -350,7 +353,8 @@ class _ExperimentTracker:
         if not current_backing_tb and backing_tb:
             experiment.assign_backing_tensorboard(tensorboard=backing_tb)
 
-        _ipython_utils.display_experiment_button(experiment)
+        if display_button:
+            _ipython_utils.display_experiment_button(experiment)
 
         self._experiment = experiment
 

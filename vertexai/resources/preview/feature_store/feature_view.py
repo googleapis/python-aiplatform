@@ -231,6 +231,8 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
         cls,
         feature_online_store_id: str,
         filter: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List["FeatureView"]:
         """List all feature view under feature_online_store_id.
@@ -246,6 +248,12 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
                 Parentfeature online store ID.
             filter:
                 Filter to apply on the returned feature online store.
+            project:
+                Project to use to get a list of feature views. If unset, the
+                project set in aiplatform.init will be used.
+            location:
+                Location to use to get a list feature views. If not set,
+                location set in aiplatform.init will be used.
             credentials:
                 Custom credentials to use to get a list of feature views.
                 Overrides credentials set in aiplatform.init.
@@ -255,7 +263,12 @@ class FeatureView(base.VertexAiResourceNounWithFutureManager):
         """
         from .feature_online_store import FeatureOnlineStore
 
-        fos = FeatureOnlineStore(name=feature_online_store_id)
+        fos = FeatureOnlineStore(
+            name=feature_online_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
         return cls._list(
             filter=filter, credentials=credentials, parent=fos.resource_name
         )

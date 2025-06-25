@@ -115,6 +115,12 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         input_dataset: Union[str, List[str]],
         *,
         output_uri_prefix: Optional[str] = None,
+        job_display_name: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        starting_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
     ) -> "BatchPredictionJob":
         """Submits a batch prediction job for a GenAI model.
 
@@ -127,16 +133,30 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
                 Supported formats for tuned model name: "789" and
                 "projects/123/locations/456/models/789"
             input_dataset (Union[str,List[str]]):
-                GCS URI(-s) or Bigquery URI to your input data to run batch
+                GCS URI(-s) or BigQuery URI to your input data to run batch
                 prediction on. Example: "gs://path/to/input/data.jsonl" or
                 "bq://projectId.bqDatasetId.bqTableId"
             output_uri_prefix (str):
-                GCS or Bigquery URI prefix for the output predictions. Example:
+                GCS or BigQuery URI prefix for the output predictions. Example:
                 "gs://path/to/output/data" or "bq://projectId.bqDatasetId"
                 If not specified, f"{STAGING_BUCKET}/gen-ai-batch-prediction" will
                 be used for GCS source and
                 f"bq://projectId.gen_ai_batch_prediction.predictions_{TIMESTAMP}"
-                will be used for Bigquery source.
+                will be used for BigQuery source.
+            job_display_name (str):
+                The user-defined name of the BatchPredictionJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            machine_type (str):
+                The type of machine for running batch prediction job.
+            accelerator_type (str):
+                The type of accelerator for running batch prediction job.
+            accelerator_count (int):
+                The number of accelerators for running batch prediction job.
+            starting_replica_count (int):
+                The starting number of replica for running batch prediction job.
+            max_replica_count (int):
+                The maximum number of replica for running batch prediction job.
 
         Returns:
             Instantiated BatchPredictionJob.
@@ -166,7 +186,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             gcs_source = input_dataset
         elif first_input_uri.startswith("bq://"):
             if not isinstance(input_dataset, str):
-                raise ValueError("Multiple Bigquery input datasets are not supported.")
+                raise ValueError("Multiple BigQuery input datasets are not supported.")
             bigquery_source = input_dataset
         else:
             raise ValueError(
@@ -209,10 +229,16 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         try:
             aiplatform_job = jobs.BatchPredictionJob.submit(
                 model_name=model_name,
+                job_display_name=job_display_name,
                 gcs_source=gcs_source,
                 bigquery_source=bigquery_source,
                 gcs_destination_prefix=gcs_destination_prefix,
                 bigquery_destination_prefix=bigquery_destination_prefix,
+                machine_type=machine_type,
+                accelerator_type=accelerator_type,
+                accelerator_count=accelerator_count,
+                starting_replica_count=starting_replica_count,
+                max_replica_count=max_replica_count,
             )
             job = cls._empty_constructor()
             job._gca_resource = aiplatform_job._gca_resource
@@ -275,7 +301,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         if "/" not in model_name:
             # model name (e.g., gemini-1.0-pro)
             if model_name.startswith("gemini"):
-                model_name = "publishers/google/models/" + model_name
+                return "publishers/google/models/" + model_name
             else:
                 raise ValueError(
                     "Abbreviated model names are only supported for Gemini models. "
@@ -283,18 +309,20 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
                 )
         elif model_name.startswith("models/"):
             # publisher model name (e.g., models/gemini-1.0-pro)
-            model_name = "publishers/google/" + model_name
+            return "publishers/google/" + model_name
         elif (
-            # publisher model full name
-            not model_name.startswith("publishers/google/models/")
-            and not model_name.startswith("publishers/meta/models/")
-            and not model_name.startswith("publishers/anthropic/models/")
-            # tuned model full resource name
-            and not re.search(_GEMINI_TUNED_MODEL_PATTERN, model_name)
+            re.match(
+                r"^publishers/(?P<publisher>[^/]+)/models/(?P<model>[^@]+)@(?P<version>[^@]+)$",
+                model_name,
+            )
+            or model_name.startswith("publishers/google/models/")
+            or model_name.startswith("publishers/meta/models/")
+            or model_name.startswith("publishers/anthropic/models/")
+            or re.search(_GEMINI_TUNED_MODEL_PATTERN, model_name)
         ):
+            return model_name
+        else:
             raise ValueError(f"Invalid format for model name: {model_name}.")
-
-        return model_name
 
     @classmethod
     def _is_genai_model(cls, model_name: str) -> bool:
@@ -320,7 +348,36 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             # Model is a claude model.
             return True
 
+        if re.match(
+            r"^publishers/(?P<publisher>[^/]+)/models/(?P<model>[^@]+)@(?P<version>[^@]+)$",
+            model_name,
+        ):
+            # Model is a self-hosted model.
+            return True
+
         return False
+
+    @classmethod
+    def num_pending_jobs(cls) -> int:
+        """Returns the number of pending batch prediction jobs.
+
+        The pending jobs are those defined in _JOB_PENDING_STATES from
+        google/cloud/aiplatform/jobs.py
+        e.g. JOB_STATE_QUEUED, JOB_STATE_PENDING, JOB_STATE_RUNNING,
+        JOB_STATE_CANCELLING, JOB_STATE_UPDATING.
+        It will be used to manage the number of concurrent batch that is limited
+        according to
+        https://cloud.google.com/vertex-ai/generative-ai/docs/quotas#concurrent-batch-requests
+        """
+        return len(
+            cls._list(
+                cls_filter=lambda gca_resource: cls._is_genai_model(gca_resource.model),
+                filter=" OR ".join(
+                    f'state="{pending_state.name}"'
+                    for pending_state in jobs._JOB_PENDING_STATES
+                ),
+            )
+        )
 
     @classmethod
     def _complete_bq_uri(cls, uri: Optional[str] = None):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
-
+import google.protobuf
 
 from google.protobuf import json_format
 from google.api_core import operations_v1
@@ -59,6 +59,18 @@ from .rest_base import _BaseIndexServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
+
+import logging
+
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
+
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -69,6 +81,9 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     grpc_version=None,
     rest_version=f"google-auth@{google.auth.__version__}",
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class AsyncIndexServiceRestInterceptor:
@@ -107,6 +122,14 @@ class AsyncIndexServiceRestInterceptor:
                 return request, metadata
 
             async def post_get_index(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            async def pre_import_index(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_import_index(self, response):
                 logging.log(f"Received response: {response}")
                 return response
 
@@ -151,8 +174,10 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_create_index(
         self,
         request: index_service.CreateIndexRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[index_service.CreateIndexRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.CreateIndexRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for create_index
 
         Override in a subclass to manipulate the request or metadata
@@ -165,17 +190,42 @@ class AsyncIndexServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_index
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_index_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_index` interceptor runs
+        before the `post_create_index_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_index_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_index
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexService server but before it is returned to user code.
+
+        We recommend only using this `post_create_index_with_metadata`
+        interceptor in new development instead of the `post_create_index` interceptor.
+        When both interceptors are used, this `post_create_index_with_metadata` interceptor runs after the
+        `post_create_index` interceptor. The (possibly modified) response returned by
+        `post_create_index` will be passed to
+        `post_create_index_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_index(
         self,
         request: index_service.DeleteIndexRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[index_service.DeleteIndexRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.DeleteIndexRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_index
 
         Override in a subclass to manipulate the request or metadata
@@ -188,17 +238,40 @@ class AsyncIndexServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_index
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_index_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_index` interceptor runs
+        before the `post_delete_index_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_index_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_index
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_index_with_metadata`
+        interceptor in new development instead of the `post_delete_index` interceptor.
+        When both interceptors are used, this `post_delete_index_with_metadata` interceptor runs after the
+        `post_delete_index` interceptor. The (possibly modified) response returned by
+        `post_delete_index` will be passed to
+        `post_delete_index_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_index(
         self,
         request: index_service.GetIndexRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[index_service.GetIndexRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[index_service.GetIndexRequest, Sequence[Tuple[str, Union[str, bytes]]]]:
         """Pre-rpc interceptor for get_index
 
         Override in a subclass to manipulate the request or metadata
@@ -209,17 +282,88 @@ class AsyncIndexServiceRestInterceptor:
     async def post_get_index(self, response: index.Index) -> index.Index:
         """Post-rpc interceptor for get_index
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_index_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_index` interceptor runs
+        before the `post_get_index_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_index_with_metadata(
+        self, response: index.Index, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[index.Index, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_index
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexService server but before it is returned to user code.
+
+        We recommend only using this `post_get_index_with_metadata`
+        interceptor in new development instead of the `post_get_index` interceptor.
+        When both interceptors are used, this `post_get_index_with_metadata` interceptor runs after the
+        `post_get_index` interceptor. The (possibly modified) response returned by
+        `post_get_index` will be passed to
+        `post_get_index_with_metadata`.
+        """
+        return response, metadata
+
+    async def pre_import_index(
+        self,
+        request: index_service.ImportIndexRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.ImportIndexRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Pre-rpc interceptor for import_index
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the IndexService server.
+        """
+        return request, metadata
+
+    async def post_import_index(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for import_index
+
+        DEPRECATED. Please use the `post_import_index_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the IndexService server but before
+        it is returned to user code. This `post_import_index` interceptor runs
+        before the `post_import_index_with_metadata` interceptor.
+        """
+        return response
+
+    async def post_import_index_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for import_index
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexService server but before it is returned to user code.
+
+        We recommend only using this `post_import_index_with_metadata`
+        interceptor in new development instead of the `post_import_index` interceptor.
+        When both interceptors are used, this `post_import_index_with_metadata` interceptor runs after the
+        `post_import_index` interceptor. The (possibly modified) response returned by
+        `post_import_index` will be passed to
+        `post_import_index_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_indexes(
         self,
         request: index_service.ListIndexesRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[index_service.ListIndexesRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.ListIndexesRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_indexes
 
         Override in a subclass to manipulate the request or metadata
@@ -232,17 +376,44 @@ class AsyncIndexServiceRestInterceptor:
     ) -> index_service.ListIndexesResponse:
         """Post-rpc interceptor for list_indexes
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_indexes_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_indexes` interceptor runs
+        before the `post_list_indexes_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_indexes_with_metadata(
+        self,
+        response: index_service.ListIndexesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.ListIndexesResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_indexes
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexService server but before it is returned to user code.
+
+        We recommend only using this `post_list_indexes_with_metadata`
+        interceptor in new development instead of the `post_list_indexes` interceptor.
+        When both interceptors are used, this `post_list_indexes_with_metadata` interceptor runs after the
+        `post_list_indexes` interceptor. The (possibly modified) response returned by
+        `post_list_indexes` will be passed to
+        `post_list_indexes_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_remove_datapoints(
         self,
         request: index_service.RemoveDatapointsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[index_service.RemoveDatapointsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.RemoveDatapointsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for remove_datapoints
 
         Override in a subclass to manipulate the request or metadata
@@ -255,17 +426,44 @@ class AsyncIndexServiceRestInterceptor:
     ) -> index_service.RemoveDatapointsResponse:
         """Post-rpc interceptor for remove_datapoints
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_remove_datapoints_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_remove_datapoints` interceptor runs
+        before the `post_remove_datapoints_with_metadata` interceptor.
         """
         return response
+
+    async def post_remove_datapoints_with_metadata(
+        self,
+        response: index_service.RemoveDatapointsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.RemoveDatapointsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for remove_datapoints
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexService server but before it is returned to user code.
+
+        We recommend only using this `post_remove_datapoints_with_metadata`
+        interceptor in new development instead of the `post_remove_datapoints` interceptor.
+        When both interceptors are used, this `post_remove_datapoints_with_metadata` interceptor runs after the
+        `post_remove_datapoints` interceptor. The (possibly modified) response returned by
+        `post_remove_datapoints` will be passed to
+        `post_remove_datapoints_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_index(
         self,
         request: index_service.UpdateIndexRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[index_service.UpdateIndexRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.UpdateIndexRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for update_index
 
         Override in a subclass to manipulate the request or metadata
@@ -278,17 +476,42 @@ class AsyncIndexServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_index
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_index_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_index` interceptor runs
+        before the `post_update_index_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_index_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_index
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexService server but before it is returned to user code.
+
+        We recommend only using this `post_update_index_with_metadata`
+        interceptor in new development instead of the `post_update_index` interceptor.
+        When both interceptors are used, this `post_update_index_with_metadata` interceptor runs after the
+        `post_update_index` interceptor. The (possibly modified) response returned by
+        `post_update_index` will be passed to
+        `post_update_index_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_upsert_datapoints(
         self,
         request: index_service.UpsertDatapointsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[index_service.UpsertDatapointsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.UpsertDatapointsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for upsert_datapoints
 
         Override in a subclass to manipulate the request or metadata
@@ -301,17 +524,44 @@ class AsyncIndexServiceRestInterceptor:
     ) -> index_service.UpsertDatapointsResponse:
         """Post-rpc interceptor for upsert_datapoints
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_upsert_datapoints_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_upsert_datapoints` interceptor runs
+        before the `post_upsert_datapoints_with_metadata` interceptor.
         """
         return response
+
+    async def post_upsert_datapoints_with_metadata(
+        self,
+        response: index_service.UpsertDatapointsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.UpsertDatapointsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for upsert_datapoints
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexService server but before it is returned to user code.
+
+        We recommend only using this `post_upsert_datapoints_with_metadata`
+        interceptor in new development instead of the `post_upsert_datapoints` interceptor.
+        When both interceptors are used, this `post_upsert_datapoints_with_metadata` interceptor runs after the
+        `post_upsert_datapoints` interceptor. The (possibly modified) response returned by
+        `post_upsert_datapoints` will be passed to
+        `post_upsert_datapoints_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -333,8 +583,10 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -356,8 +608,10 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -379,8 +633,10 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -402,8 +658,11 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -425,8 +684,10 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -446,8 +707,10 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -467,8 +730,10 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -490,8 +755,10 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -513,8 +780,10 @@ class AsyncIndexServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -610,6 +879,11 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             self.get_index: self._wrap_method(
                 self.get_index,
                 default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.import_index: self._wrap_method(
+                self.import_index,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.list_indexes: self._wrap_method(
@@ -730,7 +1004,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create index method over HTTP.
 
@@ -741,8 +1015,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -755,6 +1031,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseCreateIndex._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_create_index(
                 request, metadata
             )
@@ -776,6 +1053,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.CreateIndex",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "CreateIndex",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncIndexServiceRestTransport._CreateIndex._get_response(
@@ -805,6 +1109,32 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_index(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_index_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.create_index",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "CreateIndex",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _DeleteIndex(
@@ -842,7 +1172,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete index method over HTTP.
 
@@ -853,8 +1183,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -867,6 +1199,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseDeleteIndex._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_index(
                 request, metadata
             )
@@ -882,6 +1215,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.DeleteIndex",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "DeleteIndex",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncIndexServiceRestTransport._DeleteIndex._get_response(
@@ -910,6 +1270,32 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_index(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_index_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.delete_index",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "DeleteIndex",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _GetIndex(
@@ -947,7 +1333,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> index.Index:
             r"""Call the get index method over HTTP.
 
@@ -958,8 +1344,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.index.Index:
@@ -973,6 +1361,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseGetIndex._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_index(request, metadata)
             transcoded_request = (
                 _BaseIndexServiceRestTransport._BaseGetIndex._get_transcoded_request(
@@ -986,6 +1375,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.GetIndex",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "GetIndex",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncIndexServiceRestTransport._GetIndex._get_response(
@@ -1014,6 +1430,201 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_index(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_index_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = index.Index.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.get_index",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "GetIndex",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
+            return resp
+
+    class _ImportIndex(
+        _BaseIndexServiceRestTransport._BaseImportIndex, AsyncIndexServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("AsyncIndexServiceRestTransport.ImportIndex")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: index_service.ImportIndexRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the import index method over HTTP.
+
+            Args:
+                request (~.index_service.ImportIndexRequest):
+                    The request object. Request message for
+                [IndexService.ImportIndex][google.cloud.aiplatform.v1beta1.IndexService.ImportIndex].
+                retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseIndexServiceRestTransport._BaseImportIndex._get_http_options()
+            )
+
+            request, metadata = await self._interceptor.pre_import_index(
+                request, metadata
+            )
+            transcoded_request = (
+                _BaseIndexServiceRestTransport._BaseImportIndex._get_transcoded_request(
+                    http_options, request
+                )
+            )
+
+            body = (
+                _BaseIndexServiceRestTransport._BaseImportIndex._get_request_body_json(
+                    transcoded_request
+                )
+            )
+
+            # Jsonify the query params
+            query_params = (
+                _BaseIndexServiceRestTransport._BaseImportIndex._get_query_params_json(
+                    transcoded_request
+                )
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.ImportIndex",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ImportIndex",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = await AsyncIndexServiceRestTransport._ImportIndex._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            pb_resp = resp
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_import_index(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_import_index_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.import_index",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ImportIndex",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ListIndexes(
@@ -1051,7 +1662,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> index_service.ListIndexesResponse:
             r"""Call the list indexes method over HTTP.
 
@@ -1062,8 +1673,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.index_service.ListIndexesResponse:
@@ -1075,6 +1688,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseListIndexes._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_indexes(
                 request, metadata
             )
@@ -1090,6 +1704,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.ListIndexes",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ListIndexes",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncIndexServiceRestTransport._ListIndexes._get_response(
@@ -1118,6 +1759,34 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_indexes(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_indexes_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = index_service.ListIndexesResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.list_indexes",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ListIndexes",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _RemoveDatapoints(
@@ -1156,7 +1825,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> index_service.RemoveDatapointsResponse:
             r"""Call the remove datapoints method over HTTP.
 
@@ -1167,8 +1836,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.index_service.RemoveDatapointsResponse:
@@ -1180,6 +1851,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseRemoveDatapoints._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_remove_datapoints(
                 request, metadata
             )
@@ -1195,6 +1867,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             query_params = _BaseIndexServiceRestTransport._BaseRemoveDatapoints._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.RemoveDatapoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "RemoveDatapoints",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -1226,6 +1925,34 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_remove_datapoints(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_remove_datapoints_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = index_service.RemoveDatapointsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.remove_datapoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "RemoveDatapoints",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _UpdateIndex(
@@ -1264,7 +1991,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update index method over HTTP.
 
@@ -1275,8 +2002,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1289,6 +2018,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseUpdateIndex._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_update_index(
                 request, metadata
             )
@@ -1310,6 +2040,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.UpdateIndex",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "UpdateIndex",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncIndexServiceRestTransport._UpdateIndex._get_response(
@@ -1339,6 +2096,32 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_index(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_index_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.update_index",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "UpdateIndex",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _UpsertDatapoints(
@@ -1377,7 +2160,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> index_service.UpsertDatapointsResponse:
             r"""Call the upsert datapoints method over HTTP.
 
@@ -1388,8 +2171,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.index_service.UpsertDatapointsResponse:
@@ -1401,6 +2186,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseUpsertDatapoints._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_upsert_datapoints(
                 request, metadata
             )
@@ -1416,6 +2202,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             query_params = _BaseIndexServiceRestTransport._BaseUpsertDatapoints._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.UpsertDatapoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "UpsertDatapoints",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -1447,6 +2260,34 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_upsert_datapoints(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_upsert_datapoints_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = index_service.UpsertDatapointsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.upsert_datapoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "UpsertDatapoints",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     @property
@@ -1622,6 +2463,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -1782,6 +2627,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
                     },
                     {
@@ -1807,6 +2656,14 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1996,6 +2853,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -2021,6 +2882,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2172,6 +3037,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
@@ -2181,6 +3050,14 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2237,6 +3114,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2406,6 +3287,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -2443,6 +3328,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2590,6 +3479,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
@@ -2599,6 +3492,14 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2659,6 +3560,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -2820,6 +3725,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -2857,6 +3766,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -3004,6 +3917,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*}/operations",
                     },
                     {
@@ -3013,6 +3930,14 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
                     },
                     {
                         "method": "get",
@@ -3073,6 +3998,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -3242,6 +4171,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -3271,6 +4204,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3418,6 +4355,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                     },
                     {
@@ -3427,6 +4368,14 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3484,6 +4433,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
                     },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
                 ],
             }
 
@@ -3517,6 +4470,12 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
     @property
     def get_index(self) -> Callable[[index_service.GetIndexRequest], index.Index]:
         return self._GetIndex(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def import_index(
+        self,
+    ) -> Callable[[index_service.ImportIndexRequest], operations_pb2.Operation]:
+        return self._ImportIndex(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def list_indexes(
@@ -3587,7 +4546,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -3598,8 +4557,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -3608,6 +4569,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -3623,6 +4585,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncIndexServiceRestTransport._GetLocation._get_response(
@@ -3649,6 +4638,27 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3690,7 +4700,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -3701,8 +4711,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -3711,6 +4723,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -3722,6 +4735,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             query_params = _BaseIndexServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3750,6 +4790,27 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3792,7 +4853,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -3803,8 +4864,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -3813,6 +4876,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -3832,6 +4896,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncIndexServiceRestTransport._GetIamPolicy._get_response(
@@ -3859,6 +4950,27 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3901,7 +5013,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -3912,8 +5024,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -3922,6 +5036,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -3941,6 +5056,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncIndexServiceRestTransport._SetIamPolicy._get_response(
@@ -3968,6 +5110,27 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4011,7 +5174,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -4022,8 +5185,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -4032,6 +5197,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -4047,6 +5213,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             query_params = _BaseIndexServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4076,6 +5269,27 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4117,7 +5331,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -4128,13 +5342,16 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseIndexServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -4146,6 +5363,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             query_params = _BaseIndexServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4211,7 +5455,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -4222,13 +5466,16 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseIndexServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -4240,6 +5487,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             query_params = _BaseIndexServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4305,7 +5579,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -4316,8 +5590,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -4326,6 +5602,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -4339,6 +5616,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncIndexServiceRestTransport._GetOperation._get_response(
@@ -4365,6 +5669,27 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4406,7 +5731,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -4417,8 +5742,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -4427,6 +5754,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -4438,6 +5766,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             query_params = _BaseIndexServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4466,6 +5821,27 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4507,7 +5883,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -4518,8 +5894,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -4528,6 +5906,7 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             http_options = (
                 _BaseIndexServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -4539,6 +5918,33 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             query_params = _BaseIndexServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4567,6 +5973,27 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property

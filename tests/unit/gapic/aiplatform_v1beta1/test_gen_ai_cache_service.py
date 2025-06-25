@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,6 +73,7 @@ from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import transp
 from google.cloud.aiplatform_v1beta1.types import cached_content
 from google.cloud.aiplatform_v1beta1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1beta1.types import content
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import gen_ai_cache_service
 from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import tool
@@ -86,7 +87,16 @@ from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.type import latlng_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -353,6 +363,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         GenAiCacheServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = GenAiCacheServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = GenAiCacheServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -3203,6 +3256,7 @@ def test_create_cached_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_cached_content(request)
 
@@ -3259,6 +3313,7 @@ def test_create_cached_content_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_cached_content(**mock_args)
 
@@ -3397,6 +3452,7 @@ def test_get_cached_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_cached_content(request)
 
@@ -3444,6 +3500,7 @@ def test_get_cached_content_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_cached_content(**mock_args)
 
@@ -3578,6 +3635,7 @@ def test_update_cached_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_cached_content(request)
 
@@ -3638,6 +3696,7 @@ def test_update_cached_content_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_cached_content(**mock_args)
 
@@ -3774,6 +3833,7 @@ def test_delete_cached_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_cached_content(request)
 
@@ -3819,6 +3879,7 @@ def test_delete_cached_content_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_cached_content(**mock_args)
 
@@ -3963,6 +4024,7 @@ def test_list_cached_contents_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_cached_contents(request)
 
@@ -4016,6 +4078,7 @@ def test_list_cached_contents_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_cached_contents(**mock_args)
 
@@ -4518,6 +4581,7 @@ def test_create_cached_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_cached_content(request)
 
 
@@ -4554,11 +4618,21 @@ def test_create_cached_content_rest_call_success(request_type):
                         "mime_type": "mime_type_value",
                         "file_uri": "file_uri_value",
                     },
-                    "function_call": {"name": "name_value", "args": {"fields": {}}},
-                    "function_response": {"name": "name_value", "response": {}},
+                    "function_call": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "args": {"fields": {}},
+                    },
+                    "function_response": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "response": {},
+                    },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -4602,12 +4676,25 @@ def test_create_cached_content_rest_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -4621,13 +4708,30 @@ def test_create_cached_content_rest_call_success(request_type):
                         ],
                         "similarity_top_k": 1731,
                         "vector_distance_threshold": 0.2665,
+                        "rag_retrieval_config": {
+                            "top_k": 541,
+                            "hybrid_search": {"alpha": 0.518},
+                            "filter": {
+                                "vector_distance_threshold": 0.2665,
+                                "vector_similarity_threshold": 0.2917,
+                                "metadata_filter": "metadata_filter_value",
+                            },
+                            "ranking": {
+                                "rank_service": {"model_name": "model_name_value"},
+                                "llm_ranker": {"model_name": "model_name_value"},
+                            },
+                        },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
+                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -4637,7 +4741,11 @@ def test_create_cached_content_rest_call_success(request_type):
                     "allowed_function_names_value1",
                     "allowed_function_names_value2",
                 ],
-            }
+            },
+            "retrieval_config": {
+                "lat_lng": {"latitude": 0.86, "longitude": 0.971},
+                "language_code": "language_code_value",
+            },
         },
         "create_time": {},
         "update_time": {},
@@ -4648,6 +4756,7 @@ def test_create_cached_content_rest_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -4738,6 +4847,7 @@ def test_create_cached_content_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -4764,10 +4874,14 @@ def test_create_cached_content_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.GenAiCacheServiceRestInterceptor, "post_create_cached_content"
     ) as post, mock.patch.object(
+        transports.GenAiCacheServiceRestInterceptor,
+        "post_create_cached_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.GenAiCacheServiceRestInterceptor, "pre_create_cached_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = gen_ai_cache_service.CreateCachedContentRequest.pb(
             gen_ai_cache_service.CreateCachedContentRequest()
         )
@@ -4780,6 +4894,7 @@ def test_create_cached_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_cached_content.CachedContent.to_json(
             gca_cached_content.CachedContent()
         )
@@ -4792,6 +4907,7 @@ def test_create_cached_content_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_cached_content.CachedContent()
+        post_with_metadata.return_value = gca_cached_content.CachedContent(), metadata
 
         client.create_cached_content(
             request,
@@ -4803,6 +4919,7 @@ def test_create_cached_content_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_cached_content_rest_bad_request(
@@ -4826,6 +4943,7 @@ def test_get_cached_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_cached_content(request)
 
 
@@ -4863,6 +4981,7 @@ def test_get_cached_content_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -4889,10 +5008,14 @@ def test_get_cached_content_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.GenAiCacheServiceRestInterceptor, "post_get_cached_content"
     ) as post, mock.patch.object(
+        transports.GenAiCacheServiceRestInterceptor,
+        "post_get_cached_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.GenAiCacheServiceRestInterceptor, "pre_get_cached_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = gen_ai_cache_service.GetCachedContentRequest.pb(
             gen_ai_cache_service.GetCachedContentRequest()
         )
@@ -4905,6 +5028,7 @@ def test_get_cached_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = cached_content.CachedContent.to_json(
             cached_content.CachedContent()
         )
@@ -4917,6 +5041,7 @@ def test_get_cached_content_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = cached_content.CachedContent()
+        post_with_metadata.return_value = cached_content.CachedContent(), metadata
 
         client.get_cached_content(
             request,
@@ -4928,6 +5053,7 @@ def test_get_cached_content_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_cached_content_rest_bad_request(
@@ -4955,6 +5081,7 @@ def test_update_cached_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_cached_content(request)
 
 
@@ -4995,11 +5122,21 @@ def test_update_cached_content_rest_call_success(request_type):
                         "mime_type": "mime_type_value",
                         "file_uri": "file_uri_value",
                     },
-                    "function_call": {"name": "name_value", "args": {"fields": {}}},
-                    "function_response": {"name": "name_value", "response": {}},
+                    "function_call": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "args": {"fields": {}},
+                    },
+                    "function_response": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "response": {},
+                    },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -5043,12 +5180,25 @@ def test_update_cached_content_rest_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -5062,13 +5212,30 @@ def test_update_cached_content_rest_call_success(request_type):
                         ],
                         "similarity_top_k": 1731,
                         "vector_distance_threshold": 0.2665,
+                        "rag_retrieval_config": {
+                            "top_k": 541,
+                            "hybrid_search": {"alpha": 0.518},
+                            "filter": {
+                                "vector_distance_threshold": 0.2665,
+                                "vector_similarity_threshold": 0.2917,
+                                "metadata_filter": "metadata_filter_value",
+                            },
+                            "ranking": {
+                                "rank_service": {"model_name": "model_name_value"},
+                                "llm_ranker": {"model_name": "model_name_value"},
+                            },
+                        },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
+                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -5078,7 +5245,11 @@ def test_update_cached_content_rest_call_success(request_type):
                     "allowed_function_names_value1",
                     "allowed_function_names_value2",
                 ],
-            }
+            },
+            "retrieval_config": {
+                "lat_lng": {"latitude": 0.86, "longitude": 0.971},
+                "language_code": "language_code_value",
+            },
         },
         "create_time": {},
         "update_time": {},
@@ -5089,6 +5260,7 @@ def test_update_cached_content_rest_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5179,6 +5351,7 @@ def test_update_cached_content_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -5205,10 +5378,14 @@ def test_update_cached_content_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.GenAiCacheServiceRestInterceptor, "post_update_cached_content"
     ) as post, mock.patch.object(
+        transports.GenAiCacheServiceRestInterceptor,
+        "post_update_cached_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.GenAiCacheServiceRestInterceptor, "pre_update_cached_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = gen_ai_cache_service.UpdateCachedContentRequest.pb(
             gen_ai_cache_service.UpdateCachedContentRequest()
         )
@@ -5221,6 +5398,7 @@ def test_update_cached_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_cached_content.CachedContent.to_json(
             gca_cached_content.CachedContent()
         )
@@ -5233,6 +5411,7 @@ def test_update_cached_content_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_cached_content.CachedContent()
+        post_with_metadata.return_value = gca_cached_content.CachedContent(), metadata
 
         client.update_cached_content(
             request,
@@ -5244,6 +5423,7 @@ def test_update_cached_content_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_cached_content_rest_bad_request(
@@ -5267,6 +5447,7 @@ def test_delete_cached_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_cached_content(request)
 
 
@@ -5297,6 +5478,7 @@ def test_delete_cached_content_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -5333,6 +5515,7 @@ def test_delete_cached_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = gen_ai_cache_service.DeleteCachedContentRequest()
         metadata = [
@@ -5373,6 +5556,7 @@ def test_list_cached_contents_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_cached_contents(request)
 
 
@@ -5408,6 +5592,7 @@ def test_list_cached_contents_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_cached_contents(request)
 
     # Establish that the response is the type that we expect.
@@ -5432,10 +5617,14 @@ def test_list_cached_contents_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.GenAiCacheServiceRestInterceptor, "post_list_cached_contents"
     ) as post, mock.patch.object(
+        transports.GenAiCacheServiceRestInterceptor,
+        "post_list_cached_contents_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.GenAiCacheServiceRestInterceptor, "pre_list_cached_contents"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = gen_ai_cache_service.ListCachedContentsRequest.pb(
             gen_ai_cache_service.ListCachedContentsRequest()
         )
@@ -5448,6 +5637,7 @@ def test_list_cached_contents_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gen_ai_cache_service.ListCachedContentsResponse.to_json(
             gen_ai_cache_service.ListCachedContentsResponse()
         )
@@ -5460,6 +5650,10 @@ def test_list_cached_contents_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gen_ai_cache_service.ListCachedContentsResponse()
+        post_with_metadata.return_value = (
+            gen_ai_cache_service.ListCachedContentsResponse(),
+            metadata,
+        )
 
         client.list_cached_contents(
             request,
@@ -5471,6 +5665,7 @@ def test_list_cached_contents_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -5494,6 +5689,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -5524,6 +5720,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -5552,6 +5749,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -5582,6 +5780,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -5613,6 +5812,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -5645,6 +5845,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -5676,6 +5877,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -5708,6 +5910,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -5739,6 +5942,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -5771,6 +5975,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -5801,6 +6006,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -5831,6 +6037,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -5861,6 +6068,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -5891,6 +6099,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -5921,6 +6130,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -5951,6 +6161,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -5981,6 +6192,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -6011,6 +6223,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -6041,6 +6254,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -6071,6 +6285,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -6231,6 +6446,7 @@ async def test_create_cached_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_cached_content(request)
 
 
@@ -6272,11 +6488,21 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                         "mime_type": "mime_type_value",
                         "file_uri": "file_uri_value",
                     },
-                    "function_call": {"name": "name_value", "args": {"fields": {}}},
-                    "function_response": {"name": "name_value", "response": {}},
+                    "function_call": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "args": {"fields": {}},
+                    },
+                    "function_response": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "response": {},
+                    },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -6320,12 +6546,25 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -6339,13 +6578,30 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                         ],
                         "similarity_top_k": 1731,
                         "vector_distance_threshold": 0.2665,
+                        "rag_retrieval_config": {
+                            "top_k": 541,
+                            "hybrid_search": {"alpha": 0.518},
+                            "filter": {
+                                "vector_distance_threshold": 0.2665,
+                                "vector_similarity_threshold": 0.2917,
+                                "metadata_filter": "metadata_filter_value",
+                            },
+                            "ranking": {
+                                "rank_service": {"model_name": "model_name_value"},
+                                "llm_ranker": {"model_name": "model_name_value"},
+                            },
+                        },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
+                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -6355,7 +6611,11 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     "allowed_function_names_value1",
                     "allowed_function_names_value2",
                 ],
-            }
+            },
+            "retrieval_config": {
+                "lat_lng": {"latitude": 0.86, "longitude": 0.971},
+                "language_code": "language_code_value",
+            },
         },
         "create_time": {},
         "update_time": {},
@@ -6366,6 +6626,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6458,6 +6719,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -6489,10 +6751,14 @@ async def test_create_cached_content_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncGenAiCacheServiceRestInterceptor, "post_create_cached_content"
     ) as post, mock.patch.object(
+        transports.AsyncGenAiCacheServiceRestInterceptor,
+        "post_create_cached_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncGenAiCacheServiceRestInterceptor, "pre_create_cached_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = gen_ai_cache_service.CreateCachedContentRequest.pb(
             gen_ai_cache_service.CreateCachedContentRequest()
         )
@@ -6505,6 +6771,7 @@ async def test_create_cached_content_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_cached_content.CachedContent.to_json(
             gca_cached_content.CachedContent()
         )
@@ -6517,6 +6784,7 @@ async def test_create_cached_content_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = gca_cached_content.CachedContent()
+        post_with_metadata.return_value = gca_cached_content.CachedContent(), metadata
 
         await client.create_cached_content(
             request,
@@ -6528,6 +6796,7 @@ async def test_create_cached_content_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6555,6 +6824,7 @@ async def test_get_cached_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_cached_content(request)
 
 
@@ -6599,6 +6869,7 @@ async def test_get_cached_content_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -6630,10 +6901,14 @@ async def test_get_cached_content_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncGenAiCacheServiceRestInterceptor, "post_get_cached_content"
     ) as post, mock.patch.object(
+        transports.AsyncGenAiCacheServiceRestInterceptor,
+        "post_get_cached_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncGenAiCacheServiceRestInterceptor, "pre_get_cached_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = gen_ai_cache_service.GetCachedContentRequest.pb(
             gen_ai_cache_service.GetCachedContentRequest()
         )
@@ -6646,6 +6921,7 @@ async def test_get_cached_content_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = cached_content.CachedContent.to_json(
             cached_content.CachedContent()
         )
@@ -6658,6 +6934,7 @@ async def test_get_cached_content_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = cached_content.CachedContent()
+        post_with_metadata.return_value = cached_content.CachedContent(), metadata
 
         await client.get_cached_content(
             request,
@@ -6669,6 +6946,7 @@ async def test_get_cached_content_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6700,6 +6978,7 @@ async def test_update_cached_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_cached_content(request)
 
 
@@ -6745,11 +7024,21 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                         "mime_type": "mime_type_value",
                         "file_uri": "file_uri_value",
                     },
-                    "function_call": {"name": "name_value", "args": {"fields": {}}},
-                    "function_response": {"name": "name_value", "response": {}},
+                    "function_call": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "args": {"fields": {}},
+                    },
+                    "function_response": {
+                        "id": "id_value",
+                        "name": "name_value",
+                        "response": {},
+                    },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -6793,12 +7082,25 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -6812,13 +7114,30 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                         ],
                         "similarity_top_k": 1731,
                         "vector_distance_threshold": 0.2665,
+                        "rag_retrieval_config": {
+                            "top_k": 541,
+                            "hybrid_search": {"alpha": 0.518},
+                            "filter": {
+                                "vector_distance_threshold": 0.2665,
+                                "vector_similarity_threshold": 0.2917,
+                                "metadata_filter": "metadata_filter_value",
+                            },
+                            "ranking": {
+                                "rank_service": {"model_name": "model_name_value"},
+                                "llm_ranker": {"model_name": "model_name_value"},
+                            },
+                        },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
+                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -6828,7 +7147,11 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     "allowed_function_names_value1",
                     "allowed_function_names_value2",
                 ],
-            }
+            },
+            "retrieval_config": {
+                "lat_lng": {"latitude": 0.86, "longitude": 0.971},
+                "language_code": "language_code_value",
+            },
         },
         "create_time": {},
         "update_time": {},
@@ -6839,6 +7162,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6931,6 +7255,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -6962,10 +7287,14 @@ async def test_update_cached_content_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncGenAiCacheServiceRestInterceptor, "post_update_cached_content"
     ) as post, mock.patch.object(
+        transports.AsyncGenAiCacheServiceRestInterceptor,
+        "post_update_cached_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncGenAiCacheServiceRestInterceptor, "pre_update_cached_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = gen_ai_cache_service.UpdateCachedContentRequest.pb(
             gen_ai_cache_service.UpdateCachedContentRequest()
         )
@@ -6978,6 +7307,7 @@ async def test_update_cached_content_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_cached_content.CachedContent.to_json(
             gca_cached_content.CachedContent()
         )
@@ -6990,6 +7320,7 @@ async def test_update_cached_content_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = gca_cached_content.CachedContent()
+        post_with_metadata.return_value = gca_cached_content.CachedContent(), metadata
 
         await client.update_cached_content(
             request,
@@ -7001,6 +7332,7 @@ async def test_update_cached_content_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7028,6 +7360,7 @@ async def test_delete_cached_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_cached_content(request)
 
 
@@ -7065,6 +7398,7 @@ async def test_delete_cached_content_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -7106,6 +7440,7 @@ async def test_delete_cached_content_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = gen_ai_cache_service.DeleteCachedContentRequest()
         metadata = [
@@ -7150,6 +7485,7 @@ async def test_list_cached_contents_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_cached_contents(request)
 
 
@@ -7192,6 +7528,7 @@ async def test_list_cached_contents_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_cached_contents(request)
 
     # Establish that the response is the type that we expect.
@@ -7221,10 +7558,14 @@ async def test_list_cached_contents_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncGenAiCacheServiceRestInterceptor, "post_list_cached_contents"
     ) as post, mock.patch.object(
+        transports.AsyncGenAiCacheServiceRestInterceptor,
+        "post_list_cached_contents_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncGenAiCacheServiceRestInterceptor, "pre_list_cached_contents"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = gen_ai_cache_service.ListCachedContentsRequest.pb(
             gen_ai_cache_service.ListCachedContentsRequest()
         )
@@ -7237,6 +7578,7 @@ async def test_list_cached_contents_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gen_ai_cache_service.ListCachedContentsResponse.to_json(
             gen_ai_cache_service.ListCachedContentsResponse()
         )
@@ -7249,6 +7591,10 @@ async def test_list_cached_contents_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gen_ai_cache_service.ListCachedContentsResponse()
+        post_with_metadata.return_value = (
+            gen_ai_cache_service.ListCachedContentsResponse(),
+            metadata,
+        )
 
         await client.list_cached_contents(
             request,
@@ -7260,6 +7606,7 @@ async def test_list_cached_contents_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7289,6 +7636,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -7326,6 +7674,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -7358,6 +7707,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -7395,6 +7745,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -7430,6 +7781,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -7469,6 +7821,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -7504,6 +7857,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -7543,6 +7897,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -7578,6 +7933,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -7617,6 +7973,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -7651,6 +8008,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -7688,6 +8046,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -7722,6 +8081,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -7759,6 +8119,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -7793,6 +8154,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -7830,6 +8192,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -7864,6 +8227,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -7901,6 +8265,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -7935,6 +8300,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -7972,6 +8338,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

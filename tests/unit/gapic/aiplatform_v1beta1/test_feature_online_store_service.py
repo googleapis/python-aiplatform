@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -72,6 +72,8 @@ from google.cloud.aiplatform_v1beta1.services.feature_online_store_service impor
     transports,
 )
 from google.cloud.aiplatform_v1beta1.types import feature_online_store_service
+from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
+from google.cloud.aiplatform_v1beta1.types import types
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -79,8 +81,17 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -359,6 +370,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         FeatureOnlineStoreServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = FeatureOnlineStoreServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = FeatureOnlineStoreServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -1928,6 +1982,171 @@ async def test_search_nearest_entities_field_headers_async():
     ) in kw["metadata"]
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_online_store_service.FeatureViewDirectWriteRequest,
+        dict,
+    ],
+)
+def test_feature_view_direct_write(request_type, transport: str = "grpc"):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.feature_view_direct_write), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter(
+            [feature_online_store_service.FeatureViewDirectWriteResponse()]
+        )
+        response = client.feature_view_direct_write(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(
+            message, feature_online_store_service.FeatureViewDirectWriteResponse
+        )
+
+
+def test_feature_view_direct_write_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureOnlineStoreServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.feature_view_direct_write
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.feature_view_direct_write
+        ] = mock_rpc
+        request = [{}]
+        client.feature_view_direct_write(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.feature_view_direct_write(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_feature_view_direct_write_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureOnlineStoreServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.feature_view_direct_write
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.feature_view_direct_write
+        ] = mock_rpc
+
+        request = [{}]
+        await client.feature_view_direct_write(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.feature_view_direct_write(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_feature_view_direct_write_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_online_store_service.FeatureViewDirectWriteRequest,
+):
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.feature_view_direct_write), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.StreamStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[feature_online_store_service.FeatureViewDirectWriteResponse()]
+        )
+        response = await client.feature_view_direct_write(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(
+        message, feature_online_store_service.FeatureViewDirectWriteResponse
+    )
+
+
+@pytest.mark.asyncio
+async def test_feature_view_direct_write_async_from_dict():
+    await test_feature_view_direct_write_async(request_type=dict)
+
+
 def test_fetch_feature_values_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -2037,6 +2256,7 @@ def test_fetch_feature_values_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.fetch_feature_values(request)
 
@@ -2087,6 +2307,7 @@ def test_fetch_feature_values_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.fetch_feature_values(**mock_args)
 
@@ -2240,6 +2461,7 @@ def test_search_nearest_entities_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.search_nearest_entities(request)
 
@@ -2263,6 +2485,17 @@ def test_search_nearest_entities_rest_unset_required_fields():
             )
         )
     )
+
+
+def test_feature_view_direct_write_rest_unimplemented():
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = feature_online_store_service.FeatureViewDirectWriteRequest()
+    requests = [request]
+    with pytest.raises(NotImplementedError):
+        client.feature_view_direct_write(requests)
 
 
 def test_credentials_transport_error():
@@ -2515,6 +2748,7 @@ def test_fetch_feature_values_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.fetch_feature_values(request)
 
 
@@ -2552,6 +2786,7 @@ def test_fetch_feature_values_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.fetch_feature_values(request)
 
     # Establish that the response is the type that we expect.
@@ -2575,10 +2810,14 @@ def test_fetch_feature_values_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeatureOnlineStoreServiceRestInterceptor, "post_fetch_feature_values"
     ) as post, mock.patch.object(
+        transports.FeatureOnlineStoreServiceRestInterceptor,
+        "post_fetch_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeatureOnlineStoreServiceRestInterceptor, "pre_fetch_feature_values"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_service.FetchFeatureValuesRequest.pb(
             feature_online_store_service.FetchFeatureValuesRequest()
         )
@@ -2591,6 +2830,7 @@ def test_fetch_feature_values_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_online_store_service.FetchFeatureValuesResponse.to_json(
             feature_online_store_service.FetchFeatureValuesResponse()
         )
@@ -2603,6 +2843,10 @@ def test_fetch_feature_values_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_service.FetchFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_service.FetchFeatureValuesResponse(),
+            metadata,
+        )
 
         client.fetch_feature_values(
             request,
@@ -2614,6 +2858,7 @@ def test_fetch_feature_values_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_streaming_fetch_feature_values_rest_error():
@@ -2653,6 +2898,7 @@ def test_search_nearest_entities_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.search_nearest_entities(request)
 
 
@@ -2690,6 +2936,7 @@ def test_search_nearest_entities_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.search_nearest_entities(request)
 
     # Establish that the response is the type that we expect.
@@ -2717,10 +2964,14 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
         "post_search_nearest_entities",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreServiceRestInterceptor,
+        "post_search_nearest_entities_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreServiceRestInterceptor,
         "pre_search_nearest_entities",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_service.SearchNearestEntitiesRequest.pb(
             feature_online_store_service.SearchNearestEntitiesRequest()
         )
@@ -2733,6 +2984,7 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             feature_online_store_service.SearchNearestEntitiesResponse.to_json(
                 feature_online_store_service.SearchNearestEntitiesResponse()
@@ -2747,6 +2999,10 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_service.SearchNearestEntitiesResponse(),
+            metadata,
+        )
 
         client.search_nearest_entities(
             request,
@@ -2758,6 +3014,20 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+def test_feature_view_direct_write_rest_error():
+
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        client.feature_view_direct_write({})
+    assert "Method FeatureViewDirectWrite is not available over REST transport" in str(
+        not_implemented_error.value
+    )
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -2781,6 +3051,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -2811,6 +3082,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -2839,6 +3111,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -2869,6 +3142,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -2900,6 +3174,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -2932,6 +3207,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -2963,6 +3239,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -2995,6 +3272,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -3026,6 +3304,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -3058,6 +3337,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -3088,6 +3368,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -3118,6 +3399,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -3148,6 +3430,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -3178,6 +3461,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -3208,6 +3492,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -3238,6 +3523,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -3268,6 +3554,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -3298,6 +3585,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -3328,6 +3616,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -3358,6 +3647,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -3454,6 +3744,7 @@ async def test_fetch_feature_values_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.fetch_feature_values(request)
 
 
@@ -3498,6 +3789,7 @@ async def test_fetch_feature_values_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.fetch_feature_values(request)
 
     # Establish that the response is the type that we expect.
@@ -3528,10 +3820,14 @@ async def test_fetch_feature_values_rest_asyncio_interceptors(null_interceptor):
         "post_fetch_feature_values",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreServiceRestInterceptor,
+        "post_fetch_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreServiceRestInterceptor,
         "pre_fetch_feature_values",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_service.FetchFeatureValuesRequest.pb(
             feature_online_store_service.FetchFeatureValuesRequest()
         )
@@ -3544,6 +3840,7 @@ async def test_fetch_feature_values_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_online_store_service.FetchFeatureValuesResponse.to_json(
             feature_online_store_service.FetchFeatureValuesResponse()
         )
@@ -3556,6 +3853,10 @@ async def test_fetch_feature_values_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_service.FetchFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_service.FetchFeatureValuesResponse(),
+            metadata,
+        )
 
         await client.fetch_feature_values(
             request,
@@ -3567,6 +3868,7 @@ async def test_fetch_feature_values_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -3615,6 +3917,7 @@ async def test_search_nearest_entities_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.search_nearest_entities(request)
 
 
@@ -3659,6 +3962,7 @@ async def test_search_nearest_entities_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.search_nearest_entities(request)
 
     # Establish that the response is the type that we expect.
@@ -3691,10 +3995,14 @@ async def test_search_nearest_entities_rest_asyncio_interceptors(null_intercepto
         "post_search_nearest_entities",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreServiceRestInterceptor,
+        "post_search_nearest_entities_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreServiceRestInterceptor,
         "pre_search_nearest_entities",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_service.SearchNearestEntitiesRequest.pb(
             feature_online_store_service.SearchNearestEntitiesRequest()
         )
@@ -3707,6 +4015,7 @@ async def test_search_nearest_entities_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             feature_online_store_service.SearchNearestEntitiesResponse.to_json(
                 feature_online_store_service.SearchNearestEntitiesResponse()
@@ -3721,6 +4030,10 @@ async def test_search_nearest_entities_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_service.SearchNearestEntitiesResponse(),
+            metadata,
+        )
 
         await client.search_nearest_entities(
             request,
@@ -3732,6 +4045,25 @@ async def test_search_nearest_entities_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_feature_view_direct_write_rest_asyncio_error():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        await client.feature_view_direct_write({})
+    assert "Method FeatureViewDirectWrite is not available over REST transport" in str(
+        not_implemented_error.value
+    )
 
 
 @pytest.mark.asyncio
@@ -3761,6 +4093,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -3798,6 +4131,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -3830,6 +4164,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -3867,6 +4202,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -3902,6 +4238,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -3941,6 +4278,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -3976,6 +4314,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -4015,6 +4354,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -4050,6 +4390,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -4089,6 +4430,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -4123,6 +4465,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -4160,6 +4503,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -4194,6 +4538,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -4231,6 +4576,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -4265,6 +4611,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -4302,6 +4649,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -4336,6 +4684,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -4373,6 +4722,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -4407,6 +4757,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -4444,6 +4795,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 
@@ -4566,6 +4918,7 @@ def test_feature_online_store_service_base_transport():
         "fetch_feature_values",
         "streaming_fetch_feature_values",
         "search_nearest_entities",
+        "feature_view_direct_write",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -4848,6 +5201,9 @@ def test_feature_online_store_service_client_transport_session_collision(
     assert session1 != session2
     session1 = client1.transport.search_nearest_entities._session
     session2 = client2.transport.search_nearest_entities._session
+    assert session1 != session2
+    session1 = client1.transport.feature_view_direct_write._session
+    session2 = client2.transport.feature_view_direct_write._session
     assert session1 != session2
 
 

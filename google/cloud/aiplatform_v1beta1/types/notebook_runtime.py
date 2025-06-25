@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ from google.cloud.aiplatform_v1beta1.types import notebook_idle_shutdown_config
 from google.cloud.aiplatform_v1beta1.types import (
     notebook_runtime_template_ref as gca_notebook_runtime_template_ref,
 )
+from google.cloud.aiplatform_v1beta1.types import notebook_software_config
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -77,8 +78,10 @@ class NotebookRuntimeTemplate(proto.Message):
             The description of the
             NotebookRuntimeTemplate.
         is_default (bool):
-            Output only. The default template to use if
-            not specified.
+            Output only. Deprecated: This field has no behavior. Use
+            notebook_runtime_type = 'ONE_CLICK' instead.
+
+            The default template to use if not specified.
         machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
             Optional. Immutable. The specification of a
             single machine for the template.
@@ -89,6 +92,14 @@ class NotebookRuntimeTemplate(proto.Message):
         network_spec (google.cloud.aiplatform_v1beta1.types.NetworkSpec):
             Optional. Network spec.
         service_account (str):
+            Deprecated: This field is ignored and the "Vertex AI
+            Notebook Service Account"
+            (service-PROJECT_NUMBER@gcp-sa-aiplatform-vm.iam.gserviceaccount.com)
+            is used for the runtime workload identity. See
+            https://cloud.google.com/iam/docs/service-agents#vertex-ai-notebook-service-account
+            for more details. For NotebookExecutionJob, use
+            NotebookExecutionJob.service_account instead.
+
             The service account that the runtime workload runs as. You
             can use any service account within the same project, but you
             must have the service account user permission to use the
@@ -140,6 +151,9 @@ class NotebookRuntimeTemplate(proto.Message):
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Customer-managed encryption key spec for the
             notebook runtime.
+        software_config (google.cloud.aiplatform_v1beta1.types.NotebookSoftwareConfig):
+            Optional. The notebook software configuration
+            of the notebook runtime.
     """
 
     name: str = proto.Field(
@@ -227,6 +241,11 @@ class NotebookRuntimeTemplate(proto.Message):
         number=23,
         message=gca_encryption_spec.EncryptionSpec,
     )
+    software_config: notebook_software_config.NotebookSoftwareConfig = proto.Field(
+        proto.MESSAGE,
+        number=24,
+        message=notebook_software_config.NotebookSoftwareConfig,
+    )
 
 
 class NotebookRuntime(proto.Message):
@@ -265,8 +284,15 @@ class NotebookRuntime(proto.Message):
         description (str):
             The description of the NotebookRuntime.
         service_account (str):
-            Output only. The service account that the
-            NotebookRuntime workload runs as.
+            Output only. Deprecated: This field is no longer used and
+            the "Vertex AI Notebook Service Account"
+            (service-PROJECT_NUMBER@gcp-sa-aiplatform-vm.iam.gserviceaccount.com)
+            is used for the runtime workload identity. See
+            https://cloud.google.com/iam/docs/service-agents#vertex-ai-notebook-service-account
+            for more details.
+
+            The service account that the NotebookRuntime workload runs
+            as.
         runtime_state (google.cloud.aiplatform_v1beta1.types.NotebookRuntime.RuntimeState):
             Output only. The runtime (instance) state of
             the NotebookRuntime.
@@ -312,13 +338,31 @@ class NotebookRuntime(proto.Message):
         notebook_runtime_type (google.cloud.aiplatform_v1beta1.types.NotebookRuntimeType):
             Output only. The type of the notebook
             runtime.
+        machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
+            Output only. The specification of a single
+            machine used by the notebook runtime.
+        data_persistent_disk_spec (google.cloud.aiplatform_v1beta1.types.PersistentDiskSpec):
+            Output only. The specification of [persistent
+            disk][https://cloud.google.com/compute/docs/disks/persistent-disks]
+            attached to the notebook runtime as data disk storage.
+        network_spec (google.cloud.aiplatform_v1beta1.types.NetworkSpec):
+            Output only. Network spec of the notebook
+            runtime.
         idle_shutdown_config (google.cloud.aiplatform_v1beta1.types.NotebookIdleShutdownConfig):
             Output only. The idle shutdown configuration
             of the notebook runtime.
+        euc_config (google.cloud.aiplatform_v1beta1.types.NotebookEucConfig):
+            Output only. EUC configuration of the
+            notebook runtime.
+        shielded_vm_config (google.cloud.aiplatform_v1beta1.types.ShieldedVmConfig):
+            Output only. Runtime Shielded VM spec.
         network_tags (MutableSequence[str]):
             Optional. The Compute Engine tags to add to runtime (see
             `Tagging
             instances <https://cloud.google.com/vpc/docs/add-remove-network-tags>`__).
+        software_config (google.cloud.aiplatform_v1beta1.types.NotebookSoftwareConfig):
+            Output only. Software config of the notebook
+            runtime.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Output only. Customer-managed encryption key
             spec for the notebook runtime.
@@ -453,6 +497,21 @@ class NotebookRuntime(proto.Message):
         number=19,
         enum="NotebookRuntimeType",
     )
+    machine_spec: machine_resources.MachineSpec = proto.Field(
+        proto.MESSAGE,
+        number=20,
+        message=machine_resources.MachineSpec,
+    )
+    data_persistent_disk_spec: machine_resources.PersistentDiskSpec = proto.Field(
+        proto.MESSAGE,
+        number=21,
+        message=machine_resources.PersistentDiskSpec,
+    )
+    network_spec: gca_network_spec.NetworkSpec = proto.Field(
+        proto.MESSAGE,
+        number=22,
+        message=gca_network_spec.NetworkSpec,
+    )
     idle_shutdown_config: notebook_idle_shutdown_config.NotebookIdleShutdownConfig = (
         proto.Field(
             proto.MESSAGE,
@@ -460,9 +519,24 @@ class NotebookRuntime(proto.Message):
             message=notebook_idle_shutdown_config.NotebookIdleShutdownConfig,
         )
     )
+    euc_config: notebook_euc_config.NotebookEucConfig = proto.Field(
+        proto.MESSAGE,
+        number=24,
+        message=notebook_euc_config.NotebookEucConfig,
+    )
+    shielded_vm_config: machine_resources.ShieldedVmConfig = proto.Field(
+        proto.MESSAGE,
+        number=32,
+        message=machine_resources.ShieldedVmConfig,
+    )
     network_tags: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=25,
+    )
+    software_config: notebook_software_config.NotebookSoftwareConfig = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        message=notebook_software_config.NotebookSoftwareConfig,
     )
     encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,

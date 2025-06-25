@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ class GcsSource(proto.Message):
             Required. Google Cloud Storage URI(-s) to the
             input file(s). May contain wildcards. For more
             information on wildcards, see
-            https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            https://cloud.google.com/storage/docs/wildcards.
     """
 
     uris: MutableSequence[str] = proto.RepeatedField(
@@ -365,11 +365,12 @@ class JiraSource(proto.Message):
             server_uri (str):
                 Required. The Jira server URI.
             api_key_config (google.cloud.aiplatform_v1beta1.types.ApiAuth.ApiKeyConfig):
-                Required. The SecretManager secret version
-                resource name (e.g.
+                Required. The SecretManager secret version resource name
+                (e.g.
                 projects/{project}/secrets/{secret}/versions/{version})
-                storing the Jira API key
-                (https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
+                storing the Jira API key. See `Manage API tokens for your
+                Atlassian
+                account <https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/>`__.
         """
 
         projects: MutableSequence[str] = proto.RepeatedField(

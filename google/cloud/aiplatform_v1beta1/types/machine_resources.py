@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,6 +76,9 @@ class MachineSpec(proto.Message):
             Immutable. The topology of the TPUs. Corresponds to the TPU
             topologies available from GKE. (Example: tpu_topology:
             "2x2x1").
+        multihost_gpu_node_count (int):
+            Optional. Immutable. The number of nodes per
+            replica for multihost GPU deployments.
         reservation_affinity (google.cloud.aiplatform_v1beta1.types.ReservationAffinity):
             Optional. Immutable. Configuration
             controlling how this resource pool consumes
@@ -98,6 +101,10 @@ class MachineSpec(proto.Message):
     tpu_topology: str = proto.Field(
         proto.STRING,
         number=4,
+    )
+    multihost_gpu_node_count: int = proto.Field(
+        proto.INT32,
+        number=6,
     )
     reservation_affinity: gca_reservation_affinity.ReservationAffinity = proto.Field(
         proto.MESSAGE,
@@ -143,6 +150,14 @@ class DedicatedResources(proto.Message):
             (max_replica_count \* number of cores in the selected
             machine type) and (max_replica_count \* number of GPUs per
             replica in the selected machine type).
+        required_replica_count (int):
+            Optional. Number of required available replicas for the
+            deployment to succeed. This field is only needed when
+            partial model deployment/mutation is desired. If set, the
+            model deploy/mutate operation will succeed once
+            available_replica_count reaches required_replica_count, and
+            the rest of the replicas will be retried. If not set, the
+            default required_replica_count will be min_replica_count.
         autoscaling_metric_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.AutoscalingMetricSpec]):
             Immutable. The metric specifications that overrides a
             resource utilization metric (CPU utilization, accelerator's
@@ -188,6 +203,10 @@ class DedicatedResources(proto.Message):
     max_replica_count: int = proto.Field(
         proto.INT32,
         number=3,
+    )
+    required_replica_count: int = proto.Field(
+        proto.INT32,
+        number=9,
     )
     autoscaling_metric_specs: MutableSequence[
         "AutoscalingMetricSpec"

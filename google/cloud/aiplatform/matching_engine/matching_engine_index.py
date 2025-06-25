@@ -443,7 +443,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 contents_delta_uri="gs://my_bucket/embeddings",
                 dimensions=1,
                 approximate_neighbors_count=150,
-                distance_measure_type="SQUARED_L2_DISTANCE",
+                distance_measure_type=matching_engine_index_config.DistanceMeasureType.SQUARED_L2_DISTANCE,
                 leaf_node_embedding_count=100,
                 leaf_nodes_to_search_percent=50,
                 description="my description",
@@ -604,7 +604,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 contents_delta_uri="gs://my_bucket/embeddings",
                 dimensions=1,
                 approximate_neighbors_count=150,
-                distance_measure_type="SQUARED_L2_DISTANCE",
+                distance_measure_type=matching_engine_index_config.DistanceMeasureType.SQUARED_L2_DISTANCE,
                 description="my description",
                 labels={ "label_name": "label_value" },
             )

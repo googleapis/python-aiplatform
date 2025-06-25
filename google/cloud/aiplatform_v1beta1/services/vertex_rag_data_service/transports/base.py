@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ from google.api_core import retry as retries
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data_service
@@ -37,6 +38,9 @@ from google.longrunning import operations_pb2  # type: ignore
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class VertexRagDataServiceTransport(abc.ABC):
@@ -182,6 +186,16 @@ class VertexRagDataServiceTransport(abc.ABC):
             ),
             self.delete_rag_file: gapic_v1.method.wrap_method(
                 self.delete_rag_file,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_rag_engine_config: gapic_v1.method.wrap_method(
+                self.update_rag_engine_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_rag_engine_config: gapic_v1.method.wrap_method(
+                self.get_rag_engine_config,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -347,6 +361,26 @@ class VertexRagDataServiceTransport(abc.ABC):
     ) -> Callable[
         [vertex_rag_data_service.DeleteRagFileRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_rag_engine_config(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.UpdateRagEngineConfigRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_rag_engine_config(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.GetRagEngineConfigRequest],
+        Union[
+            vertex_rag_data.RagEngineConfig, Awaitable[vertex_rag_data.RagEngineConfig]
+        ],
     ]:
         raise NotImplementedError()
 

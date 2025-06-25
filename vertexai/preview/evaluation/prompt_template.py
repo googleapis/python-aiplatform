@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 #
 """Prompt template for creating prompts with variables."""
 
-import string
+import re
 from typing import Set
+
+_VARIABLE_NAME_REGEX = r"\{([_a-zA-Z][_a-zA-Z0-9]*)\}"
 
 
 class PromptTemplate:
@@ -25,9 +27,10 @@ class PromptTemplate:
 
     The `PromptTemplate` class allows users to define a template string with
     variables represented in curly braces `{variable}`. The variable
-    names cannot contain spaces. These variables can be replaced with specific
-    values using the `assemble` method, providing flexibility in generating
-    dynamic prompts.
+    names cannot contain spaces and must start with a letter or underscore,
+    followed by letters, digits, or underscore. These variables can be
+    replaced with specific values using the `assemble` method, providing
+    flexibility in generating dynamic prompts.
 
     Usage:
 
@@ -51,11 +54,7 @@ class PromptTemplate:
 
     def _get_variables(self) -> Set[str]:
         """Extracts and return a set of variable names from the template."""
-        return set(
-            field_name
-            for _, field_name, _, _ in string.Formatter().parse(self.template)
-            if field_name is not None
-        )
+        return set(re.findall(_VARIABLE_NAME_REGEX, self.template))
 
     def assemble(self, **kwargs) -> "PromptTemplate":
         """Replaces only the provided variables in the template with specific values.
@@ -67,11 +66,16 @@ class PromptTemplate:
         Returns:
             A new PromptTemplate instance with the updated template string.
         """
-        replaced_values = {
-            key: kwargs.get(key, "{" + key + "}") for key in self.variables
-        }
-        new_template = self.template.format(**replaced_values)
-        return PromptTemplate(new_template)
+        assembled_string = self.template
+        for variable_name, value in kwargs.items():
+            if variable_name not in self.variables:
+                raise ValueError(
+                    f"Invalid variable name '{variable_name}'. "
+                    f"Valid variables are: {self.variables}"
+                )
+            placeholder = "{" + variable_name + "}"
+            assembled_string = assembled_string.replace(placeholder, str(value))
+        return PromptTemplate(assembled_string)
 
     def __str__(self) -> str:
         """Returns the template string."""

@@ -24,6 +24,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import models as aiplatform_models
 from google.cloud.aiplatform import _publisher_models
+from vertexai._utils import warning_logs
 
 _SUPPORTED_PUBLISHERS = ["google"]
 
@@ -274,7 +275,7 @@ class _ModelGardenModel:
             ValueError: If model_name is unknown.
             ValueError: If model does not support this class.
         """
-
+        warning_logs.show_deprecation_warning()
         credential_exception_str = (
             "\nUnable to authenticate your request."
             "\nDepending on your runtime environment, you can complete authentication by:"

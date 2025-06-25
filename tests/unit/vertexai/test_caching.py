@@ -22,7 +22,7 @@ import io
 import json
 import mock
 import pytest
-from vertexai.preview import caching
+from vertexai.caching import CachedContent
 from google.cloud.aiplatform import initializer
 import vertexai
 from google.cloud.aiplatform_v1beta1.types.cached_content import (
@@ -35,7 +35,7 @@ from google.cloud.aiplatform_v1beta1.types.content import (
 from google.cloud.aiplatform_v1beta1.types.tool import (
     ToolConfig as GapicToolConfig,
 )
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     gen_ai_cache_service,
 )
 
@@ -141,7 +141,7 @@ def mock_list_cached_contents():
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestCaching:
-    """Unit tests for caching.CachedContent."""
+    """Unit tests for CachedContent."""
 
     def setup_method(self):
         vertexai.init(
@@ -156,7 +156,7 @@ class TestCaching:
         full_resource_name = (
             "projects/123/locations/europe-west1/cachedContents/contents-id"
         )
-        cache = caching.CachedContent(
+        cache = CachedContent(
             cached_content_name=full_resource_name,
         )
 
@@ -166,7 +166,7 @@ class TestCaching:
     def test_constructor_with_only_content_id(self, mock_get_cached_content):
         partial_resource_name = "contents-id"
 
-        cache = caching.CachedContent(
+        cache = CachedContent(
             cached_content_name=partial_resource_name,
         )
 
@@ -179,7 +179,7 @@ class TestCaching:
     def test_get_with_content_id(self, mock_get_cached_content):
         partial_resource_name = "contents-id"
 
-        cache = caching.CachedContent.get(
+        cache = CachedContent.get(
             cached_content_name=partial_resource_name,
         )
 
@@ -192,7 +192,7 @@ class TestCaching:
     def test_create_with_real_payload(
         self, mock_create_cached_content, mock_get_cached_content
     ):
-        cache = caching.CachedContent.create(
+        cache = CachedContent.create(
             model_name="model-name",
             system_instruction=GapicContent(
                 role="system", parts=[GapicPart(text="system instruction")]
@@ -216,10 +216,38 @@ class TestCaching:
         )
         assert cache.display_name == _TEST_DISPLAY_NAME
 
+    def test_create_with_encrypted_real_payload(
+        self, mock_create_cached_content, mock_get_cached_content
+    ):
+        cache = CachedContent.create(
+            model_name="model-name",
+            system_instruction=GapicContent(
+                role="system", parts=[GapicPart(text="system instruction")]
+            ),
+            tools=[],
+            tool_config=GapicToolConfig(),
+            contents=[GapicContent(role="user")],
+            ttl=datetime.timedelta(days=1),
+            display_name=_TEST_DISPLAY_NAME,
+            kms_key_name=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/keyRings/test-key-ring/cryptoKeys/test-key",
+        )
+
+        # parent is automantically set to align with the current project and location.
+        # _CREATED_CONTENT_ID is from the mock
+        assert cache.resource_name == (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/cachedContents/{_CREATED_CONTENT_ID}"
+        )
+        assert cache.name == _CREATED_CONTENT_ID
+        assert (
+            cache.model_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/model-name"
+        )
+        assert cache.display_name == _TEST_DISPLAY_NAME
+
     def test_create_with_real_payload_and_wrapped_type(
         self, mock_create_cached_content, mock_get_cached_content
     ):
-        cache = caching.CachedContent.create(
+        cache = CachedContent.create(
             model_name="model-name",
             system_instruction="Please answer my questions with cool",
             tools=[],
@@ -239,7 +267,7 @@ class TestCaching:
         assert cache.display_name == _TEST_DISPLAY_NAME
 
     def test_list(self, mock_list_cached_contents):
-        cached_contents = caching.CachedContent.list()
+        cached_contents = CachedContent.list()
         for i, cached_content in enumerate(cached_contents):
             assert cached_content.name == f"cached_content{i + 1}_from_list_request"
             assert cached_content.model_name == f"model-name{i + 1}"
@@ -247,7 +275,7 @@ class TestCaching:
     def test_print_a_cached_content(
         self, mock_create_cached_content, mock_get_cached_content
     ):
-        cached_content = caching.CachedContent.create(
+        cached_content = CachedContent.create(
             model_name="model-name",
             system_instruction="Please answer my questions with cool",
             tools=[],

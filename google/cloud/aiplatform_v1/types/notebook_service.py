@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -177,6 +177,8 @@ class ListNotebookRuntimeTemplatesRequest(proto.Message):
 
             -  ``notebookRuntimeType`` supports = and !=.
                notebookRuntimeType enum: [USER_DEFINED, ONE_CLICK].
+            -  ``machineType`` supports = and !=.
+            -  ``acceleratorType`` supports = and !=.
 
             Some examples:
 
@@ -184,6 +186,8 @@ class ListNotebookRuntimeTemplatesRequest(proto.Message):
             -  ``displayName="myDisplayName"``
             -  ``labels.myKey="myValue"``
             -  ``notebookRuntimeType=USER_DEFINED``
+            -  ``machineType=e2-standard-4``
+            -  ``acceleratorType=NVIDIA_TESLA_T4``
         page_size (int):
             Optional. The standard list page size.
         page_token (str):
@@ -438,6 +442,8 @@ class ListNotebookRuntimesRequest(proto.Message):
                UI_RESOURCE_STATE_CREATION_FAILED].
             -  ``notebookRuntimeType`` supports = and !=.
                notebookRuntimeType enum: [USER_DEFINED, ONE_CLICK].
+            -  ``machineType`` supports = and !=.
+            -  ``acceleratorType`` supports = and !=.
 
             Some examples:
 
@@ -450,6 +456,8 @@ class ListNotebookRuntimesRequest(proto.Message):
             -  ``runtimeUser="test@google.com"``
             -  ``uiState=UI_RESOURCE_STATE_BEING_DELETED``
             -  ``notebookRuntimeType=USER_DEFINED``
+            -  ``machineType=e2-standard-4``
+            -  ``acceleratorType=NVIDIA_TESLA_T4``
         page_size (int):
             Optional. The standard list page size.
         page_token (str):

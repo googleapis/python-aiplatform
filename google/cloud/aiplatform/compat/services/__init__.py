@@ -24,6 +24,9 @@ from google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service i
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     client as endpoint_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.example_store_service import (
+    client as example_store_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.extension_execution_service import (
     client as extension_execution_service_client_v1beta1,
 )
@@ -137,6 +140,9 @@ from google.cloud.aiplatform_v1.services.featurestore_online_serving_service imp
 from google.cloud.aiplatform_v1.services.featurestore_service import (
     client as featurestore_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.gen_ai_cache_service import (
+    client as gen_ai_cache_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.index_service import (
     client as index_service_client_v1,
 )
@@ -167,6 +173,15 @@ from google.cloud.aiplatform_v1.services.prediction_service import (
 from google.cloud.aiplatform_v1.services.prediction_service import (
     async_client as prediction_service_async_client_v1,
 )
+from google.cloud.aiplatform_v1.services.reasoning_engine_service import (
+    client as reasoning_engine_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.reasoning_engine_execution_service import (
+    client as reasoning_engine_execution_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.reasoning_engine_execution_service import (
+    async_client as reasoning_engine_execution_async_client_v1,
+)
 from google.cloud.aiplatform_v1.services.schedule_service import (
     client as schedule_service_client_v1,
 )
@@ -178,6 +193,15 @@ from google.cloud.aiplatform_v1.services.tensorboard_service import (
 )
 from google.cloud.aiplatform_v1.services.vizier_service import (
     client as vizier_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.vertex_rag_service import (
+    client as vertex_rag_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.vertex_rag_data_service import (
+    client as vertex_rag_data_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.vertex_rag_data_service import (
+    async_client as vertex_rag_data_service_async_client_v1,
 )
 
 __all__ = (
@@ -200,14 +224,20 @@ __all__ = (
     pipeline_service_client_v1,
     prediction_service_client_v1,
     prediction_service_async_client_v1,
+    reasoning_engine_execution_service_client_v1,
+    reasoning_engine_service_client_v1,
     schedule_service_client_v1,
     specialist_pool_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
+    vertex_rag_data_service_async_client_v1,
+    vertex_rag_data_service_client_v1,
+    vertex_rag_service_client_v1,
     # v1beta1
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
+    example_store_service_client_v1beta1,
     feature_online_store_service_client_v1beta1,
     feature_online_store_admin_service_client_v1beta1,
     feature_registry_service_client_v1beta1,

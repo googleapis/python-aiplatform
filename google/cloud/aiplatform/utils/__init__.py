@@ -39,6 +39,7 @@ from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
+    example_store_service_client_v1beta1,
     extension_execution_service_client_v1beta1,
     extension_registry_service_client_v1beta1,
     feature_online_store_admin_service_client_v1beta1,
@@ -77,6 +78,7 @@ from google.cloud.aiplatform.compat.services import (
     feature_registry_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
+    gen_ai_cache_service_client_v1,
     index_service_client_v1,
     index_endpoint_service_client_v1,
     job_service_client_v1,
@@ -86,10 +88,16 @@ from google.cloud.aiplatform.compat.services import (
     pipeline_service_client_v1,
     prediction_service_client_v1,
     prediction_service_async_client_v1,
+    reasoning_engine_service_client_v1,
+    reasoning_engine_execution_service_client_v1,
+    reasoning_engine_execution_async_client_v1,
     schedule_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
     persistent_resource_service_client_v1,
+    vertex_rag_data_service_async_client_v1,
+    vertex_rag_data_service_client_v1,
+    vertex_rag_service_client_v1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -138,6 +146,9 @@ VertexAiServiceClient = TypeVar(
     schedule_service_client_v1.ScheduleServiceClient,
     tensorboard_service_client_v1.TensorboardServiceClient,
     vizier_service_client_v1.VizierServiceClient,
+    vertex_rag_service_client_v1.VertexRagServiceClient,
+    vertex_rag_data_service_async_client_v1.VertexRagDataServiceAsyncClient,
+    vertex_rag_data_service_client_v1.VertexRagDataServiceClient,
 )
 
 
@@ -799,8 +810,7 @@ class GenAiCacheServiceClientWithOverride(ClientWithOverride):
     _version_map = (
         (
             compat.V1,
-            # TODO(b/342585299): Temporary code. Switch to v1 once v1 is available.
-            gen_ai_cache_service_client_v1beta1.GenAiCacheServiceClient,
+            gen_ai_cache_service_client_v1.GenAiCacheServiceClient,
         ),
         (
             compat.V1BETA1,
@@ -943,6 +953,17 @@ class PersistentResourceClientWithOverride(ClientWithOverride):
     )
 
 
+class ExampleStoreClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            example_store_service_client_v1beta1.ExampleStoreServiceClient,
+        ),
+    )
+
+
 class ReasoningEngineClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.V1BETA1
@@ -965,10 +986,44 @@ class ReasoningEngineExecutionClientWithOverride(ClientWithOverride):
     )
 
 
+class AgentEngineClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1
+    _version_map = (
+        (
+            compat.V1,
+            reasoning_engine_service_client_v1.ReasoningEngineServiceClient,
+        ),
+    )
+
+
+class AgentEngineExecutionClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1
+    _version_map = (
+        (
+            compat.V1,
+            reasoning_engine_execution_service_client_v1.ReasoningEngineExecutionServiceClient,
+        ),
+    )
+
+
+class AgentEngineExecutionAsyncClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1
+    _version_map = (
+        (
+            compat.V1,
+            reasoning_engine_execution_async_client_v1.ReasoningEngineExecutionServiceAsyncClient,
+        ),
+    )
+
+
 class VertexRagDataClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, vertex_rag_data_service_client_v1.VertexRagDataServiceClient),
         (
             compat.V1BETA1,
             vertex_rag_data_service_client_v1beta1.VertexRagDataServiceClient,
@@ -978,8 +1033,12 @@ class VertexRagDataClientWithOverride(ClientWithOverride):
 
 class VertexRagDataAsyncClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (
+            compat.V1,
+            vertex_rag_data_service_async_client_v1.VertexRagDataServiceAsyncClient,
+        ),
         (
             compat.V1BETA1,
             vertex_rag_data_service_async_client_v1beta1.VertexRagDataServiceAsyncClient,
@@ -989,12 +1048,10 @@ class VertexRagDataAsyncClientWithOverride(ClientWithOverride):
 
 class VertexRagClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
-        (
-            compat.V1BETA1,
-            vertex_rag_service_client_v1beta1.VertexRagServiceClient,
-        ),
+        (compat.V1, vertex_rag_service_client_v1.VertexRagServiceClient),
+        (compat.V1BETA1, vertex_rag_service_client_v1beta1.VertexRagServiceClient),
     )
 
 
@@ -1017,6 +1074,8 @@ VertexAiServiceClientWithOverride = TypeVar(
     PersistentResourceClientWithOverride,
     ReasoningEngineClientWithOverride,
     ReasoningEngineExecutionClientWithOverride,
+    AgentEngineClientWithOverride,
+    AgentEngineExecutionClientWithOverride,
     ModelMonitoringClientWithOverride,
 )
 

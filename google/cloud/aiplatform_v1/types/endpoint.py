@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,8 +35,10 @@ __protobuf__ = proto.module(
         "DeployedModel",
         "PrivateEndpoints",
         "PredictRequestResponseLoggingConfig",
-        "FasterDeploymentConfig",
         "ClientConnectionConfig",
+        "FasterDeploymentConfig",
+        "GenAiAdvancedFeaturesConfig",
+        "SpeculativeDecodingSpec",
     },
 )
 
@@ -151,8 +153,11 @@ class Endpoint(proto.Message):
             removed soon.
         dedicated_endpoint_dns (str):
             Output only. DNS of the dedicated endpoint. Will only be
-            populated if dedicated_endpoint_enabled is true. Format:
-            ``https://{endpoint_id}.{region}-{project_number}.prediction.vertexai.goog``.
+            populated if dedicated_endpoint_enabled is true. Depending
+            on the features enabled, uid might be a random number or a
+            string. For example, if fast_tryout is enabled, uid will be
+            fasttryout. Format:
+            ``https://{endpoint_id}.{region}-{uid}.prediction.vertexai.goog``.
         client_connection_config (google.cloud.aiplatform_v1.types.ClientConnectionConfig):
             Configurations that are applied to the
             endpoint for online prediction.
@@ -160,6 +165,13 @@ class Endpoint(proto.Message):
             Output only. Reserved for future use.
         satisfies_pzi (bool):
             Output only. Reserved for future use.
+        gen_ai_advanced_features_config (google.cloud.aiplatform_v1.types.GenAiAdvancedFeaturesConfig):
+            Optional. Configuration for
+            GenAiAdvancedFeatures. If the endpoint is
+            serving GenAI models, advanced features like
+            native RAG integration can be configured.
+            Currently, only Model Garden models are
+            supported.
     """
 
     name: str = proto.Field(
@@ -255,6 +267,11 @@ class Endpoint(proto.Message):
         proto.BOOL,
         number=28,
     )
+    gen_ai_advanced_features_config: "GenAiAdvancedFeaturesConfig" = proto.Field(
+        proto.MESSAGE,
+        number=29,
+        message="GenAiAdvancedFeaturesConfig",
+    )
 
 
 class DeployedModel(proto.Message):
@@ -294,9 +311,9 @@ class DeployedModel(proto.Message):
             This value should be 1-10 characters, and valid characters
             are ``/[0-9]/``.
         model (str):
-            Required. The resource name of the Model that this is the
-            deployment of. Note that the Model may be in a different
-            location than the DeployedModel's Endpoint.
+            The resource name of the Model that this is the deployment
+            of. Note that the Model may be in a different location than
+            the DeployedModel's Endpoint.
 
             The resource name may contain version id or version alias to
             specify the version. Example:
@@ -378,11 +395,48 @@ class DeployedModel(proto.Message):
             configured.
         faster_deployment_config (google.cloud.aiplatform_v1.types.FasterDeploymentConfig):
             Configuration for faster model deployment.
+        status (google.cloud.aiplatform_v1.types.DeployedModel.Status):
+            Output only. Runtime status of the deployed
+            model.
         system_labels (MutableMapping[str, str]):
             System labels to apply to Model Garden
             deployments. System labels are managed by Google
             for internal use only.
+        checkpoint_id (str):
+            The checkpoint id of the model.
+        speculative_decoding_spec (google.cloud.aiplatform_v1.types.SpeculativeDecodingSpec):
+            Optional. Spec for configuring speculative
+            decoding.
     """
+
+    class Status(proto.Message):
+        r"""Runtime status of the deployed model.
+
+        Attributes:
+            message (str):
+                Output only. The latest deployed model's
+                status message (if any).
+            last_update_time (google.protobuf.timestamp_pb2.Timestamp):
+                Output only. The time at which the status was
+                last updated.
+            available_replica_count (int):
+                Output only. The number of available replicas
+                of the deployed model.
+        """
+
+        message: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        last_update_time: timestamp_pb2.Timestamp = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=timestamp_pb2.Timestamp,
+        )
+        available_replica_count: int = proto.Field(
+            proto.INT32,
+            number=3,
+        )
 
     dedicated_resources: machine_resources.DedicatedResources = proto.Field(
         proto.MESSAGE,
@@ -453,10 +507,24 @@ class DeployedModel(proto.Message):
         number=23,
         message="FasterDeploymentConfig",
     )
+    status: Status = proto.Field(
+        proto.MESSAGE,
+        number=26,
+        message=Status,
+    )
     system_labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=28,
+    )
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=29,
+    )
+    speculative_decoding_spec: "SpeculativeDecodingSpec" = proto.Field(
+        proto.MESSAGE,
+        number=30,
+        message="SpeculativeDecodingSpec",
     )
 
 
@@ -535,6 +603,23 @@ class PredictRequestResponseLoggingConfig(proto.Message):
     )
 
 
+class ClientConnectionConfig(proto.Message):
+    r"""Configurations (e.g. inference timeout) that are applied on
+    your endpoints.
+
+    Attributes:
+        inference_timeout (google.protobuf.duration_pb2.Duration):
+            Customizable online prediction request
+            timeout.
+    """
+
+    inference_timeout: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=duration_pb2.Duration,
+    )
+
+
 class FasterDeploymentConfig(proto.Message):
     r"""Configuration for faster model deployment.
 
@@ -550,20 +635,112 @@ class FasterDeploymentConfig(proto.Message):
     )
 
 
-class ClientConnectionConfig(proto.Message):
-    r"""Configurations (e.g. inference timeout) that are applied on
-    your endpoints.
+class GenAiAdvancedFeaturesConfig(proto.Message):
+    r"""Configuration for GenAiAdvancedFeatures.
 
     Attributes:
-        inference_timeout (google.protobuf.duration_pb2.Duration):
-            Customizable online prediction request
-            timeout.
+        rag_config (google.cloud.aiplatform_v1.types.GenAiAdvancedFeaturesConfig.RagConfig):
+            Configuration for Retrieval Augmented
+            Generation feature.
     """
 
-    inference_timeout: duration_pb2.Duration = proto.Field(
+    class RagConfig(proto.Message):
+        r"""Configuration for Retrieval Augmented Generation feature.
+
+        Attributes:
+            enable_rag (bool):
+                If true, enable Retrieval Augmented
+                Generation in ChatCompletion request. Once
+                enabled, the endpoint will be identified as
+                GenAI endpoint and Arthedain router will be
+                used.
+        """
+
+        enable_rag: bool = proto.Field(
+            proto.BOOL,
+            number=1,
+        )
+
+    rag_config: RagConfig = proto.Field(
         proto.MESSAGE,
         number=1,
-        message=duration_pb2.Duration,
+        message=RagConfig,
+    )
+
+
+class SpeculativeDecodingSpec(proto.Message):
+    r"""Configuration for Speculative Decoding.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        draft_model_speculation (google.cloud.aiplatform_v1.types.SpeculativeDecodingSpec.DraftModelSpeculation):
+            draft model speculation.
+
+            This field is a member of `oneof`_ ``speculation``.
+        ngram_speculation (google.cloud.aiplatform_v1.types.SpeculativeDecodingSpec.NgramSpeculation):
+            N-Gram speculation.
+
+            This field is a member of `oneof`_ ``speculation``.
+        speculative_token_count (int):
+            The number of speculative tokens to generate
+            at each step.
+    """
+
+    class DraftModelSpeculation(proto.Message):
+        r"""Draft model speculation works by using the smaller model to
+        generate candidate tokens for speculative decoding.
+
+        Attributes:
+            draft_model (str):
+                Required. The resource name of the draft
+                model.
+        """
+
+        draft_model: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    class NgramSpeculation(proto.Message):
+        r"""N-Gram speculation works by trying to find matching tokens in
+        the previous prompt sequence and use those as speculation for
+        generating new tokens.
+
+        Attributes:
+            ngram_size (int):
+                The number of last N input tokens used as
+                ngram to search/match against the previous
+                prompt sequence. This is equal to the N in
+                N-Gram.
+                The default value is 3 if not specified.
+        """
+
+        ngram_size: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+
+    draft_model_speculation: DraftModelSpeculation = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="speculation",
+        message=DraftModelSpeculation,
+    )
+    ngram_speculation: NgramSpeculation = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="speculation",
+        message=NgramSpeculation,
+    )
+    speculative_token_count: int = proto.Field(
+        proto.INT32,
+        number=1,
     )
 
 

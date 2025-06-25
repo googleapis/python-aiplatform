@@ -438,6 +438,16 @@ def save_model(
         ) and model.__class__.__module__.startswith("sklearn"):
             framework_name = "sklearn"
             framework_version = sklearn.__version__
+    try:
+        import sklearn.v1_0_2
+    except ImportError:
+        pass
+    else:
+        if isinstance(
+            model, sklearn.v1_0_2.base.BaseEstimator
+        ) and model.__class__.__module__.startswith("sklearn"):
+            framework_name = "sklearn"
+            framework_version = sklearn.v1_0_2.__version__
 
     try:
         import xgboost as xgb

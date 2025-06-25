@@ -59,6 +59,7 @@ class ProjectConstants:
     _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
     _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
     _TEST_LABELS = {"my_key": "my_value"}
+    _TEST_ENABLE_CUSTOM_SERVICE_ACCOUNT_TRUE = True
 
 
 @dataclasses.dataclass(frozen=True)
@@ -221,6 +222,7 @@ class TrainingJobConstants:
     )
     _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
     _TEST_SPOT_STRATEGY = custom_job.Scheduling.Strategy.SPOT
+    _TEST_PSC_INTERFACE_CONFIG = {"network_attachment": "network_attachment_value"}
 
     def create_tpu_job_proto(tpu_version):
         worker_pool_spec = (

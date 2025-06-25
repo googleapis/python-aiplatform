@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import machine_resources
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -100,11 +101,50 @@ class FeatureView(proto.Message):
             data, so that approximate nearest neighbor
             (a.k.a ANN) algorithms search can be performed
             during online serving.
+        optimized_config (google.cloud.aiplatform_v1.types.FeatureView.OptimizedConfig):
+            Optional. Configuration for FeatureView
+            created under Optimized FeatureOnlineStore.
+        service_agent_type (google.cloud.aiplatform_v1.types.FeatureView.ServiceAgentType):
+            Optional. Service agent type used during data sync. By
+            default, the Vertex AI Service Agent is used. When using an
+            IAM Policy to isolate this FeatureView within a project, a
+            separate service account should be provisioned by setting
+            this field to ``SERVICE_AGENT_TYPE_FEATURE_VIEW``. This will
+            generate a separate service account to access the BigQuery
+            source table.
+        service_account_email (str):
+            Output only. A Service Account unique to this
+            FeatureView. The role bigquery.dataViewer should
+            be granted to this service account to allow
+            Vertex AI Feature Store to sync data to the
+            online store.
         satisfies_pzs (bool):
             Output only. Reserved for future use.
         satisfies_pzi (bool):
             Output only. Reserved for future use.
     """
+
+    class ServiceAgentType(proto.Enum):
+        r"""Service agent type used during data sync.
+
+        Values:
+            SERVICE_AGENT_TYPE_UNSPECIFIED (0):
+                By default, the project-level Vertex AI
+                Service Agent is enabled.
+            SERVICE_AGENT_TYPE_PROJECT (1):
+                Indicates the project-level Vertex AI Service
+                Agent
+                (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
+                will be used during sync jobs.
+            SERVICE_AGENT_TYPE_FEATURE_VIEW (2):
+                Enable a FeatureView service account to be created by Vertex
+                AI and output in the field ``service_account_email``. This
+                service account will be used to read from the source
+                BigQuery table during sync.
+        """
+        SERVICE_AGENT_TYPE_UNSPECIFIED = 0
+        SERVICE_AGENT_TYPE_PROJECT = 1
+        SERVICE_AGENT_TYPE_FEATURE_VIEW = 2
 
     class BigQuerySource(proto.Message):
         r"""
@@ -377,6 +417,26 @@ class FeatureView(proto.Message):
             number=2,
         )
 
+    class OptimizedConfig(proto.Message):
+        r"""Configuration for FeatureViews created in Optimized
+        FeatureOnlineStore.
+
+        Attributes:
+            automatic_resources (google.cloud.aiplatform_v1.types.AutomaticResources):
+                Optional. A description of resources that the FeatureView
+                uses, which to large degree are decided by Vertex AI, and
+                optionally allows only a modest additional configuration. If
+                min_replica_count is not set, the default value is 2. If
+                max_replica_count is not set, the default value is 6. The
+                max allowed replica count is 1000.
+        """
+
+        automatic_resources: machine_resources.AutomaticResources = proto.Field(
+            proto.MESSAGE,
+            number=7,
+            message=machine_resources.AutomaticResources,
+        )
+
     big_query_source: BigQuerySource = proto.Field(
         proto.MESSAGE,
         number=6,
@@ -427,6 +487,20 @@ class FeatureView(proto.Message):
         proto.MESSAGE,
         number=15,
         message=IndexConfig,
+    )
+    optimized_config: OptimizedConfig = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        message=OptimizedConfig,
+    )
+    service_agent_type: ServiceAgentType = proto.Field(
+        proto.ENUM,
+        number=14,
+        enum=ServiceAgentType,
+    )
+    service_account_email: str = proto.Field(
+        proto.STRING,
+        number=13,
     )
     satisfies_pzs: bool = proto.Field(
         proto.BOOL,

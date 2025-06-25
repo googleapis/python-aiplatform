@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 import inspect
+import json
+import pickle
+import logging as std_logging
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -23,8 +26,11 @@ from google.api_core import exceptions as core_exceptions
 from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
+from google.protobuf.json_format import MessageToJson
+import google.protobuf.message
 
 import grpc  # type: ignore
+import proto  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
@@ -35,6 +41,82 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from .base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import PredictionServiceGrpcTransport
+
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = std_logging.getLogger(__name__)
+
+
+class _LoggingClientAIOInterceptor(
+    grpc.aio.UnaryUnaryClientInterceptor
+):  # pragma: NO COVER
+    async def intercept_unary_unary(self, continuation, client_call_details, request):
+        logging_enabled = CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+            std_logging.DEBUG
+        )
+        if logging_enabled:  # pragma: NO COVER
+            request_metadata = client_call_details.metadata
+            if isinstance(request, proto.Message):
+                request_payload = type(request).to_json(request)
+            elif isinstance(request, google.protobuf.message.Message):
+                request_payload = MessageToJson(request)
+            else:
+                request_payload = f"{type(request).__name__}: {pickle.dumps(request)}"
+
+            request_metadata = {
+                key: value.decode("utf-8") if isinstance(value, bytes) else value
+                for key, value in request_metadata
+            }
+            grpc_request = {
+                "payload": request_payload,
+                "requestMethod": "grpc",
+                "metadata": dict(request_metadata),
+            }
+            _LOGGER.debug(
+                f"Sending request for {client_call_details.method}",
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                    "rpcName": str(client_call_details.method),
+                    "request": grpc_request,
+                    "metadata": grpc_request["metadata"],
+                },
+            )
+        response = await continuation(client_call_details, request)
+        if logging_enabled:  # pragma: NO COVER
+            response_metadata = await response.trailing_metadata()
+            # Convert gRPC metadata `<class 'grpc.aio._metadata.Metadata'>` to list of tuples
+            metadata = (
+                dict([(k, str(v)) for k, v in response_metadata])
+                if response_metadata
+                else None
+            )
+            result = await response
+            if isinstance(result, proto.Message):
+                response_payload = type(result).to_json(result)
+            elif isinstance(result, google.protobuf.message.Message):
+                response_payload = MessageToJson(result)
+            else:
+                response_payload = f"{type(result).__name__}: {pickle.dumps(result)}"
+            grpc_response = {
+                "payload": response_payload,
+                "metadata": metadata,
+                "status": "OK",
+            }
+            _LOGGER.debug(
+                f"Received response to rpc {client_call_details.method}.",
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                    "rpcName": str(client_call_details.method),
+                    "response": grpc_response,
+                    "metadata": grpc_response["metadata"],
+                },
+            )
+        return response
 
 
 class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
@@ -232,10 +314,13 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
                 ],
             )
 
-        # Wrap messages. This must be done after self._grpc_channel exists
+        self._interceptor = _LoggingClientAIOInterceptor()
+        self._grpc_channel._unary_unary_interceptors.append(self._interceptor)
+        self._logged_channel = self._grpc_channel
         self._wrap_with_kind = (
             "kind" in inspect.signature(gapic_v1.method_async.wrap_method).parameters
         )
+        # Wrap messages. This must be done after self._logged_channel exists
         self._prep_wrapped_messages(client_info)
 
     @property
@@ -270,7 +355,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "predict" not in self._stubs:
-            self._stubs["predict"] = self.grpc_channel.unary_unary(
+            self._stubs["predict"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/Predict",
                 request_serializer=prediction_service.PredictRequest.serialize,
                 response_deserializer=prediction_service.PredictResponse.deserialize,
@@ -308,7 +393,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "raw_predict" not in self._stubs:
-            self._stubs["raw_predict"] = self.grpc_channel.unary_unary(
+            self._stubs["raw_predict"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/RawPredict",
                 request_serializer=prediction_service.RawPredictRequest.serialize,
                 response_deserializer=httpbody_pb2.HttpBody.FromString,
@@ -337,7 +422,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "stream_raw_predict" not in self._stubs:
-            self._stubs["stream_raw_predict"] = self.grpc_channel.unary_stream(
+            self._stubs["stream_raw_predict"] = self._logged_channel.unary_stream(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/StreamRawPredict",
                 request_serializer=prediction_service.StreamRawPredictRequest.serialize,
                 response_deserializer=httpbody_pb2.HttpBody.FromString,
@@ -368,7 +453,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "direct_predict" not in self._stubs:
-            self._stubs["direct_predict"] = self.grpc_channel.unary_unary(
+            self._stubs["direct_predict"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/DirectPredict",
                 request_serializer=prediction_service.DirectPredictRequest.serialize,
                 response_deserializer=prediction_service.DirectPredictResponse.deserialize,
@@ -398,7 +483,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "direct_raw_predict" not in self._stubs:
-            self._stubs["direct_raw_predict"] = self.grpc_channel.unary_unary(
+            self._stubs["direct_raw_predict"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/DirectRawPredict",
                 request_serializer=prediction_service.DirectRawPredictRequest.serialize,
                 response_deserializer=prediction_service.DirectRawPredictResponse.deserialize,
@@ -429,7 +514,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "stream_direct_predict" not in self._stubs:
-            self._stubs["stream_direct_predict"] = self.grpc_channel.stream_stream(
+            self._stubs["stream_direct_predict"] = self._logged_channel.stream_stream(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/StreamDirectPredict",
                 request_serializer=prediction_service.StreamDirectPredictRequest.serialize,
                 response_deserializer=prediction_service.StreamDirectPredictResponse.deserialize,
@@ -459,7 +544,9 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "stream_direct_raw_predict" not in self._stubs:
-            self._stubs["stream_direct_raw_predict"] = self.grpc_channel.stream_stream(
+            self._stubs[
+                "stream_direct_raw_predict"
+            ] = self._logged_channel.stream_stream(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/StreamDirectRawPredict",
                 request_serializer=prediction_service.StreamDirectRawPredictRequest.serialize,
                 response_deserializer=prediction_service.StreamDirectRawPredictResponse.deserialize,
@@ -489,7 +576,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "streaming_predict" not in self._stubs:
-            self._stubs["streaming_predict"] = self.grpc_channel.stream_stream(
+            self._stubs["streaming_predict"] = self._logged_channel.stream_stream(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/StreamingPredict",
                 request_serializer=prediction_service.StreamingPredictRequest.serialize,
                 response_deserializer=prediction_service.StreamingPredictResponse.deserialize,
@@ -519,7 +606,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "server_streaming_predict" not in self._stubs:
-            self._stubs["server_streaming_predict"] = self.grpc_channel.unary_stream(
+            self._stubs["server_streaming_predict"] = self._logged_channel.unary_stream(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/ServerStreamingPredict",
                 request_serializer=prediction_service.StreamingPredictRequest.serialize,
                 response_deserializer=prediction_service.StreamingPredictResponse.deserialize,
@@ -549,7 +636,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "streaming_raw_predict" not in self._stubs:
-            self._stubs["streaming_raw_predict"] = self.grpc_channel.stream_stream(
+            self._stubs["streaming_raw_predict"] = self._logged_channel.stream_stream(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/StreamingRawPredict",
                 request_serializer=prediction_service.StreamingRawPredictRequest.serialize,
                 response_deserializer=prediction_service.StreamingRawPredictResponse.deserialize,
@@ -588,7 +675,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "explain" not in self._stubs:
-            self._stubs["explain"] = self.grpc_channel.unary_unary(
+            self._stubs["explain"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/Explain",
                 request_serializer=prediction_service.ExplainRequest.serialize,
                 response_deserializer=prediction_service.ExplainResponse.deserialize,
@@ -617,7 +704,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "count_tokens" not in self._stubs:
-            self._stubs["count_tokens"] = self.grpc_channel.unary_unary(
+            self._stubs["count_tokens"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/CountTokens",
                 request_serializer=prediction_service.CountTokensRequest.serialize,
                 response_deserializer=prediction_service.CountTokensResponse.deserialize,
@@ -646,7 +733,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "generate_content" not in self._stubs:
-            self._stubs["generate_content"] = self.grpc_channel.unary_unary(
+            self._stubs["generate_content"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/GenerateContent",
                 request_serializer=prediction_service.GenerateContentRequest.serialize,
                 response_deserializer=prediction_service.GenerateContentResponse.deserialize,
@@ -676,7 +763,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "stream_generate_content" not in self._stubs:
-            self._stubs["stream_generate_content"] = self.grpc_channel.unary_stream(
+            self._stubs["stream_generate_content"] = self._logged_channel.unary_stream(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/StreamGenerateContent",
                 request_serializer=prediction_service.GenerateContentRequest.serialize,
                 response_deserializer=prediction_service.GenerateContentResponse.deserialize,
@@ -705,7 +792,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "chat_completions" not in self._stubs:
-            self._stubs["chat_completions"] = self.grpc_channel.unary_stream(
+            self._stubs["chat_completions"] = self._logged_channel.unary_stream(
                 "/google.cloud.aiplatform.v1beta1.PredictionService/ChatCompletions",
                 request_serializer=prediction_service.ChatCompletionsRequest.serialize,
                 response_deserializer=httpbody_pb2.HttpBody.FromString,
@@ -848,7 +935,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
 
     def close(self):
-        return self.grpc_channel.close()
+        return self._logged_channel.close()
 
     @property
     def kind(self) -> str:
@@ -864,7 +951,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_operation" not in self._stubs:
-            self._stubs["delete_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["delete_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/DeleteOperation",
                 request_serializer=operations_pb2.DeleteOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -881,7 +968,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_operation" not in self._stubs:
-            self._stubs["cancel_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["cancel_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/CancelOperation",
                 request_serializer=operations_pb2.CancelOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -898,7 +985,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "wait_operation" not in self._stubs:
-            self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["wait_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -915,7 +1002,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_operation" not in self._stubs:
-            self._stubs["get_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["get_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/GetOperation",
                 request_serializer=operations_pb2.GetOperationRequest.SerializeToString,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -934,7 +1021,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_operations" not in self._stubs:
-            self._stubs["list_operations"] = self.grpc_channel.unary_unary(
+            self._stubs["list_operations"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/ListOperations",
                 request_serializer=operations_pb2.ListOperationsRequest.SerializeToString,
                 response_deserializer=operations_pb2.ListOperationsResponse.FromString,
@@ -953,7 +1040,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_locations" not in self._stubs:
-            self._stubs["list_locations"] = self.grpc_channel.unary_unary(
+            self._stubs["list_locations"] = self._logged_channel.unary_unary(
                 "/google.cloud.location.Locations/ListLocations",
                 request_serializer=locations_pb2.ListLocationsRequest.SerializeToString,
                 response_deserializer=locations_pb2.ListLocationsResponse.FromString,
@@ -970,7 +1057,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_location" not in self._stubs:
-            self._stubs["get_location"] = self.grpc_channel.unary_unary(
+            self._stubs["get_location"] = self._logged_channel.unary_unary(
                 "/google.cloud.location.Locations/GetLocation",
                 request_serializer=locations_pb2.GetLocationRequest.SerializeToString,
                 response_deserializer=locations_pb2.Location.FromString,
@@ -995,7 +1082,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "set_iam_policy" not in self._stubs:
-            self._stubs["set_iam_policy"] = self.grpc_channel.unary_unary(
+            self._stubs["set_iam_policy"] = self._logged_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/SetIamPolicy",
                 request_serializer=iam_policy_pb2.SetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -1021,7 +1108,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_iam_policy" not in self._stubs:
-            self._stubs["get_iam_policy"] = self.grpc_channel.unary_unary(
+            self._stubs["get_iam_policy"] = self._logged_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/GetIamPolicy",
                 request_serializer=iam_policy_pb2.GetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -1050,7 +1137,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "test_iam_permissions" not in self._stubs:
-            self._stubs["test_iam_permissions"] = self.grpc_channel.unary_unary(
+            self._stubs["test_iam_permissions"] = self._logged_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/TestIamPermissions",
                 request_serializer=iam_policy_pb2.TestIamPermissionsRequest.SerializeToString,
                 response_deserializer=iam_policy_pb2.TestIamPermissionsResponse.FromString,

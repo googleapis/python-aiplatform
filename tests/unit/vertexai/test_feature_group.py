@@ -70,6 +70,8 @@ from feature_store_constants import (
     _TEST_FG1_F1_DESCRIPTION,
     _TEST_FG1_F1_LABELS,
     _TEST_FG1_F1_POINT_OF_CONTACT,
+    _TEST_FG1_F1_WITH_STATS,
+    _TEST_FG1_F1_FEATURE_STATS_AND_ANOMALY,
     _TEST_FG1_F2,
     _TEST_FG1_F2_ID,
     _TEST_FG1_F2_PATH,
@@ -199,6 +201,16 @@ def list_feature_monitors_mock():
     ) as list_feature_monitors_mock:
         list_feature_monitors_mock.return_value = _TEST_FG1_FM_LIST
         yield list_feature_monitors_mock
+
+
+@pytest.fixture
+def get_feature_with_stats_and_anomalies_mock():
+    with patch.object(
+        FeatureRegistryServiceClient,
+        "get_feature",
+    ) as get_feature_with_stats_and_anomalies_mock:
+        get_feature_with_stats_and_anomalies_mock.return_value = _TEST_FG1_F1_WITH_STATS
+        yield get_feature_with_stats_and_anomalies_mock
 
 
 @pytest.fixture()
@@ -449,6 +461,36 @@ def test_get_feature(get_fg_mock, get_feature_mock):
         description=_TEST_FG1_F1_DESCRIPTION,
         labels=_TEST_FG1_F1_LABELS,
         point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    )
+
+
+def test_get_feature_with_latest_stats_count(
+    get_fg_mock, get_feature_with_stats_and_anomalies_mock
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    fg = FeatureGroup(_TEST_FG1_ID)
+    feature = fg.get_feature(_TEST_FG1_F1_ID, latest_stats_count=1)
+
+    get_feature_with_stats_and_anomalies_mock.assert_called_once_with(
+        request=types.featurestore_service_v1beta1.GetFeatureRequest(
+            name=_TEST_FG1_F1_PATH,
+            feature_stats_and_anomaly_spec=types.feature_monitor.FeatureStatsAndAnomalySpec(
+                latest_stats_count=1
+            ),
+        )
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+        feature_stats_and_anomalies=[_TEST_FG1_F1_FEATURE_STATS_AND_ANOMALY],
     )
 
 

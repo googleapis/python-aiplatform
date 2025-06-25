@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -92,6 +92,120 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
             always_use_jwt_access=always_use_jwt_access,
             api_audience=api_audience,
         )
+
+    class _BaseAugmentPrompt:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*}:augmentPrompt",
+                    "body": "*",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_service.AugmentPromptRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagServiceRestTransport._BaseAugmentPrompt._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseCorroborateContent:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*}:corroborateContent",
+                    "body": "*",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_service.CorroborateContentRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagServiceRestTransport._BaseCorroborateContent._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
 
     class _BaseRetrieveContexts:
         def __hash__(self):  # pragma: NO COVER
@@ -250,6 +364,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
                 },
                 {
@@ -279,6 +397,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
                 },
             ]
             return http_options
@@ -343,6 +465,11 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
                     "body": "*",
                 },
@@ -374,6 +501,11 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
                     "body": "*",
                 },
             ]
@@ -433,6 +565,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
                 },
                 {
@@ -458,6 +594,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
                 },
             ]
             return http_options
@@ -647,6 +787,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -807,6 +951,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
                 },
                 {
@@ -832,6 +980,14 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1040,6 +1196,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1065,6 +1225,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1216,6 +1380,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                 },
                 {
@@ -1225,6 +1393,14 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1281,6 +1457,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1469,6 +1649,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -1506,6 +1690,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -1653,6 +1841,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                 },
                 {
@@ -1662,6 +1854,14 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -1722,6 +1922,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
             ]
             return http_options
@@ -1902,6 +2106,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -1939,6 +2147,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
                 {
                     "method": "get",
@@ -2086,6 +2298,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*}/operations",
                 },
                 {
@@ -2095,6 +2311,14 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
                 },
                 {
                     "method": "get",
@@ -2155,6 +2379,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
                 },
             ]
             return http_options
@@ -2343,6 +2571,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -2372,6 +2604,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
@@ -2519,6 +2755,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                 },
                 {
@@ -2528,6 +2768,14 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
@@ -2584,6 +2832,10 @@ class _BaseVertexRagServiceRestTransport(VertexRagServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
             ]
             return http_options

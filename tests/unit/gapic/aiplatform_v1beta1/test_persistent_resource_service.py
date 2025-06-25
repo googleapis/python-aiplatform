@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -99,6 +99,14 @@ from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -377,6 +385,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         PersistentResourceServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = PersistentResourceServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = PersistentResourceServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -3655,6 +3706,7 @@ def test_create_persistent_resource_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_persistent_resource(request)
 
@@ -3717,6 +3769,7 @@ def test_create_persistent_resource_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_persistent_resource(**mock_args)
 
@@ -3857,6 +3910,7 @@ def test_get_persistent_resource_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_persistent_resource(request)
 
@@ -3904,6 +3958,7 @@ def test_get_persistent_resource_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_persistent_resource(**mock_args)
 
@@ -4051,6 +4106,7 @@ def test_list_persistent_resources_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_persistent_resources(request)
 
@@ -4106,6 +4162,7 @@ def test_list_persistent_resources_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_persistent_resources(**mock_args)
 
@@ -4309,6 +4366,7 @@ def test_delete_persistent_resource_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_persistent_resource(request)
 
@@ -4354,6 +4412,7 @@ def test_delete_persistent_resource_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_persistent_resource(**mock_args)
 
@@ -4489,6 +4548,7 @@ def test_update_persistent_resource_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_persistent_resource(request)
 
@@ -4547,6 +4607,7 @@ def test_update_persistent_resource_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_persistent_resource(**mock_args)
 
@@ -4688,6 +4749,7 @@ def test_reboot_persistent_resource_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.reboot_persistent_resource(request)
 
@@ -4733,6 +4795,7 @@ def test_reboot_persistent_resource_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.reboot_persistent_resource(**mock_args)
 
@@ -5222,6 +5285,7 @@ def test_create_persistent_resource_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_persistent_resource(request)
 
 
@@ -5250,6 +5314,7 @@ def test_create_persistent_resource_rest_call_success(request_type):
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
                     "tpu_topology": "tpu_topology_value",
+                    "multihost_gpu_node_count": 2593,
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
                         "key": "key_value",
@@ -5284,7 +5349,16 @@ def test_create_persistent_resource_rest_call_success(request_type):
         "update_time": {},
         "labels": {},
         "network": "network_value",
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {
@@ -5401,6 +5475,7 @@ def test_create_persistent_resource_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -5428,10 +5503,14 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
         "post_create_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_create_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_create_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.CreatePersistentResourceRequest.pb(
             persistent_resource_service.CreatePersistentResourceRequest()
         )
@@ -5444,6 +5523,7 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -5454,6 +5534,7 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_persistent_resource(
             request,
@@ -5465,6 +5546,7 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_persistent_resource_rest_bad_request(
@@ -5490,6 +5572,7 @@ def test_get_persistent_resource_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_persistent_resource(request)
 
 
@@ -5533,6 +5616,7 @@ def test_get_persistent_resource_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -5565,10 +5649,14 @@ def test_get_persistent_resource_rest_interceptors(null_interceptor):
         "post_get_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_get_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_get_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.GetPersistentResourceRequest.pb(
             persistent_resource_service.GetPersistentResourceRequest()
         )
@@ -5581,6 +5669,7 @@ def test_get_persistent_resource_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = persistent_resource.PersistentResource.to_json(
             persistent_resource.PersistentResource()
         )
@@ -5593,6 +5682,10 @@ def test_get_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = persistent_resource.PersistentResource()
+        post_with_metadata.return_value = (
+            persistent_resource.PersistentResource(),
+            metadata,
+        )
 
         client.get_persistent_resource(
             request,
@@ -5604,6 +5697,7 @@ def test_get_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_persistent_resources_rest_bad_request(
@@ -5627,6 +5721,7 @@ def test_list_persistent_resources_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_persistent_resources(request)
 
 
@@ -5664,6 +5759,7 @@ def test_list_persistent_resources_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_persistent_resources(request)
 
     # Establish that the response is the type that we expect.
@@ -5690,10 +5786,14 @@ def test_list_persistent_resources_rest_interceptors(null_interceptor):
         "post_list_persistent_resources",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_list_persistent_resources_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_list_persistent_resources",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.ListPersistentResourcesRequest.pb(
             persistent_resource_service.ListPersistentResourcesRequest()
         )
@@ -5706,6 +5806,7 @@ def test_list_persistent_resources_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             persistent_resource_service.ListPersistentResourcesResponse.to_json(
                 persistent_resource_service.ListPersistentResourcesResponse()
@@ -5722,6 +5823,10 @@ def test_list_persistent_resources_rest_interceptors(null_interceptor):
         post.return_value = (
             persistent_resource_service.ListPersistentResourcesResponse()
         )
+        post_with_metadata.return_value = (
+            persistent_resource_service.ListPersistentResourcesResponse(),
+            metadata,
+        )
 
         client.list_persistent_resources(
             request,
@@ -5733,6 +5838,7 @@ def test_list_persistent_resources_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_persistent_resource_rest_bad_request(
@@ -5758,6 +5864,7 @@ def test_delete_persistent_resource_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_persistent_resource(request)
 
 
@@ -5790,6 +5897,7 @@ def test_delete_persistent_resource_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -5817,10 +5925,14 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
         "post_delete_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_delete_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_delete_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.DeletePersistentResourceRequest.pb(
             persistent_resource_service.DeletePersistentResourceRequest()
         )
@@ -5833,6 +5945,7 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -5843,6 +5956,7 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_persistent_resource(
             request,
@@ -5854,6 +5968,7 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_persistent_resource_rest_bad_request(
@@ -5881,6 +5996,7 @@ def test_update_persistent_resource_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_persistent_resource(request)
 
 
@@ -5913,6 +6029,7 @@ def test_update_persistent_resource_rest_call_success(request_type):
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
                     "tpu_topology": "tpu_topology_value",
+                    "multihost_gpu_node_count": 2593,
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
                         "key": "key_value",
@@ -5947,7 +6064,16 @@ def test_update_persistent_resource_rest_call_success(request_type):
         "update_time": {},
         "labels": {},
         "network": "network_value",
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {
@@ -6064,6 +6190,7 @@ def test_update_persistent_resource_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -6091,10 +6218,14 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
         "post_update_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_update_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_update_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.UpdatePersistentResourceRequest.pb(
             persistent_resource_service.UpdatePersistentResourceRequest()
         )
@@ -6107,6 +6238,7 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -6117,6 +6249,7 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_persistent_resource(
             request,
@@ -6128,6 +6261,7 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_reboot_persistent_resource_rest_bad_request(
@@ -6153,6 +6287,7 @@ def test_reboot_persistent_resource_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.reboot_persistent_resource(request)
 
 
@@ -6185,6 +6320,7 @@ def test_reboot_persistent_resource_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.reboot_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -6212,10 +6348,14 @@ def test_reboot_persistent_resource_rest_interceptors(null_interceptor):
         "post_reboot_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_reboot_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_reboot_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.RebootPersistentResourceRequest.pb(
             persistent_resource_service.RebootPersistentResourceRequest()
         )
@@ -6228,6 +6368,7 @@ def test_reboot_persistent_resource_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -6238,6 +6379,7 @@ def test_reboot_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.reboot_persistent_resource(
             request,
@@ -6249,6 +6391,7 @@ def test_reboot_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -6272,6 +6415,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -6302,6 +6446,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -6330,6 +6475,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -6360,6 +6506,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -6391,6 +6538,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -6423,6 +6571,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -6454,6 +6603,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -6486,6 +6636,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -6517,6 +6668,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -6549,6 +6701,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -6579,6 +6732,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -6609,6 +6763,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -6639,6 +6794,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -6669,6 +6825,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -6699,6 +6856,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -6729,6 +6887,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -6759,6 +6918,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -6789,6 +6949,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -6819,6 +6980,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -6849,6 +7011,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -7048,6 +7211,7 @@ async def test_create_persistent_resource_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_persistent_resource(request)
 
 
@@ -7081,6 +7245,7 @@ async def test_create_persistent_resource_rest_asyncio_call_success(request_type
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
                     "tpu_topology": "tpu_topology_value",
+                    "multihost_gpu_node_count": 2593,
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
                         "key": "key_value",
@@ -7115,7 +7280,16 @@ async def test_create_persistent_resource_rest_asyncio_call_success(request_type
         "update_time": {},
         "labels": {},
         "network": "network_value",
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {
@@ -7234,6 +7408,7 @@ async def test_create_persistent_resource_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -7266,10 +7441,14 @@ async def test_create_persistent_resource_rest_asyncio_interceptors(null_interce
         "post_create_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_create_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_create_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.CreatePersistentResourceRequest.pb(
             persistent_resource_service.CreatePersistentResourceRequest()
         )
@@ -7282,6 +7461,7 @@ async def test_create_persistent_resource_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -7292,6 +7472,7 @@ async def test_create_persistent_resource_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_persistent_resource(
             request,
@@ -7303,6 +7484,7 @@ async def test_create_persistent_resource_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7332,6 +7514,7 @@ async def test_get_persistent_resource_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_persistent_resource(request)
 
 
@@ -7382,6 +7565,7 @@ async def test_get_persistent_resource_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -7419,10 +7603,14 @@ async def test_get_persistent_resource_rest_asyncio_interceptors(null_intercepto
         "post_get_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_get_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_get_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.GetPersistentResourceRequest.pb(
             persistent_resource_service.GetPersistentResourceRequest()
         )
@@ -7435,6 +7623,7 @@ async def test_get_persistent_resource_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = persistent_resource.PersistentResource.to_json(
             persistent_resource.PersistentResource()
         )
@@ -7447,6 +7636,10 @@ async def test_get_persistent_resource_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = persistent_resource.PersistentResource()
+        post_with_metadata.return_value = (
+            persistent_resource.PersistentResource(),
+            metadata,
+        )
 
         await client.get_persistent_resource(
             request,
@@ -7458,6 +7651,7 @@ async def test_get_persistent_resource_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7485,6 +7679,7 @@ async def test_list_persistent_resources_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_persistent_resources(request)
 
 
@@ -7529,6 +7724,7 @@ async def test_list_persistent_resources_rest_asyncio_call_success(request_type)
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_persistent_resources(request)
 
     # Establish that the response is the type that we expect.
@@ -7560,10 +7756,14 @@ async def test_list_persistent_resources_rest_asyncio_interceptors(null_intercep
         "post_list_persistent_resources",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_list_persistent_resources_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_list_persistent_resources",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.ListPersistentResourcesRequest.pb(
             persistent_resource_service.ListPersistentResourcesRequest()
         )
@@ -7576,6 +7776,7 @@ async def test_list_persistent_resources_rest_asyncio_interceptors(null_intercep
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             persistent_resource_service.ListPersistentResourcesResponse.to_json(
                 persistent_resource_service.ListPersistentResourcesResponse()
@@ -7592,6 +7793,10 @@ async def test_list_persistent_resources_rest_asyncio_interceptors(null_intercep
         post.return_value = (
             persistent_resource_service.ListPersistentResourcesResponse()
         )
+        post_with_metadata.return_value = (
+            persistent_resource_service.ListPersistentResourcesResponse(),
+            metadata,
+        )
 
         await client.list_persistent_resources(
             request,
@@ -7603,6 +7808,7 @@ async def test_list_persistent_resources_rest_asyncio_interceptors(null_intercep
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7632,6 +7838,7 @@ async def test_delete_persistent_resource_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_persistent_resource(request)
 
 
@@ -7671,6 +7878,7 @@ async def test_delete_persistent_resource_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -7703,10 +7911,14 @@ async def test_delete_persistent_resource_rest_asyncio_interceptors(null_interce
         "post_delete_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_delete_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_delete_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.DeletePersistentResourceRequest.pb(
             persistent_resource_service.DeletePersistentResourceRequest()
         )
@@ -7719,6 +7931,7 @@ async def test_delete_persistent_resource_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -7729,6 +7942,7 @@ async def test_delete_persistent_resource_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_persistent_resource(
             request,
@@ -7740,6 +7954,7 @@ async def test_delete_persistent_resource_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7771,6 +7986,7 @@ async def test_update_persistent_resource_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_persistent_resource(request)
 
 
@@ -7808,6 +8024,7 @@ async def test_update_persistent_resource_rest_asyncio_call_success(request_type
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
                     "tpu_topology": "tpu_topology_value",
+                    "multihost_gpu_node_count": 2593,
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
                         "key": "key_value",
@@ -7842,7 +8059,16 @@ async def test_update_persistent_resource_rest_asyncio_call_success(request_type
         "update_time": {},
         "labels": {},
         "network": "network_value",
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "resource_runtime_spec": {
             "service_account_spec": {
@@ -7961,6 +8187,7 @@ async def test_update_persistent_resource_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -7993,10 +8220,14 @@ async def test_update_persistent_resource_rest_asyncio_interceptors(null_interce
         "post_update_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_update_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_update_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.UpdatePersistentResourceRequest.pb(
             persistent_resource_service.UpdatePersistentResourceRequest()
         )
@@ -8009,6 +8240,7 @@ async def test_update_persistent_resource_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -8019,6 +8251,7 @@ async def test_update_persistent_resource_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_persistent_resource(
             request,
@@ -8030,6 +8263,7 @@ async def test_update_persistent_resource_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8059,6 +8293,7 @@ async def test_reboot_persistent_resource_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.reboot_persistent_resource(request)
 
 
@@ -8098,6 +8333,7 @@ async def test_reboot_persistent_resource_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.reboot_persistent_resource(request)
 
     # Establish that the response is the type that we expect.
@@ -8130,10 +8366,14 @@ async def test_reboot_persistent_resource_rest_asyncio_interceptors(null_interce
         "post_reboot_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_reboot_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_reboot_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.RebootPersistentResourceRequest.pb(
             persistent_resource_service.RebootPersistentResourceRequest()
         )
@@ -8146,6 +8386,7 @@ async def test_reboot_persistent_resource_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -8156,6 +8397,7 @@ async def test_reboot_persistent_resource_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.reboot_persistent_resource(
             request,
@@ -8167,6 +8409,7 @@ async def test_reboot_persistent_resource_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8196,6 +8439,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -8233,6 +8477,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -8265,6 +8510,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -8302,6 +8548,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -8337,6 +8584,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -8376,6 +8624,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -8411,6 +8660,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -8450,6 +8700,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -8485,6 +8736,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -8524,6 +8776,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -8558,6 +8811,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -8595,6 +8849,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -8629,6 +8884,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -8666,6 +8922,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -8700,6 +8957,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -8737,6 +8995,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -8771,6 +9030,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -8808,6 +9068,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -8842,6 +9103,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -8879,6 +9141,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

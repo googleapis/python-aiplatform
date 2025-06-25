@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ from google.api_core import gapic_v1
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
+from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine_execution_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -35,6 +37,9 @@ from google.longrunning import operations_pb2  # type: ignore
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class ReasoningEngineExecutionServiceTransport(abc.ABC):
@@ -138,6 +143,11 @@ class ReasoningEngineExecutionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.stream_query_reasoning_engine: gapic_v1.method.wrap_method(
+                self.stream_query_reasoning_engine,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -208,6 +218,15 @@ class ReasoningEngineExecutionServiceTransport(abc.ABC):
             reasoning_engine_execution_service.QueryReasoningEngineResponse,
             Awaitable[reasoning_engine_execution_service.QueryReasoningEngineResponse],
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def stream_query_reasoning_engine(
+        self,
+    ) -> Callable[
+        [reasoning_engine_execution_service.StreamQueryReasoningEngineRequest],
+        Union[httpbody_pb2.HttpBody, Awaitable[httpbody_pb2.HttpBody]],
     ]:
         raise NotImplementedError()
 

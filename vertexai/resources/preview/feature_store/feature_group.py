@@ -239,12 +239,16 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
     def get_feature(
         self,
         feature_id: str,
+        latest_stats_count: Optional[int] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> Feature:
         """Retrieves an existing managed feature.
 
         Args:
             feature_id: The ID of the feature.
+            latest_stats_count:
+                The number of latest stats to retrieve. Only returns stats if
+                Feature Monitor is created, and historical stats were generated.
             credentials:
                 Custom credentials to use to retrieve the feature under this
                 feature group. The order of which credentials are used is as
@@ -257,6 +261,12 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
         credentials = (
             credentials or self.credentials or initializer.global_config.credentials
         )
+        if latest_stats_count is not None:
+            return Feature(
+                name=f"{self.resource_name}/features/{feature_id}",
+                latest_stats_count=latest_stats_count,
+                credentials=credentials,
+            )
         return Feature(
             f"{self.resource_name}/features/{feature_id}", credentials=credentials
         )
@@ -376,13 +386,13 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             project:
-                Project to create feature in. If unset, the project set in
+                Project to list features in. If unset, the project set in
                 aiplatform.init will be used.
             location:
-                Location to create feature in. If not set, location set in
+                Location to list features in. If not set, location set in
                 aiplatform.init will be used.
             credentials:
-                Custom credentials to use to create this feature. Overrides
+                Custom credentials to use to list features. Overrides
                 credentials set in aiplatform.init.
 
         Returns:

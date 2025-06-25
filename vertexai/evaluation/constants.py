@@ -20,6 +20,7 @@ import dataclasses
 # The number of concurrent workers to use for making model inference and
 # evaluation requests.
 MAX_WORKERS = 100
+RESPONSE_ERROR = "Error"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -162,14 +163,7 @@ class Dataset:
 
 @dataclasses.dataclass(frozen=True)
 class QuotaLimit:
-    """Generative AI on Vertex AI quota limits.
-
-    For more details about QPM quota by region for each available base model, see
-      https://cloud.google.com/vertex-ai/generative-ai/docs/quotas.
-    """
-
-    # Default Prediction Service QPS limit.
-    PREDICTION_SERVICE_QPS = 5
+    """Generative AI on Vertex AI quota limits."""
 
     # Default Evaluation Service QPS limit.
-    EVAL_SERVICE_QPS = 1
+    EVAL_SERVICE_QPS = 10

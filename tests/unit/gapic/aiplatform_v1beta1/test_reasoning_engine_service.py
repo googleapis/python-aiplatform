@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import pagers
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import transports
+from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine
 from google.cloud.aiplatform_v1beta1.types import (
@@ -91,6 +92,14 @@ from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -365,6 +374,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         ReasoningEngineServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = ReasoningEngineServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = ReasoningEngineServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -3225,6 +3277,7 @@ def test_create_reasoning_engine_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_reasoning_engine(request)
 
@@ -3277,6 +3330,7 @@ def test_create_reasoning_engine_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_reasoning_engine(**mock_args)
 
@@ -3413,6 +3467,7 @@ def test_get_reasoning_engine_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_reasoning_engine(request)
 
@@ -3460,6 +3515,7 @@ def test_get_reasoning_engine_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_reasoning_engine(**mock_args)
 
@@ -3606,6 +3662,7 @@ def test_list_reasoning_engines_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_reasoning_engines(request)
 
@@ -3662,6 +3719,7 @@ def test_list_reasoning_engines_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_reasoning_engines(**mock_args)
 
@@ -3861,6 +3919,7 @@ def test_update_reasoning_engine_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_reasoning_engine(request)
 
@@ -3875,15 +3934,7 @@ def test_update_reasoning_engine_rest_unset_required_fields():
     )
 
     unset_fields = transport.update_reasoning_engine._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(("updateMask",))
-        & set(
-            (
-                "reasoningEngine",
-                "updateMask",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(("updateMask",)) & set(("reasoningEngine",)))
 
 
 def test_update_reasoning_engine_rest_flattened():
@@ -3917,6 +3968,7 @@ def test_update_reasoning_engine_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_reasoning_engine(**mock_args)
 
@@ -4019,6 +4071,8 @@ def test_delete_reasoning_engine_rest_required_fields(
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
     ).delete_reasoning_engine._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("force",))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
@@ -4055,6 +4109,7 @@ def test_delete_reasoning_engine_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_reasoning_engine(request)
 
@@ -4069,7 +4124,7 @@ def test_delete_reasoning_engine_rest_unset_required_fields():
     )
 
     unset_fields = transport.delete_reasoning_engine._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
+    assert set(unset_fields) == (set(("force",)) & set(("name",)))
 
 
 def test_delete_reasoning_engine_rest_flattened():
@@ -4100,6 +4155,7 @@ def test_delete_reasoning_engine_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_reasoning_engine(**mock_args)
 
@@ -4534,6 +4590,7 @@ def test_create_reasoning_engine_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_reasoning_engine(request)
 
 
@@ -4562,11 +4619,32 @@ def test_create_reasoning_engine_rest_call_success(request_type):
                 "requirements_gcs_uri": "requirements_gcs_uri_value",
                 "python_version": "python_version_value",
             },
+            "deployment_spec": {
+                "env": [{"name": "name_value", "value": "value_value"}],
+                "secret_env": [
+                    {
+                        "name": "name_value",
+                        "secret_ref": {
+                            "secret": "secret_value",
+                            "version": "version_value",
+                        },
+                    }
+                ],
+            },
             "class_methods": [{"fields": {}}],
+            "agent_framework": "agent_framework_value",
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
+        "context_spec": {
+            "memory_bank_config": {
+                "generation_config": {"model": "model_value"},
+                "similarity_search_config": {
+                    "embedding_model": "embedding_model_value"
+                },
+            }
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -4650,6 +4728,7 @@ def test_create_reasoning_engine_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_reasoning_engine(request)
 
     # Establish that the response is the type that we expect.
@@ -4675,10 +4754,14 @@ def test_create_reasoning_engine_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_create_reasoning_engine"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_create_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_create_reasoning_engine"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.CreateReasoningEngineRequest.pb(
             reasoning_engine_service.CreateReasoningEngineRequest()
         )
@@ -4691,6 +4774,7 @@ def test_create_reasoning_engine_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -4701,6 +4785,7 @@ def test_create_reasoning_engine_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_reasoning_engine(
             request,
@@ -4712,6 +4797,7 @@ def test_create_reasoning_engine_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_reasoning_engine_rest_bad_request(
@@ -4737,6 +4823,7 @@ def test_get_reasoning_engine_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_reasoning_engine(request)
 
 
@@ -4777,6 +4864,7 @@ def test_get_reasoning_engine_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_reasoning_engine(request)
 
     # Establish that the response is the type that we expect.
@@ -4804,10 +4892,14 @@ def test_get_reasoning_engine_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_get_reasoning_engine"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_get_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_get_reasoning_engine"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.GetReasoningEngineRequest.pb(
             reasoning_engine_service.GetReasoningEngineRequest()
         )
@@ -4820,6 +4912,7 @@ def test_get_reasoning_engine_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = reasoning_engine.ReasoningEngine.to_json(
             reasoning_engine.ReasoningEngine()
         )
@@ -4832,6 +4925,7 @@ def test_get_reasoning_engine_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = reasoning_engine.ReasoningEngine()
+        post_with_metadata.return_value = reasoning_engine.ReasoningEngine(), metadata
 
         client.get_reasoning_engine(
             request,
@@ -4843,6 +4937,7 @@ def test_get_reasoning_engine_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_reasoning_engines_rest_bad_request(
@@ -4866,6 +4961,7 @@ def test_list_reasoning_engines_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_reasoning_engines(request)
 
 
@@ -4903,6 +4999,7 @@ def test_list_reasoning_engines_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_reasoning_engines(request)
 
     # Establish that the response is the type that we expect.
@@ -4927,10 +5024,14 @@ def test_list_reasoning_engines_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_list_reasoning_engines"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_list_reasoning_engines_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_list_reasoning_engines"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.ListReasoningEnginesRequest.pb(
             reasoning_engine_service.ListReasoningEnginesRequest()
         )
@@ -4943,6 +5044,7 @@ def test_list_reasoning_engines_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = reasoning_engine_service.ListReasoningEnginesResponse.to_json(
             reasoning_engine_service.ListReasoningEnginesResponse()
         )
@@ -4955,6 +5057,10 @@ def test_list_reasoning_engines_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = reasoning_engine_service.ListReasoningEnginesResponse()
+        post_with_metadata.return_value = (
+            reasoning_engine_service.ListReasoningEnginesResponse(),
+            metadata,
+        )
 
         client.list_reasoning_engines(
             request,
@@ -4966,6 +5072,7 @@ def test_list_reasoning_engines_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_reasoning_engine_rest_bad_request(
@@ -4993,6 +5100,7 @@ def test_update_reasoning_engine_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_reasoning_engine(request)
 
 
@@ -5025,11 +5133,32 @@ def test_update_reasoning_engine_rest_call_success(request_type):
                 "requirements_gcs_uri": "requirements_gcs_uri_value",
                 "python_version": "python_version_value",
             },
+            "deployment_spec": {
+                "env": [{"name": "name_value", "value": "value_value"}],
+                "secret_env": [
+                    {
+                        "name": "name_value",
+                        "secret_ref": {
+                            "secret": "secret_value",
+                            "version": "version_value",
+                        },
+                    }
+                ],
+            },
             "class_methods": [{"fields": {}}],
+            "agent_framework": "agent_framework_value",
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
+        "context_spec": {
+            "memory_bank_config": {
+                "generation_config": {"model": "model_value"},
+                "similarity_search_config": {
+                    "embedding_model": "embedding_model_value"
+                },
+            }
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5113,6 +5242,7 @@ def test_update_reasoning_engine_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_reasoning_engine(request)
 
     # Establish that the response is the type that we expect.
@@ -5138,10 +5268,14 @@ def test_update_reasoning_engine_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_update_reasoning_engine"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_update_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_update_reasoning_engine"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.UpdateReasoningEngineRequest.pb(
             reasoning_engine_service.UpdateReasoningEngineRequest()
         )
@@ -5154,6 +5288,7 @@ def test_update_reasoning_engine_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -5164,6 +5299,7 @@ def test_update_reasoning_engine_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_reasoning_engine(
             request,
@@ -5175,6 +5311,7 @@ def test_update_reasoning_engine_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_reasoning_engine_rest_bad_request(
@@ -5200,6 +5337,7 @@ def test_delete_reasoning_engine_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_reasoning_engine(request)
 
 
@@ -5232,6 +5370,7 @@ def test_delete_reasoning_engine_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_reasoning_engine(request)
 
     # Establish that the response is the type that we expect.
@@ -5257,10 +5396,14 @@ def test_delete_reasoning_engine_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_delete_reasoning_engine"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_delete_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_delete_reasoning_engine"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.DeleteReasoningEngineRequest.pb(
             reasoning_engine_service.DeleteReasoningEngineRequest()
         )
@@ -5273,6 +5416,7 @@ def test_delete_reasoning_engine_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -5283,6 +5427,7 @@ def test_delete_reasoning_engine_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_reasoning_engine(
             request,
@@ -5294,6 +5439,7 @@ def test_delete_reasoning_engine_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -5317,6 +5463,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -5347,6 +5494,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -5375,6 +5523,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -5405,6 +5554,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -5436,6 +5586,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -5468,6 +5619,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -5499,6 +5651,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -5531,6 +5684,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -5562,6 +5716,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -5594,6 +5749,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -5624,6 +5780,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -5654,6 +5811,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -5684,6 +5842,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -5714,6 +5873,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -5744,6 +5904,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -5774,6 +5935,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -5804,6 +5966,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -5834,6 +5997,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -5864,6 +6028,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -5894,6 +6059,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -6071,6 +6237,7 @@ async def test_create_reasoning_engine_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_reasoning_engine(request)
 
 
@@ -6104,11 +6271,32 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
                 "requirements_gcs_uri": "requirements_gcs_uri_value",
                 "python_version": "python_version_value",
             },
+            "deployment_spec": {
+                "env": [{"name": "name_value", "value": "value_value"}],
+                "secret_env": [
+                    {
+                        "name": "name_value",
+                        "secret_ref": {
+                            "secret": "secret_value",
+                            "version": "version_value",
+                        },
+                    }
+                ],
+            },
             "class_methods": [{"fields": {}}],
+            "agent_framework": "agent_framework_value",
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
+        "context_spec": {
+            "memory_bank_config": {
+                "generation_config": {"model": "model_value"},
+                "similarity_search_config": {
+                    "embedding_model": "embedding_model_value"
+                },
+            }
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6194,6 +6382,7 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_reasoning_engine(request)
 
     # Establish that the response is the type that we expect.
@@ -6226,10 +6415,14 @@ async def test_create_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         "post_create_reasoning_engine",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_create_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_create_reasoning_engine",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.CreateReasoningEngineRequest.pb(
             reasoning_engine_service.CreateReasoningEngineRequest()
         )
@@ -6242,6 +6435,7 @@ async def test_create_reasoning_engine_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -6252,6 +6446,7 @@ async def test_create_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_reasoning_engine(
             request,
@@ -6263,6 +6458,7 @@ async def test_create_reasoning_engine_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6292,6 +6488,7 @@ async def test_get_reasoning_engine_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_reasoning_engine(request)
 
 
@@ -6339,6 +6536,7 @@ async def test_get_reasoning_engine_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_reasoning_engine(request)
 
     # Establish that the response is the type that we expect.
@@ -6373,10 +6571,14 @@ async def test_get_reasoning_engine_rest_asyncio_interceptors(null_interceptor):
         "post_get_reasoning_engine",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_get_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_get_reasoning_engine",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.GetReasoningEngineRequest.pb(
             reasoning_engine_service.GetReasoningEngineRequest()
         )
@@ -6389,6 +6591,7 @@ async def test_get_reasoning_engine_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = reasoning_engine.ReasoningEngine.to_json(
             reasoning_engine.ReasoningEngine()
         )
@@ -6401,6 +6604,7 @@ async def test_get_reasoning_engine_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = reasoning_engine.ReasoningEngine()
+        post_with_metadata.return_value = reasoning_engine.ReasoningEngine(), metadata
 
         await client.get_reasoning_engine(
             request,
@@ -6412,6 +6616,7 @@ async def test_get_reasoning_engine_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6439,6 +6644,7 @@ async def test_list_reasoning_engines_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_reasoning_engines(request)
 
 
@@ -6483,6 +6689,7 @@ async def test_list_reasoning_engines_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_reasoning_engines(request)
 
     # Establish that the response is the type that we expect.
@@ -6514,10 +6721,14 @@ async def test_list_reasoning_engines_rest_asyncio_interceptors(null_interceptor
         "post_list_reasoning_engines",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_list_reasoning_engines_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_list_reasoning_engines",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.ListReasoningEnginesRequest.pb(
             reasoning_engine_service.ListReasoningEnginesRequest()
         )
@@ -6530,6 +6741,7 @@ async def test_list_reasoning_engines_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = reasoning_engine_service.ListReasoningEnginesResponse.to_json(
             reasoning_engine_service.ListReasoningEnginesResponse()
         )
@@ -6542,6 +6754,10 @@ async def test_list_reasoning_engines_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = reasoning_engine_service.ListReasoningEnginesResponse()
+        post_with_metadata.return_value = (
+            reasoning_engine_service.ListReasoningEnginesResponse(),
+            metadata,
+        )
 
         await client.list_reasoning_engines(
             request,
@@ -6553,6 +6769,7 @@ async def test_list_reasoning_engines_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6584,6 +6801,7 @@ async def test_update_reasoning_engine_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_reasoning_engine(request)
 
 
@@ -6621,11 +6839,32 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
                 "requirements_gcs_uri": "requirements_gcs_uri_value",
                 "python_version": "python_version_value",
             },
+            "deployment_spec": {
+                "env": [{"name": "name_value", "value": "value_value"}],
+                "secret_env": [
+                    {
+                        "name": "name_value",
+                        "secret_ref": {
+                            "secret": "secret_value",
+                            "version": "version_value",
+                        },
+                    }
+                ],
+            },
             "class_methods": [{"fields": {}}],
+            "agent_framework": "agent_framework_value",
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "etag": "etag_value",
+        "context_spec": {
+            "memory_bank_config": {
+                "generation_config": {"model": "model_value"},
+                "similarity_search_config": {
+                    "embedding_model": "embedding_model_value"
+                },
+            }
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6711,6 +6950,7 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_reasoning_engine(request)
 
     # Establish that the response is the type that we expect.
@@ -6743,10 +6983,14 @@ async def test_update_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         "post_update_reasoning_engine",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_update_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_update_reasoning_engine",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.UpdateReasoningEngineRequest.pb(
             reasoning_engine_service.UpdateReasoningEngineRequest()
         )
@@ -6759,6 +7003,7 @@ async def test_update_reasoning_engine_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -6769,6 +7014,7 @@ async def test_update_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_reasoning_engine(
             request,
@@ -6780,6 +7026,7 @@ async def test_update_reasoning_engine_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6809,6 +7056,7 @@ async def test_delete_reasoning_engine_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_reasoning_engine(request)
 
 
@@ -6848,6 +7096,7 @@ async def test_delete_reasoning_engine_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_reasoning_engine(request)
 
     # Establish that the response is the type that we expect.
@@ -6880,10 +7129,14 @@ async def test_delete_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         "post_delete_reasoning_engine",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_delete_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_delete_reasoning_engine",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.DeleteReasoningEngineRequest.pb(
             reasoning_engine_service.DeleteReasoningEngineRequest()
         )
@@ -6896,6 +7149,7 @@ async def test_delete_reasoning_engine_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -6906,6 +7160,7 @@ async def test_delete_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_reasoning_engine(
             request,
@@ -6917,6 +7172,7 @@ async def test_delete_reasoning_engine_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6946,6 +7202,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -6983,6 +7240,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -7015,6 +7273,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -7052,6 +7311,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -7087,6 +7347,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -7126,6 +7387,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -7161,6 +7423,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -7200,6 +7463,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -7235,6 +7499,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -7274,6 +7539,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -7308,6 +7574,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -7345,6 +7612,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -7379,6 +7647,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -7416,6 +7685,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -7450,6 +7720,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -7487,6 +7758,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -7521,6 +7793,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -7558,6 +7831,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -7592,6 +7866,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -7629,6 +7904,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 
@@ -8309,10 +8585,36 @@ def test_reasoning_engine_service_grpc_lro_async_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_reasoning_engine_path():
+def test_endpoint_path():
     project = "squid"
     location = "clam"
-    reasoning_engine = "whelk"
+    endpoint = "whelk"
+    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+        project=project,
+        location=location,
+        endpoint=endpoint,
+    )
+    actual = ReasoningEngineServiceClient.endpoint_path(project, location, endpoint)
+    assert expected == actual
+
+
+def test_parse_endpoint_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "endpoint": "nudibranch",
+    }
+    path = ReasoningEngineServiceClient.endpoint_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ReasoningEngineServiceClient.parse_endpoint_path(path)
+    assert expected == actual
+
+
+def test_reasoning_engine_path():
+    project = "cuttlefish"
+    location = "mussel"
+    reasoning_engine = "winkle"
     expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}".format(
         project=project,
         location=location,
@@ -8326,9 +8628,9 @@ def test_reasoning_engine_path():
 
 def test_parse_reasoning_engine_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "reasoning_engine": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "reasoning_engine": "abalone",
     }
     path = ReasoningEngineServiceClient.reasoning_engine_path(**expected)
 
@@ -8338,7 +8640,7 @@ def test_parse_reasoning_engine_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -8348,7 +8650,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = ReasoningEngineServiceClient.common_billing_account_path(**expected)
 
@@ -8358,7 +8660,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -8368,7 +8670,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = ReasoningEngineServiceClient.common_folder_path(**expected)
 
@@ -8378,7 +8680,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -8388,7 +8690,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = ReasoningEngineServiceClient.common_organization_path(**expected)
 
@@ -8398,7 +8700,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -8408,7 +8710,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = ReasoningEngineServiceClient.common_project_path(**expected)
 
@@ -8418,8 +8720,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -8430,8 +8732,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = ReasoningEngineServiceClient.common_location_path(**expected)
 

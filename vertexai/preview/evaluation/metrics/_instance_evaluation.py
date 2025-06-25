@@ -30,6 +30,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from vertexai.preview.evaluation import _base as eval_base
 from vertexai.preview.evaluation import constants
+from vertexai.preview.evaluation import multimodal_utils
 from vertexai.preview.evaluation import (
     prompt_template as prompt_template_base,
 )
@@ -37,13 +38,18 @@ from vertexai.preview.evaluation import utils
 from vertexai.preview.evaluation.metrics import (
     _base as metrics_base,
 )
+from vertexai.preview.evaluation.metrics import (
+    _default_templates,
+)
 from vertexai.preview.evaluation.metrics import _rouge
 from vertexai.preview.evaluation.metrics import (
     _trajectory_single_tool_use,
 )
+from vertexai.preview.evaluation.metrics import (
+    custom_output_config as custom_output_config_class,
+)
 from vertexai.preview.evaluation.metrics import pairwise_metric
 from vertexai.preview.evaluation.metrics import pointwise_metric
-
 from google.protobuf import json_format
 
 
@@ -71,6 +77,9 @@ _METRIC_NAME_TO_METRIC_SPEC = {
     constants.Metric.POINTWISE_METRIC: (gapic_eval_service_types.PointwiseMetricSpec()),
     # Pairwise Metrics.
     constants.Metric.PAIRWISE_METRIC: (gapic_eval_service_types.PairwiseMetricSpec()),
+    constants.Metric.RUBRIC_BASED_INSTRUCTION_FOLLOWING: (
+        gapic_eval_service_types.RubricBasedInstructionFollowingSpec()
+    ),
     constants.Metric.TRAJECTORY_EXACT_MATCH: (
         gapic_eval_service_types.TrajectoryExactMatchSpec()
     ),
@@ -90,6 +99,27 @@ _METRIC_NAME_TO_METRIC_SPEC = {
         gapic_eval_service_types.TrajectorySingleToolUseSpec()
     ),
 }
+_QUESTION_TEMPLATE = """<question>{question}"""
+
+
+def _format_rubrics(questions: List[str]) -> str:
+    """Formats the list of rubrics into a question block."""
+    question_block = "\n".join(
+        _QUESTION_TEMPLATE.format(question=q.strip()) for q in questions
+    )
+    return question_block
+
+
+def build_custom_output_format_config(
+    custom_output_config: custom_output_config_class.CustomOutputConfig,
+) -> Union[gapic_eval_service_types.CustomOutputFormatConfig, None]:
+    """Builds a CustomOutputFormatConfig from user input."""
+    custom_output_cfg = gapic_eval_service_types.CustomOutputFormatConfig()
+    if custom_output_config.return_raw_output:
+        custom_output_cfg.return_raw_output = True
+        return custom_output_cfg
+    else:
+        return None
 
 
 def build_trajectory(
@@ -136,6 +166,9 @@ def build_request(
 
     Returns:
         A single EvaluateInstancesRequest.
+
+    Raises:
+        ValueError: If required request fields are not provided.
     """
     project = initializer.global_config.project
     location = initializer.global_config.location
@@ -168,12 +201,27 @@ def build_request(
         metric, metrics_base._ModelBasedMetric  # pylint: disable=protected-access
     ):
         metric_spec.metric_prompt_template = metric.metric_prompt_template
+        metric_spec.system_instruction = metric.system_instruction
+        if metric.custom_output_config:
+            metric_spec.custom_output_format_config = build_custom_output_format_config(
+                metric.custom_output_config
+            )
         for variable in prompt_template_base.PromptTemplate(
             metric.metric_prompt_template
         ).variables:
             model_based_metric_instance_input[variable] = row_dict.get(
                 metric_column_mapping.get(variable),
                 "",
+            )
+        if isinstance(metric, pairwise_metric.PairwiseMetric):
+            metric_column_mapping = evaluation_run_config.metric_column_mapping
+            metric_spec.candidate_response_field_name = metric_column_mapping.get(
+                constants.Dataset.MODEL_RESPONSE_COLUMN,
+                constants.Dataset.MODEL_RESPONSE_COLUMN,
+            )
+            metric_spec.baseline_response_field_name = metric_column_mapping.get(
+                constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
+                constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
             )
     elif isinstance(metric, _rouge.Rouge):
         metric_spec.rouge_type = metric.rouge_type
@@ -200,6 +248,32 @@ def build_request(
             "",
         )
     )
+    if isinstance(metric, metrics_base._ModelBasedMetric):
+        if metric_spec.metric_prompt_template in (
+            _default_templates.INSTRUCTION_FOLLOWING_RUBRIC_CRITIQUE_TEMPLATE,
+            _default_templates.MULTIMODAL_UNDERSTANDING_RUBRIC_CRITIQUE_TEMPLATE,
+            _default_templates.TEXT_QUALITY_RUBRIC_CRITIQUE_TEMPLATE,
+            _default_templates.PAIRWISE_INSTRUCTION_FOLLOWING_RUBRIC_CRITIQUE_TEMPLATE,
+            _default_templates.PAIRWISE_MULTIMODAL_UNDERSTANDING_RUBRIC_CRITIQUE_TEMPLATE,
+            _default_templates.PAIRWISE_TEXT_QUALITY_RUBRIC_CRITIQUE_TEMPLATE,
+        ):
+            model_based_metric_instance_input[
+                constants.Dataset.RUBRICS_COLUMN
+            ] = _format_rubrics(
+                model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN]
+            )
+        if (
+            constants.Dataset.RUBRICS_COLUMN in model_based_metric_instance_input
+            and isinstance(
+                model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN],
+                List,
+            )
+        ):
+            model_based_metric_instance_input[
+                constants.Dataset.RUBRICS_COLUMN
+            ] = "\n".join(
+                model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN]
+            )
 
     if metric_name == constants.Metric.EXACT_MATCH:
         instance = gapic_eval_service_types.ExactMatchInput(
@@ -306,25 +380,85 @@ def build_request(
             tool_parameter_kv_match_input=instance,
         )
     elif metric_name == constants.Metric.POINTWISE_METRIC:
-        instance = gapic_eval_service_types.PointwiseMetricInput(
+        if multimodal_utils.is_multimodal_instance(model_based_metric_instance_input):
+            instance = gapic_eval_service_types.PointwiseMetricInput(
+                metric_spec=metric_spec,
+                instance=gapic_eval_service_types.PointwiseMetricInstance(
+                    content_map_instance=multimodal_utils.convert_multimodal_response_to_content_map(
+                        model_based_metric_instance_input
+                    ),
+                ),
+            )
+        else:
+            instance = gapic_eval_service_types.PointwiseMetricInput(
+                metric_spec=metric_spec,
+                instance=gapic_eval_service_types.PointwiseMetricInstance(
+                    json_instance=json.dumps(model_based_metric_instance_input),
+                ),
+            )
+        autorater_config = evaluation_run_config.autorater_config
+        if (
+            isinstance(metric, metrics_base._ModelBasedMetric)
+            and metric.autorater_config
+        ):
+            autorater_config = metric.autorater_config
+        return gapic_eval_service_types.EvaluateInstancesRequest(
+            location=location_path,
+            pointwise_metric_input=instance,
+            autorater_config=autorater_config,
+        )
+    elif metric_name == constants.Metric.PAIRWISE_METRIC:
+        if multimodal_utils.is_multimodal_instance(model_based_metric_instance_input):
+            instance = gapic_eval_service_types.PairwiseMetricInput(
+                metric_spec=metric_spec,
+                instance=gapic_eval_service_types.PairwiseMetricInstance(
+                    content_map_instance=multimodal_utils.convert_multimodal_response_to_content_map(
+                        model_based_metric_instance_input
+                    ),
+                ),
+            )
+        else:
+            instance = gapic_eval_service_types.PairwiseMetricInput(
+                metric_spec=metric_spec,
+                instance=gapic_eval_service_types.PairwiseMetricInstance(
+                    json_instance=json.dumps(model_based_metric_instance_input),
+                ),
+            )
+        autorater_config = evaluation_run_config.autorater_config
+        if (
+            isinstance(metric, metrics_base._ModelBasedMetric)
+            and metric.autorater_config
+        ):
+            autorater_config = metric.autorater_config
+        return gapic_eval_service_types.EvaluateInstancesRequest(
+            location=location_path,
+            pairwise_metric_input=instance,
+            autorater_config=autorater_config,
+        )
+    elif metric_name == constants.Metric.RUBRIC_BASED_INSTRUCTION_FOLLOWING:
+        required_rbif_fields = [
+            constants.Dataset.MODEL_RESPONSE_COLUMN,
+            constants.Dataset.PROMPT_COLUMN,
+        ]
+        for field in required_rbif_fields:
+            column_name = metric_column_mapping.get(field)
+            value = row_dict.get(column_name)
+            if value is None and field in required_rbif_fields:
+                raise ValueError(
+                    f"Missing required field: `{field}` for "
+                    f"{constants.Metric.RUBRIC_BASED_INSTRUCTION_FOLLOWING}."
+                )
+            else:
+                model_based_metric_instance_input[field] = value
+        instance = gapic_eval_service_types.RubricBasedInstructionFollowingInput(
             metric_spec=metric_spec,
-            instance=gapic_eval_service_types.PointwiseMetricInstance(
+            instance=gapic_eval_service_types.RubricBasedInstructionFollowingInstance(
                 json_instance=json.dumps(model_based_metric_instance_input),
             ),
         )
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
-            pointwise_metric_input=instance,
-        )
-    elif metric_name == constants.Metric.PAIRWISE_METRIC:
-        instance = gapic_eval_service_types.PairwiseMetricInput(
-            metric_spec=metric_spec,
-            instance=gapic_eval_service_types.PairwiseMetricInstance(
-                json_instance=json.dumps(model_based_metric_instance_input),
-            ),
-        )
-        return gapic_eval_service_types.EvaluateInstancesRequest(
-            location=location_path, pairwise_metric_input=instance
+            rubric_based_instruction_following_input=instance,
         )
     elif metric_name == constants.Metric.TRAJECTORY_EXACT_MATCH:
         instance = gapic_eval_service_types.TrajectoryExactMatchInput(
@@ -434,55 +568,137 @@ def _parse_autometric_results(
 
 def _parse_pointwise_results(
     metric_result_dict: Dict[str, Any],
+    metric: Union[str, metrics_base._Metric],
 ) -> Dict[str, Any]:
-    """Parses the model-based pointwise metric result.
+    """Parses the model-based pointwise metric results from the evaluation results.
 
     Args:
-        metric_result_dict: The metric result dictionary.
+        metric_result_dict: The metric results dictionary.
+        metric: The metric to evaluate.
 
     Returns:
-        A dictionary containing metric score, explanation of the pointwise
-        metric result.
+        One of the following:
+        1. A dictionary containing raw outputs from the judge model if
+        return_raw_output is set to True in custom_output_config.
+        2. A dictionary containing metric score and explanation of the
+        metric if custom_output_config is not set.
     """
-    return {
-        constants.MetricResult.SCORE_KEY: metric_result_dict.get(
-            constants.MetricResult.SCORE_KEY
-        ),
-        constants.MetricResult.EXPLANATION_KEY: metric_result_dict.get(
-            constants.MetricResult.EXPLANATION_KEY
-        ),
-    }
+    if (
+        isinstance(metric, pointwise_metric.PointwiseMetric)
+        and getattr(metric, "custom_output_config", None)
+        and getattr(metric.custom_output_config, "return_raw_output", False)
+    ):
+        raw_outputs = (
+            metric_result_dict.get(constants.MetricResult.CUSTOM_OUTPUT_KEY)
+            .get(constants.MetricResult.RAW_OUTPUTS_KEY)
+            .get(constants.MetricResult.RAW_OUTPUT_KEY)
+        )
+        if (
+            isinstance(metric, pointwise_metric.PointwiseMetric)
+            and getattr(metric, "custom_output_config", None)
+            and getattr(metric.custom_output_config, "parsing_fn", None)
+        ):
+            parsing_fn = metric.custom_output_config.parsing_fn
+            return parsing_fn(raw_outputs)
+        return {constants.MetricResult.RAW_OUTPUT_KEY: raw_outputs}
+    else:
+        return {
+            constants.MetricResult.SCORE_KEY: metric_result_dict.get(
+                constants.MetricResult.SCORE_KEY
+            ),
+            constants.MetricResult.EXPLANATION_KEY: metric_result_dict.get(
+                constants.MetricResult.EXPLANATION_KEY
+            ),
+        }
 
 
 def _parse_pairwise_results(
     metric_result_dict: Dict[str, Any],
+    metric: Union[str, metrics_base._Metric],
 ) -> Dict[str, Any]:
-    """Parses the pairwise metric result.
+    """Parses the pairwise metric results from the evaluation results.
 
     Args:
-        metric_result_dict: The metric result dictionary.
+        metric_result_dict: The metric results dictionary.
+        metric: The metric to evaluate.
 
     Returns:
-        A dictionary containing metric score, explanation of the pairwise metric
-        result.
+        One of the following:
+        1. A dictionary containing raw outputs from the judge model if
+        return_raw_output is set to True in custom_output_config.
+        2. A dictionary containing metric score and explanation of the
+        metric if custom_output_config is not set.
     """
+    if (
+        isinstance(metric, pairwise_metric.PairwiseMetric)
+        and getattr(metric, "custom_output_config", None)
+        and getattr(metric.custom_output_config, "return_raw_output", False)
+    ):
+        raw_outputs = (
+            metric_result_dict.get(constants.MetricResult.CUSTOM_OUTPUT_KEY)
+            .get(constants.MetricResult.RAW_OUTPUTS_KEY)
+            .get(constants.MetricResult.RAW_OUTPUT_KEY)
+        )
+        if (
+            isinstance(metric, pairwise_metric.PairwiseMetric)
+            and getattr(metric, "custom_output_config", None)
+            and getattr(metric.custom_output_config, "parsing_fn", None)
+        ):
+            parsing_fn = metric.custom_output_config.parsing_fn
+            return parsing_fn(raw_outputs)
+        return {constants.MetricResult.RAW_OUTPUT_KEY: raw_outputs}
+    else:
+        return {
+            constants.MetricResult.PAIRWISE_CHOICE_KEY: metric_result_dict.get(
+                constants.MetricResult.PAIRWISE_CHOICE_KEY,
+            ),
+            constants.MetricResult.EXPLANATION_KEY: metric_result_dict.get(
+                constants.MetricResult.EXPLANATION_KEY
+            ),
+        }
+
+
+def _parse_rubric_based_instruction_following_results(
+    metric_result_dict: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Parses the rubric-based instruction following metric results from the evaluation results.
+
+    Args:
+        metric_result_dict: The metric results dictionary.
+
+    Returns:
+        A dictionary containing a list of rubrics and corresponding verdicts and
+        an overall instruction following score.
+    """
+    rubric_critique_results = []
+    for rc_result in metric_result_dict["rubric_critique_results"]:
+        if "verdict" not in rc_result:
+            rc_result["verdict"] = False  # proto3 shows False bool as unset
+        rubric_critique_results.append(
+            {
+                "rubric": rc_result["rubric"],
+                "verdict": rc_result["verdict"],
+            }
+        )
     return {
-        constants.MetricResult.PAIRWISE_CHOICE_KEY: metric_result_dict.get(
-            constants.MetricResult.PAIRWISE_CHOICE_KEY,
+        constants.MetricResult.RUBRIC_LEVEL_INSTRUCTION_FOLLOWING_KEY: (
+            rubric_critique_results
         ),
-        constants.MetricResult.EXPLANATION_KEY: metric_result_dict.get(
-            constants.MetricResult.EXPLANATION_KEY
+        constants.MetricResult.SCORE_KEY: (
+            metric_result_dict.get(constants.MetricResult.SCORE_KEY)
         ),
     }
 
 
 def handle_response(
     response: Union[str, gapic_eval_service_types.EvaluateInstancesResponse],
+    metric: Union[str, metrics_base._Metric],
 ) -> Union[str, Dict[str, Any]]:
     """Handles the response from the evaluation service.
 
     Args:
         response: The response from the evaluation service.
+        metric: The metric to evaluate to check the output type.
 
     Returns:
         A parsed metric result dictionary, or an error message string.
@@ -524,6 +740,10 @@ def handle_response(
         metric_result = response.trajectory_recall_results
     elif metric_type == constants.MetricResult.TRAJECTORY_SINGLE_TOOL_USE_RESULTS:
         metric_result = response.trajectory_single_tool_use_results
+    elif (
+        metric_type == constants.MetricResult.RUBRIC_BASED_INSTRUCTION_FOLLOWING_RESULT
+    ):
+        metric_result = response.rubric_based_instruction_following_result
     else:
         raise ValueError(f"Unknown metric type: {metric_type}")
 
@@ -531,15 +751,16 @@ def handle_response(
         metric_result._pb,  # pylint: disable=protected-access
         preserving_proto_field_name=True,
     )
-    if metric_type in (
-        constants.MetricResult.AUTOMATIC_METRIC_RESULTS_LIST
-        + constants.MetricResult.TRAJECTORY_METRIC_RESULTS_LIST
-    ):
+    if metric_type in (constants.MetricResult.AUTOMATIC_METRIC_RESULTS_LIST):
         result = _parse_autometric_results(metric_result_dict)
     elif metric_type == constants.MetricResult.POINTWISE_METRIC_RESULT:
-        result = _parse_pointwise_results(metric_result_dict)
+        result = _parse_pointwise_results(metric_result_dict, metric)
     elif metric_type == constants.MetricResult.PAIRWISE_METRIC_RESULT:
-        result = _parse_pairwise_results(metric_result_dict)
+        result = _parse_pairwise_results(metric_result_dict, metric)
+    elif (
+        metric_type == constants.MetricResult.RUBRIC_BASED_INSTRUCTION_FOLLOWING_RESULT
+    ):
+        result = _parse_rubric_based_instruction_following_results(metric_result_dict)
     else:
         raise ValueError(f"Unknown metric type: {metric_type}")
     return result

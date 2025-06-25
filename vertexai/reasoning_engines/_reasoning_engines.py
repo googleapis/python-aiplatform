@@ -16,12 +16,23 @@
 import abc
 import inspect
 import io
+import logging
 import os
 import sys
 import tarfile
 import types
 import typing
-from typing import Any, Callable, Dict, List, Optional, Protocol, Sequence, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Protocol,
+    Sequence,
+    Union,
+)
 
 import proto
 
@@ -37,26 +48,32 @@ from google.protobuf import field_mask_pb2
 
 
 _LOGGER = base.Logger(__name__)
-_SUPPORTED_PYTHON_VERSIONS = ("3.8", "3.9", "3.10", "3.11")
+_SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12", "3.13")
 _DEFAULT_GCS_DIR_NAME = "reasoning_engine"
 _BLOB_FILENAME = "reasoning_engine.pkl"
 _REQUIREMENTS_FILE = "requirements.txt"
 _EXTRA_PACKAGES_FILE = "dependencies.tar.gz"
 _STANDARD_API_MODE = ""
+_STREAM_API_MODE = "stream"
 _MODE_KEY_IN_SCHEMA = "api_mode"
+_METHOD_NAME_KEY_IN_SCHEMA = "name"
 _DEFAULT_METHOD_NAME = "query"
-_DEFAULT_METHOD_DOCSTRING = """
-    Runs the Reasoning Engine to serve the user query.
+_DEFAULT_STREAM_METHOD_NAME = "stream_query"
+_DEFAULT_METHOD_RETURN_TYPE = "dict[str, Any]"
+_DEFAULT_STREAM_METHOD_RETURN_TYPE = "Iterable[Any]"
+_DEFAULT_METHOD_DOCSTRING_TEMPLATE = """
+    Runs the Reasoning Engine to serve the user request.
 
-    This will be based on the `.query(...)` method of the python object that
-    was passed in when creating the Reasoning Engine.
+    This will be based on the `.{method_name}(...)` of the python object that
+    was passed in when creating the Reasoning Engine. The method will invoke the
+    `{default_method_name}` API client of the python object.
 
     Args:
         **kwargs:
-            Optional. The arguments of the `.query(...)` method.
+            Optional. The arguments of the `.{method_name}(...)` method.
 
     Returns:
-        dict[str, Any]: The response from serving the user query.
+        {return_type}: The response from serving the user request.
 """
 
 
@@ -67,6 +84,15 @@ class Queryable(Protocol):
     @abc.abstractmethod
     def query(self, **kwargs):
         """Runs the Reasoning Engine to serve the user query."""
+
+
+@typing.runtime_checkable
+class StreamQueryable(Protocol):
+    """Protocol for Reasoning Engine applications that can stream responses."""
+
+    @abc.abstractmethod
+    def stream_query(self, **kwargs):
+        """Stream responses to serve the user query."""
 
 
 @typing.runtime_checkable
@@ -112,7 +138,10 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
             client_class=aip_utils.ReasoningEngineExecutionClientWithOverride,
         )
         self._gca_resource = self._get_gca_resource(resource_name=reasoning_engine_name)
-        _register_api_method(self)
+        try:
+            _register_api_methods_or_raise(self)
+        except Exception as e:
+            logging.warning("Failed to register API methods: {%s}", e)
         self._operation_schemas = None
 
     @property
@@ -123,7 +152,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        reasoning_engine: Queryable,
+        reasoning_engine: Union[Queryable, OperationRegistrable],
         *,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         reasoning_engine_name: Optional[str] = None,
@@ -195,8 +224,9 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
                 use for staging the artifacts needed.
             sys_version (str):
                 Optional. The Python system version used. Currently supports any
-                of "3.8", "3.9", "3.10", "3.11". If not specified, it defaults
-                to the "{major}.{minor}" attributes of sys.version_info.
+                of "3.9", "3.10", "3.11", "3.12", "3.13". If not specified,
+                it defaults to the "{major}.{minor}" attributes of
+                sys.version_info.
             extra_packages (Sequence[str]):
                 Optional. The set of extra user-provided packages (if any).
 
@@ -304,14 +334,17 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
             credentials=sdk_resource.credentials,
             location_override=sdk_resource.location,
         )
-        _register_api_method(sdk_resource)
+        try:
+            _register_api_methods_or_raise(sdk_resource)
+        except Exception as e:
+            logging.warning("Failed to register API methods: {%s}", e)
         sdk_resource._operation_schemas = None
         return sdk_resource
 
     def update(
         self,
         *,
-        reasoning_engine: Optional[Queryable] = None,
+        reasoning_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
@@ -375,6 +408,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
         """
         staging_bucket = initializer.global_config.staging_bucket
         _validate_staging_bucket_or_raise(staging_bucket)
+        historical_operation_schemas = self.operation_schemas()
 
         # Validate the arguments.
         if not any(
@@ -438,13 +472,31 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
         # We use `._get_gca_resource(...)` instead of `created_resource` to
         # fully instantiate the attributes of the reasoning engine.
         self._gca_resource = self._get_gca_resource(resource_name=self.resource_name)
+
+        if (
+            reasoning_engine is None
+            or historical_operation_schemas == self.operation_schemas()
+        ):
+            # As the API/operations of the reasoning engine are unchanged, we
+            # can return it here.
+            return self
+
+        # If the reasoning engine has changed and the historical operation
+        # schemas are different from the current operation schemas, we need to
+        # unregister the historical operation schemas and register the current
+        # operation schemas.
+        _unregister_api_methods(self, historical_operation_schemas)
+        try:
+            _register_api_methods_or_raise(self)
+        except Exception as e:
+            logging.warning("Failed to register API methods: {%s}", e)
         return self
 
     def operation_schemas(self) -> Sequence[_utils.JsonDict]:
         """Returns the (Open)API schemas for the Reasoning Engine."""
         spec = _utils.to_dict(self._gca_resource.spec)
-        if self._operation_schemas is None:
-            self._operation_schemas = spec.get("class_methods", [])
+        if not hasattr(self, "_operation_schemas") or self._operation_schemas is None:
+            self._operation_schemas = spec.get("classMethods", [])
         return self._operation_schemas
 
 
@@ -471,19 +523,72 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
         raise ValueError(f"{staging_bucket=} must start with `gs://`")
 
 
-def _validate_reasoning_engine_or_raise(reasoning_engine: Queryable) -> Queryable:
-    """Tries to validate the reasoning engine."""
-    if not (hasattr(reasoning_engine, "query") and callable(reasoning_engine.query)):
+def _validate_reasoning_engine_or_raise(
+    reasoning_engine: Union[Queryable, OperationRegistrable, StreamQueryable]
+) -> Union[Queryable, OperationRegistrable, StreamQueryable]:
+    """Tries to validate the reasoning engine.
+
+    The reasoning engine must have one of the following:
+    * a callable method named `query`
+    * a callable method named `stream_query`
+    * a callable method named `register_operations`
+
+    Args:
+        reasoning_engine: The reasoning engine to be validated.
+
+    Returns:
+        The validated reasoning engine.
+
+    Raises:
+        TypeError: If the reasoning engine has no callable method named
+        `query`, `stream_query` or `register_operations`.
+        ValueError: If the reasoning engine has an invalid `query`,
+        `stream_query` or `register_operations` signature.
+    """
+    is_queryable = isinstance(reasoning_engine, Queryable) and callable(
+        reasoning_engine.query
+    )
+    is_stream_queryable = isinstance(reasoning_engine, StreamQueryable) and callable(
+        reasoning_engine.stream_query
+    )
+    is_operation_registrable = isinstance(
+        reasoning_engine, OperationRegistrable
+    ) and callable(reasoning_engine.register_operations)
+
+    if not (is_queryable or is_stream_queryable or is_operation_registrable):
         raise TypeError(
-            "reasoning_engine does not have a callable method named `query`"
+            "reasoning_engine has neither a callable method named `query`"
+            " nor a callable method named `register_operations`."
         )
-    try:
-        inspect.signature(reasoning_engine.query)
-    except ValueError as err:
-        raise ValueError(
-            "Invalid query signature. This might be due to a missing "
-            "`self` argument in the reasoning_engine.query method."
-        ) from err
+
+    if is_queryable:
+        try:
+            inspect.signature(getattr(reasoning_engine, "query"))
+        except ValueError as err:
+            raise ValueError(
+                "Invalid query signature. This might be due to a missing "
+                "`self` argument in the reasoning_engine.query method."
+            ) from err
+
+    if is_stream_queryable:
+        try:
+            inspect.signature(getattr(reasoning_engine, "stream_query"))
+        except ValueError as err:
+            raise ValueError(
+                "Invalid stream_query signature. This might be due to a missing"
+                " `self` argument in the reasoning_engine.stream_query method."
+            ) from err
+
+    if is_operation_registrable:
+        try:
+            inspect.signature(getattr(reasoning_engine, "register_operations"))
+        except ValueError as err:
+            raise ValueError(
+                "Invalid register_operations signature. This might be due to a "
+                "missing `self` argument in the "
+                "reasoning_engine.register_operations method."
+            ) from err
+
     if isinstance(reasoning_engine, Cloneable):
         # Avoid undeployable ReasoningChain states.
         reasoning_engine = reasoning_engine.clone()
@@ -530,7 +635,7 @@ def _get_gcs_bucket(project: str, location: str, staging_bucket: str) -> storage
 
 
 def _upload_reasoning_engine(
-    reasoning_engine: Queryable,
+    reasoning_engine: Union[Queryable, OperationRegistrable],
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
 ) -> None:
@@ -574,7 +679,7 @@ def _upload_extra_packages(
 
 
 def _prepare(
-    reasoning_engine: Optional[Queryable],
+    reasoning_engine: Optional[Union[Queryable, OperationRegistrable]],
     requirements: Optional[Sequence[str]],
     extra_packages: Optional[Sequence[str]],
     project: str,
@@ -613,7 +718,7 @@ def _generate_update_request_or_raise(
     resource_name: str,
     staging_bucket: str,
     gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
-    reasoning_engine: Optional[Queryable] = None,
+    reasoning_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
     requirements: Optional[Union[str, Sequence[str]]] = None,
     extra_packages: Optional[Sequence[str]] = None,
     display_name: Optional[str] = None,
@@ -697,6 +802,7 @@ def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.Js
             request=aip_types.QueryReasoningEngineRequest(
                 name=self.resource_name,
                 input=kwargs,
+                class_method=method_name,
             ),
         )
         output = _utils.to_dict(response)
@@ -708,20 +814,130 @@ def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.Js
     return _method
 
 
-def _register_api_method(obj: "ReasoningEngine"):
-    """Registers Reasoning Engine API methods based on operation schemas.
+def _wrap_stream_query_operation(
+    method_name: str, doc: str
+) -> Callable[..., Iterable[Any]]:
+    """Wraps a Reasoning Engine method, creating a callable for `stream_query` API.
 
-    This function registers `query` method on the ReasoningEngine object
-    to handle API calls based on the specified API mode.
+    This function creates a callable object that executes the specified
+    Reasoning Engine method using the `stream_query` API.  It handles the
+    creation of the API request and the processing of the API response.
+
+    Args:
+        method_name: The name of the Reasoning Engine method to call.
+        doc: Documentation string for the method.
+
+    Returns:
+        A callable object that executes the method on the Reasoning Engine via
+        the `stream_query` API.
+    """
+
+    def _method(self, **kwargs) -> Iterable[Any]:
+        response = self.execution_api_client.stream_query_reasoning_engine(
+            request=aip_types.StreamQueryReasoningEngineRequest(
+                name=self.resource_name,
+                input=kwargs,
+                class_method=method_name,
+            ),
+        )
+        for chunk in response:
+            for parsed_json in _utils.yield_parsed_json(chunk):
+                if parsed_json is not None:
+                    yield parsed_json
+
+    _method.__name__ = method_name
+    _method.__doc__ = doc
+
+    return _method
+
+
+def _unregister_api_methods(
+    obj: "ReasoningEngine", operation_schemas: Sequence[_utils.JsonDict]
+):
+    """Unregisters Reasoning Engine API methods based on operation schemas.
+
+    This function iterates through operation schemas provided by the
+    ReasoningEngine object.  Each schema defines an API mode and method name.
+    It dynamically unregisters methods on the ReasoningEngine object. This
+    should only be used when updating the object.
 
     Args:
         obj: The ReasoningEngine object to augment with API methods.
+        operation_schemas: The operation schemas to use for method unregistration.
     """
-    query_method = _wrap_query_operation(
-        method_name=_DEFAULT_METHOD_NAME, doc=_DEFAULT_METHOD_DOCSTRING
-    )
-    # Binds the method to the object.
-    setattr(obj, _DEFAULT_METHOD_NAME, types.MethodType(query_method, obj))
+    for operation_schema in operation_schemas:
+        if "name" in operation_schema:
+            method_name = operation_schema.get("name")
+            if hasattr(obj, method_name):
+                delattr(obj, method_name)
+
+
+def _register_api_methods_or_raise(obj: "ReasoningEngine"):
+    """Registers Reasoning Engine API methods based on operation schemas.
+
+    This function iterates through operation schemas provided by the
+    ReasoningEngine object.  Each schema defines an API mode and method name.
+    It dynamically creates and registers methods on the ReasoningEngine object
+    to handle API calls based on the specified API mode.
+    Currently, only standard API mode `` is supported.
+
+    Args:
+        obj: The ReasoningEngine object to augment with API methods.
+
+    Raises:
+        ValueError: If the API mode is not supported or if the operation schema
+        missing required `api_mode` or `name` fields.
+    """
+    for operation_schema in obj.operation_schemas():
+        if _MODE_KEY_IN_SCHEMA not in operation_schema:
+            raise ValueError(
+                f"Operation schema {operation_schema} does not"
+                " contain an `api_mode` field."
+            )
+        api_mode = operation_schema.get(_MODE_KEY_IN_SCHEMA)
+        if _METHOD_NAME_KEY_IN_SCHEMA not in operation_schema:
+            raise ValueError(
+                f"Operation schema {operation_schema} does not"
+                " contain a `name` field."
+            )
+        method_name = operation_schema.get(_METHOD_NAME_KEY_IN_SCHEMA)
+        method_description = operation_schema.get("description")
+
+        if api_mode == _STANDARD_API_MODE:
+            method_description = (
+                method_description
+                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
+                    method_name=method_name,
+                    default_method_name=_DEFAULT_METHOD_NAME,
+                    return_type=_DEFAULT_METHOD_RETURN_TYPE,
+                )
+            )
+            method = _wrap_query_operation(
+                method_name=method_name,
+                doc=method_description,
+            )
+        elif api_mode == _STREAM_API_MODE:
+            method_description = (
+                method_description
+                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
+                    method_name=method_name,
+                    default_method_name=_DEFAULT_STREAM_METHOD_NAME,
+                    return_type=_DEFAULT_STREAM_METHOD_RETURN_TYPE,
+                )
+            )
+            method = _wrap_stream_query_operation(
+                method_name=method_name,
+                doc=method_description,
+            )
+        else:
+            raise ValueError(
+                f"Unsupported api mode: `{api_mode}`,"
+                f" Supported modes are: `{_STANDARD_API_MODE}`"
+                f" and `{_STREAM_API_MODE}`."
+            )
+
+        # Binds the method to the object.
+        setattr(obj, method_name, types.MethodType(method, obj))
 
 
 def _get_registered_operations(reasoning_engine: Any) -> Dict[str, List[str]]:
@@ -732,6 +948,8 @@ def _get_registered_operations(reasoning_engine: Any) -> Dict[str, List[str]]:
     operations = {}
     if isinstance(reasoning_engine, Queryable):
         operations[_STANDARD_API_MODE] = [_DEFAULT_METHOD_NAME]
+    if isinstance(reasoning_engine, StreamQueryable):
+        operations[_STREAM_API_MODE] = [_DEFAULT_STREAM_METHOD_NAME]
     return operations
 
 

@@ -57,6 +57,21 @@ class FeatureViewVertexRagSource:
     rag_corpus_id: Optional[str] = None
 
 
+@dataclass
+class FeatureViewRegistrySource:
+    """Configuration options for Feature View being registered with Feature Registry features.
+
+    Attributes:
+        features : Use `<feature_group_id>.<feature_id>` as
+          the format for each feature.
+        project_number : Optional. The project number of the project that owns the
+          Feature Registry if in a different project.
+    """
+
+    features: List[str]
+    project_number: Optional[int] = None
+
+
 @dataclass(frozen=True)
 class ConnectionOptions:
     """Represents connection options used for sending RPCs to the online store."""

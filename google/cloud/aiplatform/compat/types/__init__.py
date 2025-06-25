@@ -118,6 +118,7 @@ from google.cloud.aiplatform_v1.types import (
     annotation_spec as annotation_spec_v1,
     artifact as artifact_v1,
     batch_prediction_job as batch_prediction_job_v1,
+    cached_content as cached_content_v1,
     completion_stats as completion_stats_v1,
     context as context_v1,
     custom_job as custom_job_v1,

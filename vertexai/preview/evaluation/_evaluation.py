@@ -20,7 +20,7 @@ import collections
 from concurrent import futures
 import copy
 import time
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TYPE_CHECKING, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, TYPE_CHECKING, Union
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform_v1beta1.types import (
@@ -29,6 +29,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 from vertexai import generative_models
 from vertexai.preview import reasoning_engines
 from vertexai.preview.evaluation import _base as evaluation_base
+from vertexai.preview.evaluation import _pre_eval_utils
 from vertexai.preview.evaluation import constants
 from vertexai.preview.evaluation import (
     prompt_template as prompt_template_base,
@@ -41,10 +42,16 @@ from vertexai.preview.evaluation.metrics import (
     _instance_evaluation,
 )
 from vertexai.preview.evaluation.metrics import (
+    custom_output_config,
+)
+from vertexai.preview.evaluation.metrics import (
     metric_prompt_template_examples,
 )
 from vertexai.preview.evaluation.metrics import pairwise_metric
 from vertexai.preview.evaluation.metrics import pointwise_metric
+from vertexai.preview.evaluation.metrics import (
+    rubric_based_metric,
+)
 
 
 if TYPE_CHECKING:
@@ -86,6 +93,7 @@ def _validate_metrics(metrics: List[Union[str, metrics_base._Metric]]) -> None:
 
     seen_strings = set()
     seen_metric_names = set()
+    rubric_based_metric_present = False
 
     for metric in metrics:
         if isinstance(metric, str):
@@ -100,6 +108,10 @@ def _validate_metrics(metrics: List[Union[str, metrics_base._Metric]]) -> None:
                     "Duplicate Metric instances of the same metric name found: "
                     f"'{metric.metric_name}'"
                 )
+            if isinstance(metric, rubric_based_metric.RubricBasedMetric):
+                if rubric_based_metric_present:
+                    raise ValueError("Multiple rubric based metrics are not supported.")
+                rubric_based_metric_present = True
             seen_metric_names.add(metric.metric_name)
 
 
@@ -128,6 +140,53 @@ def _validate_metric_column_map(
                         " The evaluation dataset columns are"
                         f" {list(evaluation_run_config.dataset.columns)}."
                     )
+
+
+def _validate_autorater_config(
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+    pairwise_metric_exists: bool = False,
+):
+    """Validates the fields in the autorater config.
+
+    Args:
+      evaluation_run_config: The evaluation run config.
+      pairwise_metric_exists: Whether pairwise metrics are used.
+
+    Raises:
+      ValueError: If the sampling count is not in the range [1, 32], or flipping
+      is enabled for pairwise metrics but the required columns are not found in
+      the dataset.
+    """
+    if not evaluation_run_config.autorater_config:
+        return
+    if evaluation_run_config.autorater_config.sampling_count and (
+        evaluation_run_config.autorater_config.sampling_count < 1
+        or evaluation_run_config.autorater_config.sampling_count > 32
+    ):
+        raise ValueError(
+            "autorater_config.sampling_count must be in the range [1, 32]."
+        )
+
+    if pairwise_metric_exists and evaluation_run_config.autorater_config.flip_enabled:
+        for column in [
+            constants.Dataset.MODEL_RESPONSE_COLUMN,
+            constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
+        ]:
+            field_name = evaluation_run_config.metric_column_mapping.get(column, "")
+            if (
+                not field_name
+                or field_name not in evaluation_run_config.dataset.columns
+            ):
+                raise ValueError(
+                    f"Cannot find the `{column}` column in"
+                    " the evaluation dataset to fill the metric prompt template."
+                    " This is required for Pairwise metrics when performing"
+                    " autorater config flipping. Please check if the column is"
+                    " present in the evaluation dataset, or provide a key-value"
+                    " pair in `metric_column_mapping` parameter of `EvalTask` to"
+                    " map it to a different column name. The evaluation dataset"
+                    f" columns are {list(evaluation_run_config.dataset.columns)}."
+                )
 
 
 def _validate_column_provided(
@@ -254,25 +313,45 @@ def _aggregate_summary_metrics(
     for metric in evaluation_run_config.metrics:
         try:
             if isinstance(metric, pairwise_metric.PairwiseMetric):
-                summary_metrics[f"{metric.metric_name}/candidate_model_win_rate"] = (
-                    metrics_table[
-                        f"{metric.metric_name}/{constants.MetricResult.PAIRWISE_CHOICE_KEY}"
+                pairwise_choice_col_name = (
+                    f"{metric.metric_name}/{constants.MetricResult.PAIRWISE_CHOICE_KEY}"
+                )
+                if pairwise_choice_col_name in metrics_table:
+                    candidate_model_win_rate_choices = [
+                        "CANDIDATE",
+                        utils.RATING_TO_VERDICT["B>>A"],
+                        utils.RATING_TO_VERDICT["A<<B"],
+                        utils.RATING_TO_VERDICT["B>A"],
+                        utils.RATING_TO_VERDICT["A<B"],
                     ]
-                    == "CANDIDATE"
-                ).mean()
-                summary_metrics[f"{metric.metric_name}/baseline_model_win_rate"] = (
-                    metrics_table[
-                        f"{metric.metric_name}/{constants.MetricResult.PAIRWISE_CHOICE_KEY}"
+                    baseline_model_win_rate_choices = [
+                        "BASELINE",
+                        utils.RATING_TO_VERDICT["A>>B"],
+                        utils.RATING_TO_VERDICT["B<<A"],
+                        utils.RATING_TO_VERDICT["B<A"],
+                        utils.RATING_TO_VERDICT["A>B"],
                     ]
-                    == "BASELINE"
-                ).mean()
+                    summary_metrics[
+                        f"{metric.metric_name}/candidate_model_win_rate"
+                    ] = (
+                        metrics_table[pairwise_choice_col_name].isin(
+                            candidate_model_win_rate_choices
+                        )
+                    ).mean()
+                    summary_metrics[f"{metric.metric_name}/baseline_model_win_rate"] = (
+                        metrics_table[pairwise_choice_col_name].isin(
+                            baseline_model_win_rate_choices
+                        )
+                    ).mean()
             else:
-                summary_metrics[f"{str(metric)}/mean"] = metrics_table.loc[
-                    :, f"{str(metric)}/{constants.MetricResult.SCORE_KEY}"
-                ].mean()
-                summary_metrics[f"{str(metric)}/std"] = metrics_table.loc[
-                    :, f"{str(metric)}/{constants.MetricResult.SCORE_KEY}"
-                ].std()
+                score_col_name = f"{str(metric)}/{constants.MetricResult.SCORE_KEY}"
+                if score_col_name in metrics_table:
+                    summary_metrics[f"{str(metric)}/mean"] = metrics_table.loc[
+                        :, score_col_name
+                    ].mean()
+                    summary_metrics[f"{str(metric)}/std"] = metrics_table.loc[
+                        :, score_col_name
+                    ].std()
         except (ValueError, KeyError) as e:
             _LOGGER.warning(
                 f"Failed to compute metric statistics for `{metric}` metric."
@@ -290,144 +369,6 @@ def _aggregate_summary_metrics(
                 :, f"{str(default_metric)}"
             ].std()
     return summary_metrics
-
-
-def _generate_content_text_response(
-    model: generative_models.GenerativeModel, prompt: str
-) -> str:
-    """Generates a text response from Gemini model from a text prompt.
-
-    Args:
-        model: The Gemini model instance.
-        prompt: The prompt to send to the model.
-
-    Returns:
-        The text response from the model.
-
-    Raises:
-        RuntimeError if the prompt or the response for the prompt is blocked for
-        safety reasons.
-    """
-    response = model.generate_content(prompt)
-    try:
-        if not response.candidates:
-            raise RuntimeError(
-                f"The model response was blocked due to"
-                f" {response._raw_response.prompt_feedback.block_reason.name}.\n."  # pylint: disable=protected-access
-                f"Blocked reason message:"
-                f" {response._raw_response.prompt_feedback.block_reason_message}.\n."  # pylint: disable=protected-access
-                "The input prompt may be blocked for safety reasons.",
-                f"Prompt: {prompt}.",
-            )
-        else:
-            candidate = response.candidates[0]
-            if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                raise RuntimeError(
-                    "The model response did not finish"
-                    " successfully.\n"
-                    f"Finish reason: {candidate.finish_reason}.\n"
-                    f"Finish message: {candidate.finish_message}.\n"
-                    f"Safety ratings: {candidate.safety_ratings}.\n"
-                    "Please adjust the model safety_settings, or"
-                    " try a different prompt."
-                )
-            return response.candidates[0].content.parts[0].text
-    except Exception:
-        raise RuntimeError(
-            f"Failed to generate response candidates from Gemini model"
-            f" {model._model_name}.\n"  # pylint: disable=protected-access
-            f"Response: {response}.\n"
-            f"Prompt: {prompt}."
-        )
-
-
-def _generate_responses_from_gemini_model(
-    model: generative_models.GenerativeModel,
-    evaluation_run_config: evaluation_base.EvaluationRunConfig,
-    is_baseline_model: bool = False,
-) -> None:
-    """Generates responses from Gemini model.
-
-    Args:
-        model: The Gemini model instance.
-        evaluation_run_config: Evaluation Run Configurations.
-        is_baseline_model: Whether the model is a baseline model for PairwiseMetric.
-    """
-    # Ensure thread safety and avoid race conditions.
-    df = evaluation_run_config.dataset.copy()
-
-    _LOGGER.info(
-        f"Generating a total of {evaluation_run_config.dataset.shape[0]} "
-        f"responses from Gemini model {model._model_name.split('/')[-1]}."  # pylint: disable=protected-access
-    )
-    tasks = []
-    with tqdm(total=len(df)) as pbar:
-        with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
-            for _, row in df.iterrows():
-                task = executor.submit(
-                    _generate_content_text_response,
-                    prompt=row[constants.Dataset.PROMPT_COLUMN],
-                    model=model,
-                )
-                task.add_done_callback(lambda _: pbar.update(1))
-                tasks.append(task)
-        responses = [future.result() for future in tasks]
-    if is_baseline_model:
-        evaluation_run_config.dataset = df.assign(baseline_model_response=responses)
-    else:
-        evaluation_run_config.dataset = df.assign(response=responses)
-
-    _LOGGER.info(
-        f"All {evaluation_run_config.dataset.shape[0]} responses are successfully"
-        f" generated from Gemini model {model._model_name.split('/')[-1]}."  # pylint: disable=protected-access
-    )
-
-
-def _generate_response_from_custom_model_fn(
-    model_fn: Callable[[str], str],
-    evaluation_run_config: evaluation_base.EvaluationRunConfig,
-    is_baseline_model: bool = False,
-) -> None:
-    """Generates responses from a custom model function.
-
-    Args:
-        model_fn: The custom model function.
-        evaluation_run_config: Evaluation Run Configurations.
-        is_baseline_model: Whether the model is a baseline model for
-          PairwiseMetric.
-    """
-    eval_dataset = evaluation_run_config.dataset.copy()
-    max_workers = 5
-
-    _LOGGER.info(
-        f"Generating a total of {evaluation_run_config.dataset.shape[0]} "
-        "responses from the custom model function."
-    )
-    tasks = []
-    try:
-        with tqdm(total=len(eval_dataset)) as pbar:
-            with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                for _, row in eval_dataset.iterrows():
-                    task = executor.submit(
-                        model_fn, row[constants.Dataset.PROMPT_COLUMN]
-                    )
-                    task.add_done_callback(lambda _: pbar.update(1))
-                    tasks.append(task)
-    except (ValueError, IndexError) as e:
-        _LOGGER.warning(f"Failed to generate response from model function: {e}")
-
-    responses = [task.result() for task in tasks]
-    if is_baseline_model:
-        evaluation_run_config.dataset = eval_dataset.assign(
-            baseline_model_response=responses
-        )
-    else:
-        evaluation_run_config.dataset = eval_dataset.assign(response=responses)
-
-    _LOGGER.info(
-        f"All {evaluation_run_config.dataset.shape[0]} responses are successfully"
-        " generated from the custom model function."
-    )
 
 
 def _run_model_inference(
@@ -455,12 +396,22 @@ def _run_model_inference(
         if constants.Dataset.PROMPT_COLUMN in evaluation_run_config.dataset.columns:
             t1 = time.perf_counter()
             if isinstance(model, generative_models.GenerativeModel):
-                _generate_responses_from_gemini_model(
-                    model, evaluation_run_config, is_baseline_model
+                responses = _pre_eval_utils._generate_responses_from_gemini_model(
+                    model, evaluation_run_config.dataset
+                )
+                _pre_eval_utils.populate_eval_dataset_with_model_responses(
+                    responses,
+                    evaluation_run_config,
+                    is_baseline_model,
                 )
             elif callable(model):
-                _generate_response_from_custom_model_fn(
-                    model, evaluation_run_config, is_baseline_model
+                responses = _pre_eval_utils._generate_response_from_custom_model_fn(
+                    model, evaluation_run_config.dataset
+                )
+                _pre_eval_utils.populate_eval_dataset_with_model_responses(
+                    responses,
+                    evaluation_run_config,
+                    is_baseline_model,
                 )
             else:
                 raise ValueError(
@@ -574,7 +525,6 @@ def _run_runnable_inference(
                         tasks.append(task)
                     for task in tasks:
                         response_dict, latency, failure = task.result()
-                        pbar.update(1)
                         responses.append(response_dict["output"])
                         latency_list.append(latency)
                         failure_list.append(failure)
@@ -602,7 +552,6 @@ def _run_runnable_inference(
                                     "the pre-existing `response` column provided "
                                     "in the evaluation dataset is not used."
                                 )
-                        pbar.update(1)
         elif callable(runnable):
             with tqdm(total=len(evaluation_run_config.dataset)) as pbar:
                 with futures.ThreadPoolExecutor(
@@ -645,7 +594,6 @@ def _run_runnable_inference(
                                     " column provided in the evaluation dataset"
                                     " is not used."
                                 )
-                        pbar.update(1)
         else:
             raise ValueError(f"Unsupported runnable type: {type(runnable)}")
 
@@ -685,30 +633,6 @@ def _run_runnable_inference(
         )
 
 
-def _check_variable_columns_exist(
-    dataset: "pd.DataFrame", variable_names_set: Set[str]
-) -> None:
-    """Checks if all variable names exist in the dataset columns.
-
-    Args:
-        dataset: The dataset to evaluate.
-        variable_names_set: A set of variable names.
-
-    Raises:
-        ValueError: If any variable names do not exist in the dataset columns
-        or the prompt template is invalid.
-    """
-    actual_column_names_set = set(dataset.columns)
-    if not variable_names_set.issubset(actual_column_names_set):
-        missing_columns = variable_names_set - actual_column_names_set
-        raise ValueError(
-            "Failed to assemble prompt template: The following column(s) are"
-            f" missing: {', '.join(missing_columns)}. "
-            f"Please verify prompt_template variables {variable_names_set} and "
-            f"evaluation dataset column names {actual_column_names_set}."
-        )
-
-
 def _assemble_prompt_for_dataset(
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
     prompt_template: Union[prompt_template_base.PromptTemplate, str],
@@ -738,21 +662,12 @@ def _assemble_prompt_for_dataset(
         " the `EvalResult.metrics_table` has the assembled prompts used for model"
         " response generation."
     )
-    if isinstance(prompt_template, str):
-        prompt_template = prompt_template_base.PromptTemplate(prompt_template)
-    _check_variable_columns_exist(
-        evaluation_run_config.dataset, prompt_template.variables
-    )
 
     try:
         evaluation_run_config.dataset[
             constants.Dataset.PROMPT_COLUMN
         ] = evaluation_run_config.dataset.apply(
-            lambda row: str(
-                prompt_template.assemble(
-                    **row[list(prompt_template.variables)].astype(str).to_dict(),
-                )
-            ),
+            lambda row: _pre_eval_utils._assemble_prompt(row, prompt_template),
             axis=1,
         )
         if (
@@ -815,7 +730,9 @@ def _parse_metric_results_to_dataframe(
 
     Returns:
         A dataframe containing per-instance metrics results. Each metric result
-        can contain metric score, explanation, and confidence.
+        can contain metric score, explanation, and confidence. If
+        custom_output_config is specified, raw output or parsed output will
+        be included instead.
     """
     try:
         import pandas as pd
@@ -828,31 +745,73 @@ def _parse_metric_results_to_dataframe(
     metrics_table = pd.DataFrame(dict(zip(instance_df.columns, instance_df.values.T)))
     for metric, metric_results in results.items():
         if isinstance(metric, pointwise_metric.PointwiseMetric):
-            _set_metric_table(
-                metric.metric_name,
-                metric_results,
-                metrics_table,
-                constants.MetricResult.EXPLANATION_KEY,
-            )
-            _set_metric_table(
-                metric.metric_name,
-                metric_results,
-                metrics_table,
-                constants.MetricResult.SCORE_KEY,
-            )
+            if getattr(metric, "custom_output_config", None) and getattr(
+                metric.custom_output_config, "return_raw_output", False
+            ):
+                if getattr(metric, "custom_output_config", None) and getattr(
+                    metric.custom_output_config, "parsing_fn", None
+                ):
+                    for key in metric_results[0].keys():
+                        _set_metric_table(
+                            metric.metric_name,
+                            metric_results,
+                            metrics_table,
+                            key,
+                        )
+                else:
+                    _set_metric_table(
+                        metric.metric_name,
+                        metric_results,
+                        metrics_table,
+                        constants.MetricResult.RAW_OUTPUT_KEY,
+                    )
+            else:
+                _set_metric_table(
+                    metric.metric_name,
+                    metric_results,
+                    metrics_table,
+                    constants.MetricResult.EXPLANATION_KEY,
+                )
+                _set_metric_table(
+                    metric.metric_name,
+                    metric_results,
+                    metrics_table,
+                    constants.MetricResult.SCORE_KEY,
+                )
         elif isinstance(metric, pairwise_metric.PairwiseMetric):
-            _set_metric_table(
-                metric.metric_name,
-                metric_results,
-                metrics_table,
-                constants.MetricResult.EXPLANATION_KEY,
-            )
-            _set_metric_table(
-                metric.metric_name,
-                metric_results,
-                metrics_table,
-                constants.MetricResult.PAIRWISE_CHOICE_KEY,
-            )
+            if getattr(metric, "custom_output_config", None) and getattr(
+                metric.custom_output_config, "return_raw_output", False
+            ):
+                if getattr(metric, "custom_output_config", None) and getattr(
+                    metric.custom_output_config, "parsing_fn", None
+                ):
+                    for key in metric_results[0].keys():
+                        _set_metric_table(
+                            metric.metric_name,
+                            metric_results,
+                            metrics_table,
+                            key,
+                        )
+                else:
+                    _set_metric_table(
+                        metric.metric_name,
+                        metric_results,
+                        metrics_table,
+                        constants.MetricResult.RAW_OUTPUT_KEY,
+                    )
+            else:
+                _set_metric_table(
+                    metric.metric_name,
+                    metric_results,
+                    metrics_table,
+                    constants.MetricResult.EXPLANATION_KEY,
+                )
+                _set_metric_table(
+                    metric.metric_name,
+                    metric_results,
+                    metrics_table,
+                    constants.MetricResult.PAIRWISE_CHOICE_KEY,
+                )
         elif (
             str(metric)
             in constants.Metric.AUTOMATIC_METRIC_LIST
@@ -860,6 +819,19 @@ def _parse_metric_results_to_dataframe(
         ):
             _set_metric_table(
                 str(metric),
+                metric_results,
+                metrics_table,
+                constants.MetricResult.SCORE_KEY,
+            )
+        elif metric == constants.Metric.RUBRIC_BASED_INSTRUCTION_FOLLOWING:
+            _set_metric_table(
+                constants.Metric.RUBRIC_BASED_INSTRUCTION_FOLLOWING,
+                metric_results,
+                metrics_table,
+                constants.MetricResult.RUBRIC_LEVEL_INSTRUCTION_FOLLOWING_KEY,
+            )
+            _set_metric_table(
+                constants.Metric.RUBRIC_BASED_INSTRUCTION_FOLLOWING,
                 metric_results,
                 metrics_table,
                 constants.MetricResult.SCORE_KEY,
@@ -911,6 +883,10 @@ def _compute_metrics(
     instance_list = []
     futures_by_metric = collections.defaultdict(list)
     rate_limiter = utils.RateLimiter(evaluation_run_config.evaluation_service_qps)
+    results_dict = collections.defaultdict(
+        lambda: [None] * len(evaluation_run_config.dataset)
+    )
+    error_list = []
     with tqdm(total=total_request_count) as pbar:
         with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
             for idx, row in evaluation_run_config.dataset.iterrows():
@@ -919,35 +895,38 @@ def _compute_metrics(
                 )
                 instance_list.append(row_dict)
                 for metric in api_metrics:
-                    future = executor.submit(
-                        _instance_evaluation.evaluate_instances,
-                        client=evaluation_run_config.client,
-                        request=_instance_evaluation.build_request(
-                            metric=metric,
-                            row_dict=row_dict,
-                            evaluation_run_config=evaluation_run_config,
-                        ),
-                        rate_limiter=rate_limiter,
-                        retry_timeout=evaluation_run_config.retry_timeout,
-                    )
-                    future.add_done_callback(lambda _: pbar.update(1))
-                    futures_by_metric[metric].append((future, idx))
+                    try:
+                        future = executor.submit(
+                            _instance_evaluation.evaluate_instances,
+                            client=evaluation_run_config.client,
+                            request=_instance_evaluation.build_request(
+                                metric=metric,
+                                row_dict=row_dict,
+                                evaluation_run_config=evaluation_run_config,
+                            ),
+                            rate_limiter=rate_limiter,
+                            retry_timeout=evaluation_run_config.retry_timeout,
+                        )
+                        future.add_done_callback(lambda _: pbar.update(1))
+                        futures_by_metric[metric].append((future, idx))
+                    except ValueError as e:
+                        results_dict[metric][idx] = "Error"
+                        error_list.append((metric, idx, f"Error: {e}"))
 
         # Retrieve results from all futures and handle errors.
-        results_dict = collections.defaultdict(list)
-        error_list = []
         for metric, futures_list in futures_by_metric.items():
             for future, index in futures_list:
                 try:
                     response = future.result()
-                    results_dict[metric].append(response)
-                except Exception as e:  # pylint: disable=broad-exception-caught
-                    results_dict[metric].append("Error")
+                    results_dict[metric][index] = response
+                except Exception as e:
+                    results_dict[metric][index] = "Error"
                     error_list.append((metric, index, f"Error: {e}"))
 
     for metric, responses in results_dict.items():
         results_dict[metric] = [
-            _instance_evaluation.handle_response(response) for response in responses
+            _instance_evaluation.handle_response(response, metric)
+            for response in responses
         ]
     if error_list:
         _LOGGER.warning(
@@ -1027,6 +1006,16 @@ def _convert_metric_prompt_template_example(metrics):
     return updated_metrics
 
 
+def _get_rubric_metric_with_idx(
+    metrics: List[Union[str, metrics_base._Metric]]
+) -> Optional[Tuple[rubric_based_metric.RubricBasedMetric, int]]:
+    """Gets the rubric metric with its index in the metrics list."""
+    for i, metric in enumerate(metrics):
+        if isinstance(metric, rubric_based_metric.RubricBasedMetric):
+            return metric, i
+    return None
+
+
 def evaluate(
     dataset: "pd.DataFrame",
     metrics: List[Union[str, metrics_base._Metric]],
@@ -1037,6 +1026,7 @@ def evaluate(
     metric_column_mapping: Dict[str, str],
     evaluation_service_qps: Optional[float] = None,
     retry_timeout: float = 600.0,
+    autorater_config: Optional[evaluation_base.AutoraterConfig] = None,
 ) -> evaluation_base.EvalResult:
     """Runs the evaluation for metrics.
 
@@ -1070,6 +1060,7 @@ def evaluate(
       evaluation_service_qps: The custom QPS limit for the evaluation service.
       retry_timeout: How long to keep retrying the evaluation requests for the
         whole evaluation dataset, in seconds.
+      autorater_config: The autorater config for model based evaluation.
 
     Returns:
       EvalResult with summary metrics and a metrics table for per-instance
@@ -1079,7 +1070,9 @@ def evaluate(
       ValueError: If the metrics list is empty, or the prompt template is not
         provided for PairwiseMetric, or multiple baseline models are specified for
         PairwiseMetric instances, or both model and dataset model response column
-        are present.
+        are present, or the sampling count is not in the range [1, 32], or flipping
+        is enabled for pairwise metrics but the required columns are not found in
+        the dataset.
     """
     _validate_metrics(metrics)
     metrics = _convert_metric_prompt_template_example(metrics)
@@ -1091,6 +1084,16 @@ def evaluate(
                     metric=metric.metric_name,
                     metric_prompt_template=metric.metric_prompt_template,
                     baseline_model=metric.baseline_model,
+                    system_instruction=metric.system_instruction,
+                    custom_output_config=metric.custom_output_config,
+                    autorater_config=metric.autorater_config,
+                )
+            )
+        elif isinstance(metric, rubric_based_metric.RubricBasedMetric):
+            copied_metrics.append(
+                rubric_based_metric.RubricBasedMetric(
+                    generation_config=copy.deepcopy(metric.generation_config),
+                    critique_metric=copy.deepcopy(metric.critique_metric),
                 )
             )
         else:
@@ -1101,10 +1104,13 @@ def evaluate(
         metrics=copied_metrics,
         metric_column_mapping=copy.deepcopy(metric_column_mapping),
         client=utils.create_evaluation_service_client(),
-        evaluation_service_qps=evaluation_service_qps
-        if evaluation_service_qps
-        else constants.QuotaLimit.EVAL_SERVICE_QPS,
+        evaluation_service_qps=(
+            evaluation_service_qps
+            if evaluation_service_qps
+            else constants.QuotaLimit.EVAL_SERVICE_QPS
+        ),
         retry_timeout=retry_timeout,
+        autorater_config=autorater_config,
     )
 
     if prompt_template:
@@ -1131,6 +1137,24 @@ def evaluate(
         )
     _validate_dataset(evaluation_run_config)
 
+    rubric_metric_with_idx = _get_rubric_metric_with_idx(evaluation_run_config.metrics)
+
+    if rubric_metric_with_idx:
+        rubric_metric, idx = rubric_metric_with_idx
+        eval_dataset_with_rubrics = rubric_metric.generate_rubrics(
+            evaluation_run_config.dataset
+        )
+        for column in eval_dataset_with_rubrics.columns:
+            if column not in evaluation_run_config.metric_column_mapping:
+                evaluation_run_config.metric_column_mapping[column] = column
+        evaluation_run_config.dataset = eval_dataset_with_rubrics
+        if not rubric_metric.critique_metric.custom_output_config:
+            rubric_metric.critique_metric.custom_output_config = (
+                custom_output_config.CustomOutputConfig()
+            )
+        rubric_metric.critique_metric.custom_output_config.return_raw_output = True
+        evaluation_run_config.metrics[idx] = rubric_metric.critique_metric
+
     pairwise_metric_exists = any(
         isinstance(metric, pairwise_metric.PairwiseMetric)
         for metric in evaluation_run_config.metrics
@@ -1144,6 +1168,7 @@ def evaluate(
                 response_column_name=constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
             )
 
+    _validate_autorater_config(evaluation_run_config, pairwise_metric_exists)
     _validate_metric_column_map(evaluation_run_config)
     t1 = time.perf_counter()
     evaluation_result = _compute_metrics(evaluation_run_config)

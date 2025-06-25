@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -101,6 +101,14 @@ from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.protobuf import wrappers_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -343,6 +351,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         ModelServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = ModelServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = ModelServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -1449,6 +1500,7 @@ def test_get_model(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             description="description_value",
             version_description="version_description_value",
+            default_checkpoint_id="default_checkpoint_id_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
             artifact_uri="artifact_uri_value",
@@ -1478,6 +1530,7 @@ def test_get_model(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -1623,6 +1676,7 @@ async def test_get_model_async(
                 display_name="display_name_value",
                 description="description_value",
                 version_description="version_description_value",
+                default_checkpoint_id="default_checkpoint_id_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
                 artifact_uri="artifact_uri_value",
@@ -1657,6 +1711,7 @@ async def test_get_model_async(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -2892,6 +2947,557 @@ async def test_list_model_versions_async_pages():
 @pytest.mark.parametrize(
     "request_type",
     [
+        model_service.ListModelVersionCheckpointsRequest,
+        dict,
+    ],
+)
+def test_list_model_version_checkpoints(request_type, transport: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.ListModelVersionCheckpointsResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_model_version_checkpoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = model_service.ListModelVersionCheckpointsRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListModelVersionCheckpointsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_model_version_checkpoints_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = model_service.ListModelVersionCheckpointsRequest(
+        name="name_value",
+        page_token="page_token_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.list_model_version_checkpoints(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.ListModelVersionCheckpointsRequest(
+            name="name_value",
+            page_token="page_token_value",
+        )
+
+
+def test_list_model_version_checkpoints_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_model_version_checkpoints
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_model_version_checkpoints
+        ] = mock_rpc
+        request = {}
+        client.list_model_version_checkpoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_model_version_checkpoints(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ModelServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.list_model_version_checkpoints
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.list_model_version_checkpoints
+        ] = mock_rpc
+
+        request = {}
+        await client.list_model_version_checkpoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.list_model_version_checkpoints(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_async(
+    transport: str = "grpc_asyncio",
+    request_type=model_service.ListModelVersionCheckpointsRequest,
+):
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.ListModelVersionCheckpointsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_model_version_checkpoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = model_service.ListModelVersionCheckpointsRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListModelVersionCheckpointsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_async_from_dict():
+    await test_list_model_version_checkpoints_async(request_type=dict)
+
+
+def test_list_model_version_checkpoints_field_headers():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.ListModelVersionCheckpointsRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        call.return_value = model_service.ListModelVersionCheckpointsResponse()
+        client.list_model_version_checkpoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_field_headers_async():
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.ListModelVersionCheckpointsRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.ListModelVersionCheckpointsResponse()
+        )
+        await client.list_model_version_checkpoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_list_model_version_checkpoints_flattened():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.ListModelVersionCheckpointsResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_model_version_checkpoints(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_list_model_version_checkpoints_flattened_error():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_model_version_checkpoints(
+            model_service.ListModelVersionCheckpointsRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_flattened_async():
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.ListModelVersionCheckpointsResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.ListModelVersionCheckpointsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_model_version_checkpoints(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_flattened_error_async():
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_model_version_checkpoints(
+            model_service.ListModelVersionCheckpointsRequest(),
+            name="name_value",
+        )
+
+
+def test_list_model_version_checkpoints_pager(transport_name: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="abc",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[],
+                next_page_token="def",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
+        expected_metadata = tuple(expected_metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", ""),)),
+        )
+        pager = client.list_model_version_checkpoints(
+            request={}, retry=retry, timeout=timeout
+        )
+
+        assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, model_service.ModelVersionCheckpoint) for i in results)
+
+
+def test_list_model_version_checkpoints_pages(transport_name: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="abc",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[],
+                next_page_token="def",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_model_version_checkpoints(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_async_pager():
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="abc",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[],
+                next_page_token="def",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_model_version_checkpoints(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(
+            isinstance(i, model_service.ModelVersionCheckpoint) for i in responses
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_async_pages():
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="abc",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[],
+                next_page_token="def",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
+            await client.list_model_version_checkpoints(request={})
+        ).pages:
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         model_service.UpdateModelRequest,
         dict,
     ],
@@ -2916,6 +3522,7 @@ def test_update_model(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             description="description_value",
             version_description="version_description_value",
+            default_checkpoint_id="default_checkpoint_id_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
             artifact_uri="artifact_uri_value",
@@ -2945,6 +3552,7 @@ def test_update_model(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -3088,6 +3696,7 @@ async def test_update_model_async(
                 display_name="display_name_value",
                 description="description_value",
                 version_description="version_description_value",
+                default_checkpoint_id="default_checkpoint_id_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
                 artifact_uri="artifact_uri_value",
@@ -3122,6 +3731,7 @@ async def test_update_model_async(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -4343,6 +4953,7 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             description="description_value",
             version_description="version_description_value",
+            default_checkpoint_id="default_checkpoint_id_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
             artifact_uri="artifact_uri_value",
@@ -4372,6 +4983,7 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -4529,6 +5141,7 @@ async def test_merge_version_aliases_async(
                 display_name="display_name_value",
                 description="description_value",
                 version_description="version_description_value",
+                default_checkpoint_id="default_checkpoint_id_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
                 artifact_uri="artifact_uri_value",
@@ -4563,6 +5176,7 @@ async def test_merge_version_aliases_async(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -8452,6 +9066,7 @@ def test_upload_model_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.upload_model(request)
 
@@ -8504,6 +9119,7 @@ def test_upload_model_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.upload_model(**mock_args)
 
@@ -8634,6 +9250,7 @@ def test_get_model_rest_required_fields(request_type=model_service.GetModelReque
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_model(request)
 
@@ -8679,6 +9296,7 @@ def test_get_model_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_model(**mock_args)
 
@@ -8817,6 +9435,7 @@ def test_list_models_rest_required_fields(request_type=model_service.ListModelsR
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_models(request)
 
@@ -8872,6 +9491,7 @@ def test_list_models_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_models(**mock_args)
 
@@ -9078,6 +9698,7 @@ def test_list_model_versions_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_model_versions(request)
 
@@ -9134,6 +9755,7 @@ def test_list_model_versions_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_model_versions(**mock_args)
 
@@ -9222,6 +9844,276 @@ def test_list_model_versions_rest_pager(transport: str = "rest"):
         assert all(isinstance(i, model.Model) for i in results)
 
         pages = list(client.list_model_versions(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+def test_list_model_version_checkpoints_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_model_version_checkpoints
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_model_version_checkpoints
+        ] = mock_rpc
+
+        request = {}
+        client.list_model_version_checkpoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_model_version_checkpoints(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_list_model_version_checkpoints_rest_required_fields(
+    request_type=model_service.ListModelVersionCheckpointsRequest,
+):
+    transport_class = transports.ModelServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_model_version_checkpoints._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_model_version_checkpoints._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "page_size",
+            "page_token",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = model_service.ListModelVersionCheckpointsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = model_service.ListModelVersionCheckpointsResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+
+            response = client.list_model_version_checkpoints(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_model_version_checkpoints_rest_unset_required_fields():
+    transport = transports.ModelServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_model_version_checkpoints._get_unset_required_fields(
+        {}
+    )
+    assert set(unset_fields) == (
+        set(
+            (
+                "pageSize",
+                "pageToken",
+            )
+        )
+        & set(("name",))
+    )
+
+
+def test_list_model_version_checkpoints_rest_flattened():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_service.ListModelVersionCheckpointsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"name": "projects/sample1/locations/sample2/models/sample3"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = model_service.ListModelVersionCheckpointsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+
+        client.list_model_version_checkpoints(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/models/*}:listCheckpoints"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_model_version_checkpoints_rest_flattened_error(transport: str = "rest"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_model_version_checkpoints(
+            model_service.ListModelVersionCheckpointsRequest(),
+            name="name_value",
+        )
+
+
+def test_list_model_version_checkpoints_rest_pager(transport: str = "rest"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="abc",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[],
+                next_page_token="def",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_service.ListModelVersionCheckpointsResponse(
+                checkpoints=[
+                    model_service.ModelVersionCheckpoint(),
+                    model_service.ModelVersionCheckpoint(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            model_service.ListModelVersionCheckpointsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"name": "projects/sample1/locations/sample2/models/sample3"}
+
+        pager = client.list_model_version_checkpoints(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, model_service.ModelVersionCheckpoint) for i in results)
+
+        pages = list(
+            client.list_model_version_checkpoints(request=sample_request).pages
+        )
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
@@ -9326,6 +10218,7 @@ def test_update_model_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_model(request)
 
@@ -9382,6 +10275,7 @@ def test_update_model_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_model(**mock_args)
 
@@ -9521,6 +10415,7 @@ def test_update_explanation_dataset_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_explanation_dataset(request)
 
@@ -9564,6 +10459,7 @@ def test_update_explanation_dataset_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_explanation_dataset(**mock_args)
 
@@ -9696,6 +10592,7 @@ def test_delete_model_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_model(request)
 
@@ -9739,6 +10636,7 @@ def test_delete_model_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_model(**mock_args)
 
@@ -9875,6 +10773,7 @@ def test_delete_model_version_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_model_version(request)
 
@@ -9918,6 +10817,7 @@ def test_delete_model_version_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_model_version(**mock_args)
 
@@ -10059,6 +10959,7 @@ def test_merge_version_aliases_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.merge_version_aliases(request)
 
@@ -10113,6 +11014,7 @@ def test_merge_version_aliases_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.merge_version_aliases(**mock_args)
 
@@ -10247,6 +11149,7 @@ def test_export_model_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.export_model(request)
 
@@ -10301,6 +11204,7 @@ def test_export_model_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.export_model(**mock_args)
 
@@ -10439,6 +11343,7 @@ def test_copy_model_rest_required_fields(request_type=model_service.CopyModelReq
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.copy_model(request)
 
@@ -10491,6 +11396,7 @@ def test_copy_model_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.copy_model(**mock_args)
 
@@ -10629,6 +11535,7 @@ def test_import_model_evaluation_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.import_model_evaluation(request)
 
@@ -10683,6 +11590,7 @@ def test_import_model_evaluation_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.import_model_evaluation(**mock_args)
 
@@ -10823,6 +11731,7 @@ def test_batch_import_model_evaluation_slices_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.batch_import_model_evaluation_slices(request)
 
@@ -10885,6 +11794,7 @@ def test_batch_import_model_evaluation_slices_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.batch_import_model_evaluation_slices(**mock_args)
 
@@ -11029,6 +11939,7 @@ def test_batch_import_evaluated_annotations_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.batch_import_evaluated_annotations(request)
 
@@ -11093,6 +12004,7 @@ def test_batch_import_evaluated_annotations_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.batch_import_evaluated_annotations(**mock_args)
 
@@ -11235,6 +12147,7 @@ def test_get_model_evaluation_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_model_evaluation(request)
 
@@ -11282,6 +12195,7 @@ def test_get_model_evaluation_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_model_evaluation(**mock_args)
 
@@ -11427,6 +12341,7 @@ def test_list_model_evaluations_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_model_evaluations(request)
 
@@ -11482,6 +12397,7 @@ def test_list_model_evaluations_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_model_evaluations(**mock_args)
 
@@ -11681,6 +12597,7 @@ def test_get_model_evaluation_slice_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_model_evaluation_slice(request)
 
@@ -11728,6 +12645,7 @@ def test_get_model_evaluation_slice_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_model_evaluation_slice(**mock_args)
 
@@ -11875,6 +12793,7 @@ def test_list_model_evaluation_slices_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_model_evaluation_slices(request)
 
@@ -11932,6 +12851,7 @@ def test_list_model_evaluation_slices_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_model_evaluation_slices(**mock_args)
 
@@ -12216,6 +13136,29 @@ def test_list_model_versions_empty_call_grpc():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = model_service.ListModelVersionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_model_version_checkpoints_empty_call_grpc():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        call.return_value = model_service.ListModelVersionCheckpointsResponse()
+        client.list_model_version_checkpoints(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_service.ListModelVersionCheckpointsRequest()
 
         assert args[0] == request_msg
 
@@ -12593,6 +13536,7 @@ async def test_get_model_empty_call_grpc_asyncio():
                 display_name="display_name_value",
                 description="description_value",
                 version_description="version_description_value",
+                default_checkpoint_id="default_checkpoint_id_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
                 artifact_uri="artifact_uri_value",
@@ -12680,6 +13624,35 @@ async def test_list_model_versions_empty_call_grpc_asyncio():
 # This test is a coverage failsafe to make sure that totally empty calls,
 # i.e. request == None and no flattened fields passed, work.
 @pytest.mark.asyncio
+async def test_list_model_version_checkpoints_empty_call_grpc_asyncio():
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.ListModelVersionCheckpointsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_model_version_checkpoints(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_service.ListModelVersionCheckpointsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
 async def test_update_model_empty_call_grpc_asyncio():
     client = ModelServiceAsyncClient(
         credentials=async_anonymous_credentials(),
@@ -12697,6 +13670,7 @@ async def test_update_model_empty_call_grpc_asyncio():
                 display_name="display_name_value",
                 description="description_value",
                 version_description="version_description_value",
+                default_checkpoint_id="default_checkpoint_id_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
                 artifact_uri="artifact_uri_value",
@@ -12826,6 +13800,7 @@ async def test_merge_version_aliases_empty_call_grpc_asyncio():
                 display_name="display_name_value",
                 description="description_value",
                 version_description="version_description_value",
+                default_checkpoint_id="default_checkpoint_id_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 training_pipeline="training_pipeline_value",
                 artifact_uri="artifact_uri_value",
@@ -13142,6 +14117,7 @@ def test_upload_model_rest_bad_request(request_type=model_service.UploadModelReq
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.upload_model(request)
 
 
@@ -13172,6 +14148,7 @@ def test_upload_model_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.upload_model(request)
 
     # Establish that the response is the type that we expect.
@@ -13197,10 +14174,13 @@ def test_upload_model_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_upload_model"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_upload_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_upload_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.UploadModelRequest.pb(
             model_service.UploadModelRequest()
         )
@@ -13213,6 +14193,7 @@ def test_upload_model_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -13223,6 +14204,7 @@ def test_upload_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.upload_model(
             request,
@@ -13234,6 +14216,7 @@ def test_upload_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_model_rest_bad_request(request_type=model_service.GetModelRequest):
@@ -13255,6 +14238,7 @@ def test_get_model_rest_bad_request(request_type=model_service.GetModelRequest):
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_model(request)
 
 
@@ -13284,6 +14268,7 @@ def test_get_model_rest_call_success(request_type):
             display_name="display_name_value",
             description="description_value",
             version_description="version_description_value",
+            default_checkpoint_id="default_checkpoint_id_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
             artifact_uri="artifact_uri_value",
@@ -13307,6 +14292,7 @@ def test_get_model_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_model(request)
 
     # Establish that the response is the type that we expect.
@@ -13317,6 +14303,7 @@ def test_get_model_rest_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -13352,10 +14339,13 @@ def test_get_model_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_get_model"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_get_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_get_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.GetModelRequest.pb(model_service.GetModelRequest())
         transcode.return_value = {
             "method": "post",
@@ -13366,6 +14356,7 @@ def test_get_model_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model.Model.to_json(model.Model())
         req.return_value.content = return_value
 
@@ -13376,6 +14367,7 @@ def test_get_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model.Model()
+        post_with_metadata.return_value = model.Model(), metadata
 
         client.get_model(
             request,
@@ -13387,6 +14379,7 @@ def test_get_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_models_rest_bad_request(request_type=model_service.ListModelsRequest):
@@ -13408,6 +14401,7 @@ def test_list_models_rest_bad_request(request_type=model_service.ListModelsReque
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_models(request)
 
 
@@ -13443,6 +14437,7 @@ def test_list_models_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_models(request)
 
     # Establish that the response is the type that we expect.
@@ -13467,10 +14462,13 @@ def test_list_models_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_list_models"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_list_models_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_list_models"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ListModelsRequest.pb(
             model_service.ListModelsRequest()
         )
@@ -13483,6 +14481,7 @@ def test_list_models_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.ListModelsResponse.to_json(
             model_service.ListModelsResponse()
         )
@@ -13495,6 +14494,7 @@ def test_list_models_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.ListModelsResponse()
+        post_with_metadata.return_value = model_service.ListModelsResponse(), metadata
 
         client.list_models(
             request,
@@ -13506,6 +14506,7 @@ def test_list_models_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_model_versions_rest_bad_request(
@@ -13529,6 +14530,7 @@ def test_list_model_versions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_model_versions(request)
 
 
@@ -13564,6 +14566,7 @@ def test_list_model_versions_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_model_versions(request)
 
     # Establish that the response is the type that we expect.
@@ -13588,10 +14591,13 @@ def test_list_model_versions_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_list_model_versions"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_list_model_versions_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_list_model_versions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ListModelVersionsRequest.pb(
             model_service.ListModelVersionsRequest()
         )
@@ -13604,6 +14610,7 @@ def test_list_model_versions_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.ListModelVersionsResponse.to_json(
             model_service.ListModelVersionsResponse()
         )
@@ -13616,6 +14623,10 @@ def test_list_model_versions_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.ListModelVersionsResponse()
+        post_with_metadata.return_value = (
+            model_service.ListModelVersionsResponse(),
+            metadata,
+        )
 
         client.list_model_versions(
             request,
@@ -13627,6 +14638,142 @@ def test_list_model_versions_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+def test_list_model_version_checkpoints_rest_bad_request(
+    request_type=model_service.ListModelVersionCheckpointsRequest,
+):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/models/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        client.list_model_version_checkpoints(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_service.ListModelVersionCheckpointsRequest,
+        dict,
+    ],
+)
+def test_list_model_version_checkpoints_rest_call_success(request_type):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/models/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_service.ListModelVersionCheckpointsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = model_service.ListModelVersionCheckpointsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = client.list_model_version_checkpoints(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListModelVersionCheckpointsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_model_version_checkpoints_rest_interceptors(null_interceptor):
+    transport = transports.ModelServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelServiceRestInterceptor(),
+    )
+    client = ModelServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_list_model_version_checkpoints"
+    ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_list_model_version_checkpoints_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "pre_list_model_version_checkpoints"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = model_service.ListModelVersionCheckpointsRequest.pb(
+            model_service.ListModelVersionCheckpointsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = model_service.ListModelVersionCheckpointsResponse.to_json(
+            model_service.ListModelVersionCheckpointsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = model_service.ListModelVersionCheckpointsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = model_service.ListModelVersionCheckpointsResponse()
+        post_with_metadata.return_value = (
+            model_service.ListModelVersionCheckpointsResponse(),
+            metadata,
+        )
+
+        client.list_model_version_checkpoints(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_model_rest_bad_request(request_type=model_service.UpdateModelRequest):
@@ -13650,6 +14797,7 @@ def test_update_model_rest_bad_request(request_type=model_service.UpdateModelReq
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_model(request)
 
 
@@ -13678,6 +14826,7 @@ def test_update_model_rest_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "version_description": "version_description_value",
+        "default_checkpoint_id": "default_checkpoint_id_value",
         "predict_schemata": {
             "instance_schema_uri": "instance_schema_uri_value",
             "parameters_schema_uri": "parameters_schema_uri_value",
@@ -13702,15 +14851,29 @@ def test_update_model_rest_call_success(request_type):
             "ports": [{"container_port": 1511}],
             "predict_route": "predict_route_value",
             "health_route": "health_route_value",
+            "invoke_route_prefix": "invoke_route_prefix_value",
             "grpc_ports": {},
             "deployment_timeout": {"seconds": 751, "nanos": 543},
             "shared_memory_size_mb": 2231,
             "startup_probe": {
                 "exec_": {"command": ["command_value1", "command_value2"]},
+                "http_get": {
+                    "path": "path_value",
+                    "port": 453,
+                    "host": "host_value",
+                    "scheme": "scheme_value",
+                    "http_headers": [{"name": "name_value", "value": "value_value"}],
+                },
+                "grpc": {"port": 453, "service": "service_value"},
+                "tcp_socket": {"port": 453, "host": "host_value"},
                 "period_seconds": 1489,
                 "timeout_seconds": 1621,
+                "failure_threshold": 1812,
+                "success_threshold": 1829,
+                "initial_delay_seconds": 2214,
             },
             "health_probe": {},
+            "liveness_probe": {},
         },
         "artifact_uri": "artifact_uri_value",
         "supported_deployment_resources_types": [1],
@@ -13776,11 +14939,18 @@ def test_update_model_rest_call_success(request_type):
         "original_model_info": {"model": "model_value"},
         "metadata_artifact": "metadata_artifact_value",
         "base_model_source": {
-            "model_garden_source": {"public_model_name": "public_model_name_value"},
+            "model_garden_source": {
+                "public_model_name": "public_model_name_value",
+                "version_id": "version_id_value",
+                "skip_hf_model_cache": True,
+            },
             "genie_source": {"base_model_uri": "base_model_uri_value"},
         },
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "checkpoints": [
+            {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
+        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -13861,6 +15031,7 @@ def test_update_model_rest_call_success(request_type):
             display_name="display_name_value",
             description="description_value",
             version_description="version_description_value",
+            default_checkpoint_id="default_checkpoint_id_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
             artifact_uri="artifact_uri_value",
@@ -13884,6 +15055,7 @@ def test_update_model_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_model(request)
 
     # Establish that the response is the type that we expect.
@@ -13894,6 +15066,7 @@ def test_update_model_rest_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -13929,10 +15102,13 @@ def test_update_model_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_update_model"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_update_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_update_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.UpdateModelRequest.pb(
             model_service.UpdateModelRequest()
         )
@@ -13945,6 +15121,7 @@ def test_update_model_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_model.Model.to_json(gca_model.Model())
         req.return_value.content = return_value
 
@@ -13955,6 +15132,7 @@ def test_update_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_model.Model()
+        post_with_metadata.return_value = gca_model.Model(), metadata
 
         client.update_model(
             request,
@@ -13966,6 +15144,7 @@ def test_update_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_explanation_dataset_rest_bad_request(
@@ -13989,6 +15168,7 @@ def test_update_explanation_dataset_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_explanation_dataset(request)
 
 
@@ -14019,6 +15199,7 @@ def test_update_explanation_dataset_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_explanation_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -14044,10 +15225,14 @@ def test_update_explanation_dataset_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_update_explanation_dataset"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_update_explanation_dataset_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_update_explanation_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.UpdateExplanationDatasetRequest.pb(
             model_service.UpdateExplanationDatasetRequest()
         )
@@ -14060,6 +15245,7 @@ def test_update_explanation_dataset_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14070,6 +15256,7 @@ def test_update_explanation_dataset_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_explanation_dataset(
             request,
@@ -14081,6 +15268,7 @@ def test_update_explanation_dataset_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_model_rest_bad_request(request_type=model_service.DeleteModelRequest):
@@ -14102,6 +15290,7 @@ def test_delete_model_rest_bad_request(request_type=model_service.DeleteModelReq
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_model(request)
 
 
@@ -14132,6 +15321,7 @@ def test_delete_model_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_model(request)
 
     # Establish that the response is the type that we expect.
@@ -14157,10 +15347,13 @@ def test_delete_model_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_delete_model"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_delete_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_delete_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.DeleteModelRequest.pb(
             model_service.DeleteModelRequest()
         )
@@ -14173,6 +15366,7 @@ def test_delete_model_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14183,6 +15377,7 @@ def test_delete_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_model(
             request,
@@ -14194,6 +15389,7 @@ def test_delete_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_model_version_rest_bad_request(
@@ -14217,6 +15413,7 @@ def test_delete_model_version_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_model_version(request)
 
 
@@ -14247,6 +15444,7 @@ def test_delete_model_version_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_model_version(request)
 
     # Establish that the response is the type that we expect.
@@ -14272,10 +15470,14 @@ def test_delete_model_version_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_delete_model_version"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_delete_model_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_delete_model_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.DeleteModelVersionRequest.pb(
             model_service.DeleteModelVersionRequest()
         )
@@ -14288,6 +15490,7 @@ def test_delete_model_version_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14298,6 +15501,7 @@ def test_delete_model_version_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_model_version(
             request,
@@ -14309,6 +15513,7 @@ def test_delete_model_version_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_merge_version_aliases_rest_bad_request(
@@ -14332,6 +15537,7 @@ def test_merge_version_aliases_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.merge_version_aliases(request)
 
 
@@ -14361,6 +15567,7 @@ def test_merge_version_aliases_rest_call_success(request_type):
             display_name="display_name_value",
             description="description_value",
             version_description="version_description_value",
+            default_checkpoint_id="default_checkpoint_id_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
             artifact_uri="artifact_uri_value",
@@ -14384,6 +15591,7 @@ def test_merge_version_aliases_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.merge_version_aliases(request)
 
     # Establish that the response is the type that we expect.
@@ -14394,6 +15602,7 @@ def test_merge_version_aliases_rest_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -14429,10 +15638,14 @@ def test_merge_version_aliases_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_merge_version_aliases"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_merge_version_aliases_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_merge_version_aliases"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.MergeVersionAliasesRequest.pb(
             model_service.MergeVersionAliasesRequest()
         )
@@ -14445,6 +15658,7 @@ def test_merge_version_aliases_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model.Model.to_json(model.Model())
         req.return_value.content = return_value
 
@@ -14455,6 +15669,7 @@ def test_merge_version_aliases_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model.Model()
+        post_with_metadata.return_value = model.Model(), metadata
 
         client.merge_version_aliases(
             request,
@@ -14466,6 +15681,7 @@ def test_merge_version_aliases_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_export_model_rest_bad_request(request_type=model_service.ExportModelRequest):
@@ -14487,6 +15703,7 @@ def test_export_model_rest_bad_request(request_type=model_service.ExportModelReq
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.export_model(request)
 
 
@@ -14517,6 +15734,7 @@ def test_export_model_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.export_model(request)
 
     # Establish that the response is the type that we expect.
@@ -14542,10 +15760,13 @@ def test_export_model_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_export_model"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_export_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_export_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ExportModelRequest.pb(
             model_service.ExportModelRequest()
         )
@@ -14558,6 +15779,7 @@ def test_export_model_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14568,6 +15790,7 @@ def test_export_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.export_model(
             request,
@@ -14579,6 +15802,7 @@ def test_export_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_copy_model_rest_bad_request(request_type=model_service.CopyModelRequest):
@@ -14600,6 +15824,7 @@ def test_copy_model_rest_bad_request(request_type=model_service.CopyModelRequest
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.copy_model(request)
 
 
@@ -14630,6 +15855,7 @@ def test_copy_model_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.copy_model(request)
 
     # Establish that the response is the type that we expect.
@@ -14655,10 +15881,13 @@ def test_copy_model_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_copy_model"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_copy_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_copy_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.CopyModelRequest.pb(model_service.CopyModelRequest())
         transcode.return_value = {
             "method": "post",
@@ -14669,6 +15898,7 @@ def test_copy_model_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14679,6 +15909,7 @@ def test_copy_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.copy_model(
             request,
@@ -14690,6 +15921,7 @@ def test_copy_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_import_model_evaluation_rest_bad_request(
@@ -14713,6 +15945,7 @@ def test_import_model_evaluation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.import_model_evaluation(request)
 
 
@@ -14751,6 +15984,7 @@ def test_import_model_evaluation_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.import_model_evaluation(request)
 
     # Establish that the response is the type that we expect.
@@ -14778,10 +16012,14 @@ def test_import_model_evaluation_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_import_model_evaluation"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_import_model_evaluation_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_import_model_evaluation"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ImportModelEvaluationRequest.pb(
             model_service.ImportModelEvaluationRequest()
         )
@@ -14794,6 +16032,7 @@ def test_import_model_evaluation_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_model_evaluation.ModelEvaluation.to_json(
             gca_model_evaluation.ModelEvaluation()
         )
@@ -14806,6 +16045,10 @@ def test_import_model_evaluation_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_model_evaluation.ModelEvaluation()
+        post_with_metadata.return_value = (
+            gca_model_evaluation.ModelEvaluation(),
+            metadata,
+        )
 
         client.import_model_evaluation(
             request,
@@ -14817,6 +16060,7 @@ def test_import_model_evaluation_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_batch_import_model_evaluation_slices_rest_bad_request(
@@ -14842,6 +16086,7 @@ def test_batch_import_model_evaluation_slices_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.batch_import_model_evaluation_slices(request)
 
 
@@ -14881,6 +16126,7 @@ def test_batch_import_model_evaluation_slices_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.batch_import_model_evaluation_slices(request)
 
     # Establish that the response is the type that we expect.
@@ -14909,10 +16155,14 @@ def test_batch_import_model_evaluation_slices_rest_interceptors(null_interceptor
         "post_batch_import_model_evaluation_slices",
     ) as post, mock.patch.object(
         transports.ModelServiceRestInterceptor,
+        "post_batch_import_model_evaluation_slices_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
         "pre_batch_import_model_evaluation_slices",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.BatchImportModelEvaluationSlicesRequest.pb(
             model_service.BatchImportModelEvaluationSlicesRequest()
         )
@@ -14925,6 +16175,7 @@ def test_batch_import_model_evaluation_slices_rest_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.BatchImportModelEvaluationSlicesResponse.to_json(
             model_service.BatchImportModelEvaluationSlicesResponse()
         )
@@ -14937,6 +16188,10 @@ def test_batch_import_model_evaluation_slices_rest_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.BatchImportModelEvaluationSlicesResponse()
+        post_with_metadata.return_value = (
+            model_service.BatchImportModelEvaluationSlicesResponse(),
+            metadata,
+        )
 
         client.batch_import_model_evaluation_slices(
             request,
@@ -14948,6 +16203,7 @@ def test_batch_import_model_evaluation_slices_rest_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_batch_import_evaluated_annotations_rest_bad_request(
@@ -14973,6 +16229,7 @@ def test_batch_import_evaluated_annotations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.batch_import_evaluated_annotations(request)
 
 
@@ -15012,6 +16269,7 @@ def test_batch_import_evaluated_annotations_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.batch_import_evaluated_annotations(request)
 
     # Establish that the response is the type that we expect.
@@ -15037,10 +16295,14 @@ def test_batch_import_evaluated_annotations_rest_interceptors(null_interceptor):
         transports.ModelServiceRestInterceptor,
         "post_batch_import_evaluated_annotations",
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_batch_import_evaluated_annotations_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_batch_import_evaluated_annotations"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.BatchImportEvaluatedAnnotationsRequest.pb(
             model_service.BatchImportEvaluatedAnnotationsRequest()
         )
@@ -15053,6 +16315,7 @@ def test_batch_import_evaluated_annotations_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.BatchImportEvaluatedAnnotationsResponse.to_json(
             model_service.BatchImportEvaluatedAnnotationsResponse()
         )
@@ -15065,6 +16328,10 @@ def test_batch_import_evaluated_annotations_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.BatchImportEvaluatedAnnotationsResponse()
+        post_with_metadata.return_value = (
+            model_service.BatchImportEvaluatedAnnotationsResponse(),
+            metadata,
+        )
 
         client.batch_import_evaluated_annotations(
             request,
@@ -15076,6 +16343,7 @@ def test_batch_import_evaluated_annotations_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_model_evaluation_rest_bad_request(
@@ -15101,6 +16369,7 @@ def test_get_model_evaluation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_model_evaluation(request)
 
 
@@ -15141,6 +16410,7 @@ def test_get_model_evaluation_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_model_evaluation(request)
 
     # Establish that the response is the type that we expect.
@@ -15168,10 +16438,14 @@ def test_get_model_evaluation_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_get_model_evaluation"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_get_model_evaluation_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_get_model_evaluation"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.GetModelEvaluationRequest.pb(
             model_service.GetModelEvaluationRequest()
         )
@@ -15184,6 +16458,7 @@ def test_get_model_evaluation_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_evaluation.ModelEvaluation.to_json(
             model_evaluation.ModelEvaluation()
         )
@@ -15196,6 +16471,7 @@ def test_get_model_evaluation_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_evaluation.ModelEvaluation()
+        post_with_metadata.return_value = model_evaluation.ModelEvaluation(), metadata
 
         client.get_model_evaluation(
             request,
@@ -15207,6 +16483,7 @@ def test_get_model_evaluation_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_model_evaluations_rest_bad_request(
@@ -15230,6 +16507,7 @@ def test_list_model_evaluations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_model_evaluations(request)
 
 
@@ -15265,6 +16543,7 @@ def test_list_model_evaluations_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_model_evaluations(request)
 
     # Establish that the response is the type that we expect.
@@ -15289,10 +16568,14 @@ def test_list_model_evaluations_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_list_model_evaluations"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_list_model_evaluations_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_list_model_evaluations"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ListModelEvaluationsRequest.pb(
             model_service.ListModelEvaluationsRequest()
         )
@@ -15305,6 +16588,7 @@ def test_list_model_evaluations_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.ListModelEvaluationsResponse.to_json(
             model_service.ListModelEvaluationsResponse()
         )
@@ -15317,6 +16601,10 @@ def test_list_model_evaluations_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.ListModelEvaluationsResponse()
+        post_with_metadata.return_value = (
+            model_service.ListModelEvaluationsResponse(),
+            metadata,
+        )
 
         client.list_model_evaluations(
             request,
@@ -15328,6 +16616,7 @@ def test_list_model_evaluations_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_model_evaluation_slice_rest_bad_request(
@@ -15353,6 +16642,7 @@ def test_get_model_evaluation_slice_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_model_evaluation_slice(request)
 
 
@@ -15391,6 +16681,7 @@ def test_get_model_evaluation_slice_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_model_evaluation_slice(request)
 
     # Establish that the response is the type that we expect.
@@ -15416,10 +16707,14 @@ def test_get_model_evaluation_slice_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_get_model_evaluation_slice"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_get_model_evaluation_slice_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_get_model_evaluation_slice"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.GetModelEvaluationSliceRequest.pb(
             model_service.GetModelEvaluationSliceRequest()
         )
@@ -15432,6 +16727,7 @@ def test_get_model_evaluation_slice_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_evaluation_slice.ModelEvaluationSlice.to_json(
             model_evaluation_slice.ModelEvaluationSlice()
         )
@@ -15444,6 +16740,10 @@ def test_get_model_evaluation_slice_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_evaluation_slice.ModelEvaluationSlice()
+        post_with_metadata.return_value = (
+            model_evaluation_slice.ModelEvaluationSlice(),
+            metadata,
+        )
 
         client.get_model_evaluation_slice(
             request,
@@ -15455,6 +16755,7 @@ def test_get_model_evaluation_slice_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_model_evaluation_slices_rest_bad_request(
@@ -15480,6 +16781,7 @@ def test_list_model_evaluation_slices_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_model_evaluation_slices(request)
 
 
@@ -15517,6 +16819,7 @@ def test_list_model_evaluation_slices_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_model_evaluation_slices(request)
 
     # Establish that the response is the type that we expect.
@@ -15541,10 +16844,14 @@ def test_list_model_evaluation_slices_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelServiceRestInterceptor, "post_list_model_evaluation_slices"
     ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor,
+        "post_list_model_evaluation_slices_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelServiceRestInterceptor, "pre_list_model_evaluation_slices"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ListModelEvaluationSlicesRequest.pb(
             model_service.ListModelEvaluationSlicesRequest()
         )
@@ -15557,6 +16864,7 @@ def test_list_model_evaluation_slices_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.ListModelEvaluationSlicesResponse.to_json(
             model_service.ListModelEvaluationSlicesResponse()
         )
@@ -15569,6 +16877,10 @@ def test_list_model_evaluation_slices_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.ListModelEvaluationSlicesResponse()
+        post_with_metadata.return_value = (
+            model_service.ListModelEvaluationSlicesResponse(),
+            metadata,
+        )
 
         client.list_model_evaluation_slices(
             request,
@@ -15580,6 +16892,7 @@ def test_list_model_evaluation_slices_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -15603,6 +16916,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -15633,6 +16947,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -15661,6 +16976,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -15691,6 +17007,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -15722,6 +17039,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -15754,6 +17072,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -15785,6 +17104,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -15817,6 +17137,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -15848,6 +17169,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -15880,6 +17202,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -15910,6 +17233,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -15940,6 +17264,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -15970,6 +17295,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -16000,6 +17326,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -16030,6 +17357,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -16060,6 +17388,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -16090,6 +17419,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -16120,6 +17450,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -16150,6 +17481,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -16180,6 +17512,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -16272,6 +17605,28 @@ def test_list_model_versions_empty_call_rest():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = model_service.ListModelVersionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_model_version_checkpoints_empty_call_rest():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        client.list_model_version_checkpoints(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_service.ListModelVersionCheckpointsRequest()
 
         assert args[0] == request_msg
 
@@ -16629,6 +17984,7 @@ async def test_upload_model_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.upload_model(request)
 
 
@@ -16666,6 +18022,7 @@ async def test_upload_model_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.upload_model(request)
 
     # Establish that the response is the type that we expect.
@@ -16696,10 +18053,13 @@ async def test_upload_model_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_upload_model"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "post_upload_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_upload_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.UploadModelRequest.pb(
             model_service.UploadModelRequest()
         )
@@ -16712,6 +18072,7 @@ async def test_upload_model_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -16722,6 +18083,7 @@ async def test_upload_model_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.upload_model(
             request,
@@ -16733,6 +18095,7 @@ async def test_upload_model_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -16760,6 +18123,7 @@ async def test_get_model_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_model(request)
 
 
@@ -16794,6 +18158,7 @@ async def test_get_model_rest_asyncio_call_success(request_type):
             display_name="display_name_value",
             description="description_value",
             version_description="version_description_value",
+            default_checkpoint_id="default_checkpoint_id_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
             artifact_uri="artifact_uri_value",
@@ -16819,6 +18184,7 @@ async def test_get_model_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_model(request)
 
     # Establish that the response is the type that we expect.
@@ -16829,6 +18195,7 @@ async def test_get_model_rest_asyncio_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -16869,10 +18236,13 @@ async def test_get_model_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_get_model"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "post_get_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_get_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.GetModelRequest.pb(model_service.GetModelRequest())
         transcode.return_value = {
             "method": "post",
@@ -16883,6 +18253,7 @@ async def test_get_model_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model.Model.to_json(model.Model())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -16893,6 +18264,7 @@ async def test_get_model_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model.Model()
+        post_with_metadata.return_value = model.Model(), metadata
 
         await client.get_model(
             request,
@@ -16904,6 +18276,7 @@ async def test_get_model_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -16931,6 +18304,7 @@ async def test_list_models_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_models(request)
 
 
@@ -16973,6 +18347,7 @@ async def test_list_models_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_models(request)
 
     # Establish that the response is the type that we expect.
@@ -17002,10 +18377,13 @@ async def test_list_models_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_list_models"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "post_list_models_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_list_models"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ListModelsRequest.pb(
             model_service.ListModelsRequest()
         )
@@ -17018,6 +18396,7 @@ async def test_list_models_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.ListModelsResponse.to_json(
             model_service.ListModelsResponse()
         )
@@ -17030,6 +18409,7 @@ async def test_list_models_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.ListModelsResponse()
+        post_with_metadata.return_value = model_service.ListModelsResponse(), metadata
 
         await client.list_models(
             request,
@@ -17041,6 +18421,7 @@ async def test_list_models_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17068,6 +18449,7 @@ async def test_list_model_versions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_model_versions(request)
 
 
@@ -17110,6 +18492,7 @@ async def test_list_model_versions_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_model_versions(request)
 
     # Establish that the response is the type that we expect.
@@ -17139,10 +18522,14 @@ async def test_list_model_versions_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_list_model_versions"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_list_model_versions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_list_model_versions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ListModelVersionsRequest.pb(
             model_service.ListModelVersionsRequest()
         )
@@ -17155,6 +18542,7 @@ async def test_list_model_versions_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.ListModelVersionsResponse.to_json(
             model_service.ListModelVersionsResponse()
         )
@@ -17167,6 +18555,10 @@ async def test_list_model_versions_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.ListModelVersionsResponse()
+        post_with_metadata.return_value = (
+            model_service.ListModelVersionsResponse(),
+            metadata,
+        )
 
         await client.list_model_versions(
             request,
@@ -17178,6 +18570,162 @@ async def test_list_model_versions_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_rest_asyncio_bad_request(
+    request_type=model_service.ListModelVersionCheckpointsRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/models/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        await client.list_model_version_checkpoints(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_service.ListModelVersionCheckpointsRequest,
+        dict,
+    ],
+)
+async def test_list_model_version_checkpoints_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/models/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_service.ListModelVersionCheckpointsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = model_service.ListModelVersionCheckpointsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = await client.list_model_version_checkpoints(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListModelVersionCheckpointsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_list_model_version_checkpoints_rest_asyncio_interceptors(
+    null_interceptor,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncModelServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelServiceRestInterceptor(),
+    )
+    client = ModelServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_list_model_version_checkpoints",
+    ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_list_model_version_checkpoints_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "pre_list_model_version_checkpoints",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = model_service.ListModelVersionCheckpointsRequest.pb(
+            model_service.ListModelVersionCheckpointsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = model_service.ListModelVersionCheckpointsResponse.to_json(
+            model_service.ListModelVersionCheckpointsResponse()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = model_service.ListModelVersionCheckpointsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = model_service.ListModelVersionCheckpointsResponse()
+        post_with_metadata.return_value = (
+            model_service.ListModelVersionCheckpointsResponse(),
+            metadata,
+        )
+
+        await client.list_model_version_checkpoints(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17207,6 +18755,7 @@ async def test_update_model_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_model(request)
 
 
@@ -17240,6 +18789,7 @@ async def test_update_model_rest_asyncio_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "version_description": "version_description_value",
+        "default_checkpoint_id": "default_checkpoint_id_value",
         "predict_schemata": {
             "instance_schema_uri": "instance_schema_uri_value",
             "parameters_schema_uri": "parameters_schema_uri_value",
@@ -17264,15 +18814,29 @@ async def test_update_model_rest_asyncio_call_success(request_type):
             "ports": [{"container_port": 1511}],
             "predict_route": "predict_route_value",
             "health_route": "health_route_value",
+            "invoke_route_prefix": "invoke_route_prefix_value",
             "grpc_ports": {},
             "deployment_timeout": {"seconds": 751, "nanos": 543},
             "shared_memory_size_mb": 2231,
             "startup_probe": {
                 "exec_": {"command": ["command_value1", "command_value2"]},
+                "http_get": {
+                    "path": "path_value",
+                    "port": 453,
+                    "host": "host_value",
+                    "scheme": "scheme_value",
+                    "http_headers": [{"name": "name_value", "value": "value_value"}],
+                },
+                "grpc": {"port": 453, "service": "service_value"},
+                "tcp_socket": {"port": 453, "host": "host_value"},
                 "period_seconds": 1489,
                 "timeout_seconds": 1621,
+                "failure_threshold": 1812,
+                "success_threshold": 1829,
+                "initial_delay_seconds": 2214,
             },
             "health_probe": {},
+            "liveness_probe": {},
         },
         "artifact_uri": "artifact_uri_value",
         "supported_deployment_resources_types": [1],
@@ -17338,11 +18902,18 @@ async def test_update_model_rest_asyncio_call_success(request_type):
         "original_model_info": {"model": "model_value"},
         "metadata_artifact": "metadata_artifact_value",
         "base_model_source": {
-            "model_garden_source": {"public_model_name": "public_model_name_value"},
+            "model_garden_source": {
+                "public_model_name": "public_model_name_value",
+                "version_id": "version_id_value",
+                "skip_hf_model_cache": True,
+            },
             "genie_source": {"base_model_uri": "base_model_uri_value"},
         },
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "checkpoints": [
+            {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
+        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -17423,6 +18994,7 @@ async def test_update_model_rest_asyncio_call_success(request_type):
             display_name="display_name_value",
             description="description_value",
             version_description="version_description_value",
+            default_checkpoint_id="default_checkpoint_id_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
             artifact_uri="artifact_uri_value",
@@ -17448,6 +19020,7 @@ async def test_update_model_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_model(request)
 
     # Establish that the response is the type that we expect.
@@ -17458,6 +19031,7 @@ async def test_update_model_rest_asyncio_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -17498,10 +19072,13 @@ async def test_update_model_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_update_model"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "post_update_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_update_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.UpdateModelRequest.pb(
             model_service.UpdateModelRequest()
         )
@@ -17514,6 +19091,7 @@ async def test_update_model_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_model.Model.to_json(gca_model.Model())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17524,6 +19102,7 @@ async def test_update_model_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_model.Model()
+        post_with_metadata.return_value = gca_model.Model(), metadata
 
         await client.update_model(
             request,
@@ -17535,6 +19114,7 @@ async def test_update_model_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17562,6 +19142,7 @@ async def test_update_explanation_dataset_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_explanation_dataset(request)
 
 
@@ -17599,6 +19180,7 @@ async def test_update_explanation_dataset_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_explanation_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -17629,10 +19211,14 @@ async def test_update_explanation_dataset_rest_asyncio_interceptors(null_interce
     ), mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_update_explanation_dataset"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_update_explanation_dataset_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_update_explanation_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.UpdateExplanationDatasetRequest.pb(
             model_service.UpdateExplanationDatasetRequest()
         )
@@ -17645,6 +19231,7 @@ async def test_update_explanation_dataset_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17655,6 +19242,7 @@ async def test_update_explanation_dataset_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_explanation_dataset(
             request,
@@ -17666,6 +19254,7 @@ async def test_update_explanation_dataset_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17693,6 +19282,7 @@ async def test_delete_model_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_model(request)
 
 
@@ -17730,6 +19320,7 @@ async def test_delete_model_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_model(request)
 
     # Establish that the response is the type that we expect.
@@ -17760,10 +19351,13 @@ async def test_delete_model_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_delete_model"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "post_delete_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_delete_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.DeleteModelRequest.pb(
             model_service.DeleteModelRequest()
         )
@@ -17776,6 +19370,7 @@ async def test_delete_model_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17786,6 +19381,7 @@ async def test_delete_model_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_model(
             request,
@@ -17797,6 +19393,7 @@ async def test_delete_model_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17824,6 +19421,7 @@ async def test_delete_model_version_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_model_version(request)
 
 
@@ -17861,6 +19459,7 @@ async def test_delete_model_version_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_model_version(request)
 
     # Establish that the response is the type that we expect.
@@ -17891,10 +19490,14 @@ async def test_delete_model_version_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_delete_model_version"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_delete_model_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_delete_model_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.DeleteModelVersionRequest.pb(
             model_service.DeleteModelVersionRequest()
         )
@@ -17907,6 +19510,7 @@ async def test_delete_model_version_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17917,6 +19521,7 @@ async def test_delete_model_version_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_model_version(
             request,
@@ -17928,6 +19533,7 @@ async def test_delete_model_version_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17955,6 +19561,7 @@ async def test_merge_version_aliases_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.merge_version_aliases(request)
 
 
@@ -17989,6 +19596,7 @@ async def test_merge_version_aliases_rest_asyncio_call_success(request_type):
             display_name="display_name_value",
             description="description_value",
             version_description="version_description_value",
+            default_checkpoint_id="default_checkpoint_id_value",
             metadata_schema_uri="metadata_schema_uri_value",
             training_pipeline="training_pipeline_value",
             artifact_uri="artifact_uri_value",
@@ -18014,6 +19622,7 @@ async def test_merge_version_aliases_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.merge_version_aliases(request)
 
     # Establish that the response is the type that we expect.
@@ -18024,6 +19633,7 @@ async def test_merge_version_aliases_rest_asyncio_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.version_description == "version_description_value"
+    assert response.default_checkpoint_id == "default_checkpoint_id_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.training_pipeline == "training_pipeline_value"
     assert response.artifact_uri == "artifact_uri_value"
@@ -18064,10 +19674,14 @@ async def test_merge_version_aliases_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_merge_version_aliases"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_merge_version_aliases_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_merge_version_aliases"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.MergeVersionAliasesRequest.pb(
             model_service.MergeVersionAliasesRequest()
         )
@@ -18080,6 +19694,7 @@ async def test_merge_version_aliases_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model.Model.to_json(model.Model())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18090,6 +19705,7 @@ async def test_merge_version_aliases_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = model.Model()
+        post_with_metadata.return_value = model.Model(), metadata
 
         await client.merge_version_aliases(
             request,
@@ -18101,6 +19717,7 @@ async def test_merge_version_aliases_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18128,6 +19745,7 @@ async def test_export_model_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.export_model(request)
 
 
@@ -18165,6 +19783,7 @@ async def test_export_model_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.export_model(request)
 
     # Establish that the response is the type that we expect.
@@ -18195,10 +19814,13 @@ async def test_export_model_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_export_model"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "post_export_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_export_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ExportModelRequest.pb(
             model_service.ExportModelRequest()
         )
@@ -18211,6 +19833,7 @@ async def test_export_model_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18221,6 +19844,7 @@ async def test_export_model_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.export_model(
             request,
@@ -18232,6 +19856,7 @@ async def test_export_model_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18259,6 +19884,7 @@ async def test_copy_model_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.copy_model(request)
 
 
@@ -18296,6 +19922,7 @@ async def test_copy_model_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.copy_model(request)
 
     # Establish that the response is the type that we expect.
@@ -18326,10 +19953,13 @@ async def test_copy_model_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_copy_model"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "post_copy_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_copy_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.CopyModelRequest.pb(model_service.CopyModelRequest())
         transcode.return_value = {
             "method": "post",
@@ -18340,6 +19970,7 @@ async def test_copy_model_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18350,6 +19981,7 @@ async def test_copy_model_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.copy_model(
             request,
@@ -18361,6 +19993,7 @@ async def test_copy_model_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18388,6 +20021,7 @@ async def test_import_model_evaluation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.import_model_evaluation(request)
 
 
@@ -18433,6 +20067,7 @@ async def test_import_model_evaluation_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.import_model_evaluation(request)
 
     # Establish that the response is the type that we expect.
@@ -18465,10 +20100,14 @@ async def test_import_model_evaluation_rest_asyncio_interceptors(null_intercepto
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_import_model_evaluation"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_import_model_evaluation_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_import_model_evaluation"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ImportModelEvaluationRequest.pb(
             model_service.ImportModelEvaluationRequest()
         )
@@ -18481,6 +20120,7 @@ async def test_import_model_evaluation_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_model_evaluation.ModelEvaluation.to_json(
             gca_model_evaluation.ModelEvaluation()
         )
@@ -18493,6 +20133,10 @@ async def test_import_model_evaluation_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = gca_model_evaluation.ModelEvaluation()
+        post_with_metadata.return_value = (
+            gca_model_evaluation.ModelEvaluation(),
+            metadata,
+        )
 
         await client.import_model_evaluation(
             request,
@@ -18504,6 +20148,7 @@ async def test_import_model_evaluation_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18533,6 +20178,7 @@ async def test_batch_import_model_evaluation_slices_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.batch_import_model_evaluation_slices(request)
 
 
@@ -18581,6 +20227,7 @@ async def test_batch_import_model_evaluation_slices_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.batch_import_model_evaluation_slices(request)
 
     # Establish that the response is the type that we expect.
@@ -18616,10 +20263,14 @@ async def test_batch_import_model_evaluation_slices_rest_asyncio_interceptors(
         "post_batch_import_model_evaluation_slices",
     ) as post, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor,
+        "post_batch_import_model_evaluation_slices_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
         "pre_batch_import_model_evaluation_slices",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.BatchImportModelEvaluationSlicesRequest.pb(
             model_service.BatchImportModelEvaluationSlicesRequest()
         )
@@ -18632,6 +20283,7 @@ async def test_batch_import_model_evaluation_slices_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.BatchImportModelEvaluationSlicesResponse.to_json(
             model_service.BatchImportModelEvaluationSlicesResponse()
         )
@@ -18644,6 +20296,10 @@ async def test_batch_import_model_evaluation_slices_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.BatchImportModelEvaluationSlicesResponse()
+        post_with_metadata.return_value = (
+            model_service.BatchImportModelEvaluationSlicesResponse(),
+            metadata,
+        )
 
         await client.batch_import_model_evaluation_slices(
             request,
@@ -18655,6 +20311,7 @@ async def test_batch_import_model_evaluation_slices_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18684,6 +20341,7 @@ async def test_batch_import_evaluated_annotations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.batch_import_evaluated_annotations(request)
 
 
@@ -18732,6 +20390,7 @@ async def test_batch_import_evaluated_annotations_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.batch_import_evaluated_annotations(request)
 
     # Establish that the response is the type that we expect.
@@ -18765,10 +20424,14 @@ async def test_batch_import_evaluated_annotations_rest_asyncio_interceptors(
         "post_batch_import_evaluated_annotations",
     ) as post, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor,
+        "post_batch_import_evaluated_annotations_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
         "pre_batch_import_evaluated_annotations",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.BatchImportEvaluatedAnnotationsRequest.pb(
             model_service.BatchImportEvaluatedAnnotationsRequest()
         )
@@ -18781,6 +20444,7 @@ async def test_batch_import_evaluated_annotations_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.BatchImportEvaluatedAnnotationsResponse.to_json(
             model_service.BatchImportEvaluatedAnnotationsResponse()
         )
@@ -18793,6 +20457,10 @@ async def test_batch_import_evaluated_annotations_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.BatchImportEvaluatedAnnotationsResponse()
+        post_with_metadata.return_value = (
+            model_service.BatchImportEvaluatedAnnotationsResponse(),
+            metadata,
+        )
 
         await client.batch_import_evaluated_annotations(
             request,
@@ -18804,6 +20472,7 @@ async def test_batch_import_evaluated_annotations_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18833,6 +20502,7 @@ async def test_get_model_evaluation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_model_evaluation(request)
 
 
@@ -18880,6 +20550,7 @@ async def test_get_model_evaluation_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_model_evaluation(request)
 
     # Establish that the response is the type that we expect.
@@ -18912,10 +20583,14 @@ async def test_get_model_evaluation_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_get_model_evaluation"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_get_model_evaluation_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_get_model_evaluation"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.GetModelEvaluationRequest.pb(
             model_service.GetModelEvaluationRequest()
         )
@@ -18928,6 +20603,7 @@ async def test_get_model_evaluation_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_evaluation.ModelEvaluation.to_json(
             model_evaluation.ModelEvaluation()
         )
@@ -18940,6 +20616,7 @@ async def test_get_model_evaluation_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_evaluation.ModelEvaluation()
+        post_with_metadata.return_value = model_evaluation.ModelEvaluation(), metadata
 
         await client.get_model_evaluation(
             request,
@@ -18951,6 +20628,7 @@ async def test_get_model_evaluation_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18978,6 +20656,7 @@ async def test_list_model_evaluations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_model_evaluations(request)
 
 
@@ -19020,6 +20699,7 @@ async def test_list_model_evaluations_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_model_evaluations(request)
 
     # Establish that the response is the type that we expect.
@@ -19049,10 +20729,14 @@ async def test_list_model_evaluations_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_list_model_evaluations"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_list_model_evaluations_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_list_model_evaluations"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ListModelEvaluationsRequest.pb(
             model_service.ListModelEvaluationsRequest()
         )
@@ -19065,6 +20749,7 @@ async def test_list_model_evaluations_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.ListModelEvaluationsResponse.to_json(
             model_service.ListModelEvaluationsResponse()
         )
@@ -19077,6 +20762,10 @@ async def test_list_model_evaluations_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.ListModelEvaluationsResponse()
+        post_with_metadata.return_value = (
+            model_service.ListModelEvaluationsResponse(),
+            metadata,
+        )
 
         await client.list_model_evaluations(
             request,
@@ -19088,6 +20777,7 @@ async def test_list_model_evaluations_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19117,6 +20807,7 @@ async def test_get_model_evaluation_slice_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_model_evaluation_slice(request)
 
 
@@ -19162,6 +20853,7 @@ async def test_get_model_evaluation_slice_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_model_evaluation_slice(request)
 
     # Establish that the response is the type that we expect.
@@ -19192,10 +20884,14 @@ async def test_get_model_evaluation_slice_rest_asyncio_interceptors(null_interce
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_get_model_evaluation_slice"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_get_model_evaluation_slice_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_get_model_evaluation_slice"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.GetModelEvaluationSliceRequest.pb(
             model_service.GetModelEvaluationSliceRequest()
         )
@@ -19208,6 +20904,7 @@ async def test_get_model_evaluation_slice_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_evaluation_slice.ModelEvaluationSlice.to_json(
             model_evaluation_slice.ModelEvaluationSlice()
         )
@@ -19220,6 +20917,10 @@ async def test_get_model_evaluation_slice_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = model_evaluation_slice.ModelEvaluationSlice()
+        post_with_metadata.return_value = (
+            model_evaluation_slice.ModelEvaluationSlice(),
+            metadata,
+        )
 
         await client.get_model_evaluation_slice(
             request,
@@ -19231,6 +20932,7 @@ async def test_get_model_evaluation_slice_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19260,6 +20962,7 @@ async def test_list_model_evaluation_slices_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_model_evaluation_slices(request)
 
 
@@ -19304,6 +21007,7 @@ async def test_list_model_evaluation_slices_rest_asyncio_call_success(request_ty
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_model_evaluation_slices(request)
 
     # Establish that the response is the type that we expect.
@@ -19333,10 +21037,14 @@ async def test_list_model_evaluation_slices_rest_asyncio_interceptors(null_inter
     ) as transcode, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "post_list_model_evaluation_slices"
     ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor,
+        "post_list_model_evaluation_slices_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelServiceRestInterceptor, "pre_list_model_evaluation_slices"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_service.ListModelEvaluationSlicesRequest.pb(
             model_service.ListModelEvaluationSlicesRequest()
         )
@@ -19349,6 +21057,7 @@ async def test_list_model_evaluation_slices_rest_asyncio_interceptors(null_inter
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = model_service.ListModelEvaluationSlicesResponse.to_json(
             model_service.ListModelEvaluationSlicesResponse()
         )
@@ -19361,6 +21070,10 @@ async def test_list_model_evaluation_slices_rest_asyncio_interceptors(null_inter
         ]
         pre.return_value = request, metadata
         post.return_value = model_service.ListModelEvaluationSlicesResponse()
+        post_with_metadata.return_value = (
+            model_service.ListModelEvaluationSlicesResponse(),
+            metadata,
+        )
 
         await client.list_model_evaluation_slices(
             request,
@@ -19372,6 +21085,7 @@ async def test_list_model_evaluation_slices_rest_asyncio_interceptors(null_inter
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19401,6 +21115,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -19438,6 +21153,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -19470,6 +21186,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -19507,6 +21224,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -19542,6 +21260,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -19581,6 +21300,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -19616,6 +21336,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -19655,6 +21376,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -19690,6 +21412,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -19729,6 +21452,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -19763,6 +21487,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -19800,6 +21525,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -19834,6 +21560,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -19871,6 +21598,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -19905,6 +21633,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -19942,6 +21671,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -19976,6 +21706,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -20013,6 +21744,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -20047,6 +21779,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -20084,6 +21817,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 
@@ -20200,6 +21934,33 @@ async def test_list_model_versions_empty_call_rest_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = model_service.ListModelVersionsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_model_version_checkpoints_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_version_checkpoints), "__call__"
+    ) as call:
+        await client.list_model_version_checkpoints(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_service.ListModelVersionCheckpointsRequest()
 
         assert args[0] == request_msg
 
@@ -20646,6 +22407,7 @@ def test_model_service_base_transport():
         "get_model",
         "list_models",
         "list_model_versions",
+        "list_model_version_checkpoints",
         "update_model",
         "update_explanation_dataset",
         "delete_model",
@@ -20941,6 +22703,9 @@ def test_model_service_client_transport_session_collision(transport_name):
     assert session1 != session2
     session1 = client1.transport.list_model_versions._session
     session2 = client2.transport.list_model_versions._session
+    assert session1 != session2
+    session1 = client1.transport.list_model_version_checkpoints._session
+    session2 = client2.transport.list_model_version_checkpoints._session
     assert session1 != session2
     session1 = client1.transport.update_model._session
     session2 = client2.transport.update_model._session

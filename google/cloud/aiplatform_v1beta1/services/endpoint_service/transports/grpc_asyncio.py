@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 import inspect
+import json
+import pickle
+import logging as std_logging
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -24,8 +27,11 @@ from google.api_core import retry_async as retries
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
+from google.protobuf.json_format import MessageToJson
+import google.protobuf.message
 
 import grpc  # type: ignore
+import proto  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import endpoint
@@ -37,6 +43,82 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from .base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import EndpointServiceGrpcTransport
+
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = std_logging.getLogger(__name__)
+
+
+class _LoggingClientAIOInterceptor(
+    grpc.aio.UnaryUnaryClientInterceptor
+):  # pragma: NO COVER
+    async def intercept_unary_unary(self, continuation, client_call_details, request):
+        logging_enabled = CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+            std_logging.DEBUG
+        )
+        if logging_enabled:  # pragma: NO COVER
+            request_metadata = client_call_details.metadata
+            if isinstance(request, proto.Message):
+                request_payload = type(request).to_json(request)
+            elif isinstance(request, google.protobuf.message.Message):
+                request_payload = MessageToJson(request)
+            else:
+                request_payload = f"{type(request).__name__}: {pickle.dumps(request)}"
+
+            request_metadata = {
+                key: value.decode("utf-8") if isinstance(value, bytes) else value
+                for key, value in request_metadata
+            }
+            grpc_request = {
+                "payload": request_payload,
+                "requestMethod": "grpc",
+                "metadata": dict(request_metadata),
+            }
+            _LOGGER.debug(
+                f"Sending request for {client_call_details.method}",
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1beta1.EndpointService",
+                    "rpcName": str(client_call_details.method),
+                    "request": grpc_request,
+                    "metadata": grpc_request["metadata"],
+                },
+            )
+        response = await continuation(client_call_details, request)
+        if logging_enabled:  # pragma: NO COVER
+            response_metadata = await response.trailing_metadata()
+            # Convert gRPC metadata `<class 'grpc.aio._metadata.Metadata'>` to list of tuples
+            metadata = (
+                dict([(k, str(v)) for k, v in response_metadata])
+                if response_metadata
+                else None
+            )
+            result = await response
+            if isinstance(result, proto.Message):
+                response_payload = type(result).to_json(result)
+            elif isinstance(result, google.protobuf.message.Message):
+                response_payload = MessageToJson(result)
+            else:
+                response_payload = f"{type(result).__name__}: {pickle.dumps(result)}"
+            grpc_response = {
+                "payload": response_payload,
+                "metadata": metadata,
+                "status": "OK",
+            }
+            _LOGGER.debug(
+                f"Received response to rpc {client_call_details.method}.",
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1beta1.EndpointService",
+                    "rpcName": str(client_call_details.method),
+                    "response": grpc_response,
+                    "metadata": grpc_response["metadata"],
+                },
+            )
+        return response
 
 
 class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
@@ -235,10 +317,13 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
                 ],
             )
 
-        # Wrap messages. This must be done after self._grpc_channel exists
+        self._interceptor = _LoggingClientAIOInterceptor()
+        self._grpc_channel._unary_unary_interceptors.append(self._interceptor)
+        self._logged_channel = self._grpc_channel
         self._wrap_with_kind = (
             "kind" in inspect.signature(gapic_v1.method_async.wrap_method).parameters
         )
+        # Wrap messages. This must be done after self._logged_channel exists
         self._prep_wrapped_messages(client_info)
 
     @property
@@ -261,7 +346,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
             self._operations_client = operations_v1.OperationsAsyncClient(
-                self.grpc_channel
+                self._logged_channel
             )
 
         # Return the client from cache.
@@ -288,7 +373,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_endpoint" not in self._stubs:
-            self._stubs["create_endpoint"] = self.grpc_channel.unary_unary(
+            self._stubs["create_endpoint"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/CreateEndpoint",
                 request_serializer=endpoint_service.CreateEndpointRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -314,7 +399,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_endpoint" not in self._stubs:
-            self._stubs["get_endpoint"] = self.grpc_channel.unary_unary(
+            self._stubs["get_endpoint"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/GetEndpoint",
                 request_serializer=endpoint_service.GetEndpointRequest.serialize,
                 response_deserializer=endpoint.Endpoint.deserialize,
@@ -343,7 +428,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_endpoints" not in self._stubs:
-            self._stubs["list_endpoints"] = self.grpc_channel.unary_unary(
+            self._stubs["list_endpoints"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/ListEndpoints",
                 request_serializer=endpoint_service.ListEndpointsRequest.serialize,
                 response_deserializer=endpoint_service.ListEndpointsResponse.deserialize,
@@ -371,7 +456,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_endpoint" not in self._stubs:
-            self._stubs["update_endpoint"] = self.grpc_channel.unary_unary(
+            self._stubs["update_endpoint"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/UpdateEndpoint",
                 request_serializer=endpoint_service.UpdateEndpointRequest.serialize,
                 response_deserializer=gca_endpoint.Endpoint.deserialize,
@@ -400,7 +485,9 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_endpoint_long_running" not in self._stubs:
-            self._stubs["update_endpoint_long_running"] = self.grpc_channel.unary_unary(
+            self._stubs[
+                "update_endpoint_long_running"
+            ] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/UpdateEndpointLongRunning",
                 request_serializer=endpoint_service.UpdateEndpointLongRunningRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -428,7 +515,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_endpoint" not in self._stubs:
-            self._stubs["delete_endpoint"] = self.grpc_channel.unary_unary(
+            self._stubs["delete_endpoint"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/DeleteEndpoint",
                 request_serializer=endpoint_service.DeleteEndpointRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -457,7 +544,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "deploy_model" not in self._stubs:
-            self._stubs["deploy_model"] = self.grpc_channel.unary_unary(
+            self._stubs["deploy_model"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/DeployModel",
                 request_serializer=endpoint_service.DeployModelRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -487,7 +574,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "undeploy_model" not in self._stubs:
-            self._stubs["undeploy_model"] = self.grpc_channel.unary_unary(
+            self._stubs["undeploy_model"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/UndeployModel",
                 request_serializer=endpoint_service.UndeployModelRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -519,12 +606,76 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "mutate_deployed_model" not in self._stubs:
-            self._stubs["mutate_deployed_model"] = self.grpc_channel.unary_unary(
+            self._stubs["mutate_deployed_model"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/MutateDeployedModel",
                 request_serializer=endpoint_service.MutateDeployedModelRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["mutate_deployed_model"]
+
+    @property
+    def set_publisher_model_config(
+        self,
+    ) -> Callable[
+        [endpoint_service.SetPublisherModelConfigRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the set publisher model config method over gRPC.
+
+        Sets (creates or updates) configs of publisher
+        models. For example, sets the request/response logging
+        config.
+
+        Returns:
+            Callable[[~.SetPublisherModelConfigRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "set_publisher_model_config" not in self._stubs:
+            self._stubs[
+                "set_publisher_model_config"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/SetPublisherModelConfig",
+                request_serializer=endpoint_service.SetPublisherModelConfigRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["set_publisher_model_config"]
+
+    @property
+    def fetch_publisher_model_config(
+        self,
+    ) -> Callable[
+        [endpoint_service.FetchPublisherModelConfigRequest],
+        Awaitable[endpoint.PublisherModelConfig],
+    ]:
+        r"""Return a callable for the fetch publisher model config method over gRPC.
+
+        Fetches the configs of publisher models.
+
+        Returns:
+            Callable[[~.FetchPublisherModelConfigRequest],
+                    Awaitable[~.PublisherModelConfig]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "fetch_publisher_model_config" not in self._stubs:
+            self._stubs[
+                "fetch_publisher_model_config"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/FetchPublisherModelConfig",
+                request_serializer=endpoint_service.FetchPublisherModelConfigRequest.serialize,
+                response_deserializer=endpoint.PublisherModelConfig.deserialize,
+            )
+        return self._stubs["fetch_publisher_model_config"]
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -571,6 +722,16 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             ),
             self.mutate_deployed_model: self._wrap_method(
                 self.mutate_deployed_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.set_publisher_model_config: self._wrap_method(
+                self.set_publisher_model_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.fetch_publisher_model_config: self._wrap_method(
+                self.fetch_publisher_model_config,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -632,7 +793,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
 
     def close(self):
-        return self.grpc_channel.close()
+        return self._logged_channel.close()
 
     @property
     def kind(self) -> str:
@@ -648,7 +809,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_operation" not in self._stubs:
-            self._stubs["delete_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["delete_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/DeleteOperation",
                 request_serializer=operations_pb2.DeleteOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -665,7 +826,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_operation" not in self._stubs:
-            self._stubs["cancel_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["cancel_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/CancelOperation",
                 request_serializer=operations_pb2.CancelOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -682,7 +843,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "wait_operation" not in self._stubs:
-            self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["wait_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -699,7 +860,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_operation" not in self._stubs:
-            self._stubs["get_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["get_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/GetOperation",
                 request_serializer=operations_pb2.GetOperationRequest.SerializeToString,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -718,7 +879,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_operations" not in self._stubs:
-            self._stubs["list_operations"] = self.grpc_channel.unary_unary(
+            self._stubs["list_operations"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/ListOperations",
                 request_serializer=operations_pb2.ListOperationsRequest.SerializeToString,
                 response_deserializer=operations_pb2.ListOperationsResponse.FromString,
@@ -737,7 +898,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_locations" not in self._stubs:
-            self._stubs["list_locations"] = self.grpc_channel.unary_unary(
+            self._stubs["list_locations"] = self._logged_channel.unary_unary(
                 "/google.cloud.location.Locations/ListLocations",
                 request_serializer=locations_pb2.ListLocationsRequest.SerializeToString,
                 response_deserializer=locations_pb2.ListLocationsResponse.FromString,
@@ -754,7 +915,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_location" not in self._stubs:
-            self._stubs["get_location"] = self.grpc_channel.unary_unary(
+            self._stubs["get_location"] = self._logged_channel.unary_unary(
                 "/google.cloud.location.Locations/GetLocation",
                 request_serializer=locations_pb2.GetLocationRequest.SerializeToString,
                 response_deserializer=locations_pb2.Location.FromString,
@@ -779,7 +940,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "set_iam_policy" not in self._stubs:
-            self._stubs["set_iam_policy"] = self.grpc_channel.unary_unary(
+            self._stubs["set_iam_policy"] = self._logged_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/SetIamPolicy",
                 request_serializer=iam_policy_pb2.SetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -805,7 +966,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_iam_policy" not in self._stubs:
-            self._stubs["get_iam_policy"] = self.grpc_channel.unary_unary(
+            self._stubs["get_iam_policy"] = self._logged_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/GetIamPolicy",
                 request_serializer=iam_policy_pb2.GetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -834,7 +995,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "test_iam_permissions" not in self._stubs:
-            self._stubs["test_iam_permissions"] = self.grpc_channel.unary_unary(
+            self._stubs["test_iam_permissions"] = self._logged_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/TestIamPermissions",
                 request_serializer=iam_policy_pb2.TestIamPermissionsRequest.SerializeToString,
                 response_deserializer=iam_policy_pb2.TestIamPermissionsResponse.FromString,

@@ -36,7 +36,7 @@ class FeatureMonitor(base.VertexAiResourceNounWithFutureManager):
     _resource_noun = "feature_monitors"
     _getter_method = "get_feature_monitor"
     _list_method = "list_feature_monitors"
-    _delete_method = "delete_feature_monitors"
+    _delete_method = "delete_feature_monitor"
     _parse_resource_name_method = "parse_feature_monitor_path"
     _format_resource_name_method = "feature_monitor_path"
     _gca_resource: gca_feature_monitor.FeatureMonitor
@@ -189,6 +189,15 @@ class FeatureMonitor(base.VertexAiResourceNounWithFutureManager):
             """The description of the feature monitor."""
             return self._gca_resource.description
 
+        @property
+        def feature_stats_and_anomalies(
+            self,
+        ) -> List[gca_feature_monitor.FeatureStatsAndAnomaly]:
+            """The feature stats and anomaly of the feature monitor job."""
+            if self._gca_resource.job_summary:
+                return self._gca_resource.job_summary.feature_stats_and_anomalies
+            return []
+
     def create_feature_monitor_job(
         self,
         description: Optional[str] = None,
@@ -250,23 +259,13 @@ class FeatureMonitor(base.VertexAiResourceNounWithFutureManager):
             location=location, credentials=credentials
         )
 
-        create_feature_monitor_job_lro = api_client.select_version(
+        created_feature_monitor_job = api_client.select_version(
             "v1beta1"
         ).create_feature_monitor_job(
             parent=self.resource_name,
             feature_monitor_job=gapic_feature_monitor_job,
             metadata=request_metadata,
             timeout=create_request_timeout,
-        )
-
-        _LOGGER.log_create_with_lro(
-            self.FeatureMonitorJob, create_feature_monitor_job_lro
-        )
-
-        created_feature_monitor_job = create_feature_monitor_job_lro.result()
-
-        _LOGGER.log_create_complete(
-            self.FeatureMonitorJob, created_feature_monitor_job, "feature_monitor_job"
         )
 
         feature_monitor_job_obj = self.FeatureMonitorJob(

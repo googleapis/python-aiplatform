@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,15 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import logging
+import json  # type: ignore
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
-import json  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
 from google.api_core import gapic_v1
+import google.protobuf
 
 from google.protobuf import json_format
 from google.api_core import operations_v1
@@ -57,12 +59,23 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=BASE_DEFAULT_CLIENT_INFO.gapic_version,
     grpc_version=None,
     rest_version=f"requests@{requests_version}",
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class MetadataServiceRestInterceptor:
@@ -345,10 +358,10 @@ class MetadataServiceRestInterceptor:
     def pre_add_context_artifacts_and_executions(
         self,
         request: metadata_service.AddContextArtifactsAndExecutionsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         metadata_service.AddContextArtifactsAndExecutionsRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for add_context_artifacts_and_executions
 
@@ -362,17 +375,46 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_service.AddContextArtifactsAndExecutionsResponse:
         """Post-rpc interceptor for add_context_artifacts_and_executions
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_add_context_artifacts_and_executions_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_add_context_artifacts_and_executions` interceptor runs
+        before the `post_add_context_artifacts_and_executions_with_metadata` interceptor.
         """
         return response
+
+    def post_add_context_artifacts_and_executions_with_metadata(
+        self,
+        response: metadata_service.AddContextArtifactsAndExecutionsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.AddContextArtifactsAndExecutionsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for add_context_artifacts_and_executions
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_add_context_artifacts_and_executions_with_metadata`
+        interceptor in new development instead of the `post_add_context_artifacts_and_executions` interceptor.
+        When both interceptors are used, this `post_add_context_artifacts_and_executions_with_metadata` interceptor runs after the
+        `post_add_context_artifacts_and_executions` interceptor. The (possibly modified) response returned by
+        `post_add_context_artifacts_and_executions` will be passed to
+        `post_add_context_artifacts_and_executions_with_metadata`.
+        """
+        return response, metadata
 
     def pre_add_context_children(
         self,
         request: metadata_service.AddContextChildrenRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.AddContextChildrenRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.AddContextChildrenRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for add_context_children
 
         Override in a subclass to manipulate the request or metadata
@@ -385,17 +427,46 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_service.AddContextChildrenResponse:
         """Post-rpc interceptor for add_context_children
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_add_context_children_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_add_context_children` interceptor runs
+        before the `post_add_context_children_with_metadata` interceptor.
         """
         return response
+
+    def post_add_context_children_with_metadata(
+        self,
+        response: metadata_service.AddContextChildrenResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.AddContextChildrenResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for add_context_children
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_add_context_children_with_metadata`
+        interceptor in new development instead of the `post_add_context_children` interceptor.
+        When both interceptors are used, this `post_add_context_children_with_metadata` interceptor runs after the
+        `post_add_context_children` interceptor. The (possibly modified) response returned by
+        `post_add_context_children` will be passed to
+        `post_add_context_children_with_metadata`.
+        """
+        return response, metadata
 
     def pre_add_execution_events(
         self,
         request: metadata_service.AddExecutionEventsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.AddExecutionEventsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.AddExecutionEventsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for add_execution_events
 
         Override in a subclass to manipulate the request or metadata
@@ -408,17 +479,45 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_service.AddExecutionEventsResponse:
         """Post-rpc interceptor for add_execution_events
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_add_execution_events_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_add_execution_events` interceptor runs
+        before the `post_add_execution_events_with_metadata` interceptor.
         """
         return response
+
+    def post_add_execution_events_with_metadata(
+        self,
+        response: metadata_service.AddExecutionEventsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.AddExecutionEventsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for add_execution_events
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_add_execution_events_with_metadata`
+        interceptor in new development instead of the `post_add_execution_events` interceptor.
+        When both interceptors are used, this `post_add_execution_events_with_metadata` interceptor runs after the
+        `post_add_execution_events` interceptor. The (possibly modified) response returned by
+        `post_add_execution_events` will be passed to
+        `post_add_execution_events_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_artifact(
         self,
         request: metadata_service.CreateArtifactRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.CreateArtifactRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.CreateArtifactRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for create_artifact
 
         Override in a subclass to manipulate the request or metadata
@@ -431,17 +530,42 @@ class MetadataServiceRestInterceptor:
     ) -> gca_artifact.Artifact:
         """Post-rpc interceptor for create_artifact
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_artifact_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_artifact` interceptor runs
+        before the `post_create_artifact_with_metadata` interceptor.
         """
         return response
+
+    def post_create_artifact_with_metadata(
+        self,
+        response: gca_artifact.Artifact,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_artifact.Artifact, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_artifact
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_artifact_with_metadata`
+        interceptor in new development instead of the `post_create_artifact` interceptor.
+        When both interceptors are used, this `post_create_artifact_with_metadata` interceptor runs after the
+        `post_create_artifact` interceptor. The (possibly modified) response returned by
+        `post_create_artifact` will be passed to
+        `post_create_artifact_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_context(
         self,
         request: metadata_service.CreateContextRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.CreateContextRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.CreateContextRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for create_context
 
         Override in a subclass to manipulate the request or metadata
@@ -452,17 +576,42 @@ class MetadataServiceRestInterceptor:
     def post_create_context(self, response: gca_context.Context) -> gca_context.Context:
         """Post-rpc interceptor for create_context
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_context_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_context` interceptor runs
+        before the `post_create_context_with_metadata` interceptor.
         """
         return response
+
+    def post_create_context_with_metadata(
+        self,
+        response: gca_context.Context,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_context.Context, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_context
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_context_with_metadata`
+        interceptor in new development instead of the `post_create_context` interceptor.
+        When both interceptors are used, this `post_create_context_with_metadata` interceptor runs after the
+        `post_create_context` interceptor. The (possibly modified) response returned by
+        `post_create_context` will be passed to
+        `post_create_context_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_execution(
         self,
         request: metadata_service.CreateExecutionRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.CreateExecutionRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.CreateExecutionRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for create_execution
 
         Override in a subclass to manipulate the request or metadata
@@ -475,17 +624,43 @@ class MetadataServiceRestInterceptor:
     ) -> gca_execution.Execution:
         """Post-rpc interceptor for create_execution
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_execution_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_execution` interceptor runs
+        before the `post_create_execution_with_metadata` interceptor.
         """
         return response
+
+    def post_create_execution_with_metadata(
+        self,
+        response: gca_execution.Execution,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_execution.Execution, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_execution
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_execution_with_metadata`
+        interceptor in new development instead of the `post_create_execution` interceptor.
+        When both interceptors are used, this `post_create_execution_with_metadata` interceptor runs after the
+        `post_create_execution` interceptor. The (possibly modified) response returned by
+        `post_create_execution` will be passed to
+        `post_create_execution_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_metadata_schema(
         self,
         request: metadata_service.CreateMetadataSchemaRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.CreateMetadataSchemaRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.CreateMetadataSchemaRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for create_metadata_schema
 
         Override in a subclass to manipulate the request or metadata
@@ -498,17 +673,45 @@ class MetadataServiceRestInterceptor:
     ) -> gca_metadata_schema.MetadataSchema:
         """Post-rpc interceptor for create_metadata_schema
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_metadata_schema_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_metadata_schema` interceptor runs
+        before the `post_create_metadata_schema_with_metadata` interceptor.
         """
         return response
+
+    def post_create_metadata_schema_with_metadata(
+        self,
+        response: gca_metadata_schema.MetadataSchema,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_metadata_schema.MetadataSchema, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for create_metadata_schema
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_metadata_schema_with_metadata`
+        interceptor in new development instead of the `post_create_metadata_schema` interceptor.
+        When both interceptors are used, this `post_create_metadata_schema_with_metadata` interceptor runs after the
+        `post_create_metadata_schema` interceptor. The (possibly modified) response returned by
+        `post_create_metadata_schema` will be passed to
+        `post_create_metadata_schema_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_metadata_store(
         self,
         request: metadata_service.CreateMetadataStoreRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.CreateMetadataStoreRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.CreateMetadataStoreRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for create_metadata_store
 
         Override in a subclass to manipulate the request or metadata
@@ -521,17 +724,42 @@ class MetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_metadata_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_metadata_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_metadata_store` interceptor runs
+        before the `post_create_metadata_store_with_metadata` interceptor.
         """
         return response
+
+    def post_create_metadata_store_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_metadata_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_metadata_store_with_metadata`
+        interceptor in new development instead of the `post_create_metadata_store` interceptor.
+        When both interceptors are used, this `post_create_metadata_store_with_metadata` interceptor runs after the
+        `post_create_metadata_store` interceptor. The (possibly modified) response returned by
+        `post_create_metadata_store` will be passed to
+        `post_create_metadata_store_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_artifact(
         self,
         request: metadata_service.DeleteArtifactRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.DeleteArtifactRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.DeleteArtifactRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_artifact
 
         Override in a subclass to manipulate the request or metadata
@@ -544,17 +772,42 @@ class MetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_artifact
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_artifact_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_artifact` interceptor runs
+        before the `post_delete_artifact_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_artifact_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_artifact
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_artifact_with_metadata`
+        interceptor in new development instead of the `post_delete_artifact` interceptor.
+        When both interceptors are used, this `post_delete_artifact_with_metadata` interceptor runs after the
+        `post_delete_artifact` interceptor. The (possibly modified) response returned by
+        `post_delete_artifact` will be passed to
+        `post_delete_artifact_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_context(
         self,
         request: metadata_service.DeleteContextRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.DeleteContextRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.DeleteContextRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_context
 
         Override in a subclass to manipulate the request or metadata
@@ -567,17 +820,42 @@ class MetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_context
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_context_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_context` interceptor runs
+        before the `post_delete_context_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_context_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_context
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_context_with_metadata`
+        interceptor in new development instead of the `post_delete_context` interceptor.
+        When both interceptors are used, this `post_delete_context_with_metadata` interceptor runs after the
+        `post_delete_context` interceptor. The (possibly modified) response returned by
+        `post_delete_context` will be passed to
+        `post_delete_context_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_execution(
         self,
         request: metadata_service.DeleteExecutionRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.DeleteExecutionRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.DeleteExecutionRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_execution
 
         Override in a subclass to manipulate the request or metadata
@@ -590,17 +868,43 @@ class MetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_execution
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_execution_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_execution` interceptor runs
+        before the `post_delete_execution_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_execution_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_execution
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_execution_with_metadata`
+        interceptor in new development instead of the `post_delete_execution` interceptor.
+        When both interceptors are used, this `post_delete_execution_with_metadata` interceptor runs after the
+        `post_delete_execution` interceptor. The (possibly modified) response returned by
+        `post_delete_execution` will be passed to
+        `post_delete_execution_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_metadata_store(
         self,
         request: metadata_service.DeleteMetadataStoreRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.DeleteMetadataStoreRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.DeleteMetadataStoreRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for delete_metadata_store
 
         Override in a subclass to manipulate the request or metadata
@@ -613,17 +917,42 @@ class MetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_metadata_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_metadata_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_metadata_store` interceptor runs
+        before the `post_delete_metadata_store_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_metadata_store_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_metadata_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_metadata_store_with_metadata`
+        interceptor in new development instead of the `post_delete_metadata_store` interceptor.
+        When both interceptors are used, this `post_delete_metadata_store_with_metadata` interceptor runs after the
+        `post_delete_metadata_store` interceptor. The (possibly modified) response returned by
+        `post_delete_metadata_store` will be passed to
+        `post_delete_metadata_store_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_artifact(
         self,
         request: metadata_service.GetArtifactRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.GetArtifactRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.GetArtifactRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_artifact
 
         Override in a subclass to manipulate the request or metadata
@@ -634,17 +963,42 @@ class MetadataServiceRestInterceptor:
     def post_get_artifact(self, response: artifact.Artifact) -> artifact.Artifact:
         """Post-rpc interceptor for get_artifact
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_artifact_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_artifact` interceptor runs
+        before the `post_get_artifact_with_metadata` interceptor.
         """
         return response
+
+    def post_get_artifact_with_metadata(
+        self,
+        response: artifact.Artifact,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[artifact.Artifact, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_artifact
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_artifact_with_metadata`
+        interceptor in new development instead of the `post_get_artifact` interceptor.
+        When both interceptors are used, this `post_get_artifact_with_metadata` interceptor runs after the
+        `post_get_artifact` interceptor. The (possibly modified) response returned by
+        `post_get_artifact` will be passed to
+        `post_get_artifact_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_context(
         self,
         request: metadata_service.GetContextRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.GetContextRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.GetContextRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_context
 
         Override in a subclass to manipulate the request or metadata
@@ -655,17 +1009,42 @@ class MetadataServiceRestInterceptor:
     def post_get_context(self, response: context.Context) -> context.Context:
         """Post-rpc interceptor for get_context
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_context_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_context` interceptor runs
+        before the `post_get_context_with_metadata` interceptor.
         """
         return response
+
+    def post_get_context_with_metadata(
+        self,
+        response: context.Context,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[context.Context, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_context
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_context_with_metadata`
+        interceptor in new development instead of the `post_get_context` interceptor.
+        When both interceptors are used, this `post_get_context_with_metadata` interceptor runs after the
+        `post_get_context` interceptor. The (possibly modified) response returned by
+        `post_get_context` will be passed to
+        `post_get_context_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_execution(
         self,
         request: metadata_service.GetExecutionRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.GetExecutionRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.GetExecutionRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_execution
 
         Override in a subclass to manipulate the request or metadata
@@ -676,17 +1055,43 @@ class MetadataServiceRestInterceptor:
     def post_get_execution(self, response: execution.Execution) -> execution.Execution:
         """Post-rpc interceptor for get_execution
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_execution_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_execution` interceptor runs
+        before the `post_get_execution_with_metadata` interceptor.
         """
         return response
+
+    def post_get_execution_with_metadata(
+        self,
+        response: execution.Execution,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[execution.Execution, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_execution
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_execution_with_metadata`
+        interceptor in new development instead of the `post_get_execution` interceptor.
+        When both interceptors are used, this `post_get_execution_with_metadata` interceptor runs after the
+        `post_get_execution` interceptor. The (possibly modified) response returned by
+        `post_get_execution` will be passed to
+        `post_get_execution_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_metadata_schema(
         self,
         request: metadata_service.GetMetadataSchemaRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.GetMetadataSchemaRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.GetMetadataSchemaRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for get_metadata_schema
 
         Override in a subclass to manipulate the request or metadata
@@ -699,17 +1104,43 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_schema.MetadataSchema:
         """Post-rpc interceptor for get_metadata_schema
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_metadata_schema_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_metadata_schema` interceptor runs
+        before the `post_get_metadata_schema_with_metadata` interceptor.
         """
         return response
+
+    def post_get_metadata_schema_with_metadata(
+        self,
+        response: metadata_schema.MetadataSchema,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[metadata_schema.MetadataSchema, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_metadata_schema
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_metadata_schema_with_metadata`
+        interceptor in new development instead of the `post_get_metadata_schema` interceptor.
+        When both interceptors are used, this `post_get_metadata_schema_with_metadata` interceptor runs after the
+        `post_get_metadata_schema` interceptor. The (possibly modified) response returned by
+        `post_get_metadata_schema` will be passed to
+        `post_get_metadata_schema_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_metadata_store(
         self,
         request: metadata_service.GetMetadataStoreRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.GetMetadataStoreRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.GetMetadataStoreRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for get_metadata_store
 
         Override in a subclass to manipulate the request or metadata
@@ -722,17 +1153,42 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_store.MetadataStore:
         """Post-rpc interceptor for get_metadata_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_metadata_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_metadata_store` interceptor runs
+        before the `post_get_metadata_store_with_metadata` interceptor.
         """
         return response
+
+    def post_get_metadata_store_with_metadata(
+        self,
+        response: metadata_store.MetadataStore,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[metadata_store.MetadataStore, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_metadata_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_metadata_store_with_metadata`
+        interceptor in new development instead of the `post_get_metadata_store` interceptor.
+        When both interceptors are used, this `post_get_metadata_store_with_metadata` interceptor runs after the
+        `post_get_metadata_store` interceptor. The (possibly modified) response returned by
+        `post_get_metadata_store` will be passed to
+        `post_get_metadata_store_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_artifacts(
         self,
         request: metadata_service.ListArtifactsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.ListArtifactsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListArtifactsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_artifacts
 
         Override in a subclass to manipulate the request or metadata
@@ -745,17 +1201,44 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_service.ListArtifactsResponse:
         """Post-rpc interceptor for list_artifacts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_artifacts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_artifacts` interceptor runs
+        before the `post_list_artifacts_with_metadata` interceptor.
         """
         return response
+
+    def post_list_artifacts_with_metadata(
+        self,
+        response: metadata_service.ListArtifactsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListArtifactsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_artifacts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_artifacts_with_metadata`
+        interceptor in new development instead of the `post_list_artifacts` interceptor.
+        When both interceptors are used, this `post_list_artifacts_with_metadata` interceptor runs after the
+        `post_list_artifacts` interceptor. The (possibly modified) response returned by
+        `post_list_artifacts` will be passed to
+        `post_list_artifacts_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_contexts(
         self,
         request: metadata_service.ListContextsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.ListContextsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListContextsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_contexts
 
         Override in a subclass to manipulate the request or metadata
@@ -768,17 +1251,44 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_service.ListContextsResponse:
         """Post-rpc interceptor for list_contexts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_contexts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_contexts` interceptor runs
+        before the `post_list_contexts_with_metadata` interceptor.
         """
         return response
+
+    def post_list_contexts_with_metadata(
+        self,
+        response: metadata_service.ListContextsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListContextsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_contexts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_contexts_with_metadata`
+        interceptor in new development instead of the `post_list_contexts` interceptor.
+        When both interceptors are used, this `post_list_contexts_with_metadata` interceptor runs after the
+        `post_list_contexts` interceptor. The (possibly modified) response returned by
+        `post_list_contexts` will be passed to
+        `post_list_contexts_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_executions(
         self,
         request: metadata_service.ListExecutionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.ListExecutionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListExecutionsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_executions
 
         Override in a subclass to manipulate the request or metadata
@@ -791,17 +1301,45 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_service.ListExecutionsResponse:
         """Post-rpc interceptor for list_executions
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_executions_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_executions` interceptor runs
+        before the `post_list_executions_with_metadata` interceptor.
         """
         return response
+
+    def post_list_executions_with_metadata(
+        self,
+        response: metadata_service.ListExecutionsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListExecutionsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_executions
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_executions_with_metadata`
+        interceptor in new development instead of the `post_list_executions` interceptor.
+        When both interceptors are used, this `post_list_executions_with_metadata` interceptor runs after the
+        `post_list_executions` interceptor. The (possibly modified) response returned by
+        `post_list_executions` will be passed to
+        `post_list_executions_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_metadata_schemas(
         self,
         request: metadata_service.ListMetadataSchemasRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.ListMetadataSchemasRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListMetadataSchemasRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for list_metadata_schemas
 
         Override in a subclass to manipulate the request or metadata
@@ -814,17 +1352,46 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_service.ListMetadataSchemasResponse:
         """Post-rpc interceptor for list_metadata_schemas
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_metadata_schemas_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_metadata_schemas` interceptor runs
+        before the `post_list_metadata_schemas_with_metadata` interceptor.
         """
         return response
+
+    def post_list_metadata_schemas_with_metadata(
+        self,
+        response: metadata_service.ListMetadataSchemasResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListMetadataSchemasResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_metadata_schemas
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_metadata_schemas_with_metadata`
+        interceptor in new development instead of the `post_list_metadata_schemas` interceptor.
+        When both interceptors are used, this `post_list_metadata_schemas_with_metadata` interceptor runs after the
+        `post_list_metadata_schemas` interceptor. The (possibly modified) response returned by
+        `post_list_metadata_schemas` will be passed to
+        `post_list_metadata_schemas_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_metadata_stores(
         self,
         request: metadata_service.ListMetadataStoresRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.ListMetadataStoresRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListMetadataStoresRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for list_metadata_stores
 
         Override in a subclass to manipulate the request or metadata
@@ -837,17 +1404,45 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_service.ListMetadataStoresResponse:
         """Post-rpc interceptor for list_metadata_stores
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_metadata_stores_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_metadata_stores` interceptor runs
+        before the `post_list_metadata_stores_with_metadata` interceptor.
         """
         return response
+
+    def post_list_metadata_stores_with_metadata(
+        self,
+        response: metadata_service.ListMetadataStoresResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListMetadataStoresResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_metadata_stores
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_metadata_stores_with_metadata`
+        interceptor in new development instead of the `post_list_metadata_stores` interceptor.
+        When both interceptors are used, this `post_list_metadata_stores_with_metadata` interceptor runs after the
+        `post_list_metadata_stores` interceptor. The (possibly modified) response returned by
+        `post_list_metadata_stores` will be passed to
+        `post_list_metadata_stores_with_metadata`.
+        """
+        return response, metadata
 
     def pre_purge_artifacts(
         self,
         request: metadata_service.PurgeArtifactsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.PurgeArtifactsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.PurgeArtifactsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for purge_artifacts
 
         Override in a subclass to manipulate the request or metadata
@@ -860,17 +1455,42 @@ class MetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for purge_artifacts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_purge_artifacts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_purge_artifacts` interceptor runs
+        before the `post_purge_artifacts_with_metadata` interceptor.
         """
         return response
+
+    def post_purge_artifacts_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for purge_artifacts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_purge_artifacts_with_metadata`
+        interceptor in new development instead of the `post_purge_artifacts` interceptor.
+        When both interceptors are used, this `post_purge_artifacts_with_metadata` interceptor runs after the
+        `post_purge_artifacts` interceptor. The (possibly modified) response returned by
+        `post_purge_artifacts` will be passed to
+        `post_purge_artifacts_with_metadata`.
+        """
+        return response, metadata
 
     def pre_purge_contexts(
         self,
         request: metadata_service.PurgeContextsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.PurgeContextsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.PurgeContextsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for purge_contexts
 
         Override in a subclass to manipulate the request or metadata
@@ -883,17 +1503,42 @@ class MetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for purge_contexts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_purge_contexts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_purge_contexts` interceptor runs
+        before the `post_purge_contexts_with_metadata` interceptor.
         """
         return response
+
+    def post_purge_contexts_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for purge_contexts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_purge_contexts_with_metadata`
+        interceptor in new development instead of the `post_purge_contexts` interceptor.
+        When both interceptors are used, this `post_purge_contexts_with_metadata` interceptor runs after the
+        `post_purge_contexts` interceptor. The (possibly modified) response returned by
+        `post_purge_contexts` will be passed to
+        `post_purge_contexts_with_metadata`.
+        """
+        return response, metadata
 
     def pre_purge_executions(
         self,
         request: metadata_service.PurgeExecutionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.PurgeExecutionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.PurgeExecutionsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for purge_executions
 
         Override in a subclass to manipulate the request or metadata
@@ -906,18 +1551,42 @@ class MetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for purge_executions
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_purge_executions_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_purge_executions` interceptor runs
+        before the `post_purge_executions_with_metadata` interceptor.
         """
         return response
+
+    def post_purge_executions_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for purge_executions
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_purge_executions_with_metadata`
+        interceptor in new development instead of the `post_purge_executions` interceptor.
+        When both interceptors are used, this `post_purge_executions_with_metadata` interceptor runs after the
+        `post_purge_executions` interceptor. The (possibly modified) response returned by
+        `post_purge_executions` will be passed to
+        `post_purge_executions_with_metadata`.
+        """
+        return response, metadata
 
     def pre_query_artifact_lineage_subgraph(
         self,
         request: metadata_service.QueryArtifactLineageSubgraphRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        metadata_service.QueryArtifactLineageSubgraphRequest, Sequence[Tuple[str, str]]
+        metadata_service.QueryArtifactLineageSubgraphRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for query_artifact_lineage_subgraph
 
@@ -931,18 +1600,44 @@ class MetadataServiceRestInterceptor:
     ) -> lineage_subgraph.LineageSubgraph:
         """Post-rpc interceptor for query_artifact_lineage_subgraph
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_query_artifact_lineage_subgraph_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_query_artifact_lineage_subgraph` interceptor runs
+        before the `post_query_artifact_lineage_subgraph_with_metadata` interceptor.
         """
         return response
+
+    def post_query_artifact_lineage_subgraph_with_metadata(
+        self,
+        response: lineage_subgraph.LineageSubgraph,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        lineage_subgraph.LineageSubgraph, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for query_artifact_lineage_subgraph
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_query_artifact_lineage_subgraph_with_metadata`
+        interceptor in new development instead of the `post_query_artifact_lineage_subgraph` interceptor.
+        When both interceptors are used, this `post_query_artifact_lineage_subgraph_with_metadata` interceptor runs after the
+        `post_query_artifact_lineage_subgraph` interceptor. The (possibly modified) response returned by
+        `post_query_artifact_lineage_subgraph` will be passed to
+        `post_query_artifact_lineage_subgraph_with_metadata`.
+        """
+        return response, metadata
 
     def pre_query_context_lineage_subgraph(
         self,
         request: metadata_service.QueryContextLineageSubgraphRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        metadata_service.QueryContextLineageSubgraphRequest, Sequence[Tuple[str, str]]
+        metadata_service.QueryContextLineageSubgraphRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for query_context_lineage_subgraph
 
@@ -956,19 +1651,44 @@ class MetadataServiceRestInterceptor:
     ) -> lineage_subgraph.LineageSubgraph:
         """Post-rpc interceptor for query_context_lineage_subgraph
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_query_context_lineage_subgraph_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_query_context_lineage_subgraph` interceptor runs
+        before the `post_query_context_lineage_subgraph_with_metadata` interceptor.
         """
         return response
+
+    def post_query_context_lineage_subgraph_with_metadata(
+        self,
+        response: lineage_subgraph.LineageSubgraph,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        lineage_subgraph.LineageSubgraph, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for query_context_lineage_subgraph
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_query_context_lineage_subgraph_with_metadata`
+        interceptor in new development instead of the `post_query_context_lineage_subgraph` interceptor.
+        When both interceptors are used, this `post_query_context_lineage_subgraph_with_metadata` interceptor runs after the
+        `post_query_context_lineage_subgraph` interceptor. The (possibly modified) response returned by
+        `post_query_context_lineage_subgraph` will be passed to
+        `post_query_context_lineage_subgraph_with_metadata`.
+        """
+        return response, metadata
 
     def pre_query_execution_inputs_and_outputs(
         self,
         request: metadata_service.QueryExecutionInputsAndOutputsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         metadata_service.QueryExecutionInputsAndOutputsRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for query_execution_inputs_and_outputs
 
@@ -982,18 +1702,44 @@ class MetadataServiceRestInterceptor:
     ) -> lineage_subgraph.LineageSubgraph:
         """Post-rpc interceptor for query_execution_inputs_and_outputs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_query_execution_inputs_and_outputs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_query_execution_inputs_and_outputs` interceptor runs
+        before the `post_query_execution_inputs_and_outputs_with_metadata` interceptor.
         """
         return response
+
+    def post_query_execution_inputs_and_outputs_with_metadata(
+        self,
+        response: lineage_subgraph.LineageSubgraph,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        lineage_subgraph.LineageSubgraph, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for query_execution_inputs_and_outputs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_query_execution_inputs_and_outputs_with_metadata`
+        interceptor in new development instead of the `post_query_execution_inputs_and_outputs` interceptor.
+        When both interceptors are used, this `post_query_execution_inputs_and_outputs_with_metadata` interceptor runs after the
+        `post_query_execution_inputs_and_outputs` interceptor. The (possibly modified) response returned by
+        `post_query_execution_inputs_and_outputs` will be passed to
+        `post_query_execution_inputs_and_outputs_with_metadata`.
+        """
+        return response, metadata
 
     def pre_remove_context_children(
         self,
         request: metadata_service.RemoveContextChildrenRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        metadata_service.RemoveContextChildrenRequest, Sequence[Tuple[str, str]]
+        metadata_service.RemoveContextChildrenRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for remove_context_children
 
@@ -1007,17 +1753,45 @@ class MetadataServiceRestInterceptor:
     ) -> metadata_service.RemoveContextChildrenResponse:
         """Post-rpc interceptor for remove_context_children
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_remove_context_children_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_remove_context_children` interceptor runs
+        before the `post_remove_context_children_with_metadata` interceptor.
         """
         return response
+
+    def post_remove_context_children_with_metadata(
+        self,
+        response: metadata_service.RemoveContextChildrenResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.RemoveContextChildrenResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for remove_context_children
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_remove_context_children_with_metadata`
+        interceptor in new development instead of the `post_remove_context_children` interceptor.
+        When both interceptors are used, this `post_remove_context_children_with_metadata` interceptor runs after the
+        `post_remove_context_children` interceptor. The (possibly modified) response returned by
+        `post_remove_context_children` will be passed to
+        `post_remove_context_children_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_artifact(
         self,
         request: metadata_service.UpdateArtifactRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.UpdateArtifactRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.UpdateArtifactRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for update_artifact
 
         Override in a subclass to manipulate the request or metadata
@@ -1030,17 +1804,42 @@ class MetadataServiceRestInterceptor:
     ) -> gca_artifact.Artifact:
         """Post-rpc interceptor for update_artifact
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_artifact_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_artifact` interceptor runs
+        before the `post_update_artifact_with_metadata` interceptor.
         """
         return response
+
+    def post_update_artifact_with_metadata(
+        self,
+        response: gca_artifact.Artifact,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_artifact.Artifact, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_artifact
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_update_artifact_with_metadata`
+        interceptor in new development instead of the `post_update_artifact` interceptor.
+        When both interceptors are used, this `post_update_artifact_with_metadata` interceptor runs after the
+        `post_update_artifact` interceptor. The (possibly modified) response returned by
+        `post_update_artifact` will be passed to
+        `post_update_artifact_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_context(
         self,
         request: metadata_service.UpdateContextRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.UpdateContextRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.UpdateContextRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for update_context
 
         Override in a subclass to manipulate the request or metadata
@@ -1051,17 +1850,42 @@ class MetadataServiceRestInterceptor:
     def post_update_context(self, response: gca_context.Context) -> gca_context.Context:
         """Post-rpc interceptor for update_context
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_context_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_context` interceptor runs
+        before the `post_update_context_with_metadata` interceptor.
         """
         return response
+
+    def post_update_context_with_metadata(
+        self,
+        response: gca_context.Context,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_context.Context, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_context
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_update_context_with_metadata`
+        interceptor in new development instead of the `post_update_context` interceptor.
+        When both interceptors are used, this `post_update_context_with_metadata` interceptor runs after the
+        `post_update_context` interceptor. The (possibly modified) response returned by
+        `post_update_context` will be passed to
+        `post_update_context_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_execution(
         self,
         request: metadata_service.UpdateExecutionRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[metadata_service.UpdateExecutionRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.UpdateExecutionRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for update_execution
 
         Override in a subclass to manipulate the request or metadata
@@ -1074,17 +1898,42 @@ class MetadataServiceRestInterceptor:
     ) -> gca_execution.Execution:
         """Post-rpc interceptor for update_execution
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_execution_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_execution` interceptor runs
+        before the `post_update_execution_with_metadata` interceptor.
         """
         return response
+
+    def post_update_execution_with_metadata(
+        self,
+        response: gca_execution.Execution,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_execution.Execution, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_execution
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_update_execution_with_metadata`
+        interceptor in new development instead of the `post_update_execution` interceptor.
+        When both interceptors are used, this `post_update_execution_with_metadata` interceptor runs after the
+        `post_update_execution` interceptor. The (possibly modified) response returned by
+        `post_update_execution` will be passed to
+        `post_update_execution_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -1106,8 +1955,10 @@ class MetadataServiceRestInterceptor:
     def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -1129,8 +1980,10 @@ class MetadataServiceRestInterceptor:
     def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -1150,8 +2003,10 @@ class MetadataServiceRestInterceptor:
     def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -1171,8 +2026,11 @@ class MetadataServiceRestInterceptor:
     def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -1194,8 +2052,10 @@ class MetadataServiceRestInterceptor:
     def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1215,8 +2075,10 @@ class MetadataServiceRestInterceptor:
     def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1236,8 +2098,10 @@ class MetadataServiceRestInterceptor:
     def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1259,8 +2123,10 @@ class MetadataServiceRestInterceptor:
     def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -1282,8 +2148,10 @@ class MetadataServiceRestInterceptor:
     def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1563,6 +2431,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -1699,11 +2571,19 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1909,6 +2789,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -1934,6 +2818,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2049,11 +2937,19 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2279,6 +3175,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -2316,6 +3216,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2431,11 +3335,19 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2657,6 +3569,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -2694,6 +3610,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -2809,6 +3729,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                     },
                     {
@@ -2826,6 +3750,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -3043,6 +3971,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -3072,6 +4004,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3183,11 +4119,19 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3305,7 +4249,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_service.AddContextArtifactsAndExecutionsResponse:
             r"""Call the add context artifacts and
             executions method over HTTP.
@@ -3317,8 +4261,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.metadata_service.AddContextArtifactsAndExecutionsResponse:
@@ -3330,6 +4276,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -3348,6 +4295,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.AddContextArtifactsAndExecutions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "AddContextArtifactsAndExecutions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._AddContextArtifactsAndExecutions._get_response(
@@ -3370,7 +4344,38 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_service.AddContextArtifactsAndExecutionsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_add_context_artifacts_and_executions(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_add_context_artifacts_and_executions_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = metadata_service.AddContextArtifactsAndExecutionsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.add_context_artifacts_and_executions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "AddContextArtifactsAndExecutions",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _AddContextChildren(
@@ -3410,7 +4415,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_service.AddContextChildrenResponse:
             r"""Call the add context children method over HTTP.
 
@@ -3421,8 +4426,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_service.AddContextChildrenResponse:
@@ -3434,6 +4441,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseAddContextChildren._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_add_context_children(
                 request, metadata
             )
@@ -3449,6 +4457,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseAddContextChildren._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.AddContextChildren",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "AddContextChildren",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._AddContextChildren._get_response(
@@ -3471,7 +4506,35 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_service.AddContextChildrenResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_add_context_children(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_add_context_children_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        metadata_service.AddContextChildrenResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.add_context_children",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "AddContextChildren",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _AddExecutionEvents(
@@ -3511,7 +4574,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_service.AddExecutionEventsResponse:
             r"""Call the add execution events method over HTTP.
 
@@ -3522,8 +4585,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_service.AddExecutionEventsResponse:
@@ -3535,6 +4600,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseAddExecutionEvents._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_add_execution_events(
                 request, metadata
             )
@@ -3550,6 +4616,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseAddExecutionEvents._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.AddExecutionEvents",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "AddExecutionEvents",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._AddExecutionEvents._get_response(
@@ -3572,7 +4665,35 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_service.AddExecutionEventsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_add_execution_events(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_add_execution_events_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        metadata_service.AddExecutionEventsResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.add_execution_events",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "AddExecutionEvents",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateArtifact(
@@ -3611,7 +4732,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_artifact.Artifact:
             r"""Call the create artifact method over HTTP.
 
@@ -3622,8 +4743,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_artifact.Artifact:
@@ -3633,6 +4756,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseCreateArtifact._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_artifact(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseCreateArtifact._get_transcoded_request(
                 http_options, request
@@ -3646,6 +4770,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseCreateArtifact._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.CreateArtifact",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateArtifact",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._CreateArtifact._get_response(
@@ -3668,7 +4819,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = gca_artifact.Artifact.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_artifact(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_artifact_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_artifact.Artifact.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.create_artifact",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateArtifact",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateContext(
@@ -3707,7 +4884,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_context.Context:
             r"""Call the create context method over HTTP.
 
@@ -3718,8 +4895,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_context.Context:
@@ -3729,6 +4908,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseCreateContext._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_context(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseCreateContext._get_transcoded_request(
                 http_options, request
@@ -3742,6 +4922,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseCreateContext._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.CreateContext",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateContext",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._CreateContext._get_response(
@@ -3764,7 +4971,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = gca_context.Context.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_context(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_context_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_context.Context.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.create_context",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateContext",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateExecution(
@@ -3803,7 +5036,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_execution.Execution:
             r"""Call the create execution method over HTTP.
 
@@ -3814,8 +5047,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_execution.Execution:
@@ -3825,6 +5060,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseCreateExecution._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_execution(
                 request, metadata
             )
@@ -3840,6 +5076,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseCreateExecution._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.CreateExecution",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateExecution",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._CreateExecution._get_response(
@@ -3862,7 +5125,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = gca_execution.Execution.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_execution(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_execution_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_execution.Execution.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.create_execution",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateExecution",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateMetadataSchema(
@@ -3902,7 +5191,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_metadata_schema.MetadataSchema:
             r"""Call the create metadata schema method over HTTP.
 
@@ -3913,8 +5202,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_metadata_schema.MetadataSchema:
@@ -3924,6 +5215,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseCreateMetadataSchema._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_metadata_schema(
                 request, metadata
             )
@@ -3939,6 +5231,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseCreateMetadataSchema._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.CreateMetadataSchema",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateMetadataSchema",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._CreateMetadataSchema._get_response(
@@ -3961,7 +5280,35 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = gca_metadata_schema.MetadataSchema.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_metadata_schema(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_metadata_schema_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_metadata_schema.MetadataSchema.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.create_metadata_schema",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateMetadataSchema",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateMetadataStore(
@@ -4001,7 +5348,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create metadata store method over HTTP.
 
@@ -4012,8 +5359,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4026,6 +5375,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseCreateMetadataStore._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_metadata_store(
                 request, metadata
             )
@@ -4041,6 +5391,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseCreateMetadataStore._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.CreateMetadataStore",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateMetadataStore",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._CreateMetadataStore._get_response(
@@ -4061,7 +5438,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_metadata_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_metadata_store_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.create_metadata_store",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CreateMetadataStore",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteArtifact(
@@ -4099,7 +5502,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete artifact method over HTTP.
 
@@ -4110,8 +5513,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4124,6 +5529,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseDeleteArtifact._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_artifact(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseDeleteArtifact._get_transcoded_request(
                 http_options, request
@@ -4133,6 +5539,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseDeleteArtifact._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.DeleteArtifact",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "DeleteArtifact",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._DeleteArtifact._get_response(
@@ -4152,7 +5585,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_artifact(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_artifact_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.delete_artifact",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "DeleteArtifact",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteContext(
@@ -4190,7 +5649,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete context method over HTTP.
 
@@ -4201,8 +5660,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4215,6 +5676,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseDeleteContext._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_context(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseDeleteContext._get_transcoded_request(
                 http_options, request
@@ -4224,6 +5686,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseDeleteContext._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.DeleteContext",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "DeleteContext",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._DeleteContext._get_response(
@@ -4243,7 +5732,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_context(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_context_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.delete_context",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "DeleteContext",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteExecution(
@@ -4281,7 +5796,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete execution method over HTTP.
 
@@ -4292,8 +5807,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4306,6 +5823,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseDeleteExecution._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_execution(
                 request, metadata
             )
@@ -4317,6 +5835,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseDeleteExecution._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.DeleteExecution",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "DeleteExecution",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._DeleteExecution._get_response(
@@ -4336,7 +5881,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_execution(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_execution_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.delete_execution",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "DeleteExecution",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteMetadataStore(
@@ -4375,7 +5946,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete metadata store method over HTTP.
 
@@ -4386,8 +5957,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4400,6 +5973,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseDeleteMetadataStore._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_metadata_store(
                 request, metadata
             )
@@ -4411,6 +5985,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseDeleteMetadataStore._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.DeleteMetadataStore",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "DeleteMetadataStore",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._DeleteMetadataStore._get_response(
@@ -4430,7 +6031,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_metadata_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_metadata_store_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.delete_metadata_store",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "DeleteMetadataStore",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetArtifact(
@@ -4468,7 +6095,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> artifact.Artifact:
             r"""Call the get artifact method over HTTP.
 
@@ -4479,8 +6106,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.artifact.Artifact:
@@ -4490,6 +6119,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseGetArtifact._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_artifact(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseGetArtifact._get_transcoded_request(
                 http_options, request
@@ -4499,6 +6129,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseGetArtifact._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.GetArtifact",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetArtifact",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._GetArtifact._get_response(
@@ -4520,7 +6177,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = artifact.Artifact.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_artifact(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_artifact_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = artifact.Artifact.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.get_artifact",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetArtifact",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetContext(
@@ -4558,7 +6241,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> context.Context:
             r"""Call the get context method over HTTP.
 
@@ -4569,8 +6252,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.context.Context:
@@ -4580,6 +6265,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseGetContext._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_context(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseGetContext._get_transcoded_request(
                 http_options, request
@@ -4589,6 +6275,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseGetContext._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.GetContext",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetContext",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._GetContext._get_response(
@@ -4610,7 +6323,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = context.Context.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_context(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_context_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = context.Context.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.get_context",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetContext",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetExecution(
@@ -4648,7 +6387,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> execution.Execution:
             r"""Call the get execution method over HTTP.
 
@@ -4659,8 +6398,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.execution.Execution:
@@ -4670,6 +6411,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseGetExecution._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_execution(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseGetExecution._get_transcoded_request(
                 http_options, request
@@ -4679,6 +6421,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseGetExecution._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.GetExecution",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetExecution",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._GetExecution._get_response(
@@ -4700,7 +6469,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = execution.Execution.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_execution(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_execution_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = execution.Execution.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.get_execution",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetExecution",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetMetadataSchema(
@@ -4739,7 +6534,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_schema.MetadataSchema:
             r"""Call the get metadata schema method over HTTP.
 
@@ -4750,8 +6545,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_schema.MetadataSchema:
@@ -4761,6 +6558,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseGetMetadataSchema._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_metadata_schema(
                 request, metadata
             )
@@ -4772,6 +6570,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseGetMetadataSchema._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.GetMetadataSchema",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetMetadataSchema",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._GetMetadataSchema._get_response(
@@ -4793,7 +6618,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_schema.MetadataSchema.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_metadata_schema(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_metadata_schema_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = metadata_schema.MetadataSchema.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.get_metadata_schema",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetMetadataSchema",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetMetadataStore(
@@ -4831,7 +6682,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_store.MetadataStore:
             r"""Call the get metadata store method over HTTP.
 
@@ -4842,8 +6693,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_store.MetadataStore:
@@ -4856,6 +6709,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseGetMetadataStore._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_metadata_store(
                 request, metadata
             )
@@ -4867,6 +6721,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseGetMetadataStore._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.GetMetadataStore",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetMetadataStore",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._GetMetadataStore._get_response(
@@ -4888,7 +6769,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_store.MetadataStore.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_metadata_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_metadata_store_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = metadata_store.MetadataStore.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.get_metadata_store",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetMetadataStore",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListArtifacts(
@@ -4926,7 +6833,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_service.ListArtifactsResponse:
             r"""Call the list artifacts method over HTTP.
 
@@ -4937,8 +6844,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_service.ListArtifactsResponse:
@@ -4950,6 +6859,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseListArtifacts._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_artifacts(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseListArtifacts._get_transcoded_request(
                 http_options, request
@@ -4959,6 +6869,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseListArtifacts._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.ListArtifacts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListArtifacts",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._ListArtifacts._get_response(
@@ -4980,7 +6917,35 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_service.ListArtifactsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_artifacts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_artifacts_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = metadata_service.ListArtifactsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.list_artifacts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListArtifacts",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListContexts(
@@ -5018,7 +6983,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_service.ListContextsResponse:
             r"""Call the list contexts method over HTTP.
 
@@ -5029,8 +6994,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_service.ListContextsResponse:
@@ -5042,6 +7009,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseListContexts._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_contexts(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseListContexts._get_transcoded_request(
                 http_options, request
@@ -5051,6 +7019,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseListContexts._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.ListContexts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListContexts",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._ListContexts._get_response(
@@ -5072,7 +7067,35 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_service.ListContextsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_contexts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_contexts_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = metadata_service.ListContextsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.list_contexts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListContexts",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListExecutions(
@@ -5110,7 +7133,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_service.ListExecutionsResponse:
             r"""Call the list executions method over HTTP.
 
@@ -5121,8 +7144,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_service.ListExecutionsResponse:
@@ -5134,6 +7159,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseListExecutions._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_executions(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseListExecutions._get_transcoded_request(
                 http_options, request
@@ -5143,6 +7169,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseListExecutions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.ListExecutions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListExecutions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._ListExecutions._get_response(
@@ -5164,7 +7217,35 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_service.ListExecutionsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_executions(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_executions_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = metadata_service.ListExecutionsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.list_executions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListExecutions",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListMetadataSchemas(
@@ -5203,7 +7284,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_service.ListMetadataSchemasResponse:
             r"""Call the list metadata schemas method over HTTP.
 
@@ -5214,8 +7295,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_service.ListMetadataSchemasResponse:
@@ -5227,6 +7310,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseListMetadataSchemas._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_metadata_schemas(
                 request, metadata
             )
@@ -5238,6 +7322,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseListMetadataSchemas._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.ListMetadataSchemas",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListMetadataSchemas",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._ListMetadataSchemas._get_response(
@@ -5259,7 +7370,35 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_service.ListMetadataSchemasResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_metadata_schemas(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_metadata_schemas_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        metadata_service.ListMetadataSchemasResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.list_metadata_schemas",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListMetadataSchemas",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListMetadataStores(
@@ -5298,7 +7437,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_service.ListMetadataStoresResponse:
             r"""Call the list metadata stores method over HTTP.
 
@@ -5309,8 +7448,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_service.ListMetadataStoresResponse:
@@ -5322,6 +7463,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseListMetadataStores._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_metadata_stores(
                 request, metadata
             )
@@ -5333,6 +7475,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseListMetadataStores._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.ListMetadataStores",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListMetadataStores",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._ListMetadataStores._get_response(
@@ -5354,7 +7523,35 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_service.ListMetadataStoresResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_metadata_stores(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_metadata_stores_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        metadata_service.ListMetadataStoresResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.list_metadata_stores",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListMetadataStores",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _PurgeArtifacts(
@@ -5393,7 +7590,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the purge artifacts method over HTTP.
 
@@ -5404,8 +7601,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -5418,6 +7617,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BasePurgeArtifacts._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_purge_artifacts(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BasePurgeArtifacts._get_transcoded_request(
                 http_options, request
@@ -5431,6 +7631,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BasePurgeArtifacts._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.PurgeArtifacts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "PurgeArtifacts",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._PurgeArtifacts._get_response(
@@ -5451,7 +7678,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_purge_artifacts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_purge_artifacts_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.purge_artifacts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "PurgeArtifacts",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _PurgeContexts(
@@ -5490,7 +7743,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the purge contexts method over HTTP.
 
@@ -5501,8 +7754,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -5515,6 +7770,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BasePurgeContexts._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_purge_contexts(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BasePurgeContexts._get_transcoded_request(
                 http_options, request
@@ -5528,6 +7784,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BasePurgeContexts._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.PurgeContexts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "PurgeContexts",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._PurgeContexts._get_response(
@@ -5548,7 +7831,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_purge_contexts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_purge_contexts_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.purge_contexts",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "PurgeContexts",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _PurgeExecutions(
@@ -5587,7 +7896,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the purge executions method over HTTP.
 
@@ -5598,8 +7907,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -5612,6 +7923,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BasePurgeExecutions._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_purge_executions(
                 request, metadata
             )
@@ -5627,6 +7939,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BasePurgeExecutions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.PurgeExecutions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "PurgeExecutions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._PurgeExecutions._get_response(
@@ -5647,7 +7986,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_purge_executions(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_purge_executions_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.purge_executions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "PurgeExecutions",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _QueryArtifactLineageSubgraph(
@@ -5686,7 +8051,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> lineage_subgraph.LineageSubgraph:
             r"""Call the query artifact lineage
             subgraph method over HTTP.
@@ -5698,8 +8063,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.lineage_subgraph.LineageSubgraph:
@@ -5712,6 +8079,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseQueryArtifactLineageSubgraph._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_query_artifact_lineage_subgraph(
                 request, metadata
             )
@@ -5723,6 +8091,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseQueryArtifactLineageSubgraph._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.QueryArtifactLineageSubgraph",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "QueryArtifactLineageSubgraph",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._QueryArtifactLineageSubgraph._get_response(
@@ -5744,7 +8139,38 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = lineage_subgraph.LineageSubgraph.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_query_artifact_lineage_subgraph(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_query_artifact_lineage_subgraph_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = lineage_subgraph.LineageSubgraph.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.query_artifact_lineage_subgraph",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "QueryArtifactLineageSubgraph",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _QueryContextLineageSubgraph(
@@ -5783,7 +8209,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> lineage_subgraph.LineageSubgraph:
             r"""Call the query context lineage
             subgraph method over HTTP.
@@ -5795,8 +8221,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.lineage_subgraph.LineageSubgraph:
@@ -5809,6 +8237,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseQueryContextLineageSubgraph._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_query_context_lineage_subgraph(
                 request, metadata
             )
@@ -5820,6 +8249,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseQueryContextLineageSubgraph._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.QueryContextLineageSubgraph",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "QueryContextLineageSubgraph",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -5843,7 +8299,38 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = lineage_subgraph.LineageSubgraph.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_query_context_lineage_subgraph(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_query_context_lineage_subgraph_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = lineage_subgraph.LineageSubgraph.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.query_context_lineage_subgraph",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "QueryContextLineageSubgraph",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _QueryExecutionInputsAndOutputs(
@@ -5882,7 +8369,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> lineage_subgraph.LineageSubgraph:
             r"""Call the query execution inputs
             and outputs method over HTTP.
@@ -5894,8 +8381,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.lineage_subgraph.LineageSubgraph:
@@ -5908,6 +8397,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseQueryExecutionInputsAndOutputs._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -5922,6 +8412,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseQueryExecutionInputsAndOutputs._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.QueryExecutionInputsAndOutputs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "QueryExecutionInputsAndOutputs",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._QueryExecutionInputsAndOutputs._get_response(
@@ -5943,7 +8460,38 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = lineage_subgraph.LineageSubgraph.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_query_execution_inputs_and_outputs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_query_execution_inputs_and_outputs_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = lineage_subgraph.LineageSubgraph.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.query_execution_inputs_and_outputs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "QueryExecutionInputsAndOutputs",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _RemoveContextChildren(
@@ -5983,7 +8531,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> metadata_service.RemoveContextChildrenResponse:
             r"""Call the remove context children method over HTTP.
 
@@ -5994,8 +8542,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.metadata_service.RemoveContextChildrenResponse:
@@ -6007,6 +8557,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseRemoveContextChildren._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_remove_context_children(
                 request, metadata
             )
@@ -6022,6 +8573,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseRemoveContextChildren._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.RemoveContextChildren",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "RemoveContextChildren",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -6046,7 +8624,35 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = metadata_service.RemoveContextChildrenResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_remove_context_children(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_remove_context_children_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        metadata_service.RemoveContextChildrenResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.remove_context_children",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "RemoveContextChildren",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateArtifact(
@@ -6085,7 +8691,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_artifact.Artifact:
             r"""Call the update artifact method over HTTP.
 
@@ -6096,8 +8702,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_artifact.Artifact:
@@ -6107,6 +8715,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseUpdateArtifact._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_artifact(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseUpdateArtifact._get_transcoded_request(
                 http_options, request
@@ -6120,6 +8729,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseUpdateArtifact._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.UpdateArtifact",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "UpdateArtifact",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._UpdateArtifact._get_response(
@@ -6142,7 +8778,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = gca_artifact.Artifact.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_artifact(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_artifact_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_artifact.Artifact.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.update_artifact",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "UpdateArtifact",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateContext(
@@ -6181,7 +8843,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_context.Context:
             r"""Call the update context method over HTTP.
 
@@ -6192,8 +8854,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_context.Context:
@@ -6203,6 +8867,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseUpdateContext._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_context(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseUpdateContext._get_transcoded_request(
                 http_options, request
@@ -6216,6 +8881,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseUpdateContext._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.UpdateContext",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "UpdateContext",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._UpdateContext._get_response(
@@ -6238,7 +8930,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = gca_context.Context.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_context(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_context_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_context.Context.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.update_context",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "UpdateContext",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateExecution(
@@ -6277,7 +8995,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_execution.Execution:
             r"""Call the update execution method over HTTP.
 
@@ -6288,8 +9006,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_execution.Execution:
@@ -6299,6 +9019,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseUpdateExecution._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_execution(
                 request, metadata
             )
@@ -6314,6 +9035,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseUpdateExecution._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.UpdateExecution",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "UpdateExecution",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._UpdateExecution._get_response(
@@ -6336,7 +9084,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             pb_resp = gca_execution.Execution.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_execution(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_execution_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_execution.Execution.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceClient.update_execution",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "UpdateExecution",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     @property
@@ -6679,7 +9453,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -6690,8 +9464,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -6700,6 +9476,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_location(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseGetLocation._get_transcoded_request(
                 http_options, request
@@ -6709,6 +9486,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._GetLocation._get_response(
@@ -6729,6 +9533,27 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -6770,7 +9595,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -6781,8 +9606,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -6791,6 +9618,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseListLocations._get_transcoded_request(
                 http_options, request
@@ -6800,6 +9628,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._ListLocations._get_response(
@@ -6820,6 +9675,27 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -6861,7 +9737,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -6872,8 +9748,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -6882,6 +9760,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -6891,6 +9770,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._GetIamPolicy._get_response(
@@ -6911,6 +9817,27 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -6953,7 +9880,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -6964,8 +9891,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -6974,6 +9903,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -6987,6 +9917,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._SetIamPolicy._get_response(
@@ -7008,6 +9965,27 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -7050,7 +10028,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -7061,8 +10039,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -7071,6 +10051,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -7082,6 +10063,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._TestIamPermissions._get_response(
@@ -7102,6 +10110,27 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -7143,7 +10172,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -7154,13 +10183,16 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -7172,6 +10204,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._CancelOperation._get_response(
@@ -7229,7 +10288,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -7240,13 +10299,16 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -7258,6 +10320,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._DeleteOperation._get_response(
@@ -7315,7 +10404,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -7326,8 +10415,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -7336,6 +10427,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseGetOperation._get_transcoded_request(
                 http_options, request
@@ -7345,6 +10437,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._GetOperation._get_response(
@@ -7365,6 +10484,27 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -7406,7 +10546,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -7417,8 +10557,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -7427,6 +10569,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseListOperations._get_transcoded_request(
                 http_options, request
@@ -7436,6 +10579,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._ListOperations._get_response(
@@ -7456,6 +10626,27 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -7497,7 +10688,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -7508,8 +10699,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -7518,6 +10711,7 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             http_options = (
                 _BaseMetadataServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
             transcoded_request = _BaseMetadataServiceRestTransport._BaseWaitOperation._get_transcoded_request(
                 http_options, request
@@ -7527,6 +10721,33 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             query_params = _BaseMetadataServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.MetadataServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = MetadataServiceRestTransport._WaitOperation._get_response(
@@ -7547,6 +10768,27 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.MetadataServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.MetadataService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property

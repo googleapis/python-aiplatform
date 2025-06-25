@@ -868,15 +868,19 @@ class PipelineJob(
                 Supported fields: `display_name`, `create_time`, `update_time`
             enable_simple_view (bool):
                 Optional. Whether to pass the `read_mask` parameter to the list call.
-                Defaults to False if not provided. This will improve the performance of calling
-                list(). However, the returned PipelineJob list will not include all fields for
-                each PipelineJob. Setting this to True will exclude the following fields in your
-                response: `runtime_config`, `service_account`, `network`, and some subfields of
-                `pipeline_spec` and `job_detail`. The following fields will be included in
-                each PipelineJob resource in your response: `state`, `display_name`,
-                `pipeline_spec.pipeline_info`, `create_time`, `start_time`, `end_time`,
-                `update_time`, `labels`, `template_uri`, `template_metadata.version`,
-                `job_detail.pipeline_run_context`, `job_detail.pipeline_context`.
+                Defaults to `False` if not provided. This improves the performance of
+                calling the `list()` method. It's recommended to set this parameter to
+                `True` if your region has multiple pipeline runs, which can result in
+                high latency and errors. However, the returned pipeline job list
+                doesn't include all fields for each `PipelineJob`.
+                Setting this to `True` excludes the following fields from your response:
+                `runtime_config`, `service_account`, `network`, and some subfields of
+                `pipeline_spec` and `job_detail`. The following
+                fields are included in each `PipelineJob` resource in your response:
+                `state`, `display_name`, `pipeline_spec.pipeline_info`, `create_time`,
+                `start_time`, `end_time`, `update_time`, `labels`, `template_uri`,
+                `template_metadata.version`, `job_detail.pipeline_run_context`, and
+                `job_detail.pipeline_context`.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -1277,7 +1281,7 @@ class PipelineJob(
         job_id = job_id or re.sub(
             r"[^-a-z0-9]", "-", automatic_display_name.lower()
         ).strip("-")
-        pipeline_file = tempfile.mktemp(suffix=".json")
+        pipeline_file = tempfile.mkstemp(suffix=".json")
         compiler_v2.Compiler().compile(
             pipeline_func=pipeline_func,
             pipeline_name=context_name,

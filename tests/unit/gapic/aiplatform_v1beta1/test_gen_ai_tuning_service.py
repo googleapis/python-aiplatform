@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,6 +94,14 @@ from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -364,6 +372,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         GenAiTuningServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = GenAiTuningServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = GenAiTuningServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -3174,6 +3225,7 @@ def test_create_tuning_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_tuning_job(request)
 
@@ -3228,6 +3280,7 @@ def test_create_tuning_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_tuning_job(**mock_args)
 
@@ -3360,6 +3413,7 @@ def test_get_tuning_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_tuning_job(request)
 
@@ -3407,6 +3461,7 @@ def test_get_tuning_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_tuning_job(**mock_args)
 
@@ -3548,6 +3603,7 @@ def test_list_tuning_jobs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_tuning_jobs(request)
 
@@ -3602,6 +3658,7 @@ def test_list_tuning_jobs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_tuning_jobs(**mock_args)
 
@@ -3796,6 +3853,7 @@ def test_cancel_tuning_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.cancel_tuning_job(request)
 
@@ -3841,6 +3899,7 @@ def test_cancel_tuning_job_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.cancel_tuning_job(**mock_args)
 
@@ -3978,6 +4037,7 @@ def test_rebase_tuned_model_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.rebase_tuned_model(request)
 
@@ -4030,6 +4090,7 @@ def test_rebase_tuned_model_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.rebase_tuned_model(**mock_args)
 
@@ -4466,6 +4527,7 @@ def test_create_tuning_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_tuning_job(request)
 
 
@@ -4493,6 +4555,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                 "learning_rate_multiplier": 0.2561,
                 "adapter_size": 1,
             },
+            "export_last_checkpoint_only": True,
         },
         "distillation_spec": {
             "base_teacher_model": "base_teacher_model_value",
@@ -4532,7 +4595,18 @@ def test_create_tuning_job_rest_call_success(request_type):
         },
         "labels": {},
         "experiment": "experiment_value",
-        "tuned_model": {"model": "model_value", "endpoint": "endpoint_value"},
+        "tuned_model": {
+            "model": "model_value",
+            "endpoint": "endpoint_value",
+            "checkpoints": [
+                {
+                    "checkpoint_id": "checkpoint_id_value",
+                    "epoch": 527,
+                    "step": 444,
+                    "endpoint": "endpoint_value",
+                }
+            ],
+        },
         "tuning_data_stats": {
             "supervised_tuning_data_stats": {
                 "tuning_dataset_example_count": 2989,
@@ -4568,10 +4642,12 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "file_uri": "file_uri_value",
                                 },
                                 "function_call": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "args": {"fields": {}},
                                 },
                                 "function_response": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
                                 },
@@ -4587,12 +4663,18 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "start_offset": {"seconds": 751, "nanos": 543},
                                     "end_offset": {},
                                 },
+                                "thought": True,
+                                "thought_signature": b"thought_signature_blob",
                             }
                         ],
                     }
                 ],
                 "total_truncated_example_count": 3104,
                 "truncated_example_indices": [2644, 2645],
+                "dropped_example_reasons": [
+                    "dropped_example_reasons_value1",
+                    "dropped_example_reasons_value2",
+                ],
             },
             "distillation_data_stats": {
                 "training_dataset_stats": {
@@ -4712,6 +4794,7 @@ def test_create_tuning_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -4742,10 +4825,14 @@ def test_create_tuning_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.GenAiTuningServiceRestInterceptor, "post_create_tuning_job"
     ) as post, mock.patch.object(
+        transports.GenAiTuningServiceRestInterceptor,
+        "post_create_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.GenAiTuningServiceRestInterceptor, "pre_create_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = genai_tuning_service.CreateTuningJobRequest.pb(
             genai_tuning_service.CreateTuningJobRequest()
         )
@@ -4758,6 +4845,7 @@ def test_create_tuning_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tuning_job.TuningJob.to_json(gca_tuning_job.TuningJob())
         req.return_value.content = return_value
 
@@ -4768,6 +4856,7 @@ def test_create_tuning_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tuning_job.TuningJob()
+        post_with_metadata.return_value = gca_tuning_job.TuningJob(), metadata
 
         client.create_tuning_job(
             request,
@@ -4779,6 +4868,7 @@ def test_create_tuning_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_tuning_job_rest_bad_request(
@@ -4802,6 +4892,7 @@ def test_get_tuning_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_tuning_job(request)
 
 
@@ -4844,6 +4935,7 @@ def test_get_tuning_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -4874,10 +4966,14 @@ def test_get_tuning_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.GenAiTuningServiceRestInterceptor, "post_get_tuning_job"
     ) as post, mock.patch.object(
+        transports.GenAiTuningServiceRestInterceptor,
+        "post_get_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.GenAiTuningServiceRestInterceptor, "pre_get_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = genai_tuning_service.GetTuningJobRequest.pb(
             genai_tuning_service.GetTuningJobRequest()
         )
@@ -4890,6 +4986,7 @@ def test_get_tuning_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tuning_job.TuningJob.to_json(tuning_job.TuningJob())
         req.return_value.content = return_value
 
@@ -4900,6 +4997,7 @@ def test_get_tuning_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tuning_job.TuningJob()
+        post_with_metadata.return_value = tuning_job.TuningJob(), metadata
 
         client.get_tuning_job(
             request,
@@ -4911,6 +5009,7 @@ def test_get_tuning_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_tuning_jobs_rest_bad_request(
@@ -4934,6 +5033,7 @@ def test_list_tuning_jobs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_tuning_jobs(request)
 
 
@@ -4969,6 +5069,7 @@ def test_list_tuning_jobs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_tuning_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -4993,10 +5094,14 @@ def test_list_tuning_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.GenAiTuningServiceRestInterceptor, "post_list_tuning_jobs"
     ) as post, mock.patch.object(
+        transports.GenAiTuningServiceRestInterceptor,
+        "post_list_tuning_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.GenAiTuningServiceRestInterceptor, "pre_list_tuning_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = genai_tuning_service.ListTuningJobsRequest.pb(
             genai_tuning_service.ListTuningJobsRequest()
         )
@@ -5009,6 +5114,7 @@ def test_list_tuning_jobs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = genai_tuning_service.ListTuningJobsResponse.to_json(
             genai_tuning_service.ListTuningJobsResponse()
         )
@@ -5021,6 +5127,10 @@ def test_list_tuning_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = genai_tuning_service.ListTuningJobsResponse()
+        post_with_metadata.return_value = (
+            genai_tuning_service.ListTuningJobsResponse(),
+            metadata,
+        )
 
         client.list_tuning_jobs(
             request,
@@ -5032,6 +5142,7 @@ def test_list_tuning_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_tuning_job_rest_bad_request(
@@ -5055,6 +5166,7 @@ def test_cancel_tuning_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_tuning_job(request)
 
 
@@ -5085,6 +5197,7 @@ def test_cancel_tuning_job_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.cancel_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -5121,6 +5234,7 @@ def test_cancel_tuning_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = genai_tuning_service.CancelTuningJobRequest()
         metadata = [
@@ -5161,6 +5275,7 @@ def test_rebase_tuned_model_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.rebase_tuned_model(request)
 
 
@@ -5191,6 +5306,7 @@ def test_rebase_tuned_model_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.rebase_tuned_model(request)
 
     # Establish that the response is the type that we expect.
@@ -5216,10 +5332,14 @@ def test_rebase_tuned_model_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.GenAiTuningServiceRestInterceptor, "post_rebase_tuned_model"
     ) as post, mock.patch.object(
+        transports.GenAiTuningServiceRestInterceptor,
+        "post_rebase_tuned_model_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.GenAiTuningServiceRestInterceptor, "pre_rebase_tuned_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = genai_tuning_service.RebaseTunedModelRequest.pb(
             genai_tuning_service.RebaseTunedModelRequest()
         )
@@ -5232,6 +5352,7 @@ def test_rebase_tuned_model_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -5242,6 +5363,7 @@ def test_rebase_tuned_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.rebase_tuned_model(
             request,
@@ -5253,6 +5375,7 @@ def test_rebase_tuned_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -5276,6 +5399,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -5306,6 +5430,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -5334,6 +5459,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -5364,6 +5490,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -5395,6 +5522,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -5427,6 +5555,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -5458,6 +5587,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -5490,6 +5620,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -5521,6 +5652,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -5553,6 +5685,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -5583,6 +5716,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -5613,6 +5747,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -5643,6 +5778,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -5673,6 +5809,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -5703,6 +5840,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -5733,6 +5871,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -5763,6 +5902,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -5793,6 +5933,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -5823,6 +5964,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -5853,6 +5995,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -6026,6 +6169,7 @@ async def test_create_tuning_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_tuning_job(request)
 
 
@@ -6058,6 +6202,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                 "learning_rate_multiplier": 0.2561,
                 "adapter_size": 1,
             },
+            "export_last_checkpoint_only": True,
         },
         "distillation_spec": {
             "base_teacher_model": "base_teacher_model_value",
@@ -6097,7 +6242,18 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
         },
         "labels": {},
         "experiment": "experiment_value",
-        "tuned_model": {"model": "model_value", "endpoint": "endpoint_value"},
+        "tuned_model": {
+            "model": "model_value",
+            "endpoint": "endpoint_value",
+            "checkpoints": [
+                {
+                    "checkpoint_id": "checkpoint_id_value",
+                    "epoch": 527,
+                    "step": 444,
+                    "endpoint": "endpoint_value",
+                }
+            ],
+        },
         "tuning_data_stats": {
             "supervised_tuning_data_stats": {
                 "tuning_dataset_example_count": 2989,
@@ -6133,10 +6289,12 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                     "file_uri": "file_uri_value",
                                 },
                                 "function_call": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "args": {"fields": {}},
                                 },
                                 "function_response": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
                                 },
@@ -6152,12 +6310,18 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                     "start_offset": {"seconds": 751, "nanos": 543},
                                     "end_offset": {},
                                 },
+                                "thought": True,
+                                "thought_signature": b"thought_signature_blob",
                             }
                         ],
                     }
                 ],
                 "total_truncated_example_count": 3104,
                 "truncated_example_indices": [2644, 2645],
+                "dropped_example_reasons": [
+                    "dropped_example_reasons_value1",
+                    "dropped_example_reasons_value2",
+                ],
             },
             "distillation_data_stats": {
                 "training_dataset_stats": {
@@ -6279,6 +6443,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -6314,10 +6479,14 @@ async def test_create_tuning_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncGenAiTuningServiceRestInterceptor, "post_create_tuning_job"
     ) as post, mock.patch.object(
+        transports.AsyncGenAiTuningServiceRestInterceptor,
+        "post_create_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncGenAiTuningServiceRestInterceptor, "pre_create_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = genai_tuning_service.CreateTuningJobRequest.pb(
             genai_tuning_service.CreateTuningJobRequest()
         )
@@ -6330,6 +6499,7 @@ async def test_create_tuning_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tuning_job.TuningJob.to_json(gca_tuning_job.TuningJob())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -6340,6 +6510,7 @@ async def test_create_tuning_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tuning_job.TuningJob()
+        post_with_metadata.return_value = gca_tuning_job.TuningJob(), metadata
 
         await client.create_tuning_job(
             request,
@@ -6351,6 +6522,7 @@ async def test_create_tuning_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6378,6 +6550,7 @@ async def test_get_tuning_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_tuning_job(request)
 
 
@@ -6427,6 +6600,7 @@ async def test_get_tuning_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -6462,10 +6636,14 @@ async def test_get_tuning_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncGenAiTuningServiceRestInterceptor, "post_get_tuning_job"
     ) as post, mock.patch.object(
+        transports.AsyncGenAiTuningServiceRestInterceptor,
+        "post_get_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncGenAiTuningServiceRestInterceptor, "pre_get_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = genai_tuning_service.GetTuningJobRequest.pb(
             genai_tuning_service.GetTuningJobRequest()
         )
@@ -6478,6 +6656,7 @@ async def test_get_tuning_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tuning_job.TuningJob.to_json(tuning_job.TuningJob())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -6488,6 +6667,7 @@ async def test_get_tuning_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tuning_job.TuningJob()
+        post_with_metadata.return_value = tuning_job.TuningJob(), metadata
 
         await client.get_tuning_job(
             request,
@@ -6499,6 +6679,7 @@ async def test_get_tuning_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6526,6 +6707,7 @@ async def test_list_tuning_jobs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_tuning_jobs(request)
 
 
@@ -6568,6 +6750,7 @@ async def test_list_tuning_jobs_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_tuning_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -6597,10 +6780,14 @@ async def test_list_tuning_jobs_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncGenAiTuningServiceRestInterceptor, "post_list_tuning_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncGenAiTuningServiceRestInterceptor,
+        "post_list_tuning_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncGenAiTuningServiceRestInterceptor, "pre_list_tuning_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = genai_tuning_service.ListTuningJobsRequest.pb(
             genai_tuning_service.ListTuningJobsRequest()
         )
@@ -6613,6 +6800,7 @@ async def test_list_tuning_jobs_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = genai_tuning_service.ListTuningJobsResponse.to_json(
             genai_tuning_service.ListTuningJobsResponse()
         )
@@ -6625,6 +6813,10 @@ async def test_list_tuning_jobs_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = genai_tuning_service.ListTuningJobsResponse()
+        post_with_metadata.return_value = (
+            genai_tuning_service.ListTuningJobsResponse(),
+            metadata,
+        )
 
         await client.list_tuning_jobs(
             request,
@@ -6636,6 +6828,7 @@ async def test_list_tuning_jobs_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6663,6 +6856,7 @@ async def test_cancel_tuning_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_tuning_job(request)
 
 
@@ -6700,6 +6894,7 @@ async def test_cancel_tuning_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.cancel_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -6741,6 +6936,7 @@ async def test_cancel_tuning_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = genai_tuning_service.CancelTuningJobRequest()
         metadata = [
@@ -6785,6 +6981,7 @@ async def test_rebase_tuned_model_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.rebase_tuned_model(request)
 
 
@@ -6822,6 +7019,7 @@ async def test_rebase_tuned_model_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.rebase_tuned_model(request)
 
     # Establish that the response is the type that we expect.
@@ -6852,10 +7050,14 @@ async def test_rebase_tuned_model_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncGenAiTuningServiceRestInterceptor, "post_rebase_tuned_model"
     ) as post, mock.patch.object(
+        transports.AsyncGenAiTuningServiceRestInterceptor,
+        "post_rebase_tuned_model_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncGenAiTuningServiceRestInterceptor, "pre_rebase_tuned_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = genai_tuning_service.RebaseTunedModelRequest.pb(
             genai_tuning_service.RebaseTunedModelRequest()
         )
@@ -6868,6 +7070,7 @@ async def test_rebase_tuned_model_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -6878,6 +7081,7 @@ async def test_rebase_tuned_model_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.rebase_tuned_model(
             request,
@@ -6889,6 +7093,7 @@ async def test_rebase_tuned_model_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6918,6 +7123,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -6955,6 +7161,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -6987,6 +7194,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -7024,6 +7232,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -7059,6 +7268,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -7098,6 +7308,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -7133,6 +7344,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -7172,6 +7384,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -7207,6 +7420,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -7246,6 +7460,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -7280,6 +7495,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -7317,6 +7533,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -7351,6 +7568,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -7388,6 +7606,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -7422,6 +7641,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -7459,6 +7679,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -7493,6 +7714,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -7530,6 +7752,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -7564,6 +7787,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -7601,6 +7825,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

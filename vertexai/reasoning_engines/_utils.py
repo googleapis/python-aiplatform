@@ -13,15 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import dataclasses
 import inspect
 import json
 import types
 import typing
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Union
+from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Union
 
 import proto
 
 from google.cloud.aiplatform import base
+from google.api import httpbody_pb2
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
 
@@ -34,6 +36,18 @@ try:
     RunnableConfig = langchain_core.runnables.config.RunnableConfig
 except ImportError:
     RunnableConfig = Any
+
+try:
+    from llama_index.core.base.response import schema as llama_index_schema
+    from llama_index.core.base.llms import types as llama_index_types
+
+    LlamaIndexResponse = llama_index_schema.Response
+    LlamaIndexBaseModel = llama_index_schema.BaseModel
+    LlamaIndexChatResponse = llama_index_types.ChatResponse
+except ImportError:
+    LlamaIndexResponse = Any
+    LlamaIndexBaseModel = Any
+    LlamaIndexChatResponse = Any
 
 JsonDict = Dict[str, Any]
 
@@ -87,6 +101,107 @@ def to_dict(message: proto.Message) -> JsonDict:
     except AttributeError:
         result: JsonDict = json.loads(json_format.MessageToJson(message))
     return result
+
+
+def dataclass_to_dict(obj: dataclasses.dataclass) -> JsonDict:
+    """Converts a dataclass to a JSON dictionary.
+
+    Args:
+        obj (dataclasses.dataclass):
+            Required. The dataclass to be converted to a JSON dictionary.
+
+    Returns:
+        dict[str, Any]: A dictionary containing the contents of the dataclass.
+    """
+    return json.loads(json.dumps(dataclasses.asdict(obj)))
+
+
+def _llama_index_response_to_dict(obj: LlamaIndexResponse) -> Dict[str, Any]:
+    response = {}
+    if hasattr(obj, "response"):
+        response["response"] = obj.response
+    if hasattr(obj, "source_nodes"):
+        response["source_nodes"] = [node.model_dump_json() for node in obj.source_nodes]
+    if hasattr(obj, "metadata"):
+        response["metadata"] = obj.metadata
+
+    return json.loads(json.dumps(response))
+
+
+def _llama_index_chat_response_to_dict(
+    obj: LlamaIndexChatResponse,
+) -> Dict[str, Any]:
+    return json.loads(obj.message.model_dump_json())
+
+
+def _llama_index_base_model_to_dict(
+    obj: LlamaIndexBaseModel,
+) -> Dict[str, Any]:
+    return json.loads(obj.model_dump_json())
+
+
+def to_json_serializable_llama_index_object(
+    obj: Union[
+        LlamaIndexResponse,
+        LlamaIndexBaseModel,
+        LlamaIndexChatResponse,
+        Sequence[LlamaIndexBaseModel],
+    ]
+) -> Union[str, Dict[str, Any], Sequence[Union[str, Dict[str, Any]]]]:
+    """Converts a LlamaIndexResponse to a JSON serializable object."""
+    if isinstance(obj, LlamaIndexResponse):
+        return _llama_index_response_to_dict(obj)
+    if isinstance(obj, LlamaIndexChatResponse):
+        return _llama_index_chat_response_to_dict(obj)
+    if isinstance(obj, Sequence):
+        seq_result = []
+        for item in obj:
+            if isinstance(item, LlamaIndexBaseModel):
+                seq_result.append(_llama_index_base_model_to_dict(item))
+                continue
+            seq_result.append(str(item))
+        return seq_result
+    if isinstance(obj, LlamaIndexBaseModel):
+        return _llama_index_base_model_to_dict(obj)
+    return str(obj)
+
+
+def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
+    """Converts the contents of the httpbody message to JSON format.
+
+    Args:
+        body (httpbody_pb2.HttpBody):
+            Required. The httpbody body to be converted to a JSON.
+
+    Yields:
+        Any: A JSON object or the original body if it is not JSON or None.
+    """
+    content_type = getattr(body, "content_type", None)
+    data = getattr(body, "data", None)
+
+    if content_type is None or data is None or "application/json" not in content_type:
+        yield body
+        return
+
+    try:
+        utf8_data = data.decode("utf-8")
+    except Exception as e:
+        _LOGGER.warning(f"Failed to decode data: {data}. Exception: {e}")
+        yield body
+        return
+
+    if not utf8_data:
+        yield None
+        return
+
+    # Handle the case of multiple dictionaries delimited by newlines.
+    for line in utf8_data.split("\n"):
+        if line:
+            try:
+                line = json.loads(line)
+            except Exception as e:
+                _LOGGER.warning(f"failed to parse json: {line}. Exception: {e}")
+            yield line
 
 
 def generate_schema(
@@ -162,9 +277,9 @@ def generate_schema(
         #     * https://github.com/pydantic/pydantic/issues/1270
         #     * https://stackoverflow.com/a/58841311
         #     * https://github.com/pydantic/pydantic/discussions/4872
-        if typing.get_origin(annotation) is typing.Union and type(
-            None
-        ) in typing.get_args(annotation):
+        if typing.get_origin(annotation) is Union and type(None) in typing.get_args(
+            annotation
+        ):
             # for "typing.Optional" arguments, function_arg might be a
             # dictionary like
             #
@@ -314,5 +429,59 @@ def _import_openinference_langchain_or_warn() -> Optional[types.ModuleType]:
         _LOGGER.warning(
             "openinference-instrumentation-langchain is not installed. Please "
             "call 'pip install google-cloud-aiplatform[langchain]'."
+        )
+    return None
+
+
+def _import_openinference_autogen_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.autogen module."""
+    try:
+        import openinference.instrumentation.autogen  # noqa:F401
+
+        return openinference.instrumentation.autogen
+    except ImportError:
+        _LOGGER.warning(
+            "openinference-instrumentation-autogen is not installed. Please "
+            "call 'pip install openinference-instrumentation-autogen'."
+        )
+    return None
+
+
+def _import_openinference_llama_index_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.llama_index module."""
+    try:
+        import openinference.instrumentation.llama_index  # noqa:F401
+
+        return openinference.instrumentation.llama_index
+    except ImportError:
+        _LOGGER.warning(
+            "openinference-instrumentation-llama_index is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[llama_index]'."
+        )
+    return None
+
+
+def _import_autogen_tools_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the autogen.tools module."""
+    try:
+        from autogen import tools
+
+        return tools
+    except ImportError:
+        _LOGGER.warning(
+            "autogen.tools is not installed. Please call: `pip install ag2[tools]`"
+        )
+    return None
+
+
+def _import_nest_asyncio_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the nest_asyncio module."""
+    try:
+        import nest_asyncio
+
+        return nest_asyncio
+    except ImportError:
+        _LOGGER.warning(
+            "nest_asyncio is not installed. Please call: `pip install nest-asyncio`"
         )
     return None

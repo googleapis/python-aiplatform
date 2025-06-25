@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ class UpdateReasoningEngineRequest(proto.Message):
             Required. The ReasoningEngine which replaces
             the resource on the server.
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
-            Required. Mask specifying which fields to
+            Optional. Mask specifying which fields to
             update.
     """
 
@@ -216,11 +216,20 @@ class DeleteReasoningEngineRequest(proto.Message):
             Required. The name of the ReasoningEngine resource to be
             deleted. Format:
             ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
+        force (bool):
+            Optional. If set to true, child resources of this reasoning
+            engine will also be deleted. Otherwise, the request will
+            fail with FAILED_PRECONDITION error when the reasoning
+            engine has undeleted child resources.
     """
 
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    force: bool = proto.Field(
+        proto.BOOL,
+        number=2,
     )
 
 

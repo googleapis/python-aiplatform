@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2023 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,15 +25,22 @@ from immutabledict import immutabledict
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
 
-SUPPORTED_RAY_VERSIONS = immutabledict({"2.9": "2.9.3", "2.33": "2.33.0"})
-SUPPORTED_PY_VERSION = ["3.10"]
+SUPPORTED_RAY_VERSIONS = immutabledict(
+    {"2.9": "2.9.3", "2.33": "2.33.0", "2.42": "2.42.0"}
+)
+SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS = immutabledict(
+    {
+        "3.10": ("2.9", "2.33", "2.42"),
+        "3.11": ("2.42"),
+    }
+)
 _V2_4_WARNING_MESSAGE = (
-    "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result in an error. "
-    "Please use Ray version = 2.33.0 (default)."
+    "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result"
+    " in an error. Please use Ray version = 2.33.0 or 2.42.0 (default) instead."
 )
 _V2_9_WARNING_MESSAGE = (
     "In March 2025, using Ray version = 2.9 will result in an error. "
-    "Please use Ray version = 2.33.0 (default) instead."
+    "Please use Ray version = 2.33.0 or 2.42.0 (default) instead."
 )
 
 
@@ -100,18 +107,30 @@ def get_image_uri(ray_version, python_version, enable_cuda):
                 list(SUPPORTED_RAY_VERSIONS.values())[1],
             )
         )
-    if python_version not in SUPPORTED_PY_VERSION:
-        raise ValueError("[Ray on Vertex AI]: The supported Python version is 3.10.")
+    if python_version not in SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS:
+        raise ValueError(
+            "[Ray on Vertex AI]: The supported Python versions are 3.10 or 3.11."
+        )
+
+    if ray_version not in SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS[python_version]:
+        raise ValueError(
+            "[Ray on Vertex AI]: The supported Ray version(s) for Python version %s: %s."
+            % (
+                python_version,
+                SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS[python_version],
+            )
+        )
 
     location = initializer.global_config.location
     region = location.split("-")[0]
     if region not in _AVAILABLE_REGIONS:
         region = _DEFAULT_REGION
     ray_version = ray_version.replace(".", "-")
+    python_version = python_version.replace(".", "")
     if enable_cuda:
-        return f"{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.{ray_version}.py310:latest"
+        return f"{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.{ray_version}.py{python_version}:latest"
     else:
-        return f"{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.{ray_version}.py310:latest"
+        return f"{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.{ray_version}.py{python_version}:latest"
 
 
 def get_versions_from_image_uri(image_uri):
@@ -120,7 +139,10 @@ def get_versions_from_image_uri(image_uri):
     image_label = image_uri.split("/")[-1].split(":")[0]
     py_version = image_label[-3] + "." + image_label[-2:]
     ray_version = image_label.split(".")[1].replace("-", ".")
-    if ray_version in SUPPORTED_RAY_VERSIONS and py_version in SUPPORTED_PY_VERSION:
+    if (
+        py_version in SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS
+        and ray_version in SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS[py_version]
+    ):
         return py_version, ray_version
     else:
         # May not parse custom image and get the versions correctly

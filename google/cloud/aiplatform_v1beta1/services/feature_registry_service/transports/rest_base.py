@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1033,6 +1033,65 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
             query_params["$alt"] = "json;enum-encoding=int"
             return query_params
 
+    class _BaseUpdateFeatureMonitor:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "patch",
+                    "uri": "/v1beta1/{feature_monitor.name=projects/*/locations/*/featureGroups/*/featureMonitors/*}",
+                    "body": "feature_monitor",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = feature_registry_service.UpdateFeatureMonitorRequest.pb(
+                request
+            )
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseFeatureRegistryServiceRestTransport._BaseUpdateFeatureMonitor._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
     class _BaseGetLocation:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -1133,6 +1192,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
                 },
                 {
@@ -1162,6 +1225,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
                 },
             ]
             return http_options
@@ -1226,6 +1293,11 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
                     "body": "*",
                 },
@@ -1257,6 +1329,11 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
                     "body": "*",
                 },
             ]
@@ -1316,6 +1393,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
                 },
                 {
@@ -1341,6 +1422,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
                 },
             ]
             return http_options
@@ -1530,6 +1615,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -1690,6 +1779,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
                 },
                 {
@@ -1715,6 +1808,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1923,6 +2024,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1948,6 +2053,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2099,6 +2208,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                 },
                 {
@@ -2108,6 +2221,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2164,6 +2285,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2352,6 +2477,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -2389,6 +2518,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2536,6 +2669,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                 },
                 {
@@ -2545,6 +2682,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2605,6 +2750,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
             ]
             return http_options
@@ -2785,6 +2934,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2822,6 +2975,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
                 {
                     "method": "get",
@@ -2969,6 +3126,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*}/operations",
                 },
                 {
@@ -2978,6 +3139,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
                 },
                 {
                     "method": "get",
@@ -3038,6 +3207,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
                 },
             ]
             return http_options
@@ -3226,6 +3399,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -3255,6 +3432,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
@@ -3402,6 +3583,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                 },
                 {
@@ -3411,6 +3596,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
@@ -3467,6 +3660,10 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
             ]
             return http_options

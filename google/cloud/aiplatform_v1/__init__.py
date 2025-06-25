@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,6 +48,8 @@ from .services.featurestore_online_serving_service import (
 )
 from .services.featurestore_service import FeaturestoreServiceClient
 from .services.featurestore_service import FeaturestoreServiceAsyncClient
+from .services.gen_ai_cache_service import GenAiCacheServiceClient
+from .services.gen_ai_cache_service import GenAiCacheServiceAsyncClient
 from .services.gen_ai_tuning_service import GenAiTuningServiceClient
 from .services.gen_ai_tuning_service import GenAiTuningServiceAsyncClient
 from .services.index_endpoint_service import IndexEndpointServiceClient
@@ -76,6 +78,14 @@ from .services.pipeline_service import PipelineServiceClient
 from .services.pipeline_service import PipelineServiceAsyncClient
 from .services.prediction_service import PredictionServiceClient
 from .services.prediction_service import PredictionServiceAsyncClient
+from .services.reasoning_engine_execution_service import (
+    ReasoningEngineExecutionServiceClient,
+)
+from .services.reasoning_engine_execution_service import (
+    ReasoningEngineExecutionServiceAsyncClient,
+)
+from .services.reasoning_engine_service import ReasoningEngineServiceClient
+from .services.reasoning_engine_service import ReasoningEngineServiceAsyncClient
 from .services.schedule_service import ScheduleServiceClient
 from .services.schedule_service import ScheduleServiceAsyncClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
@@ -95,6 +105,7 @@ from .types.annotation_spec import AnnotationSpec
 from .types.api_auth import ApiAuth
 from .types.artifact import Artifact
 from .types.batch_prediction_job import BatchPredictionJob
+from .types.cached_content import CachedContent
 from .types.completion_stats import CompletionStats
 from .types.content import Blob
 from .types.content import Candidate
@@ -107,14 +118,18 @@ from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
+from .types.content import ModalityTokenCount
 from .types.content import Part
 from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
 from .types.content import Segment
+from .types.content import UrlContextMetadata
+from .types.content import UrlMetadata
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
+from .types.content import Modality
 from .types.context import Context
 from .types.custom_job import ContainerSpec
 from .types.custom_job import CustomJob
@@ -188,8 +203,10 @@ from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
 from .types.endpoint import FasterDeploymentConfig
+from .types.endpoint import GenAiAdvancedFeaturesConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
+from .types.endpoint import SpeculativeDecodingSpec
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
 from .types.endpoint_service import DeleteEndpointRequest
@@ -210,6 +227,8 @@ from .types.endpoint_service import UpdateEndpointOperationMetadata
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
+from .types.env_var import SecretEnvVar
+from .types.env_var import SecretRef
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
@@ -449,6 +468,12 @@ from .types.featurestore_service import UpdateEntityTypeRequest
 from .types.featurestore_service import UpdateFeatureRequest
 from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
 from .types.featurestore_service import UpdateFeaturestoreRequest
+from .types.gen_ai_cache_service import CreateCachedContentRequest
+from .types.gen_ai_cache_service import DeleteCachedContentRequest
+from .types.gen_ai_cache_service import GetCachedContentRequest
+from .types.gen_ai_cache_service import ListCachedContentsRequest
+from .types.gen_ai_cache_service import ListCachedContentsResponse
+from .types.gen_ai_cache_service import UpdateCachedContentRequest
 from .types.genai_tuning_service import CancelTuningJobRequest
 from .types.genai_tuning_service import CreateTuningJobRequest
 from .types.genai_tuning_service import GetTuningJobRequest
@@ -630,6 +655,7 @@ from .types.migration_service import MigrateResourceRequest
 from .types.migration_service import MigrateResourceResponse
 from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
+from .types.model import Checkpoint
 from .types.model import GenieSource
 from .types.model import LargeModelReference
 from .types.model import Model
@@ -655,6 +681,9 @@ from .types.model_deployment_monitoring_job import (
 )
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
+from .types.model_garden_service import DeployOperationMetadata
+from .types.model_garden_service import DeployRequest
+from .types.model_garden_service import DeployResponse
 from .types.model_garden_service import GetPublisherModelRequest
 from .types.model_garden_service import PublisherModelView
 from .types.model_monitoring import ModelMonitoringAlertConfig
@@ -683,9 +712,12 @@ from .types.model_service import ListModelEvaluationsRequest
 from .types.model_service import ListModelEvaluationsResponse
 from .types.model_service import ListModelsRequest
 from .types.model_service import ListModelsResponse
+from .types.model_service import ListModelVersionCheckpointsRequest
+from .types.model_service import ListModelVersionCheckpointsResponse
 from .types.model_service import ListModelVersionsRequest
 from .types.model_service import ListModelVersionsResponse
 from .types.model_service import MergeVersionAliasesRequest
+from .types.model_service import ModelVersionCheckpoint
 from .types.model_service import UpdateExplanationDatasetOperationMetadata
 from .types.model_service import UpdateExplanationDatasetRequest
 from .types.model_service import UpdateExplanationDatasetResponse
@@ -735,6 +767,8 @@ from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
 from .types.notebook_service import UpgradeNotebookRuntimeResponse
 from .types.notebook_service import NotebookExecutionJobView
+from .types.notebook_software_config import NotebookSoftwareConfig
+from .types.notebook_software_config import PostStartupScriptConfig
 from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
@@ -804,6 +838,19 @@ from .types.prediction_service import StreamingRawPredictRequest
 from .types.prediction_service import StreamingRawPredictResponse
 from .types.prediction_service import StreamRawPredictRequest
 from .types.publisher_model import PublisherModel
+from .types.reasoning_engine import ReasoningEngine
+from .types.reasoning_engine import ReasoningEngineSpec
+from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
+from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
+from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
+from .types.reasoning_engine_service import CreateReasoningEngineOperationMetadata
+from .types.reasoning_engine_service import CreateReasoningEngineRequest
+from .types.reasoning_engine_service import DeleteReasoningEngineRequest
+from .types.reasoning_engine_service import GetReasoningEngineRequest
+from .types.reasoning_engine_service import ListReasoningEnginesRequest
+from .types.reasoning_engine_service import ListReasoningEnginesResponse
+from .types.reasoning_engine_service import UpdateReasoningEngineOperationMetadata
+from .types.reasoning_engine_service import UpdateReasoningEngineRequest
 from .types.reservation_affinity import ReservationAffinity
 from .types.saved_query import SavedQuery
 from .types.schedule import Schedule
@@ -815,9 +862,12 @@ from .types.schedule_service import ListSchedulesResponse
 from .types.schedule_service import PauseScheduleRequest
 from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
+from .types.service_networking import DnsPeeringConfig
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
+from .types.service_networking import PscInterfaceConfig
+from .types.service_networking import PSCAutomationState
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -889,7 +939,10 @@ from .types.tensorboard_service import WriteTensorboardExperimentDataResponse
 from .types.tensorboard_service import WriteTensorboardRunDataRequest
 from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
+from .types.tool import CodeExecutionResult
 from .types.tool import DynamicRetrievalConfig
+from .types.tool import EnterpriseWebSearch
+from .types.tool import ExecutableCode
 from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
@@ -897,8 +950,10 @@ from .types.tool import FunctionResponse
 from .types.tool import GoogleSearchRetrieval
 from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
+from .types.tool import RetrievalConfig
 from .types.tool import Tool
 from .types.tool import ToolConfig
+from .types.tool import UrlContext
 from .types.tool import VertexAISearch
 from .types.tool import VertexRagStore
 from .types.training_pipeline import FilterSplit
@@ -913,6 +968,7 @@ from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
 from .types.tuning_job import SupervisedTuningSpec
 from .types.tuning_job import TunedModel
+from .types.tuning_job import TunedModelCheckpoint
 from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
@@ -927,18 +983,24 @@ from .types.value import Value
 from .types.vertex_rag_data import CorpusStatus
 from .types.vertex_rag_data import FileStatus
 from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import RagChunk
 from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
+from .types.vertex_rag_data import RagEngineConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
+from .types.vertex_rag_data import RagManagedDbConfig
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import VertexAiSearchConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagFileRequest
 from .types.vertex_rag_data_service import GetRagCorpusRequest
+from .types.vertex_rag_data_service import GetRagEngineConfigRequest
 from .types.vertex_rag_data_service import GetRagFileRequest
 from .types.vertex_rag_data_service import ImportRagFilesOperationMetadata
 from .types.vertex_rag_data_service import ImportRagFilesRequest
@@ -949,6 +1011,8 @@ from .types.vertex_rag_data_service import ListRagFilesRequest
 from .types.vertex_rag_data_service import ListRagFilesResponse
 from .types.vertex_rag_data_service import UpdateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import UpdateRagCorpusRequest
+from .types.vertex_rag_data_service import UpdateRagEngineConfigOperationMetadata
+from .types.vertex_rag_data_service import UpdateRagEngineConfigRequest
 from .types.vertex_rag_data_service import UploadRagFileRequest
 from .types.vertex_rag_data_service import UploadRagFileResponse
 from .types.vertex_rag_service import AugmentPromptRequest
@@ -994,6 +1058,7 @@ __all__ = (
     "FeatureRegistryServiceAsyncClient",
     "FeaturestoreOnlineServingServiceAsyncClient",
     "FeaturestoreServiceAsyncClient",
+    "GenAiCacheServiceAsyncClient",
     "GenAiTuningServiceAsyncClient",
     "IndexEndpointServiceAsyncClient",
     "IndexServiceAsyncClient",
@@ -1008,6 +1073,8 @@ __all__ = (
     "PersistentResourceServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
+    "ReasoningEngineExecutionServiceAsyncClient",
+    "ReasoningEngineServiceAsyncClient",
     "ScheduleServiceAsyncClient",
     "SpecialistPoolServiceAsyncClient",
     "TensorboardServiceAsyncClient",
@@ -1071,6 +1138,7 @@ __all__ = (
     "Blob",
     "BlurBaselineConfig",
     "BoolArray",
+    "CachedContent",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",
@@ -1083,10 +1151,12 @@ __all__ = (
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
     "CheckTrialEarlyStoppingStateResponse",
+    "Checkpoint",
     "Citation",
     "CitationMetadata",
     "Claim",
     "ClientConnectionConfig",
+    "CodeExecutionResult",
     "CoherenceInput",
     "CoherenceInstance",
     "CoherenceResult",
@@ -1113,6 +1183,7 @@ __all__ = (
     "CountTokensResponse",
     "CreateArtifactRequest",
     "CreateBatchPredictionJobRequest",
+    "CreateCachedContentRequest",
     "CreateContextRequest",
     "CreateCustomJobRequest",
     "CreateDataLabelingJobRequest",
@@ -1156,6 +1227,8 @@ __all__ = (
     "CreatePipelineJobRequest",
     "CreateRagCorpusOperationMetadata",
     "CreateRagCorpusRequest",
+    "CreateReasoningEngineOperationMetadata",
+    "CreateReasoningEngineRequest",
     "CreateRegistryFeatureOperationMetadata",
     "CreateScheduleRequest",
     "CreateSpecialistPoolOperationMetadata",
@@ -1182,6 +1255,7 @@ __all__ = (
     "DedicatedResources",
     "DeleteArtifactRequest",
     "DeleteBatchPredictionJobRequest",
+    "DeleteCachedContentRequest",
     "DeleteContextRequest",
     "DeleteCustomJobRequest",
     "DeleteDataLabelingJobRequest",
@@ -1216,6 +1290,7 @@ __all__ = (
     "DeletePipelineJobRequest",
     "DeleteRagCorpusRequest",
     "DeleteRagFileRequest",
+    "DeleteReasoningEngineRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
     "DeleteSpecialistPoolRequest",
@@ -1232,6 +1307,9 @@ __all__ = (
     "DeployModelOperationMetadata",
     "DeployModelRequest",
     "DeployModelResponse",
+    "DeployOperationMetadata",
+    "DeployRequest",
+    "DeployResponse",
     "DeployedIndex",
     "DeployedIndexAuthConfig",
     "DeployedIndexRef",
@@ -1246,11 +1324,13 @@ __all__ = (
     "DirectRawPredictResponse",
     "DirectUploadSource",
     "DiskSpec",
+    "DnsPeeringConfig",
     "DoubleArray",
     "DynamicRetrievalConfig",
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
+    "EnterpriseWebSearch",
     "EntityIdSelector",
     "EntityType",
     "EnvVar",
@@ -1269,6 +1349,7 @@ __all__ = (
     "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
+    "ExecutableCode",
     "Execution",
     "ExplainRequest",
     "ExplainResponse",
@@ -1336,6 +1417,8 @@ __all__ = (
     "FunctionResponse",
     "GcsDestination",
     "GcsSource",
+    "GenAiAdvancedFeaturesConfig",
+    "GenAiCacheServiceClient",
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
@@ -1345,6 +1428,7 @@ __all__ = (
     "GetAnnotationSpecRequest",
     "GetArtifactRequest",
     "GetBatchPredictionJobRequest",
+    "GetCachedContentRequest",
     "GetContextRequest",
     "GetCustomJobRequest",
     "GetDataLabelingJobRequest",
@@ -1378,7 +1462,9 @@ __all__ = (
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
     "GetRagCorpusRequest",
+    "GetRagEngineConfigRequest",
     "GetRagFileRequest",
+    "GetReasoningEngineRequest",
     "GetScheduleRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
@@ -1434,6 +1520,8 @@ __all__ = (
     "ListArtifactsResponse",
     "ListBatchPredictionJobsRequest",
     "ListBatchPredictionJobsResponse",
+    "ListCachedContentsRequest",
+    "ListCachedContentsResponse",
     "ListContextsRequest",
     "ListContextsResponse",
     "ListCustomJobsRequest",
@@ -1482,6 +1570,8 @@ __all__ = (
     "ListModelEvaluationSlicesResponse",
     "ListModelEvaluationsRequest",
     "ListModelEvaluationsResponse",
+    "ListModelVersionCheckpointsRequest",
+    "ListModelVersionCheckpointsResponse",
     "ListModelVersionsRequest",
     "ListModelVersionsResponse",
     "ListModelsRequest",
@@ -1506,6 +1596,8 @@ __all__ = (
     "ListRagCorporaResponse",
     "ListRagFilesRequest",
     "ListRagFilesResponse",
+    "ListReasoningEnginesRequest",
+    "ListReasoningEnginesResponse",
     "ListSavedQueriesRequest",
     "ListSavedQueriesResponse",
     "ListSchedulesRequest",
@@ -1547,6 +1639,8 @@ __all__ = (
     "MigrateResourceRequest",
     "MigrateResourceResponse",
     "MigrationServiceClient",
+    "Modality",
+    "ModalityTokenCount",
     "Model",
     "ModelContainerSpec",
     "ModelDeploymentMonitoringBigQueryTable",
@@ -1564,6 +1658,7 @@ __all__ = (
     "ModelMonitoringStatsAnomalies",
     "ModelServiceClient",
     "ModelSourceInfo",
+    "ModelVersionCheckpoint",
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
@@ -1590,7 +1685,9 @@ __all__ = (
     "NotebookRuntimeTemplateRef",
     "NotebookRuntimeType",
     "NotebookServiceClient",
+    "NotebookSoftwareConfig",
     "PSCAutomationConfig",
+    "PSCAutomationState",
     "PairwiseChoice",
     "PairwiseMetricInput",
     "PairwiseMetricInstance",
@@ -1623,6 +1720,7 @@ __all__ = (
     "PointwiseMetricResult",
     "PointwiseMetricSpec",
     "Port",
+    "PostStartupScriptConfig",
     "PredefinedSplit",
     "PredictRequest",
     "PredictRequestResponseLoggingConfig",
@@ -1634,6 +1732,7 @@ __all__ = (
     "PrivateServiceConnectConfig",
     "Probe",
     "PscAutomatedEndpoints",
+    "PscInterfaceConfig",
     "PublisherModel",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
@@ -1651,6 +1750,8 @@ __all__ = (
     "QueryDeployedModelsRequest",
     "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
+    "QueryReasoningEngineRequest",
+    "QueryReasoningEngineResponse",
     "QuestionAnsweringCorrectnessInput",
     "QuestionAnsweringCorrectnessInstance",
     "QuestionAnsweringCorrectnessResult",
@@ -1667,12 +1768,16 @@ __all__ = (
     "QuestionAnsweringRelevanceInstance",
     "QuestionAnsweringRelevanceResult",
     "QuestionAnsweringRelevanceSpec",
+    "RagChunk",
     "RagContexts",
     "RagCorpus",
     "RagEmbeddingModelConfig",
+    "RagEngineConfig",
     "RagFile",
     "RagFileChunkingConfig",
+    "RagFileParsingConfig",
     "RagFileTransformationConfig",
+    "RagManagedDbConfig",
     "RagQuery",
     "RagRetrievalConfig",
     "RagVectorDbConfig",
@@ -1692,6 +1797,10 @@ __all__ = (
     "ReadTensorboardTimeSeriesDataResponse",
     "ReadTensorboardUsageRequest",
     "ReadTensorboardUsageResponse",
+    "ReasoningEngine",
+    "ReasoningEngineExecutionServiceClient",
+    "ReasoningEngineServiceClient",
+    "ReasoningEngineSpec",
     "RebaseTunedModelOperationMetadata",
     "RebaseTunedModelRequest",
     "RebootPersistentResourceOperationMetadata",
@@ -1710,6 +1819,7 @@ __all__ = (
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "Retrieval",
+    "RetrievalConfig",
     "RetrievalMetadata",
     "RetrieveContextsRequest",
     "RetrieveContextsResponse",
@@ -1744,6 +1854,8 @@ __all__ = (
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
+    "SecretEnvVar",
+    "SecretRef",
     "Segment",
     "ServiceAccountSpec",
     "SharePointSources",
@@ -1752,6 +1864,7 @@ __all__ = (
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
+    "SpeculativeDecodingSpec",
     "StartNotebookRuntimeOperationMetadata",
     "StartNotebookRuntimeRequest",
     "StartNotebookRuntimeResponse",
@@ -1764,6 +1877,7 @@ __all__ = (
     "StreamDirectPredictResponse",
     "StreamDirectRawPredictRequest",
     "StreamDirectRawPredictResponse",
+    "StreamQueryReasoningEngineRequest",
     "StreamRawPredictRequest",
     "StreamingPredictRequest",
     "StreamingPredictResponse",
@@ -1839,6 +1953,7 @@ __all__ = (
     "Trial",
     "TrialContext",
     "TunedModel",
+    "TunedModelCheckpoint",
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
@@ -1851,6 +1966,7 @@ __all__ = (
     "UndeployModelResponse",
     "UnmanagedContainerModel",
     "UpdateArtifactRequest",
+    "UpdateCachedContentRequest",
     "UpdateContextRequest",
     "UpdateDatasetRequest",
     "UpdateDatasetVersionRequest",
@@ -1885,6 +2001,10 @@ __all__ = (
     "UpdatePersistentResourceRequest",
     "UpdateRagCorpusOperationMetadata",
     "UpdateRagCorpusRequest",
+    "UpdateRagEngineConfigOperationMetadata",
+    "UpdateRagEngineConfigRequest",
+    "UpdateReasoningEngineOperationMetadata",
+    "UpdateReasoningEngineRequest",
     "UpdateScheduleRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
@@ -1904,9 +2024,13 @@ __all__ = (
     "UploadRagFileResponse",
     "UpsertDatapointsRequest",
     "UpsertDatapointsResponse",
+    "UrlContext",
+    "UrlContextMetadata",
+    "UrlMetadata",
     "UserActionReference",
     "Value",
     "VertexAISearch",
+    "VertexAiSearchConfig",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",

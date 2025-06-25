@@ -42,6 +42,7 @@ from vertexai._model_garden import _model_garden_models
 from vertexai.language_models import (
     _evaluatable_language_models,
 )
+from vertexai._utils import warning_logs
 
 try:
     import pandas
@@ -2135,7 +2136,8 @@ class _TextEmbeddingModel(_LanguageModel):
         Args:
             texts(str): A list of texts or `TextEmbeddingInput` objects to embed.
             auto_truncate(bool): Whether to automatically truncate long texts. Default: True.
-            output_dimensionality: Optional dimensions of embeddings. Range: [1, 768]. Default: None.
+            output_dimensionality: Optional dimensions of embeddings. This must be a positive
+            integer, with a maximum value dependent upon the model version. Default: None.
 
         Returns:
             A `_MultiInstancePredictionRequest` object.
@@ -2175,7 +2177,8 @@ class _TextEmbeddingModel(_LanguageModel):
         Args:
             texts: A list of texts or `TextEmbeddingInput` objects to embed.
             auto_truncate: Whether to automatically truncate long texts. Default: True.
-            output_dimensionality: Optional dimensions of embeddings. Range: [1, 768]. Default: None.
+            output_dimensionality: Optional dimensions of embeddings. This must be a positive
+            integer, with a maximum value dependent upon the model version. Default: None.
 
         Returns:
             A list of `TextEmbedding` objects.
@@ -2210,7 +2213,8 @@ class _TextEmbeddingModel(_LanguageModel):
         Args:
             texts: A list of texts or `TextEmbeddingInput` objects to embed.
             auto_truncate: Whether to automatically truncate long texts. Default: True.
-            output_dimensionality: Optional dimensions of embeddings. Range: [1, 768]. Default: None.
+            output_dimensionality: Optional dimensions of embeddings. This must be a positive
+            integer, with a maximum value dependent upon the model version. Default: None.
 
         Returns:
             A list of `TextEmbedding` objects.
@@ -3272,6 +3276,7 @@ class ChatSession(_ChatSessionBase):
         message_history: Optional[List[ChatMessage]] = None,
         stop_sequences: Optional[List[str]] = None,
     ):
+        warning_logs.show_deprecation_warning()
         super().__init__(
             model=model,
             context=context,
@@ -3302,6 +3307,7 @@ class CodeChatSession(_ChatSessionBase):
         message_history: Optional[List[ChatMessage]] = None,
         stop_sequences: Optional[List[str]] = None,
     ):
+        warning_logs.show_deprecation_warning()
         super().__init__(
             model=model,
             context=context,

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ from google.api_core import retry as retries
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
@@ -43,6 +44,9 @@ from google.longrunning import operations_pb2  # type: ignore
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class ModelServiceTransport(abc.ABC):
@@ -158,6 +162,11 @@ class ModelServiceTransport(abc.ABC):
             ),
             self.list_model_versions: gapic_v1.method.wrap_method(
                 self.list_model_versions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_model_version_checkpoints: gapic_v1.method.wrap_method(
+                self.list_model_version_checkpoints,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -334,6 +343,18 @@ class ModelServiceTransport(abc.ABC):
         Union[
             model_service.ListModelVersionsResponse,
             Awaitable[model_service.ListModelVersionsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_model_version_checkpoints(
+        self,
+    ) -> Callable[
+        [model_service.ListModelVersionCheckpointsRequest],
+        Union[
+            model_service.ListModelVersionCheckpointsResponse,
+            Awaitable[model_service.ListModelVersionCheckpointsResponse],
         ],
     ]:
         raise NotImplementedError()

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ from google.cloud.aiplatform_v1beta1.services.dataset_service import pagers
 from google.cloud.aiplatform_v1beta1.services.dataset_service import transports
 from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import annotation_spec
+from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import data_item
 from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
@@ -84,19 +85,31 @@ from google.cloud.aiplatform_v1beta1.types import dataset_version
 from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset_version
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
+from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import saved_query
+from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.type import latlng_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -354,6 +367,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         DatasetServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = DatasetServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = DatasetServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -8815,6 +8871,500 @@ async def test_list_annotations_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.AssessDataRequest,
+        dict,
+    ],
+)
+def test_assess_data(request_type, transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.assess_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = dataset_service.AssessDataRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_assess_data_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = dataset_service.AssessDataRequest(
+        request_column_name="request_column_name_value",
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.assess_data(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.AssessDataRequest(
+            request_column_name="request_column_name_value",
+            name="name_value",
+        )
+
+
+def test_assess_data_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DatasetServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.assess_data in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.assess_data] = mock_rpc
+        request = {}
+        client.assess_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.assess_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_assess_data_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = DatasetServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.assess_data
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.assess_data
+        ] = mock_rpc
+
+        request = {}
+        await client.assess_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.assess_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_assess_data_async(
+    transport: str = "grpc_asyncio", request_type=dataset_service.AssessDataRequest
+):
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.assess_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = dataset_service.AssessDataRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_assess_data_async_from_dict():
+    await test_assess_data_async(request_type=dict)
+
+
+def test_assess_data_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.AssessDataRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.assess_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_assess_data_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.AssessDataRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.assess_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.AssembleDataRequest,
+        dict,
+    ],
+)
+def test_assemble_data(request_type, transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.assemble_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = dataset_service.AssembleDataRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_assemble_data_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = dataset_service.AssembleDataRequest(
+        request_column_name="request_column_name_value",
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.assemble_data(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.AssembleDataRequest(
+            request_column_name="request_column_name_value",
+            name="name_value",
+        )
+
+
+def test_assemble_data_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DatasetServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.assemble_data in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.assemble_data] = mock_rpc
+        request = {}
+        client.assemble_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.assemble_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_assemble_data_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = DatasetServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.assemble_data
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.assemble_data
+        ] = mock_rpc
+
+        request = {}
+        await client.assemble_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.assemble_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_assemble_data_async(
+    transport: str = "grpc_asyncio", request_type=dataset_service.AssembleDataRequest
+):
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.assemble_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = dataset_service.AssembleDataRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_assemble_data_async_from_dict():
+    await test_assemble_data_async(request_type=dict)
+
+
+def test_assemble_data_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.AssembleDataRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.assemble_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_assemble_data_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.AssembleDataRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.assemble_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
 def test_create_dataset_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -8919,6 +9469,7 @@ def test_create_dataset_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_dataset(request)
 
@@ -8971,6 +9522,7 @@ def test_create_dataset_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_dataset(**mock_args)
 
@@ -9105,6 +9657,7 @@ def test_get_dataset_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_dataset(request)
 
@@ -9150,6 +9703,7 @@ def test_get_dataset_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_dataset(**mock_args)
 
@@ -9279,6 +9833,7 @@ def test_update_dataset_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_dataset(request)
 
@@ -9335,6 +9890,7 @@ def test_update_dataset_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_dataset(**mock_args)
 
@@ -9477,6 +10033,7 @@ def test_list_datasets_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_datasets(request)
 
@@ -9533,6 +10090,7 @@ def test_list_datasets_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_datasets(**mock_args)
 
@@ -9728,6 +10286,7 @@ def test_delete_dataset_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_dataset(request)
 
@@ -9771,6 +10330,7 @@ def test_delete_dataset_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_dataset(**mock_args)
 
@@ -9904,6 +10464,7 @@ def test_import_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.import_data(request)
 
@@ -9958,6 +10519,7 @@ def test_import_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.import_data(**mock_args)
 
@@ -10094,6 +10656,7 @@ def test_export_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.export_data(request)
 
@@ -10150,6 +10713,7 @@ def test_export_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.export_data(**mock_args)
 
@@ -10293,6 +10857,7 @@ def test_create_dataset_version_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_dataset_version(request)
 
@@ -10347,6 +10912,7 @@ def test_create_dataset_version_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_dataset_version(**mock_args)
 
@@ -10482,6 +11048,7 @@ def test_update_dataset_version_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_dataset_version(request)
 
@@ -10540,6 +11107,7 @@ def test_update_dataset_version_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_dataset_version(**mock_args)
 
@@ -10678,6 +11246,7 @@ def test_delete_dataset_version_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_dataset_version(request)
 
@@ -10723,6 +11292,7 @@ def test_delete_dataset_version_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_dataset_version(**mock_args)
 
@@ -10860,6 +11430,7 @@ def test_get_dataset_version_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_dataset_version(request)
 
@@ -10907,6 +11478,7 @@ def test_get_dataset_version_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_dataset_version(**mock_args)
 
@@ -11053,6 +11625,7 @@ def test_list_dataset_versions_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_dataset_versions(request)
 
@@ -11111,6 +11684,7 @@ def test_list_dataset_versions_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_dataset_versions(**mock_args)
 
@@ -11313,6 +11887,7 @@ def test_restore_dataset_version_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.restore_dataset_version(request)
 
@@ -11358,6 +11933,7 @@ def test_restore_dataset_version_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.restore_dataset_version(**mock_args)
 
@@ -11499,6 +12075,7 @@ def test_list_data_items_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_data_items(request)
 
@@ -11557,6 +12134,7 @@ def test_list_data_items_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_data_items(**mock_args)
 
@@ -11772,6 +12350,7 @@ def test_search_data_items_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.search_data_items(request)
 
@@ -11988,6 +12567,7 @@ def test_list_saved_queries_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_saved_queries(request)
 
@@ -12046,6 +12626,7 @@ def test_list_saved_queries_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_saved_queries(**mock_args)
 
@@ -12247,6 +12828,7 @@ def test_delete_saved_query_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_saved_query(request)
 
@@ -12292,6 +12874,7 @@ def test_delete_saved_query_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_saved_query(**mock_args)
 
@@ -12429,6 +13012,7 @@ def test_get_annotation_spec_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_annotation_spec(request)
 
@@ -12476,6 +13060,7 @@ def test_get_annotation_spec_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_annotation_spec(**mock_args)
 
@@ -12619,6 +13204,7 @@ def test_list_annotations_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_annotations(request)
 
@@ -12677,6 +13263,7 @@ def test_list_annotations_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_annotations(**mock_args)
 
@@ -12769,6 +13356,250 @@ def test_list_annotations_rest_pager(transport: str = "rest"):
         pages = list(client.list_annotations(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
+
+
+def test_assess_data_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DatasetServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.assess_data in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.assess_data] = mock_rpc
+
+        request = {}
+        client.assess_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.assess_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_assess_data_rest_required_fields(
+    request_type=dataset_service.AssessDataRequest,
+):
+    transport_class = transports.DatasetServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).assess_data._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).assess_data._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+
+            response = client.assess_data(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_assess_data_rest_unset_required_fields():
+    transport = transports.DatasetServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.assess_data._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_assemble_data_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = DatasetServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.assemble_data in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.assemble_data] = mock_rpc
+
+        request = {}
+        client.assemble_data(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.assemble_data(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_assemble_data_rest_required_fields(
+    request_type=dataset_service.AssembleDataRequest,
+):
+    transport_class = transports.DatasetServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).assemble_data._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).assemble_data._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+
+            response = client.assemble_data(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_assemble_data_rest_unset_required_fields():
+    transport = transports.DatasetServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.assemble_data._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
 
 
 def test_credentials_transport_error():
@@ -13292,6 +14123,48 @@ def test_list_annotations_empty_call_grpc():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = dataset_service.ListAnnotationsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_assess_data_empty_call_grpc():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.assess_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = dataset_service.AssessDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_assemble_data_empty_call_grpc():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.assemble_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = dataset_service.AssembleDataRequest()
 
         assert args[0] == request_msg
 
@@ -13859,6 +14732,56 @@ async def test_list_annotations_empty_call_grpc_asyncio():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_assess_data_empty_call_grpc_asyncio():
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.assess_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = dataset_service.AssessDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_assemble_data_empty_call_grpc_asyncio():
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.assemble_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = dataset_service.AssembleDataRequest()
+
+        assert args[0] == request_msg
+
+
 def test_transport_kind_rest():
     transport = DatasetServiceClient.get_transport_class("rest")(
         credentials=ga_credentials.AnonymousCredentials()
@@ -13887,6 +14810,7 @@ def test_create_dataset_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_dataset(request)
 
 
@@ -14022,6 +14946,7 @@ def test_create_dataset_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -14047,10 +14972,13 @@ def test_create_dataset_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_create_dataset"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_create_dataset_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_create_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.CreateDatasetRequest.pb(
             dataset_service.CreateDatasetRequest()
         )
@@ -14063,6 +14991,7 @@ def test_create_dataset_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14073,6 +15002,7 @@ def test_create_dataset_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_dataset(
             request,
@@ -14084,6 +15014,7 @@ def test_create_dataset_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_dataset_rest_bad_request(request_type=dataset_service.GetDatasetRequest):
@@ -14105,6 +15036,7 @@ def test_get_dataset_rest_bad_request(request_type=dataset_service.GetDatasetReq
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_dataset(request)
 
 
@@ -14149,6 +15081,7 @@ def test_get_dataset_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -14182,10 +15115,13 @@ def test_get_dataset_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_get_dataset"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_get_dataset_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_get_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.GetDatasetRequest.pb(
             dataset_service.GetDatasetRequest()
         )
@@ -14198,6 +15134,7 @@ def test_get_dataset_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset.Dataset.to_json(dataset.Dataset())
         req.return_value.content = return_value
 
@@ -14208,6 +15145,7 @@ def test_get_dataset_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset.Dataset()
+        post_with_metadata.return_value = dataset.Dataset(), metadata
 
         client.get_dataset(
             request,
@@ -14219,6 +15157,7 @@ def test_get_dataset_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_dataset_rest_bad_request(
@@ -14244,6 +15183,7 @@ def test_update_dataset_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_dataset(request)
 
 
@@ -14395,6 +15335,7 @@ def test_update_dataset_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -14428,10 +15369,13 @@ def test_update_dataset_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_update_dataset"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_update_dataset_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_update_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.UpdateDatasetRequest.pb(
             dataset_service.UpdateDatasetRequest()
         )
@@ -14444,6 +15388,7 @@ def test_update_dataset_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_dataset.Dataset.to_json(gca_dataset.Dataset())
         req.return_value.content = return_value
 
@@ -14454,6 +15399,7 @@ def test_update_dataset_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_dataset.Dataset()
+        post_with_metadata.return_value = gca_dataset.Dataset(), metadata
 
         client.update_dataset(
             request,
@@ -14465,6 +15411,7 @@ def test_update_dataset_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_datasets_rest_bad_request(
@@ -14488,6 +15435,7 @@ def test_list_datasets_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_datasets(request)
 
 
@@ -14523,6 +15471,7 @@ def test_list_datasets_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_datasets(request)
 
     # Establish that the response is the type that we expect.
@@ -14547,10 +15496,13 @@ def test_list_datasets_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_list_datasets"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_list_datasets_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_list_datasets"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListDatasetsRequest.pb(
             dataset_service.ListDatasetsRequest()
         )
@@ -14563,6 +15515,7 @@ def test_list_datasets_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListDatasetsResponse.to_json(
             dataset_service.ListDatasetsResponse()
         )
@@ -14575,6 +15528,10 @@ def test_list_datasets_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListDatasetsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListDatasetsResponse(),
+            metadata,
+        )
 
         client.list_datasets(
             request,
@@ -14586,6 +15543,7 @@ def test_list_datasets_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_dataset_rest_bad_request(
@@ -14609,6 +15567,7 @@ def test_delete_dataset_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_dataset(request)
 
 
@@ -14639,6 +15598,7 @@ def test_delete_dataset_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -14664,10 +15624,13 @@ def test_delete_dataset_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_delete_dataset"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_delete_dataset_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_delete_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.DeleteDatasetRequest.pb(
             dataset_service.DeleteDatasetRequest()
         )
@@ -14680,6 +15643,7 @@ def test_delete_dataset_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14690,6 +15654,7 @@ def test_delete_dataset_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_dataset(
             request,
@@ -14701,6 +15666,7 @@ def test_delete_dataset_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_import_data_rest_bad_request(request_type=dataset_service.ImportDataRequest):
@@ -14722,6 +15688,7 @@ def test_import_data_rest_bad_request(request_type=dataset_service.ImportDataReq
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.import_data(request)
 
 
@@ -14752,6 +15719,7 @@ def test_import_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.import_data(request)
 
     # Establish that the response is the type that we expect.
@@ -14777,10 +15745,13 @@ def test_import_data_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_import_data"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_import_data_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_import_data"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ImportDataRequest.pb(
             dataset_service.ImportDataRequest()
         )
@@ -14793,6 +15764,7 @@ def test_import_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14803,6 +15775,7 @@ def test_import_data_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.import_data(
             request,
@@ -14814,6 +15787,7 @@ def test_import_data_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_export_data_rest_bad_request(request_type=dataset_service.ExportDataRequest):
@@ -14835,6 +15809,7 @@ def test_export_data_rest_bad_request(request_type=dataset_service.ExportDataReq
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.export_data(request)
 
 
@@ -14865,6 +15840,7 @@ def test_export_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.export_data(request)
 
     # Establish that the response is the type that we expect.
@@ -14890,10 +15866,13 @@ def test_export_data_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_export_data"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_export_data_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_export_data"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ExportDataRequest.pb(
             dataset_service.ExportDataRequest()
         )
@@ -14906,6 +15885,7 @@ def test_export_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14916,6 +15896,7 @@ def test_export_data_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.export_data(
             request,
@@ -14927,6 +15908,7 @@ def test_export_data_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_dataset_version_rest_bad_request(
@@ -14950,6 +15932,7 @@ def test_create_dataset_version_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_dataset_version(request)
 
 
@@ -15068,6 +16051,7 @@ def test_create_dataset_version_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -15093,10 +16077,14 @@ def test_create_dataset_version_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_create_dataset_version"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor,
+        "post_create_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_create_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.CreateDatasetVersionRequest.pb(
             dataset_service.CreateDatasetVersionRequest()
         )
@@ -15109,6 +16097,7 @@ def test_create_dataset_version_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -15119,6 +16108,7 @@ def test_create_dataset_version_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_dataset_version(
             request,
@@ -15130,6 +16120,7 @@ def test_create_dataset_version_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_dataset_version_rest_bad_request(
@@ -15157,6 +16148,7 @@ def test_update_dataset_version_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_dataset_version(request)
 
 
@@ -15290,6 +16282,7 @@ def test_update_dataset_version_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -15320,10 +16313,14 @@ def test_update_dataset_version_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_update_dataset_version"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor,
+        "post_update_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_update_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.UpdateDatasetVersionRequest.pb(
             dataset_service.UpdateDatasetVersionRequest()
         )
@@ -15336,6 +16333,7 @@ def test_update_dataset_version_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_dataset_version.DatasetVersion.to_json(
             gca_dataset_version.DatasetVersion()
         )
@@ -15348,6 +16346,7 @@ def test_update_dataset_version_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_dataset_version.DatasetVersion()
+        post_with_metadata.return_value = gca_dataset_version.DatasetVersion(), metadata
 
         client.update_dataset_version(
             request,
@@ -15359,6 +16358,7 @@ def test_update_dataset_version_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_dataset_version_rest_bad_request(
@@ -15384,6 +16384,7 @@ def test_delete_dataset_version_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_dataset_version(request)
 
 
@@ -15416,6 +16417,7 @@ def test_delete_dataset_version_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -15441,10 +16443,14 @@ def test_delete_dataset_version_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_delete_dataset_version"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor,
+        "post_delete_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_delete_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.DeleteDatasetVersionRequest.pb(
             dataset_service.DeleteDatasetVersionRequest()
         )
@@ -15457,6 +16463,7 @@ def test_delete_dataset_version_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -15467,6 +16474,7 @@ def test_delete_dataset_version_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_dataset_version(
             request,
@@ -15478,6 +16486,7 @@ def test_delete_dataset_version_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_dataset_version_rest_bad_request(
@@ -15503,6 +16512,7 @@ def test_get_dataset_version_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_dataset_version(request)
 
 
@@ -15546,6 +16556,7 @@ def test_get_dataset_version_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -15576,10 +16587,14 @@ def test_get_dataset_version_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_get_dataset_version"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor,
+        "post_get_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_get_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.GetDatasetVersionRequest.pb(
             dataset_service.GetDatasetVersionRequest()
         )
@@ -15592,6 +16607,7 @@ def test_get_dataset_version_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_version.DatasetVersion.to_json(
             dataset_version.DatasetVersion()
         )
@@ -15604,6 +16620,7 @@ def test_get_dataset_version_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_version.DatasetVersion()
+        post_with_metadata.return_value = dataset_version.DatasetVersion(), metadata
 
         client.get_dataset_version(
             request,
@@ -15615,6 +16632,7 @@ def test_get_dataset_version_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_dataset_versions_rest_bad_request(
@@ -15638,6 +16656,7 @@ def test_list_dataset_versions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_dataset_versions(request)
 
 
@@ -15673,6 +16692,7 @@ def test_list_dataset_versions_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_dataset_versions(request)
 
     # Establish that the response is the type that we expect.
@@ -15697,10 +16717,14 @@ def test_list_dataset_versions_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_list_dataset_versions"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor,
+        "post_list_dataset_versions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_list_dataset_versions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListDatasetVersionsRequest.pb(
             dataset_service.ListDatasetVersionsRequest()
         )
@@ -15713,6 +16737,7 @@ def test_list_dataset_versions_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListDatasetVersionsResponse.to_json(
             dataset_service.ListDatasetVersionsResponse()
         )
@@ -15725,6 +16750,10 @@ def test_list_dataset_versions_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListDatasetVersionsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListDatasetVersionsResponse(),
+            metadata,
+        )
 
         client.list_dataset_versions(
             request,
@@ -15736,6 +16765,7 @@ def test_list_dataset_versions_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_restore_dataset_version_rest_bad_request(
@@ -15761,6 +16791,7 @@ def test_restore_dataset_version_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.restore_dataset_version(request)
 
 
@@ -15793,6 +16824,7 @@ def test_restore_dataset_version_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.restore_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -15818,10 +16850,14 @@ def test_restore_dataset_version_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_restore_dataset_version"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor,
+        "post_restore_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_restore_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.RestoreDatasetVersionRequest.pb(
             dataset_service.RestoreDatasetVersionRequest()
         )
@@ -15834,6 +16870,7 @@ def test_restore_dataset_version_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -15844,6 +16881,7 @@ def test_restore_dataset_version_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.restore_dataset_version(
             request,
@@ -15855,6 +16893,7 @@ def test_restore_dataset_version_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_data_items_rest_bad_request(
@@ -15878,6 +16917,7 @@ def test_list_data_items_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_data_items(request)
 
 
@@ -15913,6 +16953,7 @@ def test_list_data_items_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_data_items(request)
 
     # Establish that the response is the type that we expect.
@@ -15937,10 +16978,13 @@ def test_list_data_items_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_list_data_items"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_list_data_items_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_list_data_items"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListDataItemsRequest.pb(
             dataset_service.ListDataItemsRequest()
         )
@@ -15953,6 +16997,7 @@ def test_list_data_items_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListDataItemsResponse.to_json(
             dataset_service.ListDataItemsResponse()
         )
@@ -15965,6 +17010,10 @@ def test_list_data_items_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListDataItemsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListDataItemsResponse(),
+            metadata,
+        )
 
         client.list_data_items(
             request,
@@ -15976,6 +17025,7 @@ def test_list_data_items_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_search_data_items_rest_bad_request(
@@ -15999,6 +17049,7 @@ def test_search_data_items_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.search_data_items(request)
 
 
@@ -16034,6 +17085,7 @@ def test_search_data_items_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.search_data_items(request)
 
     # Establish that the response is the type that we expect.
@@ -16058,10 +17110,13 @@ def test_search_data_items_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_search_data_items"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_search_data_items_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_search_data_items"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.SearchDataItemsRequest.pb(
             dataset_service.SearchDataItemsRequest()
         )
@@ -16074,6 +17129,7 @@ def test_search_data_items_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.SearchDataItemsResponse.to_json(
             dataset_service.SearchDataItemsResponse()
         )
@@ -16086,6 +17142,10 @@ def test_search_data_items_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.SearchDataItemsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.SearchDataItemsResponse(),
+            metadata,
+        )
 
         client.search_data_items(
             request,
@@ -16097,6 +17157,7 @@ def test_search_data_items_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_saved_queries_rest_bad_request(
@@ -16120,6 +17181,7 @@ def test_list_saved_queries_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_saved_queries(request)
 
 
@@ -16155,6 +17217,7 @@ def test_list_saved_queries_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_saved_queries(request)
 
     # Establish that the response is the type that we expect.
@@ -16179,10 +17242,14 @@ def test_list_saved_queries_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_list_saved_queries"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor,
+        "post_list_saved_queries_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_list_saved_queries"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListSavedQueriesRequest.pb(
             dataset_service.ListSavedQueriesRequest()
         )
@@ -16195,6 +17262,7 @@ def test_list_saved_queries_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListSavedQueriesResponse.to_json(
             dataset_service.ListSavedQueriesResponse()
         )
@@ -16207,6 +17275,10 @@ def test_list_saved_queries_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListSavedQueriesResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListSavedQueriesResponse(),
+            metadata,
+        )
 
         client.list_saved_queries(
             request,
@@ -16218,6 +17290,7 @@ def test_list_saved_queries_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_saved_query_rest_bad_request(
@@ -16243,6 +17316,7 @@ def test_delete_saved_query_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_saved_query(request)
 
 
@@ -16275,6 +17349,7 @@ def test_delete_saved_query_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_saved_query(request)
 
     # Establish that the response is the type that we expect.
@@ -16300,10 +17375,14 @@ def test_delete_saved_query_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_delete_saved_query"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor,
+        "post_delete_saved_query_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_delete_saved_query"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.DeleteSavedQueryRequest.pb(
             dataset_service.DeleteSavedQueryRequest()
         )
@@ -16316,6 +17395,7 @@ def test_delete_saved_query_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -16326,6 +17406,7 @@ def test_delete_saved_query_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_saved_query(
             request,
@@ -16337,6 +17418,7 @@ def test_delete_saved_query_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_annotation_spec_rest_bad_request(
@@ -16362,6 +17444,7 @@ def test_get_annotation_spec_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_annotation_spec(request)
 
 
@@ -16401,6 +17484,7 @@ def test_get_annotation_spec_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_annotation_spec(request)
 
     # Establish that the response is the type that we expect.
@@ -16427,10 +17511,14 @@ def test_get_annotation_spec_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_get_annotation_spec"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor,
+        "post_get_annotation_spec_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_get_annotation_spec"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.GetAnnotationSpecRequest.pb(
             dataset_service.GetAnnotationSpecRequest()
         )
@@ -16443,6 +17531,7 @@ def test_get_annotation_spec_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = annotation_spec.AnnotationSpec.to_json(
             annotation_spec.AnnotationSpec()
         )
@@ -16455,6 +17544,7 @@ def test_get_annotation_spec_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = annotation_spec.AnnotationSpec()
+        post_with_metadata.return_value = annotation_spec.AnnotationSpec(), metadata
 
         client.get_annotation_spec(
             request,
@@ -16466,6 +17556,7 @@ def test_get_annotation_spec_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_annotations_rest_bad_request(
@@ -16491,6 +17582,7 @@ def test_list_annotations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_annotations(request)
 
 
@@ -16528,6 +17620,7 @@ def test_list_annotations_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_annotations(request)
 
     # Establish that the response is the type that we expect.
@@ -16552,10 +17645,13 @@ def test_list_annotations_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "post_list_annotations"
     ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_list_annotations_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.DatasetServiceRestInterceptor, "pre_list_annotations"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListAnnotationsRequest.pb(
             dataset_service.ListAnnotationsRequest()
         )
@@ -16568,6 +17664,7 @@ def test_list_annotations_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListAnnotationsResponse.to_json(
             dataset_service.ListAnnotationsResponse()
         )
@@ -16580,6 +17677,10 @@ def test_list_annotations_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListAnnotationsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListAnnotationsResponse(),
+            metadata,
+        )
 
         client.list_annotations(
             request,
@@ -16591,6 +17692,251 @@ def test_list_annotations_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+def test_assess_data_rest_bad_request(request_type=dataset_service.AssessDataRequest):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        client.assess_data(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.AssessDataRequest,
+        dict,
+    ],
+)
+def test_assess_data_rest_call_success(request_type):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = client.assess_data(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_assess_data_rest_interceptors(null_interceptor):
+    transport = transports.DatasetServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.DatasetServiceRestInterceptor(),
+    )
+    client = DatasetServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_assess_data"
+    ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_assess_data_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "pre_assess_data"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = dataset_service.AssessDataRequest.pb(
+            dataset_service.AssessDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = dataset_service.AssessDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
+
+        client.assess_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+def test_assemble_data_rest_bad_request(
+    request_type=dataset_service.AssembleDataRequest,
+):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        client.assemble_data(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.AssembleDataRequest,
+        dict,
+    ],
+)
+def test_assemble_data_rest_call_success(request_type):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = client.assemble_data(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_assemble_data_rest_interceptors(null_interceptor):
+    transport = transports.DatasetServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.DatasetServiceRestInterceptor(),
+    )
+    client = DatasetServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_assemble_data"
+    ) as post, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "post_assemble_data_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
+        transports.DatasetServiceRestInterceptor, "pre_assemble_data"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = dataset_service.AssembleDataRequest.pb(
+            dataset_service.AssembleDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = dataset_service.AssembleDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
+
+        client.assemble_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -16614,6 +17960,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -16644,6 +17991,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -16672,6 +18020,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -16702,6 +18051,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -16733,6 +18083,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -16765,6 +18116,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -16796,6 +18148,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -16828,6 +18181,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -16859,6 +18213,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -16891,6 +18246,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -16921,6 +18277,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -16951,6 +18308,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -16981,6 +18339,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -17011,6 +18370,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -17041,6 +18401,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -17071,6 +18432,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -17101,6 +18463,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -17131,6 +18494,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -17161,6 +18525,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -17191,6 +18556,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -17605,6 +18971,46 @@ def test_list_annotations_empty_call_rest():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_assess_data_empty_call_rest():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
+        client.assess_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = dataset_service.AssessDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_assemble_data_empty_call_rest():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
+        client.assemble_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = dataset_service.AssembleDataRequest()
+
+        assert args[0] == request_msg
+
+
 def test_dataset_service_rest_lro_client():
     client = DatasetServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -17658,6 +19064,7 @@ async def test_create_dataset_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_dataset(request)
 
 
@@ -17800,6 +19207,7 @@ async def test_create_dataset_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -17830,10 +19238,14 @@ async def test_create_dataset_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_create_dataset"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_create_dataset_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_create_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.CreateDatasetRequest.pb(
             dataset_service.CreateDatasetRequest()
         )
@@ -17846,6 +19258,7 @@ async def test_create_dataset_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17856,6 +19269,7 @@ async def test_create_dataset_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_dataset(
             request,
@@ -17867,6 +19281,7 @@ async def test_create_dataset_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -17894,6 +19309,7 @@ async def test_get_dataset_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_dataset(request)
 
 
@@ -17945,6 +19361,7 @@ async def test_get_dataset_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -17983,10 +19400,13 @@ async def test_get_dataset_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_get_dataset"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor, "post_get_dataset_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_get_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.GetDatasetRequest.pb(
             dataset_service.GetDatasetRequest()
         )
@@ -17999,6 +19419,7 @@ async def test_get_dataset_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset.Dataset.to_json(dataset.Dataset())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18009,6 +19430,7 @@ async def test_get_dataset_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset.Dataset()
+        post_with_metadata.return_value = dataset.Dataset(), metadata
 
         await client.get_dataset(
             request,
@@ -18020,6 +19442,7 @@ async def test_get_dataset_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18049,6 +19472,7 @@ async def test_update_dataset_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_dataset(request)
 
 
@@ -18207,6 +19631,7 @@ async def test_update_dataset_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -18245,10 +19670,14 @@ async def test_update_dataset_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_update_dataset"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_update_dataset_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_update_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.UpdateDatasetRequest.pb(
             dataset_service.UpdateDatasetRequest()
         )
@@ -18261,6 +19690,7 @@ async def test_update_dataset_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_dataset.Dataset.to_json(gca_dataset.Dataset())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18271,6 +19701,7 @@ async def test_update_dataset_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_dataset.Dataset()
+        post_with_metadata.return_value = gca_dataset.Dataset(), metadata
 
         await client.update_dataset(
             request,
@@ -18282,6 +19713,7 @@ async def test_update_dataset_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18309,6 +19741,7 @@ async def test_list_datasets_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_datasets(request)
 
 
@@ -18351,6 +19784,7 @@ async def test_list_datasets_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_datasets(request)
 
     # Establish that the response is the type that we expect.
@@ -18380,10 +19814,14 @@ async def test_list_datasets_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_list_datasets"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_list_datasets_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_list_datasets"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListDatasetsRequest.pb(
             dataset_service.ListDatasetsRequest()
         )
@@ -18396,6 +19834,7 @@ async def test_list_datasets_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListDatasetsResponse.to_json(
             dataset_service.ListDatasetsResponse()
         )
@@ -18408,6 +19847,10 @@ async def test_list_datasets_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListDatasetsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListDatasetsResponse(),
+            metadata,
+        )
 
         await client.list_datasets(
             request,
@@ -18419,6 +19862,7 @@ async def test_list_datasets_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18446,6 +19890,7 @@ async def test_delete_dataset_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_dataset(request)
 
 
@@ -18483,6 +19928,7 @@ async def test_delete_dataset_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_dataset(request)
 
     # Establish that the response is the type that we expect.
@@ -18513,10 +19959,14 @@ async def test_delete_dataset_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_delete_dataset"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_delete_dataset_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_delete_dataset"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.DeleteDatasetRequest.pb(
             dataset_service.DeleteDatasetRequest()
         )
@@ -18529,6 +19979,7 @@ async def test_delete_dataset_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18539,6 +19990,7 @@ async def test_delete_dataset_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_dataset(
             request,
@@ -18550,6 +20002,7 @@ async def test_delete_dataset_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18577,6 +20030,7 @@ async def test_import_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.import_data(request)
 
 
@@ -18614,6 +20068,7 @@ async def test_import_data_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.import_data(request)
 
     # Establish that the response is the type that we expect.
@@ -18644,10 +20099,13 @@ async def test_import_data_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_import_data"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor, "post_import_data_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_import_data"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ImportDataRequest.pb(
             dataset_service.ImportDataRequest()
         )
@@ -18660,6 +20118,7 @@ async def test_import_data_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18670,6 +20129,7 @@ async def test_import_data_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.import_data(
             request,
@@ -18681,6 +20141,7 @@ async def test_import_data_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18708,6 +20169,7 @@ async def test_export_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.export_data(request)
 
 
@@ -18745,6 +20207,7 @@ async def test_export_data_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.export_data(request)
 
     # Establish that the response is the type that we expect.
@@ -18775,10 +20238,13 @@ async def test_export_data_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_export_data"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor, "post_export_data_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_export_data"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ExportDataRequest.pb(
             dataset_service.ExportDataRequest()
         )
@@ -18791,6 +20257,7 @@ async def test_export_data_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18801,6 +20268,7 @@ async def test_export_data_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.export_data(
             request,
@@ -18812,6 +20280,7 @@ async def test_export_data_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -18839,6 +20308,7 @@ async def test_create_dataset_version_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_dataset_version(request)
 
 
@@ -18964,6 +20434,7 @@ async def test_create_dataset_version_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -18994,10 +20465,14 @@ async def test_create_dataset_version_rest_asyncio_interceptors(null_interceptor
     ), mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_create_dataset_version"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_create_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_create_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.CreateDatasetVersionRequest.pb(
             dataset_service.CreateDatasetVersionRequest()
         )
@@ -19010,6 +20485,7 @@ async def test_create_dataset_version_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -19020,6 +20496,7 @@ async def test_create_dataset_version_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_dataset_version(
             request,
@@ -19031,6 +20508,7 @@ async def test_create_dataset_version_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19062,6 +20540,7 @@ async def test_update_dataset_version_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_dataset_version(request)
 
 
@@ -19202,6 +20681,7 @@ async def test_update_dataset_version_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -19237,10 +20717,14 @@ async def test_update_dataset_version_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_update_dataset_version"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_update_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_update_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.UpdateDatasetVersionRequest.pb(
             dataset_service.UpdateDatasetVersionRequest()
         )
@@ -19253,6 +20737,7 @@ async def test_update_dataset_version_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_dataset_version.DatasetVersion.to_json(
             gca_dataset_version.DatasetVersion()
         )
@@ -19265,6 +20750,7 @@ async def test_update_dataset_version_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = gca_dataset_version.DatasetVersion()
+        post_with_metadata.return_value = gca_dataset_version.DatasetVersion(), metadata
 
         await client.update_dataset_version(
             request,
@@ -19276,6 +20762,7 @@ async def test_update_dataset_version_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19305,6 +20792,7 @@ async def test_delete_dataset_version_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_dataset_version(request)
 
 
@@ -19344,6 +20832,7 @@ async def test_delete_dataset_version_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -19374,10 +20863,14 @@ async def test_delete_dataset_version_rest_asyncio_interceptors(null_interceptor
     ), mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_delete_dataset_version"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_delete_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_delete_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.DeleteDatasetVersionRequest.pb(
             dataset_service.DeleteDatasetVersionRequest()
         )
@@ -19390,6 +20883,7 @@ async def test_delete_dataset_version_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -19400,6 +20894,7 @@ async def test_delete_dataset_version_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_dataset_version(
             request,
@@ -19411,6 +20906,7 @@ async def test_delete_dataset_version_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19440,6 +20936,7 @@ async def test_get_dataset_version_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_dataset_version(request)
 
 
@@ -19490,6 +20987,7 @@ async def test_get_dataset_version_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -19525,10 +21023,14 @@ async def test_get_dataset_version_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_get_dataset_version"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_get_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_get_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.GetDatasetVersionRequest.pb(
             dataset_service.GetDatasetVersionRequest()
         )
@@ -19541,6 +21043,7 @@ async def test_get_dataset_version_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_version.DatasetVersion.to_json(
             dataset_version.DatasetVersion()
         )
@@ -19553,6 +21056,7 @@ async def test_get_dataset_version_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_version.DatasetVersion()
+        post_with_metadata.return_value = dataset_version.DatasetVersion(), metadata
 
         await client.get_dataset_version(
             request,
@@ -19564,6 +21068,7 @@ async def test_get_dataset_version_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19591,6 +21096,7 @@ async def test_list_dataset_versions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_dataset_versions(request)
 
 
@@ -19633,6 +21139,7 @@ async def test_list_dataset_versions_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_dataset_versions(request)
 
     # Establish that the response is the type that we expect.
@@ -19662,10 +21169,14 @@ async def test_list_dataset_versions_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_list_dataset_versions"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_list_dataset_versions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_list_dataset_versions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListDatasetVersionsRequest.pb(
             dataset_service.ListDatasetVersionsRequest()
         )
@@ -19678,6 +21189,7 @@ async def test_list_dataset_versions_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListDatasetVersionsResponse.to_json(
             dataset_service.ListDatasetVersionsResponse()
         )
@@ -19690,6 +21202,10 @@ async def test_list_dataset_versions_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListDatasetVersionsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListDatasetVersionsResponse(),
+            metadata,
+        )
 
         await client.list_dataset_versions(
             request,
@@ -19701,6 +21217,7 @@ async def test_list_dataset_versions_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19730,6 +21247,7 @@ async def test_restore_dataset_version_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.restore_dataset_version(request)
 
 
@@ -19769,6 +21287,7 @@ async def test_restore_dataset_version_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.restore_dataset_version(request)
 
     # Establish that the response is the type that we expect.
@@ -19799,10 +21318,14 @@ async def test_restore_dataset_version_rest_asyncio_interceptors(null_intercepto
     ), mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_restore_dataset_version"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_restore_dataset_version_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_restore_dataset_version"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.RestoreDatasetVersionRequest.pb(
             dataset_service.RestoreDatasetVersionRequest()
         )
@@ -19815,6 +21338,7 @@ async def test_restore_dataset_version_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -19825,6 +21349,7 @@ async def test_restore_dataset_version_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.restore_dataset_version(
             request,
@@ -19836,6 +21361,7 @@ async def test_restore_dataset_version_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19863,6 +21389,7 @@ async def test_list_data_items_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_data_items(request)
 
 
@@ -19905,6 +21432,7 @@ async def test_list_data_items_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_data_items(request)
 
     # Establish that the response is the type that we expect.
@@ -19934,10 +21462,14 @@ async def test_list_data_items_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_list_data_items"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_list_data_items_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_list_data_items"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListDataItemsRequest.pb(
             dataset_service.ListDataItemsRequest()
         )
@@ -19950,6 +21482,7 @@ async def test_list_data_items_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListDataItemsResponse.to_json(
             dataset_service.ListDataItemsResponse()
         )
@@ -19962,6 +21495,10 @@ async def test_list_data_items_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListDataItemsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListDataItemsResponse(),
+            metadata,
+        )
 
         await client.list_data_items(
             request,
@@ -19973,6 +21510,7 @@ async def test_list_data_items_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20000,6 +21538,7 @@ async def test_search_data_items_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.search_data_items(request)
 
 
@@ -20042,6 +21581,7 @@ async def test_search_data_items_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.search_data_items(request)
 
     # Establish that the response is the type that we expect.
@@ -20071,10 +21611,14 @@ async def test_search_data_items_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_search_data_items"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_search_data_items_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_search_data_items"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.SearchDataItemsRequest.pb(
             dataset_service.SearchDataItemsRequest()
         )
@@ -20087,6 +21631,7 @@ async def test_search_data_items_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.SearchDataItemsResponse.to_json(
             dataset_service.SearchDataItemsResponse()
         )
@@ -20099,6 +21644,10 @@ async def test_search_data_items_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.SearchDataItemsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.SearchDataItemsResponse(),
+            metadata,
+        )
 
         await client.search_data_items(
             request,
@@ -20110,6 +21659,7 @@ async def test_search_data_items_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20137,6 +21687,7 @@ async def test_list_saved_queries_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_saved_queries(request)
 
 
@@ -20179,6 +21730,7 @@ async def test_list_saved_queries_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_saved_queries(request)
 
     # Establish that the response is the type that we expect.
@@ -20208,10 +21760,14 @@ async def test_list_saved_queries_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_list_saved_queries"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_list_saved_queries_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_list_saved_queries"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListSavedQueriesRequest.pb(
             dataset_service.ListSavedQueriesRequest()
         )
@@ -20224,6 +21780,7 @@ async def test_list_saved_queries_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListSavedQueriesResponse.to_json(
             dataset_service.ListSavedQueriesResponse()
         )
@@ -20236,6 +21793,10 @@ async def test_list_saved_queries_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListSavedQueriesResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListSavedQueriesResponse(),
+            metadata,
+        )
 
         await client.list_saved_queries(
             request,
@@ -20247,6 +21808,7 @@ async def test_list_saved_queries_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20276,6 +21838,7 @@ async def test_delete_saved_query_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_saved_query(request)
 
 
@@ -20315,6 +21878,7 @@ async def test_delete_saved_query_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_saved_query(request)
 
     # Establish that the response is the type that we expect.
@@ -20345,10 +21909,14 @@ async def test_delete_saved_query_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_delete_saved_query"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_delete_saved_query_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_delete_saved_query"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.DeleteSavedQueryRequest.pb(
             dataset_service.DeleteSavedQueryRequest()
         )
@@ -20361,6 +21929,7 @@ async def test_delete_saved_query_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -20371,6 +21940,7 @@ async def test_delete_saved_query_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_saved_query(
             request,
@@ -20382,6 +21952,7 @@ async def test_delete_saved_query_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20411,6 +21982,7 @@ async def test_get_annotation_spec_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_annotation_spec(request)
 
 
@@ -20457,6 +22029,7 @@ async def test_get_annotation_spec_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_annotation_spec(request)
 
     # Establish that the response is the type that we expect.
@@ -20488,10 +22061,14 @@ async def test_get_annotation_spec_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_get_annotation_spec"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_get_annotation_spec_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_get_annotation_spec"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.GetAnnotationSpecRequest.pb(
             dataset_service.GetAnnotationSpecRequest()
         )
@@ -20504,6 +22081,7 @@ async def test_get_annotation_spec_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = annotation_spec.AnnotationSpec.to_json(
             annotation_spec.AnnotationSpec()
         )
@@ -20516,6 +22094,7 @@ async def test_get_annotation_spec_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = annotation_spec.AnnotationSpec()
+        post_with_metadata.return_value = annotation_spec.AnnotationSpec(), metadata
 
         await client.get_annotation_spec(
             request,
@@ -20527,6 +22106,7 @@ async def test_get_annotation_spec_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20556,6 +22136,7 @@ async def test_list_annotations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_annotations(request)
 
 
@@ -20600,6 +22181,7 @@ async def test_list_annotations_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_annotations(request)
 
     # Establish that the response is the type that we expect.
@@ -20629,10 +22211,14 @@ async def test_list_annotations_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "post_list_annotations"
     ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_list_annotations_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncDatasetServiceRestInterceptor, "pre_list_annotations"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = dataset_service.ListAnnotationsRequest.pb(
             dataset_service.ListAnnotationsRequest()
         )
@@ -20645,6 +22231,7 @@ async def test_list_annotations_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = dataset_service.ListAnnotationsResponse.to_json(
             dataset_service.ListAnnotationsResponse()
         )
@@ -20657,6 +22244,10 @@ async def test_list_annotations_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = dataset_service.ListAnnotationsResponse()
+        post_with_metadata.return_value = (
+            dataset_service.ListAnnotationsResponse(),
+            metadata,
+        )
 
         await client.list_annotations(
             request,
@@ -20668,6 +22259,286 @@ async def test_list_annotations_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_assess_data_rest_asyncio_bad_request(
+    request_type=dataset_service.AssessDataRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        await client.assess_data(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.AssessDataRequest,
+        dict,
+    ],
+)
+async def test_assess_data_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = await client.assess_data(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_assess_data_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncDatasetServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncDatasetServiceRestInterceptor(),
+    )
+    client = DatasetServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor, "post_assess_data"
+    ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor, "post_assess_data_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor, "pre_assess_data"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = dataset_service.AssessDataRequest.pb(
+            dataset_service.AssessDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = dataset_service.AssessDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
+
+        await client.assess_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_assemble_data_rest_asyncio_bad_request(
+    request_type=dataset_service.AssembleDataRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        await client.assemble_data(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.AssembleDataRequest,
+        dict,
+    ],
+)
+async def test_assemble_data_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = await client.assemble_data(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_assemble_data_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncDatasetServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncDatasetServiceRestInterceptor(),
+    )
+    client = DatasetServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor, "post_assemble_data"
+    ) as post, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor,
+        "post_assemble_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncDatasetServiceRestInterceptor, "pre_assemble_data"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = dataset_service.AssembleDataRequest.pb(
+            dataset_service.AssembleDataRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = dataset_service.AssembleDataRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
+
+        await client.assemble_data(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20697,6 +22568,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -20734,6 +22606,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -20766,6 +22639,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -20803,6 +22677,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -20838,6 +22713,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -20877,6 +22753,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -20912,6 +22789,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -20951,6 +22829,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -20986,6 +22865,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -21025,6 +22905,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -21059,6 +22940,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -21096,6 +22978,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -21130,6 +23013,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -21167,6 +23051,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -21201,6 +23086,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -21238,6 +23124,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -21272,6 +23159,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -21309,6 +23197,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -21343,6 +23232,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -21380,6 +23270,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 
@@ -21893,6 +23784,56 @@ async def test_list_annotations_empty_call_rest_asyncio():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_assess_data_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
+        await client.assess_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = dataset_service.AssessDataRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_assemble_data_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = DatasetServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
+        await client.assemble_data(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = dataset_service.AssembleDataRequest()
+
+        assert args[0] == request_msg
+
+
 def test_dataset_service_rest_asyncio_lro_client():
     if not HAS_ASYNC_REST_EXTRA:
         pytest.skip(
@@ -21980,6 +23921,8 @@ def test_dataset_service_base_transport():
         "delete_saved_query",
         "get_annotation_spec",
         "list_annotations",
+        "assess_data",
+        "assemble_data",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -22310,6 +24253,12 @@ def test_dataset_service_client_transport_session_collision(transport_name):
     session1 = client1.transport.list_annotations._session
     session2 = client2.transport.list_annotations._session
     assert session1 != session2
+    session1 = client1.transport.assess_data._session
+    session2 = client2.transport.assess_data._session
+    assert session1 != session2
+    session1 = client1.transport.assemble_data._session
+    session2 = client2.transport.assemble_data._session
+    assert session1 != session2
 
 
 def test_dataset_service_grpc_transport_channel():
@@ -22537,11 +24486,37 @@ def test_parse_annotation_spec_path():
     assert expected == actual
 
 
-def test_data_item_path():
+def test_cached_content_path():
     project = "cuttlefish"
     location = "mussel"
-    dataset = "winkle"
-    data_item = "nautilus"
+    cached_content = "winkle"
+    expected = "projects/{project}/locations/{location}/cachedContents/{cached_content}".format(
+        project=project,
+        location=location,
+        cached_content=cached_content,
+    )
+    actual = DatasetServiceClient.cached_content_path(project, location, cached_content)
+    assert expected == actual
+
+
+def test_parse_cached_content_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "cached_content": "abalone",
+    }
+    path = DatasetServiceClient.cached_content_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = DatasetServiceClient.parse_cached_content_path(path)
+    assert expected == actual
+
+
+def test_data_item_path():
+    project = "squid"
+    location = "clam"
+    dataset = "whelk"
+    data_item = "octopus"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}".format(
         project=project,
         location=location,
@@ -22554,10 +24529,10 @@ def test_data_item_path():
 
 def test_parse_data_item_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
-        "dataset": "squid",
-        "data_item": "clam",
+        "project": "oyster",
+        "location": "nudibranch",
+        "dataset": "cuttlefish",
+        "data_item": "mussel",
     }
     path = DatasetServiceClient.data_item_path(**expected)
 
@@ -22567,9 +24542,9 @@ def test_parse_data_item_path():
 
 
 def test_dataset_path():
-    project = "whelk"
-    location = "octopus"
-    dataset = "oyster"
+    project = "winkle"
+    location = "nautilus"
+    dataset = "scallop"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
@@ -22581,9 +24556,9 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "nudibranch",
-        "location": "cuttlefish",
-        "dataset": "mussel",
+        "project": "abalone",
+        "location": "squid",
+        "dataset": "clam",
     }
     path = DatasetServiceClient.dataset_path(**expected)
 
@@ -22593,10 +24568,10 @@ def test_parse_dataset_path():
 
 
 def test_dataset_version_path():
-    project = "winkle"
-    location = "nautilus"
-    dataset = "scallop"
-    dataset_version = "abalone"
+    project = "whelk"
+    location = "octopus"
+    dataset = "oyster"
+    dataset_version = "nudibranch"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}".format(
         project=project,
         location=location,
@@ -22611,10 +24586,10 @@ def test_dataset_version_path():
 
 def test_parse_dataset_version_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
-        "dataset": "whelk",
-        "dataset_version": "octopus",
+        "project": "cuttlefish",
+        "location": "mussel",
+        "dataset": "winkle",
+        "dataset_version": "nautilus",
     }
     path = DatasetServiceClient.dataset_version_path(**expected)
 
@@ -22623,11 +24598,63 @@ def test_parse_dataset_version_path():
     assert expected == actual
 
 
-def test_saved_query_path():
+def test_endpoint_path():
+    project = "scallop"
+    location = "abalone"
+    endpoint = "squid"
+    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+        project=project,
+        location=location,
+        endpoint=endpoint,
+    )
+    actual = DatasetServiceClient.endpoint_path(project, location, endpoint)
+    assert expected == actual
+
+
+def test_parse_endpoint_path():
+    expected = {
+        "project": "clam",
+        "location": "whelk",
+        "endpoint": "octopus",
+    }
+    path = DatasetServiceClient.endpoint_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = DatasetServiceClient.parse_endpoint_path(path)
+    assert expected == actual
+
+
+def test_rag_corpus_path():
     project = "oyster"
     location = "nudibranch"
-    dataset = "cuttlefish"
-    saved_query = "mussel"
+    rag_corpus = "cuttlefish"
+    expected = "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(
+        project=project,
+        location=location,
+        rag_corpus=rag_corpus,
+    )
+    actual = DatasetServiceClient.rag_corpus_path(project, location, rag_corpus)
+    assert expected == actual
+
+
+def test_parse_rag_corpus_path():
+    expected = {
+        "project": "mussel",
+        "location": "winkle",
+        "rag_corpus": "nautilus",
+    }
+    path = DatasetServiceClient.rag_corpus_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = DatasetServiceClient.parse_rag_corpus_path(path)
+    assert expected == actual
+
+
+def test_saved_query_path():
+    project = "scallop"
+    location = "abalone"
+    dataset = "squid"
+    saved_query = "clam"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}".format(
         project=project,
         location=location,
@@ -22642,10 +24669,10 @@ def test_saved_query_path():
 
 def test_parse_saved_query_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
-        "dataset": "scallop",
-        "saved_query": "abalone",
+        "project": "whelk",
+        "location": "octopus",
+        "dataset": "oyster",
+        "saved_query": "nudibranch",
     }
     path = DatasetServiceClient.saved_query_path(**expected)
 
@@ -22655,7 +24682,7 @@ def test_parse_saved_query_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -22665,7 +24692,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = DatasetServiceClient.common_billing_account_path(**expected)
 
@@ -22675,7 +24702,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -22685,7 +24712,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = DatasetServiceClient.common_folder_path(**expected)
 
@@ -22695,7 +24722,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -22705,7 +24732,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = DatasetServiceClient.common_organization_path(**expected)
 
@@ -22715,7 +24742,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -22725,7 +24752,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = DatasetServiceClient.common_project_path(**expected)
 
@@ -22735,8 +24762,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -22747,8 +24774,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = DatasetServiceClient.common_location_path(**expected)
 

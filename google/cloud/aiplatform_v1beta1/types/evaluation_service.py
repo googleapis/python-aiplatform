@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,11 +19,23 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import content
+from google.cloud.aiplatform_v1beta1.types import io
+from google.cloud.aiplatform_v1beta1.types import operation
+
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "PairwiseChoice",
+        "EvaluateDatasetOperationMetadata",
+        "EvaluateDatasetResponse",
+        "OutputInfo",
+        "EvaluateDatasetRequest",
+        "OutputConfig",
+        "Metric",
+        "EvaluationDataset",
+        "AutoraterConfig",
         "EvaluateInstancesRequest",
         "EvaluateInstancesResponse",
         "ExactMatchInput",
@@ -100,7 +112,10 @@ __protobuf__ = proto.module(
         "PointwiseMetricInput",
         "PointwiseMetricInstance",
         "PointwiseMetricSpec",
+        "CustomOutputFormatConfig",
         "PointwiseMetricResult",
+        "CustomOutput",
+        "RawOutput",
         "PairwiseMetricInput",
         "PairwiseMetricInstance",
         "PairwiseMetricSpec",
@@ -125,6 +140,19 @@ __protobuf__ = proto.module(
         "ToolParameterKVMatchInstance",
         "ToolParameterKVMatchResults",
         "ToolParameterKVMatchMetricValue",
+        "CometInput",
+        "CometSpec",
+        "CometInstance",
+        "CometResult",
+        "MetricxInput",
+        "MetricxSpec",
+        "MetricxInstance",
+        "MetricxResult",
+        "RubricBasedInstructionFollowingInput",
+        "RubricBasedInstructionFollowingInstance",
+        "RubricBasedInstructionFollowingSpec",
+        "RubricBasedInstructionFollowingResult",
+        "RubricCritiqueResult",
         "TrajectoryExactMatchInput",
         "TrajectoryExactMatchSpec",
         "TrajectoryExactMatchInstance",
@@ -157,6 +185,7 @@ __protobuf__ = proto.module(
         "TrajectorySingleToolUseMetricValue",
         "Trajectory",
         "ToolCall",
+        "ContentMap",
     },
 )
 
@@ -178,6 +207,328 @@ class PairwiseChoice(proto.Enum):
     BASELINE = 1
     CANDIDATE = 2
     TIE = 3
+
+
+class EvaluateDatasetOperationMetadata(proto.Message):
+    r"""Operation metadata for Dataset Evaluation.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Generic operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class EvaluateDatasetResponse(proto.Message):
+    r"""Response in LRO for EvaluationService.EvaluateDataset.
+
+    Attributes:
+        output_info (google.cloud.aiplatform_v1beta1.types.OutputInfo):
+            Output only. Output info for
+            EvaluationService.EvaluateDataset.
+    """
+
+    output_info: "OutputInfo" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="OutputInfo",
+    )
+
+
+class OutputInfo(proto.Message):
+    r"""Describes the info for output of
+    EvaluationService.EvaluateDataset.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        gcs_output_directory (str):
+            Output only. The full path of the Cloud
+            Storage directory created, into which the
+            evaluation results and aggregation results are
+            written.
+
+            This field is a member of `oneof`_ ``output_location``.
+    """
+
+    gcs_output_directory: str = proto.Field(
+        proto.STRING,
+        number=1,
+        oneof="output_location",
+    )
+
+
+class EvaluateDatasetRequest(proto.Message):
+    r"""Request message for EvaluationService.EvaluateDataset.
+
+    Attributes:
+        location (str):
+            Required. The resource name of the Location to evaluate the
+            dataset. Format: ``projects/{project}/locations/{location}``
+        dataset (google.cloud.aiplatform_v1beta1.types.EvaluationDataset):
+            Required. The dataset used for evaluation.
+        metrics (MutableSequence[google.cloud.aiplatform_v1beta1.types.Metric]):
+            Required. The metrics used for evaluation.
+        output_config (google.cloud.aiplatform_v1beta1.types.OutputConfig):
+            Required. Config for evaluation output.
+        autorater_config (google.cloud.aiplatform_v1beta1.types.AutoraterConfig):
+            Optional. Autorater config used for evaluation. Currently
+            only publisher Gemini models are supported. Format:
+            ``projects/{PROJECT}/locations/{LOCATION}/publishers/google/models/{MODEL}.``
+    """
+
+    location: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    dataset: "EvaluationDataset" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="EvaluationDataset",
+    )
+    metrics: MutableSequence["Metric"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="Metric",
+    )
+    output_config: "OutputConfig" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message="OutputConfig",
+    )
+    autorater_config: "AutoraterConfig" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message="AutoraterConfig",
+    )
+
+
+class OutputConfig(proto.Message):
+    r"""Config for evaluation output.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        gcs_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            Cloud storage destination for evaluation
+            output.
+
+            This field is a member of `oneof`_ ``destination``.
+    """
+
+    gcs_destination: io.GcsDestination = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="destination",
+        message=io.GcsDestination,
+    )
+
+
+class Metric(proto.Message):
+    r"""The metric used for dataset level evaluation.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        pointwise_metric_spec (google.cloud.aiplatform_v1beta1.types.PointwiseMetricSpec):
+            Spec for pointwise metric.
+
+            This field is a member of `oneof`_ ``metric_spec``.
+        pairwise_metric_spec (google.cloud.aiplatform_v1beta1.types.PairwiseMetricSpec):
+            Spec for pairwise metric.
+
+            This field is a member of `oneof`_ ``metric_spec``.
+        exact_match_spec (google.cloud.aiplatform_v1beta1.types.ExactMatchSpec):
+            Spec for exact match metric.
+
+            This field is a member of `oneof`_ ``metric_spec``.
+        bleu_spec (google.cloud.aiplatform_v1beta1.types.BleuSpec):
+            Spec for bleu metric.
+
+            This field is a member of `oneof`_ ``metric_spec``.
+        rouge_spec (google.cloud.aiplatform_v1beta1.types.RougeSpec):
+            Spec for rouge metric.
+
+            This field is a member of `oneof`_ ``metric_spec``.
+        aggregation_metrics (MutableSequence[google.cloud.aiplatform_v1beta1.types.Metric.AggregationMetric]):
+            Optional. The aggregation metrics to use.
+    """
+
+    class AggregationMetric(proto.Enum):
+        r"""The aggregation metrics supported by
+        EvaluationService.EvaluateDataset.
+
+        Values:
+            AGGREGATION_METRIC_UNSPECIFIED (0):
+                Unspecified aggregation metric.
+            AVERAGE (1):
+                Average aggregation metric.
+            MODE (2):
+                Mode aggregation metric.
+            STANDARD_DEVIATION (3):
+                Standard deviation aggregation metric.
+            VARIANCE (4):
+                Variance aggregation metric.
+            MINIMUM (5):
+                Minimum aggregation metric.
+            MAXIMUM (6):
+                Maximum aggregation metric.
+            MEDIAN (7):
+                Median aggregation metric.
+            PERCENTILE_P90 (8):
+                90th percentile aggregation metric.
+            PERCENTILE_P95 (9):
+                95th percentile aggregation metric.
+            PERCENTILE_P99 (10):
+                99th percentile aggregation metric.
+        """
+        AGGREGATION_METRIC_UNSPECIFIED = 0
+        AVERAGE = 1
+        MODE = 2
+        STANDARD_DEVIATION = 3
+        VARIANCE = 4
+        MINIMUM = 5
+        MAXIMUM = 6
+        MEDIAN = 7
+        PERCENTILE_P90 = 8
+        PERCENTILE_P95 = 9
+        PERCENTILE_P99 = 10
+
+    pointwise_metric_spec: "PointwiseMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="metric_spec",
+        message="PointwiseMetricSpec",
+    )
+    pairwise_metric_spec: "PairwiseMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="metric_spec",
+        message="PairwiseMetricSpec",
+    )
+    exact_match_spec: "ExactMatchSpec" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="metric_spec",
+        message="ExactMatchSpec",
+    )
+    bleu_spec: "BleuSpec" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="metric_spec",
+        message="BleuSpec",
+    )
+    rouge_spec: "RougeSpec" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="metric_spec",
+        message="RougeSpec",
+    )
+    aggregation_metrics: MutableSequence[AggregationMetric] = proto.RepeatedField(
+        proto.ENUM,
+        number=1,
+        enum=AggregationMetric,
+    )
+
+
+class EvaluationDataset(proto.Message):
+    r"""The dataset used for evaluation.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
+            Cloud storage source holds the dataset.
+            Currently only one Cloud Storage file path is
+            supported.
+
+            This field is a member of `oneof`_ ``source``.
+        bigquery_source (google.cloud.aiplatform_v1beta1.types.BigQuerySource):
+            BigQuery source holds the dataset.
+
+            This field is a member of `oneof`_ ``source``.
+    """
+
+    gcs_source: io.GcsSource = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="source",
+        message=io.GcsSource,
+    )
+    bigquery_source: io.BigQuerySource = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="source",
+        message=io.BigQuerySource,
+    )
+
+
+class AutoraterConfig(proto.Message):
+    r"""The configs for autorater. This is applicable to both
+    EvaluateInstances and EvaluateDataset.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        sampling_count (int):
+            Optional. Number of samples for each instance
+            in the dataset. If not specified, the default is
+            4. Minimum value is 1, maximum value is 32.
+
+            This field is a member of `oneof`_ ``_sampling_count``.
+        flip_enabled (bool):
+            Optional. Whether to flip the candidate and baseline
+            responses. This is only applicable to the pairwise metric.
+            If enabled, also provide
+            PairwiseMetricSpec.candidate_response_field_name and
+            PairwiseMetricSpec.baseline_response_field_name. When
+            rendering PairwiseMetricSpec.metric_prompt_template, the
+            candidate and baseline fields will be flipped for half of
+            the samples to reduce bias.
+
+            This field is a member of `oneof`_ ``_flip_enabled``.
+        autorater_model (str):
+            Optional. The fully qualified name of the publisher model or
+            tuned autorater endpoint to use.
+
+            Publisher model format:
+            ``projects/{project}/locations/{location}/publishers/*/models/*``
+
+            Tuned model endpoint format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+    """
+
+    sampling_count: int = proto.Field(
+        proto.INT32,
+        number=1,
+        optional=True,
+    )
+    flip_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=2,
+        optional=True,
+    )
+    autorater_model: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 class EvaluateInstancesRequest(proto.Message):
@@ -294,6 +645,15 @@ class EvaluateInstancesRequest(proto.Message):
             metric.
 
             This field is a member of `oneof`_ ``metric_inputs``.
+        comet_input (google.cloud.aiplatform_v1beta1.types.CometInput):
+            Translation metrics.
+            Input for Comet metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        metricx_input (google.cloud.aiplatform_v1beta1.types.MetricxInput):
+            Input for Metricx metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
         trajectory_exact_match_input (google.cloud.aiplatform_v1beta1.types.TrajectoryExactMatchInput):
             Input for trajectory exact match metric.
 
@@ -318,10 +678,17 @@ class EvaluateInstancesRequest(proto.Message):
             Input for trajectory single tool use metric.
 
             This field is a member of `oneof`_ ``metric_inputs``.
+        rubric_based_instruction_following_input (google.cloud.aiplatform_v1beta1.types.RubricBasedInstructionFollowingInput):
+            Rubric Based Instruction Following metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
         location (str):
             Required. The resource name of the Location to evaluate the
             instances. Format:
             ``projects/{project}/locations/{location}``
+        autorater_config (google.cloud.aiplatform_v1beta1.types.AutoraterConfig):
+            Optional. Autorater config used for
+            evaluation.
     """
 
     exact_match_input: "ExactMatchInput" = proto.Field(
@@ -468,6 +835,18 @@ class EvaluateInstancesRequest(proto.Message):
         oneof="metric_inputs",
         message="ToolParameterKVMatchInput",
     )
+    comet_input: "CometInput" = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        oneof="metric_inputs",
+        message="CometInput",
+    )
+    metricx_input: "MetricxInput" = proto.Field(
+        proto.MESSAGE,
+        number=32,
+        oneof="metric_inputs",
+        message="MetricxInput",
+    )
     trajectory_exact_match_input: "TrajectoryExactMatchInput" = proto.Field(
         proto.MESSAGE,
         number=33,
@@ -504,9 +883,22 @@ class EvaluateInstancesRequest(proto.Message):
         oneof="metric_inputs",
         message="TrajectorySingleToolUseInput",
     )
+    rubric_based_instruction_following_input: "RubricBasedInstructionFollowingInput" = (
+        proto.Field(
+            proto.MESSAGE,
+            number=40,
+            oneof="metric_inputs",
+            message="RubricBasedInstructionFollowingInput",
+        )
+    )
     location: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    autorater_config: "AutoraterConfig" = proto.Field(
+        proto.MESSAGE,
+        number=30,
+        message="AutoraterConfig",
     )
 
 
@@ -626,6 +1018,15 @@ class EvaluateInstancesResponse(proto.Message):
             metric.
 
             This field is a member of `oneof`_ ``evaluation_results``.
+        comet_result (google.cloud.aiplatform_v1beta1.types.CometResult):
+            Translation metrics.
+            Result for Comet metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        metricx_result (google.cloud.aiplatform_v1beta1.types.MetricxResult):
+            Result for Metricx metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
         trajectory_exact_match_results (google.cloud.aiplatform_v1beta1.types.TrajectoryExactMatchResults):
             Result for trajectory exact match metric.
 
@@ -648,6 +1049,11 @@ class EvaluateInstancesResponse(proto.Message):
             This field is a member of `oneof`_ ``evaluation_results``.
         trajectory_single_tool_use_results (google.cloud.aiplatform_v1beta1.types.TrajectorySingleToolUseResults):
             Results for trajectory single tool use
+            metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        rubric_based_instruction_following_result (google.cloud.aiplatform_v1beta1.types.RubricBasedInstructionFollowingResult):
+            Result for rubric based instruction following
             metric.
 
             This field is a member of `oneof`_ ``evaluation_results``.
@@ -799,6 +1205,18 @@ class EvaluateInstancesResponse(proto.Message):
         oneof="evaluation_results",
         message="ToolParameterKVMatchResults",
     )
+    comet_result: "CometResult" = proto.Field(
+        proto.MESSAGE,
+        number=29,
+        oneof="evaluation_results",
+        message="CometResult",
+    )
+    metricx_result: "MetricxResult" = proto.Field(
+        proto.MESSAGE,
+        number=30,
+        oneof="evaluation_results",
+        message="MetricxResult",
+    )
     trajectory_exact_match_results: "TrajectoryExactMatchResults" = proto.Field(
         proto.MESSAGE,
         number=31,
@@ -834,6 +1252,12 @@ class EvaluateInstancesResponse(proto.Message):
         number=37,
         oneof="evaluation_results",
         message="TrajectorySingleToolUseResults",
+    )
+    rubric_based_instruction_following_result: "RubricBasedInstructionFollowingResult" = proto.Field(
+        proto.MESSAGE,
+        number=38,
+        oneof="evaluation_results",
+        message="RubricBasedInstructionFollowingResult",
     )
 
 
@@ -2833,6 +3257,10 @@ class PointwiseMetricInstance(proto.Message):
     r"""Pointwise metric instance. Usually one instance corresponds
     to one row in an evaluation dataset.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -2843,12 +3271,26 @@ class PointwiseMetricInstance(proto.Message):
             PointwiseMetricSpec.instance_prompt_template.
 
             This field is a member of `oneof`_ ``instance``.
+        content_map_instance (google.cloud.aiplatform_v1beta1.types.ContentMap):
+            Key-value contents for the mutlimodality
+            input, including text, image, video, audio, and
+            pdf, etc. The key is placeholder in metric
+            prompt template, and the value is the multimodal
+            content.
+
+            This field is a member of `oneof`_ ``instance``.
     """
 
     json_instance: str = proto.Field(
         proto.STRING,
         number=1,
         oneof="instance",
+    )
+    content_map_instance: "ContentMap" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="instance",
+        message="ContentMap",
     )
 
 
@@ -2863,12 +3305,57 @@ class PointwiseMetricSpec(proto.Message):
             pointwise metric.
 
             This field is a member of `oneof`_ ``_metric_prompt_template``.
+        system_instruction (str):
+            Optional. System instructions for pointwise
+            metric.
+
+            This field is a member of `oneof`_ ``_system_instruction``.
+        custom_output_format_config (google.cloud.aiplatform_v1beta1.types.CustomOutputFormatConfig):
+            Optional. CustomOutputFormatConfig allows customization of
+            metric output. By default, metrics return a score and
+            explanation. When this config is set, the default output is
+            replaced with either:
+
+            -  The raw output string.
+            -  A parsed output based on a user-defined schema. If a
+               custom format is chosen, the ``score`` and
+               ``explanation`` fields in the corresponding metric result
+               will be empty.
     """
 
     metric_prompt_template: str = proto.Field(
         proto.STRING,
         number=1,
         optional=True,
+    )
+    system_instruction: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
+    )
+    custom_output_format_config: "CustomOutputFormatConfig" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="CustomOutputFormatConfig",
+    )
+
+
+class CustomOutputFormatConfig(proto.Message):
+    r"""Spec for custom output format configuration.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        return_raw_output (bool):
+            Optional. Whether to return raw output.
+
+            This field is a member of `oneof`_ ``custom_output_format_config``.
+    """
+
+    return_raw_output: bool = proto.Field(
+        proto.BOOL,
+        number=1,
+        oneof="custom_output_format_config",
     )
 
 
@@ -2885,6 +3372,8 @@ class PointwiseMetricResult(proto.Message):
         explanation (str):
             Output only. Explanation for pointwise metric
             score.
+        custom_output (google.cloud.aiplatform_v1beta1.types.CustomOutput):
+            Output only. Spec for custom output.
     """
 
     score: float = proto.Field(
@@ -2895,6 +3384,45 @@ class PointwiseMetricResult(proto.Message):
     explanation: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    custom_output: "CustomOutput" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="CustomOutput",
+    )
+
+
+class CustomOutput(proto.Message):
+    r"""Spec for custom output.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        raw_outputs (google.cloud.aiplatform_v1beta1.types.RawOutput):
+            Output only. List of raw output strings.
+
+            This field is a member of `oneof`_ ``custom_output``.
+    """
+
+    raw_outputs: "RawOutput" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="custom_output",
+        message="RawOutput",
+    )
+
+
+class RawOutput(proto.Message):
+    r"""Raw output.
+
+    Attributes:
+        raw_output (MutableSequence[str]):
+            Output only. Raw output string.
+    """
+
+    raw_output: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=1,
     )
 
 
@@ -2924,6 +3452,10 @@ class PairwiseMetricInstance(proto.Message):
     r"""Pairwise metric instance. Usually one instance corresponds to
     one row in an evaluation dataset.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -2934,12 +3466,26 @@ class PairwiseMetricInstance(proto.Message):
             PairwiseMetricSpec.instance_prompt_template.
 
             This field is a member of `oneof`_ ``instance``.
+        content_map_instance (google.cloud.aiplatform_v1beta1.types.ContentMap):
+            Key-value contents for the mutlimodality
+            input, including text, image, video, audio, and
+            pdf, etc. The key is placeholder in metric
+            prompt template, and the value is the multimodal
+            content.
+
+            This field is a member of `oneof`_ ``instance``.
     """
 
     json_instance: str = proto.Field(
         proto.STRING,
         number=1,
         oneof="instance",
+    )
+    content_map_instance: "ContentMap" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="instance",
+        message="ContentMap",
     )
 
 
@@ -2954,12 +3500,47 @@ class PairwiseMetricSpec(proto.Message):
             metric.
 
             This field is a member of `oneof`_ ``_metric_prompt_template``.
+        candidate_response_field_name (str):
+            Optional. The field name of the candidate
+            response.
+        baseline_response_field_name (str):
+            Optional. The field name of the baseline
+            response.
+        system_instruction (str):
+            Optional. System instructions for pairwise
+            metric.
+
+            This field is a member of `oneof`_ ``_system_instruction``.
+        custom_output_format_config (google.cloud.aiplatform_v1beta1.types.CustomOutputFormatConfig):
+            Optional. CustomOutputFormatConfig allows customization of
+            metric output. When this config is set, the default output
+            is replaced with the raw output string. If a custom format
+            is chosen, the ``pairwise_choice`` and ``explanation``
+            fields in the corresponding metric result will be empty.
     """
 
     metric_prompt_template: str = proto.Field(
         proto.STRING,
         number=1,
         optional=True,
+    )
+    candidate_response_field_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    baseline_response_field_name: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    system_instruction: str = proto.Field(
+        proto.STRING,
+        number=4,
+        optional=True,
+    )
+    custom_output_format_config: "CustomOutputFormatConfig" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message="CustomOutputFormatConfig",
     )
 
 
@@ -2972,6 +3553,8 @@ class PairwiseMetricResult(proto.Message):
         explanation (str):
             Output only. Explanation for pairwise metric
             score.
+        custom_output (google.cloud.aiplatform_v1beta1.types.CustomOutput):
+            Output only. Spec for custom output.
     """
 
     pairwise_choice: "PairwiseChoice" = proto.Field(
@@ -2982,6 +3565,11 @@ class PairwiseMetricResult(proto.Message):
     explanation: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    custom_output: "CustomOutput" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="CustomOutput",
     )
 
 
@@ -3364,6 +3952,383 @@ class ToolParameterKVMatchMetricValue(proto.Message):
         proto.FLOAT,
         number=1,
         optional=True,
+    )
+
+
+class CometInput(proto.Message):
+    r"""Input for Comet metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.CometSpec):
+            Required. Spec for comet metric.
+        instance (google.cloud.aiplatform_v1beta1.types.CometInstance):
+            Required. Comet instance.
+    """
+
+    metric_spec: "CometSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="CometSpec",
+    )
+    instance: "CometInstance" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="CometInstance",
+    )
+
+
+class CometSpec(proto.Message):
+    r"""Spec for Comet metric.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        version (google.cloud.aiplatform_v1beta1.types.CometSpec.CometVersion):
+            Required. Which version to use for
+            evaluation.
+
+            This field is a member of `oneof`_ ``_version``.
+        source_language (str):
+            Optional. Source language in BCP-47 format.
+        target_language (str):
+            Optional. Target language in BCP-47 format.
+            Covers both prediction and reference.
+    """
+
+    class CometVersion(proto.Enum):
+        r"""Comet version options.
+
+        Values:
+            COMET_VERSION_UNSPECIFIED (0):
+                Comet version unspecified.
+            COMET_22_SRC_REF (2):
+                Comet 22 for translation + source + reference
+                (source-reference-combined).
+        """
+        COMET_VERSION_UNSPECIFIED = 0
+        COMET_22_SRC_REF = 2
+
+    version: CometVersion = proto.Field(
+        proto.ENUM,
+        number=1,
+        optional=True,
+        enum=CometVersion,
+    )
+    source_language: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    target_language: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class CometInstance(proto.Message):
+    r"""Spec for Comet instance - The fields used for evaluation are
+    dependent on the comet version.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        prediction (str):
+            Required. Output of the evaluated model.
+
+            This field is a member of `oneof`_ ``_prediction``.
+        reference (str):
+            Optional. Ground truth used to compare
+            against the prediction.
+
+            This field is a member of `oneof`_ ``_reference``.
+        source (str):
+            Optional. Source text in original language.
+
+            This field is a member of `oneof`_ ``_source``.
+    """
+
+    prediction: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+    reference: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
+    )
+    source: str = proto.Field(
+        proto.STRING,
+        number=3,
+        optional=True,
+    )
+
+
+class CometResult(proto.Message):
+    r"""Spec for Comet result - calculates the comet score for the
+    given instance using the version specified in the spec.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. Comet score. Range depends on
+            version.
+
+            This field is a member of `oneof`_ ``_score``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+
+
+class MetricxInput(proto.Message):
+    r"""Input for MetricX metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.MetricxSpec):
+            Required. Spec for Metricx metric.
+        instance (google.cloud.aiplatform_v1beta1.types.MetricxInstance):
+            Required. Metricx instance.
+    """
+
+    metric_spec: "MetricxSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="MetricxSpec",
+    )
+    instance: "MetricxInstance" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="MetricxInstance",
+    )
+
+
+class MetricxSpec(proto.Message):
+    r"""Spec for MetricX metric.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        version (google.cloud.aiplatform_v1beta1.types.MetricxSpec.MetricxVersion):
+            Required. Which version to use for
+            evaluation.
+
+            This field is a member of `oneof`_ ``_version``.
+        source_language (str):
+            Optional. Source language in BCP-47 format.
+        target_language (str):
+            Optional. Target language in BCP-47 format.
+            Covers both prediction and reference.
+    """
+
+    class MetricxVersion(proto.Enum):
+        r"""MetricX Version options.
+
+        Values:
+            METRICX_VERSION_UNSPECIFIED (0):
+                MetricX version unspecified.
+            METRICX_24_REF (1):
+                MetricX 2024 (2.6) for translation +
+                reference (reference-based).
+            METRICX_24_SRC (2):
+                MetricX 2024 (2.6) for translation + source
+                (QE).
+            METRICX_24_SRC_REF (3):
+                MetricX 2024 (2.6) for translation + source +
+                reference (source-reference-combined).
+        """
+        METRICX_VERSION_UNSPECIFIED = 0
+        METRICX_24_REF = 1
+        METRICX_24_SRC = 2
+        METRICX_24_SRC_REF = 3
+
+    version: MetricxVersion = proto.Field(
+        proto.ENUM,
+        number=1,
+        optional=True,
+        enum=MetricxVersion,
+    )
+    source_language: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    target_language: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class MetricxInstance(proto.Message):
+    r"""Spec for MetricX instance - The fields used for evaluation
+    are dependent on the MetricX version.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        prediction (str):
+            Required. Output of the evaluated model.
+
+            This field is a member of `oneof`_ ``_prediction``.
+        reference (str):
+            Optional. Ground truth used to compare
+            against the prediction.
+
+            This field is a member of `oneof`_ ``_reference``.
+        source (str):
+            Optional. Source text in original language.
+
+            This field is a member of `oneof`_ ``_source``.
+    """
+
+    prediction: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+    reference: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
+    )
+    source: str = proto.Field(
+        proto.STRING,
+        number=3,
+        optional=True,
+    )
+
+
+class MetricxResult(proto.Message):
+    r"""Spec for MetricX result - calculates the MetricX score for
+    the given instance using the version specified in the spec.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. MetricX score. Range depends on
+            version.
+
+            This field is a member of `oneof`_ ``_score``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+
+
+class RubricBasedInstructionFollowingInput(proto.Message):
+    r"""Instance and metric spec for RubricBasedInstructionFollowing
+    metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.RubricBasedInstructionFollowingSpec):
+            Required. Spec for
+            RubricBasedInstructionFollowing metric.
+        instance (google.cloud.aiplatform_v1beta1.types.RubricBasedInstructionFollowingInstance):
+            Required. Instance for
+            RubricBasedInstructionFollowing metric.
+    """
+
+    metric_spec: "RubricBasedInstructionFollowingSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="RubricBasedInstructionFollowingSpec",
+    )
+    instance: "RubricBasedInstructionFollowingInstance" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="RubricBasedInstructionFollowingInstance",
+    )
+
+
+class RubricBasedInstructionFollowingInstance(proto.Message):
+    r"""Instance for RubricBasedInstructionFollowing metric - one
+    instance corresponds to one row in an evaluation dataset.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        json_instance (str):
+            Required. Instance specified as a json string. String
+            key-value pairs are expected in the json_instance to render
+            RubricBasedInstructionFollowing prompt templates.
+
+            This field is a member of `oneof`_ ``instance``.
+    """
+
+    json_instance: str = proto.Field(
+        proto.STRING,
+        number=1,
+        oneof="instance",
+    )
+
+
+class RubricBasedInstructionFollowingSpec(proto.Message):
+    r"""Spec for RubricBasedInstructionFollowing metric - returns
+    rubrics and verdicts corresponding to rubrics along with overall
+    score.
+
+    """
+
+
+class RubricBasedInstructionFollowingResult(proto.Message):
+    r"""Result for RubricBasedInstructionFollowing metric.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. Overall score for the
+            instruction following.
+
+            This field is a member of `oneof`_ ``_score``.
+        rubric_critique_results (MutableSequence[google.cloud.aiplatform_v1beta1.types.RubricCritiqueResult]):
+            Output only. List of per rubric critique
+            results.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+    rubric_critique_results: MutableSequence[
+        "RubricCritiqueResult"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="RubricCritiqueResult",
+    )
+
+
+class RubricCritiqueResult(proto.Message):
+    r"""Rubric critique result.
+
+    Attributes:
+        rubric (str):
+            Output only. Rubric to be evaluated.
+        verdict (bool):
+            Output only. Verdict for the rubric - true if
+            the rubric is met, false otherwise.
+    """
+
+    rubric: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    verdict: bool = proto.Field(
+        proto.BOOL,
+        number=2,
     )
 
 
@@ -4011,6 +4976,37 @@ class ToolCall(proto.Message):
         proto.STRING,
         number=2,
         optional=True,
+    )
+
+
+class ContentMap(proto.Message):
+    r"""Map of placeholder in metric prompt template to contents of
+    model input.
+
+    Attributes:
+        values (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ContentMap.Contents]):
+            Optional. Map of placeholder to contents.
+    """
+
+    class Contents(proto.Message):
+        r"""Repeated Content type.
+
+        Attributes:
+            contents (MutableSequence[google.cloud.aiplatform_v1beta1.types.Content]):
+                Optional. Repeated contents.
+        """
+
+        contents: MutableSequence[content.Content] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=content.Content,
+        )
+
+    values: MutableMapping[str, Contents] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=1,
+        message=Contents,
     )
 
 

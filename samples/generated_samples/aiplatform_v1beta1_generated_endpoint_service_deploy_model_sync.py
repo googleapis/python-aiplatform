@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ def sample_deploy_model():
     # Initialize request argument(s)
     deployed_model = aiplatform_v1beta1.DeployedModel()
     deployed_model.dedicated_resources.min_replica_count = 1803
-    deployed_model.model = "model_value"
 
     request = aiplatform_v1beta1.DeployModelRequest(
         endpoint="endpoint_value",

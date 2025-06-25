@@ -4,10 +4,12 @@
 google-api-core==2.21.0 # Tests google-api-core with rest async support
 google-auth==2.35.0 # Tests google-auth with rest async support
 proto-plus
-protobuf
 mock==4.0.2
 google-cloud-storage==2.2.1 # Increased for kfp 2.0 compatibility
 packaging==24.1 # Increased to unbreak canonicalize_version error (b/377774673)
 pytest-xdist==3.3.1 # Pinned to unbreak unit tests
 ray==2.5.0 # Pinned until 2.9.3 is verified for Ray tests
 ipython==8.22.2 # Pinned to unbreak TypeAliasType import error
+google-adk==0.0.2
+google-genai>=1.10.0
+google-vizier==0.1.21

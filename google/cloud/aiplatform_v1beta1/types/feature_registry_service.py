@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ __protobuf__ = proto.module(
         "CreateFeatureMonitorRequest",
         "GetFeatureMonitorRequest",
         "ListFeatureMonitorsRequest",
+        "UpdateFeatureMonitorRequest",
         "DeleteFeatureMonitorRequest",
         "ListFeatureMonitorsResponse",
         "CreateFeatureGroupOperationMetadata",
@@ -47,6 +48,7 @@ __protobuf__ = proto.module(
         "CreateRegistryFeatureOperationMetadata",
         "UpdateFeatureOperationMetadata",
         "CreateFeatureMonitorOperationMetadata",
+        "UpdateFeatureMonitorOperationMetadata",
         "CreateFeatureMonitorJobRequest",
         "GetFeatureMonitorJobRequest",
         "ListFeatureMonitorJobsRequest",
@@ -402,6 +404,42 @@ class ListFeatureMonitorsRequest(proto.Message):
     )
 
 
+class UpdateFeatureMonitorRequest(proto.Message):
+    r"""Request message for
+    [FeatureRegistryService.UpdateFeatureMonitor][google.cloud.aiplatform.v1beta1.FeatureRegistryService.UpdateFeatureMonitor].
+
+    Attributes:
+        feature_monitor (google.cloud.aiplatform_v1beta1.types.FeatureMonitor):
+            Required. The FeatureMonitor's ``name`` field is used to
+            identify the FeatureMonitor to be updated. Format:
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}``
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Optional. Field mask is used to specify the fields to be
+            overwritten in the FeatureMonitor resource by the update.
+            The fields specified in the update_mask are relative to the
+            resource, not the full request. A field will be overwritten
+            if it is in the mask. If the user does not provide a mask
+            then only the non-empty fields present in the request will
+            be overwritten. Set the update_mask to ``*`` to override all
+            fields.
+
+            Updatable fields:
+
+            -  ``labels``
+    """
+
+    feature_monitor: gca_feature_monitor.FeatureMonitor = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature_monitor.FeatureMonitor,
+    )
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
+    )
+
+
 class DeleteFeatureMonitorRequest(proto.Message):
     r"""Request message for
     [FeatureRegistryService.DeleteFeatureMonitor][google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeatureMonitor].
@@ -516,6 +554,21 @@ class CreateFeatureMonitorOperationMetadata(proto.Message):
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Feature.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class UpdateFeatureMonitorOperationMetadata(proto.Message):
+    r"""Details of operations that perform update FeatureMonitor.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Operation metadata for FeatureMonitor.
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(

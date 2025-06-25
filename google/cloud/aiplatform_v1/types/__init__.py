@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,6 +31,9 @@ from .artifact import (
 from .batch_prediction_job import (
     BatchPredictionJob,
 )
+from .cached_content import (
+    CachedContent,
+)
 from .completion_stats import (
     CompletionStats,
 )
@@ -46,14 +49,18 @@ from .content import (
     GroundingMetadata,
     GroundingSupport,
     LogprobsResult,
+    ModalityTokenCount,
     Part,
     RetrievalMetadata,
     SafetyRating,
     SafetySetting,
     SearchEntryPoint,
     Segment,
+    UrlContextMetadata,
+    UrlMetadata,
     VideoMetadata,
     HarmCategory,
+    Modality,
 )
 from .context import (
     Context,
@@ -149,8 +156,10 @@ from .endpoint import (
     DeployedModel,
     Endpoint,
     FasterDeploymentConfig,
+    GenAiAdvancedFeaturesConfig,
     PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
+    SpeculativeDecodingSpec,
 )
 from .endpoint_service import (
     CreateEndpointOperationMetadata,
@@ -177,6 +186,8 @@ from .entity_type import (
 )
 from .env_var import (
     EnvVar,
+    SecretEnvVar,
+    SecretRef,
 )
 from .evaluated_annotation import (
     ErrorAnalysisAnnotation,
@@ -453,6 +464,14 @@ from .featurestore_service import (
     UpdateFeaturestoreOperationMetadata,
     UpdateFeaturestoreRequest,
 )
+from .gen_ai_cache_service import (
+    CreateCachedContentRequest,
+    DeleteCachedContentRequest,
+    GetCachedContentRequest,
+    ListCachedContentsRequest,
+    ListCachedContentsResponse,
+    UpdateCachedContentRequest,
+)
 from .genai_tuning_service import (
     CancelTuningJobRequest,
     CreateTuningJobRequest,
@@ -673,6 +692,7 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    Checkpoint,
     GenieSource,
     LargeModelReference,
     Model,
@@ -698,6 +718,9 @@ from .model_evaluation_slice import (
     ModelEvaluationSlice,
 )
 from .model_garden_service import (
+    DeployOperationMetadata,
+    DeployRequest,
+    DeployResponse,
     GetPublisherModelRequest,
     PublisherModelView,
 )
@@ -730,9 +753,12 @@ from .model_service import (
     ListModelEvaluationsResponse,
     ListModelsRequest,
     ListModelsResponse,
+    ListModelVersionCheckpointsRequest,
+    ListModelVersionCheckpointsResponse,
     ListModelVersionsRequest,
     ListModelVersionsResponse,
     MergeVersionAliasesRequest,
+    ModelVersionCheckpoint,
     UpdateExplanationDatasetOperationMetadata,
     UpdateExplanationDatasetRequest,
     UpdateExplanationDatasetResponse,
@@ -798,6 +824,10 @@ from .notebook_service import (
     UpgradeNotebookRuntimeRequest,
     UpgradeNotebookRuntimeResponse,
     NotebookExecutionJobView,
+)
+from .notebook_software_config import (
+    NotebookSoftwareConfig,
+    PostStartupScriptConfig,
 )
 from .openapi import (
     Schema,
@@ -888,6 +918,25 @@ from .prediction_service import (
 from .publisher_model import (
     PublisherModel,
 )
+from .reasoning_engine import (
+    ReasoningEngine,
+    ReasoningEngineSpec,
+)
+from .reasoning_engine_execution_service import (
+    QueryReasoningEngineRequest,
+    QueryReasoningEngineResponse,
+    StreamQueryReasoningEngineRequest,
+)
+from .reasoning_engine_service import (
+    CreateReasoningEngineOperationMetadata,
+    CreateReasoningEngineRequest,
+    DeleteReasoningEngineRequest,
+    GetReasoningEngineRequest,
+    ListReasoningEnginesRequest,
+    ListReasoningEnginesResponse,
+    UpdateReasoningEngineOperationMetadata,
+    UpdateReasoningEngineRequest,
+)
 from .reservation_affinity import (
     ReservationAffinity,
 )
@@ -908,9 +957,12 @@ from .schedule_service import (
     UpdateScheduleRequest,
 )
 from .service_networking import (
+    DnsPeeringConfig,
     PrivateServiceConnectConfig,
     PscAutomatedEndpoints,
     PSCAutomationConfig,
+    PscInterfaceConfig,
+    PSCAutomationState,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -1002,7 +1054,10 @@ from .tensorboard_time_series import (
     TensorboardTimeSeries,
 )
 from .tool import (
+    CodeExecutionResult,
     DynamicRetrievalConfig,
+    EnterpriseWebSearch,
+    ExecutableCode,
     FunctionCall,
     FunctionCallingConfig,
     FunctionDeclaration,
@@ -1010,8 +1065,10 @@ from .tool import (
     GoogleSearchRetrieval,
     RagRetrievalConfig,
     Retrieval,
+    RetrievalConfig,
     Tool,
     ToolConfig,
+    UrlContext,
     VertexAISearch,
     VertexRagStore,
 )
@@ -1030,6 +1087,7 @@ from .tuning_job import (
     SupervisedTuningDataStats,
     SupervisedTuningSpec,
     TunedModel,
+    TunedModelCheckpoint,
     TunedModelRef,
     TuningDataStats,
     TuningJob,
@@ -1054,13 +1112,18 @@ from .vertex_rag_data import (
     CorpusStatus,
     FileStatus,
     ImportRagFilesConfig,
+    RagChunk,
     RagCorpus,
     RagEmbeddingModelConfig,
+    RagEngineConfig,
     RagFile,
     RagFileChunkingConfig,
+    RagFileParsingConfig,
     RagFileTransformationConfig,
+    RagManagedDbConfig,
     RagVectorDbConfig,
     UploadRagFileConfig,
+    VertexAiSearchConfig,
 )
 from .vertex_rag_data_service import (
     CreateRagCorpusOperationMetadata,
@@ -1068,6 +1131,7 @@ from .vertex_rag_data_service import (
     DeleteRagCorpusRequest,
     DeleteRagFileRequest,
     GetRagCorpusRequest,
+    GetRagEngineConfigRequest,
     GetRagFileRequest,
     ImportRagFilesOperationMetadata,
     ImportRagFilesRequest,
@@ -1078,6 +1142,8 @@ from .vertex_rag_data_service import (
     ListRagFilesResponse,
     UpdateRagCorpusOperationMetadata,
     UpdateRagCorpusRequest,
+    UpdateRagEngineConfigOperationMetadata,
+    UpdateRagEngineConfigRequest,
     UploadRagFileRequest,
     UploadRagFileResponse,
 )
@@ -1125,6 +1191,7 @@ __all__ = (
     "ApiAuth",
     "Artifact",
     "BatchPredictionJob",
+    "CachedContent",
     "CompletionStats",
     "Blob",
     "Candidate",
@@ -1137,14 +1204,18 @@ __all__ = (
     "GroundingMetadata",
     "GroundingSupport",
     "LogprobsResult",
+    "ModalityTokenCount",
     "Part",
     "RetrievalMetadata",
     "SafetyRating",
     "SafetySetting",
     "SearchEntryPoint",
     "Segment",
+    "UrlContextMetadata",
+    "UrlMetadata",
     "VideoMetadata",
     "HarmCategory",
+    "Modality",
     "Context",
     "ContainerSpec",
     "CustomJob",
@@ -1214,8 +1285,10 @@ __all__ = (
     "DeployedModel",
     "Endpoint",
     "FasterDeploymentConfig",
+    "GenAiAdvancedFeaturesConfig",
     "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
+    "SpeculativeDecodingSpec",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
     "DeleteEndpointRequest",
@@ -1236,6 +1309,8 @@ __all__ = (
     "UpdateEndpointRequest",
     "EntityType",
     "EnvVar",
+    "SecretEnvVar",
+    "SecretRef",
     "ErrorAnalysisAnnotation",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
@@ -1471,6 +1546,12 @@ __all__ = (
     "UpdateFeatureRequest",
     "UpdateFeaturestoreOperationMetadata",
     "UpdateFeaturestoreRequest",
+    "CreateCachedContentRequest",
+    "DeleteCachedContentRequest",
+    "GetCachedContentRequest",
+    "ListCachedContentsRequest",
+    "ListCachedContentsResponse",
+    "UpdateCachedContentRequest",
     "CancelTuningJobRequest",
     "CreateTuningJobRequest",
     "GetTuningJobRequest",
@@ -1652,6 +1733,7 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "Checkpoint",
     "GenieSource",
     "LargeModelReference",
     "Model",
@@ -1669,6 +1751,9 @@ __all__ = (
     "ModelDeploymentMonitoringObjectiveType",
     "ModelEvaluation",
     "ModelEvaluationSlice",
+    "DeployOperationMetadata",
+    "DeployRequest",
+    "DeployResponse",
     "GetPublisherModelRequest",
     "PublisherModelView",
     "ModelMonitoringAlertConfig",
@@ -1697,9 +1782,12 @@ __all__ = (
     "ListModelEvaluationsResponse",
     "ListModelsRequest",
     "ListModelsResponse",
+    "ListModelVersionCheckpointsRequest",
+    "ListModelVersionCheckpointsResponse",
     "ListModelVersionsRequest",
     "ListModelVersionsResponse",
     "MergeVersionAliasesRequest",
+    "ModelVersionCheckpoint",
     "UpdateExplanationDatasetOperationMetadata",
     "UpdateExplanationDatasetRequest",
     "UpdateExplanationDatasetResponse",
@@ -1749,6 +1837,8 @@ __all__ = (
     "UpgradeNotebookRuntimeRequest",
     "UpgradeNotebookRuntimeResponse",
     "NotebookExecutionJobView",
+    "NotebookSoftwareConfig",
+    "PostStartupScriptConfig",
     "Schema",
     "Type",
     "DeleteOperationMetadata",
@@ -1818,6 +1908,19 @@ __all__ = (
     "StreamingRawPredictResponse",
     "StreamRawPredictRequest",
     "PublisherModel",
+    "ReasoningEngine",
+    "ReasoningEngineSpec",
+    "QueryReasoningEngineRequest",
+    "QueryReasoningEngineResponse",
+    "StreamQueryReasoningEngineRequest",
+    "CreateReasoningEngineOperationMetadata",
+    "CreateReasoningEngineRequest",
+    "DeleteReasoningEngineRequest",
+    "GetReasoningEngineRequest",
+    "ListReasoningEnginesRequest",
+    "ListReasoningEnginesResponse",
+    "UpdateReasoningEngineOperationMetadata",
+    "UpdateReasoningEngineRequest",
     "ReservationAffinity",
     "SavedQuery",
     "Schedule",
@@ -1829,9 +1932,12 @@ __all__ = (
     "PauseScheduleRequest",
     "ResumeScheduleRequest",
     "UpdateScheduleRequest",
+    "DnsPeeringConfig",
     "PrivateServiceConnectConfig",
     "PscAutomatedEndpoints",
     "PSCAutomationConfig",
+    "PscInterfaceConfig",
+    "PSCAutomationState",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -1903,7 +2009,10 @@ __all__ = (
     "WriteTensorboardRunDataRequest",
     "WriteTensorboardRunDataResponse",
     "TensorboardTimeSeries",
+    "CodeExecutionResult",
     "DynamicRetrievalConfig",
+    "EnterpriseWebSearch",
+    "ExecutableCode",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",
@@ -1911,8 +2020,10 @@ __all__ = (
     "GoogleSearchRetrieval",
     "RagRetrievalConfig",
     "Retrieval",
+    "RetrievalConfig",
     "Tool",
     "ToolConfig",
+    "UrlContext",
     "VertexAISearch",
     "VertexRagStore",
     "FilterSplit",
@@ -1927,6 +2038,7 @@ __all__ = (
     "SupervisedTuningDataStats",
     "SupervisedTuningSpec",
     "TunedModel",
+    "TunedModelCheckpoint",
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
@@ -1941,18 +2053,24 @@ __all__ = (
     "CorpusStatus",
     "FileStatus",
     "ImportRagFilesConfig",
+    "RagChunk",
     "RagCorpus",
     "RagEmbeddingModelConfig",
+    "RagEngineConfig",
     "RagFile",
     "RagFileChunkingConfig",
+    "RagFileParsingConfig",
     "RagFileTransformationConfig",
+    "RagManagedDbConfig",
     "RagVectorDbConfig",
     "UploadRagFileConfig",
+    "VertexAiSearchConfig",
     "CreateRagCorpusOperationMetadata",
     "CreateRagCorpusRequest",
     "DeleteRagCorpusRequest",
     "DeleteRagFileRequest",
     "GetRagCorpusRequest",
+    "GetRagEngineConfigRequest",
     "GetRagFileRequest",
     "ImportRagFilesOperationMetadata",
     "ImportRagFilesRequest",
@@ -1963,6 +2081,8 @@ __all__ = (
     "ListRagFilesResponse",
     "UpdateRagCorpusOperationMetadata",
     "UpdateRagCorpusRequest",
+    "UpdateRagEngineConfigOperationMetadata",
+    "UpdateRagEngineConfigRequest",
     "UploadRagFileRequest",
     "UploadRagFileResponse",
     "AugmentPromptRequest",

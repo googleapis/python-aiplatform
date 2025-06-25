@@ -21,6 +21,7 @@ import pytest
 from typing import Dict, Iterable, List, MutableSequence, Optional
 from unittest import mock
 
+from google.api_core import operation as ga_operation
 import vertexai
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1 import types as types_v1
@@ -28,6 +29,7 @@ from google.cloud.aiplatform_v1.services import (
     prediction_service as prediction_service_v1,
 )
 from google.cloud.aiplatform_v1beta1 import types as types_v1beta1
+from google.cloud.aiplatform_v1beta1.services import endpoint_service
 from vertexai import generative_models
 from vertexai.preview import (
     generative_models as preview_generative_models,
@@ -38,15 +40,17 @@ from vertexai.generative_models._generative_models import (
     gapic_prediction_service_types,
     gapic_content_types,
     gapic_tool_types,
+    _fix_schema_dict_for_gapic_in_place,
 )
-from google.cloud.aiplatform_v1beta1.types.cached_content import (
+from google.cloud.aiplatform_v1.types.cached_content import (
     CachedContent as GapicCachedContent,
 )
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     gen_ai_cache_service,
 )
 from vertexai.generative_models import _function_calling_utils
-from vertexai.preview import caching
+from vertexai.caching import CachedContent
+from google.protobuf import field_mask_pb2
 
 
 _TEST_PROJECT = "test-project"
@@ -125,6 +129,27 @@ _REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
     },
     "required": ["location"],
 }
+
+_REQUEST_FUNCTION_RESPONSE_SCHEMA_STRUCT = {
+    "type": "object",
+    "properties": {
+        "location": {
+            "type": "string",
+            "description": "The city and state, e.g. San Francisco, CA",
+        },
+        "unit": {
+            "type": "string",
+            "enum": [
+                "celsius",
+                "fahrenheit",
+            ],
+        },
+        "weather": {
+            "type": "string",
+        },
+    },
+}
+
 
 # Input and expected output schema for renaming tests.
 _RENAMING_INPUT_SCHEMA = {
@@ -628,17 +653,19 @@ class TestGenerativeModels:
         with pytest.raises(ValueError):
             generative_models.GenerativeModel("foo/bar/models/gemini-pro")
 
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_generative_model_from_cached_content(
-        self, mock_get_cached_content_fixture
+        self, generative_models: generative_models, mock_get_cached_content_fixture
     ):
         project_location_prefix = (
             f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
         )
-        cached_content = caching.CachedContent(
-            "cached-content-id-in-from-cached-content-test"
-        )
+        cached_content = CachedContent("cached-content-id-in-from-cached-content-test")
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = generative_models.GenerativeModel.from_cached_content(
             cached_content=cached_content
         )
 
@@ -662,14 +689,18 @@ class TestGenerativeModels:
             == "cached-content-id-in-from-cached-content-test"
         )
 
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_generative_model_from_cached_content_with_resource_name(
-        self, mock_get_cached_content_fixture
+        self, mock_get_cached_content_fixture, generative_models: generative_models
     ):
         project_location_prefix = (
             f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
         )
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = generative_models.GenerativeModel.from_cached_content(
             cached_content="cached-content-id-in-from-cached-content-test"
         )
 
@@ -727,6 +758,7 @@ class TestGenerativeModels:
                 frequency_penalty=0.0,
                 logprobs=5,
                 response_logprobs=True,
+                response_modalities=["TEXT"],
             ),
             safety_settings=[
                 generative_models.SafetySetting(
@@ -826,7 +858,7 @@ class TestGenerativeModels:
         assert response5.text
 
     @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
+        target=prediction_service_v1.PredictionServiceClient,
         attribute="generate_content",
         new=lambda self, request: gapic_prediction_service_types.GenerateContentResponse(
             candidates=[
@@ -848,11 +880,9 @@ class TestGenerativeModels:
         self,
         mock_get_cached_content_fixture,
     ):
-        cached_content = caching.CachedContent(
-            "cached-content-id-in-from-cached-content-test"
-        )
+        cached_content = CachedContent("cached-content-id-in-from-cached-content-test")
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = generative_models.GenerativeModel.from_cached_content(
             cached_content=cached_content
         )
 
@@ -958,6 +988,26 @@ class TestGenerativeModels:
             print(response3.text)
         assert e.match("no text")
         assert e.match("function_call")
+
+    @patch_genai_services
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_model_optimizer(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("model-optimizer-exp-04-09")
+
+        response = model.generate_content(
+            "Why is sky blue?",
+            generation_config=generative_models.GenerationConfig(
+                model_config=generative_models.GenerationConfig.ModelConfig(
+                    feature_selection_preference=generative_models.GenerationConfig.ModelConfig.FeatureSelectionPreference.BALANCED
+                )
+            ),
+        )
+        assert response.text
 
     @patch_genai_services
     @pytest.mark.parametrize(
@@ -1085,6 +1135,7 @@ class TestGenerativeModels:
             name="get_current_weather",
             description="Get the current weather in a given location",
             parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+            response=_REQUEST_FUNCTION_RESPONSE_SCHEMA_STRUCT,
         )
         weather_tool = generative_models.Tool(
             function_declarations=[get_current_weather_func],
@@ -1180,6 +1231,7 @@ class TestGenerativeModels:
             name="get_current_weather",
             description="Get the current weather in a given location",
             parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+            response=_REQUEST_FUNCTION_RESPONSE_SCHEMA_STRUCT,
         )
         weather_tool = generative_models.Tool(
             function_declarations=[get_current_weather_func],
@@ -1239,6 +1291,7 @@ class TestGenerativeModels:
             name="get_current_weather",
             description="Get the current weather in a given location",
             parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+            response=_REQUEST_FUNCTION_RESPONSE_SCHEMA_STRUCT,
         )
         weather_tool = generative_models.Tool(
             function_declarations=[get_current_weather_func],
@@ -1284,20 +1337,13 @@ class TestGenerativeModels:
         assert response.to_dict()["candidates"][0]["finish_reason"] == "STOP"
 
     @patch_genai_services
-    def test_generate_content_grounding_google_search_retriever_preview(self):
-        model = preview_generative_models.GenerativeModel("gemini-pro")
-        google_search_retriever_tool = (
-            preview_generative_models.Tool.from_google_search_retrieval(
-                preview_generative_models.grounding.GoogleSearchRetrieval()
-            )
-        )
-        response = model.generate_content(
-            "Why is sky blue?", tools=[google_search_retriever_tool]
-        )
-        assert response.text
-
-    @patch_genai_services
-    def test_generate_content_grounding_google_search_retriever(self):
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_grounding_google_search_retriever(
+        self, generative_models: generative_models
+    ):
         model = generative_models.GenerativeModel("gemini-pro")
         google_search_retriever_tool = (
             generative_models.Tool.from_google_search_retrieval(
@@ -1310,11 +1356,17 @@ class TestGenerativeModels:
         assert response.text
 
     @patch_genai_services
-    def test_generate_content_grounding_vertex_ai_search_retriever(self):
-        model = preview_generative_models.GenerativeModel("gemini-pro")
-        vertex_ai_search_retriever_tool = preview_generative_models.Tool.from_retrieval(
-            retrieval=preview_generative_models.grounding.Retrieval(
-                source=preview_generative_models.grounding.VertexAISearch(
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_grounding_vertex_ai_search_retriever(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("gemini-pro")
+        vertex_ai_search_retriever_tool = generative_models.Tool.from_retrieval(
+            retrieval=generative_models.grounding.Retrieval(
+                source=generative_models.grounding.VertexAISearch(
                     datastore=f"projects/{_TEST_PROJECT}/locations/global/collections/default_collection/dataStores/test-datastore",
                 )
             )
@@ -1325,13 +1377,17 @@ class TestGenerativeModels:
         assert response.text
 
     @patch_genai_services
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_generate_content_grounding_vertex_ai_search_retriever_with_project_and_location(
-        self,
+        self, generative_models: generative_models
     ):
-        model = preview_generative_models.GenerativeModel("gemini-pro")
-        vertex_ai_search_retriever_tool = preview_generative_models.Tool.from_retrieval(
-            retrieval=preview_generative_models.grounding.Retrieval(
-                source=preview_generative_models.grounding.VertexAISearch(
+        model = generative_models.GenerativeModel("gemini-pro")
+        vertex_ai_search_retriever_tool = generative_models.Tool.from_retrieval(
+            retrieval=generative_models.grounding.Retrieval(
+                source=generative_models.grounding.VertexAISearch(
                     datastore="test-datastore",
                     project=_TEST_PROJECT,
                     location="global",
@@ -1504,6 +1560,267 @@ class TestGenerativeModels:
             parameters=_RENAMING_INPUT_SCHEMA,
         )
         assert function.to_dict()["parameters"] == _RENAMING_EXPECTED_SCHEMA
+
+    def test_prefix_items_renaming(self):
+        actual = {
+            "type": "array",
+            "prefixItems": [
+                {"type": "boolean"},
+                {
+                    "type": "arraY",
+                    "prefix_items": [
+                        {"type": "INTeger"},
+                        {"type": "string"},
+                        {"type": "number"},
+                    ],
+                },
+            ],
+        }
+        _fix_schema_dict_for_gapic_in_place(actual)
+        expected = {
+            "type": "ARRAY",
+            "prefixItems": [
+                {"type": "BOOLEAN"},
+                {
+                    "type": "ARRAY",
+                    "prefixItems": [
+                        {"type": "INTEGER"},
+                        {"type": "STRING"},
+                        {"type": "NUMBER"},
+                    ],
+                },
+            ],
+        }
+        assert actual == expected
+
+    def test_additional_properties_renaming(self):
+        actual = {
+            "type": "object",
+            "properties": {
+                "snake_case_false_pruned": {
+                    "type": "object",
+                    "additional_properties": False,
+                },
+                "snake_case_true_replaced_with_empty_dict": {
+                    "type": "object",
+                    "additional_properties": True,
+                },
+                "snake_case_sub_schema_processed": {
+                    "type": "object",
+                    "additional_properties": {"type": "string"},
+                },
+                "camelCase_false_pruned": {
+                    "type": "object",
+                    "additionalProperties": False,
+                },
+                "camelCase_true_replaced_with_empty_dict": {
+                    "type": "object",
+                    "additionalProperties": True,
+                },
+                "camelCase_sub_schema_processed": {
+                    "type": "object",
+                    "additionalProperties": {"type": "string"},
+                },
+            },
+        }
+        _fix_schema_dict_for_gapic_in_place(actual)
+        expected = {
+            "type": "OBJECT",
+            "properties": {
+                "snake_case_false_pruned": {
+                    "type": "OBJECT",
+                },
+                "snake_case_true_replaced_with_empty_dict": {
+                    "type": "OBJECT",
+                    "additionalProperties": {},
+                },
+                "snake_case_sub_schema_processed": {
+                    "type": "OBJECT",
+                    "additionalProperties": {"type": "STRING"},
+                },
+                "camelCase_false_pruned": {
+                    "type": "OBJECT",
+                },
+                "camelCase_true_replaced_with_empty_dict": {
+                    "type": "OBJECT",
+                    "additionalProperties": {},
+                },
+                "camelCase_sub_schema_processed": {
+                    "type": "OBJECT",
+                    "additionalProperties": {"type": "STRING"},
+                },
+            },
+            "propertyOrdering": [
+                "snake_case_false_pruned",
+                "snake_case_true_replaced_with_empty_dict",
+                "snake_case_sub_schema_processed",
+                "camelCase_false_pruned",
+                "camelCase_true_replaced_with_empty_dict",
+                "camelCase_sub_schema_processed",
+            ],
+        }
+        assert actual == expected
+
+    def test_defs_ref_renaming(self):
+        for actual, expected in [
+            (
+                {
+                    "type": "integer",
+                    "$defs": {
+                        "Foo": {"type": "string"},
+                        "Foos": {
+                            "type": "array",
+                            "items": {"$ref": "#/$defs/Foo"},
+                        },
+                    },
+                },
+                {
+                    "type": "INTEGER",
+                    "defs": {
+                        "Foo": {"type": "STRING"},
+                        "Foos": {
+                            "type": "ARRAY",
+                            # NB: Reference expansion accepts paths with "$defs"
+                            # or "defs", so this needn't be normalized.
+                            "items": {"ref": "#/$defs/Foo"},
+                        },
+                    },
+                },
+            ),
+            (
+                {
+                    "type": "integer",
+                    "defs": {
+                        "Foo": {"type": "string"},
+                        "Foos": {
+                            "type": "array",
+                            "items": {"ref": "#/defs/Foo"},
+                        },
+                    },
+                },
+                {
+                    "type": "INTEGER",
+                    "defs": {
+                        "Foo": {"type": "STRING"},
+                        "Foos": {
+                            "type": "ARRAY",
+                            "items": {"ref": "#/defs/Foo"},
+                        },
+                    },
+                },
+            ),
+        ]:
+            _fix_schema_dict_for_gapic_in_place(actual)
+            assert actual == expected
+
+    @pytest.mark.parametrize(
+        "generative_models",
+        [preview_generative_models],  # Only preview supports set_logging_config
+    )
+    @mock.patch.object(endpoint_service.EndpointServiceClient, "update_endpoint")
+    def test_set_logging_config_for_endpoint(
+        self, mock_update_endpoint, generative_models: generative_models
+    ):
+        endpoint_name = (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/12345"
+        )
+        model = generative_models.GenerativeModel(endpoint_name)
+
+        mock_update_endpoint.return_value = types_v1beta1.Endpoint(name=endpoint_name)
+
+        enabled = True
+        sampling_rate = 0.5
+        bigquery_destination = f"bq://{_TEST_PROJECT}.my_dataset.my_table"
+        enable_otel_logging = True
+
+        model.set_request_response_logging_config(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=bigquery_destination,
+            enable_otel_logging=enable_otel_logging,
+        )
+
+        expected_logging_config = types_v1beta1.PredictRequestResponseLoggingConfig(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=types_v1beta1.BigQueryDestination(
+                output_uri=bigquery_destination
+            ),
+            enable_otel_logging=enable_otel_logging,
+        )
+        expected_endpoint = types_v1beta1.Endpoint(
+            name=endpoint_name,
+            predict_request_response_logging_config=expected_logging_config,
+        )
+        expected_update_mask = field_mask_pb2.FieldMask(
+            paths=["predict_request_response_logging_config"]
+        )
+
+        mock_update_endpoint.assert_called_once_with(
+            types_v1beta1.UpdateEndpointRequest(
+                endpoint=expected_endpoint,
+                update_mask=expected_update_mask,
+            )
+        )
+
+    @pytest.mark.parametrize(
+        "generative_models",
+        [preview_generative_models],  # Only preview supports set_logging_config
+    )
+    @mock.patch.object(
+        endpoint_service.EndpointServiceClient, "set_publisher_model_config"
+    )
+    def test_set_logging_config_for_publisher_model(
+        self, mock_set_publisher_model_config, generative_models: generative_models
+    ):
+        model_name = "gemini-pro"
+        model = generative_models.GenerativeModel(model_name)
+        full_model_name = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/{model_name}"
+
+        enabled = False
+        sampling_rate = 1.0
+        bigquery_destination = f"bq://{_TEST_PROJECT}.another_dataset"
+        enable_otel_logging = False
+
+        mock_operation = mock.Mock(spec=ga_operation.Operation)
+        mock_set_publisher_model_config.return_value = mock_operation
+        mock_operation.result.return_value = types_v1beta1.PublisherModelConfig(
+            logging_config=types_v1beta1.PredictRequestResponseLoggingConfig(
+                enabled=enabled,
+                sampling_rate=sampling_rate,
+                bigquery_destination=types_v1beta1.BigQueryDestination(
+                    output_uri=bigquery_destination
+                ),
+                enable_otel_logging=enable_otel_logging,
+            )
+        )
+
+        model.set_request_response_logging_config(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=bigquery_destination,
+            enable_otel_logging=enable_otel_logging,
+        )
+
+        expected_logging_config = types_v1beta1.PredictRequestResponseLoggingConfig(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=types_v1beta1.BigQueryDestination(
+                output_uri=bigquery_destination
+            ),
+            enable_otel_logging=enable_otel_logging,
+        )
+        expected_publisher_model_config = types_v1beta1.PublisherModelConfig(
+            logging_config=expected_logging_config
+        )
+
+        mock_set_publisher_model_config.assert_called_once_with(
+            types_v1beta1.SetPublisherModelConfigRequest(
+                name=full_model_name,
+                publisher_model_config=expected_publisher_model_config,
+            )
+        )
+        mock_operation.result.assert_called_once()
 
 
 EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER = {

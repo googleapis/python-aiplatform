@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -91,6 +91,7 @@ from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.aiplatform_v1.types import schedule
 from google.cloud.aiplatform_v1.types import schedule as gca_schedule
 from google.cloud.aiplatform_v1.types import schedule_service
+from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.aiplatform_v1.types import value
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -106,6 +107,14 @@ from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -363,6 +372,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         ScheduleServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = ScheduleServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = ScheduleServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -3784,6 +3836,7 @@ def test_create_schedule_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_schedule(request)
 
@@ -3838,6 +3891,7 @@ def test_create_schedule_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_schedule(**mock_args)
 
@@ -3970,6 +4024,7 @@ def test_delete_schedule_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_schedule(request)
 
@@ -4015,6 +4070,7 @@ def test_delete_schedule_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_schedule(**mock_args)
 
@@ -4145,6 +4201,7 @@ def test_get_schedule_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_schedule(request)
 
@@ -4192,6 +4249,7 @@ def test_get_schedule_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_schedule(**mock_args)
 
@@ -4331,6 +4389,7 @@ def test_list_schedules_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_schedules(request)
 
@@ -4386,6 +4445,7 @@ def test_list_schedules_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_schedules(**mock_args)
 
@@ -4577,6 +4637,7 @@ def test_pause_schedule_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.pause_schedule(request)
 
@@ -4622,6 +4683,7 @@ def test_pause_schedule_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.pause_schedule(**mock_args)
 
@@ -4751,6 +4813,7 @@ def test_resume_schedule_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.resume_schedule(request)
 
@@ -4797,6 +4860,7 @@ def test_resume_schedule_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.resume_schedule(**mock_args)
 
@@ -4927,6 +4991,7 @@ def test_update_schedule_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_schedule(request)
 
@@ -4983,6 +5048,7 @@ def test_update_schedule_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_schedule(**mock_args)
 
@@ -5508,6 +5574,7 @@ def test_create_schedule_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_schedule(request)
 
 
@@ -5633,6 +5700,16 @@ def test_create_schedule_rest_call_success(request_type):
                     "reserved_ip_ranges_value1",
                     "reserved_ip_ranges_value2",
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value",
+                    "dns_peering_configs": [
+                        {
+                            "domain": "domain_value",
+                            "target_project": "target_project_value",
+                            "target_network": "target_network_value",
+                        }
+                    ],
+                },
                 "template_uri": "template_uri_value",
                 "template_metadata": {"version": "version_value"},
                 "schedule_name": "schedule_name_value",
@@ -5678,6 +5755,7 @@ def test_create_schedule_rest_call_success(request_type):
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
+                "workbench_runtime": {},
                 "name": "name_value",
                 "display_name": "display_name_value",
                 "execution_timeout": {"seconds": 751, "nanos": 543},
@@ -5687,6 +5765,7 @@ def test_create_schedule_rest_call_success(request_type):
                 "create_time": {},
                 "update_time": {},
                 "labels": {},
+                "kernel_name": "kernel_name_value",
                 "encryption_spec": {},
             },
             "notebook_execution_job_id": "notebook_execution_job_id_value",
@@ -5804,6 +5883,7 @@ def test_create_schedule_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -5835,10 +5915,13 @@ def test_create_schedule_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_create_schedule"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_create_schedule_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_create_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.CreateScheduleRequest.pb(
             schedule_service.CreateScheduleRequest()
         )
@@ -5851,6 +5934,7 @@ def test_create_schedule_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_schedule.Schedule.to_json(gca_schedule.Schedule())
         req.return_value.content = return_value
 
@@ -5861,6 +5945,7 @@ def test_create_schedule_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_schedule.Schedule()
+        post_with_metadata.return_value = gca_schedule.Schedule(), metadata
 
         client.create_schedule(
             request,
@@ -5872,6 +5957,7 @@ def test_create_schedule_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_schedule_rest_bad_request(
@@ -5895,6 +5981,7 @@ def test_delete_schedule_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_schedule(request)
 
 
@@ -5925,6 +6012,7 @@ def test_delete_schedule_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -5950,10 +6038,13 @@ def test_delete_schedule_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_delete_schedule"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_delete_schedule_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_delete_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.DeleteScheduleRequest.pb(
             schedule_service.DeleteScheduleRequest()
         )
@@ -5966,6 +6057,7 @@ def test_delete_schedule_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -5976,6 +6068,7 @@ def test_delete_schedule_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_schedule(
             request,
@@ -5987,6 +6080,7 @@ def test_delete_schedule_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_schedule_rest_bad_request(
@@ -6010,6 +6104,7 @@ def test_get_schedule_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_schedule(request)
 
 
@@ -6053,6 +6148,7 @@ def test_get_schedule_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -6084,10 +6180,13 @@ def test_get_schedule_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_get_schedule"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_get_schedule_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_get_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.GetScheduleRequest.pb(
             schedule_service.GetScheduleRequest()
         )
@@ -6100,6 +6199,7 @@ def test_get_schedule_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = schedule.Schedule.to_json(schedule.Schedule())
         req.return_value.content = return_value
 
@@ -6110,6 +6210,7 @@ def test_get_schedule_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = schedule.Schedule()
+        post_with_metadata.return_value = schedule.Schedule(), metadata
 
         client.get_schedule(
             request,
@@ -6121,6 +6222,7 @@ def test_get_schedule_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_schedules_rest_bad_request(
@@ -6144,6 +6246,7 @@ def test_list_schedules_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_schedules(request)
 
 
@@ -6179,6 +6282,7 @@ def test_list_schedules_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_schedules(request)
 
     # Establish that the response is the type that we expect.
@@ -6203,10 +6307,13 @@ def test_list_schedules_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_list_schedules"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_list_schedules_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_list_schedules"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.ListSchedulesRequest.pb(
             schedule_service.ListSchedulesRequest()
         )
@@ -6219,6 +6326,7 @@ def test_list_schedules_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = schedule_service.ListSchedulesResponse.to_json(
             schedule_service.ListSchedulesResponse()
         )
@@ -6231,6 +6339,10 @@ def test_list_schedules_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = schedule_service.ListSchedulesResponse()
+        post_with_metadata.return_value = (
+            schedule_service.ListSchedulesResponse(),
+            metadata,
+        )
 
         client.list_schedules(
             request,
@@ -6242,6 +6354,7 @@ def test_list_schedules_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_pause_schedule_rest_bad_request(
@@ -6265,6 +6378,7 @@ def test_pause_schedule_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.pause_schedule(request)
 
 
@@ -6295,6 +6409,7 @@ def test_pause_schedule_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.pause_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -6331,6 +6446,7 @@ def test_pause_schedule_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = schedule_service.PauseScheduleRequest()
         metadata = [
@@ -6371,6 +6487,7 @@ def test_resume_schedule_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.resume_schedule(request)
 
 
@@ -6401,6 +6518,7 @@ def test_resume_schedule_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.resume_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -6437,6 +6555,7 @@ def test_resume_schedule_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = schedule_service.ResumeScheduleRequest()
         metadata = [
@@ -6479,6 +6598,7 @@ def test_update_schedule_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_schedule(request)
 
 
@@ -6606,6 +6726,16 @@ def test_update_schedule_rest_call_success(request_type):
                     "reserved_ip_ranges_value1",
                     "reserved_ip_ranges_value2",
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value",
+                    "dns_peering_configs": [
+                        {
+                            "domain": "domain_value",
+                            "target_project": "target_project_value",
+                            "target_network": "target_network_value",
+                        }
+                    ],
+                },
                 "template_uri": "template_uri_value",
                 "template_metadata": {"version": "version_value"},
                 "schedule_name": "schedule_name_value",
@@ -6651,6 +6781,7 @@ def test_update_schedule_rest_call_success(request_type):
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
+                "workbench_runtime": {},
                 "name": "name_value",
                 "display_name": "display_name_value",
                 "execution_timeout": {"seconds": 751, "nanos": 543},
@@ -6660,6 +6791,7 @@ def test_update_schedule_rest_call_success(request_type):
                 "create_time": {},
                 "update_time": {},
                 "labels": {},
+                "kernel_name": "kernel_name_value",
                 "encryption_spec": {},
             },
             "notebook_execution_job_id": "notebook_execution_job_id_value",
@@ -6777,6 +6909,7 @@ def test_update_schedule_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -6808,10 +6941,13 @@ def test_update_schedule_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_update_schedule"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_update_schedule_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_update_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.UpdateScheduleRequest.pb(
             schedule_service.UpdateScheduleRequest()
         )
@@ -6824,6 +6960,7 @@ def test_update_schedule_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_schedule.Schedule.to_json(gca_schedule.Schedule())
         req.return_value.content = return_value
 
@@ -6834,6 +6971,7 @@ def test_update_schedule_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_schedule.Schedule()
+        post_with_metadata.return_value = gca_schedule.Schedule(), metadata
 
         client.update_schedule(
             request,
@@ -6845,6 +6983,7 @@ def test_update_schedule_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -6868,6 +7007,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -6898,6 +7038,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -6926,6 +7067,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -6956,6 +7098,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -6987,6 +7130,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -7019,6 +7163,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -7050,6 +7195,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -7082,6 +7228,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -7113,6 +7260,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -7145,6 +7293,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -7175,6 +7324,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -7205,6 +7355,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -7235,6 +7386,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -7265,6 +7417,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -7295,6 +7448,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -7325,6 +7479,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -7355,6 +7510,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -7385,6 +7541,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -7415,6 +7572,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -7445,6 +7603,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -7652,6 +7811,7 @@ async def test_create_schedule_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_schedule(request)
 
 
@@ -7782,6 +7942,16 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                     "reserved_ip_ranges_value1",
                     "reserved_ip_ranges_value2",
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value",
+                    "dns_peering_configs": [
+                        {
+                            "domain": "domain_value",
+                            "target_project": "target_project_value",
+                            "target_network": "target_network_value",
+                        }
+                    ],
+                },
                 "template_uri": "template_uri_value",
                 "template_metadata": {"version": "version_value"},
                 "schedule_name": "schedule_name_value",
@@ -7827,6 +7997,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
+                "workbench_runtime": {},
                 "name": "name_value",
                 "display_name": "display_name_value",
                 "execution_timeout": {"seconds": 751, "nanos": 543},
@@ -7836,6 +8007,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                 "create_time": {},
                 "update_time": {},
                 "labels": {},
+                "kernel_name": "kernel_name_value",
                 "encryption_spec": {},
             },
             "notebook_execution_job_id": "notebook_execution_job_id_value",
@@ -7955,6 +8127,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -7991,10 +8164,14 @@ async def test_create_schedule_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_create_schedule"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_create_schedule_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_create_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.CreateScheduleRequest.pb(
             schedule_service.CreateScheduleRequest()
         )
@@ -8007,6 +8184,7 @@ async def test_create_schedule_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_schedule.Schedule.to_json(gca_schedule.Schedule())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -8017,6 +8195,7 @@ async def test_create_schedule_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_schedule.Schedule()
+        post_with_metadata.return_value = gca_schedule.Schedule(), metadata
 
         await client.create_schedule(
             request,
@@ -8028,6 +8207,7 @@ async def test_create_schedule_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8055,6 +8235,7 @@ async def test_delete_schedule_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_schedule(request)
 
 
@@ -8092,6 +8273,7 @@ async def test_delete_schedule_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -8122,10 +8304,14 @@ async def test_delete_schedule_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_delete_schedule"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_delete_schedule_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_delete_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.DeleteScheduleRequest.pb(
             schedule_service.DeleteScheduleRequest()
         )
@@ -8138,6 +8324,7 @@ async def test_delete_schedule_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -8148,6 +8335,7 @@ async def test_delete_schedule_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_schedule(
             request,
@@ -8159,6 +8347,7 @@ async def test_delete_schedule_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8186,6 +8375,7 @@ async def test_get_schedule_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_schedule(request)
 
 
@@ -8236,6 +8426,7 @@ async def test_get_schedule_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -8272,10 +8463,14 @@ async def test_get_schedule_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_get_schedule"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_get_schedule_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_get_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.GetScheduleRequest.pb(
             schedule_service.GetScheduleRequest()
         )
@@ -8288,6 +8483,7 @@ async def test_get_schedule_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = schedule.Schedule.to_json(schedule.Schedule())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -8298,6 +8494,7 @@ async def test_get_schedule_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = schedule.Schedule()
+        post_with_metadata.return_value = schedule.Schedule(), metadata
 
         await client.get_schedule(
             request,
@@ -8309,6 +8506,7 @@ async def test_get_schedule_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8336,6 +8534,7 @@ async def test_list_schedules_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_schedules(request)
 
 
@@ -8378,6 +8577,7 @@ async def test_list_schedules_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_schedules(request)
 
     # Establish that the response is the type that we expect.
@@ -8407,10 +8607,14 @@ async def test_list_schedules_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_list_schedules"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_list_schedules_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_list_schedules"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.ListSchedulesRequest.pb(
             schedule_service.ListSchedulesRequest()
         )
@@ -8423,6 +8627,7 @@ async def test_list_schedules_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = schedule_service.ListSchedulesResponse.to_json(
             schedule_service.ListSchedulesResponse()
         )
@@ -8435,6 +8640,10 @@ async def test_list_schedules_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = schedule_service.ListSchedulesResponse()
+        post_with_metadata.return_value = (
+            schedule_service.ListSchedulesResponse(),
+            metadata,
+        )
 
         await client.list_schedules(
             request,
@@ -8446,6 +8655,7 @@ async def test_list_schedules_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8473,6 +8683,7 @@ async def test_pause_schedule_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.pause_schedule(request)
 
 
@@ -8510,6 +8721,7 @@ async def test_pause_schedule_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.pause_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -8551,6 +8763,7 @@ async def test_pause_schedule_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = schedule_service.PauseScheduleRequest()
         metadata = [
@@ -8595,6 +8808,7 @@ async def test_resume_schedule_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.resume_schedule(request)
 
 
@@ -8632,6 +8846,7 @@ async def test_resume_schedule_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.resume_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -8673,6 +8888,7 @@ async def test_resume_schedule_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = schedule_service.ResumeScheduleRequest()
         metadata = [
@@ -8719,6 +8935,7 @@ async def test_update_schedule_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_schedule(request)
 
 
@@ -8851,6 +9068,16 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                     "reserved_ip_ranges_value1",
                     "reserved_ip_ranges_value2",
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value",
+                    "dns_peering_configs": [
+                        {
+                            "domain": "domain_value",
+                            "target_project": "target_project_value",
+                            "target_network": "target_network_value",
+                        }
+                    ],
+                },
                 "template_uri": "template_uri_value",
                 "template_metadata": {"version": "version_value"},
                 "schedule_name": "schedule_name_value",
@@ -8896,6 +9123,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
+                "workbench_runtime": {},
                 "name": "name_value",
                 "display_name": "display_name_value",
                 "execution_timeout": {"seconds": 751, "nanos": 543},
@@ -8905,6 +9133,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                 "create_time": {},
                 "update_time": {},
                 "labels": {},
+                "kernel_name": "kernel_name_value",
                 "encryption_spec": {},
             },
             "notebook_execution_job_id": "notebook_execution_job_id_value",
@@ -9024,6 +9253,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_schedule(request)
 
     # Establish that the response is the type that we expect.
@@ -9060,10 +9290,14 @@ async def test_update_schedule_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_update_schedule"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_update_schedule_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_update_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.UpdateScheduleRequest.pb(
             schedule_service.UpdateScheduleRequest()
         )
@@ -9076,6 +9310,7 @@ async def test_update_schedule_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_schedule.Schedule.to_json(gca_schedule.Schedule())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -9086,6 +9321,7 @@ async def test_update_schedule_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_schedule.Schedule()
+        post_with_metadata.return_value = gca_schedule.Schedule(), metadata
 
         await client.update_schedule(
             request,
@@ -9097,6 +9333,7 @@ async def test_update_schedule_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9126,6 +9363,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -9163,6 +9401,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -9195,6 +9434,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -9232,6 +9472,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -9267,6 +9508,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -9306,6 +9548,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -9341,6 +9584,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -9380,6 +9624,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -9415,6 +9660,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -9454,6 +9700,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -9488,6 +9735,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -9525,6 +9773,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -9559,6 +9808,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -9596,6 +9846,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -9630,6 +9881,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -9667,6 +9919,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -9701,6 +9954,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -9738,6 +9992,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -9772,6 +10027,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -9809,6 +10065,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 
@@ -10675,10 +10932,38 @@ def test_parse_network_path():
     assert expected == actual
 
 
-def test_notebook_execution_job_path():
+def test_network_attachment_path():
     project = "scallop"
-    location = "abalone"
-    notebook_execution_job = "squid"
+    region = "abalone"
+    networkattachment = "squid"
+    expected = "projects/{project}/regions/{region}/networkAttachments/{networkattachment}".format(
+        project=project,
+        region=region,
+        networkattachment=networkattachment,
+    )
+    actual = ScheduleServiceClient.network_attachment_path(
+        project, region, networkattachment
+    )
+    assert expected == actual
+
+
+def test_parse_network_attachment_path():
+    expected = {
+        "project": "clam",
+        "region": "whelk",
+        "networkattachment": "octopus",
+    }
+    path = ScheduleServiceClient.network_attachment_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_network_attachment_path(path)
+    assert expected == actual
+
+
+def test_notebook_execution_job_path():
+    project = "oyster"
+    location = "nudibranch"
+    notebook_execution_job = "cuttlefish"
     expected = "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job}".format(
         project=project,
         location=location,
@@ -10692,9 +10977,9 @@ def test_notebook_execution_job_path():
 
 def test_parse_notebook_execution_job_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "notebook_execution_job": "octopus",
+        "project": "mussel",
+        "location": "winkle",
+        "notebook_execution_job": "nautilus",
     }
     path = ScheduleServiceClient.notebook_execution_job_path(**expected)
 
@@ -10704,9 +10989,9 @@ def test_parse_notebook_execution_job_path():
 
 
 def test_notebook_runtime_template_path():
-    project = "oyster"
-    location = "nudibranch"
-    notebook_runtime_template = "cuttlefish"
+    project = "scallop"
+    location = "abalone"
+    notebook_runtime_template = "squid"
     expected = "projects/{project}/locations/{location}/notebookRuntimeTemplates/{notebook_runtime_template}".format(
         project=project,
         location=location,
@@ -10720,9 +11005,9 @@ def test_notebook_runtime_template_path():
 
 def test_parse_notebook_runtime_template_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "notebook_runtime_template": "nautilus",
+        "project": "clam",
+        "location": "whelk",
+        "notebook_runtime_template": "octopus",
     }
     path = ScheduleServiceClient.notebook_runtime_template_path(**expected)
 
@@ -10732,9 +11017,9 @@ def test_parse_notebook_runtime_template_path():
 
 
 def test_pipeline_job_path():
-    project = "scallop"
-    location = "abalone"
-    pipeline_job = "squid"
+    project = "oyster"
+    location = "nudibranch"
+    pipeline_job = "cuttlefish"
     expected = (
         "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
             project=project,
@@ -10748,9 +11033,9 @@ def test_pipeline_job_path():
 
 def test_parse_pipeline_job_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "pipeline_job": "octopus",
+        "project": "mussel",
+        "location": "winkle",
+        "pipeline_job": "nautilus",
     }
     path = ScheduleServiceClient.pipeline_job_path(**expected)
 
@@ -10760,9 +11045,9 @@ def test_parse_pipeline_job_path():
 
 
 def test_reservation_path():
-    project_id_or_number = "oyster"
-    zone = "nudibranch"
-    reservation_name = "cuttlefish"
+    project_id_or_number = "scallop"
+    zone = "abalone"
+    reservation_name = "squid"
     expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
         project_id_or_number=project_id_or_number,
         zone=zone,
@@ -10776,9 +11061,9 @@ def test_reservation_path():
 
 def test_parse_reservation_path():
     expected = {
-        "project_id_or_number": "mussel",
-        "zone": "winkle",
-        "reservation_name": "nautilus",
+        "project_id_or_number": "clam",
+        "zone": "whelk",
+        "reservation_name": "octopus",
     }
     path = ScheduleServiceClient.reservation_path(**expected)
 
@@ -10788,9 +11073,9 @@ def test_parse_reservation_path():
 
 
 def test_schedule_path():
-    project = "scallop"
-    location = "abalone"
-    schedule = "squid"
+    project = "oyster"
+    location = "nudibranch"
+    schedule = "cuttlefish"
     expected = "projects/{project}/locations/{location}/schedules/{schedule}".format(
         project=project,
         location=location,
@@ -10802,9 +11087,9 @@ def test_schedule_path():
 
 def test_parse_schedule_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "schedule": "octopus",
+        "project": "mussel",
+        "location": "winkle",
+        "schedule": "nautilus",
     }
     path = ScheduleServiceClient.schedule_path(**expected)
 
@@ -10814,9 +11099,9 @@ def test_parse_schedule_path():
 
 
 def test_subnetwork_path():
-    project = "oyster"
-    region = "nudibranch"
-    subnetwork = "cuttlefish"
+    project = "scallop"
+    region = "abalone"
+    subnetwork = "squid"
     expected = "projects/{project}/regions/{region}/subnetworks/{subnetwork}".format(
         project=project,
         region=region,
@@ -10828,9 +11113,9 @@ def test_subnetwork_path():
 
 def test_parse_subnetwork_path():
     expected = {
-        "project": "mussel",
-        "region": "winkle",
-        "subnetwork": "nautilus",
+        "project": "clam",
+        "region": "whelk",
+        "subnetwork": "octopus",
     }
     path = ScheduleServiceClient.subnetwork_path(**expected)
 
@@ -10840,7 +11125,7 @@ def test_parse_subnetwork_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "oyster"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -10850,7 +11135,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "nudibranch",
     }
     path = ScheduleServiceClient.common_billing_account_path(**expected)
 
@@ -10860,7 +11145,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "cuttlefish"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -10870,7 +11155,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "mussel",
     }
     path = ScheduleServiceClient.common_folder_path(**expected)
 
@@ -10880,7 +11165,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "winkle"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -10890,7 +11175,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "nautilus",
     }
     path = ScheduleServiceClient.common_organization_path(**expected)
 
@@ -10900,7 +11185,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "oyster"
+    project = "scallop"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -10910,7 +11195,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "abalone",
     }
     path = ScheduleServiceClient.common_project_path(**expected)
 
@@ -10920,8 +11205,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "squid"
+    location = "clam"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -10932,8 +11217,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "whelk",
+        "location": "octopus",
     }
     path = ScheduleServiceClient.common_location_path(**expected)
 

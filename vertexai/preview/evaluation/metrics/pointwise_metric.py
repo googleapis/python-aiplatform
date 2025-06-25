@@ -16,9 +16,15 @@
 #
 """Model-based Pointwise Metric."""
 
-from typing import Union
+from typing import Optional, Union
 
+from google.cloud.aiplatform_v1beta1.types import (
+    evaluation_service as gapic_eval_service_types,
+)
 from vertexai.preview.evaluation.metrics import _base
+from vertexai.preview.evaluation.metrics import (
+    custom_output_config as custom_output_config_class,
+)
 from vertexai.preview.evaluation.metrics import (
     metric_prompt_template as metric_prompt_template_base,
 )
@@ -64,6 +70,11 @@ class PointwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acc
         metric_prompt_template: Union[
             metric_prompt_template_base.PointwiseMetricPromptTemplate, str
         ],
+        system_instruction: Optional[str] = None,
+        autorater_config: Optional[gapic_eval_service_types.AutoraterConfig] = None,
+        custom_output_config: Optional[
+            custom_output_config_class.CustomOutputConfig
+        ] = None,
     ):
         """Initializes a pointwise evaluation metric.
 
@@ -71,8 +82,14 @@ class PointwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acc
           metric: The pointwise evaluation metric name.
           metric_prompt_template: Pointwise metric prompt template for performing
             the model-based evaluation. A freeform string is also accepted.
+          system_instruction: The system instruction for the evaluation.
+          autorater_config: The config for judge model.
+          custom_output_config: Config for custom output from the judge model.
         """
         super().__init__(
             metric_prompt_template=metric_prompt_template,
             metric=metric,
+            system_instruction=system_instruction,
+            autorater_config=autorater_config,
+            custom_output_config=custom_output_config,
         )

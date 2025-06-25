@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,6 +100,14 @@ from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -370,6 +378,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         TensorboardServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = TensorboardServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = TensorboardServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -13054,6 +13105,7 @@ def test_create_tensorboard_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_tensorboard(request)
 
@@ -13106,6 +13158,7 @@ def test_create_tensorboard_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_tensorboard(**mock_args)
 
@@ -13238,6 +13291,7 @@ def test_get_tensorboard_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_tensorboard(request)
 
@@ -13285,6 +13339,7 @@ def test_get_tensorboard_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_tensorboard(**mock_args)
 
@@ -13419,6 +13474,7 @@ def test_update_tensorboard_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_tensorboard(request)
 
@@ -13475,6 +13531,7 @@ def test_update_tensorboard_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_tensorboard(**mock_args)
 
@@ -13619,6 +13676,7 @@ def test_list_tensorboards_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_tensorboards(request)
 
@@ -13675,6 +13733,7 @@ def test_list_tensorboards_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_tensorboards(**mock_args)
 
@@ -13874,6 +13933,7 @@ def test_delete_tensorboard_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_tensorboard(request)
 
@@ -13919,6 +13979,7 @@ def test_delete_tensorboard_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_tensorboard(**mock_args)
 
@@ -14057,6 +14118,7 @@ def test_read_tensorboard_usage_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.read_tensorboard_usage(request)
 
@@ -14104,6 +14166,7 @@ def test_read_tensorboard_usage_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.read_tensorboard_usage(**mock_args)
 
@@ -14242,6 +14305,7 @@ def test_read_tensorboard_size_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.read_tensorboard_size(request)
 
@@ -14289,6 +14353,7 @@ def test_read_tensorboard_size_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.read_tensorboard_size(**mock_args)
 
@@ -14443,6 +14508,7 @@ def test_create_tensorboard_experiment_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_tensorboard_experiment(request)
 
@@ -14510,6 +14576,7 @@ def test_create_tensorboard_experiment_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_tensorboard_experiment(**mock_args)
 
@@ -14650,6 +14717,7 @@ def test_get_tensorboard_experiment_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_tensorboard_experiment(request)
 
@@ -14697,6 +14765,7 @@ def test_get_tensorboard_experiment_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_tensorboard_experiment(**mock_args)
 
@@ -14833,6 +14902,7 @@ def test_update_tensorboard_experiment_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_tensorboard_experiment(request)
 
@@ -14895,6 +14965,7 @@ def test_update_tensorboard_experiment_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_tensorboard_experiment(**mock_args)
 
@@ -15046,6 +15117,7 @@ def test_list_tensorboard_experiments_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_tensorboard_experiments(request)
 
@@ -15106,6 +15178,7 @@ def test_list_tensorboard_experiments_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_tensorboard_experiments(**mock_args)
 
@@ -15311,6 +15384,7 @@ def test_delete_tensorboard_experiment_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_tensorboard_experiment(request)
 
@@ -15358,6 +15432,7 @@ def test_delete_tensorboard_experiment_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_tensorboard_experiment(**mock_args)
 
@@ -15504,6 +15579,7 @@ def test_create_tensorboard_run_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_tensorboard_run(request)
 
@@ -15568,6 +15644,7 @@ def test_create_tensorboard_run_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_tensorboard_run(**mock_args)
 
@@ -15709,6 +15786,7 @@ def test_batch_create_tensorboard_runs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.batch_create_tensorboard_runs(request)
 
@@ -15771,6 +15849,7 @@ def test_batch_create_tensorboard_runs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.batch_create_tensorboard_runs(**mock_args)
 
@@ -15909,6 +15988,7 @@ def test_get_tensorboard_run_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_tensorboard_run(request)
 
@@ -15956,6 +16036,7 @@ def test_get_tensorboard_run_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_tensorboard_run(**mock_args)
 
@@ -16090,6 +16171,7 @@ def test_update_tensorboard_run_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_tensorboard_run(request)
 
@@ -16148,6 +16230,7 @@ def test_update_tensorboard_run_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_tensorboard_run(**mock_args)
 
@@ -16297,6 +16380,7 @@ def test_list_tensorboard_runs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_tensorboard_runs(request)
 
@@ -16355,6 +16439,7 @@ def test_list_tensorboard_runs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_tensorboard_runs(**mock_args)
 
@@ -16557,6 +16642,7 @@ def test_delete_tensorboard_run_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_tensorboard_run(request)
 
@@ -16602,6 +16688,7 @@ def test_delete_tensorboard_run_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_tensorboard_run(**mock_args)
 
@@ -16743,6 +16830,7 @@ def test_batch_create_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.batch_create_tensorboard_time_series(request)
 
@@ -16807,6 +16895,7 @@ def test_batch_create_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.batch_create_tensorboard_time_series(**mock_args)
 
@@ -16955,6 +17044,7 @@ def test_create_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_tensorboard_time_series(request)
 
@@ -17017,6 +17107,7 @@ def test_create_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_tensorboard_time_series(**mock_args)
 
@@ -17158,6 +17249,7 @@ def test_get_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_tensorboard_time_series(request)
 
@@ -17205,6 +17297,7 @@ def test_get_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_tensorboard_time_series(**mock_args)
 
@@ -17341,6 +17434,7 @@ def test_update_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_tensorboard_time_series(request)
 
@@ -17405,6 +17499,7 @@ def test_update_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_tensorboard_time_series(**mock_args)
 
@@ -17556,6 +17651,7 @@ def test_list_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_tensorboard_time_series(request)
 
@@ -17616,6 +17712,7 @@ def test_list_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_tensorboard_time_series(**mock_args)
 
@@ -17822,6 +17919,7 @@ def test_delete_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_tensorboard_time_series(request)
 
@@ -17869,6 +17967,7 @@ def test_delete_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_tensorboard_time_series(**mock_args)
 
@@ -18022,6 +18121,7 @@ def test_batch_read_tensorboard_time_series_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.batch_read_tensorboard_time_series_data(request)
 
@@ -18089,6 +18189,7 @@ def test_batch_read_tensorboard_time_series_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.batch_read_tensorboard_time_series_data(**mock_args)
 
@@ -18236,6 +18337,7 @@ def test_read_tensorboard_time_series_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.read_tensorboard_time_series_data(request)
 
@@ -18295,6 +18397,7 @@ def test_read_tensorboard_time_series_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.read_tensorboard_time_series_data(**mock_args)
 
@@ -18438,6 +18541,7 @@ def test_read_tensorboard_blob_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             with mock.patch.object(response_value, "iter_content") as iter_content:
                 iter_content.return_value = iter(json_return_value)
@@ -18490,6 +18594,7 @@ def test_read_tensorboard_blob_data_rest_flattened():
         json_return_value = "[{}]".format(json_return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         with mock.patch.object(response_value, "iter_content") as iter_content:
             iter_content.return_value = iter(json_return_value)
@@ -18633,6 +18738,7 @@ def test_write_tensorboard_experiment_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.write_tensorboard_experiment_data(request)
 
@@ -18697,6 +18803,7 @@ def test_write_tensorboard_experiment_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.write_tensorboard_experiment_data(**mock_args)
 
@@ -18843,6 +18950,7 @@ def test_write_tensorboard_run_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.write_tensorboard_run_data(request)
 
@@ -18905,6 +19013,7 @@ def test_write_tensorboard_run_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.write_tensorboard_run_data(**mock_args)
 
@@ -19051,6 +19160,7 @@ def test_export_tensorboard_time_series_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.export_tensorboard_time_series_data(request)
 
@@ -19102,6 +19212,7 @@ def test_export_tensorboard_time_series_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.export_tensorboard_time_series_data(**mock_args)
 
@@ -20933,6 +21044,7 @@ def test_create_tensorboard_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_tensorboard(request)
 
 
@@ -21045,6 +21157,7 @@ def test_create_tensorboard_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -21070,10 +21183,14 @@ def test_create_tensorboard_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_create_tensorboard"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_create_tensorboard_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_create_tensorboard"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.CreateTensorboardRequest.pb(
             tensorboard_service.CreateTensorboardRequest()
         )
@@ -21086,6 +21203,7 @@ def test_create_tensorboard_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -21096,6 +21214,7 @@ def test_create_tensorboard_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_tensorboard(
             request,
@@ -21107,6 +21226,7 @@ def test_create_tensorboard_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_tensorboard_rest_bad_request(
@@ -21130,6 +21250,7 @@ def test_get_tensorboard_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_tensorboard(request)
 
 
@@ -21173,6 +21294,7 @@ def test_get_tensorboard_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -21205,10 +21327,14 @@ def test_get_tensorboard_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_get_tensorboard"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_get_tensorboard_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.GetTensorboardRequest.pb(
             tensorboard_service.GetTensorboardRequest()
         )
@@ -21221,6 +21347,7 @@ def test_get_tensorboard_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard.Tensorboard.to_json(tensorboard.Tensorboard())
         req.return_value.content = return_value
 
@@ -21231,6 +21358,7 @@ def test_get_tensorboard_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard.Tensorboard()
+        post_with_metadata.return_value = tensorboard.Tensorboard(), metadata
 
         client.get_tensorboard(
             request,
@@ -21242,6 +21370,7 @@ def test_get_tensorboard_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_tensorboard_rest_bad_request(
@@ -21269,6 +21398,7 @@ def test_update_tensorboard_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_tensorboard(request)
 
 
@@ -21385,6 +21515,7 @@ def test_update_tensorboard_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -21410,10 +21541,14 @@ def test_update_tensorboard_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_update_tensorboard"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_update_tensorboard_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_update_tensorboard"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.UpdateTensorboardRequest.pb(
             tensorboard_service.UpdateTensorboardRequest()
         )
@@ -21426,6 +21561,7 @@ def test_update_tensorboard_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -21436,6 +21572,7 @@ def test_update_tensorboard_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_tensorboard(
             request,
@@ -21447,6 +21584,7 @@ def test_update_tensorboard_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_tensorboards_rest_bad_request(
@@ -21470,6 +21608,7 @@ def test_list_tensorboards_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_tensorboards(request)
 
 
@@ -21505,6 +21644,7 @@ def test_list_tensorboards_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_tensorboards(request)
 
     # Establish that the response is the type that we expect.
@@ -21529,10 +21669,14 @@ def test_list_tensorboards_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_list_tensorboards"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_list_tensorboards_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_list_tensorboards"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ListTensorboardsRequest.pb(
             tensorboard_service.ListTensorboardsRequest()
         )
@@ -21545,6 +21689,7 @@ def test_list_tensorboards_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardsResponse.to_json(
             tensorboard_service.ListTensorboardsResponse()
         )
@@ -21557,6 +21702,10 @@ def test_list_tensorboards_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ListTensorboardsResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ListTensorboardsResponse(),
+            metadata,
+        )
 
         client.list_tensorboards(
             request,
@@ -21568,6 +21717,7 @@ def test_list_tensorboards_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_tensorboard_rest_bad_request(
@@ -21591,6 +21741,7 @@ def test_delete_tensorboard_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_tensorboard(request)
 
 
@@ -21621,6 +21772,7 @@ def test_delete_tensorboard_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -21646,10 +21798,14 @@ def test_delete_tensorboard_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_delete_tensorboard"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_delete_tensorboard"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.DeleteTensorboardRequest.pb(
             tensorboard_service.DeleteTensorboardRequest()
         )
@@ -21662,6 +21818,7 @@ def test_delete_tensorboard_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -21672,6 +21829,7 @@ def test_delete_tensorboard_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_tensorboard(
             request,
@@ -21683,6 +21841,7 @@ def test_delete_tensorboard_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_read_tensorboard_usage_rest_bad_request(
@@ -21708,6 +21867,7 @@ def test_read_tensorboard_usage_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.read_tensorboard_usage(request)
 
 
@@ -21743,6 +21903,7 @@ def test_read_tensorboard_usage_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.read_tensorboard_usage(request)
 
     # Establish that the response is the type that we expect.
@@ -21766,10 +21927,14 @@ def test_read_tensorboard_usage_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_read_tensorboard_usage"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_read_tensorboard_usage_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_read_tensorboard_usage"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ReadTensorboardUsageRequest.pb(
             tensorboard_service.ReadTensorboardUsageRequest()
         )
@@ -21782,6 +21947,7 @@ def test_read_tensorboard_usage_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardUsageResponse.to_json(
             tensorboard_service.ReadTensorboardUsageResponse()
         )
@@ -21794,6 +21960,10 @@ def test_read_tensorboard_usage_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ReadTensorboardUsageResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ReadTensorboardUsageResponse(),
+            metadata,
+        )
 
         client.read_tensorboard_usage(
             request,
@@ -21805,6 +21975,7 @@ def test_read_tensorboard_usage_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_read_tensorboard_size_rest_bad_request(
@@ -21830,6 +22001,7 @@ def test_read_tensorboard_size_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.read_tensorboard_size(request)
 
 
@@ -21867,6 +22039,7 @@ def test_read_tensorboard_size_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.read_tensorboard_size(request)
 
     # Establish that the response is the type that we expect.
@@ -21891,10 +22064,14 @@ def test_read_tensorboard_size_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_read_tensorboard_size"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_read_tensorboard_size_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_read_tensorboard_size"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ReadTensorboardSizeRequest.pb(
             tensorboard_service.ReadTensorboardSizeRequest()
         )
@@ -21907,6 +22084,7 @@ def test_read_tensorboard_size_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardSizeResponse.to_json(
             tensorboard_service.ReadTensorboardSizeResponse()
         )
@@ -21919,6 +22097,10 @@ def test_read_tensorboard_size_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ReadTensorboardSizeResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ReadTensorboardSizeResponse(),
+            metadata,
+        )
 
         client.read_tensorboard_size(
             request,
@@ -21930,6 +22112,7 @@ def test_read_tensorboard_size_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_tensorboard_experiment_rest_bad_request(
@@ -21953,6 +22136,7 @@ def test_create_tensorboard_experiment_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_tensorboard_experiment(request)
 
 
@@ -22073,6 +22257,7 @@ def test_create_tensorboard_experiment_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -22103,10 +22288,14 @@ def test_create_tensorboard_experiment_rest_interceptors(null_interceptor):
         "post_create_tensorboard_experiment",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_create_tensorboard_experiment_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_create_tensorboard_experiment",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.CreateTensorboardExperimentRequest.pb(
             tensorboard_service.CreateTensorboardExperimentRequest()
         )
@@ -22119,6 +22308,7 @@ def test_create_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
             gca_tensorboard_experiment.TensorboardExperiment()
         )
@@ -22131,6 +22321,10 @@ def test_create_tensorboard_experiment_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_experiment.TensorboardExperiment()
+        post_with_metadata.return_value = (
+            gca_tensorboard_experiment.TensorboardExperiment(),
+            metadata,
+        )
 
         client.create_tensorboard_experiment(
             request,
@@ -22142,6 +22336,7 @@ def test_create_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_tensorboard_experiment_rest_bad_request(
@@ -22167,6 +22362,7 @@ def test_get_tensorboard_experiment_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_tensorboard_experiment(request)
 
 
@@ -22208,6 +22404,7 @@ def test_get_tensorboard_experiment_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -22236,10 +22433,14 @@ def test_get_tensorboard_experiment_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_get_tensorboard_experiment"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_get_tensorboard_experiment_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard_experiment"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.GetTensorboardExperimentRequest.pb(
             tensorboard_service.GetTensorboardExperimentRequest()
         )
@@ -22252,6 +22453,7 @@ def test_get_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_experiment.TensorboardExperiment.to_json(
             tensorboard_experiment.TensorboardExperiment()
         )
@@ -22264,6 +22466,10 @@ def test_get_tensorboard_experiment_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_experiment.TensorboardExperiment()
+        post_with_metadata.return_value = (
+            tensorboard_experiment.TensorboardExperiment(),
+            metadata,
+        )
 
         client.get_tensorboard_experiment(
             request,
@@ -22275,6 +22481,7 @@ def test_get_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_tensorboard_experiment_rest_bad_request(
@@ -22302,6 +22509,7 @@ def test_update_tensorboard_experiment_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_tensorboard_experiment(request)
 
 
@@ -22426,6 +22634,7 @@ def test_update_tensorboard_experiment_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -22456,10 +22665,14 @@ def test_update_tensorboard_experiment_rest_interceptors(null_interceptor):
         "post_update_tensorboard_experiment",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_update_tensorboard_experiment_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_update_tensorboard_experiment",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.UpdateTensorboardExperimentRequest.pb(
             tensorboard_service.UpdateTensorboardExperimentRequest()
         )
@@ -22472,6 +22685,7 @@ def test_update_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
             gca_tensorboard_experiment.TensorboardExperiment()
         )
@@ -22484,6 +22698,10 @@ def test_update_tensorboard_experiment_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_experiment.TensorboardExperiment()
+        post_with_metadata.return_value = (
+            gca_tensorboard_experiment.TensorboardExperiment(),
+            metadata,
+        )
 
         client.update_tensorboard_experiment(
             request,
@@ -22495,6 +22713,7 @@ def test_update_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_tensorboard_experiments_rest_bad_request(
@@ -22518,6 +22737,7 @@ def test_list_tensorboard_experiments_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_tensorboard_experiments(request)
 
 
@@ -22555,6 +22775,7 @@ def test_list_tensorboard_experiments_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_tensorboard_experiments(request)
 
     # Establish that the response is the type that we expect.
@@ -22580,10 +22801,14 @@ def test_list_tensorboard_experiments_rest_interceptors(null_interceptor):
         transports.TensorboardServiceRestInterceptor,
         "post_list_tensorboard_experiments",
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_list_tensorboard_experiments_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_list_tensorboard_experiments"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ListTensorboardExperimentsRequest.pb(
             tensorboard_service.ListTensorboardExperimentsRequest()
         )
@@ -22596,6 +22821,7 @@ def test_list_tensorboard_experiments_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardExperimentsResponse.to_json(
             tensorboard_service.ListTensorboardExperimentsResponse()
         )
@@ -22608,6 +22834,10 @@ def test_list_tensorboard_experiments_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ListTensorboardExperimentsResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ListTensorboardExperimentsResponse(),
+            metadata,
+        )
 
         client.list_tensorboard_experiments(
             request,
@@ -22619,6 +22849,7 @@ def test_list_tensorboard_experiments_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_tensorboard_experiment_rest_bad_request(
@@ -22644,6 +22875,7 @@ def test_delete_tensorboard_experiment_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_tensorboard_experiment(request)
 
 
@@ -22676,6 +22908,7 @@ def test_delete_tensorboard_experiment_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -22703,10 +22936,14 @@ def test_delete_tensorboard_experiment_rest_interceptors(null_interceptor):
         "post_delete_tensorboard_experiment",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_experiment_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_delete_tensorboard_experiment",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.DeleteTensorboardExperimentRequest.pb(
             tensorboard_service.DeleteTensorboardExperimentRequest()
         )
@@ -22719,6 +22956,7 @@ def test_delete_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -22729,6 +22967,7 @@ def test_delete_tensorboard_experiment_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_tensorboard_experiment(
             request,
@@ -22740,6 +22979,7 @@ def test_delete_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_tensorboard_run_rest_bad_request(
@@ -22765,6 +23005,7 @@ def test_create_tensorboard_run_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_tensorboard_run(request)
 
 
@@ -22883,6 +23124,7 @@ def test_create_tensorboard_run_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -22910,10 +23152,14 @@ def test_create_tensorboard_run_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_create_tensorboard_run"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_create_tensorboard_run_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_create_tensorboard_run"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.CreateTensorboardRunRequest.pb(
             tensorboard_service.CreateTensorboardRunRequest()
         )
@@ -22926,6 +23172,7 @@ def test_create_tensorboard_run_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_run.TensorboardRun.to_json(
             gca_tensorboard_run.TensorboardRun()
         )
@@ -22938,6 +23185,7 @@ def test_create_tensorboard_run_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_run.TensorboardRun()
+        post_with_metadata.return_value = gca_tensorboard_run.TensorboardRun(), metadata
 
         client.create_tensorboard_run(
             request,
@@ -22949,6 +23197,7 @@ def test_create_tensorboard_run_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_batch_create_tensorboard_runs_rest_bad_request(
@@ -22974,6 +23223,7 @@ def test_batch_create_tensorboard_runs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.batch_create_tensorboard_runs(request)
 
 
@@ -23011,6 +23261,7 @@ def test_batch_create_tensorboard_runs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.batch_create_tensorboard_runs(request)
 
     # Establish that the response is the type that we expect.
@@ -23036,10 +23287,14 @@ def test_batch_create_tensorboard_runs_rest_interceptors(null_interceptor):
         "post_batch_create_tensorboard_runs",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_batch_create_tensorboard_runs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_batch_create_tensorboard_runs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.BatchCreateTensorboardRunsRequest.pb(
             tensorboard_service.BatchCreateTensorboardRunsRequest()
         )
@@ -23052,6 +23307,7 @@ def test_batch_create_tensorboard_runs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.BatchCreateTensorboardRunsResponse.to_json(
             tensorboard_service.BatchCreateTensorboardRunsResponse()
         )
@@ -23064,6 +23320,10 @@ def test_batch_create_tensorboard_runs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.BatchCreateTensorboardRunsResponse(),
+            metadata,
+        )
 
         client.batch_create_tensorboard_runs(
             request,
@@ -23075,6 +23335,7 @@ def test_batch_create_tensorboard_runs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_tensorboard_run_rest_bad_request(
@@ -23100,6 +23361,7 @@ def test_get_tensorboard_run_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_tensorboard_run(request)
 
 
@@ -23140,6 +23402,7 @@ def test_get_tensorboard_run_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -23167,10 +23430,14 @@ def test_get_tensorboard_run_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_get_tensorboard_run"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_get_tensorboard_run_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard_run"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.GetTensorboardRunRequest.pb(
             tensorboard_service.GetTensorboardRunRequest()
         )
@@ -23183,6 +23450,7 @@ def test_get_tensorboard_run_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_run.TensorboardRun.to_json(
             tensorboard_run.TensorboardRun()
         )
@@ -23195,6 +23463,7 @@ def test_get_tensorboard_run_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_run.TensorboardRun()
+        post_with_metadata.return_value = tensorboard_run.TensorboardRun(), metadata
 
         client.get_tensorboard_run(
             request,
@@ -23206,6 +23475,7 @@ def test_get_tensorboard_run_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_tensorboard_run_rest_bad_request(
@@ -23233,6 +23503,7 @@ def test_update_tensorboard_run_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_tensorboard_run(request)
 
 
@@ -23353,6 +23624,7 @@ def test_update_tensorboard_run_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -23380,10 +23652,14 @@ def test_update_tensorboard_run_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_update_tensorboard_run"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_update_tensorboard_run_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_update_tensorboard_run"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.UpdateTensorboardRunRequest.pb(
             tensorboard_service.UpdateTensorboardRunRequest()
         )
@@ -23396,6 +23672,7 @@ def test_update_tensorboard_run_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_run.TensorboardRun.to_json(
             gca_tensorboard_run.TensorboardRun()
         )
@@ -23408,6 +23685,7 @@ def test_update_tensorboard_run_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_run.TensorboardRun()
+        post_with_metadata.return_value = gca_tensorboard_run.TensorboardRun(), metadata
 
         client.update_tensorboard_run(
             request,
@@ -23419,6 +23697,7 @@ def test_update_tensorboard_run_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_tensorboard_runs_rest_bad_request(
@@ -23444,6 +23723,7 @@ def test_list_tensorboard_runs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_tensorboard_runs(request)
 
 
@@ -23481,6 +23761,7 @@ def test_list_tensorboard_runs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_tensorboard_runs(request)
 
     # Establish that the response is the type that we expect.
@@ -23505,10 +23786,14 @@ def test_list_tensorboard_runs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_list_tensorboard_runs"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_list_tensorboard_runs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_list_tensorboard_runs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ListTensorboardRunsRequest.pb(
             tensorboard_service.ListTensorboardRunsRequest()
         )
@@ -23521,6 +23806,7 @@ def test_list_tensorboard_runs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardRunsResponse.to_json(
             tensorboard_service.ListTensorboardRunsResponse()
         )
@@ -23533,6 +23819,10 @@ def test_list_tensorboard_runs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ListTensorboardRunsResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ListTensorboardRunsResponse(),
+            metadata,
+        )
 
         client.list_tensorboard_runs(
             request,
@@ -23544,6 +23834,7 @@ def test_list_tensorboard_runs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_tensorboard_run_rest_bad_request(
@@ -23569,6 +23860,7 @@ def test_delete_tensorboard_run_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_tensorboard_run(request)
 
 
@@ -23601,6 +23893,7 @@ def test_delete_tensorboard_run_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -23626,10 +23919,14 @@ def test_delete_tensorboard_run_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_delete_tensorboard_run"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_run_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_delete_tensorboard_run"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.DeleteTensorboardRunRequest.pb(
             tensorboard_service.DeleteTensorboardRunRequest()
         )
@@ -23642,6 +23939,7 @@ def test_delete_tensorboard_run_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -23652,6 +23950,7 @@ def test_delete_tensorboard_run_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_tensorboard_run(
             request,
@@ -23663,6 +23962,7 @@ def test_delete_tensorboard_run_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_batch_create_tensorboard_time_series_rest_bad_request(
@@ -23688,6 +23988,7 @@ def test_batch_create_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.batch_create_tensorboard_time_series(request)
 
 
@@ -23725,6 +24026,7 @@ def test_batch_create_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.batch_create_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -23752,10 +24054,14 @@ def test_batch_create_tensorboard_time_series_rest_interceptors(null_interceptor
         "post_batch_create_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_batch_create_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_batch_create_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.pb(
             tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
         )
@@ -23768,6 +24074,7 @@ def test_batch_create_tensorboard_time_series_rest_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.to_json(
                 tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
@@ -23784,6 +24091,10 @@ def test_batch_create_tensorboard_time_series_rest_interceptors(null_interceptor
         post.return_value = (
             tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
         )
+        post_with_metadata.return_value = (
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse(),
+            metadata,
+        )
 
         client.batch_create_tensorboard_time_series(
             request,
@@ -23795,6 +24106,7 @@ def test_batch_create_tensorboard_time_series_rest_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_tensorboard_time_series_rest_bad_request(
@@ -23820,6 +24132,7 @@ def test_create_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_tensorboard_time_series(request)
 
 
@@ -23952,6 +24265,7 @@ def test_create_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -23987,10 +24301,14 @@ def test_create_tensorboard_time_series_rest_interceptors(null_interceptor):
         "post_create_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_create_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_create_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.CreateTensorboardTimeSeriesRequest.pb(
             tensorboard_service.CreateTensorboardTimeSeriesRequest()
         )
@@ -24003,6 +24321,7 @@ def test_create_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
             gca_tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -24015,6 +24334,10 @@ def test_create_tensorboard_time_series_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
+        post_with_metadata.return_value = (
+            gca_tensorboard_time_series.TensorboardTimeSeries(),
+            metadata,
+        )
 
         client.create_tensorboard_time_series(
             request,
@@ -24026,6 +24349,7 @@ def test_create_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_tensorboard_time_series_rest_bad_request(
@@ -24051,6 +24375,7 @@ def test_get_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_tensorboard_time_series(request)
 
 
@@ -24094,6 +24419,7 @@ def test_get_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -24127,10 +24453,14 @@ def test_get_tensorboard_time_series_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_get_tensorboard_time_series"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_get_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_get_tensorboard_time_series"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.GetTensorboardTimeSeriesRequest.pb(
             tensorboard_service.GetTensorboardTimeSeriesRequest()
         )
@@ -24143,6 +24473,7 @@ def test_get_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_time_series.TensorboardTimeSeries.to_json(
             tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -24155,6 +24486,10 @@ def test_get_tensorboard_time_series_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_time_series.TensorboardTimeSeries()
+        post_with_metadata.return_value = (
+            tensorboard_time_series.TensorboardTimeSeries(),
+            metadata,
+        )
 
         client.get_tensorboard_time_series(
             request,
@@ -24166,6 +24501,7 @@ def test_get_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_tensorboard_time_series_rest_bad_request(
@@ -24193,6 +24529,7 @@ def test_update_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_tensorboard_time_series(request)
 
 
@@ -24327,6 +24664,7 @@ def test_update_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -24362,10 +24700,14 @@ def test_update_tensorboard_time_series_rest_interceptors(null_interceptor):
         "post_update_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_update_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_update_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.UpdateTensorboardTimeSeriesRequest.pb(
             tensorboard_service.UpdateTensorboardTimeSeriesRequest()
         )
@@ -24378,6 +24720,7 @@ def test_update_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
             gca_tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -24390,6 +24733,10 @@ def test_update_tensorboard_time_series_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
+        post_with_metadata.return_value = (
+            gca_tensorboard_time_series.TensorboardTimeSeries(),
+            metadata,
+        )
 
         client.update_tensorboard_time_series(
             request,
@@ -24401,6 +24748,7 @@ def test_update_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_tensorboard_time_series_rest_bad_request(
@@ -24426,6 +24774,7 @@ def test_list_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_tensorboard_time_series(request)
 
 
@@ -24465,6 +24814,7 @@ def test_list_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -24490,10 +24840,14 @@ def test_list_tensorboard_time_series_rest_interceptors(null_interceptor):
         transports.TensorboardServiceRestInterceptor,
         "post_list_tensorboard_time_series",
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_list_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_list_tensorboard_time_series"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ListTensorboardTimeSeriesRequest.pb(
             tensorboard_service.ListTensorboardTimeSeriesRequest()
         )
@@ -24506,6 +24860,7 @@ def test_list_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardTimeSeriesResponse.to_json(
             tensorboard_service.ListTensorboardTimeSeriesResponse()
         )
@@ -24518,6 +24873,10 @@ def test_list_tensorboard_time_series_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ListTensorboardTimeSeriesResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ListTensorboardTimeSeriesResponse(),
+            metadata,
+        )
 
         client.list_tensorboard_time_series(
             request,
@@ -24529,6 +24888,7 @@ def test_list_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_tensorboard_time_series_rest_bad_request(
@@ -24554,6 +24914,7 @@ def test_delete_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_tensorboard_time_series(request)
 
 
@@ -24586,6 +24947,7 @@ def test_delete_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -24613,10 +24975,14 @@ def test_delete_tensorboard_time_series_rest_interceptors(null_interceptor):
         "post_delete_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_delete_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.DeleteTensorboardTimeSeriesRequest.pb(
             tensorboard_service.DeleteTensorboardTimeSeriesRequest()
         )
@@ -24629,6 +24995,7 @@ def test_delete_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -24639,6 +25006,7 @@ def test_delete_tensorboard_time_series_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_tensorboard_time_series(
             request,
@@ -24650,6 +25018,7 @@ def test_delete_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_batch_read_tensorboard_time_series_data_rest_bad_request(
@@ -24675,6 +25044,7 @@ def test_batch_read_tensorboard_time_series_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.batch_read_tensorboard_time_series_data(request)
 
 
@@ -24714,6 +25084,7 @@ def test_batch_read_tensorboard_time_series_data_rest_call_success(request_type)
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.batch_read_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -24741,10 +25112,14 @@ def test_batch_read_tensorboard_time_series_data_rest_interceptors(null_intercep
         "post_batch_read_tensorboard_time_series_data",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_batch_read_tensorboard_time_series_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_batch_read_tensorboard_time_series_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.pb(
             tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
         )
@@ -24757,6 +25132,7 @@ def test_batch_read_tensorboard_time_series_data_rest_interceptors(null_intercep
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
@@ -24773,6 +25149,10 @@ def test_batch_read_tensorboard_time_series_data_rest_interceptors(null_intercep
         post.return_value = (
             tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
         )
+        post_with_metadata.return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse(),
+            metadata,
+        )
 
         client.batch_read_tensorboard_time_series_data(
             request,
@@ -24784,6 +25164,7 @@ def test_batch_read_tensorboard_time_series_data_rest_interceptors(null_intercep
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_read_tensorboard_time_series_data_rest_bad_request(
@@ -24809,6 +25190,7 @@ def test_read_tensorboard_time_series_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.read_tensorboard_time_series_data(request)
 
 
@@ -24846,6 +25228,7 @@ def test_read_tensorboard_time_series_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.read_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -24873,10 +25256,14 @@ def test_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
         "post_read_tensorboard_time_series_data",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_read_tensorboard_time_series_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_read_tensorboard_time_series_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ReadTensorboardTimeSeriesDataRequest.pb(
             tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
         )
@@ -24889,6 +25276,7 @@ def test_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.ReadTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
@@ -24903,6 +25291,10 @@ def test_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ReadTensorboardTimeSeriesDataResponse(),
+            metadata,
+        )
 
         client.read_tensorboard_time_series_data(
             request,
@@ -24914,6 +25306,7 @@ def test_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_read_tensorboard_blob_data_rest_bad_request(
@@ -24939,6 +25332,7 @@ def test_read_tensorboard_blob_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.read_tensorboard_blob_data(request)
 
 
@@ -24977,6 +25371,7 @@ def test_read_tensorboard_blob_data_rest_call_success(request_type):
         json_return_value = "[{}]".format(json_return_value)
         response_value.iter_content = mock.Mock(return_value=iter(json_return_value))
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.read_tensorboard_blob_data(request)
 
     assert isinstance(response, Iterable)
@@ -25003,10 +25398,14 @@ def test_read_tensorboard_blob_data_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_read_tensorboard_blob_data"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_read_tensorboard_blob_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_read_tensorboard_blob_data"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ReadTensorboardBlobDataRequest.pb(
             tensorboard_service.ReadTensorboardBlobDataRequest()
         )
@@ -25019,6 +25418,7 @@ def test_read_tensorboard_blob_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardBlobDataResponse.to_json(
             tensorboard_service.ReadTensorboardBlobDataResponse()
         )
@@ -25031,6 +25431,10 @@ def test_read_tensorboard_blob_data_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ReadTensorboardBlobDataResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ReadTensorboardBlobDataResponse(),
+            metadata,
+        )
 
         client.read_tensorboard_blob_data(
             request,
@@ -25042,6 +25446,7 @@ def test_read_tensorboard_blob_data_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_write_tensorboard_experiment_data_rest_bad_request(
@@ -25067,6 +25472,7 @@ def test_write_tensorboard_experiment_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.write_tensorboard_experiment_data(request)
 
 
@@ -25104,6 +25510,7 @@ def test_write_tensorboard_experiment_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.write_tensorboard_experiment_data(request)
 
     # Establish that the response is the type that we expect.
@@ -25131,10 +25538,14 @@ def test_write_tensorboard_experiment_data_rest_interceptors(null_interceptor):
         "post_write_tensorboard_experiment_data",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_write_tensorboard_experiment_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_write_tensorboard_experiment_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.WriteTensorboardExperimentDataRequest.pb(
             tensorboard_service.WriteTensorboardExperimentDataRequest()
         )
@@ -25147,6 +25558,7 @@ def test_write_tensorboard_experiment_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.WriteTensorboardExperimentDataResponse.to_json(
                 tensorboard_service.WriteTensorboardExperimentDataResponse()
@@ -25161,6 +25573,10 @@ def test_write_tensorboard_experiment_data_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.WriteTensorboardExperimentDataResponse(),
+            metadata,
+        )
 
         client.write_tensorboard_experiment_data(
             request,
@@ -25172,6 +25588,7 @@ def test_write_tensorboard_experiment_data_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_write_tensorboard_run_data_rest_bad_request(
@@ -25197,6 +25614,7 @@ def test_write_tensorboard_run_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.write_tensorboard_run_data(request)
 
 
@@ -25234,6 +25652,7 @@ def test_write_tensorboard_run_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.write_tensorboard_run_data(request)
 
     # Establish that the response is the type that we expect.
@@ -25257,10 +25676,14 @@ def test_write_tensorboard_run_data_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "post_write_tensorboard_run_data"
     ) as post, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
+        "post_write_tensorboard_run_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.TensorboardServiceRestInterceptor, "pre_write_tensorboard_run_data"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.WriteTensorboardRunDataRequest.pb(
             tensorboard_service.WriteTensorboardRunDataRequest()
         )
@@ -25273,6 +25696,7 @@ def test_write_tensorboard_run_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.WriteTensorboardRunDataResponse.to_json(
             tensorboard_service.WriteTensorboardRunDataResponse()
         )
@@ -25285,6 +25709,10 @@ def test_write_tensorboard_run_data_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.WriteTensorboardRunDataResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.WriteTensorboardRunDataResponse(),
+            metadata,
+        )
 
         client.write_tensorboard_run_data(
             request,
@@ -25296,6 +25724,7 @@ def test_write_tensorboard_run_data_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_export_tensorboard_time_series_data_rest_bad_request(
@@ -25321,6 +25750,7 @@ def test_export_tensorboard_time_series_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.export_tensorboard_time_series_data(request)
 
 
@@ -25360,6 +25790,7 @@ def test_export_tensorboard_time_series_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.export_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -25386,10 +25817,14 @@ def test_export_tensorboard_time_series_data_rest_interceptors(null_interceptor)
         "post_export_tensorboard_time_series_data",
     ) as post, mock.patch.object(
         transports.TensorboardServiceRestInterceptor,
+        "post_export_tensorboard_time_series_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.TensorboardServiceRestInterceptor,
         "pre_export_tensorboard_time_series_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ExportTensorboardTimeSeriesDataRequest.pb(
             tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
         )
@@ -25402,6 +25837,7 @@ def test_export_tensorboard_time_series_data_rest_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
@@ -25418,6 +25854,10 @@ def test_export_tensorboard_time_series_data_rest_interceptors(null_interceptor)
         post.return_value = (
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
         )
+        post_with_metadata.return_value = (
+            tensorboard_service.ExportTensorboardTimeSeriesDataResponse(),
+            metadata,
+        )
 
         client.export_tensorboard_time_series_data(
             request,
@@ -25429,6 +25869,7 @@ def test_export_tensorboard_time_series_data_rest_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -25452,6 +25893,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -25482,6 +25924,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -25510,6 +25953,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -25540,6 +25984,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -25571,6 +26016,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -25603,6 +26049,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -25634,6 +26081,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -25666,6 +26114,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -25697,6 +26146,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -25729,6 +26179,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -25759,6 +26210,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -25789,6 +26241,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -25819,6 +26272,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -25849,6 +26303,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -25879,6 +26334,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -25909,6 +26365,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -25939,6 +26396,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -25969,6 +26427,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -25999,6 +26458,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -26029,6 +26489,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -26754,6 +27215,7 @@ async def test_create_tensorboard_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_tensorboard(request)
 
 
@@ -26873,6 +27335,7 @@ async def test_create_tensorboard_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -26903,10 +27366,14 @@ async def test_create_tensorboard_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_create_tensorboard"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_create_tensorboard_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_create_tensorboard"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.CreateTensorboardRequest.pb(
             tensorboard_service.CreateTensorboardRequest()
         )
@@ -26919,6 +27386,7 @@ async def test_create_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -26929,6 +27397,7 @@ async def test_create_tensorboard_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_tensorboard(
             request,
@@ -26940,6 +27409,7 @@ async def test_create_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -26967,6 +27437,7 @@ async def test_get_tensorboard_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_tensorboard(request)
 
 
@@ -27017,6 +27488,7 @@ async def test_get_tensorboard_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -27054,10 +27526,14 @@ async def test_get_tensorboard_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_get_tensorboard"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_get_tensorboard_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_get_tensorboard"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.GetTensorboardRequest.pb(
             tensorboard_service.GetTensorboardRequest()
         )
@@ -27070,6 +27546,7 @@ async def test_get_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard.Tensorboard.to_json(tensorboard.Tensorboard())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -27080,6 +27557,7 @@ async def test_get_tensorboard_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard.Tensorboard()
+        post_with_metadata.return_value = tensorboard.Tensorboard(), metadata
 
         await client.get_tensorboard(
             request,
@@ -27091,6 +27569,7 @@ async def test_get_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27122,6 +27601,7 @@ async def test_update_tensorboard_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_tensorboard(request)
 
 
@@ -27245,6 +27725,7 @@ async def test_update_tensorboard_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -27275,10 +27756,14 @@ async def test_update_tensorboard_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_update_tensorboard"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_update_tensorboard_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_update_tensorboard"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.UpdateTensorboardRequest.pb(
             tensorboard_service.UpdateTensorboardRequest()
         )
@@ -27291,6 +27776,7 @@ async def test_update_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -27301,6 +27787,7 @@ async def test_update_tensorboard_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_tensorboard(
             request,
@@ -27312,6 +27799,7 @@ async def test_update_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27339,6 +27827,7 @@ async def test_list_tensorboards_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_tensorboards(request)
 
 
@@ -27381,6 +27870,7 @@ async def test_list_tensorboards_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_tensorboards(request)
 
     # Establish that the response is the type that we expect.
@@ -27410,10 +27900,14 @@ async def test_list_tensorboards_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_list_tensorboards"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_list_tensorboards_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_list_tensorboards"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ListTensorboardsRequest.pb(
             tensorboard_service.ListTensorboardsRequest()
         )
@@ -27426,6 +27920,7 @@ async def test_list_tensorboards_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardsResponse.to_json(
             tensorboard_service.ListTensorboardsResponse()
         )
@@ -27438,6 +27933,10 @@ async def test_list_tensorboards_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ListTensorboardsResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ListTensorboardsResponse(),
+            metadata,
+        )
 
         await client.list_tensorboards(
             request,
@@ -27449,6 +27948,7 @@ async def test_list_tensorboards_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27476,6 +27976,7 @@ async def test_delete_tensorboard_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_tensorboard(request)
 
 
@@ -27513,6 +28014,7 @@ async def test_delete_tensorboard_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -27543,10 +28045,14 @@ async def test_delete_tensorboard_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_delete_tensorboard"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_delete_tensorboard"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.DeleteTensorboardRequest.pb(
             tensorboard_service.DeleteTensorboardRequest()
         )
@@ -27559,6 +28065,7 @@ async def test_delete_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -27569,6 +28076,7 @@ async def test_delete_tensorboard_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_tensorboard(
             request,
@@ -27580,6 +28088,7 @@ async def test_delete_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27609,6 +28118,7 @@ async def test_read_tensorboard_usage_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.read_tensorboard_usage(request)
 
 
@@ -27651,6 +28161,7 @@ async def test_read_tensorboard_usage_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.read_tensorboard_usage(request)
 
     # Establish that the response is the type that we expect.
@@ -27679,10 +28190,14 @@ async def test_read_tensorboard_usage_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_read_tensorboard_usage"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_read_tensorboard_usage_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_read_tensorboard_usage"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ReadTensorboardUsageRequest.pb(
             tensorboard_service.ReadTensorboardUsageRequest()
         )
@@ -27695,6 +28210,7 @@ async def test_read_tensorboard_usage_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardUsageResponse.to_json(
             tensorboard_service.ReadTensorboardUsageResponse()
         )
@@ -27707,6 +28223,10 @@ async def test_read_tensorboard_usage_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ReadTensorboardUsageResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ReadTensorboardUsageResponse(),
+            metadata,
+        )
 
         await client.read_tensorboard_usage(
             request,
@@ -27718,6 +28238,7 @@ async def test_read_tensorboard_usage_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27747,6 +28268,7 @@ async def test_read_tensorboard_size_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.read_tensorboard_size(request)
 
 
@@ -27791,6 +28313,7 @@ async def test_read_tensorboard_size_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.read_tensorboard_size(request)
 
     # Establish that the response is the type that we expect.
@@ -27820,10 +28343,14 @@ async def test_read_tensorboard_size_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_read_tensorboard_size"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_read_tensorboard_size_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_read_tensorboard_size"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ReadTensorboardSizeRequest.pb(
             tensorboard_service.ReadTensorboardSizeRequest()
         )
@@ -27836,6 +28363,7 @@ async def test_read_tensorboard_size_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardSizeResponse.to_json(
             tensorboard_service.ReadTensorboardSizeResponse()
         )
@@ -27848,6 +28376,10 @@ async def test_read_tensorboard_size_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ReadTensorboardSizeResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ReadTensorboardSizeResponse(),
+            metadata,
+        )
 
         await client.read_tensorboard_size(
             request,
@@ -27859,6 +28391,7 @@ async def test_read_tensorboard_size_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27886,6 +28419,7 @@ async def test_create_tensorboard_experiment_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_tensorboard_experiment(request)
 
 
@@ -28013,6 +28547,7 @@ async def test_create_tensorboard_experiment_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -28050,10 +28585,14 @@ async def test_create_tensorboard_experiment_rest_asyncio_interceptors(
         "post_create_tensorboard_experiment",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_create_tensorboard_experiment_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_create_tensorboard_experiment",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.CreateTensorboardExperimentRequest.pb(
             tensorboard_service.CreateTensorboardExperimentRequest()
         )
@@ -28066,6 +28605,7 @@ async def test_create_tensorboard_experiment_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
             gca_tensorboard_experiment.TensorboardExperiment()
         )
@@ -28078,6 +28618,10 @@ async def test_create_tensorboard_experiment_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_experiment.TensorboardExperiment()
+        post_with_metadata.return_value = (
+            gca_tensorboard_experiment.TensorboardExperiment(),
+            metadata,
+        )
 
         await client.create_tensorboard_experiment(
             request,
@@ -28089,6 +28633,7 @@ async def test_create_tensorboard_experiment_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28118,6 +28663,7 @@ async def test_get_tensorboard_experiment_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_tensorboard_experiment(request)
 
 
@@ -28166,6 +28712,7 @@ async def test_get_tensorboard_experiment_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -28201,10 +28748,14 @@ async def test_get_tensorboard_experiment_rest_asyncio_interceptors(null_interce
         "post_get_tensorboard_experiment",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_get_tensorboard_experiment_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_get_tensorboard_experiment",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.GetTensorboardExperimentRequest.pb(
             tensorboard_service.GetTensorboardExperimentRequest()
         )
@@ -28217,6 +28768,7 @@ async def test_get_tensorboard_experiment_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_experiment.TensorboardExperiment.to_json(
             tensorboard_experiment.TensorboardExperiment()
         )
@@ -28229,6 +28781,10 @@ async def test_get_tensorboard_experiment_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_experiment.TensorboardExperiment()
+        post_with_metadata.return_value = (
+            tensorboard_experiment.TensorboardExperiment(),
+            metadata,
+        )
 
         await client.get_tensorboard_experiment(
             request,
@@ -28240,6 +28796,7 @@ async def test_get_tensorboard_experiment_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28271,6 +28828,7 @@ async def test_update_tensorboard_experiment_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_tensorboard_experiment(request)
 
 
@@ -28402,6 +28960,7 @@ async def test_update_tensorboard_experiment_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -28439,10 +28998,14 @@ async def test_update_tensorboard_experiment_rest_asyncio_interceptors(
         "post_update_tensorboard_experiment",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_update_tensorboard_experiment_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_update_tensorboard_experiment",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.UpdateTensorboardExperimentRequest.pb(
             tensorboard_service.UpdateTensorboardExperimentRequest()
         )
@@ -28455,6 +29018,7 @@ async def test_update_tensorboard_experiment_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
             gca_tensorboard_experiment.TensorboardExperiment()
         )
@@ -28467,6 +29031,10 @@ async def test_update_tensorboard_experiment_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_experiment.TensorboardExperiment()
+        post_with_metadata.return_value = (
+            gca_tensorboard_experiment.TensorboardExperiment(),
+            metadata,
+        )
 
         await client.update_tensorboard_experiment(
             request,
@@ -28478,6 +29046,7 @@ async def test_update_tensorboard_experiment_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28505,6 +29074,7 @@ async def test_list_tensorboard_experiments_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_tensorboard_experiments(request)
 
 
@@ -28549,6 +29119,7 @@ async def test_list_tensorboard_experiments_rest_asyncio_call_success(request_ty
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_tensorboard_experiments(request)
 
     # Establish that the response is the type that we expect.
@@ -28580,10 +29151,14 @@ async def test_list_tensorboard_experiments_rest_asyncio_interceptors(null_inter
         "post_list_tensorboard_experiments",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_list_tensorboard_experiments_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_list_tensorboard_experiments",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ListTensorboardExperimentsRequest.pb(
             tensorboard_service.ListTensorboardExperimentsRequest()
         )
@@ -28596,6 +29171,7 @@ async def test_list_tensorboard_experiments_rest_asyncio_interceptors(null_inter
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardExperimentsResponse.to_json(
             tensorboard_service.ListTensorboardExperimentsResponse()
         )
@@ -28608,6 +29184,10 @@ async def test_list_tensorboard_experiments_rest_asyncio_interceptors(null_inter
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ListTensorboardExperimentsResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ListTensorboardExperimentsResponse(),
+            metadata,
+        )
 
         await client.list_tensorboard_experiments(
             request,
@@ -28619,6 +29199,7 @@ async def test_list_tensorboard_experiments_rest_asyncio_interceptors(null_inter
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28648,6 +29229,7 @@ async def test_delete_tensorboard_experiment_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_tensorboard_experiment(request)
 
 
@@ -28687,6 +29269,7 @@ async def test_delete_tensorboard_experiment_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -28721,10 +29304,14 @@ async def test_delete_tensorboard_experiment_rest_asyncio_interceptors(
         "post_delete_tensorboard_experiment",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_experiment_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_delete_tensorboard_experiment",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.DeleteTensorboardExperimentRequest.pb(
             tensorboard_service.DeleteTensorboardExperimentRequest()
         )
@@ -28737,6 +29324,7 @@ async def test_delete_tensorboard_experiment_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -28747,6 +29335,7 @@ async def test_delete_tensorboard_experiment_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_tensorboard_experiment(
             request,
@@ -28758,6 +29347,7 @@ async def test_delete_tensorboard_experiment_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28787,6 +29377,7 @@ async def test_create_tensorboard_run_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_tensorboard_run(request)
 
 
@@ -28912,6 +29503,7 @@ async def test_create_tensorboard_run_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -28944,10 +29536,14 @@ async def test_create_tensorboard_run_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_create_tensorboard_run"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_create_tensorboard_run_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_create_tensorboard_run"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.CreateTensorboardRunRequest.pb(
             tensorboard_service.CreateTensorboardRunRequest()
         )
@@ -28960,6 +29556,7 @@ async def test_create_tensorboard_run_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_run.TensorboardRun.to_json(
             gca_tensorboard_run.TensorboardRun()
         )
@@ -28972,6 +29569,7 @@ async def test_create_tensorboard_run_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_run.TensorboardRun()
+        post_with_metadata.return_value = gca_tensorboard_run.TensorboardRun(), metadata
 
         await client.create_tensorboard_run(
             request,
@@ -28983,6 +29581,7 @@ async def test_create_tensorboard_run_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29012,6 +29611,7 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.batch_create_tensorboard_runs(request)
 
 
@@ -29056,6 +29656,7 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.batch_create_tensorboard_runs(request)
 
     # Establish that the response is the type that we expect.
@@ -29088,10 +29689,14 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_interceptors(
         "post_batch_create_tensorboard_runs",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_batch_create_tensorboard_runs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_batch_create_tensorboard_runs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.BatchCreateTensorboardRunsRequest.pb(
             tensorboard_service.BatchCreateTensorboardRunsRequest()
         )
@@ -29104,6 +29709,7 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.BatchCreateTensorboardRunsResponse.to_json(
             tensorboard_service.BatchCreateTensorboardRunsResponse()
         )
@@ -29116,6 +29722,10 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.BatchCreateTensorboardRunsResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.BatchCreateTensorboardRunsResponse(),
+            metadata,
+        )
 
         await client.batch_create_tensorboard_runs(
             request,
@@ -29127,6 +29737,7 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29156,6 +29767,7 @@ async def test_get_tensorboard_run_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_tensorboard_run(request)
 
 
@@ -29203,6 +29815,7 @@ async def test_get_tensorboard_run_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -29235,10 +29848,14 @@ async def test_get_tensorboard_run_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_get_tensorboard_run"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_get_tensorboard_run_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_get_tensorboard_run"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.GetTensorboardRunRequest.pb(
             tensorboard_service.GetTensorboardRunRequest()
         )
@@ -29251,6 +29868,7 @@ async def test_get_tensorboard_run_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_run.TensorboardRun.to_json(
             tensorboard_run.TensorboardRun()
         )
@@ -29263,6 +29881,7 @@ async def test_get_tensorboard_run_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_run.TensorboardRun()
+        post_with_metadata.return_value = tensorboard_run.TensorboardRun(), metadata
 
         await client.get_tensorboard_run(
             request,
@@ -29274,6 +29893,7 @@ async def test_get_tensorboard_run_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29305,6 +29925,7 @@ async def test_update_tensorboard_run_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_tensorboard_run(request)
 
 
@@ -29432,6 +30053,7 @@ async def test_update_tensorboard_run_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -29464,10 +30086,14 @@ async def test_update_tensorboard_run_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_update_tensorboard_run"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_update_tensorboard_run_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_update_tensorboard_run"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.UpdateTensorboardRunRequest.pb(
             tensorboard_service.UpdateTensorboardRunRequest()
         )
@@ -29480,6 +30106,7 @@ async def test_update_tensorboard_run_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_run.TensorboardRun.to_json(
             gca_tensorboard_run.TensorboardRun()
         )
@@ -29492,6 +30119,7 @@ async def test_update_tensorboard_run_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_run.TensorboardRun()
+        post_with_metadata.return_value = gca_tensorboard_run.TensorboardRun(), metadata
 
         await client.update_tensorboard_run(
             request,
@@ -29503,6 +30131,7 @@ async def test_update_tensorboard_run_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29532,6 +30161,7 @@ async def test_list_tensorboard_runs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_tensorboard_runs(request)
 
 
@@ -29576,6 +30206,7 @@ async def test_list_tensorboard_runs_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_tensorboard_runs(request)
 
     # Establish that the response is the type that we expect.
@@ -29605,10 +30236,14 @@ async def test_list_tensorboard_runs_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_list_tensorboard_runs"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_list_tensorboard_runs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_list_tensorboard_runs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ListTensorboardRunsRequest.pb(
             tensorboard_service.ListTensorboardRunsRequest()
         )
@@ -29621,6 +30256,7 @@ async def test_list_tensorboard_runs_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardRunsResponse.to_json(
             tensorboard_service.ListTensorboardRunsResponse()
         )
@@ -29633,6 +30269,10 @@ async def test_list_tensorboard_runs_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ListTensorboardRunsResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ListTensorboardRunsResponse(),
+            metadata,
+        )
 
         await client.list_tensorboard_runs(
             request,
@@ -29644,6 +30284,7 @@ async def test_list_tensorboard_runs_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29673,6 +30314,7 @@ async def test_delete_tensorboard_run_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_tensorboard_run(request)
 
 
@@ -29712,6 +30354,7 @@ async def test_delete_tensorboard_run_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -29742,10 +30385,14 @@ async def test_delete_tensorboard_run_rest_asyncio_interceptors(null_interceptor
     ), mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "post_delete_tensorboard_run"
     ) as post, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_run_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor, "pre_delete_tensorboard_run"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.DeleteTensorboardRunRequest.pb(
             tensorboard_service.DeleteTensorboardRunRequest()
         )
@@ -29758,6 +30405,7 @@ async def test_delete_tensorboard_run_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -29768,6 +30416,7 @@ async def test_delete_tensorboard_run_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_tensorboard_run(
             request,
@@ -29779,6 +30428,7 @@ async def test_delete_tensorboard_run_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29808,6 +30458,7 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.batch_create_tensorboard_time_series(request)
 
 
@@ -29854,6 +30505,7 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.batch_create_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -29888,10 +30540,14 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_interceptors(
         "post_batch_create_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_batch_create_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_batch_create_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.pb(
             tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
         )
@@ -29904,6 +30560,7 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.to_json(
                 tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
@@ -29920,6 +30577,10 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_interceptors(
         post.return_value = (
             tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
         )
+        post_with_metadata.return_value = (
+            tensorboard_service.BatchCreateTensorboardTimeSeriesResponse(),
+            metadata,
+        )
 
         await client.batch_create_tensorboard_time_series(
             request,
@@ -29931,6 +30592,7 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29960,6 +30622,7 @@ async def test_create_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_tensorboard_time_series(request)
 
 
@@ -30099,6 +30762,7 @@ async def test_create_tensorboard_time_series_rest_asyncio_call_success(request_
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30141,10 +30805,14 @@ async def test_create_tensorboard_time_series_rest_asyncio_interceptors(
         "post_create_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_create_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_create_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.CreateTensorboardTimeSeriesRequest.pb(
             tensorboard_service.CreateTensorboardTimeSeriesRequest()
         )
@@ -30157,6 +30825,7 @@ async def test_create_tensorboard_time_series_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
             gca_tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -30169,6 +30838,10 @@ async def test_create_tensorboard_time_series_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
+        post_with_metadata.return_value = (
+            gca_tensorboard_time_series.TensorboardTimeSeries(),
+            metadata,
+        )
 
         await client.create_tensorboard_time_series(
             request,
@@ -30180,6 +30853,7 @@ async def test_create_tensorboard_time_series_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30209,6 +30883,7 @@ async def test_get_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_tensorboard_time_series(request)
 
 
@@ -30259,6 +30934,7 @@ async def test_get_tensorboard_time_series_rest_asyncio_call_success(request_typ
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30299,10 +30975,14 @@ async def test_get_tensorboard_time_series_rest_asyncio_interceptors(null_interc
         "post_get_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_get_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_get_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.GetTensorboardTimeSeriesRequest.pb(
             tensorboard_service.GetTensorboardTimeSeriesRequest()
         )
@@ -30315,6 +30995,7 @@ async def test_get_tensorboard_time_series_rest_asyncio_interceptors(null_interc
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_time_series.TensorboardTimeSeries.to_json(
             tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -30327,6 +31008,10 @@ async def test_get_tensorboard_time_series_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_time_series.TensorboardTimeSeries()
+        post_with_metadata.return_value = (
+            tensorboard_time_series.TensorboardTimeSeries(),
+            metadata,
+        )
 
         await client.get_tensorboard_time_series(
             request,
@@ -30338,6 +31023,7 @@ async def test_get_tensorboard_time_series_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30369,6 +31055,7 @@ async def test_update_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_tensorboard_time_series(request)
 
 
@@ -30510,6 +31197,7 @@ async def test_update_tensorboard_time_series_rest_asyncio_call_success(request_
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30552,10 +31240,14 @@ async def test_update_tensorboard_time_series_rest_asyncio_interceptors(
         "post_update_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_update_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_update_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.UpdateTensorboardTimeSeriesRequest.pb(
             tensorboard_service.UpdateTensorboardTimeSeriesRequest()
         )
@@ -30568,6 +31260,7 @@ async def test_update_tensorboard_time_series_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
             gca_tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -30580,6 +31273,10 @@ async def test_update_tensorboard_time_series_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = gca_tensorboard_time_series.TensorboardTimeSeries()
+        post_with_metadata.return_value = (
+            gca_tensorboard_time_series.TensorboardTimeSeries(),
+            metadata,
+        )
 
         await client.update_tensorboard_time_series(
             request,
@@ -30591,6 +31288,7 @@ async def test_update_tensorboard_time_series_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30620,6 +31318,7 @@ async def test_list_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_tensorboard_time_series(request)
 
 
@@ -30666,6 +31365,7 @@ async def test_list_tensorboard_time_series_rest_asyncio_call_success(request_ty
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30697,10 +31397,14 @@ async def test_list_tensorboard_time_series_rest_asyncio_interceptors(null_inter
         "post_list_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_list_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_list_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ListTensorboardTimeSeriesRequest.pb(
             tensorboard_service.ListTensorboardTimeSeriesRequest()
         )
@@ -30713,6 +31417,7 @@ async def test_list_tensorboard_time_series_rest_asyncio_interceptors(null_inter
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardTimeSeriesResponse.to_json(
             tensorboard_service.ListTensorboardTimeSeriesResponse()
         )
@@ -30725,6 +31430,10 @@ async def test_list_tensorboard_time_series_rest_asyncio_interceptors(null_inter
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ListTensorboardTimeSeriesResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ListTensorboardTimeSeriesResponse(),
+            metadata,
+        )
 
         await client.list_tensorboard_time_series(
             request,
@@ -30736,6 +31445,7 @@ async def test_list_tensorboard_time_series_rest_asyncio_interceptors(null_inter
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30765,6 +31475,7 @@ async def test_delete_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_tensorboard_time_series(request)
 
 
@@ -30804,6 +31515,7 @@ async def test_delete_tensorboard_time_series_rest_asyncio_call_success(request_
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30838,10 +31550,14 @@ async def test_delete_tensorboard_time_series_rest_asyncio_interceptors(
         "post_delete_tensorboard_time_series",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_delete_tensorboard_time_series_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_delete_tensorboard_time_series",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.DeleteTensorboardTimeSeriesRequest.pb(
             tensorboard_service.DeleteTensorboardTimeSeriesRequest()
         )
@@ -30854,6 +31570,7 @@ async def test_delete_tensorboard_time_series_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -30864,6 +31581,7 @@ async def test_delete_tensorboard_time_series_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_tensorboard_time_series(
             request,
@@ -30875,6 +31593,7 @@ async def test_delete_tensorboard_time_series_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30904,6 +31623,7 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.batch_read_tensorboard_time_series_data(request)
 
 
@@ -30952,6 +31672,7 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_call_success
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.batch_read_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -30986,10 +31707,14 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_interceptors
         "post_batch_read_tensorboard_time_series_data",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_batch_read_tensorboard_time_series_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_batch_read_tensorboard_time_series_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.pb(
             tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
         )
@@ -31002,6 +31727,7 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_interceptors
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
@@ -31018,6 +31744,10 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_interceptors
         post.return_value = (
             tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
         )
+        post_with_metadata.return_value = (
+            tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse(),
+            metadata,
+        )
 
         await client.batch_read_tensorboard_time_series_data(
             request,
@@ -31029,6 +31759,7 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_interceptors
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31058,6 +31789,7 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.read_tensorboard_time_series_data(request)
 
 
@@ -31104,6 +31836,7 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.read_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -31138,10 +31871,14 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_interceptors(
         "post_read_tensorboard_time_series_data",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_read_tensorboard_time_series_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_read_tensorboard_time_series_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ReadTensorboardTimeSeriesDataRequest.pb(
             tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
         )
@@ -31154,6 +31891,7 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.ReadTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
@@ -31168,6 +31906,10 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ReadTensorboardTimeSeriesDataResponse(),
+            metadata,
+        )
 
         await client.read_tensorboard_time_series_data(
             request,
@@ -31179,6 +31921,7 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31208,6 +31951,7 @@ async def test_read_tensorboard_blob_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.read_tensorboard_blob_data(request)
 
 
@@ -31251,6 +31995,7 @@ async def test_read_tensorboard_blob_data_rest_asyncio_call_success(request_type
         json_return_value = "[{}]".format(json_return_value)
         response_value.content.return_value = mock_async_gen(json_return_value)
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.read_tensorboard_blob_data(request)
 
     assert isinstance(response, AsyncIterable)
@@ -31284,10 +32029,14 @@ async def test_read_tensorboard_blob_data_rest_asyncio_interceptors(null_interce
         "post_read_tensorboard_blob_data",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_read_tensorboard_blob_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_read_tensorboard_blob_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ReadTensorboardBlobDataRequest.pb(
             tensorboard_service.ReadTensorboardBlobDataRequest()
         )
@@ -31300,6 +32049,7 @@ async def test_read_tensorboard_blob_data_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardBlobDataResponse.to_json(
             tensorboard_service.ReadTensorboardBlobDataResponse()
         )
@@ -31312,6 +32062,10 @@ async def test_read_tensorboard_blob_data_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.ReadTensorboardBlobDataResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.ReadTensorboardBlobDataResponse(),
+            metadata,
+        )
 
         await client.read_tensorboard_blob_data(
             request,
@@ -31323,6 +32077,7 @@ async def test_read_tensorboard_blob_data_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31352,6 +32107,7 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.write_tensorboard_experiment_data(request)
 
 
@@ -31398,6 +32154,7 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.write_tensorboard_experiment_data(request)
 
     # Establish that the response is the type that we expect.
@@ -31432,10 +32189,14 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_interceptors(
         "post_write_tensorboard_experiment_data",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_write_tensorboard_experiment_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_write_tensorboard_experiment_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.WriteTensorboardExperimentDataRequest.pb(
             tensorboard_service.WriteTensorboardExperimentDataRequest()
         )
@@ -31448,6 +32209,7 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.WriteTensorboardExperimentDataResponse.to_json(
                 tensorboard_service.WriteTensorboardExperimentDataResponse()
@@ -31462,6 +32224,10 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.WriteTensorboardExperimentDataResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.WriteTensorboardExperimentDataResponse(),
+            metadata,
+        )
 
         await client.write_tensorboard_experiment_data(
             request,
@@ -31473,6 +32239,7 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31502,6 +32269,7 @@ async def test_write_tensorboard_run_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.write_tensorboard_run_data(request)
 
 
@@ -31546,6 +32314,7 @@ async def test_write_tensorboard_run_data_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.write_tensorboard_run_data(request)
 
     # Establish that the response is the type that we expect.
@@ -31576,10 +32345,14 @@ async def test_write_tensorboard_run_data_rest_asyncio_interceptors(null_interce
         "post_write_tensorboard_run_data",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_write_tensorboard_run_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_write_tensorboard_run_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.WriteTensorboardRunDataRequest.pb(
             tensorboard_service.WriteTensorboardRunDataRequest()
         )
@@ -31592,6 +32365,7 @@ async def test_write_tensorboard_run_data_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.WriteTensorboardRunDataResponse.to_json(
             tensorboard_service.WriteTensorboardRunDataResponse()
         )
@@ -31604,6 +32378,10 @@ async def test_write_tensorboard_run_data_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = tensorboard_service.WriteTensorboardRunDataResponse()
+        post_with_metadata.return_value = (
+            tensorboard_service.WriteTensorboardRunDataResponse(),
+            metadata,
+        )
 
         await client.write_tensorboard_run_data(
             request,
@@ -31615,6 +32393,7 @@ async def test_write_tensorboard_run_data_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31644,6 +32423,7 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.export_tensorboard_time_series_data(request)
 
 
@@ -31692,6 +32472,7 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.export_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -31725,10 +32506,14 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_interceptors(
         "post_export_tensorboard_time_series_data",
     ) as post, mock.patch.object(
         transports.AsyncTensorboardServiceRestInterceptor,
+        "post_export_tensorboard_time_series_data_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncTensorboardServiceRestInterceptor,
         "pre_export_tensorboard_time_series_data",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = tensorboard_service.ExportTensorboardTimeSeriesDataRequest.pb(
             tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
         )
@@ -31741,6 +32526,7 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
@@ -31757,6 +32543,10 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_interceptors(
         post.return_value = (
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
         )
+        post_with_metadata.return_value = (
+            tensorboard_service.ExportTensorboardTimeSeriesDataResponse(),
+            metadata,
+        )
 
         await client.export_tensorboard_time_series_data(
             request,
@@ -31768,6 +32558,7 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31797,6 +32588,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -31834,6 +32626,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -31866,6 +32659,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -31903,6 +32697,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -31938,6 +32733,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -31977,6 +32773,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -32012,6 +32809,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -32051,6 +32849,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -32086,6 +32885,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -32125,6 +32925,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -32159,6 +32960,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -32196,6 +32998,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -32230,6 +33033,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -32267,6 +33071,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -32301,6 +33106,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -32338,6 +33144,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -32372,6 +33179,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -32409,6 +33217,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -32443,6 +33252,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -32480,6 +33290,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

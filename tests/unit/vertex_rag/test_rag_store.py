@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from vertexai.preview import rag
+from vertexai import rag
 from vertexai.preview.generative_models import Tool
 import pytest
 import test_rag_constants as tc
@@ -22,31 +22,61 @@ import test_rag_constants as tc
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestRagStoreValidations:
+    def test_retrieval_tool_success(self):
+        tool = Tool.from_retrieval(
+            retrieval=rag.Retrieval(
+                source=rag.VertexRagStore(
+                    rag_resources=[tc.TEST_RAG_RESOURCE],
+                    rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+                ),
+            )
+        )
+        assert tool is not None
+
+    def test_retrieval_tool_vector_similarity_success(self):
+        tool = Tool.from_retrieval(
+            retrieval=rag.Retrieval(
+                source=rag.VertexRagStore(
+                    rag_resources=[tc.TEST_RAG_RESOURCE],
+                    rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
+                ),
+            )
+        )
+        assert tool is not None
+
+    def test_retrieval_tool_no_rag_resources(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
+                    ),
+                )
+            )
+            e.match("rag_resources must be specified.")
+
+    def test_retrieval_tool_ranking_config_success(self):
+        tool = Tool.from_retrieval(
+            retrieval=rag.Retrieval(
+                source=rag.VertexRagStore(
+                    rag_resources=[tc.TEST_RAG_RESOURCE],
+                    rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_RANKING_CONFIG,
+                ),
+            )
+        )
+        assert tool is not None
+
     def test_retrieval_tool_invalid_name(self):
         with pytest.raises(ValueError) as e:
             Tool.from_retrieval(
                 retrieval=rag.Retrieval(
                     source=rag.VertexRagStore(
                         rag_resources=[tc.TEST_RAG_RESOURCE_INVALID_NAME],
-                        similarity_top_k=3,
-                        vector_distance_threshold=0.4,
+                        rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
                     ),
                 )
             )
             e.match("Invalid RagCorpus name")
-
-    def test_retrieval_tool_multiple_rag_corpora(self):
-        with pytest.raises(ValueError) as e:
-            Tool.from_retrieval(
-                retrieval=rag.Retrieval(
-                    source=rag.VertexRagStore(
-                        rag_corpora=[tc.TEST_RAG_CORPUS_ID, tc.TEST_RAG_CORPUS_ID],
-                        similarity_top_k=3,
-                        vector_distance_threshold=0.4,
-                    ),
-                )
-            )
-            e.match("Currently only support 1 RagCorpus")
 
     def test_retrieval_tool_multiple_rag_resources(self):
         with pytest.raises(ValueError) as e:
@@ -54,9 +84,39 @@ class TestRagStoreValidations:
                 retrieval=rag.Retrieval(
                     source=rag.VertexRagStore(
                         rag_resources=[tc.TEST_RAG_RESOURCE, tc.TEST_RAG_RESOURCE],
-                        similarity_top_k=3,
-                        vector_distance_threshold=0.4,
+                        rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
                     ),
                 )
             )
             e.match("Currently only support 1 RagResource")
+
+    def test_retrieval_tool_invalid_config_filter(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_resources=[tc.TEST_RAG_RESOURCE],
+                        rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_ERROR_CONFIG,
+                    )
+                )
+            )
+            e.match(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )
+
+    def test_retrieval_tool_invalid_ranking_config_filter(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_resources=[tc.TEST_RAG_RESOURCE],
+                        rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_ERROR_RANKING_CONFIG,
+                    )
+                )
+            )
+            e.match(
+                "Only one of rank_service or llm_ranker can be specified"
+                " at a time in rag_retrieval_config."
+            )

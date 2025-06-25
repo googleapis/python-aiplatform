@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,6 +100,14 @@ from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -357,6 +365,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         MetadataServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = MetadataServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = MetadataServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -13311,6 +13362,7 @@ def test_create_metadata_store_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_metadata_store(request)
 
@@ -13364,6 +13416,7 @@ def test_create_metadata_store_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_metadata_store(**mock_args)
 
@@ -13501,6 +13554,7 @@ def test_get_metadata_store_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_metadata_store(request)
 
@@ -13548,6 +13602,7 @@ def test_get_metadata_store_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_metadata_store(**mock_args)
 
@@ -13690,6 +13745,7 @@ def test_list_metadata_stores_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_metadata_stores(request)
 
@@ -13743,6 +13799,7 @@ def test_list_metadata_stores_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_metadata_stores(**mock_args)
 
@@ -13945,6 +14002,7 @@ def test_delete_metadata_store_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_metadata_store(request)
 
@@ -13990,6 +14048,7 @@ def test_delete_metadata_store_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_metadata_store(**mock_args)
 
@@ -14124,6 +14183,7 @@ def test_create_artifact_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_artifact(request)
 
@@ -14181,6 +14241,7 @@ def test_create_artifact_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_artifact(**mock_args)
 
@@ -14314,6 +14375,7 @@ def test_get_artifact_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_artifact(request)
 
@@ -14361,6 +14423,7 @@ def test_get_artifact_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_artifact(**mock_args)
 
@@ -14501,6 +14564,7 @@ def test_list_artifacts_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_artifacts(request)
 
@@ -14558,6 +14622,7 @@ def test_list_artifacts_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_artifacts(**mock_args)
 
@@ -14757,6 +14822,7 @@ def test_update_artifact_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_artifact(request)
 
@@ -14815,6 +14881,7 @@ def test_update_artifact_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_artifact(**mock_args)
 
@@ -14950,6 +15017,7 @@ def test_delete_artifact_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_artifact(request)
 
@@ -14995,6 +15063,7 @@ def test_delete_artifact_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_artifact(**mock_args)
 
@@ -15132,6 +15201,7 @@ def test_purge_artifacts_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.purge_artifacts(request)
 
@@ -15185,6 +15255,7 @@ def test_purge_artifacts_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.purge_artifacts(**mock_args)
 
@@ -15319,6 +15390,7 @@ def test_create_context_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_context(request)
 
@@ -15376,6 +15448,7 @@ def test_create_context_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_context(**mock_args)
 
@@ -15509,6 +15582,7 @@ def test_get_context_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_context(request)
 
@@ -15556,6 +15630,7 @@ def test_get_context_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_context(**mock_args)
 
@@ -15696,6 +15771,7 @@ def test_list_contexts_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_contexts(request)
 
@@ -15753,6 +15829,7 @@ def test_list_contexts_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_contexts(**mock_args)
 
@@ -15952,6 +16029,7 @@ def test_update_context_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_context(request)
 
@@ -16010,6 +16088,7 @@ def test_update_context_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_context(**mock_args)
 
@@ -16150,6 +16229,7 @@ def test_delete_context_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_context(request)
 
@@ -16203,6 +16283,7 @@ def test_delete_context_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_context(**mock_args)
 
@@ -16340,6 +16421,7 @@ def test_purge_contexts_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.purge_contexts(request)
 
@@ -16393,6 +16475,7 @@ def test_purge_contexts_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.purge_contexts(**mock_args)
 
@@ -16532,6 +16615,7 @@ def test_add_context_artifacts_and_executions_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.add_context_artifacts_and_executions(request)
 
@@ -16585,6 +16669,7 @@ def test_add_context_artifacts_and_executions_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.add_context_artifacts_and_executions(**mock_args)
 
@@ -16725,6 +16810,7 @@ def test_add_context_children_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.add_context_children(request)
 
@@ -16773,6 +16859,7 @@ def test_add_context_children_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.add_context_children(**mock_args)
 
@@ -16913,6 +17000,7 @@ def test_remove_context_children_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.remove_context_children(request)
 
@@ -16961,6 +17049,7 @@ def test_remove_context_children_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.remove_context_children(**mock_args)
 
@@ -17098,6 +17187,7 @@ def test_query_context_lineage_subgraph_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.query_context_lineage_subgraph(request)
 
@@ -17147,6 +17237,7 @@ def test_query_context_lineage_subgraph_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.query_context_lineage_subgraph(**mock_args)
 
@@ -17283,6 +17374,7 @@ def test_create_execution_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_execution(request)
 
@@ -17340,6 +17432,7 @@ def test_create_execution_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_execution(**mock_args)
 
@@ -17473,6 +17566,7 @@ def test_get_execution_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_execution(request)
 
@@ -17520,6 +17614,7 @@ def test_get_execution_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_execution(**mock_args)
 
@@ -17660,6 +17755,7 @@ def test_list_executions_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_executions(request)
 
@@ -17717,6 +17813,7 @@ def test_list_executions_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_executions(**mock_args)
 
@@ -17918,6 +18015,7 @@ def test_update_execution_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_execution(request)
 
@@ -17976,6 +18074,7 @@ def test_update_execution_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_execution(**mock_args)
 
@@ -18113,6 +18212,7 @@ def test_delete_execution_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_execution(request)
 
@@ -18158,6 +18258,7 @@ def test_delete_execution_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_execution(**mock_args)
 
@@ -18297,6 +18398,7 @@ def test_purge_executions_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.purge_executions(request)
 
@@ -18350,6 +18452,7 @@ def test_purge_executions_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.purge_executions(**mock_args)
 
@@ -18486,6 +18589,7 @@ def test_add_execution_events_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.add_execution_events(request)
 
@@ -18534,6 +18638,7 @@ def test_add_execution_events_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.add_execution_events(**mock_args)
 
@@ -18671,6 +18776,7 @@ def test_query_execution_inputs_and_outputs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.query_execution_inputs_and_outputs(request)
 
@@ -18720,6 +18826,7 @@ def test_query_execution_inputs_and_outputs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.query_execution_inputs_and_outputs(**mock_args)
 
@@ -18861,6 +18968,7 @@ def test_create_metadata_schema_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_metadata_schema(request)
 
@@ -18918,6 +19026,7 @@ def test_create_metadata_schema_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_metadata_schema(**mock_args)
 
@@ -19055,6 +19164,7 @@ def test_get_metadata_schema_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_metadata_schema(request)
 
@@ -19102,6 +19212,7 @@ def test_get_metadata_schema_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_metadata_schema(**mock_args)
 
@@ -19246,6 +19357,7 @@ def test_list_metadata_schemas_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_metadata_schemas(request)
 
@@ -19302,6 +19414,7 @@ def test_list_metadata_schemas_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_metadata_schemas(**mock_args)
 
@@ -19510,6 +19623,7 @@ def test_query_artifact_lineage_subgraph_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.query_artifact_lineage_subgraph(request)
 
@@ -19567,6 +19681,7 @@ def test_query_artifact_lineage_subgraph_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.query_artifact_lineage_subgraph(**mock_args)
 
@@ -21372,6 +21487,7 @@ def test_create_metadata_store_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_metadata_store(request)
 
 
@@ -21480,6 +21596,7 @@ def test_create_metadata_store_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_metadata_store(request)
 
     # Establish that the response is the type that we expect.
@@ -21505,10 +21622,14 @@ def test_create_metadata_store_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_metadata_store"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_create_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateMetadataStoreRequest.pb(
             metadata_service.CreateMetadataStoreRequest()
         )
@@ -21521,6 +21642,7 @@ def test_create_metadata_store_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -21531,6 +21653,7 @@ def test_create_metadata_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_metadata_store(
             request,
@@ -21542,6 +21665,7 @@ def test_create_metadata_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_metadata_store_rest_bad_request(
@@ -21565,6 +21689,7 @@ def test_get_metadata_store_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_metadata_store(request)
 
 
@@ -21601,6 +21726,7 @@ def test_get_metadata_store_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_metadata_store(request)
 
     # Establish that the response is the type that we expect.
@@ -21626,10 +21752,14 @@ def test_get_metadata_store_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_metadata_store"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_get_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetMetadataStoreRequest.pb(
             metadata_service.GetMetadataStoreRequest()
         )
@@ -21642,6 +21772,7 @@ def test_get_metadata_store_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_store.MetadataStore.to_json(
             metadata_store.MetadataStore()
         )
@@ -21654,6 +21785,7 @@ def test_get_metadata_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_store.MetadataStore()
+        post_with_metadata.return_value = metadata_store.MetadataStore(), metadata
 
         client.get_metadata_store(
             request,
@@ -21665,6 +21797,7 @@ def test_get_metadata_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_metadata_stores_rest_bad_request(
@@ -21688,6 +21821,7 @@ def test_list_metadata_stores_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_metadata_stores(request)
 
 
@@ -21723,6 +21857,7 @@ def test_list_metadata_stores_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_metadata_stores(request)
 
     # Establish that the response is the type that we expect.
@@ -21747,10 +21882,14 @@ def test_list_metadata_stores_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_metadata_stores"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_list_metadata_stores_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_metadata_stores"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListMetadataStoresRequest.pb(
             metadata_service.ListMetadataStoresRequest()
         )
@@ -21763,6 +21902,7 @@ def test_list_metadata_stores_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListMetadataStoresResponse.to_json(
             metadata_service.ListMetadataStoresResponse()
         )
@@ -21775,6 +21915,10 @@ def test_list_metadata_stores_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListMetadataStoresResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListMetadataStoresResponse(),
+            metadata,
+        )
 
         client.list_metadata_stores(
             request,
@@ -21786,6 +21930,7 @@ def test_list_metadata_stores_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_metadata_store_rest_bad_request(
@@ -21809,6 +21954,7 @@ def test_delete_metadata_store_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_metadata_store(request)
 
 
@@ -21839,6 +21985,7 @@ def test_delete_metadata_store_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_metadata_store(request)
 
     # Establish that the response is the type that we expect.
@@ -21864,10 +22011,14 @@ def test_delete_metadata_store_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_delete_metadata_store"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_delete_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_delete_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteMetadataStoreRequest.pb(
             metadata_service.DeleteMetadataStoreRequest()
         )
@@ -21880,6 +22031,7 @@ def test_delete_metadata_store_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -21890,6 +22042,7 @@ def test_delete_metadata_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_metadata_store(
             request,
@@ -21901,6 +22054,7 @@ def test_delete_metadata_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_artifact_rest_bad_request(
@@ -21926,6 +22080,7 @@ def test_create_artifact_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_artifact(request)
 
 
@@ -22051,6 +22206,7 @@ def test_create_artifact_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_artifact(request)
 
     # Establish that the response is the type that we expect.
@@ -22082,10 +22238,13 @@ def test_create_artifact_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_artifact"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_artifact_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateArtifactRequest.pb(
             metadata_service.CreateArtifactRequest()
         )
@@ -22098,6 +22257,7 @@ def test_create_artifact_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_artifact.Artifact.to_json(gca_artifact.Artifact())
         req.return_value.content = return_value
 
@@ -22108,6 +22268,7 @@ def test_create_artifact_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_artifact.Artifact()
+        post_with_metadata.return_value = gca_artifact.Artifact(), metadata
 
         client.create_artifact(
             request,
@@ -22119,6 +22280,7 @@ def test_create_artifact_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_artifact_rest_bad_request(
@@ -22144,6 +22306,7 @@ def test_get_artifact_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_artifact(request)
 
 
@@ -22188,6 +22351,7 @@ def test_get_artifact_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_artifact(request)
 
     # Establish that the response is the type that we expect.
@@ -22219,10 +22383,13 @@ def test_get_artifact_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_artifact"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_artifact_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetArtifactRequest.pb(
             metadata_service.GetArtifactRequest()
         )
@@ -22235,6 +22402,7 @@ def test_get_artifact_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = artifact.Artifact.to_json(artifact.Artifact())
         req.return_value.content = return_value
 
@@ -22245,6 +22413,7 @@ def test_get_artifact_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = artifact.Artifact()
+        post_with_metadata.return_value = artifact.Artifact(), metadata
 
         client.get_artifact(
             request,
@@ -22256,6 +22425,7 @@ def test_get_artifact_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_artifacts_rest_bad_request(
@@ -22281,6 +22451,7 @@ def test_list_artifacts_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_artifacts(request)
 
 
@@ -22318,6 +22489,7 @@ def test_list_artifacts_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_artifacts(request)
 
     # Establish that the response is the type that we expect.
@@ -22342,10 +22514,13 @@ def test_list_artifacts_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_artifacts"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_artifacts_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_artifacts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListArtifactsRequest.pb(
             metadata_service.ListArtifactsRequest()
         )
@@ -22358,6 +22533,7 @@ def test_list_artifacts_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListArtifactsResponse.to_json(
             metadata_service.ListArtifactsResponse()
         )
@@ -22370,6 +22546,10 @@ def test_list_artifacts_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListArtifactsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListArtifactsResponse(),
+            metadata,
+        )
 
         client.list_artifacts(
             request,
@@ -22381,6 +22561,7 @@ def test_list_artifacts_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_artifact_rest_bad_request(
@@ -22408,6 +22589,7 @@ def test_update_artifact_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_artifact(request)
 
 
@@ -22535,6 +22717,7 @@ def test_update_artifact_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_artifact(request)
 
     # Establish that the response is the type that we expect.
@@ -22566,10 +22749,13 @@ def test_update_artifact_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_update_artifact"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_update_artifact_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_update_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateArtifactRequest.pb(
             metadata_service.UpdateArtifactRequest()
         )
@@ -22582,6 +22768,7 @@ def test_update_artifact_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_artifact.Artifact.to_json(gca_artifact.Artifact())
         req.return_value.content = return_value
 
@@ -22592,6 +22779,7 @@ def test_update_artifact_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_artifact.Artifact()
+        post_with_metadata.return_value = gca_artifact.Artifact(), metadata
 
         client.update_artifact(
             request,
@@ -22603,6 +22791,7 @@ def test_update_artifact_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_artifact_rest_bad_request(
@@ -22628,6 +22817,7 @@ def test_delete_artifact_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_artifact(request)
 
 
@@ -22660,6 +22850,7 @@ def test_delete_artifact_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_artifact(request)
 
     # Establish that the response is the type that we expect.
@@ -22685,10 +22876,13 @@ def test_delete_artifact_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_delete_artifact"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_artifact_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_delete_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteArtifactRequest.pb(
             metadata_service.DeleteArtifactRequest()
         )
@@ -22701,6 +22895,7 @@ def test_delete_artifact_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -22711,6 +22906,7 @@ def test_delete_artifact_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_artifact(
             request,
@@ -22722,6 +22918,7 @@ def test_delete_artifact_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_purge_artifacts_rest_bad_request(
@@ -22747,6 +22944,7 @@ def test_purge_artifacts_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.purge_artifacts(request)
 
 
@@ -22779,6 +22977,7 @@ def test_purge_artifacts_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.purge_artifacts(request)
 
     # Establish that the response is the type that we expect.
@@ -22804,10 +23003,13 @@ def test_purge_artifacts_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_purge_artifacts"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_purge_artifacts_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_purge_artifacts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeArtifactsRequest.pb(
             metadata_service.PurgeArtifactsRequest()
         )
@@ -22820,6 +23022,7 @@ def test_purge_artifacts_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -22830,6 +23033,7 @@ def test_purge_artifacts_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.purge_artifacts(
             request,
@@ -22841,6 +23045,7 @@ def test_purge_artifacts_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_context_rest_bad_request(
@@ -22866,6 +23071,7 @@ def test_create_context_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_context(request)
 
 
@@ -22989,6 +23195,7 @@ def test_create_context_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_context(request)
 
     # Establish that the response is the type that we expect.
@@ -23019,10 +23226,13 @@ def test_create_context_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_context"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateContextRequest.pb(
             metadata_service.CreateContextRequest()
         )
@@ -23035,6 +23245,7 @@ def test_create_context_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_context.Context.to_json(gca_context.Context())
         req.return_value.content = return_value
 
@@ -23045,6 +23256,7 @@ def test_create_context_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_context.Context()
+        post_with_metadata.return_value = gca_context.Context(), metadata
 
         client.create_context(
             request,
@@ -23056,6 +23268,7 @@ def test_create_context_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_context_rest_bad_request(request_type=metadata_service.GetContextRequest):
@@ -23079,6 +23292,7 @@ def test_get_context_rest_bad_request(request_type=metadata_service.GetContextRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_context(request)
 
 
@@ -23122,6 +23336,7 @@ def test_get_context_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_context(request)
 
     # Establish that the response is the type that we expect.
@@ -23152,10 +23367,13 @@ def test_get_context_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_context"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetContextRequest.pb(
             metadata_service.GetContextRequest()
         )
@@ -23168,6 +23386,7 @@ def test_get_context_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = context.Context.to_json(context.Context())
         req.return_value.content = return_value
 
@@ -23178,6 +23397,7 @@ def test_get_context_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = context.Context()
+        post_with_metadata.return_value = context.Context(), metadata
 
         client.get_context(
             request,
@@ -23189,6 +23409,7 @@ def test_get_context_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_contexts_rest_bad_request(
@@ -23214,6 +23435,7 @@ def test_list_contexts_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_contexts(request)
 
 
@@ -23251,6 +23473,7 @@ def test_list_contexts_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_contexts(request)
 
     # Establish that the response is the type that we expect.
@@ -23275,10 +23498,13 @@ def test_list_contexts_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_contexts"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_contexts_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_contexts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListContextsRequest.pb(
             metadata_service.ListContextsRequest()
         )
@@ -23291,6 +23517,7 @@ def test_list_contexts_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListContextsResponse.to_json(
             metadata_service.ListContextsResponse()
         )
@@ -23303,6 +23530,10 @@ def test_list_contexts_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListContextsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListContextsResponse(),
+            metadata,
+        )
 
         client.list_contexts(
             request,
@@ -23314,6 +23545,7 @@ def test_list_contexts_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_context_rest_bad_request(
@@ -23341,6 +23573,7 @@ def test_update_context_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_context(request)
 
 
@@ -23466,6 +23699,7 @@ def test_update_context_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_context(request)
 
     # Establish that the response is the type that we expect.
@@ -23496,10 +23730,13 @@ def test_update_context_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_update_context"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_update_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_update_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateContextRequest.pb(
             metadata_service.UpdateContextRequest()
         )
@@ -23512,6 +23749,7 @@ def test_update_context_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_context.Context.to_json(gca_context.Context())
         req.return_value.content = return_value
 
@@ -23522,6 +23760,7 @@ def test_update_context_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_context.Context()
+        post_with_metadata.return_value = gca_context.Context(), metadata
 
         client.update_context(
             request,
@@ -23533,6 +23772,7 @@ def test_update_context_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_context_rest_bad_request(
@@ -23558,6 +23798,7 @@ def test_delete_context_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_context(request)
 
 
@@ -23590,6 +23831,7 @@ def test_delete_context_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_context(request)
 
     # Establish that the response is the type that we expect.
@@ -23615,10 +23857,13 @@ def test_delete_context_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_delete_context"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_delete_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteContextRequest.pb(
             metadata_service.DeleteContextRequest()
         )
@@ -23631,6 +23876,7 @@ def test_delete_context_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -23641,6 +23887,7 @@ def test_delete_context_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_context(
             request,
@@ -23652,6 +23899,7 @@ def test_delete_context_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_purge_contexts_rest_bad_request(
@@ -23677,6 +23925,7 @@ def test_purge_contexts_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.purge_contexts(request)
 
 
@@ -23709,6 +23958,7 @@ def test_purge_contexts_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.purge_contexts(request)
 
     # Establish that the response is the type that we expect.
@@ -23734,10 +23984,13 @@ def test_purge_contexts_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_purge_contexts"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_purge_contexts_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_purge_contexts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeContextsRequest.pb(
             metadata_service.PurgeContextsRequest()
         )
@@ -23750,6 +24003,7 @@ def test_purge_contexts_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -23760,6 +24014,7 @@ def test_purge_contexts_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.purge_contexts(
             request,
@@ -23771,6 +24026,7 @@ def test_purge_contexts_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_add_context_artifacts_and_executions_rest_bad_request(
@@ -23796,6 +24052,7 @@ def test_add_context_artifacts_and_executions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.add_context_artifacts_and_executions(request)
 
 
@@ -23833,6 +24090,7 @@ def test_add_context_artifacts_and_executions_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.add_context_artifacts_and_executions(request)
 
     # Establish that the response is the type that we expect.
@@ -23860,10 +24118,14 @@ def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor
         "post_add_context_artifacts_and_executions",
     ) as post, mock.patch.object(
         transports.MetadataServiceRestInterceptor,
+        "post_add_context_artifacts_and_executions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
         "pre_add_context_artifacts_and_executions",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddContextArtifactsAndExecutionsRequest.pb(
             metadata_service.AddContextArtifactsAndExecutionsRequest()
         )
@@ -23876,6 +24138,7 @@ def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             metadata_service.AddContextArtifactsAndExecutionsResponse.to_json(
                 metadata_service.AddContextArtifactsAndExecutionsResponse()
@@ -23890,6 +24153,10 @@ def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddContextArtifactsAndExecutionsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddContextArtifactsAndExecutionsResponse(),
+            metadata,
+        )
 
         client.add_context_artifacts_and_executions(
             request,
@@ -23901,6 +24168,7 @@ def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_add_context_children_rest_bad_request(
@@ -23926,6 +24194,7 @@ def test_add_context_children_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.add_context_children(request)
 
 
@@ -23961,6 +24230,7 @@ def test_add_context_children_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.add_context_children(request)
 
     # Establish that the response is the type that we expect.
@@ -23984,10 +24254,14 @@ def test_add_context_children_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_add_context_children"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_add_context_children_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_add_context_children"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddContextChildrenRequest.pb(
             metadata_service.AddContextChildrenRequest()
         )
@@ -24000,6 +24274,7 @@ def test_add_context_children_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.AddContextChildrenResponse.to_json(
             metadata_service.AddContextChildrenResponse()
         )
@@ -24012,6 +24287,10 @@ def test_add_context_children_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddContextChildrenResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddContextChildrenResponse(),
+            metadata,
+        )
 
         client.add_context_children(
             request,
@@ -24023,6 +24302,7 @@ def test_add_context_children_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_remove_context_children_rest_bad_request(
@@ -24048,6 +24328,7 @@ def test_remove_context_children_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.remove_context_children(request)
 
 
@@ -24083,6 +24364,7 @@ def test_remove_context_children_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.remove_context_children(request)
 
     # Establish that the response is the type that we expect.
@@ -24106,10 +24388,14 @@ def test_remove_context_children_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_remove_context_children"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_remove_context_children_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_remove_context_children"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.RemoveContextChildrenRequest.pb(
             metadata_service.RemoveContextChildrenRequest()
         )
@@ -24122,6 +24408,7 @@ def test_remove_context_children_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.RemoveContextChildrenResponse.to_json(
             metadata_service.RemoveContextChildrenResponse()
         )
@@ -24134,6 +24421,10 @@ def test_remove_context_children_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.RemoveContextChildrenResponse()
+        post_with_metadata.return_value = (
+            metadata_service.RemoveContextChildrenResponse(),
+            metadata,
+        )
 
         client.remove_context_children(
             request,
@@ -24145,6 +24436,7 @@ def test_remove_context_children_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_query_context_lineage_subgraph_rest_bad_request(
@@ -24170,6 +24462,7 @@ def test_query_context_lineage_subgraph_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.query_context_lineage_subgraph(request)
 
 
@@ -24205,6 +24498,7 @@ def test_query_context_lineage_subgraph_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.query_context_lineage_subgraph(request)
 
     # Establish that the response is the type that we expect.
@@ -24228,10 +24522,14 @@ def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_query_context_lineage_subgraph"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_query_context_lineage_subgraph_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_query_context_lineage_subgraph"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryContextLineageSubgraphRequest.pb(
             metadata_service.QueryContextLineageSubgraphRequest()
         )
@@ -24244,6 +24542,7 @@ def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = lineage_subgraph.LineageSubgraph.to_json(
             lineage_subgraph.LineageSubgraph()
         )
@@ -24256,6 +24555,7 @@ def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         client.query_context_lineage_subgraph(
             request,
@@ -24267,6 +24567,7 @@ def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_execution_rest_bad_request(
@@ -24292,6 +24593,7 @@ def test_create_execution_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_execution(request)
 
 
@@ -24415,6 +24717,7 @@ def test_create_execution_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_execution(request)
 
     # Establish that the response is the type that we expect.
@@ -24445,10 +24748,13 @@ def test_create_execution_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_execution"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_execution_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateExecutionRequest.pb(
             metadata_service.CreateExecutionRequest()
         )
@@ -24461,6 +24767,7 @@ def test_create_execution_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_execution.Execution.to_json(gca_execution.Execution())
         req.return_value.content = return_value
 
@@ -24471,6 +24778,7 @@ def test_create_execution_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_execution.Execution()
+        post_with_metadata.return_value = gca_execution.Execution(), metadata
 
         client.create_execution(
             request,
@@ -24482,6 +24790,7 @@ def test_create_execution_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_execution_rest_bad_request(
@@ -24507,6 +24816,7 @@ def test_get_execution_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_execution(request)
 
 
@@ -24550,6 +24860,7 @@ def test_get_execution_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_execution(request)
 
     # Establish that the response is the type that we expect.
@@ -24580,10 +24891,13 @@ def test_get_execution_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_execution"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_execution_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetExecutionRequest.pb(
             metadata_service.GetExecutionRequest()
         )
@@ -24596,6 +24910,7 @@ def test_get_execution_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = execution.Execution.to_json(execution.Execution())
         req.return_value.content = return_value
 
@@ -24606,6 +24921,7 @@ def test_get_execution_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = execution.Execution()
+        post_with_metadata.return_value = execution.Execution(), metadata
 
         client.get_execution(
             request,
@@ -24617,6 +24933,7 @@ def test_get_execution_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_executions_rest_bad_request(
@@ -24642,6 +24959,7 @@ def test_list_executions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_executions(request)
 
 
@@ -24679,6 +24997,7 @@ def test_list_executions_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_executions(request)
 
     # Establish that the response is the type that we expect.
@@ -24703,10 +25022,13 @@ def test_list_executions_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_executions"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_executions_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_executions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListExecutionsRequest.pb(
             metadata_service.ListExecutionsRequest()
         )
@@ -24719,6 +25041,7 @@ def test_list_executions_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListExecutionsResponse.to_json(
             metadata_service.ListExecutionsResponse()
         )
@@ -24731,6 +25054,10 @@ def test_list_executions_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListExecutionsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListExecutionsResponse(),
+            metadata,
+        )
 
         client.list_executions(
             request,
@@ -24742,6 +25069,7 @@ def test_list_executions_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_execution_rest_bad_request(
@@ -24769,6 +25097,7 @@ def test_update_execution_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_execution(request)
 
 
@@ -24894,6 +25223,7 @@ def test_update_execution_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_execution(request)
 
     # Establish that the response is the type that we expect.
@@ -24924,10 +25254,13 @@ def test_update_execution_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_update_execution"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_update_execution_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_update_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateExecutionRequest.pb(
             metadata_service.UpdateExecutionRequest()
         )
@@ -24940,6 +25273,7 @@ def test_update_execution_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_execution.Execution.to_json(gca_execution.Execution())
         req.return_value.content = return_value
 
@@ -24950,6 +25284,7 @@ def test_update_execution_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_execution.Execution()
+        post_with_metadata.return_value = gca_execution.Execution(), metadata
 
         client.update_execution(
             request,
@@ -24961,6 +25296,7 @@ def test_update_execution_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_execution_rest_bad_request(
@@ -24986,6 +25322,7 @@ def test_delete_execution_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_execution(request)
 
 
@@ -25018,6 +25355,7 @@ def test_delete_execution_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_execution(request)
 
     # Establish that the response is the type that we expect.
@@ -25043,10 +25381,13 @@ def test_delete_execution_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_delete_execution"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_execution_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_delete_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteExecutionRequest.pb(
             metadata_service.DeleteExecutionRequest()
         )
@@ -25059,6 +25400,7 @@ def test_delete_execution_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -25069,6 +25411,7 @@ def test_delete_execution_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_execution(
             request,
@@ -25080,6 +25423,7 @@ def test_delete_execution_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_purge_executions_rest_bad_request(
@@ -25105,6 +25449,7 @@ def test_purge_executions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.purge_executions(request)
 
 
@@ -25137,6 +25482,7 @@ def test_purge_executions_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.purge_executions(request)
 
     # Establish that the response is the type that we expect.
@@ -25162,10 +25508,13 @@ def test_purge_executions_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_purge_executions"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_purge_executions_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_purge_executions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeExecutionsRequest.pb(
             metadata_service.PurgeExecutionsRequest()
         )
@@ -25178,6 +25527,7 @@ def test_purge_executions_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -25188,6 +25538,7 @@ def test_purge_executions_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.purge_executions(
             request,
@@ -25199,6 +25550,7 @@ def test_purge_executions_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_add_execution_events_rest_bad_request(
@@ -25224,6 +25576,7 @@ def test_add_execution_events_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.add_execution_events(request)
 
 
@@ -25259,6 +25612,7 @@ def test_add_execution_events_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.add_execution_events(request)
 
     # Establish that the response is the type that we expect.
@@ -25282,10 +25636,14 @@ def test_add_execution_events_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_add_execution_events"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_add_execution_events_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_add_execution_events"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddExecutionEventsRequest.pb(
             metadata_service.AddExecutionEventsRequest()
         )
@@ -25298,6 +25656,7 @@ def test_add_execution_events_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.AddExecutionEventsResponse.to_json(
             metadata_service.AddExecutionEventsResponse()
         )
@@ -25310,6 +25669,10 @@ def test_add_execution_events_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddExecutionEventsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddExecutionEventsResponse(),
+            metadata,
+        )
 
         client.add_execution_events(
             request,
@@ -25321,6 +25684,7 @@ def test_add_execution_events_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_query_execution_inputs_and_outputs_rest_bad_request(
@@ -25346,6 +25710,7 @@ def test_query_execution_inputs_and_outputs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.query_execution_inputs_and_outputs(request)
 
 
@@ -25381,6 +25746,7 @@ def test_query_execution_inputs_and_outputs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.query_execution_inputs_and_outputs(request)
 
     # Establish that the response is the type that we expect.
@@ -25406,10 +25772,14 @@ def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
         "post_query_execution_inputs_and_outputs",
     ) as post, mock.patch.object(
         transports.MetadataServiceRestInterceptor,
+        "post_query_execution_inputs_and_outputs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
         "pre_query_execution_inputs_and_outputs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryExecutionInputsAndOutputsRequest.pb(
             metadata_service.QueryExecutionInputsAndOutputsRequest()
         )
@@ -25422,6 +25792,7 @@ def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = lineage_subgraph.LineageSubgraph.to_json(
             lineage_subgraph.LineageSubgraph()
         )
@@ -25434,6 +25805,7 @@ def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         client.query_execution_inputs_and_outputs(
             request,
@@ -25445,6 +25817,7 @@ def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_metadata_schema_rest_bad_request(
@@ -25470,6 +25843,7 @@ def test_create_metadata_schema_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_metadata_schema(request)
 
 
@@ -25588,6 +25962,7 @@ def test_create_metadata_schema_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_metadata_schema(request)
 
     # Establish that the response is the type that we expect.
@@ -25619,10 +25994,14 @@ def test_create_metadata_schema_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_metadata_schema"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_create_metadata_schema_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_metadata_schema"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateMetadataSchemaRequest.pb(
             metadata_service.CreateMetadataSchemaRequest()
         )
@@ -25635,6 +26014,7 @@ def test_create_metadata_schema_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_metadata_schema.MetadataSchema.to_json(
             gca_metadata_schema.MetadataSchema()
         )
@@ -25647,6 +26027,7 @@ def test_create_metadata_schema_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_metadata_schema.MetadataSchema()
+        post_with_metadata.return_value = gca_metadata_schema.MetadataSchema(), metadata
 
         client.create_metadata_schema(
             request,
@@ -25658,6 +26039,7 @@ def test_create_metadata_schema_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_metadata_schema_rest_bad_request(
@@ -25683,6 +26065,7 @@ def test_get_metadata_schema_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_metadata_schema(request)
 
 
@@ -25724,6 +26107,7 @@ def test_get_metadata_schema_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_metadata_schema(request)
 
     # Establish that the response is the type that we expect.
@@ -25755,10 +26139,14 @@ def test_get_metadata_schema_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_metadata_schema"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_get_metadata_schema_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_metadata_schema"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetMetadataSchemaRequest.pb(
             metadata_service.GetMetadataSchemaRequest()
         )
@@ -25771,6 +26159,7 @@ def test_get_metadata_schema_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_schema.MetadataSchema.to_json(
             metadata_schema.MetadataSchema()
         )
@@ -25783,6 +26172,7 @@ def test_get_metadata_schema_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_schema.MetadataSchema()
+        post_with_metadata.return_value = metadata_schema.MetadataSchema(), metadata
 
         client.get_metadata_schema(
             request,
@@ -25794,6 +26184,7 @@ def test_get_metadata_schema_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_metadata_schemas_rest_bad_request(
@@ -25819,6 +26210,7 @@ def test_list_metadata_schemas_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_metadata_schemas(request)
 
 
@@ -25856,6 +26248,7 @@ def test_list_metadata_schemas_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_metadata_schemas(request)
 
     # Establish that the response is the type that we expect.
@@ -25880,10 +26273,14 @@ def test_list_metadata_schemas_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_metadata_schemas"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_list_metadata_schemas_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_metadata_schemas"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListMetadataSchemasRequest.pb(
             metadata_service.ListMetadataSchemasRequest()
         )
@@ -25896,6 +26293,7 @@ def test_list_metadata_schemas_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListMetadataSchemasResponse.to_json(
             metadata_service.ListMetadataSchemasResponse()
         )
@@ -25908,6 +26306,10 @@ def test_list_metadata_schemas_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListMetadataSchemasResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListMetadataSchemasResponse(),
+            metadata,
+        )
 
         client.list_metadata_schemas(
             request,
@@ -25919,6 +26321,7 @@ def test_list_metadata_schemas_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_query_artifact_lineage_subgraph_rest_bad_request(
@@ -25944,6 +26347,7 @@ def test_query_artifact_lineage_subgraph_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.query_artifact_lineage_subgraph(request)
 
 
@@ -25979,6 +26383,7 @@ def test_query_artifact_lineage_subgraph_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.query_artifact_lineage_subgraph(request)
 
     # Establish that the response is the type that we expect.
@@ -26003,10 +26408,14 @@ def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
         transports.MetadataServiceRestInterceptor,
         "post_query_artifact_lineage_subgraph",
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_query_artifact_lineage_subgraph_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_query_artifact_lineage_subgraph"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryArtifactLineageSubgraphRequest.pb(
             metadata_service.QueryArtifactLineageSubgraphRequest()
         )
@@ -26019,6 +26428,7 @@ def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = lineage_subgraph.LineageSubgraph.to_json(
             lineage_subgraph.LineageSubgraph()
         )
@@ -26031,6 +26441,7 @@ def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         client.query_artifact_lineage_subgraph(
             request,
@@ -26042,6 +26453,7 @@ def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -26065,6 +26477,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -26095,6 +26508,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -26123,6 +26537,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -26153,6 +26568,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -26184,6 +26600,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -26216,6 +26633,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -26247,6 +26665,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -26279,6 +26698,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -26310,6 +26730,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -26342,6 +26763,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -26372,6 +26794,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -26402,6 +26825,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -26432,6 +26856,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -26462,6 +26887,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -26492,6 +26918,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -26522,6 +26949,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -26552,6 +26980,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -26582,6 +27011,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -26612,6 +27042,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -26642,6 +27073,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -27377,6 +27809,7 @@ async def test_create_metadata_store_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_metadata_store(request)
 
 
@@ -27492,6 +27925,7 @@ async def test_create_metadata_store_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_metadata_store(request)
 
     # Establish that the response is the type that we expect.
@@ -27522,10 +27956,14 @@ async def test_create_metadata_store_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_metadata_store"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateMetadataStoreRequest.pb(
             metadata_service.CreateMetadataStoreRequest()
         )
@@ -27538,6 +27976,7 @@ async def test_create_metadata_store_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -27548,6 +27987,7 @@ async def test_create_metadata_store_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_metadata_store(
             request,
@@ -27559,6 +27999,7 @@ async def test_create_metadata_store_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27586,6 +28027,7 @@ async def test_get_metadata_store_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_metadata_store(request)
 
 
@@ -27629,6 +28071,7 @@ async def test_get_metadata_store_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_metadata_store(request)
 
     # Establish that the response is the type that we expect.
@@ -27659,10 +28102,14 @@ async def test_get_metadata_store_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_metadata_store"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_get_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetMetadataStoreRequest.pb(
             metadata_service.GetMetadataStoreRequest()
         )
@@ -27675,6 +28122,7 @@ async def test_get_metadata_store_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_store.MetadataStore.to_json(
             metadata_store.MetadataStore()
         )
@@ -27687,6 +28135,7 @@ async def test_get_metadata_store_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_store.MetadataStore()
+        post_with_metadata.return_value = metadata_store.MetadataStore(), metadata
 
         await client.get_metadata_store(
             request,
@@ -27698,6 +28147,7 @@ async def test_get_metadata_store_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27725,6 +28175,7 @@ async def test_list_metadata_stores_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_metadata_stores(request)
 
 
@@ -27767,6 +28218,7 @@ async def test_list_metadata_stores_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_metadata_stores(request)
 
     # Establish that the response is the type that we expect.
@@ -27796,10 +28248,14 @@ async def test_list_metadata_stores_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_metadata_stores"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_metadata_stores_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_metadata_stores"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListMetadataStoresRequest.pb(
             metadata_service.ListMetadataStoresRequest()
         )
@@ -27812,6 +28268,7 @@ async def test_list_metadata_stores_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListMetadataStoresResponse.to_json(
             metadata_service.ListMetadataStoresResponse()
         )
@@ -27824,6 +28281,10 @@ async def test_list_metadata_stores_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListMetadataStoresResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListMetadataStoresResponse(),
+            metadata,
+        )
 
         await client.list_metadata_stores(
             request,
@@ -27835,6 +28296,7 @@ async def test_list_metadata_stores_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27862,6 +28324,7 @@ async def test_delete_metadata_store_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_metadata_store(request)
 
 
@@ -27899,6 +28362,7 @@ async def test_delete_metadata_store_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_metadata_store(request)
 
     # Establish that the response is the type that we expect.
@@ -27929,10 +28393,14 @@ async def test_delete_metadata_store_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_delete_metadata_store"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_delete_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_delete_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteMetadataStoreRequest.pb(
             metadata_service.DeleteMetadataStoreRequest()
         )
@@ -27945,6 +28413,7 @@ async def test_delete_metadata_store_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -27955,6 +28424,7 @@ async def test_delete_metadata_store_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_metadata_store(
             request,
@@ -27966,6 +28436,7 @@ async def test_delete_metadata_store_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27995,6 +28466,7 @@ async def test_create_artifact_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_artifact(request)
 
 
@@ -28127,6 +28599,7 @@ async def test_create_artifact_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_artifact(request)
 
     # Establish that the response is the type that we expect.
@@ -28163,10 +28636,14 @@ async def test_create_artifact_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_artifact"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_artifact_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateArtifactRequest.pb(
             metadata_service.CreateArtifactRequest()
         )
@@ -28179,6 +28656,7 @@ async def test_create_artifact_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_artifact.Artifact.to_json(gca_artifact.Artifact())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -28189,6 +28667,7 @@ async def test_create_artifact_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_artifact.Artifact()
+        post_with_metadata.return_value = gca_artifact.Artifact(), metadata
 
         await client.create_artifact(
             request,
@@ -28200,6 +28679,7 @@ async def test_create_artifact_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28229,6 +28709,7 @@ async def test_get_artifact_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_artifact(request)
 
 
@@ -28280,6 +28761,7 @@ async def test_get_artifact_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_artifact(request)
 
     # Establish that the response is the type that we expect.
@@ -28316,10 +28798,14 @@ async def test_get_artifact_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_artifact"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_get_artifact_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetArtifactRequest.pb(
             metadata_service.GetArtifactRequest()
         )
@@ -28332,6 +28818,7 @@ async def test_get_artifact_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = artifact.Artifact.to_json(artifact.Artifact())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -28342,6 +28829,7 @@ async def test_get_artifact_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = artifact.Artifact()
+        post_with_metadata.return_value = artifact.Artifact(), metadata
 
         await client.get_artifact(
             request,
@@ -28353,6 +28841,7 @@ async def test_get_artifact_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28382,6 +28871,7 @@ async def test_list_artifacts_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_artifacts(request)
 
 
@@ -28426,6 +28916,7 @@ async def test_list_artifacts_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_artifacts(request)
 
     # Establish that the response is the type that we expect.
@@ -28455,10 +28946,14 @@ async def test_list_artifacts_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_artifacts"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_artifacts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_artifacts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListArtifactsRequest.pb(
             metadata_service.ListArtifactsRequest()
         )
@@ -28471,6 +28966,7 @@ async def test_list_artifacts_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListArtifactsResponse.to_json(
             metadata_service.ListArtifactsResponse()
         )
@@ -28483,6 +28979,10 @@ async def test_list_artifacts_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListArtifactsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListArtifactsResponse(),
+            metadata,
+        )
 
         await client.list_artifacts(
             request,
@@ -28494,6 +28994,7 @@ async def test_list_artifacts_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28525,6 +29026,7 @@ async def test_update_artifact_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_artifact(request)
 
 
@@ -28659,6 +29161,7 @@ async def test_update_artifact_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_artifact(request)
 
     # Establish that the response is the type that we expect.
@@ -28695,10 +29198,14 @@ async def test_update_artifact_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_update_artifact"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_update_artifact_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_update_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateArtifactRequest.pb(
             metadata_service.UpdateArtifactRequest()
         )
@@ -28711,6 +29218,7 @@ async def test_update_artifact_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_artifact.Artifact.to_json(gca_artifact.Artifact())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -28721,6 +29229,7 @@ async def test_update_artifact_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_artifact.Artifact()
+        post_with_metadata.return_value = gca_artifact.Artifact(), metadata
 
         await client.update_artifact(
             request,
@@ -28732,6 +29241,7 @@ async def test_update_artifact_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28761,6 +29271,7 @@ async def test_delete_artifact_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_artifact(request)
 
 
@@ -28800,6 +29311,7 @@ async def test_delete_artifact_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_artifact(request)
 
     # Establish that the response is the type that we expect.
@@ -28830,10 +29342,14 @@ async def test_delete_artifact_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_delete_artifact"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_delete_artifact_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_delete_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteArtifactRequest.pb(
             metadata_service.DeleteArtifactRequest()
         )
@@ -28846,6 +29362,7 @@ async def test_delete_artifact_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -28856,6 +29373,7 @@ async def test_delete_artifact_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_artifact(
             request,
@@ -28867,6 +29385,7 @@ async def test_delete_artifact_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28896,6 +29415,7 @@ async def test_purge_artifacts_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.purge_artifacts(request)
 
 
@@ -28935,6 +29455,7 @@ async def test_purge_artifacts_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.purge_artifacts(request)
 
     # Establish that the response is the type that we expect.
@@ -28965,10 +29486,14 @@ async def test_purge_artifacts_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_purge_artifacts"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_purge_artifacts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_purge_artifacts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeArtifactsRequest.pb(
             metadata_service.PurgeArtifactsRequest()
         )
@@ -28981,6 +29506,7 @@ async def test_purge_artifacts_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -28991,6 +29517,7 @@ async def test_purge_artifacts_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.purge_artifacts(
             request,
@@ -29002,6 +29529,7 @@ async def test_purge_artifacts_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29031,6 +29559,7 @@ async def test_create_context_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_context(request)
 
 
@@ -29161,6 +29690,7 @@ async def test_create_context_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_context(request)
 
     # Establish that the response is the type that we expect.
@@ -29196,10 +29726,14 @@ async def test_create_context_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_context"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_context_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateContextRequest.pb(
             metadata_service.CreateContextRequest()
         )
@@ -29212,6 +29746,7 @@ async def test_create_context_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_context.Context.to_json(gca_context.Context())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -29222,6 +29757,7 @@ async def test_create_context_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_context.Context()
+        post_with_metadata.return_value = gca_context.Context(), metadata
 
         await client.create_context(
             request,
@@ -29233,6 +29769,7 @@ async def test_create_context_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29262,6 +29799,7 @@ async def test_get_context_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_context(request)
 
 
@@ -29312,6 +29850,7 @@ async def test_get_context_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_context(request)
 
     # Establish that the response is the type that we expect.
@@ -29347,10 +29886,13 @@ async def test_get_context_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_context"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor, "post_get_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetContextRequest.pb(
             metadata_service.GetContextRequest()
         )
@@ -29363,6 +29905,7 @@ async def test_get_context_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = context.Context.to_json(context.Context())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -29373,6 +29916,7 @@ async def test_get_context_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = context.Context()
+        post_with_metadata.return_value = context.Context(), metadata
 
         await client.get_context(
             request,
@@ -29384,6 +29928,7 @@ async def test_get_context_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29413,6 +29958,7 @@ async def test_list_contexts_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_contexts(request)
 
 
@@ -29457,6 +30003,7 @@ async def test_list_contexts_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_contexts(request)
 
     # Establish that the response is the type that we expect.
@@ -29486,10 +30033,14 @@ async def test_list_contexts_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_contexts"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_contexts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_contexts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListContextsRequest.pb(
             metadata_service.ListContextsRequest()
         )
@@ -29502,6 +30053,7 @@ async def test_list_contexts_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListContextsResponse.to_json(
             metadata_service.ListContextsResponse()
         )
@@ -29514,6 +30066,10 @@ async def test_list_contexts_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListContextsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListContextsResponse(),
+            metadata,
+        )
 
         await client.list_contexts(
             request,
@@ -29525,6 +30081,7 @@ async def test_list_contexts_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29556,6 +30113,7 @@ async def test_update_context_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_context(request)
 
 
@@ -29688,6 +30246,7 @@ async def test_update_context_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_context(request)
 
     # Establish that the response is the type that we expect.
@@ -29723,10 +30282,14 @@ async def test_update_context_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_update_context"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_update_context_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_update_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateContextRequest.pb(
             metadata_service.UpdateContextRequest()
         )
@@ -29739,6 +30302,7 @@ async def test_update_context_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_context.Context.to_json(gca_context.Context())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -29749,6 +30313,7 @@ async def test_update_context_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_context.Context()
+        post_with_metadata.return_value = gca_context.Context(), metadata
 
         await client.update_context(
             request,
@@ -29760,6 +30325,7 @@ async def test_update_context_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29789,6 +30355,7 @@ async def test_delete_context_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_context(request)
 
 
@@ -29828,6 +30395,7 @@ async def test_delete_context_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_context(request)
 
     # Establish that the response is the type that we expect.
@@ -29858,10 +30426,14 @@ async def test_delete_context_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_delete_context"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_delete_context_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_delete_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteContextRequest.pb(
             metadata_service.DeleteContextRequest()
         )
@@ -29874,6 +30446,7 @@ async def test_delete_context_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -29884,6 +30457,7 @@ async def test_delete_context_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_context(
             request,
@@ -29895,6 +30469,7 @@ async def test_delete_context_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29924,6 +30499,7 @@ async def test_purge_contexts_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.purge_contexts(request)
 
 
@@ -29963,6 +30539,7 @@ async def test_purge_contexts_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.purge_contexts(request)
 
     # Establish that the response is the type that we expect.
@@ -29993,10 +30570,14 @@ async def test_purge_contexts_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_purge_contexts"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_purge_contexts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_purge_contexts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeContextsRequest.pb(
             metadata_service.PurgeContextsRequest()
         )
@@ -30009,6 +30590,7 @@ async def test_purge_contexts_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -30019,6 +30601,7 @@ async def test_purge_contexts_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.purge_contexts(
             request,
@@ -30030,6 +30613,7 @@ async def test_purge_contexts_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30059,6 +30643,7 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.add_context_artifacts_and_executions(request)
 
 
@@ -30105,6 +30690,7 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.add_context_artifacts_and_executions(request)
 
     # Establish that the response is the type that we expect.
@@ -30139,10 +30725,14 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_interceptors(
         "post_add_context_artifacts_and_executions",
     ) as post, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor,
+        "post_add_context_artifacts_and_executions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
         "pre_add_context_artifacts_and_executions",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddContextArtifactsAndExecutionsRequest.pb(
             metadata_service.AddContextArtifactsAndExecutionsRequest()
         )
@@ -30155,6 +30745,7 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             metadata_service.AddContextArtifactsAndExecutionsResponse.to_json(
                 metadata_service.AddContextArtifactsAndExecutionsResponse()
@@ -30169,6 +30760,10 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddContextArtifactsAndExecutionsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddContextArtifactsAndExecutionsResponse(),
+            metadata,
+        )
 
         await client.add_context_artifacts_and_executions(
             request,
@@ -30180,6 +30775,7 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30209,6 +30805,7 @@ async def test_add_context_children_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.add_context_children(request)
 
 
@@ -30251,6 +30848,7 @@ async def test_add_context_children_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.add_context_children(request)
 
     # Establish that the response is the type that we expect.
@@ -30279,10 +30877,14 @@ async def test_add_context_children_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_add_context_children"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_add_context_children_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_add_context_children"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddContextChildrenRequest.pb(
             metadata_service.AddContextChildrenRequest()
         )
@@ -30295,6 +30897,7 @@ async def test_add_context_children_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.AddContextChildrenResponse.to_json(
             metadata_service.AddContextChildrenResponse()
         )
@@ -30307,6 +30910,10 @@ async def test_add_context_children_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddContextChildrenResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddContextChildrenResponse(),
+            metadata,
+        )
 
         await client.add_context_children(
             request,
@@ -30318,6 +30925,7 @@ async def test_add_context_children_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30347,6 +30955,7 @@ async def test_remove_context_children_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.remove_context_children(request)
 
 
@@ -30389,6 +30998,7 @@ async def test_remove_context_children_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.remove_context_children(request)
 
     # Establish that the response is the type that we expect.
@@ -30417,10 +31027,14 @@ async def test_remove_context_children_rest_asyncio_interceptors(null_intercepto
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_remove_context_children"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_remove_context_children_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_remove_context_children"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.RemoveContextChildrenRequest.pb(
             metadata_service.RemoveContextChildrenRequest()
         )
@@ -30433,6 +31047,7 @@ async def test_remove_context_children_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.RemoveContextChildrenResponse.to_json(
             metadata_service.RemoveContextChildrenResponse()
         )
@@ -30445,6 +31060,10 @@ async def test_remove_context_children_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.RemoveContextChildrenResponse()
+        post_with_metadata.return_value = (
+            metadata_service.RemoveContextChildrenResponse(),
+            metadata,
+        )
 
         await client.remove_context_children(
             request,
@@ -30456,6 +31075,7 @@ async def test_remove_context_children_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30485,6 +31105,7 @@ async def test_query_context_lineage_subgraph_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.query_context_lineage_subgraph(request)
 
 
@@ -30527,6 +31148,7 @@ async def test_query_context_lineage_subgraph_rest_asyncio_call_success(request_
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.query_context_lineage_subgraph(request)
 
     # Establish that the response is the type that we expect.
@@ -30559,10 +31181,14 @@ async def test_query_context_lineage_subgraph_rest_asyncio_interceptors(
         "post_query_context_lineage_subgraph",
     ) as post, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor,
+        "post_query_context_lineage_subgraph_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
         "pre_query_context_lineage_subgraph",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryContextLineageSubgraphRequest.pb(
             metadata_service.QueryContextLineageSubgraphRequest()
         )
@@ -30575,6 +31201,7 @@ async def test_query_context_lineage_subgraph_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = lineage_subgraph.LineageSubgraph.to_json(
             lineage_subgraph.LineageSubgraph()
         )
@@ -30587,6 +31214,7 @@ async def test_query_context_lineage_subgraph_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         await client.query_context_lineage_subgraph(
             request,
@@ -30598,6 +31226,7 @@ async def test_query_context_lineage_subgraph_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30627,6 +31256,7 @@ async def test_create_execution_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_execution(request)
 
 
@@ -30757,6 +31387,7 @@ async def test_create_execution_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_execution(request)
 
     # Establish that the response is the type that we expect.
@@ -30792,10 +31423,14 @@ async def test_create_execution_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_execution"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_execution_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateExecutionRequest.pb(
             metadata_service.CreateExecutionRequest()
         )
@@ -30808,6 +31443,7 @@ async def test_create_execution_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_execution.Execution.to_json(gca_execution.Execution())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -30818,6 +31454,7 @@ async def test_create_execution_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_execution.Execution()
+        post_with_metadata.return_value = gca_execution.Execution(), metadata
 
         await client.create_execution(
             request,
@@ -30829,6 +31466,7 @@ async def test_create_execution_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30858,6 +31496,7 @@ async def test_get_execution_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_execution(request)
 
 
@@ -30908,6 +31547,7 @@ async def test_get_execution_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_execution(request)
 
     # Establish that the response is the type that we expect.
@@ -30943,10 +31583,14 @@ async def test_get_execution_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_execution"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_get_execution_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetExecutionRequest.pb(
             metadata_service.GetExecutionRequest()
         )
@@ -30959,6 +31603,7 @@ async def test_get_execution_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = execution.Execution.to_json(execution.Execution())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -30969,6 +31614,7 @@ async def test_get_execution_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = execution.Execution()
+        post_with_metadata.return_value = execution.Execution(), metadata
 
         await client.get_execution(
             request,
@@ -30980,6 +31626,7 @@ async def test_get_execution_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31009,6 +31656,7 @@ async def test_list_executions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_executions(request)
 
 
@@ -31053,6 +31701,7 @@ async def test_list_executions_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_executions(request)
 
     # Establish that the response is the type that we expect.
@@ -31082,10 +31731,14 @@ async def test_list_executions_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_executions"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_executions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_executions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListExecutionsRequest.pb(
             metadata_service.ListExecutionsRequest()
         )
@@ -31098,6 +31751,7 @@ async def test_list_executions_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListExecutionsResponse.to_json(
             metadata_service.ListExecutionsResponse()
         )
@@ -31110,6 +31764,10 @@ async def test_list_executions_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListExecutionsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListExecutionsResponse(),
+            metadata,
+        )
 
         await client.list_executions(
             request,
@@ -31121,6 +31779,7 @@ async def test_list_executions_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31152,6 +31811,7 @@ async def test_update_execution_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_execution(request)
 
 
@@ -31284,6 +31944,7 @@ async def test_update_execution_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_execution(request)
 
     # Establish that the response is the type that we expect.
@@ -31319,10 +31980,14 @@ async def test_update_execution_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_update_execution"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_update_execution_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_update_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateExecutionRequest.pb(
             metadata_service.UpdateExecutionRequest()
         )
@@ -31335,6 +32000,7 @@ async def test_update_execution_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_execution.Execution.to_json(gca_execution.Execution())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -31345,6 +32011,7 @@ async def test_update_execution_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_execution.Execution()
+        post_with_metadata.return_value = gca_execution.Execution(), metadata
 
         await client.update_execution(
             request,
@@ -31356,6 +32023,7 @@ async def test_update_execution_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31385,6 +32053,7 @@ async def test_delete_execution_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_execution(request)
 
 
@@ -31424,6 +32093,7 @@ async def test_delete_execution_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_execution(request)
 
     # Establish that the response is the type that we expect.
@@ -31454,10 +32124,14 @@ async def test_delete_execution_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_delete_execution"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_delete_execution_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_delete_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteExecutionRequest.pb(
             metadata_service.DeleteExecutionRequest()
         )
@@ -31470,6 +32144,7 @@ async def test_delete_execution_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -31480,6 +32155,7 @@ async def test_delete_execution_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_execution(
             request,
@@ -31491,6 +32167,7 @@ async def test_delete_execution_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31520,6 +32197,7 @@ async def test_purge_executions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.purge_executions(request)
 
 
@@ -31559,6 +32237,7 @@ async def test_purge_executions_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.purge_executions(request)
 
     # Establish that the response is the type that we expect.
@@ -31589,10 +32268,14 @@ async def test_purge_executions_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_purge_executions"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_purge_executions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_purge_executions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeExecutionsRequest.pb(
             metadata_service.PurgeExecutionsRequest()
         )
@@ -31605,6 +32288,7 @@ async def test_purge_executions_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -31615,6 +32299,7 @@ async def test_purge_executions_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.purge_executions(
             request,
@@ -31626,6 +32311,7 @@ async def test_purge_executions_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31655,6 +32341,7 @@ async def test_add_execution_events_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.add_execution_events(request)
 
 
@@ -31697,6 +32384,7 @@ async def test_add_execution_events_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.add_execution_events(request)
 
     # Establish that the response is the type that we expect.
@@ -31725,10 +32413,14 @@ async def test_add_execution_events_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_add_execution_events"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_add_execution_events_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_add_execution_events"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddExecutionEventsRequest.pb(
             metadata_service.AddExecutionEventsRequest()
         )
@@ -31741,6 +32433,7 @@ async def test_add_execution_events_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.AddExecutionEventsResponse.to_json(
             metadata_service.AddExecutionEventsResponse()
         )
@@ -31753,6 +32446,10 @@ async def test_add_execution_events_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddExecutionEventsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddExecutionEventsResponse(),
+            metadata,
+        )
 
         await client.add_execution_events(
             request,
@@ -31764,6 +32461,7 @@ async def test_add_execution_events_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31793,6 +32491,7 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.query_execution_inputs_and_outputs(request)
 
 
@@ -31837,6 +32536,7 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.query_execution_inputs_and_outputs(request)
 
     # Establish that the response is the type that we expect.
@@ -31869,10 +32569,14 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_interceptors(
         "post_query_execution_inputs_and_outputs",
     ) as post, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor,
+        "post_query_execution_inputs_and_outputs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
         "pre_query_execution_inputs_and_outputs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryExecutionInputsAndOutputsRequest.pb(
             metadata_service.QueryExecutionInputsAndOutputsRequest()
         )
@@ -31885,6 +32589,7 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = lineage_subgraph.LineageSubgraph.to_json(
             lineage_subgraph.LineageSubgraph()
         )
@@ -31897,6 +32602,7 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         await client.query_execution_inputs_and_outputs(
             request,
@@ -31908,6 +32614,7 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31937,6 +32644,7 @@ async def test_create_metadata_schema_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_metadata_schema(request)
 
 
@@ -32062,6 +32770,7 @@ async def test_create_metadata_schema_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_metadata_schema(request)
 
     # Establish that the response is the type that we expect.
@@ -32098,10 +32807,14 @@ async def test_create_metadata_schema_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_metadata_schema"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_metadata_schema_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_metadata_schema"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateMetadataSchemaRequest.pb(
             metadata_service.CreateMetadataSchemaRequest()
         )
@@ -32114,6 +32827,7 @@ async def test_create_metadata_schema_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_metadata_schema.MetadataSchema.to_json(
             gca_metadata_schema.MetadataSchema()
         )
@@ -32126,6 +32840,7 @@ async def test_create_metadata_schema_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = gca_metadata_schema.MetadataSchema()
+        post_with_metadata.return_value = gca_metadata_schema.MetadataSchema(), metadata
 
         await client.create_metadata_schema(
             request,
@@ -32137,6 +32852,7 @@ async def test_create_metadata_schema_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32166,6 +32882,7 @@ async def test_get_metadata_schema_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_metadata_schema(request)
 
 
@@ -32214,6 +32931,7 @@ async def test_get_metadata_schema_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_metadata_schema(request)
 
     # Establish that the response is the type that we expect.
@@ -32250,10 +32968,14 @@ async def test_get_metadata_schema_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_metadata_schema"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_get_metadata_schema_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_metadata_schema"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetMetadataSchemaRequest.pb(
             metadata_service.GetMetadataSchemaRequest()
         )
@@ -32266,6 +32988,7 @@ async def test_get_metadata_schema_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_schema.MetadataSchema.to_json(
             metadata_schema.MetadataSchema()
         )
@@ -32278,6 +33001,7 @@ async def test_get_metadata_schema_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_schema.MetadataSchema()
+        post_with_metadata.return_value = metadata_schema.MetadataSchema(), metadata
 
         await client.get_metadata_schema(
             request,
@@ -32289,6 +33013,7 @@ async def test_get_metadata_schema_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32318,6 +33043,7 @@ async def test_list_metadata_schemas_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_metadata_schemas(request)
 
 
@@ -32362,6 +33088,7 @@ async def test_list_metadata_schemas_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_metadata_schemas(request)
 
     # Establish that the response is the type that we expect.
@@ -32391,10 +33118,14 @@ async def test_list_metadata_schemas_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_metadata_schemas"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_metadata_schemas_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_metadata_schemas"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListMetadataSchemasRequest.pb(
             metadata_service.ListMetadataSchemasRequest()
         )
@@ -32407,6 +33138,7 @@ async def test_list_metadata_schemas_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = metadata_service.ListMetadataSchemasResponse.to_json(
             metadata_service.ListMetadataSchemasResponse()
         )
@@ -32419,6 +33151,10 @@ async def test_list_metadata_schemas_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListMetadataSchemasResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListMetadataSchemasResponse(),
+            metadata,
+        )
 
         await client.list_metadata_schemas(
             request,
@@ -32430,6 +33166,7 @@ async def test_list_metadata_schemas_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32459,6 +33196,7 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.query_artifact_lineage_subgraph(request)
 
 
@@ -32501,6 +33239,7 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_call_success(request
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.query_artifact_lineage_subgraph(request)
 
     # Establish that the response is the type that we expect.
@@ -32533,10 +33272,14 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_interceptors(
         "post_query_artifact_lineage_subgraph",
     ) as post, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor,
+        "post_query_artifact_lineage_subgraph_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
         "pre_query_artifact_lineage_subgraph",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryArtifactLineageSubgraphRequest.pb(
             metadata_service.QueryArtifactLineageSubgraphRequest()
         )
@@ -32549,6 +33292,7 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = lineage_subgraph.LineageSubgraph.to_json(
             lineage_subgraph.LineageSubgraph()
         )
@@ -32561,6 +33305,7 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         await client.query_artifact_lineage_subgraph(
             request,
@@ -32572,6 +33317,7 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32601,6 +33347,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -32638,6 +33385,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -32670,6 +33418,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -32707,6 +33456,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -32742,6 +33492,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -32781,6 +33532,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -32816,6 +33568,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -32855,6 +33608,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -32890,6 +33644,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -32929,6 +33684,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -32963,6 +33719,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -33000,6 +33757,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -33034,6 +33792,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -33071,6 +33830,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -33105,6 +33865,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -33142,6 +33903,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -33176,6 +33938,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -33213,6 +33976,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -33247,6 +34011,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -33284,6 +34049,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

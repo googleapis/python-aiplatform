@@ -12,6 +12,7 @@ Services for Google Cloud Aiplatform v1 API
     feature_registry_service
     featurestore_online_serving_service
     featurestore_service
+    gen_ai_cache_service
     gen_ai_tuning_service
     index_endpoint_service
     index_service
@@ -26,6 +27,8 @@ Services for Google Cloud Aiplatform v1 API
     persistent_resource_service
     pipeline_service
     prediction_service
+    reasoning_engine_execution_service
+    reasoning_engine_service
     schedule_service
     specialist_pool_service
     tensorboard_service

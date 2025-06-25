@@ -18,6 +18,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Iterable,
     Mapping,
     Optional,
     Sequence,
@@ -269,9 +270,11 @@ def _override_active_span_processor(
 class LangchainAgent:
     """A Langchain Agent.
 
-    See https://cloud.google.com/vertex-ai/generative-ai/docs/reasoning-engine/develop
+    See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/langchain
     for details.
     """
+
+    agent_framework = "langchain"
 
     def __init__(
         self,
@@ -566,6 +569,7 @@ class LangchainAgent:
 
         return LangchainAgent(
             model=self._model_name,
+            system_instruction=self._system_instruction,
             prompt=copy.deepcopy(self._prompt),
             tools=copy.deepcopy(self._tools),
             output_parser=copy.deepcopy(self._output_parser),
@@ -609,3 +613,33 @@ class LangchainAgent:
         return langchain_load_dump.dumpd(
             self._runnable.invoke(input=input, config=config, **kwargs)
         )
+
+    def stream_query(
+        self,
+        *,
+        input: Union[str, Mapping[str, Any]],
+        config: Optional["RunnableConfig"] = None,
+        **kwargs,
+    ) -> Iterable[Any]:
+        """Stream queries the Agent with the given input and config.
+
+        Args:
+            input (Union[str, Mapping[str, Any]]):
+                Required. The input to be passed to the Agent.
+            config (langchain_core.runnables.RunnableConfig):
+                Optional. The config (if any) to be used for invoking the Agent.
+            **kwargs:
+                Optional. Any additional keyword arguments to be passed to the
+                `.invoke()` method of the corresponding AgentExecutor.
+
+        Yields:
+            The output of querying the Agent with the given input and config.
+        """
+        from langchain.load import dump as langchain_load_dump
+
+        if isinstance(input, str):
+            input = {"input": input}
+        if not self._runnable:
+            self.set_up()
+        for chunk in self._runnable.stream(input=input, config=config, **kwargs):
+            yield langchain_load_dump.dumpd(chunk)

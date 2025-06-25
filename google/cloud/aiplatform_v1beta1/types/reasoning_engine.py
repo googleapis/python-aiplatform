@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import env_var
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -28,6 +29,7 @@ __protobuf__ = proto.module(
     manifest={
         "ReasoningEngineSpec",
         "ReasoningEngine",
+        "ReasoningEngineContextSpec",
     },
 )
 
@@ -37,11 +39,22 @@ class ReasoningEngineSpec(proto.Message):
 
     Attributes:
         package_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.PackageSpec):
-            Required. User provided package spec of the
-            ReasoningEngine.
+            Optional. User provided package spec of the ReasoningEngine.
+            Ignored when users directly specify a deployment image
+            through ``deployment_spec.first_party_image_override``, but
+            keeping the field_behavior to avoid introducing breaking
+            changes.
+        deployment_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.DeploymentSpec):
+            Optional. The specification of a Reasoning
+            Engine deployment.
         class_methods (MutableSequence[google.protobuf.struct_pb2.Struct]):
             Optional. Declarations for object class
-            methods.
+            methods in OpenAPI specification format.
+        agent_framework (str):
+            Optional. The OSS agent framework used to
+            develop the agent. Currently supported values:
+            "google-adk", "langchain", "langgraph", "ag2",
+            "llama-index", "custom".
     """
 
     class PackageSpec(proto.Message):
@@ -81,15 +94,53 @@ class ReasoningEngineSpec(proto.Message):
             number=4,
         )
 
+    class DeploymentSpec(proto.Message):
+        r"""The specification of a Reasoning Engine deployment.
+
+        Attributes:
+            env (MutableSequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
+                Optional. Environment variables to be set
+                with the Reasoning Engine deployment. The
+                environment variables can be updated through the
+                UpdateReasoningEngine API.
+            secret_env (MutableSequence[google.cloud.aiplatform_v1beta1.types.SecretEnvVar]):
+                Optional. Environment variables where the
+                value is a secret in Cloud Secret Manager.
+                To use this feature, add 'Secret Manager Secret
+                Accessor' role
+                (roles/secretmanager.secretAccessor) to AI
+                Platform Reasoning Engine Service Agent.
+        """
+
+        env: MutableSequence[env_var.EnvVar] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=env_var.EnvVar,
+        )
+        secret_env: MutableSequence[env_var.SecretEnvVar] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message=env_var.SecretEnvVar,
+        )
+
     package_spec: PackageSpec = proto.Field(
         proto.MESSAGE,
         number=2,
         message=PackageSpec,
     )
+    deployment_spec: DeploymentSpec = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=DeploymentSpec,
+    )
     class_methods: MutableSequence[struct_pb2.Struct] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Struct,
+    )
+    agent_framework: str = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 
@@ -99,8 +150,9 @@ class ReasoningEngine(proto.Message):
 
     Attributes:
         name (str):
-            Identifier. The resource name of the
-            ReasoningEngine.
+            Identifier. The resource name of the ReasoningEngine.
+            Format:
+            ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
         display_name (str):
             Required. The display name of the
             ReasoningEngine.
@@ -108,7 +160,7 @@ class ReasoningEngine(proto.Message):
             Optional. The description of the
             ReasoningEngine.
         spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec):
-            Required. Configurations of the
+            Optional. Configurations of the
             ReasoningEngine
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
@@ -120,6 +172,9 @@ class ReasoningEngine(proto.Message):
             Optional. Used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
+        context_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec):
+            Optional. Configuration for how Agent Engine
+            sub-resources should manage context.
     """
 
     name: str = proto.Field(
@@ -152,6 +207,86 @@ class ReasoningEngine(proto.Message):
     etag: str = proto.Field(
         proto.STRING,
         number=6,
+    )
+    context_spec: "ReasoningEngineContextSpec" = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message="ReasoningEngineContextSpec",
+    )
+
+
+class ReasoningEngineContextSpec(proto.Message):
+    r"""Configuration for how Agent Engine sub-resources should
+    manage context.
+
+    Attributes:
+        memory_bank_config (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec.MemoryBankConfig):
+            Optional. Specification for a Memory Bank,
+            which manages memories for the Agent Engine.
+    """
+
+    class MemoryBankConfig(proto.Message):
+        r"""Specification for a Memory Bank.
+
+        Attributes:
+            generation_config (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec.MemoryBankConfig.GenerationConfig):
+                Optional. Configuration for how to generate
+                memories for the Memory Bank.
+            similarity_search_config (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig):
+                Optional. Configuration for how to perform similarity search
+                on memories. If not set, the Memory Bank will use the
+                default embedding model ``text-embedding-005``.
+        """
+
+        class GenerationConfig(proto.Message):
+            r"""Configuration for how to generate memories.
+
+            Attributes:
+                model (str):
+                    Required. The model used to generate memories. Format:
+                    ``projects/{project}/locations/{location}/publishers/google/models/{model}``
+                    or
+                    ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+            """
+
+            model: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+
+        class SimilaritySearchConfig(proto.Message):
+            r"""Configuration for how to perform similarity search on
+            memories.
+
+            Attributes:
+                embedding_model (str):
+                    Required. The model used to generate embeddings to lookup
+                    similar memories. Format:
+                    ``projects/{project}/locations/{location}/publishers/google/models/{model}``
+                    or
+                    ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+            """
+
+            embedding_model: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+
+        generation_config: "ReasoningEngineContextSpec.MemoryBankConfig.GenerationConfig" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message="ReasoningEngineContextSpec.MemoryBankConfig.GenerationConfig",
+        )
+        similarity_search_config: "ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message="ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig",
+        )
+
+    memory_bank_config: MemoryBankConfig = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=MemoryBankConfig,
     )
 
 

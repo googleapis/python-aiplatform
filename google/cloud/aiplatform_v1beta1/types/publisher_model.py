@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -286,6 +286,9 @@ class PublisherModel(proto.Message):
             deploy (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.Deploy):
                 Optional. Deploy the PublisherModel to Vertex
                 Endpoint.
+            multi_deploy_vertex (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.DeployVertex):
+                Optional. Multiple setups to deploy the
+                PublisherModel to Vertex Endpoint.
             deploy_gke (google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.DeployGke):
                 Optional. Deploy PublisherModel to Google
                 Kubernetes Engine.
@@ -408,6 +411,23 @@ class PublisherModel(proto.Message):
                 message="PublisherModel.CallToAction.RegionalResourceReferences",
             )
 
+        class DeployVertex(proto.Message):
+            r"""Multiple setups to deploy the PublisherModel.
+
+            Attributes:
+                multi_deploy_vertex (MutableSequence[google.cloud.aiplatform_v1beta1.types.PublisherModel.CallToAction.Deploy]):
+                    Optional. One click deployment
+                    configurations.
+            """
+
+            multi_deploy_vertex: MutableSequence[
+                "PublisherModel.CallToAction.Deploy"
+            ] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=1,
+                message="PublisherModel.CallToAction.Deploy",
+            )
+
         class Deploy(proto.Message):
             r"""Model metadata that is needed for UploadModel or
             DeployModel/CreateEndpoint requests.
@@ -475,8 +495,8 @@ class PublisherModel(proto.Message):
 
                 Attributes:
                     labels (MutableMapping[str, str]):
-                        Optional. Labels for the deployment. For
-                        managing deployment config like verifying,
+                        Optional. Labels for the deployment config.
+                        For managing deployment config like verifying,
                         source of deployment config, etc.
                     sample_request (str):
                         Optional. Sample request for deployed
@@ -616,6 +636,11 @@ class PublisherModel(proto.Message):
             proto.MESSAGE,
             number=7,
             message="PublisherModel.CallToAction.Deploy",
+        )
+        multi_deploy_vertex: "PublisherModel.CallToAction.DeployVertex" = proto.Field(
+            proto.MESSAGE,
+            number=16,
+            message="PublisherModel.CallToAction.DeployVertex",
         )
         deploy_gke: "PublisherModel.CallToAction.DeployGke" = proto.Field(
             proto.MESSAGE,

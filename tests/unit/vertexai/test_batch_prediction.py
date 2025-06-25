@@ -56,6 +56,9 @@ _TEST_CLAUDE_MODEL_NAME = "claude-3-opus"
 _TEST_CLAUDE_MODEL_RESOURCE_NAME = (
     f"publishers/anthropic/models/{_TEST_CLAUDE_MODEL_NAME}"
 )
+_TEST_SELF_HOSTED_GEMMA_MODEL_RESOURCE_NAME = (
+    "publishers/google/models/gemma@gemma-2b-it"
+)
 
 _TEST_GCS_INPUT_URI = "gs://test-bucket/test-input.jsonl"
 _TEST_GCS_INPUT_URI_2 = "gs://test-bucket/test-input-2.jsonl"
@@ -589,6 +592,39 @@ class TestBatchPredictionJob:
             retry=aiplatform_base._DEFAULT_RETRY,
         )
 
+    def test_submit_batch_prediction_job_with_self_hosted_gemma_model(
+        self,
+        create_batch_prediction_job_mock,
+    ):
+        job = batch_prediction.BatchPredictionJob.submit(
+            source_model=_TEST_SELF_HOSTED_GEMMA_MODEL_RESOURCE_NAME,
+            input_dataset=_TEST_BQ_INPUT_URI,
+        )
+
+        assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_SELF_HOSTED_GEMMA_MODEL_RESOURCE_NAME,
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
+                instances_format="bigquery",
+                bigquery_source=gca_io_compat.BigQuerySource(
+                    input_uri=_TEST_BQ_INPUT_URI
+                ),
+            ),
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io_compat.BigQueryDestination(
+                    output_uri=_TEST_BQ_OUTPUT_PREFIX
+                ),
+                predictions_format="bigquery",
+            ),
+        )
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
+        )
+
     def test_submit_batch_prediction_job_with_invalid_source_model(self):
         with pytest.raises(
             ValueError,
@@ -657,7 +693,7 @@ class TestBatchPredictionJob:
         invalid_bq_uris = ["bq://projectId.dataset1", "bq://projectId.dataset2"]
         with pytest.raises(
             ValueError,
-            match=("Multiple Bigquery input datasets are not supported."),
+            match=("Multiple BigQuery input datasets are not supported."),
         ):
             batch_prediction.BatchPredictionJob.submit(
                 source_model=_TEST_GEMINI_MODEL_NAME,
@@ -723,3 +759,9 @@ class TestBatchPredictionJob:
         list_batch_prediction_jobs_mock.assert_called_once_with(
             request={"parent": _TEST_PARENT}
         )
+
+    def test_num_pending_jobs(self, list_batch_prediction_jobs_mock):
+        num_pending_jobs = batch_prediction.BatchPredictionJob.num_pending_jobs()
+
+        assert num_pending_jobs == 1
+        list_batch_prediction_jobs_mock.assert_called_once()

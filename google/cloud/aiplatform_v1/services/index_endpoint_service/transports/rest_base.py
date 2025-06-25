@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -644,6 +644,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
                 },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
+                },
             ]
             return http_options
 
@@ -730,6 +734,11 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
                     "body": "*",
                 },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
+                    "body": "*",
+                },
             ]
             return http_options
 
@@ -807,6 +816,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
                 },
             ]
             return http_options
@@ -991,6 +1004,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -1127,11 +1144,19 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1356,6 +1381,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1381,6 +1410,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1496,11 +1529,19 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                 },
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1745,6 +1786,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -1782,6 +1827,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -1897,11 +1946,19 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                 },
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2142,6 +2199,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2179,6 +2240,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
                 {
                     "method": "get",
@@ -2294,6 +2359,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                 },
                 {
@@ -2311,6 +2380,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                 },
                 {
                     "method": "get",
@@ -2547,6 +2620,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -2576,6 +2653,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
@@ -2687,11 +2768,19 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

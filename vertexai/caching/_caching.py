@@ -24,7 +24,9 @@ from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform.compat.types import (
     cached_content_v1beta1 as gca_cached_content,
 )
-from google.cloud.aiplatform_v1beta1.services import gen_ai_cache_service
+from google.cloud.aiplatform_v1.services import (
+    gen_ai_cache_service as gen_ai_cache_service_v1,
+)
 from google.cloud.aiplatform_v1beta1.types.cached_content import (
     CachedContent as GapicCachedContent,
 )
@@ -36,6 +38,8 @@ from google.cloud.aiplatform_v1beta1.types.gen_ai_cache_service import (
     GetCachedContentRequest,
     UpdateCachedContentRequest,
 )
+from google.cloud.aiplatform_v1 import types as types_v1
+from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.generative_models import _generative_models
 from vertexai.generative_models._generative_models import (
     Content,
@@ -45,6 +49,7 @@ from vertexai.generative_models._generative_models import (
     ContentsType,
 )
 from google.protobuf import field_mask_pb2
+from vertexai._utils import warning_logs
 
 
 def _prepare_create_request(
@@ -57,6 +62,7 @@ def _prepare_create_request(
     expire_time: Optional[datetime.datetime] = None,
     ttl: Optional[datetime.timedelta] = None,
     display_name: Optional[str] = None,
+    kms_key_name: Optional[str] = None,
 ) -> CreateCachedContentRequest:
     """Prepares the request create_cached_content RPC."""
     (
@@ -71,7 +77,8 @@ def _prepare_create_request(
         _generative_models._validate_tool_config_type(tool_config)
 
     # contents can either be a list of Content objects (most generic case)
-    contents = _generative_models._content_types_to_gapic_contents(contents)
+    if contents:
+        contents = _generative_models._content_types_to_gapic_contents(contents)
 
     gapic_system_instruction: Optional[gapic_content_types.Content] = None
     if system_instruction:
@@ -88,7 +95,7 @@ def _prepare_create_request(
     if ttl and expire_time:
         raise ValueError("Only one of ttl and expire_time can be set.")
 
-    request = CreateCachedContentRequest(
+    request_v1beta1 = CreateCachedContentRequest(
         parent=f"projects/{project}/locations/{location}",
         cached_content=GapicCachedContent(
             model=model_name,
@@ -99,13 +106,26 @@ def _prepare_create_request(
             expire_time=expire_time,
             ttl=ttl,
             display_name=display_name,
+            encryption_spec=EncryptionSpec(kms_key_name=kms_key_name)
+            if kms_key_name
+            else None,
         ),
     )
-    return request
+    serialized_message_v1beta1 = type(request_v1beta1).serialize(request_v1beta1)
+    try:
+        request_v1 = types_v1.CreateCachedContentRequest.deserialize(
+            serialized_message_v1beta1
+        )
+    except Exception as ex:
+        raise ValueError(
+            "Failed to convert CreateCachedContentRequest from v1beta1 to v1:\n"
+            f"{serialized_message_v1beta1}"
+        ) from ex
+    return request_v1
 
 
 def _prepare_get_cached_content_request(name: str) -> GetCachedContentRequest:
-    return GetCachedContentRequest(name=name)
+    return types_v1.GetCachedContentRequest(name=name)
 
 
 class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
@@ -121,7 +141,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
     client_class = aiplatform_utils.GenAiCacheServiceClientWithOverride
 
     _gen_ai_cache_service_client_value: Optional[
-        gen_ai_cache_service.GenAiCacheServiceClient
+        gen_ai_cache_service_v1.GenAiCacheServiceClient
     ] = None
 
     def __init__(self, cached_content_name: str):
@@ -138,6 +158,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
                 ID. Example: "projects/.../locations/../cachedContents/456" or
                 "456".
         """
+        warning_logs.show_deprecation_warning()
         super().__init__(resource_name=cached_content_name)
         self._gca_resource = self._get_gca_resource(cached_content_name)
 
@@ -161,6 +182,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
         expire_time: Optional[datetime.datetime] = None,
         ttl: Optional[datetime.timedelta] = None,
         display_name: Optional[str] = None,
+        kms_key_name: Optional[str] = None,
     ) -> "CachedContent":
         """Creates a new cached content through the gen ai cache service.
 
@@ -199,6 +221,14 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
                 default TTL on the API side will be used (currently 1 hour).
             display_name:
                 The user-generated meaningful display name of the cached content.
+            kms_key_name:
+                Optional. Customer-managed encryption key. See
+                https://cloud.google.com/vertex-ai/docs/general/cmek for more
+                details. If this is set, then all created CachedContent objects
+                will be encrypted with the provided encryption key.
+                Allowed formats:
+
+                projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}
         Returns:
             A CachedContent object with only name and model_name specified.
         Raises:
@@ -223,6 +253,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
             expire_time=expire_time,
             ttl=ttl,
             display_name=display_name,
+            kms_key_name=kms_key_name,
         )
         client = cls._instantiate_client(location=location)
         cached_content_resource = client.create_cached_content(request)
@@ -252,7 +283,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
             update_mask.append("expire_time")
 
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
-        request = UpdateCachedContentRequest(
+        request_v1beta1 = UpdateCachedContentRequest(
             cached_content=GapicCachedContent(
                 name=self.resource_name,
                 expire_time=expire_time,
@@ -260,7 +291,17 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
             ),
             update_mask=update_mask,
         )
-        self.api_client.update_cached_content(request)
+        serialized_message_v1beta1 = type(request_v1beta1).serialize(request_v1beta1)
+        try:
+            request_v1 = types_v1.UpdateCachedContentRequest.deserialize(
+                serialized_message_v1beta1
+            )
+        except Exception as ex:
+            raise ValueError(
+                "Failed to convert UpdateCachedContentRequest from v1beta1 to v1:\n"
+                f"{serialized_message_v1beta1}"
+            ) from ex
+        self.api_client.update_cached_content(request_v1)
 
     @property
     def expire_time(self) -> datetime.datetime:

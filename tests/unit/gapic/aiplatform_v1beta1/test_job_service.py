@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -125,6 +125,14 @@ from google.protobuf import wrappers_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 from google.type import money_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -359,6 +367,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         JobServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = JobServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = JobServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -15177,6 +15228,7 @@ def test_create_custom_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_custom_job(request)
 
@@ -15231,6 +15283,7 @@ def test_create_custom_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_custom_job(**mock_args)
 
@@ -15363,6 +15416,7 @@ def test_get_custom_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_custom_job(request)
 
@@ -15410,6 +15464,7 @@ def test_get_custom_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_custom_job(**mock_args)
 
@@ -15552,6 +15607,7 @@ def test_list_custom_jobs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_custom_jobs(request)
 
@@ -15607,6 +15663,7 @@ def test_list_custom_jobs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_custom_jobs(**mock_args)
 
@@ -15804,6 +15861,7 @@ def test_delete_custom_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_custom_job(request)
 
@@ -15849,6 +15907,7 @@ def test_delete_custom_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_custom_job(**mock_args)
 
@@ -15980,6 +16039,7 @@ def test_cancel_custom_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.cancel_custom_job(request)
 
@@ -16025,6 +16085,7 @@ def test_cancel_custom_job_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.cancel_custom_job(**mock_args)
 
@@ -16162,6 +16223,7 @@ def test_create_data_labeling_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_data_labeling_job(request)
 
@@ -16216,6 +16278,7 @@ def test_create_data_labeling_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_data_labeling_job(**mock_args)
 
@@ -16353,6 +16416,7 @@ def test_get_data_labeling_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_data_labeling_job(request)
 
@@ -16400,6 +16464,7 @@ def test_get_data_labeling_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_data_labeling_job(**mock_args)
 
@@ -16546,6 +16611,7 @@ def test_list_data_labeling_jobs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_data_labeling_jobs(request)
 
@@ -16602,6 +16668,7 @@ def test_list_data_labeling_jobs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_data_labeling_jobs(**mock_args)
 
@@ -16802,6 +16869,7 @@ def test_delete_data_labeling_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_data_labeling_job(request)
 
@@ -16847,6 +16915,7 @@ def test_delete_data_labeling_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_data_labeling_job(**mock_args)
 
@@ -16981,6 +17050,7 @@ def test_cancel_data_labeling_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.cancel_data_labeling_job(request)
 
@@ -17026,6 +17096,7 @@ def test_cancel_data_labeling_job_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.cancel_data_labeling_job(**mock_args)
 
@@ -17165,6 +17236,7 @@ def test_create_hyperparameter_tuning_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_hyperparameter_tuning_job(request)
 
@@ -17225,6 +17297,7 @@ def test_create_hyperparameter_tuning_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_hyperparameter_tuning_job(**mock_args)
 
@@ -17366,6 +17439,7 @@ def test_get_hyperparameter_tuning_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_hyperparameter_tuning_job(request)
 
@@ -17417,6 +17491,7 @@ def test_get_hyperparameter_tuning_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_hyperparameter_tuning_job(**mock_args)
 
@@ -17564,6 +17639,7 @@ def test_list_hyperparameter_tuning_jobs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_hyperparameter_tuning_jobs(request)
 
@@ -17621,6 +17697,7 @@ def test_list_hyperparameter_tuning_jobs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_hyperparameter_tuning_jobs(**mock_args)
 
@@ -17827,6 +17904,7 @@ def test_delete_hyperparameter_tuning_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_hyperparameter_tuning_job(request)
 
@@ -17874,6 +17952,7 @@ def test_delete_hyperparameter_tuning_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_hyperparameter_tuning_job(**mock_args)
 
@@ -18008,6 +18087,7 @@ def test_cancel_hyperparameter_tuning_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.cancel_hyperparameter_tuning_job(request)
 
@@ -18055,6 +18135,7 @@ def test_cancel_hyperparameter_tuning_job_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.cancel_hyperparameter_tuning_job(**mock_args)
 
@@ -18187,6 +18268,7 @@ def test_create_nas_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_nas_job(request)
 
@@ -18241,6 +18323,7 @@ def test_create_nas_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_nas_job(**mock_args)
 
@@ -18371,6 +18454,7 @@ def test_get_nas_job_rest_required_fields(request_type=job_service.GetNasJobRequ
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_nas_job(request)
 
@@ -18416,6 +18500,7 @@ def test_get_nas_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_nas_job(**mock_args)
 
@@ -18556,6 +18641,7 @@ def test_list_nas_jobs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_nas_jobs(request)
 
@@ -18611,6 +18697,7 @@ def test_list_nas_jobs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_nas_jobs(**mock_args)
 
@@ -18804,6 +18891,7 @@ def test_delete_nas_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_nas_job(request)
 
@@ -18847,6 +18935,7 @@ def test_delete_nas_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_nas_job(**mock_args)
 
@@ -18976,6 +19065,7 @@ def test_cancel_nas_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.cancel_nas_job(request)
 
@@ -19019,6 +19109,7 @@ def test_cancel_nas_job_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.cancel_nas_job(**mock_args)
 
@@ -19154,6 +19245,7 @@ def test_get_nas_trial_detail_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_nas_trial_detail(request)
 
@@ -19201,6 +19293,7 @@ def test_get_nas_trial_detail_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_nas_trial_detail(**mock_args)
 
@@ -19344,6 +19437,7 @@ def test_list_nas_trial_details_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_nas_trial_details(request)
 
@@ -19399,6 +19493,7 @@ def test_list_nas_trial_details_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_nas_trial_details(**mock_args)
 
@@ -19601,6 +19696,7 @@ def test_create_batch_prediction_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_batch_prediction_job(request)
 
@@ -19657,6 +19753,7 @@ def test_create_batch_prediction_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_batch_prediction_job(**mock_args)
 
@@ -19796,6 +19893,7 @@ def test_get_batch_prediction_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_batch_prediction_job(request)
 
@@ -19843,6 +19941,7 @@ def test_get_batch_prediction_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_batch_prediction_job(**mock_args)
 
@@ -19988,6 +20087,7 @@ def test_list_batch_prediction_jobs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_batch_prediction_jobs(request)
 
@@ -20043,6 +20143,7 @@ def test_list_batch_prediction_jobs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_batch_prediction_jobs(**mock_args)
 
@@ -20245,6 +20346,7 @@ def test_delete_batch_prediction_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_batch_prediction_job(request)
 
@@ -20290,6 +20392,7 @@ def test_delete_batch_prediction_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_batch_prediction_job(**mock_args)
 
@@ -20424,6 +20527,7 @@ def test_cancel_batch_prediction_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.cancel_batch_prediction_job(request)
 
@@ -20469,6 +20573,7 @@ def test_cancel_batch_prediction_job_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.cancel_batch_prediction_job(**mock_args)
 
@@ -20614,6 +20719,7 @@ def test_create_model_deployment_monitoring_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_model_deployment_monitoring_job(request)
 
@@ -20678,6 +20784,7 @@ def test_create_model_deployment_monitoring_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_model_deployment_monitoring_job(**mock_args)
 
@@ -20837,6 +20944,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_required_fields
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.search_model_deployment_monitoring_stats_anomalies(
                 request
@@ -20904,6 +21012,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.search_model_deployment_monitoring_stats_anomalies(**mock_args)
 
@@ -21126,6 +21235,7 @@ def test_get_model_deployment_monitoring_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_model_deployment_monitoring_job(request)
 
@@ -21177,6 +21287,7 @@ def test_get_model_deployment_monitoring_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_model_deployment_monitoring_job(**mock_args)
 
@@ -21330,6 +21441,7 @@ def test_list_model_deployment_monitoring_jobs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_model_deployment_monitoring_jobs(request)
 
@@ -21389,6 +21501,7 @@ def test_list_model_deployment_monitoring_jobs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_model_deployment_monitoring_jobs(**mock_args)
 
@@ -21599,6 +21712,7 @@ def test_update_model_deployment_monitoring_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_model_deployment_monitoring_job(request)
 
@@ -21659,6 +21773,7 @@ def test_update_model_deployment_monitoring_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_model_deployment_monitoring_job(**mock_args)
 
@@ -21805,6 +21920,7 @@ def test_delete_model_deployment_monitoring_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_model_deployment_monitoring_job(request)
 
@@ -21852,6 +21968,7 @@ def test_delete_model_deployment_monitoring_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_model_deployment_monitoring_job(**mock_args)
 
@@ -21992,6 +22109,7 @@ def test_pause_model_deployment_monitoring_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.pause_model_deployment_monitoring_job(request)
 
@@ -22039,6 +22157,7 @@ def test_pause_model_deployment_monitoring_job_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.pause_model_deployment_monitoring_job(**mock_args)
 
@@ -22179,6 +22298,7 @@ def test_resume_model_deployment_monitoring_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.resume_model_deployment_monitoring_job(request)
 
@@ -22226,6 +22346,7 @@ def test_resume_model_deployment_monitoring_job_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.resume_model_deployment_monitoring_job(**mock_args)
 
@@ -24248,6 +24369,7 @@ def test_create_custom_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_custom_job(request)
 
 
@@ -24290,6 +24412,7 @@ def test_create_custom_job_rest_call_success(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
                             "key": "key_value",
@@ -24323,7 +24446,16 @@ def test_create_custom_job_rest_call_success(request_type):
                 "reserved_ip_ranges_value1",
                 "reserved_ip_ranges_value2",
             ],
-            "psc_interface_config": {"network_attachment": "network_attachment_value"},
+            "psc_interface_config": {
+                "network_attachment": "network_attachment_value",
+                "dns_peering_configs": [
+                    {
+                        "domain": "domain_value",
+                        "target_project": "target_project_value",
+                        "target_network": "target_network_value",
+                    }
+                ],
+            },
             "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
             "protected_artifact_location_id": "protected_artifact_location_id_value",
             "tensorboard": "tensorboard_value",
@@ -24443,6 +24575,7 @@ def test_create_custom_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_custom_job(request)
 
     # Establish that the response is the type that we expect.
@@ -24471,10 +24604,13 @@ def test_create_custom_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_custom_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_create_custom_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateCustomJobRequest.pb(
             job_service.CreateCustomJobRequest()
         )
@@ -24487,6 +24623,7 @@ def test_create_custom_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_custom_job.CustomJob.to_json(gca_custom_job.CustomJob())
         req.return_value.content = return_value
 
@@ -24497,6 +24634,7 @@ def test_create_custom_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_custom_job.CustomJob()
+        post_with_metadata.return_value = gca_custom_job.CustomJob(), metadata
 
         client.create_custom_job(
             request,
@@ -24508,6 +24646,7 @@ def test_create_custom_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_custom_job_rest_bad_request(request_type=job_service.GetCustomJobRequest):
@@ -24529,6 +24668,7 @@ def test_get_custom_job_rest_bad_request(request_type=job_service.GetCustomJobRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_custom_job(request)
 
 
@@ -24568,6 +24708,7 @@ def test_get_custom_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_custom_job(request)
 
     # Establish that the response is the type that we expect.
@@ -24596,10 +24737,13 @@ def test_get_custom_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_custom_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_custom_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetCustomJobRequest.pb(
             job_service.GetCustomJobRequest()
         )
@@ -24612,6 +24756,7 @@ def test_get_custom_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = custom_job.CustomJob.to_json(custom_job.CustomJob())
         req.return_value.content = return_value
 
@@ -24622,6 +24767,7 @@ def test_get_custom_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = custom_job.CustomJob()
+        post_with_metadata.return_value = custom_job.CustomJob(), metadata
 
         client.get_custom_job(
             request,
@@ -24633,6 +24779,7 @@ def test_get_custom_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_custom_jobs_rest_bad_request(
@@ -24656,6 +24803,7 @@ def test_list_custom_jobs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_custom_jobs(request)
 
 
@@ -24691,6 +24839,7 @@ def test_list_custom_jobs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_custom_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -24715,10 +24864,13 @@ def test_list_custom_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_custom_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_custom_jobs_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_custom_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListCustomJobsRequest.pb(
             job_service.ListCustomJobsRequest()
         )
@@ -24731,6 +24883,7 @@ def test_list_custom_jobs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListCustomJobsResponse.to_json(
             job_service.ListCustomJobsResponse()
         )
@@ -24743,6 +24896,7 @@ def test_list_custom_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListCustomJobsResponse()
+        post_with_metadata.return_value = job_service.ListCustomJobsResponse(), metadata
 
         client.list_custom_jobs(
             request,
@@ -24754,6 +24908,7 @@ def test_list_custom_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_custom_job_rest_bad_request(
@@ -24777,6 +24932,7 @@ def test_delete_custom_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_custom_job(request)
 
 
@@ -24807,6 +24963,7 @@ def test_delete_custom_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_custom_job(request)
 
     # Establish that the response is the type that we expect.
@@ -24832,10 +24989,13 @@ def test_delete_custom_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_custom_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_delete_custom_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteCustomJobRequest.pb(
             job_service.DeleteCustomJobRequest()
         )
@@ -24848,6 +25008,7 @@ def test_delete_custom_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -24858,6 +25019,7 @@ def test_delete_custom_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_custom_job(
             request,
@@ -24869,6 +25031,7 @@ def test_delete_custom_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_custom_job_rest_bad_request(
@@ -24892,6 +25055,7 @@ def test_cancel_custom_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_custom_job(request)
 
 
@@ -24922,6 +25086,7 @@ def test_cancel_custom_job_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.cancel_custom_job(request)
 
     # Establish that the response is the type that we expect.
@@ -24958,6 +25123,7 @@ def test_cancel_custom_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelCustomJobRequest()
         metadata = [
@@ -24998,6 +25164,7 @@ def test_create_data_labeling_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_data_labeling_job(request)
 
 
@@ -25159,6 +25326,7 @@ def test_create_data_labeling_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_data_labeling_job(request)
 
     # Establish that the response is the type that we expect.
@@ -25191,10 +25359,14 @@ def test_create_data_labeling_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_create_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateDataLabelingJobRequest.pb(
             job_service.CreateDataLabelingJobRequest()
         )
@@ -25207,6 +25379,7 @@ def test_create_data_labeling_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_data_labeling_job.DataLabelingJob.to_json(
             gca_data_labeling_job.DataLabelingJob()
         )
@@ -25219,6 +25392,10 @@ def test_create_data_labeling_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_data_labeling_job.DataLabelingJob()
+        post_with_metadata.return_value = (
+            gca_data_labeling_job.DataLabelingJob(),
+            metadata,
+        )
 
         client.create_data_labeling_job(
             request,
@@ -25230,6 +25407,7 @@ def test_create_data_labeling_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_data_labeling_job_rest_bad_request(
@@ -25255,6 +25433,7 @@ def test_get_data_labeling_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_data_labeling_job(request)
 
 
@@ -25300,6 +25479,7 @@ def test_get_data_labeling_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_data_labeling_job(request)
 
     # Establish that the response is the type that we expect.
@@ -25332,10 +25512,13 @@ def test_get_data_labeling_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_data_labeling_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetDataLabelingJobRequest.pb(
             job_service.GetDataLabelingJobRequest()
         )
@@ -25348,6 +25531,7 @@ def test_get_data_labeling_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = data_labeling_job.DataLabelingJob.to_json(
             data_labeling_job.DataLabelingJob()
         )
@@ -25360,6 +25544,7 @@ def test_get_data_labeling_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = data_labeling_job.DataLabelingJob()
+        post_with_metadata.return_value = data_labeling_job.DataLabelingJob(), metadata
 
         client.get_data_labeling_job(
             request,
@@ -25371,6 +25556,7 @@ def test_get_data_labeling_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_data_labeling_jobs_rest_bad_request(
@@ -25394,6 +25580,7 @@ def test_list_data_labeling_jobs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_data_labeling_jobs(request)
 
 
@@ -25429,6 +25616,7 @@ def test_list_data_labeling_jobs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_data_labeling_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -25453,10 +25641,14 @@ def test_list_data_labeling_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_data_labeling_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_list_data_labeling_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_data_labeling_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListDataLabelingJobsRequest.pb(
             job_service.ListDataLabelingJobsRequest()
         )
@@ -25469,6 +25661,7 @@ def test_list_data_labeling_jobs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListDataLabelingJobsResponse.to_json(
             job_service.ListDataLabelingJobsResponse()
         )
@@ -25481,6 +25674,10 @@ def test_list_data_labeling_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListDataLabelingJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListDataLabelingJobsResponse(),
+            metadata,
+        )
 
         client.list_data_labeling_jobs(
             request,
@@ -25492,6 +25689,7 @@ def test_list_data_labeling_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_data_labeling_job_rest_bad_request(
@@ -25517,6 +25715,7 @@ def test_delete_data_labeling_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_data_labeling_job(request)
 
 
@@ -25549,6 +25748,7 @@ def test_delete_data_labeling_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_data_labeling_job(request)
 
     # Establish that the response is the type that we expect.
@@ -25574,10 +25774,14 @@ def test_delete_data_labeling_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_delete_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteDataLabelingJobRequest.pb(
             job_service.DeleteDataLabelingJobRequest()
         )
@@ -25590,6 +25794,7 @@ def test_delete_data_labeling_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -25600,6 +25805,7 @@ def test_delete_data_labeling_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_data_labeling_job(
             request,
@@ -25611,6 +25817,7 @@ def test_delete_data_labeling_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_data_labeling_job_rest_bad_request(
@@ -25636,6 +25843,7 @@ def test_cancel_data_labeling_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_data_labeling_job(request)
 
 
@@ -25668,6 +25876,7 @@ def test_cancel_data_labeling_job_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.cancel_data_labeling_job(request)
 
     # Establish that the response is the type that we expect.
@@ -25704,6 +25913,7 @@ def test_cancel_data_labeling_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelDataLabelingJobRequest()
         metadata = [
@@ -25744,6 +25954,7 @@ def test_create_hyperparameter_tuning_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_hyperparameter_tuning_job(request)
 
 
@@ -25874,6 +26085,7 @@ def test_create_hyperparameter_tuning_job_rest_call_success(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
                             "key": "key_value",
@@ -25907,7 +26119,16 @@ def test_create_hyperparameter_tuning_job_rest_call_success(request_type):
                 "reserved_ip_ranges_value1",
                 "reserved_ip_ranges_value2",
             ],
-            "psc_interface_config": {"network_attachment": "network_attachment_value"},
+            "psc_interface_config": {
+                "network_attachment": "network_attachment_value",
+                "dns_peering_configs": [
+                    {
+                        "domain": "domain_value",
+                        "target_project": "target_project_value",
+                        "target_network": "target_network_value",
+                    }
+                ],
+            },
             "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
             "protected_artifact_location_id": "protected_artifact_location_id_value",
             "tensorboard": "tensorboard_value",
@@ -26069,6 +26290,7 @@ def test_create_hyperparameter_tuning_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_hyperparameter_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -26100,10 +26322,14 @@ def test_create_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_hyperparameter_tuning_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_create_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_hyperparameter_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateHyperparameterTuningJobRequest.pb(
             job_service.CreateHyperparameterTuningJobRequest()
         )
@@ -26116,6 +26342,7 @@ def test_create_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob.to_json(
             gca_hyperparameter_tuning_job.HyperparameterTuningJob()
         )
@@ -26128,6 +26355,10 @@ def test_create_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+        post_with_metadata.return_value = (
+            gca_hyperparameter_tuning_job.HyperparameterTuningJob(),
+            metadata,
+        )
 
         client.create_hyperparameter_tuning_job(
             request,
@@ -26139,6 +26370,7 @@ def test_create_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_hyperparameter_tuning_job_rest_bad_request(
@@ -26164,6 +26396,7 @@ def test_get_hyperparameter_tuning_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_hyperparameter_tuning_job(request)
 
 
@@ -26210,6 +26443,7 @@ def test_get_hyperparameter_tuning_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_hyperparameter_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -26241,10 +26475,14 @@ def test_get_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_hyperparameter_tuning_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_get_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_hyperparameter_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetHyperparameterTuningJobRequest.pb(
             job_service.GetHyperparameterTuningJobRequest()
         )
@@ -26257,6 +26495,7 @@ def test_get_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = hyperparameter_tuning_job.HyperparameterTuningJob.to_json(
             hyperparameter_tuning_job.HyperparameterTuningJob()
         )
@@ -26269,6 +26508,10 @@ def test_get_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
+        post_with_metadata.return_value = (
+            hyperparameter_tuning_job.HyperparameterTuningJob(),
+            metadata,
+        )
 
         client.get_hyperparameter_tuning_job(
             request,
@@ -26280,6 +26523,7 @@ def test_get_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_hyperparameter_tuning_jobs_rest_bad_request(
@@ -26303,6 +26547,7 @@ def test_list_hyperparameter_tuning_jobs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_hyperparameter_tuning_jobs(request)
 
 
@@ -26338,6 +26583,7 @@ def test_list_hyperparameter_tuning_jobs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_hyperparameter_tuning_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -26362,10 +26608,14 @@ def test_list_hyperparameter_tuning_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_hyperparameter_tuning_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_list_hyperparameter_tuning_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_hyperparameter_tuning_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListHyperparameterTuningJobsRequest.pb(
             job_service.ListHyperparameterTuningJobsRequest()
         )
@@ -26378,6 +26628,7 @@ def test_list_hyperparameter_tuning_jobs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListHyperparameterTuningJobsResponse.to_json(
             job_service.ListHyperparameterTuningJobsResponse()
         )
@@ -26390,6 +26641,10 @@ def test_list_hyperparameter_tuning_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListHyperparameterTuningJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListHyperparameterTuningJobsResponse(),
+            metadata,
+        )
 
         client.list_hyperparameter_tuning_jobs(
             request,
@@ -26401,6 +26656,7 @@ def test_list_hyperparameter_tuning_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_hyperparameter_tuning_job_rest_bad_request(
@@ -26426,6 +26682,7 @@ def test_delete_hyperparameter_tuning_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_hyperparameter_tuning_job(request)
 
 
@@ -26458,6 +26715,7 @@ def test_delete_hyperparameter_tuning_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_hyperparameter_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -26483,10 +26741,14 @@ def test_delete_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_hyperparameter_tuning_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_delete_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_hyperparameter_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteHyperparameterTuningJobRequest.pb(
             job_service.DeleteHyperparameterTuningJobRequest()
         )
@@ -26499,6 +26761,7 @@ def test_delete_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -26509,6 +26772,7 @@ def test_delete_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_hyperparameter_tuning_job(
             request,
@@ -26520,6 +26784,7 @@ def test_delete_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_hyperparameter_tuning_job_rest_bad_request(
@@ -26545,6 +26810,7 @@ def test_cancel_hyperparameter_tuning_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_hyperparameter_tuning_job(request)
 
 
@@ -26577,6 +26843,7 @@ def test_cancel_hyperparameter_tuning_job_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.cancel_hyperparameter_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -26613,6 +26880,7 @@ def test_cancel_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelHyperparameterTuningJobRequest()
         metadata = [
@@ -26651,6 +26919,7 @@ def test_create_nas_job_rest_bad_request(request_type=job_service.CreateNasJobRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_nas_job(request)
 
 
@@ -26703,6 +26972,7 @@ def test_create_nas_job_rest_call_success(request_type):
                                     "accelerator_type": 1,
                                     "accelerator_count": 1805,
                                     "tpu_topology": "tpu_topology_value",
+                                    "multihost_gpu_node_count": 2593,
                                     "reservation_affinity": {
                                         "reservation_affinity_type": 1,
                                         "key": "key_value",
@@ -26737,7 +27007,14 @@ def test_create_nas_job_rest_call_success(request_type):
                             "reserved_ip_ranges_value2",
                         ],
                         "psc_interface_config": {
-                            "network_attachment": "network_attachment_value"
+                            "network_attachment": "network_attachment_value",
+                            "dns_peering_configs": [
+                                {
+                                    "domain": "domain_value",
+                                    "target_project": "target_project_value",
+                                    "target_network": "target_network_value",
+                                }
+                            ],
                         },
                         "base_output_directory": {
                             "output_uri_prefix": "output_uri_prefix_value"
@@ -26894,6 +27171,7 @@ def test_create_nas_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_nas_job(request)
 
     # Establish that the response is the type that we expect.
@@ -26923,10 +27201,13 @@ def test_create_nas_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_nas_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_create_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateNasJobRequest.pb(
             job_service.CreateNasJobRequest()
         )
@@ -26939,6 +27220,7 @@ def test_create_nas_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_nas_job.NasJob.to_json(gca_nas_job.NasJob())
         req.return_value.content = return_value
 
@@ -26949,6 +27231,7 @@ def test_create_nas_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_nas_job.NasJob()
+        post_with_metadata.return_value = gca_nas_job.NasJob(), metadata
 
         client.create_nas_job(
             request,
@@ -26960,6 +27243,7 @@ def test_create_nas_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_nas_job_rest_bad_request(request_type=job_service.GetNasJobRequest):
@@ -26981,6 +27265,7 @@ def test_get_nas_job_rest_bad_request(request_type=job_service.GetNasJobRequest)
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_nas_job(request)
 
 
@@ -27021,6 +27306,7 @@ def test_get_nas_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_nas_job(request)
 
     # Establish that the response is the type that we expect.
@@ -27050,10 +27336,13 @@ def test_get_nas_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_nas_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetNasJobRequest.pb(job_service.GetNasJobRequest())
         transcode.return_value = {
             "method": "post",
@@ -27064,6 +27353,7 @@ def test_get_nas_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = nas_job.NasJob.to_json(nas_job.NasJob())
         req.return_value.content = return_value
 
@@ -27074,6 +27364,7 @@ def test_get_nas_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = nas_job.NasJob()
+        post_with_metadata.return_value = nas_job.NasJob(), metadata
 
         client.get_nas_job(
             request,
@@ -27085,6 +27376,7 @@ def test_get_nas_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_nas_jobs_rest_bad_request(request_type=job_service.ListNasJobsRequest):
@@ -27106,6 +27398,7 @@ def test_list_nas_jobs_rest_bad_request(request_type=job_service.ListNasJobsRequ
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_nas_jobs(request)
 
 
@@ -27141,6 +27434,7 @@ def test_list_nas_jobs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_nas_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -27165,10 +27459,13 @@ def test_list_nas_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_nas_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_nas_jobs_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_nas_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListNasJobsRequest.pb(job_service.ListNasJobsRequest())
         transcode.return_value = {
             "method": "post",
@@ -27179,6 +27476,7 @@ def test_list_nas_jobs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListNasJobsResponse.to_json(
             job_service.ListNasJobsResponse()
         )
@@ -27191,6 +27489,7 @@ def test_list_nas_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListNasJobsResponse()
+        post_with_metadata.return_value = job_service.ListNasJobsResponse(), metadata
 
         client.list_nas_jobs(
             request,
@@ -27202,6 +27501,7 @@ def test_list_nas_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_nas_job_rest_bad_request(request_type=job_service.DeleteNasJobRequest):
@@ -27223,6 +27523,7 @@ def test_delete_nas_job_rest_bad_request(request_type=job_service.DeleteNasJobRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_nas_job(request)
 
 
@@ -27253,6 +27554,7 @@ def test_delete_nas_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_nas_job(request)
 
     # Establish that the response is the type that we expect.
@@ -27278,10 +27580,13 @@ def test_delete_nas_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_nas_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_delete_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteNasJobRequest.pb(
             job_service.DeleteNasJobRequest()
         )
@@ -27294,6 +27599,7 @@ def test_delete_nas_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -27304,6 +27610,7 @@ def test_delete_nas_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_nas_job(
             request,
@@ -27315,6 +27622,7 @@ def test_delete_nas_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_nas_job_rest_bad_request(request_type=job_service.CancelNasJobRequest):
@@ -27336,6 +27644,7 @@ def test_cancel_nas_job_rest_bad_request(request_type=job_service.CancelNasJobRe
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_nas_job(request)
 
 
@@ -27366,6 +27675,7 @@ def test_cancel_nas_job_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.cancel_nas_job(request)
 
     # Establish that the response is the type that we expect.
@@ -27402,6 +27712,7 @@ def test_cancel_nas_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelNasJobRequest()
         metadata = [
@@ -27444,6 +27755,7 @@ def test_get_nas_trial_detail_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_nas_trial_detail(request)
 
 
@@ -27482,6 +27794,7 @@ def test_get_nas_trial_detail_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_nas_trial_detail(request)
 
     # Establish that the response is the type that we expect.
@@ -27507,10 +27820,13 @@ def test_get_nas_trial_detail_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_nas_trial_detail"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_nas_trial_detail_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_nas_trial_detail"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetNasTrialDetailRequest.pb(
             job_service.GetNasTrialDetailRequest()
         )
@@ -27523,6 +27839,7 @@ def test_get_nas_trial_detail_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = nas_job.NasTrialDetail.to_json(nas_job.NasTrialDetail())
         req.return_value.content = return_value
 
@@ -27533,6 +27850,7 @@ def test_get_nas_trial_detail_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = nas_job.NasTrialDetail()
+        post_with_metadata.return_value = nas_job.NasTrialDetail(), metadata
 
         client.get_nas_trial_detail(
             request,
@@ -27544,6 +27862,7 @@ def test_get_nas_trial_detail_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_nas_trial_details_rest_bad_request(
@@ -27567,6 +27886,7 @@ def test_list_nas_trial_details_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_nas_trial_details(request)
 
 
@@ -27602,6 +27922,7 @@ def test_list_nas_trial_details_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_nas_trial_details(request)
 
     # Establish that the response is the type that we expect.
@@ -27626,10 +27947,14 @@ def test_list_nas_trial_details_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_nas_trial_details"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_list_nas_trial_details_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_nas_trial_details"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListNasTrialDetailsRequest.pb(
             job_service.ListNasTrialDetailsRequest()
         )
@@ -27642,6 +27967,7 @@ def test_list_nas_trial_details_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListNasTrialDetailsResponse.to_json(
             job_service.ListNasTrialDetailsResponse()
         )
@@ -27654,6 +27980,10 @@ def test_list_nas_trial_details_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListNasTrialDetailsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListNasTrialDetailsResponse(),
+            metadata,
+        )
 
         client.list_nas_trial_details(
             request,
@@ -27665,6 +27995,7 @@ def test_list_nas_trial_details_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_batch_prediction_job_rest_bad_request(
@@ -27688,6 +28019,7 @@ def test_create_batch_prediction_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_batch_prediction_job(request)
 
 
@@ -27725,15 +28057,31 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
                 "ports": [{"container_port": 1511}],
                 "predict_route": "predict_route_value",
                 "health_route": "health_route_value",
+                "invoke_route_prefix": "invoke_route_prefix_value",
                 "grpc_ports": {},
                 "deployment_timeout": {"seconds": 751, "nanos": 543},
                 "shared_memory_size_mb": 2231,
                 "startup_probe": {
                     "exec_": {"command": ["command_value1", "command_value2"]},
+                    "http_get": {
+                        "path": "path_value",
+                        "port": 453,
+                        "host": "host_value",
+                        "scheme": "scheme_value",
+                        "http_headers": [
+                            {"name": "name_value", "value": "value_value"}
+                        ],
+                    },
+                    "grpc": {"port": 453, "service": "service_value"},
+                    "tcp_socket": {"port": 453, "host": "host_value"},
                     "period_seconds": 1489,
                     "timeout_seconds": 1621,
+                    "failure_threshold": 1812,
+                    "success_threshold": 1829,
+                    "initial_delay_seconds": 2214,
                 },
                 "health_probe": {},
+                "liveness_probe": {},
             },
         },
         "input_config": {
@@ -27766,6 +28114,7 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
                 "tpu_topology": "tpu_topology_value",
+                "multihost_gpu_node_count": 2593,
                 "reservation_affinity": {
                     "reservation_affinity_type": 1,
                     "key": "key_value",
@@ -28016,6 +28365,7 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_batch_prediction_job(request)
 
     # Establish that the response is the type that we expect.
@@ -28049,10 +28399,14 @@ def test_create_batch_prediction_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_create_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateBatchPredictionJobRequest.pb(
             job_service.CreateBatchPredictionJobRequest()
         )
@@ -28065,6 +28419,7 @@ def test_create_batch_prediction_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_batch_prediction_job.BatchPredictionJob.to_json(
             gca_batch_prediction_job.BatchPredictionJob()
         )
@@ -28077,6 +28432,10 @@ def test_create_batch_prediction_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_batch_prediction_job.BatchPredictionJob()
+        post_with_metadata.return_value = (
+            gca_batch_prediction_job.BatchPredictionJob(),
+            metadata,
+        )
 
         client.create_batch_prediction_job(
             request,
@@ -28088,6 +28447,7 @@ def test_create_batch_prediction_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_batch_prediction_job_rest_bad_request(
@@ -28113,6 +28473,7 @@ def test_get_batch_prediction_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_batch_prediction_job(request)
 
 
@@ -28159,6 +28520,7 @@ def test_get_batch_prediction_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_batch_prediction_job(request)
 
     # Establish that the response is the type that we expect.
@@ -28192,10 +28554,14 @@ def test_get_batch_prediction_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_get_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetBatchPredictionJobRequest.pb(
             job_service.GetBatchPredictionJobRequest()
         )
@@ -28208,6 +28574,7 @@ def test_get_batch_prediction_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = batch_prediction_job.BatchPredictionJob.to_json(
             batch_prediction_job.BatchPredictionJob()
         )
@@ -28220,6 +28587,10 @@ def test_get_batch_prediction_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = batch_prediction_job.BatchPredictionJob()
+        post_with_metadata.return_value = (
+            batch_prediction_job.BatchPredictionJob(),
+            metadata,
+        )
 
         client.get_batch_prediction_job(
             request,
@@ -28231,6 +28602,7 @@ def test_get_batch_prediction_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_batch_prediction_jobs_rest_bad_request(
@@ -28254,6 +28626,7 @@ def test_list_batch_prediction_jobs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_batch_prediction_jobs(request)
 
 
@@ -28289,6 +28662,7 @@ def test_list_batch_prediction_jobs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_batch_prediction_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -28313,10 +28687,14 @@ def test_list_batch_prediction_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_batch_prediction_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_list_batch_prediction_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_batch_prediction_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListBatchPredictionJobsRequest.pb(
             job_service.ListBatchPredictionJobsRequest()
         )
@@ -28329,6 +28707,7 @@ def test_list_batch_prediction_jobs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListBatchPredictionJobsResponse.to_json(
             job_service.ListBatchPredictionJobsResponse()
         )
@@ -28341,6 +28720,10 @@ def test_list_batch_prediction_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListBatchPredictionJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListBatchPredictionJobsResponse(),
+            metadata,
+        )
 
         client.list_batch_prediction_jobs(
             request,
@@ -28352,6 +28735,7 @@ def test_list_batch_prediction_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_batch_prediction_job_rest_bad_request(
@@ -28377,6 +28761,7 @@ def test_delete_batch_prediction_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_batch_prediction_job(request)
 
 
@@ -28409,6 +28794,7 @@ def test_delete_batch_prediction_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_batch_prediction_job(request)
 
     # Establish that the response is the type that we expect.
@@ -28434,10 +28820,14 @@ def test_delete_batch_prediction_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_delete_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteBatchPredictionJobRequest.pb(
             job_service.DeleteBatchPredictionJobRequest()
         )
@@ -28450,6 +28840,7 @@ def test_delete_batch_prediction_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -28460,6 +28851,7 @@ def test_delete_batch_prediction_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_batch_prediction_job(
             request,
@@ -28471,6 +28863,7 @@ def test_delete_batch_prediction_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_batch_prediction_job_rest_bad_request(
@@ -28496,6 +28889,7 @@ def test_cancel_batch_prediction_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_batch_prediction_job(request)
 
 
@@ -28528,6 +28922,7 @@ def test_cancel_batch_prediction_job_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.cancel_batch_prediction_job(request)
 
     # Establish that the response is the type that we expect.
@@ -28564,6 +28959,7 @@ def test_cancel_batch_prediction_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelBatchPredictionJobRequest()
         metadata = [
@@ -28604,6 +29000,7 @@ def test_create_model_deployment_monitoring_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_model_deployment_monitoring_job(request)
 
 
@@ -28826,6 +29223,7 @@ def test_create_model_deployment_monitoring_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -28866,10 +29264,14 @@ def test_create_model_deployment_monitoring_job_rest_interceptors(null_intercept
         "post_create_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_create_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_create_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateModelDeploymentMonitoringJobRequest.pb(
             job_service.CreateModelDeploymentMonitoringJobRequest()
         )
@@ -28882,6 +29284,7 @@ def test_create_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.to_json(
                 gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
@@ -28898,6 +29301,10 @@ def test_create_model_deployment_monitoring_job_rest_interceptors(null_intercept
         post.return_value = (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
         )
+        post_with_metadata.return_value = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+            metadata,
+        )
 
         client.create_model_deployment_monitoring_job(
             request,
@@ -28909,6 +29316,7 @@ def test_create_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_search_model_deployment_monitoring_stats_anomalies_rest_bad_request(
@@ -28934,6 +29342,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.search_model_deployment_monitoring_stats_anomalies(request)
 
 
@@ -28979,6 +29388,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_call_success(
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.search_model_deployment_monitoring_stats_anomalies(request)
 
     # Establish that the response is the type that we expect.
@@ -29009,10 +29419,14 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_interceptors(
         "post_search_model_deployment_monitoring_stats_anomalies",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_search_model_deployment_monitoring_stats_anomalies_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_search_model_deployment_monitoring_stats_anomalies",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.pb(
                 job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
@@ -29027,6 +29441,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.to_json(
                 job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
@@ -29043,6 +29458,10 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_interceptors(
         post.return_value = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
         )
+        post_with_metadata.return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(),
+            metadata,
+        )
 
         client.search_model_deployment_monitoring_stats_anomalies(
             request,
@@ -29054,6 +29473,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_model_deployment_monitoring_job_rest_bad_request(
@@ -29079,6 +29499,7 @@ def test_get_model_deployment_monitoring_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_model_deployment_monitoring_job(request)
 
 
@@ -29127,6 +29548,7 @@ def test_get_model_deployment_monitoring_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -29165,10 +29587,14 @@ def test_get_model_deployment_monitoring_job_rest_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_model_deployment_monitoring_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_get_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_model_deployment_monitoring_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetModelDeploymentMonitoringJobRequest.pb(
             job_service.GetModelDeploymentMonitoringJobRequest()
         )
@@ -29181,6 +29607,7 @@ def test_get_model_deployment_monitoring_job_rest_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             model_deployment_monitoring_job.ModelDeploymentMonitoringJob.to_json(
                 model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
@@ -29197,6 +29624,10 @@ def test_get_model_deployment_monitoring_job_rest_interceptors(null_interceptor)
         post.return_value = (
             model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
         )
+        post_with_metadata.return_value = (
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+            metadata,
+        )
 
         client.get_model_deployment_monitoring_job(
             request,
@@ -29208,6 +29639,7 @@ def test_get_model_deployment_monitoring_job_rest_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_model_deployment_monitoring_jobs_rest_bad_request(
@@ -29231,6 +29663,7 @@ def test_list_model_deployment_monitoring_jobs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_model_deployment_monitoring_jobs(request)
 
 
@@ -29268,6 +29701,7 @@ def test_list_model_deployment_monitoring_jobs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_model_deployment_monitoring_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -29294,10 +29728,14 @@ def test_list_model_deployment_monitoring_jobs_rest_interceptors(null_intercepto
         "post_list_model_deployment_monitoring_jobs",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_list_model_deployment_monitoring_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_list_model_deployment_monitoring_jobs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListModelDeploymentMonitoringJobsRequest.pb(
             job_service.ListModelDeploymentMonitoringJobsRequest()
         )
@@ -29310,6 +29748,7 @@ def test_list_model_deployment_monitoring_jobs_rest_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListModelDeploymentMonitoringJobsResponse.to_json(
             job_service.ListModelDeploymentMonitoringJobsResponse()
         )
@@ -29322,6 +29761,10 @@ def test_list_model_deployment_monitoring_jobs_rest_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListModelDeploymentMonitoringJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListModelDeploymentMonitoringJobsResponse(),
+            metadata,
+        )
 
         client.list_model_deployment_monitoring_jobs(
             request,
@@ -29333,6 +29776,7 @@ def test_list_model_deployment_monitoring_jobs_rest_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_model_deployment_monitoring_job_rest_bad_request(
@@ -29360,6 +29804,7 @@ def test_update_model_deployment_monitoring_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_model_deployment_monitoring_job(request)
 
 
@@ -29568,6 +30013,7 @@ def test_update_model_deployment_monitoring_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -29595,10 +30041,14 @@ def test_update_model_deployment_monitoring_job_rest_interceptors(null_intercept
         "post_update_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_update_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_update_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.UpdateModelDeploymentMonitoringJobRequest.pb(
             job_service.UpdateModelDeploymentMonitoringJobRequest()
         )
@@ -29611,6 +30061,7 @@ def test_update_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -29621,6 +30072,7 @@ def test_update_model_deployment_monitoring_job_rest_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_model_deployment_monitoring_job(
             request,
@@ -29632,6 +30084,7 @@ def test_update_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_model_deployment_monitoring_job_rest_bad_request(
@@ -29657,6 +30110,7 @@ def test_delete_model_deployment_monitoring_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_model_deployment_monitoring_job(request)
 
 
@@ -29689,6 +30143,7 @@ def test_delete_model_deployment_monitoring_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -29716,10 +30171,14 @@ def test_delete_model_deployment_monitoring_job_rest_interceptors(null_intercept
         "post_delete_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_delete_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_delete_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteModelDeploymentMonitoringJobRequest.pb(
             job_service.DeleteModelDeploymentMonitoringJobRequest()
         )
@@ -29732,6 +30191,7 @@ def test_delete_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -29742,6 +30202,7 @@ def test_delete_model_deployment_monitoring_job_rest_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_model_deployment_monitoring_job(
             request,
@@ -29753,6 +30214,7 @@ def test_delete_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_pause_model_deployment_monitoring_job_rest_bad_request(
@@ -29778,6 +30240,7 @@ def test_pause_model_deployment_monitoring_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.pause_model_deployment_monitoring_job(request)
 
 
@@ -29810,6 +30273,7 @@ def test_pause_model_deployment_monitoring_job_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.pause_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -29847,6 +30311,7 @@ def test_pause_model_deployment_monitoring_job_rest_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.PauseModelDeploymentMonitoringJobRequest()
         metadata = [
@@ -29889,6 +30354,7 @@ def test_resume_model_deployment_monitoring_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.resume_model_deployment_monitoring_job(request)
 
 
@@ -29921,6 +30387,7 @@ def test_resume_model_deployment_monitoring_job_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.resume_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -29958,6 +30425,7 @@ def test_resume_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.ResumeModelDeploymentMonitoringJobRequest()
         metadata = [
@@ -29998,6 +30466,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -30028,6 +30497,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -30056,6 +30526,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -30086,6 +30557,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -30117,6 +30589,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -30149,6 +30622,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -30180,6 +30654,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -30212,6 +30687,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -30243,6 +30719,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -30275,6 +30752,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -30305,6 +30783,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -30335,6 +30814,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -30365,6 +30845,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -30395,6 +30876,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -30425,6 +30907,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -30455,6 +30938,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -30485,6 +30969,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -30515,6 +31000,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -30545,6 +31031,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -30575,6 +31062,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -31399,6 +31887,7 @@ async def test_create_custom_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_custom_job(request)
 
 
@@ -31446,6 +31935,7 @@ async def test_create_custom_job_rest_asyncio_call_success(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
                             "key": "key_value",
@@ -31479,7 +31969,16 @@ async def test_create_custom_job_rest_asyncio_call_success(request_type):
                 "reserved_ip_ranges_value1",
                 "reserved_ip_ranges_value2",
             ],
-            "psc_interface_config": {"network_attachment": "network_attachment_value"},
+            "psc_interface_config": {
+                "network_attachment": "network_attachment_value",
+                "dns_peering_configs": [
+                    {
+                        "domain": "domain_value",
+                        "target_project": "target_project_value",
+                        "target_network": "target_network_value",
+                    }
+                ],
+            },
             "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
             "protected_artifact_location_id": "protected_artifact_location_id_value",
             "tensorboard": "tensorboard_value",
@@ -31601,6 +32100,7 @@ async def test_create_custom_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_custom_job(request)
 
     # Establish that the response is the type that we expect.
@@ -31634,10 +32134,14 @@ async def test_create_custom_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_create_custom_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_create_custom_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_create_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateCustomJobRequest.pb(
             job_service.CreateCustomJobRequest()
         )
@@ -31650,6 +32154,7 @@ async def test_create_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_custom_job.CustomJob.to_json(gca_custom_job.CustomJob())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -31660,6 +32165,7 @@ async def test_create_custom_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_custom_job.CustomJob()
+        post_with_metadata.return_value = gca_custom_job.CustomJob(), metadata
 
         await client.create_custom_job(
             request,
@@ -31671,6 +32177,7 @@ async def test_create_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31698,6 +32205,7 @@ async def test_get_custom_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_custom_job(request)
 
 
@@ -31744,6 +32252,7 @@ async def test_get_custom_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_custom_job(request)
 
     # Establish that the response is the type that we expect.
@@ -31777,10 +32286,13 @@ async def test_get_custom_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_custom_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_get_custom_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetCustomJobRequest.pb(
             job_service.GetCustomJobRequest()
         )
@@ -31793,6 +32305,7 @@ async def test_get_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = custom_job.CustomJob.to_json(custom_job.CustomJob())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -31803,6 +32316,7 @@ async def test_get_custom_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = custom_job.CustomJob()
+        post_with_metadata.return_value = custom_job.CustomJob(), metadata
 
         await client.get_custom_job(
             request,
@@ -31814,6 +32328,7 @@ async def test_get_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31841,6 +32356,7 @@ async def test_list_custom_jobs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_custom_jobs(request)
 
 
@@ -31883,6 +32399,7 @@ async def test_list_custom_jobs_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_custom_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -31912,10 +32429,13 @@ async def test_list_custom_jobs_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_custom_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_list_custom_jobs_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_custom_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListCustomJobsRequest.pb(
             job_service.ListCustomJobsRequest()
         )
@@ -31928,6 +32448,7 @@ async def test_list_custom_jobs_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListCustomJobsResponse.to_json(
             job_service.ListCustomJobsResponse()
         )
@@ -31940,6 +32461,7 @@ async def test_list_custom_jobs_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListCustomJobsResponse()
+        post_with_metadata.return_value = job_service.ListCustomJobsResponse(), metadata
 
         await client.list_custom_jobs(
             request,
@@ -31951,6 +32473,7 @@ async def test_list_custom_jobs_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31978,6 +32501,7 @@ async def test_delete_custom_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_custom_job(request)
 
 
@@ -32015,6 +32539,7 @@ async def test_delete_custom_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_custom_job(request)
 
     # Establish that the response is the type that we expect.
@@ -32045,10 +32570,14 @@ async def test_delete_custom_job_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_delete_custom_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_delete_custom_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_delete_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteCustomJobRequest.pb(
             job_service.DeleteCustomJobRequest()
         )
@@ -32061,6 +32590,7 @@ async def test_delete_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -32071,6 +32601,7 @@ async def test_delete_custom_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_custom_job(
             request,
@@ -32082,6 +32613,7 @@ async def test_delete_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32109,6 +32641,7 @@ async def test_cancel_custom_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_custom_job(request)
 
 
@@ -32146,6 +32679,7 @@ async def test_cancel_custom_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.cancel_custom_job(request)
 
     # Establish that the response is the type that we expect.
@@ -32187,6 +32721,7 @@ async def test_cancel_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelCustomJobRequest()
         metadata = [
@@ -32231,6 +32766,7 @@ async def test_create_data_labeling_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_data_labeling_job(request)
 
 
@@ -32399,6 +32935,7 @@ async def test_create_data_labeling_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_data_labeling_job(request)
 
     # Establish that the response is the type that we expect.
@@ -32436,10 +32973,14 @@ async def test_create_data_labeling_job_rest_asyncio_interceptors(null_intercept
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_create_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_create_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_create_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateDataLabelingJobRequest.pb(
             job_service.CreateDataLabelingJobRequest()
         )
@@ -32452,6 +32993,7 @@ async def test_create_data_labeling_job_rest_asyncio_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_data_labeling_job.DataLabelingJob.to_json(
             gca_data_labeling_job.DataLabelingJob()
         )
@@ -32464,6 +33006,10 @@ async def test_create_data_labeling_job_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = gca_data_labeling_job.DataLabelingJob()
+        post_with_metadata.return_value = (
+            gca_data_labeling_job.DataLabelingJob(),
+            metadata,
+        )
 
         await client.create_data_labeling_job(
             request,
@@ -32475,6 +33021,7 @@ async def test_create_data_labeling_job_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32504,6 +33051,7 @@ async def test_get_data_labeling_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_data_labeling_job(request)
 
 
@@ -32556,6 +33104,7 @@ async def test_get_data_labeling_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_data_labeling_job(request)
 
     # Establish that the response is the type that we expect.
@@ -32593,10 +33142,14 @@ async def test_get_data_labeling_job_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_get_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetDataLabelingJobRequest.pb(
             job_service.GetDataLabelingJobRequest()
         )
@@ -32609,6 +33162,7 @@ async def test_get_data_labeling_job_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = data_labeling_job.DataLabelingJob.to_json(
             data_labeling_job.DataLabelingJob()
         )
@@ -32621,6 +33175,7 @@ async def test_get_data_labeling_job_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = data_labeling_job.DataLabelingJob()
+        post_with_metadata.return_value = data_labeling_job.DataLabelingJob(), metadata
 
         await client.get_data_labeling_job(
             request,
@@ -32632,6 +33187,7 @@ async def test_get_data_labeling_job_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32659,6 +33215,7 @@ async def test_list_data_labeling_jobs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_data_labeling_jobs(request)
 
 
@@ -32701,6 +33258,7 @@ async def test_list_data_labeling_jobs_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_data_labeling_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -32730,10 +33288,14 @@ async def test_list_data_labeling_jobs_rest_asyncio_interceptors(null_intercepto
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_data_labeling_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_list_data_labeling_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_data_labeling_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListDataLabelingJobsRequest.pb(
             job_service.ListDataLabelingJobsRequest()
         )
@@ -32746,6 +33308,7 @@ async def test_list_data_labeling_jobs_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListDataLabelingJobsResponse.to_json(
             job_service.ListDataLabelingJobsResponse()
         )
@@ -32758,6 +33321,10 @@ async def test_list_data_labeling_jobs_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListDataLabelingJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListDataLabelingJobsResponse(),
+            metadata,
+        )
 
         await client.list_data_labeling_jobs(
             request,
@@ -32769,6 +33336,7 @@ async def test_list_data_labeling_jobs_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32798,6 +33366,7 @@ async def test_delete_data_labeling_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_data_labeling_job(request)
 
 
@@ -32837,6 +33406,7 @@ async def test_delete_data_labeling_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_data_labeling_job(request)
 
     # Establish that the response is the type that we expect.
@@ -32867,10 +33437,14 @@ async def test_delete_data_labeling_job_rest_asyncio_interceptors(null_intercept
     ), mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_delete_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_delete_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_delete_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteDataLabelingJobRequest.pb(
             job_service.DeleteDataLabelingJobRequest()
         )
@@ -32883,6 +33457,7 @@ async def test_delete_data_labeling_job_rest_asyncio_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -32893,6 +33468,7 @@ async def test_delete_data_labeling_job_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_data_labeling_job(
             request,
@@ -32904,6 +33480,7 @@ async def test_delete_data_labeling_job_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32933,6 +33510,7 @@ async def test_cancel_data_labeling_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_data_labeling_job(request)
 
 
@@ -32972,6 +33550,7 @@ async def test_cancel_data_labeling_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.cancel_data_labeling_job(request)
 
     # Establish that the response is the type that we expect.
@@ -33013,6 +33592,7 @@ async def test_cancel_data_labeling_job_rest_asyncio_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelDataLabelingJobRequest()
         metadata = [
@@ -33057,6 +33637,7 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_hyperparameter_tuning_job(request)
 
 
@@ -33192,6 +33773,7 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_call_success(reques
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
                             "key": "key_value",
@@ -33225,7 +33807,16 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_call_success(reques
                 "reserved_ip_ranges_value1",
                 "reserved_ip_ranges_value2",
             ],
-            "psc_interface_config": {"network_attachment": "network_attachment_value"},
+            "psc_interface_config": {
+                "network_attachment": "network_attachment_value",
+                "dns_peering_configs": [
+                    {
+                        "domain": "domain_value",
+                        "target_project": "target_project_value",
+                        "target_network": "target_network_value",
+                    }
+                ],
+            },
             "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
             "protected_artifact_location_id": "protected_artifact_location_id_value",
             "tensorboard": "tensorboard_value",
@@ -33389,6 +33980,7 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_call_success(reques
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_hyperparameter_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -33429,10 +34021,14 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_interceptors(
         "post_create_hyperparameter_tuning_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_create_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_create_hyperparameter_tuning_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateHyperparameterTuningJobRequest.pb(
             job_service.CreateHyperparameterTuningJobRequest()
         )
@@ -33445,6 +34041,7 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob.to_json(
             gca_hyperparameter_tuning_job.HyperparameterTuningJob()
         )
@@ -33457,6 +34054,10 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+        post_with_metadata.return_value = (
+            gca_hyperparameter_tuning_job.HyperparameterTuningJob(),
+            metadata,
+        )
 
         await client.create_hyperparameter_tuning_job(
             request,
@@ -33468,6 +34069,7 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -33497,6 +34099,7 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_hyperparameter_tuning_job(request)
 
 
@@ -33550,6 +34153,7 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_hyperparameter_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -33588,10 +34192,14 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_interceptors(
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_hyperparameter_tuning_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_get_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_hyperparameter_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetHyperparameterTuningJobRequest.pb(
             job_service.GetHyperparameterTuningJobRequest()
         )
@@ -33604,6 +34212,7 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = hyperparameter_tuning_job.HyperparameterTuningJob.to_json(
             hyperparameter_tuning_job.HyperparameterTuningJob()
         )
@@ -33616,6 +34225,10 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
+        post_with_metadata.return_value = (
+            hyperparameter_tuning_job.HyperparameterTuningJob(),
+            metadata,
+        )
 
         await client.get_hyperparameter_tuning_job(
             request,
@@ -33627,6 +34240,7 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -33654,6 +34268,7 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_hyperparameter_tuning_jobs(request)
 
 
@@ -33696,6 +34311,7 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_call_success(request
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_hyperparameter_tuning_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -33728,10 +34344,14 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_interceptors(
         transports.AsyncJobServiceRestInterceptor,
         "post_list_hyperparameter_tuning_jobs",
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_list_hyperparameter_tuning_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_hyperparameter_tuning_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListHyperparameterTuningJobsRequest.pb(
             job_service.ListHyperparameterTuningJobsRequest()
         )
@@ -33744,6 +34364,7 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListHyperparameterTuningJobsResponse.to_json(
             job_service.ListHyperparameterTuningJobsResponse()
         )
@@ -33756,6 +34377,10 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListHyperparameterTuningJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListHyperparameterTuningJobsResponse(),
+            metadata,
+        )
 
         await client.list_hyperparameter_tuning_jobs(
             request,
@@ -33767,6 +34392,7 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -33796,6 +34422,7 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_hyperparameter_tuning_job(request)
 
 
@@ -33835,6 +34462,7 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_call_success(reques
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_hyperparameter_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -33869,10 +34497,14 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_interceptors(
         "post_delete_hyperparameter_tuning_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_delete_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_delete_hyperparameter_tuning_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteHyperparameterTuningJobRequest.pb(
             job_service.DeleteHyperparameterTuningJobRequest()
         )
@@ -33885,6 +34517,7 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -33895,6 +34528,7 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_hyperparameter_tuning_job(
             request,
@@ -33906,6 +34540,7 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -33935,6 +34570,7 @@ async def test_cancel_hyperparameter_tuning_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_hyperparameter_tuning_job(request)
 
 
@@ -33974,6 +34610,7 @@ async def test_cancel_hyperparameter_tuning_job_rest_asyncio_call_success(reques
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.cancel_hyperparameter_tuning_job(request)
 
     # Establish that the response is the type that we expect.
@@ -34018,6 +34655,7 @@ async def test_cancel_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelHyperparameterTuningJobRequest()
         metadata = [
@@ -34062,6 +34700,7 @@ async def test_create_nas_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_nas_job(request)
 
 
@@ -34119,6 +34758,7 @@ async def test_create_nas_job_rest_asyncio_call_success(request_type):
                                     "accelerator_type": 1,
                                     "accelerator_count": 1805,
                                     "tpu_topology": "tpu_topology_value",
+                                    "multihost_gpu_node_count": 2593,
                                     "reservation_affinity": {
                                         "reservation_affinity_type": 1,
                                         "key": "key_value",
@@ -34153,7 +34793,14 @@ async def test_create_nas_job_rest_asyncio_call_success(request_type):
                             "reserved_ip_ranges_value2",
                         ],
                         "psc_interface_config": {
-                            "network_attachment": "network_attachment_value"
+                            "network_attachment": "network_attachment_value",
+                            "dns_peering_configs": [
+                                {
+                                    "domain": "domain_value",
+                                    "target_project": "target_project_value",
+                                    "target_network": "target_network_value",
+                                }
+                            ],
                         },
                         "base_output_directory": {
                             "output_uri_prefix": "output_uri_prefix_value"
@@ -34312,6 +34959,7 @@ async def test_create_nas_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_nas_job(request)
 
     # Establish that the response is the type that we expect.
@@ -34346,10 +34994,13 @@ async def test_create_nas_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_create_nas_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_create_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_create_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateNasJobRequest.pb(
             job_service.CreateNasJobRequest()
         )
@@ -34362,6 +35013,7 @@ async def test_create_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_nas_job.NasJob.to_json(gca_nas_job.NasJob())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -34372,6 +35024,7 @@ async def test_create_nas_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_nas_job.NasJob()
+        post_with_metadata.return_value = gca_nas_job.NasJob(), metadata
 
         await client.create_nas_job(
             request,
@@ -34383,6 +35036,7 @@ async def test_create_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -34410,6 +35064,7 @@ async def test_get_nas_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_nas_job(request)
 
 
@@ -34457,6 +35112,7 @@ async def test_get_nas_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_nas_job(request)
 
     # Establish that the response is the type that we expect.
@@ -34491,10 +35147,13 @@ async def test_get_nas_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_nas_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_get_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetNasJobRequest.pb(job_service.GetNasJobRequest())
         transcode.return_value = {
             "method": "post",
@@ -34505,6 +35164,7 @@ async def test_get_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = nas_job.NasJob.to_json(nas_job.NasJob())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -34515,6 +35175,7 @@ async def test_get_nas_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = nas_job.NasJob()
+        post_with_metadata.return_value = nas_job.NasJob(), metadata
 
         await client.get_nas_job(
             request,
@@ -34526,6 +35187,7 @@ async def test_get_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -34553,6 +35215,7 @@ async def test_list_nas_jobs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_nas_jobs(request)
 
 
@@ -34595,6 +35258,7 @@ async def test_list_nas_jobs_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_nas_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -34624,10 +35288,13 @@ async def test_list_nas_jobs_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_nas_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_list_nas_jobs_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_nas_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListNasJobsRequest.pb(job_service.ListNasJobsRequest())
         transcode.return_value = {
             "method": "post",
@@ -34638,6 +35305,7 @@ async def test_list_nas_jobs_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListNasJobsResponse.to_json(
             job_service.ListNasJobsResponse()
         )
@@ -34650,6 +35318,7 @@ async def test_list_nas_jobs_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListNasJobsResponse()
+        post_with_metadata.return_value = job_service.ListNasJobsResponse(), metadata
 
         await client.list_nas_jobs(
             request,
@@ -34661,6 +35330,7 @@ async def test_list_nas_jobs_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -34688,6 +35358,7 @@ async def test_delete_nas_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_nas_job(request)
 
 
@@ -34725,6 +35396,7 @@ async def test_delete_nas_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_nas_job(request)
 
     # Establish that the response is the type that we expect.
@@ -34755,10 +35427,13 @@ async def test_delete_nas_job_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_delete_nas_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_delete_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_delete_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteNasJobRequest.pb(
             job_service.DeleteNasJobRequest()
         )
@@ -34771,6 +35446,7 @@ async def test_delete_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -34781,6 +35457,7 @@ async def test_delete_nas_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_nas_job(
             request,
@@ -34792,6 +35469,7 @@ async def test_delete_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -34819,6 +35497,7 @@ async def test_cancel_nas_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_nas_job(request)
 
 
@@ -34856,6 +35535,7 @@ async def test_cancel_nas_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.cancel_nas_job(request)
 
     # Establish that the response is the type that we expect.
@@ -34897,6 +35577,7 @@ async def test_cancel_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelNasJobRequest()
         metadata = [
@@ -34943,6 +35624,7 @@ async def test_get_nas_trial_detail_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_nas_trial_detail(request)
 
 
@@ -34988,6 +35670,7 @@ async def test_get_nas_trial_detail_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_nas_trial_detail(request)
 
     # Establish that the response is the type that we expect.
@@ -35018,10 +35701,14 @@ async def test_get_nas_trial_detail_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_nas_trial_detail"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_get_nas_trial_detail_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_nas_trial_detail"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetNasTrialDetailRequest.pb(
             job_service.GetNasTrialDetailRequest()
         )
@@ -35034,6 +35721,7 @@ async def test_get_nas_trial_detail_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = nas_job.NasTrialDetail.to_json(nas_job.NasTrialDetail())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -35044,6 +35732,7 @@ async def test_get_nas_trial_detail_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = nas_job.NasTrialDetail()
+        post_with_metadata.return_value = nas_job.NasTrialDetail(), metadata
 
         await client.get_nas_trial_detail(
             request,
@@ -35055,6 +35744,7 @@ async def test_get_nas_trial_detail_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -35082,6 +35772,7 @@ async def test_list_nas_trial_details_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_nas_trial_details(request)
 
 
@@ -35124,6 +35815,7 @@ async def test_list_nas_trial_details_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_nas_trial_details(request)
 
     # Establish that the response is the type that we expect.
@@ -35153,10 +35845,14 @@ async def test_list_nas_trial_details_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_nas_trial_details"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_list_nas_trial_details_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_nas_trial_details"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListNasTrialDetailsRequest.pb(
             job_service.ListNasTrialDetailsRequest()
         )
@@ -35169,6 +35865,7 @@ async def test_list_nas_trial_details_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListNasTrialDetailsResponse.to_json(
             job_service.ListNasTrialDetailsResponse()
         )
@@ -35181,6 +35878,10 @@ async def test_list_nas_trial_details_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListNasTrialDetailsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListNasTrialDetailsResponse(),
+            metadata,
+        )
 
         await client.list_nas_trial_details(
             request,
@@ -35192,6 +35893,7 @@ async def test_list_nas_trial_details_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -35219,6 +35921,7 @@ async def test_create_batch_prediction_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_batch_prediction_job(request)
 
 
@@ -35261,15 +35964,31 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
                 "ports": [{"container_port": 1511}],
                 "predict_route": "predict_route_value",
                 "health_route": "health_route_value",
+                "invoke_route_prefix": "invoke_route_prefix_value",
                 "grpc_ports": {},
                 "deployment_timeout": {"seconds": 751, "nanos": 543},
                 "shared_memory_size_mb": 2231,
                 "startup_probe": {
                     "exec_": {"command": ["command_value1", "command_value2"]},
+                    "http_get": {
+                        "path": "path_value",
+                        "port": 453,
+                        "host": "host_value",
+                        "scheme": "scheme_value",
+                        "http_headers": [
+                            {"name": "name_value", "value": "value_value"}
+                        ],
+                    },
+                    "grpc": {"port": 453, "service": "service_value"},
+                    "tcp_socket": {"port": 453, "host": "host_value"},
                     "period_seconds": 1489,
                     "timeout_seconds": 1621,
+                    "failure_threshold": 1812,
+                    "success_threshold": 1829,
+                    "initial_delay_seconds": 2214,
                 },
                 "health_probe": {},
+                "liveness_probe": {},
             },
         },
         "input_config": {
@@ -35302,6 +36021,7 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
                 "tpu_topology": "tpu_topology_value",
+                "multihost_gpu_node_count": 2593,
                 "reservation_affinity": {
                     "reservation_affinity_type": 1,
                     "key": "key_value",
@@ -35554,6 +36274,7 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_batch_prediction_job(request)
 
     # Establish that the response is the type that we expect.
@@ -35592,10 +36313,14 @@ async def test_create_batch_prediction_job_rest_asyncio_interceptors(null_interc
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_create_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_create_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_create_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateBatchPredictionJobRequest.pb(
             job_service.CreateBatchPredictionJobRequest()
         )
@@ -35608,6 +36333,7 @@ async def test_create_batch_prediction_job_rest_asyncio_interceptors(null_interc
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_batch_prediction_job.BatchPredictionJob.to_json(
             gca_batch_prediction_job.BatchPredictionJob()
         )
@@ -35620,6 +36346,10 @@ async def test_create_batch_prediction_job_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = gca_batch_prediction_job.BatchPredictionJob()
+        post_with_metadata.return_value = (
+            gca_batch_prediction_job.BatchPredictionJob(),
+            metadata,
+        )
 
         await client.create_batch_prediction_job(
             request,
@@ -35631,6 +36361,7 @@ async def test_create_batch_prediction_job_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -35660,6 +36391,7 @@ async def test_get_batch_prediction_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_batch_prediction_job(request)
 
 
@@ -35713,6 +36445,7 @@ async def test_get_batch_prediction_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_batch_prediction_job(request)
 
     # Establish that the response is the type that we expect.
@@ -35751,10 +36484,14 @@ async def test_get_batch_prediction_job_rest_asyncio_interceptors(null_intercept
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_get_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetBatchPredictionJobRequest.pb(
             job_service.GetBatchPredictionJobRequest()
         )
@@ -35767,6 +36504,7 @@ async def test_get_batch_prediction_job_rest_asyncio_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = batch_prediction_job.BatchPredictionJob.to_json(
             batch_prediction_job.BatchPredictionJob()
         )
@@ -35779,6 +36517,10 @@ async def test_get_batch_prediction_job_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = batch_prediction_job.BatchPredictionJob()
+        post_with_metadata.return_value = (
+            batch_prediction_job.BatchPredictionJob(),
+            metadata,
+        )
 
         await client.get_batch_prediction_job(
             request,
@@ -35790,6 +36532,7 @@ async def test_get_batch_prediction_job_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -35817,6 +36560,7 @@ async def test_list_batch_prediction_jobs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_batch_prediction_jobs(request)
 
 
@@ -35859,6 +36603,7 @@ async def test_list_batch_prediction_jobs_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_batch_prediction_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -35888,10 +36633,14 @@ async def test_list_batch_prediction_jobs_rest_asyncio_interceptors(null_interce
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_batch_prediction_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_list_batch_prediction_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_batch_prediction_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListBatchPredictionJobsRequest.pb(
             job_service.ListBatchPredictionJobsRequest()
         )
@@ -35904,6 +36653,7 @@ async def test_list_batch_prediction_jobs_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListBatchPredictionJobsResponse.to_json(
             job_service.ListBatchPredictionJobsResponse()
         )
@@ -35916,6 +36666,10 @@ async def test_list_batch_prediction_jobs_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListBatchPredictionJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListBatchPredictionJobsResponse(),
+            metadata,
+        )
 
         await client.list_batch_prediction_jobs(
             request,
@@ -35927,6 +36681,7 @@ async def test_list_batch_prediction_jobs_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -35956,6 +36711,7 @@ async def test_delete_batch_prediction_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_batch_prediction_job(request)
 
 
@@ -35995,6 +36751,7 @@ async def test_delete_batch_prediction_job_rest_asyncio_call_success(request_typ
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_batch_prediction_job(request)
 
     # Establish that the response is the type that we expect.
@@ -36025,10 +36782,14 @@ async def test_delete_batch_prediction_job_rest_asyncio_interceptors(null_interc
     ), mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_delete_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_delete_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_delete_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteBatchPredictionJobRequest.pb(
             job_service.DeleteBatchPredictionJobRequest()
         )
@@ -36041,6 +36802,7 @@ async def test_delete_batch_prediction_job_rest_asyncio_interceptors(null_interc
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -36051,6 +36813,7 @@ async def test_delete_batch_prediction_job_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_batch_prediction_job(
             request,
@@ -36062,6 +36825,7 @@ async def test_delete_batch_prediction_job_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -36091,6 +36855,7 @@ async def test_cancel_batch_prediction_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_batch_prediction_job(request)
 
 
@@ -36130,6 +36895,7 @@ async def test_cancel_batch_prediction_job_rest_asyncio_call_success(request_typ
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.cancel_batch_prediction_job(request)
 
     # Establish that the response is the type that we expect.
@@ -36171,6 +36937,7 @@ async def test_cancel_batch_prediction_job_rest_asyncio_interceptors(null_interc
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.CancelBatchPredictionJobRequest()
         metadata = [
@@ -36215,6 +36982,7 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_model_deployment_monitoring_job(request)
 
 
@@ -36446,6 +37214,7 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -36493,10 +37262,14 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_interceptors(
         "post_create_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_create_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_create_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateModelDeploymentMonitoringJobRequest.pb(
             job_service.CreateModelDeploymentMonitoringJobRequest()
         )
@@ -36509,6 +37282,7 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.to_json(
                 gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
@@ -36525,6 +37299,10 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_interceptors(
         post.return_value = (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
         )
+        post_with_metadata.return_value = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+            metadata,
+        )
 
         await client.create_model_deployment_monitoring_job(
             request,
@@ -36536,6 +37314,7 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -36565,6 +37344,7 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_b
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.search_model_deployment_monitoring_stats_anomalies(request)
 
 
@@ -36617,6 +37397,7 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_c
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.search_model_deployment_monitoring_stats_anomalies(
             request
         )
@@ -36654,10 +37435,14 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_i
         "post_search_model_deployment_monitoring_stats_anomalies",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_search_model_deployment_monitoring_stats_anomalies_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_search_model_deployment_monitoring_stats_anomalies",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.pb(
                 job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
@@ -36672,6 +37457,7 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_i
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.to_json(
                 job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
@@ -36688,6 +37474,10 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_i
         post.return_value = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
         )
+        post_with_metadata.return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(),
+            metadata,
+        )
 
         await client.search_model_deployment_monitoring_stats_anomalies(
             request,
@@ -36699,6 +37489,7 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_i
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -36728,6 +37519,7 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_model_deployment_monitoring_job(request)
 
 
@@ -36785,6 +37577,7 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -36832,10 +37625,14 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_interceptors(
         "post_get_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_get_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_get_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetModelDeploymentMonitoringJobRequest.pb(
             job_service.GetModelDeploymentMonitoringJobRequest()
         )
@@ -36848,6 +37645,7 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             model_deployment_monitoring_job.ModelDeploymentMonitoringJob.to_json(
                 model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
@@ -36864,6 +37662,10 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_interceptors(
         post.return_value = (
             model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
         )
+        post_with_metadata.return_value = (
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+            metadata,
+        )
 
         await client.get_model_deployment_monitoring_job(
             request,
@@ -36875,6 +37677,7 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -36902,6 +37705,7 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_model_deployment_monitoring_jobs(request)
 
 
@@ -36948,6 +37752,7 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_model_deployment_monitoring_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -36981,10 +37786,14 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_interceptors(
         "post_list_model_deployment_monitoring_jobs",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_list_model_deployment_monitoring_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_list_model_deployment_monitoring_jobs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListModelDeploymentMonitoringJobsRequest.pb(
             job_service.ListModelDeploymentMonitoringJobsRequest()
         )
@@ -36997,6 +37806,7 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = job_service.ListModelDeploymentMonitoringJobsResponse.to_json(
             job_service.ListModelDeploymentMonitoringJobsResponse()
         )
@@ -37009,6 +37819,10 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListModelDeploymentMonitoringJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListModelDeploymentMonitoringJobsResponse(),
+            metadata,
+        )
 
         await client.list_model_deployment_monitoring_jobs(
             request,
@@ -37020,6 +37834,7 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -37051,6 +37866,7 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_model_deployment_monitoring_job(request)
 
 
@@ -37268,6 +38084,7 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -37302,10 +38119,14 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_interceptors(
         "post_update_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_update_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_update_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.UpdateModelDeploymentMonitoringJobRequest.pb(
             job_service.UpdateModelDeploymentMonitoringJobRequest()
         )
@@ -37318,6 +38139,7 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -37328,6 +38150,7 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_model_deployment_monitoring_job(
             request,
@@ -37339,6 +38162,7 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -37368,6 +38192,7 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_model_deployment_monitoring_job(request)
 
 
@@ -37409,6 +38234,7 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -37443,10 +38269,14 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_interceptors(
         "post_delete_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_delete_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_delete_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteModelDeploymentMonitoringJobRequest.pb(
             job_service.DeleteModelDeploymentMonitoringJobRequest()
         )
@@ -37459,6 +38289,7 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -37469,6 +38300,7 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_model_deployment_monitoring_job(
             request,
@@ -37480,6 +38312,7 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -37509,6 +38342,7 @@ async def test_pause_model_deployment_monitoring_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.pause_model_deployment_monitoring_job(request)
 
 
@@ -37550,6 +38384,7 @@ async def test_pause_model_deployment_monitoring_job_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.pause_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -37594,6 +38429,7 @@ async def test_pause_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.PauseModelDeploymentMonitoringJobRequest()
         metadata = [
@@ -37640,6 +38476,7 @@ async def test_resume_model_deployment_monitoring_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.resume_model_deployment_monitoring_job(request)
 
 
@@ -37681,6 +38518,7 @@ async def test_resume_model_deployment_monitoring_job_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.resume_model_deployment_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
@@ -37725,6 +38563,7 @@ async def test_resume_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = job_service.ResumeModelDeploymentMonitoringJobRequest()
         metadata = [
@@ -37771,6 +38610,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -37808,6 +38648,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -37840,6 +38681,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -37877,6 +38719,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -37912,6 +38755,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -37951,6 +38795,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -37986,6 +38831,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -38025,6 +38871,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -38060,6 +38907,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -38099,6 +38947,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -38133,6 +38982,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -38170,6 +39020,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -38204,6 +39055,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -38241,6 +39093,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -38275,6 +39128,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -38312,6 +39166,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -38346,6 +39201,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -38383,6 +39239,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -38417,6 +39274,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -38454,6 +39312,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

@@ -559,7 +559,9 @@ class TestColumnTransformationsUtils:
 class TestGcsUtils:
     def test_upload_to_gcs(self, json_file, mock_storage_blob_upload_from_filename):
         gcs_utils.upload_to_gcs(json_file, f"gs://{GCS_BUCKET}/{GCS_PREFIX}")
-        assert mock_storage_blob_upload_from_filename.called_once_with(json_file)
+        mock_storage_blob_upload_from_filename.assert_called_once_with(
+            filename=json_file
+        )
 
     def test_stage_local_data_in_gcs(
         self, json_file, mock_datetime, mock_storage_blob_upload_from_filename
@@ -567,7 +569,9 @@ class TestGcsUtils:
         timestamp = EXPECTED_TIME.isoformat(sep="-", timespec="milliseconds")
         staging_gcs_dir = f"gs://{GCS_BUCKET}/{GCS_PREFIX}"
         data_uri = gcs_utils.stage_local_data_in_gcs(json_file, staging_gcs_dir)
-        assert mock_storage_blob_upload_from_filename.called_once_with(json_file)
+        mock_storage_blob_upload_from_filename.assert_called_once_with(
+            filename=json_file
+        )
         assert (
             data_uri
             == f"{staging_gcs_dir}/vertex_ai_auto_staging/{timestamp}/test.json"

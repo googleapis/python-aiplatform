@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,6 +41,9 @@ __protobuf__ = proto.module(
         "DeployModelOperationMetadata",
         "UndeployModelRequest",
         "UndeployModelResponse",
+        "SetPublisherModelConfigRequest",
+        "SetPublisherModelConfigOperationMetadata",
+        "FetchPublisherModelConfigRequest",
         "UndeployModelOperationMetadata",
         "MutateDeployedModelRequest",
         "MutateDeployedModelResponse",
@@ -428,6 +431,61 @@ class UndeployModelResponse(proto.Message):
     [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
 
     """
+
+
+class SetPublisherModelConfigRequest(proto.Message):
+    r"""Request message for
+    [EndpointService.SetPublisherModelConfig][google.cloud.aiplatform.v1beta1.EndpointService.SetPublisherModelConfig].
+
+    Attributes:
+        name (str):
+            Required. The name of the publisher model, in the format of
+            ``projects/{project}/locations/{location}/publishers/{publisher}/models/{model}``.
+        publisher_model_config (google.cloud.aiplatform_v1beta1.types.PublisherModelConfig):
+            Required. The publisher model config.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    publisher_model_config: gca_endpoint.PublisherModelConfig = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_endpoint.PublisherModelConfig,
+    )
+
+
+class SetPublisherModelConfigOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [EndpointService.SetPublisherModelConfig][google.cloud.aiplatform.v1beta1.EndpointService.SetPublisherModelConfig].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class FetchPublisherModelConfigRequest(proto.Message):
+    r"""Request message for
+    [EndpointService.FetchPublisherModelConfig][google.cloud.aiplatform.v1beta1.EndpointService.FetchPublisherModelConfig].
+
+    Attributes:
+        name (str):
+            Required. The name of the publisher model, in the format of
+            ``projects/{project}/locations/{location}/publishers/{publisher}/models/{model}``.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class UndeployModelOperationMetadata(proto.Message):

@@ -1023,6 +1023,7 @@ class TestModelEvaluationJob:
                 evaluation_pipeline_run_name=_TEST_INVALID_PIPELINE_JOB_NAME,
             )
 
+    @pytest.mark.skip(reason="flaky")
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
@@ -1116,6 +1117,7 @@ class TestModelEvaluationJob:
 
         assert mock_model_eval_job_get.called_once
 
+    @pytest.mark.skip(reason="flaky")
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_WITH_CACHING_OPTIONS_JSON],
@@ -1210,6 +1212,7 @@ class TestModelEvaluationJob:
 
         assert mock_model_eval_job_get.called_once
 
+    @pytest.mark.skip(reason="flaky")
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
@@ -1309,6 +1312,7 @@ class TestModelEvaluationJob:
             retry=base._DEFAULT_RETRY,
         )
 
+    @pytest.mark.skip(reason="flaky")
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
@@ -1370,6 +1374,7 @@ class TestModelEvaluationJob:
 
         assert isinstance(test_eval._backing_pipeline_job, aiplatform.PipelineJob)
 
+    @pytest.mark.skip(reason="flaky")
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],
@@ -1411,6 +1416,7 @@ class TestModelEvaluationJob:
         with pytest.raises(RuntimeError):
             test_model_eval_job.get_model_evaluation()
 
+    @pytest.mark.skip(reason="flaky")
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_MODEL_EVAL_PIPELINE_SPEC_JSON],

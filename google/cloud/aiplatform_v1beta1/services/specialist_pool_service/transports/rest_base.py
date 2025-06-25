@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -451,6 +451,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
                 },
                 {
@@ -480,6 +484,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
                 },
             ]
             return http_options
@@ -544,6 +552,11 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
                     "body": "*",
                 },
@@ -575,6 +588,11 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
                     "body": "*",
                 },
             ]
@@ -634,6 +652,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
                 },
                 {
@@ -659,6 +681,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
                 },
             ]
             return http_options
@@ -848,6 +874,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -1008,6 +1038,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
                 },
                 {
@@ -1033,6 +1067,14 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1241,6 +1283,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1266,6 +1312,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1417,6 +1467,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                 },
                 {
@@ -1426,6 +1480,14 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1482,6 +1544,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1670,6 +1736,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -1707,6 +1777,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -1854,6 +1928,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                 },
                 {
@@ -1863,6 +1941,14 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -1923,6 +2009,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
             ]
             return http_options
@@ -2103,6 +2193,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2140,6 +2234,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
                 {
                     "method": "get",
@@ -2287,6 +2385,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*}/operations",
                 },
                 {
@@ -2296,6 +2398,14 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
                 },
                 {
                     "method": "get",
@@ -2356,6 +2466,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
                 },
             ]
             return http_options
@@ -2544,6 +2658,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -2573,6 +2691,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
@@ -2720,6 +2842,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                 },
                 {
@@ -2729,6 +2855,14 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/memories/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
@@ -2785,6 +2919,10 @@ class _BaseSpecialistPoolServiceRestTransport(SpecialistPoolServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
             ]
             return http_options

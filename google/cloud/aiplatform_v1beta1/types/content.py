@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import tool
+from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 from google.type import date_pb2  # type: ignore
 
 
@@ -29,17 +31,23 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "HarmCategory",
+        "Modality",
         "Content",
         "Part",
         "Blob",
         "FileData",
         "VideoMetadata",
+        "PrebuiltVoiceConfig",
+        "VoiceConfig",
+        "SpeechConfig",
         "GenerationConfig",
         "SafetySetting",
         "SafetyRating",
         "CitationMetadata",
         "Citation",
         "Candidate",
+        "UrlContextMetadata",
+        "UrlMetadata",
         "LogprobsResult",
         "Segment",
         "GroundingChunk",
@@ -47,6 +55,7 @@ __protobuf__ = proto.module(
         "GroundingMetadata",
         "SearchEntryPoint",
         "RetrievalMetadata",
+        "ModalityTokenCount",
     },
 )
 
@@ -67,7 +76,8 @@ class HarmCategory(proto.Enum):
             The harm category is sexually explicit
             content.
         HARM_CATEGORY_CIVIC_INTEGRITY (5):
-            The harm category is civic integrity.
+            Deprecated: Election filter is not longer
+            supported. The harm category is civic integrity.
     """
     HARM_CATEGORY_UNSPECIFIED = 0
     HARM_CATEGORY_HATE_SPEECH = 1
@@ -75,6 +85,31 @@ class HarmCategory(proto.Enum):
     HARM_CATEGORY_HARASSMENT = 3
     HARM_CATEGORY_SEXUALLY_EXPLICIT = 4
     HARM_CATEGORY_CIVIC_INTEGRITY = 5
+
+
+class Modality(proto.Enum):
+    r"""Content Part modality
+
+    Values:
+        MODALITY_UNSPECIFIED (0):
+            Unspecified modality.
+        TEXT (1):
+            Plain text.
+        IMAGE (2):
+            Image.
+        VIDEO (3):
+            Video.
+        AUDIO (4):
+            Audio.
+        DOCUMENT (5):
+            Document, e.g. PDF.
+    """
+    MODALITY_UNSPECIFIED = 0
+    TEXT = 1
+    IMAGE = 2
+    VIDEO = 3
+    AUDIO = 4
+    DOCUMENT = 5
 
 
 class Content(proto.Message):
@@ -169,6 +204,12 @@ class Part(proto.Message):
             or file_data.
 
             This field is a member of `oneof`_ ``metadata``.
+        thought (bool):
+            Indicates if the part is thought from the
+            model.
+        thought_signature (bytes):
+            An opaque signature for the thought so it can
+            be reused in subsequent requests.
     """
 
     text: str = proto.Field(
@@ -217,6 +258,14 @@ class Part(proto.Message):
         number=4,
         oneof="metadata",
         message="VideoMetadata",
+    )
+    thought: bool = proto.Field(
+        proto.BOOL,
+        number=10,
+    )
+    thought_signature: bytes = proto.Field(
+        proto.BYTES,
+        number=11,
     )
 
 
@@ -285,6 +334,61 @@ class VideoMetadata(proto.Message):
         proto.MESSAGE,
         number=2,
         message=duration_pb2.Duration,
+    )
+
+
+class PrebuiltVoiceConfig(proto.Message):
+    r"""The configuration for the prebuilt speaker to use.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        voice_name (str):
+            The name of the preset voice to use.
+
+            This field is a member of `oneof`_ ``_voice_name``.
+    """
+
+    voice_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+
+
+class VoiceConfig(proto.Message):
+    r"""The configuration for the voice to use.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        prebuilt_voice_config (google.cloud.aiplatform_v1beta1.types.PrebuiltVoiceConfig):
+            The configuration for the prebuilt voice to
+            use.
+
+            This field is a member of `oneof`_ ``voice_config``.
+    """
+
+    prebuilt_voice_config: "PrebuiltVoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="voice_config",
+        message="PrebuiltVoiceConfig",
+    )
+
+
+class SpeechConfig(proto.Message):
+    r"""The speech generation config.
+
+    Attributes:
+        voice_config (google.cloud.aiplatform_v1beta1.types.VoiceConfig):
+            The configuration for the speaker to use.
+    """
+
+    voice_config: "VoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="VoiceConfig",
     )
 
 
@@ -361,6 +465,49 @@ class GenerationConfig(proto.Message):
             response.
 
             This field is a member of `oneof`_ ``_response_schema``.
+        response_json_schema (google.protobuf.struct_pb2.Value):
+            Optional. Output schema of the generated response. This is
+            an alternative to ``response_schema`` that accepts `JSON
+            Schema <https://json-schema.org/>`__.
+
+            If set, ``response_schema`` must be omitted, but
+            ``response_mime_type`` is required.
+
+            While the full JSON Schema may be sent, not all features are
+            supported. Specifically, only the following properties are
+            supported:
+
+            -  ``$id``
+            -  ``$defs``
+            -  ``$ref``
+            -  ``$anchor``
+            -  ``type``
+            -  ``format``
+            -  ``title``
+            -  ``description``
+            -  ``enum`` (for strings and numbers)
+            -  ``items``
+            -  ``prefixItems``
+            -  ``minItems``
+            -  ``maxItems``
+            -  ``minimum``
+            -  ``maximum``
+            -  ``anyOf``
+            -  ``oneOf`` (interpreted the same as ``anyOf``)
+            -  ``properties``
+            -  ``additionalProperties``
+            -  ``required``
+
+            The non-standard ``propertyOrdering`` property may also be
+            set.
+
+            Cyclic references are unrolled to a limited degree and, as
+            such, may only be used within non-required properties.
+            (Nullable properties are not sufficient.) If ``$ref`` is set
+            on a sub-schema, no other properties, except for than those
+            starting as a ``$``, may be set.
+
+            This field is a member of `oneof`_ ``_response_json_schema``.
         routing_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig.RoutingConfig):
             Optional. Routing configuration.
 
@@ -370,7 +517,62 @@ class GenerationConfig(proto.Message):
             included in the request to the model.
 
             This field is a member of `oneof`_ ``_audio_timestamp``.
+        response_modalities (MutableSequence[google.cloud.aiplatform_v1beta1.types.GenerationConfig.Modality]):
+            Optional. The modalities of the response.
+        media_resolution (google.cloud.aiplatform_v1beta1.types.GenerationConfig.MediaResolution):
+            Optional. If specified, the media resolution
+            specified will be used.
+
+            This field is a member of `oneof`_ ``_media_resolution``.
+        speech_config (google.cloud.aiplatform_v1beta1.types.SpeechConfig):
+            Optional. The speech generation config.
+
+            This field is a member of `oneof`_ ``_speech_config``.
+        thinking_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig.ThinkingConfig):
+            Optional. Config for thinking features.
+            An error will be returned if this field is set
+            for models that don't support thinking.
+        model_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig.ModelConfig):
+            Optional. Config for model selection.
     """
+
+    class Modality(proto.Enum):
+        r"""The modalities of the response.
+
+        Values:
+            MODALITY_UNSPECIFIED (0):
+                Unspecified modality. Will be processed as
+                text.
+            TEXT (1):
+                Text modality.
+            IMAGE (2):
+                Image modality.
+            AUDIO (3):
+                Audio modality.
+        """
+        MODALITY_UNSPECIFIED = 0
+        TEXT = 1
+        IMAGE = 2
+        AUDIO = 3
+
+    class MediaResolution(proto.Enum):
+        r"""Media resolution for the input media.
+
+        Values:
+            MEDIA_RESOLUTION_UNSPECIFIED (0):
+                Media resolution has not been set.
+            MEDIA_RESOLUTION_LOW (1):
+                Media resolution set to low (64 tokens).
+            MEDIA_RESOLUTION_MEDIUM (2):
+                Media resolution set to medium (256 tokens).
+            MEDIA_RESOLUTION_HIGH (3):
+                Media resolution set to high (zoomed
+                reframing with 256 tokens).
+        """
+        MEDIA_RESOLUTION_UNSPECIFIED = 0
+        MEDIA_RESOLUTION_LOW = 1
+        MEDIA_RESOLUTION_MEDIUM = 2
+        MEDIA_RESOLUTION_HIGH = 3
 
     class RoutingConfig(proto.Message):
         r"""The configuration for routing the request to a specific
@@ -468,6 +670,68 @@ class GenerationConfig(proto.Message):
             message="GenerationConfig.RoutingConfig.ManualRoutingMode",
         )
 
+    class ThinkingConfig(proto.Message):
+        r"""Config for thinking features.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            include_thoughts (bool):
+                Indicates whether to include thoughts in the
+                response. If true, thoughts are returned only
+                when available.
+
+                This field is a member of `oneof`_ ``_include_thoughts``.
+            thinking_budget (int):
+                Optional. Indicates the thinking budget in tokens. This is
+                only applied when enable_thinking is true.
+
+                This field is a member of `oneof`_ ``_thinking_budget``.
+        """
+
+        include_thoughts: bool = proto.Field(
+            proto.BOOL,
+            number=1,
+            optional=True,
+        )
+        thinking_budget: int = proto.Field(
+            proto.INT32,
+            number=3,
+            optional=True,
+        )
+
+    class ModelConfig(proto.Message):
+        r"""Config for model selection.
+
+        Attributes:
+            feature_selection_preference (google.cloud.aiplatform_v1beta1.types.GenerationConfig.ModelConfig.FeatureSelectionPreference):
+                Required. Feature selection preference.
+        """
+
+        class FeatureSelectionPreference(proto.Enum):
+            r"""Options for feature selection preference.
+
+            Values:
+                FEATURE_SELECTION_PREFERENCE_UNSPECIFIED (0):
+                    Unspecified feature selection preference.
+                PRIORITIZE_QUALITY (1):
+                    Prefer higher quality over lower cost.
+                BALANCED (2):
+                    Balanced feature selection preference.
+                PRIORITIZE_COST (3):
+                    Prefer lower cost over higher quality.
+            """
+            FEATURE_SELECTION_PREFERENCE_UNSPECIFIED = 0
+            PRIORITIZE_QUALITY = 1
+            BALANCED = 2
+            PRIORITIZE_COST = 3
+
+        feature_selection_preference: "GenerationConfig.ModelConfig.FeatureSelectionPreference" = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum="GenerationConfig.ModelConfig.FeatureSelectionPreference",
+        )
+
     temperature: float = proto.Field(
         proto.FLOAT,
         number=1,
@@ -532,6 +796,12 @@ class GenerationConfig(proto.Message):
         optional=True,
         message=openapi.Schema,
     )
+    response_json_schema: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=28,
+        optional=True,
+        message=struct_pb2.Value,
+    )
     routing_config: RoutingConfig = proto.Field(
         proto.MESSAGE,
         number=17,
@@ -542,6 +812,33 @@ class GenerationConfig(proto.Message):
         proto.BOOL,
         number=20,
         optional=True,
+    )
+    response_modalities: MutableSequence[Modality] = proto.RepeatedField(
+        proto.ENUM,
+        number=21,
+        enum=Modality,
+    )
+    media_resolution: MediaResolution = proto.Field(
+        proto.ENUM,
+        number=22,
+        optional=True,
+        enum=MediaResolution,
+    )
+    speech_config: "SpeechConfig" = proto.Field(
+        proto.MESSAGE,
+        number=23,
+        optional=True,
+        message="SpeechConfig",
+    )
+    thinking_config: ThinkingConfig = proto.Field(
+        proto.MESSAGE,
+        number=25,
+        message=ThinkingConfig,
+    )
+    model_config: ModelConfig = proto.Field(
+        proto.MESSAGE,
+        number=27,
+        message=ModelConfig,
     )
 
 
@@ -809,6 +1106,9 @@ class Candidate(proto.Message):
         grounding_metadata (google.cloud.aiplatform_v1beta1.types.GroundingMetadata):
             Output only. Metadata specifies sources used
             to ground generated content.
+        url_context_metadata (google.cloud.aiplatform_v1beta1.types.UrlContextMetadata):
+            Output only. Metadata related to url context
+            retrieval tool.
     """
 
     class FinishReason(proto.Enum):
@@ -902,6 +1202,62 @@ class Candidate(proto.Message):
         proto.MESSAGE,
         number=7,
         message="GroundingMetadata",
+    )
+    url_context_metadata: "UrlContextMetadata" = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message="UrlContextMetadata",
+    )
+
+
+class UrlContextMetadata(proto.Message):
+    r"""Metadata related to url context retrieval tool.
+
+    Attributes:
+        url_metadata (MutableSequence[google.cloud.aiplatform_v1beta1.types.UrlMetadata]):
+            Output only. List of url context.
+    """
+
+    url_metadata: MutableSequence["UrlMetadata"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="UrlMetadata",
+    )
+
+
+class UrlMetadata(proto.Message):
+    r"""Context of the a single url retrieval.
+
+    Attributes:
+        retrieved_url (str):
+            Retrieved url by the tool.
+        url_retrieval_status (google.cloud.aiplatform_v1beta1.types.UrlMetadata.UrlRetrievalStatus):
+            Status of the url retrieval.
+    """
+
+    class UrlRetrievalStatus(proto.Enum):
+        r"""Status of the url retrieval.
+
+        Values:
+            URL_RETRIEVAL_STATUS_UNSPECIFIED (0):
+                Default value. This value is unused.
+            URL_RETRIEVAL_STATUS_SUCCESS (1):
+                Url retrieval is successful.
+            URL_RETRIEVAL_STATUS_ERROR (2):
+                Url retrieval is failed due to error.
+        """
+        URL_RETRIEVAL_STATUS_UNSPECIFIED = 0
+        URL_RETRIEVAL_STATUS_SUCCESS = 1
+        URL_RETRIEVAL_STATUS_ERROR = 2
+
+    retrieved_url: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    url_retrieval_status: UrlRetrievalStatus = proto.Field(
+        proto.ENUM,
+        number=2,
+        enum=UrlRetrievalStatus,
     )
 
 
@@ -1072,6 +1428,12 @@ class GroundingChunk(proto.Message):
         .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
+            rag_chunk (google.cloud.aiplatform_v1beta1.types.RagChunk):
+                Additional context for the RAG retrieval
+                result. This is only populated when using the
+                RAG retrieval tool.
+
+                This field is a member of `oneof`_ ``context_details``.
             uri (str):
                 URI reference of the attribution.
 
@@ -1086,6 +1448,12 @@ class GroundingChunk(proto.Message):
                 This field is a member of `oneof`_ ``_text``.
         """
 
+        rag_chunk: vertex_rag_data.RagChunk = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            oneof="context_details",
+            message=vertex_rag_data.RagChunk,
+        )
         uri: str = proto.Field(
             proto.STRING,
             number=1,
@@ -1253,6 +1621,28 @@ class RetrievalMetadata(proto.Message):
 
     google_search_dynamic_retrieval_score: float = proto.Field(
         proto.FLOAT,
+        number=2,
+    )
+
+
+class ModalityTokenCount(proto.Message):
+    r"""Represents token counting info for a single modality.
+
+    Attributes:
+        modality (google.cloud.aiplatform_v1beta1.types.Modality):
+            The modality associated with this token
+            count.
+        token_count (int):
+            Number of tokens.
+    """
+
+    modality: "Modality" = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum="Modality",
+    )
+    token_count: int = proto.Field(
+        proto.INT32,
         number=2,
     )
 

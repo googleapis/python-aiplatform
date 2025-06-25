@@ -47,18 +47,15 @@ packages += [
 ]
 
 profiler_extra_require = [
-    "tensorboard-plugin-profile >= 2.4.0, <2.18.0",  # <3.0.0dev",
-    "werkzeug >= 2.0.0, <2.1.0dev",
-    "tensorflow >=2.4.0, <3.0.0dev",
+    "tensorboard-plugin-profile >= 2.4.0, <2.18.0",  # <3.0.0",
+    "werkzeug >= 2.0.0, <4.0.0",
 ]
-tensorboard_extra_require = [
-    "tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"
-] + profiler_extra_require
+tensorboard_extra_require = profiler_extra_require
 
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
-xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
+xai_extra_require = ["tensorflow >=2.3.0, <3.0.0"]
 lit_extra_require = [
-    "tensorflow >= 2.3.0, <3.0.0dev",
+    "tensorflow >= 2.3.0, <3.0.0",
     "pandas >= 1.0.0",
     "lit-nlp == 0.4.0",
     "explainable-ai-sdk >= 1.0.0",
@@ -72,7 +69,7 @@ pipelines_extra_require = [
     "pyyaml>=5.3.1,<7",
 ]
 datasets_extra_require = [
-    "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
+    "pyarrow >= 3.0.0, < 8.0.0; python_version<'3.11'",
     "pyarrow >= 10.0.1; python_version=='3.11'",
     "pyarrow >= 14.0.0; python_version>='3.12'",
 ]
@@ -84,12 +81,12 @@ vizier_extra_require = [
 prediction_extra_require = [
     "docker >= 5.0.3",
     "fastapi >= 0.71.0, <=0.114.0",
-    "httpx >=0.23.0, <0.25.0",  # Optional dependency of fastapi
+    "httpx >=0.23.0, <=0.28.1",  # Optional dependency of fastapi
     "starlette >= 0.17.1",
     "uvicorn[standard] >= 0.16.0",
 ]
 
-endpoint_extra_require = ["requests >= 2.28.1"]
+endpoint_extra_require = ["requests >= 2.28.1", "requests-toolbelt <= 1.0.0"]
 
 private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
@@ -101,19 +98,22 @@ autologging_extra_require = ["mlflow>=1.27.0,<=2.16.0"]
 preview_extra_require = []
 
 ray_extra_require = [
-    # Cluster only supports 2.9.3 and 2.33.0. Keep 2.4.0 for our testing environment.
-    # Note that testing is submiting a job in a cluster with Ray 2.9.3 remotely.
+    # Cluster only supports 2.9.3, 2.33.0, and 2.42.0. Keep 2.4.0 for our
+    # testing environment.
+    # Note that testing is submitting a job in a cluster with Ray 2.9.3 remotely.
     (
-        "ray[default] >= 2.4, <= 2.33.0,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
+        "ray[default] >= 2.4, <= 2.42.0,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
         " 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2, !=2.10.*, !=2.11.*, !=2.12.*, !=2.13.*, !="
         " 2.14.*, !=2.15.*, !=2.16.*, !=2.17.*, !=2.18.*, !=2.19.*, !=2.20.*, !="
         " 2.21.*, !=2.22.*, !=2.23.*, !=2.24.*, !=2.25.*, !=2.26.*, !=2.27.*, !="
-        " 2.28.*, !=2.29.*, !=2.30.*, !=2.31.*, !=2.32.*; python_version<'3.11'"
+        " 2.28.*, !=2.29.*, !=2.30.*, !=2.31.*, !=2.32.*, !=2.34.*, !=2.35.*, !="
+        " 2.36.*, !=2.37.*, !=2.38.*, !=2.39.*, !=2.40.*, !=2.41.*;"
+        " python_version<'3.11'"
     ),
     # To avoid  ImportError: cannot import name 'packaging' from 'pkg_resources'
     "setuptools < 70.0.0",
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
-    "ray[default] >= 2.5, <= 2.33.0; python_version=='3.11'",
+    "ray[default] >= 2.5, <= 2.42.0; python_version=='3.11'",
     "google-cloud-bigquery-storage",
     "google-cloud-bigquery",
     "pandas >= 1.0.0",
@@ -123,6 +123,7 @@ ray_extra_require = [
 
 genai_requires = (
     "pydantic < 3",
+    "typing_extensions",
     "docstring_parser < 1",
 )
 
@@ -131,11 +132,16 @@ ray_testing_extra_require = ray_extra_require + [
     # ray train extras required for prediction tests
     "ray[train]",
     # Framework version constraints copied from testing_extra_require
-    "scikit-learn",
+    "scikit-learn<1.6.0",
     "tensorflow",
     "torch >= 2.0.0, < 2.1.0",
     "xgboost",
     "xgboost_ray",
+]
+
+adk_extra_require = [
+    # 1.0.0 contains breaking changes, so we need to pin to 1.0.0.
+    "google-adk >= 1.0.0, < 2.0.0",
 ]
 
 reasoning_engine_extra_require = [
@@ -143,24 +149,68 @@ reasoning_engine_extra_require = [
     "google-cloud-trace < 2",
     "opentelemetry-sdk < 2",
     "opentelemetry-exporter-gcp-trace < 2",
-    "pydantic >= 2.6.3, < 2.10",
+    "pydantic >= 2.11.1, < 3",
+    "typing_extensions",
+]
+
+agent_engines_extra_require = [
+    "packaging >= 24.0",
+    "cloudpickle >= 3.0, < 4.0",
+    "google-cloud-trace < 2",
+    "google-cloud-logging < 4",
+    "opentelemetry-sdk < 2",
+    "opentelemetry-exporter-gcp-trace < 2",
+    "pydantic >= 2.11.1, < 3",
+    "typing_extensions",
 ]
 
 evaluation_extra_require = [
     "pandas >= 1.0.0",
     "tqdm>=4.23.0",
+    "scikit-learn<1.6.0; python_version<='3.10'",
+    "scikit-learn; python_version>'3.10'",
+    "jsonschema",
+    "ruamel.yaml",
+    "pyyaml",
+    "litellm >= 1.72.4",
 ]
 
 langchain_extra_require = [
-    "langchain >= 0.1.16, < 0.4",
-    "langchain-core < 0.4",
-    "langchain-google-vertexai < 3",
+    "langchain >= 0.3, < 0.4",
+    "langchain-core >= 0.3, < 0.4",
+    "langchain-google-vertexai >= 2.0.22, < 3",
+    "langgraph >= 0.2.45, < 0.4",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
 ]
 
 langchain_testing_extra_require = list(
     set(
         langchain_extra_require
+        + reasoning_engine_extra_require
+        + ["absl-py", "pytest-xdist"]
+    )
+)
+
+ag2_extra_require = [
+    "ag2[gemini]",
+    "openinference-instrumentation-autogen >= 0.1.6, < 0.2",
+]
+
+ag2_testing_extra_require = list(
+    set(
+        ag2_extra_require + reasoning_engine_extra_require + ["absl-py", "pytest-xdist"]
+    )
+)
+
+llama_index_extra_require = [
+    "llama-index",
+    "llama-index-llms-google-genai",
+    "openinference-instrumentation-llama-index >= 3.0, < 4.0",
+]
+
+llama_index_testing_extra_require = list(
+    set(
+        llama_index_extra_require
         + reasoning_engine_extra_require
         + ["absl-py", "pytest-xdist"]
     )
@@ -192,6 +242,7 @@ testing_extra_require = (
     full_extra_require
     + profiler_extra_require
     + tokenization_testing_extra_require
+    + vizier_extra_require
     + [
         # aiohttp is required for async rest tests (need google-auth[aiohttp],
         # but can't specify extras in constraints files)
@@ -204,15 +255,17 @@ testing_extra_require = (
         "kfp >= 2.6.0, < 3.0.0",
         "pytest-asyncio",
         "pytest-xdist",
-        "scikit-learn",
+        "scikit-learn<1.6.0; python_version<='3.10'",
+        "scikit-learn; python_version>'3.10'",
         # Lazy import requires > 2.12.0
-        "tensorflow == 2.13.0; python_version<='3.11'",
-        "tensorflow == 2.16.1; python_version>'3.11'",
+        "tensorflow == 2.14.1; python_version<='3.11'",
+        "tensorflow == 2.19.0; python_version>'3.11'",
+        "protobuf <= 5.29.4",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
         "torch >= 2.0.0, < 2.1.0; python_version<='3.11'",
         "torch >= 2.2.0; python_version>'3.11'",
-        "requests-toolbelt < 1.0.0",
+        "requests-toolbelt <= 1.0.0",
         "immutabledict",
         "xgboost",
     ]
@@ -242,16 +295,17 @@ setuptools.setup(
     install_requires=(
         (
             "google-api-core[grpc] >= 1.34.1,"
-            " <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
+            " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
         ),
-        "google-auth >= 2.14.1, <3.0.0dev",
-        "proto-plus >= 1.22.3, <2.0.0dev",
-        "protobuf>=3.20.2,<6.0.0dev,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
+        "google-auth >= 2.14.1, <3.0.0",
+        "proto-plus >= 1.22.3, <2.0.0",
+        "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 3.0.0dev",
-        "google-cloud-bigquery >= 1.15.0, < 4.0.0dev, !=3.20.0",
-        "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
-        "shapely < 3.0.0dev",
+        "google-cloud-storage >= 1.32.0, < 3.0.0",
+        "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
+        "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
+        "shapely < 3.0.0",
+        "google-genai >= 1.0.0, <2.0.0",
     )
     + genai_requires,
     extras_require={
@@ -272,20 +326,25 @@ setuptools.setup(
         "preview": preview_extra_require,
         "ray": ray_extra_require,
         "ray_testing": ray_testing_extra_require,
+        "adk": adk_extra_require,
         "reasoningengine": reasoning_engine_extra_require,
+        "agent_engines": agent_engines_extra_require,
         "evaluation": evaluation_extra_require,
         "langchain": langchain_extra_require,
         "langchain_testing": langchain_testing_extra_require,
         "tokenization": tokenization_extra_require,
+        "ag2": ag2_extra_require,
+        "ag2_testing": ag2_testing_extra_require,
+        "llama_index": llama_index_extra_require,
+        "llama_index_testing": llama_index_testing_extra_require,
     },
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",

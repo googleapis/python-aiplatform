@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
-
+import google.protobuf
 
 from google.protobuf import json_format
 from google.api_core import operations_v1
@@ -59,6 +59,18 @@ from .rest_base import _BaseSpecialistPoolServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
+
+import logging
+
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
+
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -69,6 +81,9 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     grpc_version=None,
     rest_version=f"google-auth@{google.auth.__version__}",
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class AsyncSpecialistPoolServiceRestInterceptor:
@@ -135,9 +150,10 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_create_specialist_pool(
         self,
         request: specialist_pool_service.CreateSpecialistPoolRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        specialist_pool_service.CreateSpecialistPoolRequest, Sequence[Tuple[str, str]]
+        specialist_pool_service.CreateSpecialistPoolRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_specialist_pool
 
@@ -151,18 +167,42 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_specialist_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_specialist_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_specialist_pool` interceptor runs
+        before the `post_create_specialist_pool_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_specialist_pool_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_specialist_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_create_specialist_pool_with_metadata`
+        interceptor in new development instead of the `post_create_specialist_pool` interceptor.
+        When both interceptors are used, this `post_create_specialist_pool_with_metadata` interceptor runs after the
+        `post_create_specialist_pool` interceptor. The (possibly modified) response returned by
+        `post_create_specialist_pool` will be passed to
+        `post_create_specialist_pool_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_specialist_pool(
         self,
         request: specialist_pool_service.DeleteSpecialistPoolRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        specialist_pool_service.DeleteSpecialistPoolRequest, Sequence[Tuple[str, str]]
+        specialist_pool_service.DeleteSpecialistPoolRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_specialist_pool
 
@@ -176,18 +216,42 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_specialist_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_specialist_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_specialist_pool` interceptor runs
+        before the `post_delete_specialist_pool_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_specialist_pool_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_specialist_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_specialist_pool_with_metadata`
+        interceptor in new development instead of the `post_delete_specialist_pool` interceptor.
+        When both interceptors are used, this `post_delete_specialist_pool_with_metadata` interceptor runs after the
+        `post_delete_specialist_pool` interceptor. The (possibly modified) response returned by
+        `post_delete_specialist_pool` will be passed to
+        `post_delete_specialist_pool_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_specialist_pool(
         self,
         request: specialist_pool_service.GetSpecialistPoolRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        specialist_pool_service.GetSpecialistPoolRequest, Sequence[Tuple[str, str]]
+        specialist_pool_service.GetSpecialistPoolRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for get_specialist_pool
 
@@ -201,18 +265,42 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     ) -> specialist_pool.SpecialistPool:
         """Post-rpc interceptor for get_specialist_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_specialist_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_specialist_pool` interceptor runs
+        before the `post_get_specialist_pool_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_specialist_pool_with_metadata(
+        self,
+        response: specialist_pool.SpecialistPool,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[specialist_pool.SpecialistPool, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_specialist_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_get_specialist_pool_with_metadata`
+        interceptor in new development instead of the `post_get_specialist_pool` interceptor.
+        When both interceptors are used, this `post_get_specialist_pool_with_metadata` interceptor runs after the
+        `post_get_specialist_pool` interceptor. The (possibly modified) response returned by
+        `post_get_specialist_pool` will be passed to
+        `post_get_specialist_pool_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_specialist_pools(
         self,
         request: specialist_pool_service.ListSpecialistPoolsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        specialist_pool_service.ListSpecialistPoolsRequest, Sequence[Tuple[str, str]]
+        specialist_pool_service.ListSpecialistPoolsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_specialist_pools
 
@@ -226,18 +314,45 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     ) -> specialist_pool_service.ListSpecialistPoolsResponse:
         """Post-rpc interceptor for list_specialist_pools
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_specialist_pools_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_specialist_pools` interceptor runs
+        before the `post_list_specialist_pools_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_specialist_pools_with_metadata(
+        self,
+        response: specialist_pool_service.ListSpecialistPoolsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        specialist_pool_service.ListSpecialistPoolsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_specialist_pools
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_list_specialist_pools_with_metadata`
+        interceptor in new development instead of the `post_list_specialist_pools` interceptor.
+        When both interceptors are used, this `post_list_specialist_pools_with_metadata` interceptor runs after the
+        `post_list_specialist_pools` interceptor. The (possibly modified) response returned by
+        `post_list_specialist_pools` will be passed to
+        `post_list_specialist_pools_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_specialist_pool(
         self,
         request: specialist_pool_service.UpdateSpecialistPoolRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        specialist_pool_service.UpdateSpecialistPoolRequest, Sequence[Tuple[str, str]]
+        specialist_pool_service.UpdateSpecialistPoolRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for update_specialist_pool
 
@@ -251,17 +366,42 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_specialist_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_specialist_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_specialist_pool` interceptor runs
+        before the `post_update_specialist_pool_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_specialist_pool_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_specialist_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_update_specialist_pool_with_metadata`
+        interceptor in new development instead of the `post_update_specialist_pool` interceptor.
+        When both interceptors are used, this `post_update_specialist_pool_with_metadata` interceptor runs after the
+        `post_update_specialist_pool` interceptor. The (possibly modified) response returned by
+        `post_update_specialist_pool` will be passed to
+        `post_update_specialist_pool_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -283,8 +423,10 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -306,8 +448,10 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -329,8 +473,10 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -352,8 +498,11 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -375,8 +524,10 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -396,8 +547,10 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -417,8 +570,10 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -440,8 +595,10 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -463,8 +620,10 @@ class AsyncSpecialistPoolServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -675,7 +834,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create specialist pool method over HTTP.
 
@@ -686,8 +845,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -700,6 +861,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseCreateSpecialistPool._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_create_specialist_pool(
                 request, metadata
             )
@@ -715,6 +877,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseCreateSpecialistPool._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.CreateSpecialistPool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "CreateSpecialistPool",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._CreateSpecialistPool._get_response(
@@ -744,6 +933,32 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_specialist_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_specialist_pool_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.create_specialist_pool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "CreateSpecialistPool",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _DeleteSpecialistPool(
@@ -782,7 +997,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete specialist pool method over HTTP.
 
@@ -793,8 +1008,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -807,6 +1024,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseDeleteSpecialistPool._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_specialist_pool(
                 request, metadata
             )
@@ -818,6 +1036,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseDeleteSpecialistPool._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.DeleteSpecialistPool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "DeleteSpecialistPool",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._DeleteSpecialistPool._get_response(
@@ -846,6 +1091,32 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_specialist_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_specialist_pool_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.delete_specialist_pool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "DeleteSpecialistPool",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _GetSpecialistPool(
@@ -884,7 +1155,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> specialist_pool.SpecialistPool:
             r"""Call the get specialist pool method over HTTP.
 
@@ -895,8 +1166,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.specialist_pool.SpecialistPool:
@@ -918,6 +1191,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseGetSpecialistPool._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_specialist_pool(
                 request, metadata
             )
@@ -929,6 +1203,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseGetSpecialistPool._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.GetSpecialistPool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "GetSpecialistPool",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._GetSpecialistPool._get_response(
@@ -957,6 +1258,32 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_specialist_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_specialist_pool_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = specialist_pool.SpecialistPool.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.get_specialist_pool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "GetSpecialistPool",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ListSpecialistPools(
@@ -995,7 +1322,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> specialist_pool_service.ListSpecialistPoolsResponse:
             r"""Call the list specialist pools method over HTTP.
 
@@ -1006,8 +1333,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.specialist_pool_service.ListSpecialistPoolsResponse:
@@ -1019,6 +1348,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseListSpecialistPools._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_specialist_pools(
                 request, metadata
             )
@@ -1030,6 +1360,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseListSpecialistPools._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.ListSpecialistPools",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "ListSpecialistPools",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._ListSpecialistPools._get_response(
@@ -1058,6 +1415,36 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_specialist_pools(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_specialist_pools_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        specialist_pool_service.ListSpecialistPoolsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.list_specialist_pools",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "ListSpecialistPools",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _UpdateSpecialistPool(
@@ -1097,7 +1484,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update specialist pool method over HTTP.
 
@@ -1108,8 +1495,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1122,6 +1511,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseUpdateSpecialistPool._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_update_specialist_pool(
                 request, metadata
             )
@@ -1137,6 +1527,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseUpdateSpecialistPool._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.UpdateSpecialistPool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "UpdateSpecialistPool",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._UpdateSpecialistPool._get_response(
@@ -1166,6 +1583,32 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_specialist_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_specialist_pool_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.update_specialist_pool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "UpdateSpecialistPool",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     @property
@@ -1341,6 +1784,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -1477,11 +1924,19 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1687,6 +2142,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -1712,6 +2171,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1827,11 +2290,19 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2057,6 +2528,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -2094,6 +2569,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2209,11 +2688,19 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
                     },
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2435,6 +2922,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -2472,6 +2963,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -2587,6 +3082,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                     },
                     {
@@ -2604,6 +3103,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -2821,6 +3324,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -2850,6 +3357,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -2961,11 +3472,19 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3127,7 +3646,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -3138,8 +3657,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -3148,6 +3669,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -3159,6 +3681,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._GetLocation._get_response(
@@ -3185,6 +3734,27 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3227,7 +3797,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -3238,8 +3808,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -3248,6 +3820,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -3259,6 +3832,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._ListLocations._get_response(
@@ -3285,6 +3885,27 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3327,7 +3948,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -3338,8 +3959,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -3348,6 +3971,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -3359,6 +3983,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._GetIamPolicy._get_response(
@@ -3385,6 +4036,27 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3428,7 +4100,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -3439,8 +4111,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -3449,6 +4123,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -3464,6 +4139,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._SetIamPolicy._get_response(
@@ -3491,6 +4193,27 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3533,7 +4256,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -3544,8 +4267,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -3554,6 +4279,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -3565,6 +4291,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._TestIamPermissions._get_response(
@@ -3591,6 +4344,27 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3633,7 +4407,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -3644,13 +4418,16 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -3662,6 +4439,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._CancelOperation._get_response(
@@ -3726,7 +4530,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -3737,13 +4541,16 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -3755,6 +4562,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._DeleteOperation._get_response(
@@ -3819,7 +4653,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -3830,8 +4664,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -3840,6 +4676,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -3851,6 +4688,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._GetOperation._get_response(
@@ -3877,6 +4741,27 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3919,7 +4804,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -3930,8 +4815,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -3940,6 +4827,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -3951,6 +4839,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._ListOperations._get_response(
@@ -3977,6 +4892,27 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4019,7 +4955,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -4030,8 +4966,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -4040,6 +4978,7 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             http_options = (
                 _BaseSpecialistPoolServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -4051,6 +4990,33 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             query_params = _BaseSpecialistPoolServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.SpecialistPoolServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncSpecialistPoolServiceRestTransport._WaitOperation._get_response(
@@ -4077,6 +5043,27 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.SpecialistPoolServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property

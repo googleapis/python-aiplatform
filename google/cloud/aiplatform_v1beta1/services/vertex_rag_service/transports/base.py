@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ from google.api_core import gapic_v1
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_service
 from google.cloud.location import locations_pb2  # type: ignore
@@ -35,6 +36,9 @@ from google.longrunning import operations_pb2  # type: ignore
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class VertexRagServiceTransport(abc.ABC):
@@ -138,6 +142,16 @@ class VertexRagServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.augment_prompt: gapic_v1.method.wrap_method(
+                self.augment_prompt,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.corroborate_content: gapic_v1.method.wrap_method(
+                self.corroborate_content,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -207,6 +221,30 @@ class VertexRagServiceTransport(abc.ABC):
         Union[
             vertex_rag_service.RetrieveContextsResponse,
             Awaitable[vertex_rag_service.RetrieveContextsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def augment_prompt(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.AugmentPromptRequest],
+        Union[
+            vertex_rag_service.AugmentPromptResponse,
+            Awaitable[vertex_rag_service.AugmentPromptResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def corroborate_content(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.CorroborateContentRequest],
+        Union[
+            vertex_rag_service.CorroborateContentResponse,
+            Awaitable[vertex_rag_service.CorroborateContentResponse],
         ],
     ]:
         raise NotImplementedError()

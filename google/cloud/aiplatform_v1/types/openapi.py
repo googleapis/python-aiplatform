@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -138,6 +138,27 @@ class Schema(proto.Message):
             Optional. The value should be validated
             against any (one or more) of the subschemas in
             the list.
+        additional_properties (google.protobuf.struct_pb2.Value):
+            Optional. Can either be a boolean or an
+            object; controls the presence of additional
+            properties.
+        ref (str):
+            Optional. Allows indirect references between schema nodes.
+            The value should be a valid reference to a child of the root
+            ``defs``.
+
+            For example, the following schema defines a reference to a
+            schema node named "Pet":
+
+            type: object properties: pet: ref: #/defs/Pet defs: Pet:
+            type: object properties: name: type: string
+
+            The value of the "pet" property is a reference to the schema
+            node named "Pet". See details in
+            https://json-schema.org/understanding-json-schema/structuring
+        defs (MutableMapping[str, google.cloud.aiplatform_v1.types.Schema]):
+            Optional. A map of definitions for use by ``ref`` Only
+            allowed at the root of the schema.
     """
 
     type_: "Type" = proto.Field(
@@ -233,6 +254,21 @@ class Schema(proto.Message):
     any_of: MutableSequence["Schema"] = proto.RepeatedField(
         proto.MESSAGE,
         number=11,
+        message="Schema",
+    )
+    additional_properties: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=26,
+        message=struct_pb2.Value,
+    )
+    ref: str = proto.Field(
+        proto.STRING,
+        number=27,
+    )
+    defs: MutableMapping[str, "Schema"] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=28,
         message="Schema",
     )
 

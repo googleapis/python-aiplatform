@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -86,7 +86,17 @@ from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.type import latlng_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -353,6 +363,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         PredictionServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = PredictionServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = PredictionServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -3774,6 +3827,7 @@ def test_generate_content(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
         response = client.generate_content(request)
 
@@ -3786,6 +3840,7 @@ def test_generate_content(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 def test_generate_content_non_empty_request_with_auto_populated_field():
@@ -3801,6 +3856,7 @@ def test_generate_content_non_empty_request_with_auto_populated_field():
     # if they meet the requirements of AIP 4235.
     request = prediction_service.GenerateContentRequest(
         model="model_value",
+        cached_content="cached_content_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3813,6 +3869,7 @@ def test_generate_content_non_empty_request_with_auto_populated_field():
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest(
             model="model_value",
+            cached_content="cached_content_value",
         )
 
 
@@ -3915,6 +3972,7 @@ async def test_generate_content_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             prediction_service.GenerateContentResponse(
                 model_version="model_version_value",
+                response_id="response_id_value",
             )
         )
         response = await client.generate_content(request)
@@ -3928,6 +3986,7 @@ async def test_generate_content_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.asyncio
@@ -4137,6 +4196,7 @@ def test_stream_generate_content_non_empty_request_with_auto_populated_field():
     # if they meet the requirements of AIP 4235.
     request = prediction_service.GenerateContentRequest(
         model="model_value",
+        cached_content="cached_content_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4151,6 +4211,7 @@ def test_stream_generate_content_non_empty_request_with_auto_populated_field():
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest(
             model="model_value",
+            cached_content="cached_content_value",
         )
 
 
@@ -4538,6 +4599,7 @@ def test_predict_rest_required_fields(request_type=prediction_service.PredictReq
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.predict(request)
 
@@ -4595,6 +4657,7 @@ def test_predict_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.predict(**mock_args)
 
@@ -4727,6 +4790,7 @@ def test_raw_predict_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.raw_predict(request)
 
@@ -4773,6 +4837,7 @@ def test_raw_predict_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.raw_predict(**mock_args)
 
@@ -4909,6 +4974,7 @@ def test_stream_raw_predict_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             with mock.patch.object(response_value, "iter_content") as iter_content:
                 iter_content.return_value = iter(json_return_value)
@@ -4958,6 +5024,7 @@ def test_stream_raw_predict_rest_flattened():
         json_return_value = "[{}]".format(json_return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         with mock.patch.object(response_value, "iter_content") as iter_content:
             iter_content.return_value = iter(json_return_value)
@@ -5093,6 +5160,7 @@ def test_direct_predict_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.direct_predict(request)
 
@@ -5217,6 +5285,7 @@ def test_direct_raw_predict_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.direct_raw_predict(request)
 
@@ -5376,6 +5445,7 @@ def test_server_streaming_predict_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             with mock.patch.object(response_value, "iter_content") as iter_content:
                 iter_content.return_value = iter(json_return_value)
@@ -5507,6 +5577,7 @@ def test_explain_rest_required_fields(request_type=prediction_service.ExplainReq
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.explain(request)
 
@@ -5565,6 +5636,7 @@ def test_explain_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.explain(**mock_args)
 
@@ -5702,6 +5774,7 @@ def test_generate_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.generate_content(request)
 
@@ -5758,6 +5831,7 @@ def test_generate_content_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.generate_content(**mock_args)
 
@@ -5897,6 +5971,7 @@ def test_stream_generate_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             with mock.patch.object(response_value, "iter_content") as iter_content:
                 iter_content.return_value = iter(json_return_value)
@@ -5956,6 +6031,7 @@ def test_stream_generate_content_rest_flattened():
         json_return_value = "[{}]".format(json_return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         with mock.patch.object(response_value, "iter_content") as iter_content:
             iter_content.return_value = iter(json_return_value)
@@ -6565,6 +6641,7 @@ async def test_generate_content_empty_call_grpc_asyncio():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             prediction_service.GenerateContentResponse(
                 model_version="model_version_value",
+                response_id="response_id_value",
             )
         )
         await client.generate_content(request=None)
@@ -6631,6 +6708,7 @@ def test_predict_rest_bad_request(request_type=prediction_service.PredictRequest
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.predict(request)
 
 
@@ -6669,6 +6747,7 @@ def test_predict_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.predict(request)
 
     # Establish that the response is the type that we expect.
@@ -6696,10 +6775,13 @@ def test_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_predict_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.PredictRequest.pb(
             prediction_service.PredictRequest()
         )
@@ -6712,6 +6794,7 @@ def test_predict_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.PredictResponse.to_json(
             prediction_service.PredictResponse()
         )
@@ -6724,6 +6807,7 @@ def test_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.PredictResponse()
+        post_with_metadata.return_value = prediction_service.PredictResponse(), metadata
 
         client.predict(
             request,
@@ -6735,6 +6819,7 @@ def test_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_raw_predict_rest_bad_request(
@@ -6758,6 +6843,7 @@ def test_raw_predict_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.raw_predict(request)
 
 
@@ -6791,6 +6877,7 @@ def test_raw_predict_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.raw_predict(request)
 
     # Establish that the response is the type that we expect.
@@ -6816,10 +6903,13 @@ def test_raw_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_raw_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_raw_predict_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.RawPredictRequest.pb(
             prediction_service.RawPredictRequest()
         )
@@ -6832,6 +6922,7 @@ def test_raw_predict_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(httpbody_pb2.HttpBody())
         req.return_value.content = return_value
 
@@ -6842,6 +6933,7 @@ def test_raw_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         client.raw_predict(
             request,
@@ -6853,6 +6945,7 @@ def test_raw_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_stream_raw_predict_rest_bad_request(
@@ -6876,6 +6969,7 @@ def test_stream_raw_predict_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.stream_raw_predict(request)
 
 
@@ -6910,6 +7004,7 @@ def test_stream_raw_predict_rest_call_success(request_type):
         json_return_value = "[{}]".format(json_return_value)
         response_value.iter_content = mock.Mock(return_value=iter(json_return_value))
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.stream_raw_predict(request)
 
     assert isinstance(response, Iterable)
@@ -6938,10 +7033,14 @@ def test_stream_raw_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_stream_raw_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_stream_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_stream_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.StreamRawPredictRequest.pb(
             prediction_service.StreamRawPredictRequest()
         )
@@ -6954,6 +7053,7 @@ def test_stream_raw_predict_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(httpbody_pb2.HttpBody())
         req.return_value.iter_content = mock.Mock(return_value=iter(return_value))
 
@@ -6964,6 +7064,7 @@ def test_stream_raw_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         client.stream_raw_predict(
             request,
@@ -6975,6 +7076,7 @@ def test_stream_raw_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_direct_predict_rest_bad_request(
@@ -6998,6 +7100,7 @@ def test_direct_predict_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.direct_predict(request)
 
 
@@ -7031,6 +7134,7 @@ def test_direct_predict_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.direct_predict(request)
 
     # Establish that the response is the type that we expect.
@@ -7054,10 +7158,13 @@ def test_direct_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_direct_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_direct_predict_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_direct_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.DirectPredictRequest.pb(
             prediction_service.DirectPredictRequest()
         )
@@ -7070,6 +7177,7 @@ def test_direct_predict_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.DirectPredictResponse.to_json(
             prediction_service.DirectPredictResponse()
         )
@@ -7082,6 +7190,10 @@ def test_direct_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.DirectPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.DirectPredictResponse(),
+            metadata,
+        )
 
         client.direct_predict(
             request,
@@ -7093,6 +7205,7 @@ def test_direct_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_direct_raw_predict_rest_bad_request(
@@ -7116,6 +7229,7 @@ def test_direct_raw_predict_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.direct_raw_predict(request)
 
 
@@ -7151,6 +7265,7 @@ def test_direct_raw_predict_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.direct_raw_predict(request)
 
     # Establish that the response is the type that we expect.
@@ -7175,10 +7290,14 @@ def test_direct_raw_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_direct_raw_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_direct_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_direct_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.DirectRawPredictRequest.pb(
             prediction_service.DirectRawPredictRequest()
         )
@@ -7191,6 +7310,7 @@ def test_direct_raw_predict_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.DirectRawPredictResponse.to_json(
             prediction_service.DirectRawPredictResponse()
         )
@@ -7203,6 +7323,10 @@ def test_direct_raw_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.DirectRawPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.DirectRawPredictResponse(),
+            metadata,
+        )
 
         client.direct_raw_predict(
             request,
@@ -7214,6 +7338,7 @@ def test_direct_raw_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_stream_direct_predict_rest_error():
@@ -7276,6 +7401,7 @@ def test_server_streaming_predict_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.server_streaming_predict(request)
 
 
@@ -7310,6 +7436,7 @@ def test_server_streaming_predict_rest_call_success(request_type):
         json_return_value = "[{}]".format(json_return_value)
         response_value.iter_content = mock.Mock(return_value=iter(json_return_value))
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.server_streaming_predict(request)
 
     assert isinstance(response, Iterable)
@@ -7336,10 +7463,14 @@ def test_server_streaming_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_server_streaming_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_server_streaming_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_server_streaming_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.StreamingPredictRequest.pb(
             prediction_service.StreamingPredictRequest()
         )
@@ -7352,6 +7483,7 @@ def test_server_streaming_predict_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.StreamingPredictResponse.to_json(
             prediction_service.StreamingPredictResponse()
         )
@@ -7364,6 +7496,10 @@ def test_server_streaming_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.StreamingPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.StreamingPredictResponse(),
+            metadata,
+        )
 
         client.server_streaming_predict(
             request,
@@ -7375,6 +7511,7 @@ def test_server_streaming_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_streaming_raw_predict_rest_error():
@@ -7409,6 +7546,7 @@ def test_explain_rest_bad_request(request_type=prediction_service.ExplainRequest
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.explain(request)
 
 
@@ -7444,6 +7582,7 @@ def test_explain_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.explain(request)
 
     # Establish that the response is the type that we expect.
@@ -7468,10 +7607,13 @@ def test_explain_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_explain"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_explain_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_explain"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.ExplainRequest.pb(
             prediction_service.ExplainRequest()
         )
@@ -7484,6 +7626,7 @@ def test_explain_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.ExplainResponse.to_json(
             prediction_service.ExplainResponse()
         )
@@ -7496,6 +7639,7 @@ def test_explain_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.ExplainResponse()
+        post_with_metadata.return_value = prediction_service.ExplainResponse(), metadata
 
         client.explain(
             request,
@@ -7507,6 +7651,7 @@ def test_explain_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_generate_content_rest_bad_request(
@@ -7530,6 +7675,7 @@ def test_generate_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.generate_content(request)
 
 
@@ -7554,6 +7700,7 @@ def test_generate_content_rest_call_success(request_type):
         # Designate an appropriate value for the returned response.
         return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -7565,11 +7712,13 @@ def test_generate_content_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.generate_content(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -7589,10 +7738,14 @@ def test_generate_content_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_generate_content"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_generate_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_generate_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.GenerateContentRequest.pb(
             prediction_service.GenerateContentRequest()
         )
@@ -7605,6 +7758,7 @@ def test_generate_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.GenerateContentResponse.to_json(
             prediction_service.GenerateContentResponse()
         )
@@ -7617,6 +7771,10 @@ def test_generate_content_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.GenerateContentResponse()
+        post_with_metadata.return_value = (
+            prediction_service.GenerateContentResponse(),
+            metadata,
+        )
 
         client.generate_content(
             request,
@@ -7628,6 +7786,7 @@ def test_generate_content_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_stream_generate_content_rest_bad_request(
@@ -7651,6 +7810,7 @@ def test_stream_generate_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.stream_generate_content(request)
 
 
@@ -7675,6 +7835,7 @@ def test_stream_generate_content_rest_call_success(request_type):
         # Designate an appropriate value for the returned response.
         return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -7687,6 +7848,7 @@ def test_stream_generate_content_rest_call_success(request_type):
         json_return_value = "[{}]".format(json_return_value)
         response_value.iter_content = mock.Mock(return_value=iter(json_return_value))
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.stream_generate_content(request)
 
     assert isinstance(response, Iterable)
@@ -7695,6 +7857,7 @@ def test_stream_generate_content_rest_call_success(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -7714,10 +7877,14 @@ def test_stream_generate_content_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_stream_generate_content"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_stream_generate_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_stream_generate_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.GenerateContentRequest.pb(
             prediction_service.GenerateContentRequest()
         )
@@ -7730,6 +7897,7 @@ def test_stream_generate_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.GenerateContentResponse.to_json(
             prediction_service.GenerateContentResponse()
         )
@@ -7742,6 +7910,10 @@ def test_stream_generate_content_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.GenerateContentResponse()
+        post_with_metadata.return_value = (
+            prediction_service.GenerateContentResponse(),
+            metadata,
+        )
 
         client.stream_generate_content(
             request,
@@ -7753,6 +7925,7 @@ def test_stream_generate_content_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -7776,6 +7949,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -7806,6 +7980,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -7834,6 +8009,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -7864,6 +8040,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -7895,6 +8072,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -7927,6 +8105,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -7958,6 +8137,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -7990,6 +8170,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -8021,6 +8202,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -8053,6 +8235,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -8083,6 +8266,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -8113,6 +8297,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -8143,6 +8328,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -8173,6 +8359,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -8203,6 +8390,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -8233,6 +8421,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -8263,6 +8452,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -8293,6 +8483,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -8323,6 +8514,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -8353,6 +8545,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -8591,6 +8784,7 @@ async def test_predict_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.predict(request)
 
 
@@ -8636,6 +8830,7 @@ async def test_predict_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.predict(request)
 
     # Establish that the response is the type that we expect.
@@ -8668,10 +8863,13 @@ async def test_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor, "post_predict_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.PredictRequest.pb(
             prediction_service.PredictRequest()
         )
@@ -8684,6 +8882,7 @@ async def test_predict_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.PredictResponse.to_json(
             prediction_service.PredictResponse()
         )
@@ -8696,6 +8895,7 @@ async def test_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.PredictResponse()
+        post_with_metadata.return_value = prediction_service.PredictResponse(), metadata
 
         await client.predict(
             request,
@@ -8707,6 +8907,7 @@ async def test_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8734,6 +8935,7 @@ async def test_raw_predict_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.raw_predict(request)
 
 
@@ -8774,6 +8976,7 @@ async def test_raw_predict_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.raw_predict(request)
 
     # Establish that the response is the type that we expect.
@@ -8804,10 +9007,14 @@ async def test_raw_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_raw_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.RawPredictRequest.pb(
             prediction_service.RawPredictRequest()
         )
@@ -8820,6 +9027,7 @@ async def test_raw_predict_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(httpbody_pb2.HttpBody())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -8830,6 +9038,7 @@ async def test_raw_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         await client.raw_predict(
             request,
@@ -8841,6 +9050,7 @@ async def test_raw_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8868,6 +9078,7 @@ async def test_stream_raw_predict_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.stream_raw_predict(request)
 
 
@@ -8907,6 +9118,7 @@ async def test_stream_raw_predict_rest_asyncio_call_success(request_type):
         json_return_value = "[{}]".format(json_return_value)
         response_value.content.return_value = mock_async_gen(json_return_value)
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.stream_raw_predict(request)
 
     assert isinstance(response, AsyncIterable)
@@ -8940,10 +9152,14 @@ async def test_stream_raw_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_stream_raw_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_stream_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_stream_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.StreamRawPredictRequest.pb(
             prediction_service.StreamRawPredictRequest()
         )
@@ -8956,6 +9172,7 @@ async def test_stream_raw_predict_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(httpbody_pb2.HttpBody())
         req.return_value.content.return_value = mock_async_gen(return_value)
 
@@ -8966,6 +9183,7 @@ async def test_stream_raw_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         await client.stream_raw_predict(
             request,
@@ -8977,6 +9195,7 @@ async def test_stream_raw_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9004,6 +9223,7 @@ async def test_direct_predict_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.direct_predict(request)
 
 
@@ -9044,6 +9264,7 @@ async def test_direct_predict_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.direct_predict(request)
 
     # Establish that the response is the type that we expect.
@@ -9072,10 +9293,14 @@ async def test_direct_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_direct_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_direct_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_direct_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.DirectPredictRequest.pb(
             prediction_service.DirectPredictRequest()
         )
@@ -9088,6 +9313,7 @@ async def test_direct_predict_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.DirectPredictResponse.to_json(
             prediction_service.DirectPredictResponse()
         )
@@ -9100,6 +9326,10 @@ async def test_direct_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.DirectPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.DirectPredictResponse(),
+            metadata,
+        )
 
         await client.direct_predict(
             request,
@@ -9111,6 +9341,7 @@ async def test_direct_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9138,6 +9369,7 @@ async def test_direct_raw_predict_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.direct_raw_predict(request)
 
 
@@ -9180,6 +9412,7 @@ async def test_direct_raw_predict_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.direct_raw_predict(request)
 
     # Establish that the response is the type that we expect.
@@ -9209,10 +9442,14 @@ async def test_direct_raw_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_direct_raw_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_direct_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_direct_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.DirectRawPredictRequest.pb(
             prediction_service.DirectRawPredictRequest()
         )
@@ -9225,6 +9462,7 @@ async def test_direct_raw_predict_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.DirectRawPredictResponse.to_json(
             prediction_service.DirectRawPredictResponse()
         )
@@ -9237,6 +9475,10 @@ async def test_direct_raw_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.DirectRawPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.DirectRawPredictResponse(),
+            metadata,
+        )
 
         await client.direct_raw_predict(
             request,
@@ -9248,6 +9490,7 @@ async def test_direct_raw_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9329,6 +9572,7 @@ async def test_server_streaming_predict_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.server_streaming_predict(request)
 
 
@@ -9368,6 +9612,7 @@ async def test_server_streaming_predict_rest_asyncio_call_success(request_type):
         json_return_value = "[{}]".format(json_return_value)
         response_value.content.return_value = mock_async_gen(json_return_value)
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.server_streaming_predict(request)
 
     assert isinstance(response, AsyncIterable)
@@ -9400,10 +9645,14 @@ async def test_server_streaming_predict_rest_asyncio_interceptors(null_intercept
         transports.AsyncPredictionServiceRestInterceptor,
         "post_server_streaming_predict",
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_server_streaming_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_server_streaming_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.StreamingPredictRequest.pb(
             prediction_service.StreamingPredictRequest()
         )
@@ -9416,6 +9665,7 @@ async def test_server_streaming_predict_rest_asyncio_interceptors(null_intercept
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.StreamingPredictResponse.to_json(
             prediction_service.StreamingPredictResponse()
         )
@@ -9428,6 +9678,10 @@ async def test_server_streaming_predict_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.StreamingPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.StreamingPredictResponse(),
+            metadata,
+        )
 
         await client.server_streaming_predict(
             request,
@@ -9439,6 +9693,7 @@ async def test_server_streaming_predict_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9484,6 +9739,7 @@ async def test_explain_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.explain(request)
 
 
@@ -9526,6 +9782,7 @@ async def test_explain_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.explain(request)
 
     # Establish that the response is the type that we expect.
@@ -9555,10 +9812,13 @@ async def test_explain_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_explain"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor, "post_explain_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_explain"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.ExplainRequest.pb(
             prediction_service.ExplainRequest()
         )
@@ -9571,6 +9831,7 @@ async def test_explain_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.ExplainResponse.to_json(
             prediction_service.ExplainResponse()
         )
@@ -9583,6 +9844,7 @@ async def test_explain_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.ExplainResponse()
+        post_with_metadata.return_value = prediction_service.ExplainResponse(), metadata
 
         await client.explain(
             request,
@@ -9594,6 +9856,7 @@ async def test_explain_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9621,6 +9884,7 @@ async def test_generate_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.generate_content(request)
 
 
@@ -9650,6 +9914,7 @@ async def test_generate_content_rest_asyncio_call_success(request_type):
         # Designate an appropriate value for the returned response.
         return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -9663,11 +9928,13 @@ async def test_generate_content_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.generate_content(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.asyncio
@@ -9692,10 +9959,14 @@ async def test_generate_content_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_generate_content"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_generate_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_generate_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.GenerateContentRequest.pb(
             prediction_service.GenerateContentRequest()
         )
@@ -9708,6 +9979,7 @@ async def test_generate_content_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.GenerateContentResponse.to_json(
             prediction_service.GenerateContentResponse()
         )
@@ -9720,6 +9992,10 @@ async def test_generate_content_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.GenerateContentResponse()
+        post_with_metadata.return_value = (
+            prediction_service.GenerateContentResponse(),
+            metadata,
+        )
 
         await client.generate_content(
             request,
@@ -9731,6 +10007,7 @@ async def test_generate_content_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9758,6 +10035,7 @@ async def test_stream_generate_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.stream_generate_content(request)
 
 
@@ -9787,6 +10065,7 @@ async def test_stream_generate_content_rest_asyncio_call_success(request_type):
         # Designate an appropriate value for the returned response.
         return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -9799,6 +10078,7 @@ async def test_stream_generate_content_rest_asyncio_call_success(request_type):
         json_return_value = "[{}]".format(json_return_value)
         response_value.content.return_value = mock_async_gen(json_return_value)
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.stream_generate_content(request)
 
     assert isinstance(response, AsyncIterable)
@@ -9807,6 +10087,7 @@ async def test_stream_generate_content_rest_asyncio_call_success(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.asyncio
@@ -9831,10 +10112,14 @@ async def test_stream_generate_content_rest_asyncio_interceptors(null_intercepto
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_stream_generate_content"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_stream_generate_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_stream_generate_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.GenerateContentRequest.pb(
             prediction_service.GenerateContentRequest()
         )
@@ -9847,6 +10132,7 @@ async def test_stream_generate_content_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = prediction_service.GenerateContentResponse.to_json(
             prediction_service.GenerateContentResponse()
         )
@@ -9859,6 +10145,10 @@ async def test_stream_generate_content_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.GenerateContentResponse()
+        post_with_metadata.return_value = (
+            prediction_service.GenerateContentResponse(),
+            metadata,
+        )
 
         await client.stream_generate_content(
             request,
@@ -9870,6 +10160,7 @@ async def test_stream_generate_content_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9899,6 +10190,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -9936,6 +10228,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -9968,6 +10261,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -10005,6 +10299,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -10040,6 +10335,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -10079,6 +10375,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -10114,6 +10411,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -10153,6 +10451,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -10188,6 +10487,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -10227,6 +10527,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -10261,6 +10562,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -10298,6 +10600,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -10332,6 +10635,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -10369,6 +10673,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -10403,6 +10708,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -10440,6 +10746,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -10474,6 +10781,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -10511,6 +10819,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -10545,6 +10854,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -10582,6 +10892,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 
@@ -11340,10 +11651,38 @@ def test_prediction_service_transport_channel_mtls_with_adc(transport_class):
             assert transport.grpc_channel == mock_grpc_channel
 
 
-def test_endpoint_path():
+def test_cached_content_path():
     project = "squid"
     location = "clam"
-    endpoint = "whelk"
+    cached_content = "whelk"
+    expected = "projects/{project}/locations/{location}/cachedContents/{cached_content}".format(
+        project=project,
+        location=location,
+        cached_content=cached_content,
+    )
+    actual = PredictionServiceClient.cached_content_path(
+        project, location, cached_content
+    )
+    assert expected == actual
+
+
+def test_parse_cached_content_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "cached_content": "nudibranch",
+    }
+    path = PredictionServiceClient.cached_content_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = PredictionServiceClient.parse_cached_content_path(path)
+    assert expected == actual
+
+
+def test_endpoint_path():
+    project = "cuttlefish"
+    location = "mussel"
+    endpoint = "winkle"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project,
         location=location,
@@ -11355,9 +11694,9 @@ def test_endpoint_path():
 
 def test_parse_endpoint_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "endpoint": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "endpoint": "abalone",
     }
     path = PredictionServiceClient.endpoint_path(**expected)
 
@@ -11367,9 +11706,9 @@ def test_parse_endpoint_path():
 
 
 def test_model_path():
-    project = "cuttlefish"
-    location = "mussel"
-    model = "winkle"
+    project = "squid"
+    location = "clam"
+    model = "whelk"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project,
         location=location,
@@ -11381,9 +11720,9 @@ def test_model_path():
 
 def test_parse_model_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "model": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "model": "nudibranch",
     }
     path = PredictionServiceClient.model_path(**expected)
 
@@ -11393,9 +11732,9 @@ def test_parse_model_path():
 
 
 def test_rag_corpus_path():
-    project = "squid"
-    location = "clam"
-    rag_corpus = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    rag_corpus = "winkle"
     expected = "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(
         project=project,
         location=location,
@@ -11407,9 +11746,9 @@ def test_rag_corpus_path():
 
 def test_parse_rag_corpus_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "rag_corpus": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "rag_corpus": "abalone",
     }
     path = PredictionServiceClient.rag_corpus_path(**expected)
 
@@ -11419,7 +11758,7 @@ def test_parse_rag_corpus_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -11429,7 +11768,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = PredictionServiceClient.common_billing_account_path(**expected)
 
@@ -11439,7 +11778,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -11449,7 +11788,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = PredictionServiceClient.common_folder_path(**expected)
 
@@ -11459,7 +11798,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -11469,7 +11808,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = PredictionServiceClient.common_organization_path(**expected)
 
@@ -11479,7 +11818,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -11489,7 +11828,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = PredictionServiceClient.common_project_path(**expected)
 
@@ -11499,8 +11838,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -11511,8 +11850,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = PredictionServiceClient.common_location_path(**expected)
 

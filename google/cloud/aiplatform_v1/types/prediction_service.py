@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import tool
 from google.cloud.aiplatform_v1.types import types
 from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -763,6 +764,9 @@ class CountTokensResponse(proto.Message):
         total_billable_characters (int):
             The total number of billable characters
             counted across all instances from the request.
+        prompt_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+            Output only. List of modalities that were
+            processed in the request input.
     """
 
     total_tokens: int = proto.Field(
@@ -772,6 +776,13 @@ class CountTokensResponse(proto.Message):
     total_billable_characters: int = proto.Field(
         proto.INT32,
         number=2,
+    )
+    prompt_tokens_details: MutableSequence[
+        content.ModalityTokenCount
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=content.ModalityTokenCount,
     )
 
 
@@ -804,6 +815,12 @@ class GenerateContentRequest(proto.Message):
             will be in a separate paragraph.
 
             This field is a member of `oneof`_ ``_system_instruction``.
+        cached_content (str):
+            Optional. The name of the cached content used as context to
+            serve the prediction. Note: only used in explicit caching,
+            where users can have control over caching (e.g. what content
+            to cache) and enjoy guaranteed cost savings. Format:
+            ``projects/{project}/locations/{location}/cachedContents/{cachedContent}``
         tools (MutableSequence[google.cloud.aiplatform_v1.types.Tool]):
             Optional. A list of ``Tools`` the model may use to generate
             the next response.
@@ -848,6 +865,10 @@ class GenerateContentRequest(proto.Message):
         optional=True,
         message=content.Content,
     )
+    cached_content: str = proto.Field(
+        proto.STRING,
+        number=9,
+    )
     tools: MutableSequence[tool.Tool] = proto.RepeatedField(
         proto.MESSAGE,
         number=6,
@@ -884,6 +905,12 @@ class GenerateContentResponse(proto.Message):
         model_version (str):
             Output only. The model version used to
             generate the response.
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when the request is
+            made to the server.
+        response_id (str):
+            Output only. response_id is used to identify each response.
+            It is the encoding of the event_id.
         prompt_feedback (google.cloud.aiplatform_v1.types.GenerateContentResponse.PromptFeedback):
             Output only. Content filter results for a
             prompt sent in the request. Note: Sent only in
@@ -955,9 +982,24 @@ class GenerateContentResponse(proto.Message):
                 this includes the number of tokens in the cached content.
             candidates_token_count (int):
                 Number of tokens in the response(s).
+            thoughts_token_count (int):
+                Output only. Number of tokens present in
+                thoughts output.
             total_token_count (int):
                 Total token count for prompt and response
                 candidates.
+            cached_content_token_count (int):
+                Output only. Number of tokens in the cached
+                part in the input (the cached content).
+            prompt_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+                Output only. List of modalities that were
+                processed in the request input.
+            cache_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+                Output only. List of modalities of the cached
+                content in the request input.
+            candidates_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+                Output only. List of modalities that were
+                returned in the response.
         """
 
         prompt_token_count: int = proto.Field(
@@ -968,9 +1010,38 @@ class GenerateContentResponse(proto.Message):
             proto.INT32,
             number=2,
         )
+        thoughts_token_count: int = proto.Field(
+            proto.INT32,
+            number=14,
+        )
         total_token_count: int = proto.Field(
             proto.INT32,
             number=3,
+        )
+        cached_content_token_count: int = proto.Field(
+            proto.INT32,
+            number=5,
+        )
+        prompt_tokens_details: MutableSequence[
+            content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=9,
+            message=content.ModalityTokenCount,
+        )
+        cache_tokens_details: MutableSequence[
+            content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=10,
+            message=content.ModalityTokenCount,
+        )
+        candidates_tokens_details: MutableSequence[
+            content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=11,
+            message=content.ModalityTokenCount,
         )
 
     candidates: MutableSequence[content.Candidate] = proto.RepeatedField(
@@ -981,6 +1052,15 @@ class GenerateContentResponse(proto.Message):
     model_version: str = proto.Field(
         proto.STRING,
         number=11,
+    )
+    create_time: timestamp_pb2.Timestamp = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=timestamp_pb2.Timestamp,
+    )
+    response_id: str = proto.Field(
+        proto.STRING,
+        number=13,
     )
     prompt_feedback: PromptFeedback = proto.Field(
         proto.MESSAGE,
