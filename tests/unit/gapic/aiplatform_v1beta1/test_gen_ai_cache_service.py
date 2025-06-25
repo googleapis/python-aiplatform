@@ -4632,6 +4632,7 @@ def test_create_cached_content_rest_call_success(request_type):
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -4675,16 +4676,24 @@ def test_create_cached_content_rest_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
                     "vertex_ai_search": {
                         "datastore": "datastore_value",
                         "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
                     },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
@@ -4712,6 +4721,7 @@ def test_create_cached_content_rest_call_success(request_type):
                                 "llm_ranker": {"model_name": "model_name_value"},
                             },
                         },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
@@ -4721,6 +4731,7 @@ def test_create_cached_content_rest_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -5125,6 +5136,7 @@ def test_update_cached_content_rest_call_success(request_type):
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -5168,16 +5180,24 @@ def test_update_cached_content_rest_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
                     "vertex_ai_search": {
                         "datastore": "datastore_value",
                         "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
                     },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
@@ -5205,6 +5225,7 @@ def test_update_cached_content_rest_call_success(request_type):
                                 "llm_ranker": {"model_name": "model_name_value"},
                             },
                         },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
@@ -5214,6 +5235,7 @@ def test_update_cached_content_rest_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -6480,6 +6502,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -6523,16 +6546,24 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
                     "vertex_ai_search": {
                         "datastore": "datastore_value",
                         "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
                     },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
@@ -6560,6 +6591,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                                 "llm_ranker": {"model_name": "model_name_value"},
                             },
                         },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
@@ -6569,6 +6601,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -7005,6 +7038,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -7048,16 +7082,24 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "additional_properties": {},
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
                     "vertex_ai_search": {
                         "datastore": "datastore_value",
                         "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
                     },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
@@ -7085,6 +7127,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                                 "llm_ranker": {"model_name": "model_name_value"},
                             },
                         },
+                        "store_context": True,
                     },
                     "disable_attribution": True,
                 },
@@ -7094,6 +7137,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {

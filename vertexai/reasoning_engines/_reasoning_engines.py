@@ -48,7 +48,7 @@ from google.protobuf import field_mask_pb2
 
 
 _LOGGER = base.Logger(__name__)
-_SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12")
+_SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12", "3.13")
 _DEFAULT_GCS_DIR_NAME = "reasoning_engine"
 _BLOB_FILENAME = "reasoning_engine.pkl"
 _REQUIREMENTS_FILE = "requirements.txt"
@@ -224,7 +224,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
                 use for staging the artifacts needed.
             sys_version (str):
                 Optional. The Python system version used. Currently supports any
-                of "3.8", "3.9", "3.10", "3.11", "3.12". If not specified,
+                of "3.9", "3.10", "3.11", "3.12", "3.13". If not specified,
                 it defaults to the "{major}.{minor}" attributes of
                 sys.version_info.
             extra_packages (Sequence[str]):

@@ -147,6 +147,8 @@ class AG2Agent:
     for details.
     """
 
+    agent_framework = "ag2"
+
     def __init__(
         self,
         model: str,

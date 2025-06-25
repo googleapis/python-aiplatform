@@ -37,6 +37,7 @@ from google.api_core import gapic_v1
 from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 
 try:
@@ -54,6 +55,7 @@ from google.cloud.aiplatform_v1.types import (
     persistent_resource as gca_persistent_resource,
 )
 from google.cloud.aiplatform_v1.types import persistent_resource_service
+from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -95,6 +97,12 @@ class PersistentResourceServiceAsyncClient:
     network_path = staticmethod(PersistentResourceServiceClient.network_path)
     parse_network_path = staticmethod(
         PersistentResourceServiceClient.parse_network_path
+    )
+    network_attachment_path = staticmethod(
+        PersistentResourceServiceClient.network_attachment_path
+    )
+    parse_network_attachment_path = staticmethod(
+        PersistentResourceServiceClient.parse_network_attachment_path
     )
     persistent_resource_path = staticmethod(
         PersistentResourceServiceClient.persistent_resource_path
@@ -1872,6 +1880,9 @@ class PersistentResourceServiceAsyncClient:
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 __all__ = ("PersistentResourceServiceAsyncClient",)

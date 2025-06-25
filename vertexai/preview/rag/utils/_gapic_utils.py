@@ -41,13 +41,19 @@ from google.cloud.aiplatform_v1beta1 import (
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
+from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.preview.rag.utils.resources import (
+    ANN,
+    DocumentCorpus,
     EmbeddingModelConfig,
     JiraSource,
+    KNN,
     LayoutParserConfig,
     LlmParserConfig,
+    MemoryCorpus,
     Pinecone,
     RagCorpus,
+    RagCorpusTypeConfig,
     RagEmbeddingModelConfig,
     RagEngineConfig,
     RagFile,
@@ -56,9 +62,11 @@ from vertexai.preview.rag.utils.resources import (
     RagVectorDbConfig,
     Basic,
     Enterprise,
+    Scaled,
     SharePointSources,
     SlackChannelsSource,
     TransformationConfig,
+    Unprovisioned,
     VertexAiSearchConfig,
     VertexFeatureStore,
     VertexPredictionEndpoint,
@@ -133,6 +141,20 @@ def _check_rag_managed_db(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
         return gapic_vector_db.rag_managed_db.ByteSize() > 0
 
 
+def _check_knn(gapic_rag_managed_db: GapicRagVectorDbConfig.RagManagedDb) -> bool:
+    try:
+        return gapic_rag_managed_db.__contains__("knn")
+    except AttributeError:
+        return gapic_rag_managed_db.knn.ByteSize() > 0
+
+
+def _check_ann(gapic_rag_managed_db: GapicRagVectorDbConfig.RagManagedDb) -> bool:
+    try:
+        return gapic_rag_managed_db.__contains__("ann")
+    except AttributeError:
+        return gapic_rag_managed_db.ann.ByteSize() > 0
+
+
 def _check_vertex_feature_store(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("vertex_feature_store")
@@ -163,6 +185,42 @@ def _check_rag_embedding_model_config(
         return gapic_vector_db.rag_embedding_model_config.ByteSize() > 0
 
 
+def _convert_gapic_to_rag_managed_db(
+    gapic_rag_managed_db: GapicRagVectorDbConfig.RagManagedDb,
+) -> RagManagedDb:
+    """Convert Gapic RagManagedDbConfig to RagManagedDb."""
+    if _check_knn(gapic_rag_managed_db):
+        return RagManagedDb(retrieval_strategy=KNN())
+    elif _check_ann(gapic_rag_managed_db):
+        return RagManagedDb(
+            retrieval_strategy=ANN(
+                tree_depth=gapic_rag_managed_db.ann.tree_depth,
+                leaf_count=gapic_rag_managed_db.ann.leaf_count,
+            )
+        )
+    else:
+        return RagManagedDb()
+
+
+def _convert_rag_managed_db_to_gapic(
+    rag_managed_db: RagManagedDb,
+) -> GapicRagVectorDbConfig.RagManagedDb:
+    """Convert RagManagedDb to Gapic RagManagedDb."""
+    if isinstance(rag_managed_db.retrieval_strategy, KNN):
+        return GapicRagVectorDbConfig.RagManagedDb(
+            knn=GapicRagVectorDbConfig.RagManagedDb.KNN()
+        )
+    elif isinstance(rag_managed_db.retrieval_strategy, ANN):
+        return GapicRagVectorDbConfig.RagManagedDb(
+            ann=GapicRagVectorDbConfig.RagManagedDb.ANN(
+                tree_depth=rag_managed_db.retrieval_strategy.tree_depth,
+                leaf_count=rag_managed_db.retrieval_strategy.leaf_count,
+            )
+        )
+    else:
+        return GapicRagVectorDbConfig.RagManagedDb()
+
+
 def convert_gapic_to_vector_db(
     gapic_vector_db: GapicRagVectorDbConfig,
 ) -> Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]:
@@ -188,7 +246,7 @@ def convert_gapic_to_vector_db(
             index=gapic_vector_db.vertex_vector_search.index,
         )
     elif _check_rag_managed_db(gapic_vector_db):
-        return RagManagedDb()
+        return _convert_gapic_to_rag_managed_db(gapic_vector_db.rag_managed_db)
     else:
         return None
 
@@ -247,7 +305,9 @@ def convert_gapic_to_backend_config(
             index=gapic_vector_db.vertex_vector_search.index,
         )
     elif _check_rag_managed_db(gapic_vector_db):
-        vector_config.vector_db = RagManagedDb()
+        vector_config.vector_db = _convert_gapic_to_rag_managed_db(
+            gapic_vector_db.rag_managed_db
+        )
     if _check_rag_embedding_model_config(gapic_vector_db):
         vector_config.rag_embedding_model_config = (
             convert_gapic_to_rag_embedding_model_config(
@@ -257,12 +317,35 @@ def convert_gapic_to_backend_config(
     return vector_config
 
 
+def convert_gapic_to_rag_corpus_type_config(
+    gapic_rag_corpus_type_config: GapicRagCorpus.CorpusTypeConfig,
+) -> RagCorpusTypeConfig:
+    """Convert GapicRagCorpus.CorpusTypeConfig to RagCorpusTypeConfig."""
+    if gapic_rag_corpus_type_config.document_corpus:
+        return RagCorpusTypeConfig(corpus_type_config=DocumentCorpus())
+    elif gapic_rag_corpus_type_config.memory_corpus:
+        return RagCorpusTypeConfig(
+            corpus_type_config=MemoryCorpus(
+                llm_parser=LlmParserConfig(
+                    model_name=gapic_rag_corpus_type_config.memory_corpus.llm_parser.model_name,
+                    max_parsing_requests_per_min=gapic_rag_corpus_type_config.memory_corpus.llm_parser.max_parsing_requests_per_min,
+                    global_max_parsing_requests_per_min=gapic_rag_corpus_type_config.memory_corpus.llm_parser.global_max_parsing_requests_per_min,
+                    custom_parsing_prompt=gapic_rag_corpus_type_config.memory_corpus.llm_parser.custom_parsing_prompt,
+                )
+            )
+        )
+    return None
+
+
 def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
     """Convert GapicRagCorpus to RagCorpus."""
     rag_corpus = RagCorpus(
         name=gapic_rag_corpus.name,
         display_name=gapic_rag_corpus.display_name,
         description=gapic_rag_corpus.description,
+        corpus_type_config=convert_gapic_to_rag_corpus_type_config(
+            gapic_rag_corpus.corpus_type_config
+        ),
         embedding_model_config=convert_gapic_to_embedding_model_config(
             gapic_rag_corpus.rag_embedding_model_config
         ),
@@ -271,8 +354,9 @@ def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
             gapic_rag_corpus.vertex_ai_search_config
         ),
         backend_config=convert_gapic_to_backend_config(
-            gapic_rag_corpus.rag_vector_db_config
+            gapic_rag_corpus.vector_db_config
         ),
+        encryption_spec=gapic_rag_corpus.encryption_spec,
     )
     return rag_corpus
 
@@ -294,6 +378,7 @@ def convert_gapic_to_rag_corpus_no_embedding_model_config(
         backend_config=convert_gapic_to_backend_config(
             rag_vector_db_config_no_embedding_model_config
         ),
+        encryption_spec=gapic_rag_corpus.encryption_spec,
     )
     return rag_corpus
 
@@ -454,10 +539,12 @@ def prepare_import_files_request(
     chunk_overlap: int = 200,
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
+    global_max_embedding_requests_per_min: Optional[int] = None,
     use_advanced_pdf_parsing: bool = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
     llm_parser: Optional[LlmParserConfig] = None,
+    rebuild_ann_index: bool = False,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
@@ -485,8 +572,15 @@ def prepare_import_files_request(
             )
         rag_file_parsing_config.layout_parser = RagFileParsingConfig.LayoutParser(
             processor_name=layout_parser.processor_name,
-            max_parsing_requests_per_min=layout_parser.max_parsing_requests_per_min,
         )
+        if layout_parser.max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.layout_parser.max_parsing_requests_per_min = (
+                layout_parser.max_parsing_requests_per_min
+            )
+        if layout_parser.global_max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.layout_parser.global_max_parsing_requests_per_min = (
+                layout_parser.global_max_parsing_requests_per_min
+            )
     if llm_parser is not None:
         rag_file_parsing_config.llm_parser = RagFileParsingConfig.LlmParser(
             model_name=llm_parser.model_name
@@ -494,6 +588,10 @@ def prepare_import_files_request(
         if llm_parser.max_parsing_requests_per_min is not None:
             rag_file_parsing_config.llm_parser.max_parsing_requests_per_min = (
                 llm_parser.max_parsing_requests_per_min
+            )
+        if llm_parser.global_max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.llm_parser.global_max_parsing_requests_per_min = (
+                llm_parser.global_max_parsing_requests_per_min
             )
         if llm_parser.custom_parsing_prompt is not None:
             rag_file_parsing_config.llm_parser.custom_parsing_prompt = (
@@ -518,8 +616,13 @@ def prepare_import_files_request(
         rag_file_transformation_config=rag_file_transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         rag_file_parsing_config=rag_file_parsing_config,
+        rebuild_ann_index=rebuild_ann_index,
     )
 
+    if global_max_embedding_requests_per_min is not None:
+        import_rag_files_config.global_max_embedding_requests_per_min = (
+            global_max_embedding_requests_per_min
+        )
     if source is not None:
         gapic_source = convert_source_for_rag_import(source)
         if isinstance(gapic_source, GapicSlackSource):
@@ -612,10 +715,54 @@ def get_file_name(
         )
 
 
+def set_corpus_type_config(
+    corpus_type_config: RagCorpusTypeConfig,
+    rag_corpus: GapicRagCorpus,
+) -> None:
+    """Set corpus type config in GapicRagCorpus."""
+    if isinstance(corpus_type_config.corpus_type_config, DocumentCorpus):
+        rag_corpus.corpus_type_config = GapicRagCorpus.CorpusTypeConfig(
+            document_corpus=GapicRagCorpus.CorpusTypeConfig.DocumentCorpus()
+        )
+    elif isinstance(corpus_type_config.corpus_type_config, MemoryCorpus):
+        memory_corpus = GapicRagCorpus.CorpusTypeConfig.MemoryCorpus()
+        if corpus_type_config.corpus_type_config.llm_parser is not None:
+            memory_corpus.llm_parser = RagFileParsingConfig.LlmParser(
+                model_name=corpus_type_config.corpus_type_config.llm_parser.model_name
+            )
+            if (
+                corpus_type_config.corpus_type_config.llm_parser.max_parsing_requests_per_min
+                is not None
+            ):
+                memory_corpus.llm_parser.max_parsing_requests_per_min = (
+                    corpus_type_config.corpus_type_config.llm_parser.max_parsing_requests_per_min
+                )
+            if (
+                corpus_type_config.corpus_type_config.llm_parser.global_max_parsing_requests_per_min
+                is not None
+            ):
+                memory_corpus.llm_parser.global_max_parsing_requests_per_min = (
+                    corpus_type_config.corpus_type_config.llm_parser.global_max_parsing_requests_per_min
+                )
+            if (
+                corpus_type_config.corpus_type_config.llm_parser.custom_parsing_prompt
+                is not None
+            ):
+                memory_corpus.llm_parser.custom_parsing_prompt = (
+                    corpus_type_config.corpus_type_config.llm_parser.custom_parsing_prompt
+                )
+        rag_corpus.corpus_type_config = GapicRagCorpus.CorpusTypeConfig(
+            memory_corpus=memory_corpus
+        )
+    else:
+        raise TypeError
+
+
 def set_embedding_model_config(
     embedding_model_config: EmbeddingModelConfig,
     rag_corpus: GapicRagCorpus,
 ) -> None:
+    """Sets the embedding model config for the rag corpus."""
     if embedding_model_config.publisher_model and embedding_model_config.endpoint:
         raise ValueError("publisher_model and endpoint cannot be set at the same time.")
     if (
@@ -672,6 +819,28 @@ def set_embedding_model_config(
             )
 
 
+def set_encryption_spec(
+    encryption_spec: EncryptionSpec,
+    rag_corpus: GapicRagCorpus,
+) -> None:
+    """Sets the encryption spec for the rag corpus."""
+    # Raises value error if encryption_spec.kms_key_name is None or empty,
+    if encryption_spec.kms_key_name is None or not encryption_spec.kms_key_name:
+        raise ValueError("kms_key_name must be set if encryption_spec is set.")
+
+    # Raises value error if encryption_spec.kms_key_name is not a valid KMS key name.
+    if not re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/keyRings/(?P<key_ring>.+?)/cryptoKeys/(?P<crypto_key>.+?)$",
+        encryption_spec.kms_key_name,
+    ):
+        raise ValueError(
+            "kms_key_name must be of the format "
+            "`projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`"
+        )
+
+    rag_corpus.encryption_spec = encryption_spec
+
+
 def set_vector_db(
     vector_db: Union[
         Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb, None
@@ -679,9 +848,13 @@ def set_vector_db(
     rag_corpus: GapicRagCorpus,
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
-    if vector_db is None or isinstance(vector_db, RagManagedDb):
+    if vector_db is None:
         rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
             rag_managed_db=GapicRagVectorDbConfig.RagManagedDb(),
+        )
+    elif isinstance(vector_db, RagManagedDb):
+        rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
+            rag_managed_db=_convert_rag_managed_db_to_gapic(vector_db)
         )
     elif isinstance(vector_db, Weaviate):
         http_endpoint = vector_db.weaviate_http_endpoint
@@ -776,9 +949,13 @@ def set_backend_config(
 
     if backend_config.vector_db is not None:
         vector_config = backend_config.vector_db
-        if vector_config is None or isinstance(vector_config, RagManagedDb):
+        if vector_config is None:
             rag_corpus.vector_db_config.rag_managed_db.CopyFrom(
                 GapicRagVectorDbConfig.RagManagedDb()
+            )
+        elif isinstance(vector_config, RagManagedDb):
+            rag_corpus.vector_db_config.rag_managed_db = (
+                _convert_rag_managed_db_to_gapic(vector_config)
             )
         elif isinstance(vector_config, VertexVectorSearch):
             index_endpoint = vector_config.index_endpoint
@@ -818,6 +995,10 @@ def convert_gapic_to_rag_engine_config(
         rag_managed_db_config.tier = Enterprise()
     elif response.rag_managed_db_config.__contains__("basic"):
         rag_managed_db_config.tier = Basic()
+    elif response.rag_managed_db_config.__contains__("unprovisioned"):
+        rag_managed_db_config.tier = Unprovisioned()
+    elif response.rag_managed_db_config.__contains__("scaled"):
+        rag_managed_db_config.tier = Scaled()
     else:
         raise ValueError("At least one of rag_managed_db_config must be set.")
     return RagEngineConfig(
@@ -836,13 +1017,19 @@ def convert_rag_engine_config_to_gapic(
         or rag_engine_config.rag_managed_db_config.tier is None
     ):
         rag_managed_db_config = GapicRagManagedDbConfig(
-            enterprise=GapicRagManagedDbConfig.Enterprise()
+            basic=GapicRagManagedDbConfig.Basic()
         )
     else:
         if isinstance(rag_engine_config.rag_managed_db_config.tier, Enterprise):
             rag_managed_db_config.enterprise = GapicRagManagedDbConfig.Enterprise()
         elif isinstance(rag_engine_config.rag_managed_db_config.tier, Basic):
             rag_managed_db_config.basic = GapicRagManagedDbConfig.Basic()
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Unprovisioned):
+            rag_managed_db_config.unprovisioned = (
+                GapicRagManagedDbConfig.Unprovisioned()
+            )
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Scaled):
+            rag_managed_db_config.scaled = GapicRagManagedDbConfig.Scaled()
     return GapicRagEngineConfig(
         name=rag_engine_config.name,
         rag_managed_db_config=rag_managed_db_config,

@@ -45,6 +45,7 @@ from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
@@ -220,6 +221,28 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
                 instance.
         """
         return self._transport
+
+    @staticmethod
+    def reasoning_engine_path(
+        project: str,
+        location: str,
+        reasoning_engine: str,
+    ) -> str:
+        """Returns a fully-qualified reasoning_engine string."""
+        return "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}".format(
+            project=project,
+            location=location,
+            reasoning_engine=reasoning_engine,
+        )
+
+    @staticmethod
+    def parse_reasoning_engine_path(path: str) -> Dict[str, str]:
+        """Parses a reasoning_engine path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/reasoningEngines/(?P<reasoning_engine>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
 
     @staticmethod
     def session_path(
@@ -818,7 +841,6 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
 
                 # Initialize request argument(s)
                 session = aiplatform_v1beta1.Session()
-                session.name = "name_value"
                 session.user_id = "user_id_value"
 
                 request = aiplatform_v1beta1.CreateSessionRequest(
@@ -1191,7 +1213,6 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
 
                 # Initialize request argument(s)
                 session = aiplatform_v1beta1.Session()
-                session.name = "name_value"
                 session.user_id = "user_id_value"
 
                 request = aiplatform_v1beta1.UpdateSessionRequest(
@@ -1573,7 +1594,6 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
 
                 # Initialize request argument(s)
                 event = aiplatform_v1beta1.SessionEvent()
-                event.name = "name_value"
                 event.author = "author_value"
                 event.invocation_id = "invocation_id_value"
 
@@ -2414,5 +2434,7 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
 
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 __all__ = ("SessionServiceClient",)

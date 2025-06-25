@@ -365,6 +365,20 @@ def get_dedicated_endpoint_mock():
 
 
 @pytest.fixture
+def get_dedicated_endpoint_no_dns_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_mock:
+        get_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            dedicated_endpoint_enabled=True,
+        )
+        yield get_endpoint_mock
+
+
+@pytest.fixture
 def get_model_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
@@ -1903,11 +1917,61 @@ class TestEndpoint:
             if not sync:
                 test_endpoint.wait()
 
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_autoscaling_target_request_count_per_minute(
+        self, deploy_model_mock, sync
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint.deploy(
+            model=test_model,
+            machine_type=_TEST_MACHINE_TYPE,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            autoscaling_target_request_count_per_minute=600,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
+            machine_spec=gca_machine_resources.MachineSpec(
+                machine_type=_TEST_MACHINE_TYPE,
+            ),
+            min_replica_count=1,
+            max_replica_count=1,
+            autoscaling_metric_specs=[
+                gca_machine_resources.AutoscalingMetricSpec(
+                    metric_name=_TEST_METRIC_NAME_REQUEST_COUNT,
+                    target=600,
+                ),
+            ],
+        )
+
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures(
         "get_endpoint_mock", "get_model_mock", "preview_deploy_model_mock"
     )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_with_autoscaling_target_request_count_per_minute(
+    def test_deploy_with_autoscaling_target_request_count_per_minute_preview(
         self, preview_deploy_model_mock, sync
     ):
         test_endpoint = preview_models.Endpoint(_TEST_ENDPOINT_NAME)
@@ -2662,6 +2726,21 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures("get_dedicated_endpoint_no_dns_mock")
+    def test_predict_dedicated_endpoint_without_dns(self, predict_endpoint_http_mock):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        with pytest.raises(ValueError) as err:
+            test_endpoint.predict(
+                instances=_TEST_INSTANCES,
+                parameters={"param": 3.0},
+                use_dedicated_endpoint=True,
+            )
+        assert err.match(
+            regexp=r"Dedicated endpoint DNS is empty. Please make sure endpoint"
+            "and model are ready before making a prediction."
+        )
+
     @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
     def test_predict_dedicated_endpoint_with_timeout(self, predict_endpoint_http_mock):
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
@@ -3382,13 +3461,14 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.asyncio
     @pytest.mark.usefixtures("get_endpoint_mock")
     async def test_explain_async_with_explaination_spec_override(
         self, predict_async_client_v1beta1_explain_mock
     ):
         test_endpoint = aiplatform.Endpoint(_TEST_ID).preview
 
-        await test_endpoint.explain(
+        await test_endpoint.explain_async(
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             deployed_model_id=_TEST_MODEL_ID,
@@ -3400,13 +3480,14 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.asyncio
     @pytest.mark.usefixtures("get_endpoint_mock")
     async def test_explain_async_with_concurrent_explaination_spec_override(
         self, predict_async_client_v1beta1_explain_mock
     ):
         test_endpoint = aiplatform.Endpoint(_TEST_ID).preview
 
-        await test_endpoint.explain(
+        await test_endpoint.explain_async(
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             deployed_model_id=_TEST_MODEL_ID,
@@ -3575,6 +3656,40 @@ class TestPrivateEndpoint:
             location=_TEST_LOCATION,
             private_service_connect_config=models.PrivateEndpoint.PrivateServiceConnectConfig(
                 project_allowlist=_TEST_PROJECT_ALLOWLIST
+            ),
+            sync=sync,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                enable_private_service_connect=True,
+                project_allowlist=_TEST_PROJECT_ALLOWLIST,
+            ),
+        )
+
+        create_psc_private_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_psc_with_service_networking(
+        self, create_psc_private_endpoint_mock, sync
+    ):
+        test_endpoint = models.PrivateEndpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                enable_private_service_connect=True,
+                project_allowlist=_TEST_PROJECT_ALLOWLIST,
             ),
             sync=sync,
         )

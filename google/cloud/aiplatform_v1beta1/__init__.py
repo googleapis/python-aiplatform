@@ -68,6 +68,8 @@ from .services.llm_utility_service import LlmUtilityServiceClient
 from .services.llm_utility_service import LlmUtilityServiceAsyncClient
 from .services.match_service import MatchServiceClient
 from .services.match_service import MatchServiceAsyncClient
+from .services.memory_bank_service import MemoryBankServiceClient
+from .services.memory_bank_service import MemoryBankServiceAsyncClient
 from .services.metadata_service import MetadataServiceClient
 from .services.metadata_service import MetadataServiceAsyncClient
 from .services.migration_service import MigrationServiceClient
@@ -137,6 +139,8 @@ from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
 from .types.content import Segment
 from .types.content import SpeechConfig
+from .types.content import UrlContextMetadata
+from .types.content import UrlMetadata
 from .types.content import VideoMetadata
 from .types.content import VoiceConfig
 from .types.content import HarmCategory
@@ -222,10 +226,12 @@ from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
 from .types.endpoint import FasterDeploymentConfig
+from .types.endpoint import GenAiAdvancedFeaturesConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint import PublisherModelConfig
 from .types.endpoint import RolloutOptions
+from .types.endpoint import SpeculativeDecodingSpec
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
 from .types.endpoint_service import DeleteEndpointRequest
@@ -646,6 +652,8 @@ from .types.index_service import CreateIndexOperationMetadata
 from .types.index_service import CreateIndexRequest
 from .types.index_service import DeleteIndexRequest
 from .types.index_service import GetIndexRequest
+from .types.index_service import ImportIndexOperationMetadata
+from .types.index_service import ImportIndexRequest
 from .types.index_service import ListIndexesRequest
 from .types.index_service import ListIndexesResponse
 from .types.index_service import NearestNeighborSearchOperationMetadata
@@ -733,6 +741,21 @@ from .types.match_service import FindNeighborsRequest
 from .types.match_service import FindNeighborsResponse
 from .types.match_service import ReadIndexDatapointsRequest
 from .types.match_service import ReadIndexDatapointsResponse
+from .types.memory_bank import Memory
+from .types.memory_bank_service import CreateMemoryOperationMetadata
+from .types.memory_bank_service import CreateMemoryRequest
+from .types.memory_bank_service import DeleteMemoryOperationMetadata
+from .types.memory_bank_service import DeleteMemoryRequest
+from .types.memory_bank_service import GenerateMemoriesOperationMetadata
+from .types.memory_bank_service import GenerateMemoriesRequest
+from .types.memory_bank_service import GenerateMemoriesResponse
+from .types.memory_bank_service import GetMemoryRequest
+from .types.memory_bank_service import ListMemoriesRequest
+from .types.memory_bank_service import ListMemoriesResponse
+from .types.memory_bank_service import RetrieveMemoriesRequest
+from .types.memory_bank_service import RetrieveMemoriesResponse
+from .types.memory_bank_service import UpdateMemoryOperationMetadata
+from .types.memory_bank_service import UpdateMemoryRequest
 from .types.metadata_schema import MetadataSchema
 from .types.metadata_service import AddContextArtifactsAndExecutionsRequest
 from .types.metadata_service import AddContextArtifactsAndExecutionsResponse
@@ -1026,6 +1049,7 @@ from .types.prediction_service import StreamingRawPredictResponse
 from .types.prediction_service import StreamRawPredictRequest
 from .types.publisher_model import PublisherModel
 from .types.reasoning_engine import ReasoningEngine
+from .types.reasoning_engine import ReasoningEngineContextSpec
 from .types.reasoning_engine import ReasoningEngineSpec
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
@@ -1049,10 +1073,12 @@ from .types.schedule_service import ListSchedulesResponse
 from .types.schedule_service import PauseScheduleRequest
 from .types.schedule_service import ResumeScheduleRequest
 from .types.schedule_service import UpdateScheduleRequest
+from .types.service_networking import DnsPeeringConfig
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
 from .types.service_networking import PscInterfaceConfig
+from .types.service_networking import PSCAutomationState
 from .types.session import EventActions
 from .types.session import EventMetadata
 from .types.session import Session
@@ -1154,6 +1180,7 @@ from .types.tool import RetrievalConfig
 from .types.tool import Tool
 from .types.tool import ToolConfig
 from .types.tool import ToolUseExample
+from .types.tool import UrlContext
 from .types.tool import VertexAISearch
 from .types.tool import VertexRagStore
 from .types.training_pipeline import FilterSplit
@@ -1174,6 +1201,7 @@ from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
 from .types.tuning_job import SupervisedTuningSpec
 from .types.tuning_job import TunedModel
+from .types.tuning_job import TunedModelCheckpoint
 from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
@@ -1196,6 +1224,7 @@ from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagEngineConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import RagFileMetadataConfig
 from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagManagedDbConfig
@@ -1275,6 +1304,7 @@ __all__ = (
     "JobServiceAsyncClient",
     "LlmUtilityServiceAsyncClient",
     "MatchServiceAsyncClient",
+    "MemoryBankServiceAsyncClient",
     "MetadataServiceAsyncClient",
     "MigrationServiceAsyncClient",
     "ModelGardenServiceAsyncClient",
@@ -1447,6 +1477,8 @@ __all__ = (
     "CreateIndexEndpointRequest",
     "CreateIndexOperationMetadata",
     "CreateIndexRequest",
+    "CreateMemoryOperationMetadata",
+    "CreateMemoryRequest",
     "CreateMetadataSchemaRequest",
     "CreateMetadataStoreOperationMetadata",
     "CreateMetadataStoreRequest",
@@ -1523,6 +1555,8 @@ __all__ = (
     "DeleteHyperparameterTuningJobRequest",
     "DeleteIndexEndpointRequest",
     "DeleteIndexRequest",
+    "DeleteMemoryOperationMetadata",
+    "DeleteMemoryRequest",
     "DeleteMetadataStoreOperationMetadata",
     "DeleteMetadataStoreRequest",
     "DeleteModelDeploymentMonitoringJobRequest",
@@ -1580,6 +1614,7 @@ __all__ = (
     "DistillationDataStats",
     "DistillationHyperParameters",
     "DistillationSpec",
+    "DnsPeeringConfig",
     "DoubleArray",
     "DynamicRetrievalConfig",
     "EncryptionSpec",
@@ -1706,10 +1741,14 @@ __all__ = (
     "GeminiExample",
     "GeminiRequestReadConfig",
     "GeminiTemplateConfig",
+    "GenAiAdvancedFeaturesConfig",
     "GenAiCacheServiceClient",
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
+    "GenerateMemoriesOperationMetadata",
+    "GenerateMemoriesRequest",
+    "GenerateMemoriesResponse",
     "GenerateVideoResponse",
     "GenerationConfig",
     "GenericOperationMetadata",
@@ -1740,6 +1779,7 @@ __all__ = (
     "GetHyperparameterTuningJobRequest",
     "GetIndexEndpointRequest",
     "GetIndexRequest",
+    "GetMemoryRequest",
     "GetMetadataSchemaRequest",
     "GetMetadataStoreRequest",
     "GetModelDeploymentMonitoringJobRequest",
@@ -1793,6 +1833,8 @@ __all__ = (
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
+    "ImportIndexOperationMetadata",
+    "ImportIndexRequest",
     "ImportModelEvaluationRequest",
     "ImportRagFilesConfig",
     "ImportRagFilesOperationMetadata",
@@ -1869,6 +1911,8 @@ __all__ = (
     "ListIndexEndpointsResponse",
     "ListIndexesRequest",
     "ListIndexesResponse",
+    "ListMemoriesRequest",
+    "ListMemoriesResponse",
     "ListMetadataSchemasRequest",
     "ListMetadataSchemasResponse",
     "ListMetadataStoresRequest",
@@ -1944,6 +1988,8 @@ __all__ = (
     "ManualBatchTuningParameters",
     "MatchServiceClient",
     "Measurement",
+    "Memory",
+    "MemoryBankServiceClient",
     "MergeVersionAliasesRequest",
     "MetadataSchema",
     "MetadataServiceClient",
@@ -2024,6 +2070,7 @@ __all__ = (
     "OutputConfig",
     "OutputInfo",
     "PSCAutomationConfig",
+    "PSCAutomationState",
     "PairwiseChoice",
     "PairwiseMetricInput",
     "PairwiseMetricInstance",
@@ -2120,6 +2167,7 @@ __all__ = (
     "RagEngineConfig",
     "RagFile",
     "RagFileChunkingConfig",
+    "RagFileMetadataConfig",
     "RagFileParsingConfig",
     "RagFileTransformationConfig",
     "RagManagedDbConfig",
@@ -2144,6 +2192,7 @@ __all__ = (
     "ReadTensorboardUsageRequest",
     "ReadTensorboardUsageResponse",
     "ReasoningEngine",
+    "ReasoningEngineContextSpec",
     "ReasoningEngineExecutionServiceClient",
     "ReasoningEngineServiceClient",
     "ReasoningEngineSpec",
@@ -2171,6 +2220,8 @@ __all__ = (
     "RetrievalMetadata",
     "RetrieveContextsRequest",
     "RetrieveContextsResponse",
+    "RetrieveMemoriesRequest",
+    "RetrieveMemoriesResponse",
     "RolloutOptions",
     "RougeInput",
     "RougeInstance",
@@ -2233,6 +2284,7 @@ __all__ = (
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
+    "SpeculativeDecodingSpec",
     "SpeechConfig",
     "StartNotebookRuntimeOperationMetadata",
     "StartNotebookRuntimeRequest",
@@ -2360,6 +2412,7 @@ __all__ = (
     "Trial",
     "TrialContext",
     "TunedModel",
+    "TunedModelCheckpoint",
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
@@ -2404,6 +2457,8 @@ __all__ = (
     "UpdateIndexEndpointRequest",
     "UpdateIndexOperationMetadata",
     "UpdateIndexRequest",
+    "UpdateMemoryOperationMetadata",
+    "UpdateMemoryRequest",
     "UpdateModelDeploymentMonitoringJobOperationMetadata",
     "UpdateModelDeploymentMonitoringJobRequest",
     "UpdateModelMonitorOperationMetadata",
@@ -2440,6 +2495,9 @@ __all__ = (
     "UpsertDatapointsResponse",
     "UpsertExamplesRequest",
     "UpsertExamplesResponse",
+    "UrlContext",
+    "UrlContextMetadata",
+    "UrlMetadata",
     "UserActionReference",
     "Value",
     "VertexAISearch",

@@ -41,9 +41,12 @@ __protobuf__ = proto.module(
         "ListRagFilesResponse",
         "DeleteRagFileRequest",
         "CreateRagCorpusOperationMetadata",
+        "GetRagEngineConfigRequest",
         "UpdateRagCorpusRequest",
         "UpdateRagCorpusOperationMetadata",
         "ImportRagFilesOperationMetadata",
+        "UpdateRagEngineConfigRequest",
+        "UpdateRagEngineConfigOperationMetadata",
     },
 )
 
@@ -441,6 +444,22 @@ class CreateRagCorpusOperationMetadata(proto.Message):
     )
 
 
+class GetRagEngineConfigRequest(proto.Message):
+    r"""Request message for
+    [VertexRagDataService.GetRagEngineConfig][google.cloud.aiplatform.v1.VertexRagDataService.GetRagEngineConfig]
+
+    Attributes:
+        name (str):
+            Required. The name of the RagEngineConfig resource. Format:
+            ``projects/{project}/locations/{location}/ragEngineConfig``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
 class UpdateRagCorpusRequest(proto.Message):
     r"""Request message for
     [VertexRagDataService.UpdateRagCorpus][google.cloud.aiplatform.v1.VertexRagDataService.UpdateRagCorpus].
@@ -511,6 +530,42 @@ class ImportRagFilesOperationMetadata(proto.Message):
     progress_percentage: int = proto.Field(
         proto.INT32,
         number=4,
+    )
+
+
+class UpdateRagEngineConfigRequest(proto.Message):
+    r"""Request message for
+    [VertexRagDataService.UpdateRagEngineConfig][google.cloud.aiplatform.v1.VertexRagDataService.UpdateRagEngineConfig].
+
+    Attributes:
+        rag_engine_config (google.cloud.aiplatform_v1.types.RagEngineConfig):
+            Required. The updated RagEngineConfig.
+
+            NOTE: Downgrading your RagManagedDb's
+            ComputeTier could temporarily increase request
+            latencies until the operation is fully complete.
+    """
+
+    rag_engine_config: vertex_rag_data.RagEngineConfig = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=vertex_rag_data.RagEngineConfig,
+    )
+
+
+class UpdateRagEngineConfigOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [VertexRagDataService.UpdateRagEngineConfig][google.cloud.aiplatform.v1.VertexRagDataService.UpdateRagEngineConfig].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 

@@ -19,6 +19,7 @@ import dataclasses
 from typing import List, Optional, Sequence, Union
 
 from google.protobuf import timestamp_pb2
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 
 
 @dataclasses.dataclass
@@ -190,6 +191,7 @@ class RagCorpus:
         vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
         backend_config: The backend config of the RagCorpus. It can be a data
             store and/or retrieval engine.
+        encryption_spec: The encryption spec of the RagCorpus. Immutable.
     """
 
     name: Optional[str] = None
@@ -202,6 +204,7 @@ class RagCorpus:
             None,
         ]
     ] = None
+    encryption_spec: Optional[EncryptionSpec] = None
 
 
 @dataclasses.dataclass
@@ -445,3 +448,102 @@ class LayoutParserConfig:
 
     processor_name: str
     max_parsing_requests_per_min: Optional[int] = None
+
+
+@dataclasses.dataclass
+class LlmParserConfig:
+    """Configuration for the Document AI Layout Parser Processor.
+
+    Attributes:
+        model_name (str):
+            The full resource name of a Vertex AI model. Format:
+            -  `projects/{project_id}/locations/{location}/publishers/google/models/{model_id}`
+            -  `projects/{project_id}/locations/{location}/models/{model_id}`
+        max_parsing_requests_per_min (int):
+            The maximum number of requests the job is allowed to make to the
+            Vertex AI model per minute. Consult
+            https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and
+            the Quota page for your project to set an appropriate value here.
+            If unspecified, a default value of 120 QPM will be used.
+        custom_parsing_prompt (str):
+            A custom prompt to use for parsing.
+    """
+
+    model_name: str
+    max_parsing_requests_per_min: Optional[int] = None
+    custom_parsing_prompt: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagCitedGenerationResponse:
+    """RagCitedGenerationResponse.
+
+    Attributes:
+        cited_text: The text with inline citations.
+        final_bibliography: List of all unique cited chunks, their URIs, and page
+          numbers (if applicable).
+    """
+
+    cited_text: str
+    final_bibliography: str
+
+
+@dataclasses.dataclass
+class Scaled:
+    """Scaled tier offers production grade performance along with
+
+    autoscaling functionality. It is suitable for customers with large
+    amounts of data or performance sensitive workloads.
+    """
+
+
+@dataclasses.dataclass
+class Basic:
+    """Basic tier is a cost-effective and low compute tier suitable for the following cases:
+
+    * Experimenting with RagManagedDb.
+    * Small data size.
+    * Latency insensitive workload.
+    * Only using RAG Engine with external vector DBs.
+
+    NOTE: This is the default tier if not explicitly chosen.
+    """
+
+
+@dataclasses.dataclass
+class Unprovisioned:
+    """Disables the RAG Engine service and deletes all your data held within
+    this service. This will halt the billing of the service.
+
+    NOTE: Once deleted the data cannot be recovered. To start using
+    RAG Engine again, you will need to update the tier by calling the
+    UpdateRagEngineConfig API.
+    """
+
+
+@dataclasses.dataclass
+class RagManagedDbConfig:
+    """RagManagedDbConfig.
+
+    The config of the RagManagedDb used by RagEngine.
+
+    Attributes:
+        tier: The tier of the RagManagedDb. The default tier is Basic.
+    """
+
+    tier: Optional[Union[Basic, Scaled, Unprovisioned]] = None
+
+
+@dataclasses.dataclass
+class RagEngineConfig:
+    """RagEngineConfig.
+
+    Attributes:
+        name: Generated resource name for singleton resource. Format:
+          ``projects/{project}/locations/{location}/ragEngineConfig``
+        rag_managed_db_config: The config of the RagManagedDb used by RagEngine.
+          The default tier is Basic.
+    """
+
+    name: str
+    rag_managed_db_config: Optional[RagManagedDbConfig] = None

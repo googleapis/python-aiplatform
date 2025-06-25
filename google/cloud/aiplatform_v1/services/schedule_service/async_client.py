@@ -37,6 +37,7 @@ from google.api_core import gapic_v1
 from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 
 try:
@@ -99,6 +100,12 @@ class ScheduleServiceAsyncClient:
     parse_execution_path = staticmethod(ScheduleServiceClient.parse_execution_path)
     network_path = staticmethod(ScheduleServiceClient.network_path)
     parse_network_path = staticmethod(ScheduleServiceClient.parse_network_path)
+    network_attachment_path = staticmethod(
+        ScheduleServiceClient.network_attachment_path
+    )
+    parse_network_attachment_path = staticmethod(
+        ScheduleServiceClient.parse_network_attachment_path
+    )
     notebook_execution_job_path = staticmethod(
         ScheduleServiceClient.notebook_execution_job_path
     )
@@ -1913,6 +1920,9 @@ class ScheduleServiceAsyncClient:
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 __all__ = ("ScheduleServiceAsyncClient",)

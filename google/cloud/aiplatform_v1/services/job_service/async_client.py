@@ -37,6 +37,7 @@ from google.api_core import gapic_v1
 from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 
 try:
@@ -152,6 +153,10 @@ class JobServiceAsyncClient:
     )
     network_path = staticmethod(JobServiceClient.network_path)
     parse_network_path = staticmethod(JobServiceClient.parse_network_path)
+    network_attachment_path = staticmethod(JobServiceClient.network_attachment_path)
+    parse_network_attachment_path = staticmethod(
+        JobServiceClient.parse_network_attachment_path
+    )
     notification_channel_path = staticmethod(JobServiceClient.notification_channel_path)
     parse_notification_channel_path = staticmethod(
         JobServiceClient.parse_notification_channel_path
@@ -5495,6 +5500,9 @@ class JobServiceAsyncClient:
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 __all__ = ("JobServiceAsyncClient",)

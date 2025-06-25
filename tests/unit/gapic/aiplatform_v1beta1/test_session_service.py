@@ -6762,6 +6762,7 @@ def test_append_event_rest_call_success(request_type):
                         "end_offset": {},
                     },
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -8919,6 +8920,7 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                         "end_offset": {},
                     },
                     "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                 }
             ],
         },
@@ -10605,11 +10607,39 @@ def test_session_service_grpc_lro_async_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_session_path():
+def test_reasoning_engine_path():
     project = "squid"
     location = "clam"
     reasoning_engine = "whelk"
-    session = "octopus"
+    expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}".format(
+        project=project,
+        location=location,
+        reasoning_engine=reasoning_engine,
+    )
+    actual = SessionServiceClient.reasoning_engine_path(
+        project, location, reasoning_engine
+    )
+    assert expected == actual
+
+
+def test_parse_reasoning_engine_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "reasoning_engine": "nudibranch",
+    }
+    path = SessionServiceClient.reasoning_engine_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = SessionServiceClient.parse_reasoning_engine_path(path)
+    assert expected == actual
+
+
+def test_session_path():
+    project = "cuttlefish"
+    location = "mussel"
+    reasoning_engine = "winkle"
+    session = "nautilus"
     expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}".format(
         project=project,
         location=location,
@@ -10624,10 +10654,10 @@ def test_session_path():
 
 def test_parse_session_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
-        "reasoning_engine": "cuttlefish",
-        "session": "mussel",
+        "project": "scallop",
+        "location": "abalone",
+        "reasoning_engine": "squid",
+        "session": "clam",
     }
     path = SessionServiceClient.session_path(**expected)
 
@@ -10637,11 +10667,11 @@ def test_parse_session_path():
 
 
 def test_session_event_path():
-    project = "winkle"
-    location = "nautilus"
-    reasoning_engine = "scallop"
-    session = "abalone"
-    event = "squid"
+    project = "whelk"
+    location = "octopus"
+    reasoning_engine = "oyster"
+    session = "nudibranch"
+    event = "cuttlefish"
     expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}".format(
         project=project,
         location=location,
@@ -10657,11 +10687,11 @@ def test_session_event_path():
 
 def test_parse_session_event_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "reasoning_engine": "octopus",
-        "session": "oyster",
-        "event": "nudibranch",
+        "project": "mussel",
+        "location": "winkle",
+        "reasoning_engine": "nautilus",
+        "session": "scallop",
+        "event": "abalone",
     }
     path = SessionServiceClient.session_event_path(**expected)
 
@@ -10671,7 +10701,7 @@ def test_parse_session_event_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -10681,7 +10711,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = SessionServiceClient.common_billing_account_path(**expected)
 
@@ -10691,7 +10721,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -10701,7 +10731,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = SessionServiceClient.common_folder_path(**expected)
 
@@ -10711,7 +10741,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -10721,7 +10751,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = SessionServiceClient.common_organization_path(**expected)
 
@@ -10731,7 +10761,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -10741,7 +10771,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = SessionServiceClient.common_project_path(**expected)
 
@@ -10751,8 +10781,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -10763,8 +10793,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = SessionServiceClient.common_location_path(**expected)
 

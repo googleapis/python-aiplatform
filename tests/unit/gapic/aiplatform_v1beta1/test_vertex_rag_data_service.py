@@ -75,6 +75,7 @@ from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import pagers
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import transports
 from google.cloud.aiplatform_v1beta1.types import api_auth
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
@@ -1475,7 +1476,11 @@ def test_create_rag_corpus_flattened():
         client.create_rag_corpus(
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1488,7 +1493,9 @@ def test_create_rag_corpus_flattened():
         assert arg == mock_val
         arg = args[0].rag_corpus
         mock_val = vertex_rag_data.RagCorpus(
-            vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+            vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(knn=None)
+            )
         )
         assert arg == mock_val
 
@@ -1505,7 +1512,11 @@ def test_create_rag_corpus_flattened_error():
             vertex_rag_data_service.CreateRagCorpusRequest(),
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1531,7 +1542,11 @@ async def test_create_rag_corpus_flattened_async():
         response = await client.create_rag_corpus(
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1544,7 +1559,9 @@ async def test_create_rag_corpus_flattened_async():
         assert arg == mock_val
         arg = args[0].rag_corpus
         mock_val = vertex_rag_data.RagCorpus(
-            vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+            vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(knn=None)
+            )
         )
         assert arg == mock_val
 
@@ -1562,7 +1579,11 @@ async def test_create_rag_corpus_flattened_error_async():
             vertex_rag_data_service.CreateRagCorpusRequest(),
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1836,7 +1857,11 @@ def test_update_rag_corpus_flattened():
         # using the keyword arguments to the method.
         client.update_rag_corpus(
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1846,7 +1871,9 @@ def test_update_rag_corpus_flattened():
         _, args, _ = call.mock_calls[0]
         arg = args[0].rag_corpus
         mock_val = vertex_rag_data.RagCorpus(
-            vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+            vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(knn=None)
+            )
         )
         assert arg == mock_val
 
@@ -1862,7 +1889,11 @@ def test_update_rag_corpus_flattened_error():
         client.update_rag_corpus(
             vertex_rag_data_service.UpdateRagCorpusRequest(),
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1887,7 +1918,11 @@ async def test_update_rag_corpus_flattened_async():
         # using the keyword arguments to the method.
         response = await client.update_rag_corpus(
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1897,7 +1932,9 @@ async def test_update_rag_corpus_flattened_async():
         _, args, _ = call.mock_calls[0]
         arg = args[0].rag_corpus
         mock_val = vertex_rag_data.RagCorpus(
-            vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+            vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(knn=None)
+            )
         )
         assert arg == mock_val
 
@@ -1914,7 +1951,11 @@ async def test_update_rag_corpus_flattened_error_async():
         await client.update_rag_corpus(
             vertex_rag_data_service.UpdateRagCorpusRequest(),
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -3881,6 +3922,7 @@ def test_get_rag_file(request_type, transport: str = "grpc"):
             description="description_value",
             size_bytes=1089,
             rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+            user_metadata="user_metadata_value",
         )
         response = client.get_rag_file(request)
 
@@ -3899,6 +3941,7 @@ def test_get_rag_file(request_type, transport: str = "grpc"):
     assert (
         response.rag_file_type == vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT
     )
+    assert response.user_metadata == "user_metadata_value"
 
 
 def test_get_rag_file_non_empty_request_with_auto_populated_field():
@@ -4030,6 +4073,7 @@ async def test_get_rag_file_async(
                 description="description_value",
                 size_bytes=1089,
                 rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+                user_metadata="user_metadata_value",
             )
         )
         response = await client.get_rag_file(request)
@@ -4049,6 +4093,7 @@ async def test_get_rag_file_async(
     assert (
         response.rag_file_type == vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT
     )
+    assert response.user_metadata == "user_metadata_value"
 
 
 @pytest.mark.asyncio
@@ -5883,7 +5928,11 @@ def test_create_rag_corpus_rest_flattened():
         mock_args = dict(
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
         mock_args.update(sample_request)
@@ -5922,7 +5971,11 @@ def test_create_rag_corpus_rest_flattened_error(transport: str = "rest"):
             vertex_rag_data_service.CreateRagCorpusRequest(),
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -6067,7 +6120,11 @@ def test_update_rag_corpus_rest_flattened():
         # get truthy value for each flattened field
         mock_args = dict(
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
         mock_args.update(sample_request)
@@ -6105,7 +6162,11 @@ def test_update_rag_corpus_rest_flattened_error(transport: str = "rest"):
         client.update_rag_corpus(
             vertex_rag_data_service.UpdateRagCorpusRequest(),
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -8714,6 +8775,7 @@ async def test_get_rag_file_empty_call_grpc_asyncio():
                 description="description_value",
                 size_bytes=1089,
                 rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+                user_metadata="user_metadata_value",
             )
         )
         await client.get_rag_file(request=None)
@@ -8882,7 +8944,10 @@ def test_create_rag_corpus_rest_call_success(request_type):
     request_init = {"parent": "projects/sample1/locations/sample2"}
     request_init["rag_corpus"] = {
         "vector_db_config": {
-            "rag_managed_db": {},
+            "rag_managed_db": {
+                "knn": {},
+                "ann": {"tree_depth": 1060, "leaf_count": 1056},
+            },
             "weaviate": {
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
@@ -8924,6 +8989,18 @@ def test_create_rag_corpus_rest_call_success(request_type):
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "corpus_type_config": {
+            "document_corpus": {},
+            "memory_corpus": {
+                "llm_parser": {
+                    "model_name": "model_name_value",
+                    "max_parsing_requests_per_min": 3005,
+                    "global_max_parsing_requests_per_min": 3725,
+                    "custom_parsing_prompt": "custom_parsing_prompt_value",
+                }
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9124,7 +9201,10 @@ def test_update_rag_corpus_rest_call_success(request_type):
     }
     request_init["rag_corpus"] = {
         "vector_db_config": {
-            "rag_managed_db": {},
+            "rag_managed_db": {
+                "knn": {},
+                "ann": {"tree_depth": 1060, "leaf_count": 1056},
+            },
             "weaviate": {
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
@@ -9166,6 +9246,18 @@ def test_update_rag_corpus_rest_call_success(request_type):
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "corpus_type_config": {
+            "document_corpus": {},
+            "memory_corpus": {
+                "llm_parser": {
+                    "model_name": "model_name_value",
+                    "max_parsing_requests_per_min": 3005,
+                    "global_max_parsing_requests_per_min": 3725,
+                    "custom_parsing_prompt": "custom_parsing_prompt_value",
+                }
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10020,6 +10112,7 @@ def test_get_rag_file_rest_call_success(request_type):
             description="description_value",
             size_bytes=1089,
             rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+            user_metadata="user_metadata_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -10043,6 +10136,7 @@ def test_get_rag_file_rest_call_success(request_type):
     assert (
         response.rag_file_type == vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT
     )
+    assert response.user_metadata == "user_metadata_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -10418,7 +10512,12 @@ def test_update_rag_engine_config_rest_call_success(request_type):
     }
     request_init["rag_engine_config"] = {
         "name": "projects/sample1/locations/sample2/ragEngineConfig",
-        "rag_managed_db_config": {"enterprise": {}, "basic": {}},
+        "rag_managed_db_config": {
+            "enterprise": {},
+            "scaled": {},
+            "basic": {},
+            "unprovisioned": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11664,7 +11763,10 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
     request_init = {"parent": "projects/sample1/locations/sample2"}
     request_init["rag_corpus"] = {
         "vector_db_config": {
-            "rag_managed_db": {},
+            "rag_managed_db": {
+                "knn": {},
+                "ann": {"tree_depth": 1060, "leaf_count": 1056},
+            },
             "weaviate": {
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
@@ -11706,6 +11808,18 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "corpus_type_config": {
+            "document_corpus": {},
+            "memory_corpus": {
+                "llm_parser": {
+                    "model_name": "model_name_value",
+                    "max_parsing_requests_per_min": 3005,
+                    "global_max_parsing_requests_per_min": 3725,
+                    "custom_parsing_prompt": "custom_parsing_prompt_value",
+                }
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11922,7 +12036,10 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
     }
     request_init["rag_corpus"] = {
         "vector_db_config": {
-            "rag_managed_db": {},
+            "rag_managed_db": {
+                "knn": {},
+                "ann": {"tree_depth": 1060, "leaf_count": 1056},
+            },
             "weaviate": {
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
@@ -11964,6 +12081,18 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "corpus_type_config": {
+            "document_corpus": {},
+            "memory_corpus": {
+                "llm_parser": {
+                    "model_name": "model_name_value",
+                    "max_parsing_requests_per_min": 3005,
+                    "global_max_parsing_requests_per_min": 3725,
+                    "custom_parsing_prompt": "custom_parsing_prompt_value",
+                }
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12914,6 +13043,7 @@ async def test_get_rag_file_rest_asyncio_call_success(request_type):
             description="description_value",
             size_bytes=1089,
             rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+            user_metadata="user_metadata_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -12939,6 +13069,7 @@ async def test_get_rag_file_rest_asyncio_call_success(request_type):
     assert (
         response.rag_file_type == vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT
     )
+    assert response.user_metadata == "user_metadata_value"
 
 
 @pytest.mark.asyncio
@@ -13360,7 +13491,12 @@ async def test_update_rag_engine_config_rest_asyncio_call_success(request_type):
     }
     request_init["rag_engine_config"] = {
         "name": "projects/sample1/locations/sample2/ragEngineConfig",
-        "rag_managed_db_config": {"enterprise": {}, "basic": {}},
+        "rag_managed_db_config": {
+            "enterprise": {},
+            "scaled": {},
+            "basic": {},
+            "unprovisioned": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

@@ -2320,6 +2320,11 @@
                 "get_index"
               ]
             },
+            "ImportIndex": {
+              "methods": [
+                "import_index"
+              ]
+            },
             "ListIndexes": {
               "methods": [
                 "list_indexes"
@@ -2360,6 +2365,11 @@
                 "get_index"
               ]
             },
+            "ImportIndex": {
+              "methods": [
+                "import_index"
+              ]
+            },
             "ListIndexes": {
               "methods": [
                 "list_indexes"
@@ -2398,6 +2408,11 @@
             "GetIndex": {
               "methods": [
                 "get_index"
+              ]
+            },
+            "ImportIndex": {
+              "methods": [
+                "import_index"
               ]
             },
             "ListIndexes": {
@@ -3045,6 +3060,130 @@
             "ReadIndexDatapoints": {
               "methods": [
                 "read_index_datapoints"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "MemoryBankService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "MemoryBankServiceClient",
+          "rpcs": {
+            "CreateMemory": {
+              "methods": [
+                "create_memory"
+              ]
+            },
+            "DeleteMemory": {
+              "methods": [
+                "delete_memory"
+              ]
+            },
+            "GenerateMemories": {
+              "methods": [
+                "generate_memories"
+              ]
+            },
+            "GetMemory": {
+              "methods": [
+                "get_memory"
+              ]
+            },
+            "ListMemories": {
+              "methods": [
+                "list_memories"
+              ]
+            },
+            "RetrieveMemories": {
+              "methods": [
+                "retrieve_memories"
+              ]
+            },
+            "UpdateMemory": {
+              "methods": [
+                "update_memory"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "MemoryBankServiceAsyncClient",
+          "rpcs": {
+            "CreateMemory": {
+              "methods": [
+                "create_memory"
+              ]
+            },
+            "DeleteMemory": {
+              "methods": [
+                "delete_memory"
+              ]
+            },
+            "GenerateMemories": {
+              "methods": [
+                "generate_memories"
+              ]
+            },
+            "GetMemory": {
+              "methods": [
+                "get_memory"
+              ]
+            },
+            "ListMemories": {
+              "methods": [
+                "list_memories"
+              ]
+            },
+            "RetrieveMemories": {
+              "methods": [
+                "retrieve_memories"
+              ]
+            },
+            "UpdateMemory": {
+              "methods": [
+                "update_memory"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "MemoryBankServiceClient",
+          "rpcs": {
+            "CreateMemory": {
+              "methods": [
+                "create_memory"
+              ]
+            },
+            "DeleteMemory": {
+              "methods": [
+                "delete_memory"
+              ]
+            },
+            "GenerateMemories": {
+              "methods": [
+                "generate_memories"
+              ]
+            },
+            "GetMemory": {
+              "methods": [
+                "get_memory"
+              ]
+            },
+            "ListMemories": {
+              "methods": [
+                "list_memories"
+              ]
+            },
+            "RetrieveMemories": {
+              "methods": [
+                "retrieve_memories"
+              ]
+            },
+            "UpdateMemory": {
+              "methods": [
+                "update_memory"
               ]
             }
           }

@@ -17,11 +17,11 @@ import json
 from unittest import mock
 
 from google import auth
-from google.genai import types
 import vertexai
 from google.cloud.aiplatform import initializer
-from vertexai.preview import reasoning_engines
 from vertexai.agent_engines import _utils
+from vertexai.preview import reasoning_engines
+from google.genai import types
 import pytest
 
 
@@ -83,6 +83,15 @@ def simple_span_processor_mock():
         yield simple_span_processor_mock
 
 
+@pytest.fixture
+def mock_adk_major_version():
+    with mock.patch(
+        "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
+        return_value=1,
+    ):
+        yield
+
+
 class _MockRunner:
     def run(self, *args, **kwargs):
         from google.adk.events import event
@@ -111,9 +120,52 @@ class _MockRunner:
             }
         )
 
+    async def run_async(self, *args, **kwargs):
+        from google.adk.events import event
 
-@pytest.mark.usefixtures("google_auth_mock")
+        yield event.Event(
+            **{
+                "author": "currency_exchange_agent",
+                "content": {
+                    "parts": [
+                        {
+                            "function_call": {
+                                "args": {
+                                    "currency_date": "2025-04-03",
+                                    "currency_from": "USD",
+                                    "currency_to": "SEK",
+                                },
+                                "id": "af-c5a57692-9177-4091-a3df-098f834ee849",
+                                "name": "get_exchange_rate",
+                            }
+                        }
+                    ],
+                    "role": "model",
+                },
+                "id": "9aaItGK9",
+                "invocation_id": "e-6543c213-6417-484b-9551-b67915d1d5f7",
+            }
+        )
+
+
+@pytest.mark.usefixtures("google_auth_mock", "mock_adk_major_version")
 class TestAdkApp:
+    def test_adk_major_version(self):
+        with mock.patch(
+            "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
+            return_value=0,
+        ):
+            with pytest.raises(
+                ValueError,
+                match=(
+                    "Unsupported google-adk major version: 0, please use"
+                    " google-adk>=1.0.0 for AdkApp deployment."
+                ),
+            ):
+                reasoning_engines.AdkApp(
+                    agent=Agent(name="test_agent", model=_TEST_MODEL)
+                )
+
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(vertexai)
@@ -193,6 +245,45 @@ class TestAdkApp:
                 ).model_dump(),
             )
         )
+        assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name="test_agent", model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id="test_user_id",
+            message="test message",
+        ):
+            events.append(event)
+        assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_content(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name="test_agent", model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id="test_user_id",
+            message=types.Content(
+                role="user",
+                parts=[
+                    types.Part(
+                        text="test message with content",
+                    )
+                ],
+            ).model_dump(),
+        ):
+            events.append(event)
         assert len(events) == 1
 
     def test_streaming_agent_run_with_events(self):
@@ -309,6 +400,7 @@ class TestAdkApp:
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
 
+@pytest.mark.usefixtures("mock_adk_major_version")
 class TestAdkAppErrors:
     def test_raise_get_session_not_found_error(self):
         with pytest.raises(
@@ -322,3 +414,25 @@ class TestAdkAppErrors:
                 user_id="non_existent_user",
                 session_id="test_session_id",
             )
+
+    def test_stream_query_invalid_message_type(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name="test_agent", model=_TEST_MODEL)
+        )
+        with pytest.raises(
+            TypeError,
+            match="message must be a string or a dictionary representing a Content object.",
+        ):
+            list(app.stream_query(user_id="test_user_id", message=123))
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_invalid_message_type(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name="test_agent", model=_TEST_MODEL)
+        )
+        with pytest.raises(
+            TypeError,
+            match="message must be a string or a dictionary representing a Content object.",
+        ):
+            async for _ in app.async_stream_query(user_id="test_user_id", message=123):
+                pass

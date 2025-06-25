@@ -23,7 +23,9 @@ import types
 import typing
 from typing import (
     Any,
+    AsyncIterable,
     Callable,
+    Coroutine,
     Dict,
     Iterable,
     List,
@@ -48,30 +50,33 @@ from google.protobuf import field_mask_pb2
 
 
 _LOGGER = _utils.LOGGER
-_SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12")
+_SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12", "3.13")
 _DEFAULT_GCS_DIR_NAME = "agent_engine"
 _BLOB_FILENAME = "agent_engine.pkl"
 _REQUIREMENTS_FILE = "requirements.txt"
 _EXTRA_PACKAGES_FILE = "dependencies.tar.gz"
 _STANDARD_API_MODE = ""
+_ASYNC_API_MODE = "async"
 _STREAM_API_MODE = "stream"
+_ASYNC_STREAM_API_MODE = "async_stream"
 _MODE_KEY_IN_SCHEMA = "api_mode"
 _METHOD_NAME_KEY_IN_SCHEMA = "name"
 _DEFAULT_METHOD_NAME = "query"
+_DEFAULT_ASYNC_METHOD_NAME = "async_query"
 _DEFAULT_STREAM_METHOD_NAME = "stream_query"
+_DEFAULT_ASYNC_STREAM_METHOD_NAME = "async_stream_query"
 _DEFAULT_METHOD_RETURN_TYPE = "dict[str, Any]"
+_DEFAULT_ASYNC_METHOD_RETURN_TYPE = "Coroutine[Any]"
 _DEFAULT_STREAM_METHOD_RETURN_TYPE = "Iterable[Any]"
+_DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE = "AsyncIterable[Any]"
 _DEFAULT_METHOD_DOCSTRING_TEMPLATE = """
     Runs the Agent Engine to serve the user request.
-
     This will be based on the `.{method_name}(...)` of the python object that
     was passed in when creating the Agent Engine. The method will invoke the
     `{default_method_name}` API client of the python object.
-
     Args:
         **kwargs:
             Optional. The arguments of the `.{method_name}(...)` method.
-
     Returns:
         {return_type}: The response from serving the user request.
 """
@@ -81,6 +86,28 @@ _FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE = (
     "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
     "Error: {%s}"
 )
+_AGENT_FRAMEWORK_ATTR = "agent_framework"
+_DEFAULT_AGENT_FRAMEWORK = "custom"
+_DEFAULT_METHOD_NAME_MAP = {
+    _STANDARD_API_MODE: _DEFAULT_METHOD_NAME,
+    _ASYNC_API_MODE: _DEFAULT_ASYNC_METHOD_NAME,
+    _STREAM_API_MODE: _DEFAULT_STREAM_METHOD_NAME,
+    _ASYNC_STREAM_API_MODE: _DEFAULT_ASYNC_STREAM_METHOD_NAME,
+}
+_DEFAULT_METHOD_RETURN_TYPE_MAP = {
+    _STANDARD_API_MODE: _DEFAULT_METHOD_RETURN_TYPE,
+    _ASYNC_API_MODE: _DEFAULT_ASYNC_METHOD_RETURN_TYPE,
+    _STREAM_API_MODE: _DEFAULT_STREAM_METHOD_RETURN_TYPE,
+    _ASYNC_STREAM_API_MODE: _DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE,
+}
+
+
+try:
+    from google.adk.agents import BaseAgent
+
+    ADKAgent = BaseAgent
+except (ImportError, AttributeError):
+    ADKAgent = None
 
 
 @typing.runtime_checkable
@@ -90,6 +117,24 @@ class Queryable(Protocol):
     @abc.abstractmethod
     def query(self, **kwargs):
         """Runs the Agent Engine to serve the user query."""
+
+
+@typing.runtime_checkable
+class AsyncQueryable(Protocol):
+    """Protocol for Agent Engines that can be queried asynchronously."""
+
+    @abc.abstractmethod
+    def async_query(self, **kwargs):
+        """Runs the Agent Engine to serve the user query asynchronously."""
+
+
+@typing.runtime_checkable
+class AsyncStreamQueryable(Protocol):
+    """Protocol for Agent Engines that can stream responses asynchronously."""
+
+    @abc.abstractmethod
+    async def async_stream_query(self, **kwargs) -> AsyncIterable[Any]:
+        """Asynchronously stream responses to serve the user query."""
 
 
 @typing.runtime_checkable
@@ -119,7 +164,19 @@ class OperationRegistrable(Protocol):
         """Register the user provided operations (modes and methods)."""
 
 
+_AgentEngineInterface = Union[
+    ADKAgent,
+    AsyncQueryable,
+    AsyncStreamQueryable,
+    OperationRegistrable,
+    Queryable,
+    StreamQueryable,
+]
+
+
 def _wrap_agent_operation(agent: Any, operation: str):
+    """Wraps an agent operation into a method (works for all API modes)."""
+
     def _method(self, **kwargs):
         if not self._tmpl_attrs.get("agent"):
             self.set_up()
@@ -144,6 +201,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
         module_name: str,
         agent_name: str,
         register_operations: Dict[str, Sequence[str]],
+        sys_paths: Optional[Sequence[str]] = None,
     ):
         """Initializes a module-based agent.
 
@@ -154,11 +212,19 @@ class ModuleAgent(Cloneable, OperationRegistrable):
                 Required. The name of the agent in the module to instantiate.
             register_operations (Dict[str, Sequence[str]]):
                 Required. A dictionary of API modes to a list of method names.
+            sys_paths (Sequence[str]):
+                Optional. The system paths to search for the module. It should
+                be relative to the directory where the code will be running.
+                I.e. it should correspond to the directory being passed to
+                `extra_packages=...` in the create method. It will be appended
+                to the system path in the sequence being specified here, and
+                only be appended if it is not already in the system path.
         """
         self._tmpl_attrs = {
             "module_name": module_name,
             "agent_name": agent_name,
             "register_operations": register_operations,
+            "sys_paths": sys_paths,
         }
 
     def clone(self):
@@ -167,6 +233,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
             module_name=self._tmpl_attrs.get("module_name"),
             agent_name=self._tmpl_attrs.get("agent_name"),
             register_operations=self._tmpl_attrs.get("register_operations"),
+            sys_paths=self._tmpl_attrs.get("sys_paths"),
         )
 
     def register_operations(self) -> Dict[str, Sequence[str]]:
@@ -178,6 +245,14 @@ class ModuleAgent(Cloneable, OperationRegistrable):
         It runs the code to import the agent from the module, and registers the
         operations of the agent.
         """
+        if self._tmpl_attrs.get("sys_paths"):
+            import sys
+
+            for sys_path in self._tmpl_attrs.get("sys_paths"):
+                abs_path = os.path.abspath(sys_path)
+                if abs_path not in sys.path:
+                    sys.path.append(abs_path)
+
         import importlib
 
         module = importlib.import_module(self._tmpl_attrs.get("module_name"))
@@ -228,6 +303,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         self.execution_api_client = initializer.global_config.create_client(
             client_class=aip_utils.AgentEngineExecutionClientWithOverride,
         )
+        self.execution_async_client = initializer.global_config.create_client(
+            client_class=aip_utils.AgentEngineExecutionAsyncClientWithOverride,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=resource_name)
         try:
             _register_api_methods_or_raise(self)
@@ -243,7 +321,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+        agent_engine: Optional[_AgentEngineInterface] = None,
         *,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
@@ -409,6 +487,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             )
             agent_engine_spec.class_methods.extend(class_methods_spec)
             reasoning_engine.spec = agent_engine_spec
+            reasoning_engine.spec.agent_framework = _get_agent_framework(agent_engine)
         operation_future = sdk_resource.api_client.create_reasoning_engine(
             parent=initializer.global_config.common_location_path(
                 project=sdk_resource.project, location=sdk_resource.location
@@ -435,6 +514,11 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             credentials=sdk_resource.credentials,
             location_override=sdk_resource.location,
         )
+        sdk_resource.execution_async_client = initializer.global_config.create_client(
+            client_class=aip_utils.AgentEngineExecutionAsyncClientWithOverride,
+            credentials=sdk_resource.credentials,
+            location_override=sdk_resource.location,
+        )
         if agent_engine is not None:
             try:
                 _register_api_methods_or_raise(sdk_resource)
@@ -446,7 +530,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
     def update(
         self,
         *,
-        agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+        agent_engine: Optional[_AgentEngineInterface] = None,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
@@ -668,13 +752,14 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
 
 
 def _validate_agent_engine_or_raise(
-    agent_engine: Union[Queryable, OperationRegistrable, StreamQueryable],
-) -> Union[Queryable, OperationRegistrable, StreamQueryable]:
+    agent_engine: _AgentEngineInterface,
+) -> _AgentEngineInterface:
     """Tries to validate the agent engine.
 
     The agent engine must have one of the following:
     * a callable method named `query`
     * a callable method named `stream_query`
+    * a callable method named `async_stream_query`
     * a callable method named `register_operations`
 
     Args:
@@ -700,17 +785,30 @@ def _validate_agent_engine_or_raise(
     except Exception:
         pass
     is_queryable = isinstance(agent_engine, Queryable) and callable(agent_engine.query)
+    is_async_queryable = isinstance(agent_engine, AsyncQueryable) and callable(
+        agent_engine.async_query
+    )
     is_stream_queryable = isinstance(agent_engine, StreamQueryable) and callable(
         agent_engine.stream_query
     )
+    is_async_stream_queryable = isinstance(
+        agent_engine, AsyncStreamQueryable
+    ) and callable(agent_engine.async_stream_query)
     is_operation_registrable = isinstance(
         agent_engine, OperationRegistrable
     ) and callable(agent_engine.register_operations)
 
-    if not (is_queryable or is_stream_queryable or is_operation_registrable):
+    if not (
+        is_queryable
+        or is_async_queryable
+        or is_stream_queryable
+        or is_operation_registrable
+        or is_async_stream_queryable
+    ):
         raise TypeError(
-            "agent_engine has neither a callable method named `query`"
-            " nor a callable method named `register_operations`."
+            "agent_engine has none of the following callable methods: "
+            "`query`, `async_query`, `stream_query`, `async_stream_query` or "
+            "`register_operations`."
         )
 
     if is_queryable:
@@ -722,6 +820,15 @@ def _validate_agent_engine_or_raise(
                 "`self` argument in the agent_engine.query method."
             ) from err
 
+    if is_async_queryable:
+        try:
+            inspect.signature(getattr(agent_engine, "async_query"))
+        except ValueError as err:
+            raise ValueError(
+                "Invalid async_query signature. This might be due to a missing "
+                "`self` argument in the agent_engine.async_query method."
+            ) from err
+
     if is_stream_queryable:
         try:
             inspect.signature(getattr(agent_engine, "stream_query"))
@@ -729,6 +836,16 @@ def _validate_agent_engine_or_raise(
             raise ValueError(
                 "Invalid stream_query signature. This might be due to a missing"
                 " `self` argument in the agent_engine.stream_query method."
+            ) from err
+
+    if is_async_stream_queryable:
+        try:
+            inspect.signature(getattr(agent_engine, "async_stream_query"))
+        except ValueError as err:
+            raise ValueError(
+                "Invalid async_stream_query signature. This might be due to a "
+                " missing `self` argument in the "
+                "agent_engine.async_stream_query method."
             ) from err
 
     if is_operation_registrable:
@@ -749,7 +866,7 @@ def _validate_agent_engine_or_raise(
 
 def _validate_requirements_or_raise(
     *,
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: _AgentEngineInterface,
     requirements: Optional[Sequence[str]] = None,
 ) -> Sequence[str]:
     """Tries to validate the requirements."""
@@ -798,7 +915,7 @@ def _get_gcs_bucket(
 
 def _upload_agent_engine(
     *,
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: _AgentEngineInterface,
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
 ) -> None:
@@ -855,7 +972,7 @@ def _upload_extra_packages(
 
 
 def _prepare(
-    agent_engine: Optional[Union[Queryable, OperationRegistrable]],
+    agent_engine: Optional[_AgentEngineInterface],
     requirements: Optional[Sequence[str]],
     extra_packages: Optional[Sequence[str]],
     project: str,
@@ -979,12 +1096,23 @@ def _generate_deployment_spec_or_raise(
     return deployment_spec, update_masks
 
 
+def _get_agent_framework(
+    agent_engine: _AgentEngineInterface,
+) -> str:
+    if (
+        hasattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
+        and getattr(agent_engine, _AGENT_FRAMEWORK_ATTR) is not None
+    ):
+        return getattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
+    return _DEFAULT_AGENT_FRAMEWORK
+
+
 def _generate_update_request_or_raise(
     *,
     resource_name: str,
     staging_bucket: str,
     gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
-    agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+    agent_engine: Optional[_AgentEngineInterface] = None,
     requirements: Optional[Union[str, Sequence[str]]] = None,
     extra_packages: Optional[Sequence[str]] = None,
     display_name: Optional[str] = None,
@@ -1028,6 +1156,8 @@ def _generate_update_request_or_raise(
         )
         agent_engine_spec.class_methods.extend(class_methods_spec)
         update_masks.append("spec.class_methods")
+        agent_engine_spec.agent_framework = _get_agent_framework(agent_engine)
+        update_masks.append("spec.agent_framework")
     if env_vars is not None:
         is_spec_update = True
         deployment_spec, deployment_update_masks = _generate_deployment_spec_or_raise(
@@ -1058,7 +1188,7 @@ def _generate_update_request_or_raise(
     )
 
 
-def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.JsonDict]:
+def _wrap_query_operation(method_name: str) -> Callable[..., _utils.JsonDict]:
     """Wraps an Agent Engine method, creating a callable for `query` API.
 
     This function creates a callable object that executes the specified
@@ -1085,15 +1215,40 @@ def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.Js
         output = _utils.to_dict(response)
         return output.get("output", output)
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
+    return _method
+
+
+def _wrap_async_query_operation(method_name: str) -> Callable[..., Coroutine]:
+    """Wraps an Agent Engine method, creating an async callable for `query` API.
+
+    This function creates a callable object that executes the specified
+    Agent Engine method asynchronously using the `query` API. It handles the
+    creation of the API request and the processing of the API response.
+
+    Args:
+        method_name: The name of the Agent Engine method to call.
+        doc: Documentation string for the method.
+
+    Returns:
+        A callable object that executes the method on the Agent Engine via
+        the `query` API.
+    """
+
+    async def _method(self, **kwargs) -> _utils.JsonDict:
+        response = await self.execution_async_client.query_reasoning_engine(
+            request=aip_types.QueryReasoningEngineRequest(
+                name=self.resource_name,
+                input=kwargs,
+                class_method=method_name,
+            ),
+        )
+        output = _utils.to_dict(response)
+        return output.get("output", output)
 
     return _method
 
 
-def _wrap_stream_query_operation(
-    *, method_name: str, doc: str
-) -> Callable[..., Iterable[Any]]:
+def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterable[Any]]:
     """Wraps an Agent Engine method, creating a callable for `stream_query` API.
 
     This function creates a callable object that executes the specified
@@ -1122,8 +1277,39 @@ def _wrap_stream_query_operation(
                 if parsed_json is not None:
                     yield parsed_json
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
+    return _method
+
+
+def _wrap_async_stream_query_operation(
+    *, method_name: str
+) -> Callable[..., AsyncIterable[Any]]:
+    """Wraps an Agent Engine method, creating an async callable for `stream_query` API.
+
+    This function creates a callable object that executes the specified
+    Agent Engine method using the `stream_query` API.  It handles the
+    creation of the API request and the processing of the API response.
+
+    Args:
+        method_name: The name of the Agent Engine method to call.
+        doc: Documentation string for the method.
+
+    Returns:
+        A callable object that executes the method on the Agent Engine via
+        the `stream_query` API.
+    """
+
+    async def _method(self, **kwargs) -> AsyncIterable[Any]:
+        response = self.execution_api_client.stream_query_reasoning_engine(
+            request=aip_types.StreamQueryReasoningEngineRequest(
+                name=self.resource_name,
+                input=kwargs,
+                class_method=method_name,
+            ),
+        )
+        for chunk in response:
+            for parsed_json in _utils.yield_parsed_json(chunk):
+                if parsed_json is not None:
+                    yield parsed_json
 
     return _method
 
@@ -1149,7 +1335,12 @@ def _unregister_api_methods(
                 delattr(obj, method_name)
 
 
-def _register_api_methods_or_raise(obj: "AgentEngine"):
+def _register_api_methods_or_raise(
+    obj: "AgentEngine",
+    wrap_operation_fn: Optional[
+        dict[str, Callable[[str, str], Callable[..., Any]]]
+    ] = None,
+):
     """Registers Agent Engine API methods based on operation schemas.
 
     This function iterates through operation schemas provided by the
@@ -1160,6 +1351,8 @@ def _register_api_methods_or_raise(obj: "AgentEngine"):
 
     Args:
         obj: The AgentEngine object to augment with API methods.
+        wrap_operation_fn: A dictionary of API modes and method wrapping
+            functions.
 
     Raises:
         ValueError: If the API mode is not supported or if the operation schema
@@ -1178,46 +1371,49 @@ def _register_api_methods_or_raise(obj: "AgentEngine"):
                 f" contain a `{_METHOD_NAME_KEY_IN_SCHEMA}` field."
             )
         method_name = operation_schema.get(_METHOD_NAME_KEY_IN_SCHEMA)
-        method_description = operation_schema.get("description")
-
-        if api_mode == _STANDARD_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_METHOD_NAME,
-                    return_type=_DEFAULT_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_query_operation(
+        method_description = operation_schema.get(
+            "description",
+            _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
                 method_name=method_name,
-                doc=method_description,
-            )
-        elif api_mode == _STREAM_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_STREAM_METHOD_NAME,
-                    return_type=_DEFAULT_STREAM_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_stream_query_operation(
-                method_name=method_name,
-                doc=method_description,
-            )
+                default_method_name=_DEFAULT_METHOD_NAME_MAP.get(
+                    api_mode, _DEFAULT_METHOD_NAME
+                ),
+                return_type=_DEFAULT_METHOD_RETURN_TYPE_MAP.get(
+                    api_mode,
+                    _DEFAULT_METHOD_RETURN_TYPE,
+                ),
+            ),
+        )
+        _wrap_operation_map = {
+            _STANDARD_API_MODE: _wrap_query_operation,
+            _ASYNC_API_MODE: _wrap_async_query_operation,
+            _STREAM_API_MODE: _wrap_stream_query_operation,
+            _ASYNC_STREAM_API_MODE: _wrap_async_stream_query_operation,
+        }
+        if isinstance(wrap_operation_fn, dict) and api_mode in wrap_operation_fn:
+            # Override the default function with user-specified function if it exists.
+            _wrap_operation = wrap_operation_fn[api_mode]
+        elif api_mode in _wrap_operation_map:
+            _wrap_operation = _wrap_operation_map[api_mode]
         else:
+            supported_api_modes = ", ".join(
+                f"`{mode}`" for mode in sorted(_wrap_operation_map.keys())
+            )
             raise ValueError(
                 f"Unsupported api mode: `{api_mode}`,"
-                f" Supported modes are: `{_STANDARD_API_MODE}`"
-                f" and `{_STREAM_API_MODE}`."
+                f" Supported modes are: {supported_api_modes}."
             )
 
-        # Binds the method to the object.
+        # Bind the method to the object.
+        method = _wrap_operation(method_name=method_name)
+        method.__name__ = method_name
+        method.__doc__ = method_description
         setattr(obj, method_name, types.MethodType(method, obj))
 
 
-def _get_registered_operations(agent_engine: Any) -> Dict[str, List[str]]:
+def _get_registered_operations(
+    agent_engine: _AgentEngineInterface,
+) -> Dict[str, List[str]]:
     """Retrieves registered operations for a AgentEngine."""
     if isinstance(agent_engine, OperationRegistrable):
         return agent_engine.register_operations()
@@ -1225,13 +1421,17 @@ def _get_registered_operations(agent_engine: Any) -> Dict[str, List[str]]:
     operations = {}
     if isinstance(agent_engine, Queryable):
         operations[_STANDARD_API_MODE] = [_DEFAULT_METHOD_NAME]
+    if isinstance(agent_engine, AsyncQueryable):
+        operations[_ASYNC_API_MODE] = [_DEFAULT_ASYNC_METHOD_NAME]
     if isinstance(agent_engine, StreamQueryable):
         operations[_STREAM_API_MODE] = [_DEFAULT_STREAM_METHOD_NAME]
+    if isinstance(agent_engine, AsyncStreamQueryable):
+        operations[_ASYNC_STREAM_API_MODE] = [_DEFAULT_ASYNC_STREAM_METHOD_NAME]
     return operations
 
 
 def _generate_class_methods_spec_or_raise(
-    *, agent_engine: Any, operations: Dict[str, List[str]]
+    *, agent_engine: _AgentEngineInterface, operations: Dict[str, List[str]]
 ) -> List[proto.Message]:
     """Generates a ReasoningEngineSpec based on the registered operations.
 

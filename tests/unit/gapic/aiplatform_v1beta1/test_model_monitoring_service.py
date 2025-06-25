@@ -75,6 +75,7 @@ from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import (
 from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import pagers
 from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import explanation_metadata
 from google.cloud.aiplatform_v1beta1.types import io
@@ -9306,6 +9307,7 @@ def test_create_model_monitor_rest_call_success(request_type):
             "prediction_fields": {},
             "ground_truth_fields": {},
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "create_time": {},
         "update_time": {},
         "satisfies_pzs": True,
@@ -9640,6 +9642,7 @@ def test_update_model_monitor_rest_call_success(request_type):
             "prediction_fields": {},
             "ground_truth_fields": {},
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "create_time": {},
         "update_time": {},
         "satisfies_pzs": True,
@@ -12336,6 +12339,7 @@ async def test_create_model_monitor_rest_asyncio_call_success(request_type):
             "prediction_fields": {},
             "ground_truth_fields": {},
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "create_time": {},
         "update_time": {},
         "satisfies_pzs": True,
@@ -12688,6 +12692,7 @@ async def test_update_model_monitor_rest_asyncio_call_success(request_type):
             "prediction_fields": {},
             "ground_truth_fields": {},
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "create_time": {},
         "update_time": {},
         "satisfies_pzs": True,

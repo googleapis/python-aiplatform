@@ -17,16 +17,19 @@
 import re
 from typing import Any, Dict, Optional, Sequence, Union
 from google.cloud.aiplatform_v1.types import api_auth
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 from google.cloud.aiplatform_v1 import (
     RagEmbeddingModelConfig as GapicRagEmbeddingModelConfig,
     GoogleDriveSource,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
+    RagEngineConfig as GapicRagEngineConfig,
     RagFileChunkingConfig,
     RagFileParsingConfig,
     RagFileTransformationConfig,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
+    RagManagedDbConfig as GapicRagManagedDbConfig,
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
     JiraSource as GapicJiraSource,
@@ -40,17 +43,24 @@ from google.cloud.aiplatform.utils import (
     VertexRagClientWithOverride,
 )
 from vertexai.rag.utils.resources import (
+    Basic,
+    JiraSource,
     LayoutParserConfig,
+    LlmParserConfig,
     Pinecone,
+    RagCitedGenerationResponse,
     RagCorpus,
     RagEmbeddingModelConfig,
+    RagEngineConfig,
     RagFile,
     RagManagedDb,
+    RagManagedDbConfig,
     RagVectorDbConfig,
+    Scaled,
     SharePointSources,
     SlackChannelsSource,
     TransformationConfig,
-    JiraSource,
+    Unprovisioned,
     VertexAiSearchConfig,
     VertexVectorSearch,
     VertexPredictionEndpoint,
@@ -201,6 +211,7 @@ def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
         backend_config=convert_gapic_to_backend_config(
             gapic_rag_corpus.vector_db_config
         ),
+        encryption_spec=gapic_rag_corpus.encryption_spec,
     )
     return rag_corpus
 
@@ -221,6 +232,7 @@ def convert_gapic_to_rag_corpus_no_embedding_model_config(
         backend_config=convert_gapic_to_backend_config(
             rag_vector_db_config_no_embedding_model_config
         ),
+        encryption_spec=gapic_rag_corpus.encryption_spec,
     )
     return rag_corpus
 
@@ -243,6 +255,17 @@ def convert_json_to_rag_file(upload_rag_file_response: Dict[str, Any]) -> RagFil
         description=upload_rag_file_response.get("ragFile").get("description"),
     )
     return rag_file
+
+
+def convert_tuple_to_rag_cited_generation_response(
+    cited_text: str, final_bibliography: str
+) -> RagCitedGenerationResponse:
+    """Converts a tuple to a RagCitedGenerationResponse."""
+    rag_cited_generation_response = RagCitedGenerationResponse(
+        cited_text=cited_text,
+        final_bibliography=final_bibliography,
+    )
+    return rag_cited_generation_response
 
 
 def convert_path_to_resource_id(
@@ -381,7 +404,8 @@ def prepare_import_files_request(
     max_embedding_requests_per_min: int = 1000,
     import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
-    parser: Optional[LayoutParserConfig] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
@@ -389,22 +413,36 @@ def prepare_import_files_request(
         )
 
     rag_file_parsing_config = RagFileParsingConfig()
-    if parser is not None:
+    if layout_parser is not None:
         if (
-            re.fullmatch(_VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX, parser.processor_name)
+            re.fullmatch(
+                _VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX,
+                layout_parser.processor_name,
+            )
             is None
         ):
             raise ValueError(
-                "processor_name must be of the format "
-                "`projects/{project_id}/locations/{location}/processors/{processor_id}`"
-                "or "
-                "`projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`, "
-                f"got {parser.processor_name!r}"
+                "processor_name must be of the format"
+                " `projects/{project_id}/locations/{location}/processors/{processor_id}`or"
+                " `projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`,"
+                f" got {layout_parser.processor_name!r}"
             )
         rag_file_parsing_config.layout_parser = RagFileParsingConfig.LayoutParser(
-            processor_name=parser.processor_name,
-            max_parsing_requests_per_min=parser.max_parsing_requests_per_min,
+            processor_name=layout_parser.processor_name,
+            max_parsing_requests_per_min=layout_parser.max_parsing_requests_per_min,
         )
+    if llm_parser is not None:
+        rag_file_parsing_config.llm_parser = RagFileParsingConfig.LlmParser(
+            model_name=llm_parser.model_name
+        )
+        if llm_parser.max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.llm_parser.max_parsing_requests_per_min = (
+                llm_parser.max_parsing_requests_per_min
+            )
+        if llm_parser.custom_parsing_prompt is not None:
+            rag_file_parsing_config.llm_parser.custom_parsing_prompt = (
+                llm_parser.custom_parsing_prompt
+            )
 
     chunk_size = 1024
     chunk_overlap = 200
@@ -632,6 +670,28 @@ def set_backend_config(
         )
 
 
+def set_encryption_spec(
+    encryption_spec: EncryptionSpec,
+    rag_corpus: GapicRagCorpus,
+) -> None:
+    """Sets the encryption spec for the rag corpus."""
+    # Raises value error if encryption_spec.kms_key_name is None or empty,
+    if encryption_spec.kms_key_name is None or not encryption_spec.kms_key_name:
+        raise ValueError("kms_key_name must be set if encryption_spec is set.")
+
+    # Raises value error if encryption_spec.kms_key_name is not a valid KMS key name.
+    if not re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/keyRings/(?P<key_ring>.+?)/cryptoKeys/(?P<crypto_key>.+?)$",
+        encryption_spec.kms_key_name,
+    ):
+        raise ValueError(
+            "kms_key_name must be of the format "
+            "`projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`"
+        )
+
+    rag_corpus.encryption_spec = encryption_spec
+
+
 def set_vertex_ai_search_config(
     vertex_ai_search_config: VertexAiSearchConfig,
     rag_corpus: GapicRagCorpus,
@@ -654,3 +714,51 @@ def set_vertex_ai_search_config(
         raise ValueError(
             "serving_config must be of the format `projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}` or `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}`"
         )
+
+
+def convert_gapic_to_rag_engine_config(
+    response: GapicRagEngineConfig,
+) -> RagEngineConfig:
+    """Converts a GapicRagEngineConfig to a RagEngineConfig."""
+    rag_managed_db_config = RagManagedDbConfig()
+    # If future fields are added with similar names, beware that __contains__
+    # may match them.
+    if response.rag_managed_db_config.__contains__("basic"):
+        rag_managed_db_config.tier = Basic()
+    elif response.rag_managed_db_config.__contains__("unprovisioned"):
+        rag_managed_db_config.tier = Unprovisioned()
+    elif response.rag_managed_db_config.__contains__("scaled"):
+        rag_managed_db_config.tier = Scaled()
+    else:
+        raise ValueError("At least one of rag_managed_db_config must be set.")
+    return RagEngineConfig(
+        name=response.name,
+        rag_managed_db_config=rag_managed_db_config,
+    )
+
+
+def convert_rag_engine_config_to_gapic(
+    rag_engine_config: RagEngineConfig,
+) -> GapicRagEngineConfig:
+    """Converts a RagEngineConfig to a GapicRagEngineConfig."""
+    rag_managed_db_config = GapicRagManagedDbConfig()
+    if (
+        rag_engine_config.rag_managed_db_config is None
+        or rag_engine_config.rag_managed_db_config.tier is None
+    ):
+        rag_managed_db_config = GapicRagManagedDbConfig(
+            basic=GapicRagManagedDbConfig.Basic()
+        )
+    else:
+        if isinstance(rag_engine_config.rag_managed_db_config.tier, Basic):
+            rag_managed_db_config.basic = GapicRagManagedDbConfig.Basic()
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Unprovisioned):
+            rag_managed_db_config.unprovisioned = (
+                GapicRagManagedDbConfig.Unprovisioned()
+            )
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Scaled):
+            rag_managed_db_config.scaled = GapicRagManagedDbConfig.Scaled()
+    return GapicRagEngineConfig(
+        name=rag_engine_config.name,
+        rag_managed_db_config=rag_managed_db_config,
+    )

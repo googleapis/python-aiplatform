@@ -45,6 +45,7 @@ from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
@@ -1684,7 +1685,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 # Initialize request argument(s)
                 deployed_model = aiplatform_v1.DeployedModel()
                 deployed_model.dedicated_resources.min_replica_count = 1803
-                deployed_model.model = "model_value"
 
                 request = aiplatform_v1.DeployModelRequest(
                     endpoint="endpoint_value",
@@ -2007,7 +2007,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 # Initialize request argument(s)
                 deployed_model = aiplatform_v1.DeployedModel()
                 deployed_model.dedicated_resources.min_replica_count = 1803
-                deployed_model.model = "model_value"
 
                 request = aiplatform_v1.MutateDeployedModelRequest(
                     endpoint="endpoint_value",
@@ -2881,5 +2880,7 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
 
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 __all__ = ("EndpointServiceClient",)

@@ -10281,6 +10281,16 @@ def test_create_feature_online_store_rest_call_success(request_type):
                     "project_allowlist_value1",
                     "project_allowlist_value2",
                 ],
+                "psc_automation_configs": [
+                    {
+                        "project_id": "project_id_value",
+                        "network": "network_value",
+                        "ip_address": "ip_address_value",
+                        "forwarding_rule": "forwarding_rule_value",
+                        "state": 1,
+                        "error_message": "error_message_value",
+                    }
+                ],
                 "enable_secure_private_service_connect": True,
                 "service_attachment": "service_attachment_value",
             },
@@ -10816,6 +10826,16 @@ def test_update_feature_online_store_rest_call_success(request_type):
                 "project_allowlist": [
                     "project_allowlist_value1",
                     "project_allowlist_value2",
+                ],
+                "psc_automation_configs": [
+                    {
+                        "project_id": "project_id_value",
+                        "network": "network_value",
+                        "ip_address": "ip_address_value",
+                        "forwarding_rule": "forwarding_rule_value",
+                        "state": 1,
+                        "error_message": "error_message_value",
+                    }
                 ],
                 "enable_secure_private_service_connect": True,
                 "service_attachment": "service_attachment_value",
@@ -13509,6 +13529,16 @@ async def test_create_feature_online_store_rest_asyncio_call_success(request_typ
                     "project_allowlist_value1",
                     "project_allowlist_value2",
                 ],
+                "psc_automation_configs": [
+                    {
+                        "project_id": "project_id_value",
+                        "network": "network_value",
+                        "ip_address": "ip_address_value",
+                        "forwarding_rule": "forwarding_rule_value",
+                        "state": 1,
+                        "error_message": "error_message_value",
+                    }
+                ],
                 "enable_secure_private_service_connect": True,
                 "service_attachment": "service_attachment_value",
             },
@@ -14092,6 +14122,16 @@ async def test_update_feature_online_store_rest_asyncio_call_success(request_typ
                 "project_allowlist": [
                     "project_allowlist_value1",
                     "project_allowlist_value2",
+                ],
+                "psc_automation_configs": [
+                    {
+                        "project_id": "project_id_value",
+                        "network": "network_value",
+                        "ip_address": "ip_address_value",
+                        "forwarding_rule": "forwarding_rule_value",
+                        "state": 1,
+                        "error_message": "error_message_value",
+                    }
                 ],
                 "enable_secure_private_service_connect": True,
                 "service_attachment": "service_attachment_value",

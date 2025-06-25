@@ -42,6 +42,7 @@ from vertexai._model_garden import _model_garden_models
 from vertexai.language_models import (
     _evaluatable_language_models,
 )
+from vertexai._utils import warning_logs
 
 try:
     import pandas
@@ -3275,6 +3276,7 @@ class ChatSession(_ChatSessionBase):
         message_history: Optional[List[ChatMessage]] = None,
         stop_sequences: Optional[List[str]] = None,
     ):
+        warning_logs.show_deprecation_warning()
         super().__init__(
             model=model,
             context=context,
@@ -3305,6 +3307,7 @@ class CodeChatSession(_ChatSessionBase):
         message_history: Optional[List[ChatMessage]] = None,
         stop_sequences: Optional[List[str]] = None,
     ):
+        warning_logs.show_deprecation_warning()
         super().__init__(
             model=model,
             context=context,

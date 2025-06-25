@@ -39,6 +39,7 @@ from google.cloud.aiplatform_v1beta1.types.gen_ai_cache_service import (
     UpdateCachedContentRequest,
 )
 from google.cloud.aiplatform_v1 import types as types_v1
+from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.generative_models import _generative_models
 from vertexai.generative_models._generative_models import (
     Content,
@@ -48,6 +49,7 @@ from vertexai.generative_models._generative_models import (
     ContentsType,
 )
 from google.protobuf import field_mask_pb2
+from vertexai._utils import warning_logs
 
 
 def _prepare_create_request(
@@ -60,6 +62,7 @@ def _prepare_create_request(
     expire_time: Optional[datetime.datetime] = None,
     ttl: Optional[datetime.timedelta] = None,
     display_name: Optional[str] = None,
+    kms_key_name: Optional[str] = None,
 ) -> CreateCachedContentRequest:
     """Prepares the request create_cached_content RPC."""
     (
@@ -103,6 +106,9 @@ def _prepare_create_request(
             expire_time=expire_time,
             ttl=ttl,
             display_name=display_name,
+            encryption_spec=EncryptionSpec(kms_key_name=kms_key_name)
+            if kms_key_name
+            else None,
         ),
     )
     serialized_message_v1beta1 = type(request_v1beta1).serialize(request_v1beta1)
@@ -152,6 +158,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
                 ID. Example: "projects/.../locations/../cachedContents/456" or
                 "456".
         """
+        warning_logs.show_deprecation_warning()
         super().__init__(resource_name=cached_content_name)
         self._gca_resource = self._get_gca_resource(cached_content_name)
 
@@ -175,6 +182,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
         expire_time: Optional[datetime.datetime] = None,
         ttl: Optional[datetime.timedelta] = None,
         display_name: Optional[str] = None,
+        kms_key_name: Optional[str] = None,
     ) -> "CachedContent":
         """Creates a new cached content through the gen ai cache service.
 
@@ -213,6 +221,14 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
                 default TTL on the API side will be used (currently 1 hour).
             display_name:
                 The user-generated meaningful display name of the cached content.
+            kms_key_name:
+                Optional. Customer-managed encryption key. See
+                https://cloud.google.com/vertex-ai/docs/general/cmek for more
+                details. If this is set, then all created CachedContent objects
+                will be encrypted with the provided encryption key.
+                Allowed formats:
+
+                projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}
         Returns:
             A CachedContent object with only name and model_name specified.
         Raises:
@@ -237,6 +253,7 @@ class CachedContent(aiplatform_base._VertexAiResourceNounPlus):
             expire_time=expire_time,
             ttl=ttl,
             display_name=display_name,
+            kms_key_name=kms_key_name,
         )
         client = cls._instantiate_client(location=location)
         cached_content_resource = client.create_cached_content(request)

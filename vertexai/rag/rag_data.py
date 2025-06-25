@@ -28,24 +28,34 @@ from google.cloud.aiplatform_v1 import (
     DeleteRagCorpusRequest,
     DeleteRagFileRequest,
     GetRagCorpusRequest,
+    GetRagEngineConfigRequest,
     GetRagFileRequest,
     ImportRagFilesResponse,
     ListRagCorporaRequest,
     ListRagFilesRequest,
     RagCorpus as GapicRagCorpus,
     UpdateRagCorpusRequest,
+    UpdateRagEngineConfigRequest,
 )
 from google.cloud.aiplatform_v1.services.vertex_rag_data_service.pagers import (
     ListRagCorporaPager,
     ListRagFilesPager,
 )
+from vertexai.rag.rag_inline_citations import (
+    format_bibliography,
+    populate_cited_chunk_references,
+)
 from vertexai.rag.utils import (
     _gapic_utils,
 )
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 from vertexai.rag.utils.resources import (
     JiraSource,
     LayoutParserConfig,
+    LlmParserConfig,
+    RagCitedGenerationResponse,
     RagCorpus,
+    RagEngineConfig,
     RagFile,
     RagVectorDbConfig,
     SharePointSources,
@@ -65,6 +75,7 @@ def create_corpus(
             None,
         ]
     ] = None,
+    encryption_spec: Optional[EncryptionSpec] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -90,6 +101,7 @@ def create_corpus(
             specified.
         backend_config: The backend config of the RagCorpus, specifying a
           data store and/or embedding model.
+        encryption_spec: The encryption spec of the RagCorpus.
     Returns:
         RagCorpus.
     Raises:
@@ -115,6 +127,12 @@ def create_corpus(
     elif vertex_ai_search_config:
         _gapic_utils.set_vertex_ai_search_config(
             vertex_ai_search_config=vertex_ai_search_config,
+            rag_corpus=rag_corpus,
+        )
+
+    if encryption_spec:
+        _gapic_utils.set_encryption_spec(
+            encryption_spec=encryption_spec,
             rag_corpus=rag_corpus,
         )
 
@@ -433,7 +451,8 @@ def import_files(
     max_embedding_requests_per_min: int = 1000,
     import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
-    parser: Optional[LayoutParserConfig] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -573,6 +592,10 @@ def import_files(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if layout_parser is not None and llm_parser is not None:
+        raise ValueError(
+            "Only one of layout_parser or llm_parser may be passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -582,7 +605,8 @@ def import_files(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         import_result_sink=import_result_sink,
         partial_failures_sink=partial_failures_sink,
-        parser=parser,
+        layout_parser=layout_parser,
+        llm_parser=llm_parser,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -601,7 +625,8 @@ async def import_files_async(
     max_embedding_requests_per_min: int = 1000,
     import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
-    parser: Optional[LayoutParserConfig] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -741,6 +766,10 @@ async def import_files_async(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if layout_parser is not None and llm_parser is not None:
+        raise ValueError(
+            "Only one of layout_parser or llm_parser may be passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -750,7 +779,8 @@ async def import_files_async(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         import_result_sink=import_result_sink,
         partial_failures_sink=partial_failures_sink,
-        parser=parser,
+        layout_parser=layout_parser,
+        llm_parser=llm_parser,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:
@@ -868,3 +898,264 @@ def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
     except Exception as e:
         raise RuntimeError("Failed in RagFile deletion due to: ", e) from e
     return None
+
+
+def update_rag_engine_config(
+    rag_engine_config: RagEngineConfig,
+) -> RagEngineConfig:
+    """Update RagEngineConfig.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai import rag
+    vertexai.init(project="my-project")
+    rag_engine_config = rag.RagEngineConfig(
+        rag_managed_db_config=rag.RagManagedDbConfig(
+            rag_managed_db=rag.RagManagedDb(
+                db_basic_tier=rag.Basic(),
+            ),
+        )
+        ),
+    )
+    rag.update_rag_engine_config(rag_engine_config=rag_engine_config)
+    ```
+
+    Args:
+        rag_engine_config: The RagEngineConfig to update.
+
+    Raises:
+        RuntimeError: Failed in RagEngineConfig update due to exception.
+    """
+    gapic_rag_engine_config = _gapic_utils.convert_rag_engine_config_to_gapic(
+        rag_engine_config
+    )
+    request = UpdateRagEngineConfigRequest(
+        rag_engine_config=gapic_rag_engine_config,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.update_rag_engine_config(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in RagEngineConfig update due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_engine_config(response.result(timeout=600))
+
+
+def get_rag_engine_config(name: str) -> RagEngineConfig:
+    """Get an existing RagEngineConfig.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai import rag
+    vertexai.init(project="my-project")
+    rag_engine_config = rag.get_rag_engine_config(
+        name="projects/my-project/locations/us-central1/ragEngineConfig"
+    )
+    ```
+    Args:
+        name: The RagEngineConfig resource name pattern of the singleton resource.
+
+    Returns:
+        RagEngineConfig.
+    Raises:
+        RuntimeError: Failed in getting the RagEngineConfig.
+    """
+    request = GetRagEngineConfigRequest(name=name)
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.get_rag_engine_config(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in getting the RagEngineConfig due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_engine_config(response)
+
+
+def add_inline_citations_and_references(
+    original_text_str, grounding_supports, grounding_chunks
+) -> RagCitedGenerationResponse:
+    """Adds inline citations to a text string based on grounding_supports and grounding_chunks.
+
+    Args:
+        original_text_str (str): The text (as a Unicode string) to which citations
+          will be added.
+        grounding_supports (list): A list of objects, where each object represents
+          a grounding support and has attributes: - segment: An object with
+          'end_index' (byte offset relative to UTF-8). - grounding_chunk_indices:
+          A list of integers.
+        grounding_chunks (list): A list of objects, where each object is a source
+          chunk wrapper. To get URI: obj.retrieved_context.uri. To get page
+          span: obj.retrieved_context.rag_chunk.page_span.
+
+    Returns:
+        RagCitedGenerationResponse: An object containing the text with inline
+                                   citations and a formatted bibliography string.
+
+    Raises:
+        TypeError: If original_text_str is not a string, or if grounding_supports,
+                   grounding_chunks, or internally generated reference dictionaries
+                   are of an unexpected type (raised by this function or helpers).
+        ValueError: If original_text_str has encoding/decoding issues,
+                    if segment data in grounding_supports is invalid,
+                    if calculated insertion indices are out of bounds,
+                    or if essential data within grounding_chunks (like the chunks
+                    themselves, retrieved_context, or URI) is None when a value
+                    is expected (raised by this function or helpers).
+        IndexError: If chunk indices used for citation or bibliography generation
+                    are out of bounds for the provided grounding_chunks (raised by helpers).
+        AttributeError: If expected attributes (e.g., 'retrieved_context', 'uri')
+                        are missing from the data structures within grounding_chunks
+                        (raised by helpers).
+      Example usage:
+      ```
+      import vertexai
+
+      vertexai.init(project="my-project")
+
+      rag_retrieval_tool = Tool.from_retrieval(
+        retrieval=rag.Retrieval(
+            source=rag.VertexRagStore(
+                rag_resources=[
+                    rag.RagResource(
+                        rag_corpus=corpus_name,
+                        # Optional: supply IDs from `rag.list_files()`.
+                        # rag_file_ids=["rag-file-1", "rag-file-2", ...],
+                    )
+                ],
+                rag_retrieval_config=rag.RagRetrievalConfig(
+                    top_k=10,
+                    filter=rag.utils.resources.Filter(vector_distance_threshold=0.5),
+                ),
+            ),
+        )
+      )
+
+    rag_model = GenerativeModel(
+        model_name="gemini-2.5-pro-preview-05-06", tools=[rag_retrieval_tool]
+    )
+    response = rag_model.generate_content("Why is the sky blue?")
+
+    rag_cited_generation_response = rag.add_inline_citations_and_references(
+        original_text_str=response.candidates[0].content.parts[0].text,
+        grounding_supports=list(response.candidates[0].grounding_metadata.grounding_supports),
+        grounding_chunks=list(response.candidates[0].grounding_metadata.grounding_chunks),
+    )
+    print(rag_cited_generation_response.cited_text)
+    print(rag_cited_generation_response.final_bibliography)
+
+    """
+    if not isinstance(original_text_str, str):
+        raise TypeError("original_text_str must be a string.")
+    if not isinstance(grounding_supports, list):
+        raise TypeError("grounding_supports must be a list.")
+    if not isinstance(grounding_chunks, list):
+        raise TypeError("grounding_chunks must be a list.")
+
+    cited_chunk_references = {}
+
+    populate_cited_chunk_references(
+        grounding_supports, grounding_chunks, cited_chunk_references
+    )
+
+    # If there are no grounding supports, return original text and empty bibliography.
+    if not grounding_supports:
+        return _gapic_utils.convert_tuple_to_rag_cited_generation_response(
+            original_text_str, ""
+        )
+
+    try:
+        original_text_bytes_equivalent = original_text_str.encode("utf-8")
+    except UnicodeEncodeError as e:
+        raise ValueError(
+            "Could not encode original_text_str to UTF-8 for index"
+            f" conversion: {e}. Cannot process citations."
+        ) from e
+
+    insertions = []
+
+    for support_idx, support in enumerate(grounding_supports):
+        current_support_chunk_indices = []
+        if (
+            hasattr(support, "grounding_chunk_indices")
+            and support.grounding_chunk_indices is not None
+        ):
+            # Ensure indices are integers and unique for the citation string
+            valid_indices = [
+                idx for idx in support.grounding_chunk_indices if isinstance(idx, int)
+            ]
+            current_support_chunk_indices = sorted(list(set(valid_indices)))
+
+        # Validate segment and end_index
+        if not (
+            hasattr(support, "segment")
+            and support.segment
+            and hasattr(support.segment, "end_index")
+            and isinstance(support.segment.end_index, int)
+            and support.segment.end_index >= 0  # Ensure end_index is not negative
+        ):
+            raise ValueError(f"Invalid segment data for support at index {support_idx}")
+
+        byte_end_idx = support.segment.end_index
+
+        if byte_end_idx > len(original_text_bytes_equivalent):
+            byte_end_idx = len(original_text_bytes_equivalent)
+
+        char_end_idx = -1  # Initialize before try block
+        try:
+            # Slice the byte string up to the (potentially clamped) byte_end_idx
+            prefix_bytes = original_text_bytes_equivalent[:byte_end_idx]
+            # Decode this prefix to find the corresponding character length
+            char_end_idx = len(prefix_bytes.decode("utf-8"))
+        except UnicodeDecodeError as e:
+            # If decoding the prefix fails, we cannot reliably determine char_end_idx.
+            raise ValueError(
+                "Could not decode prefix of original_text_str (up to byte"
+                f" {byte_end_idx}) from UTF-8 for support at index {support_idx}:"
+                f" {e}. Cannot accurately place citation."
+            ) from e
+        except IndexError as e:  # Should be less common with slice clamping
+            raise ValueError(
+                "Index error during byte-to-char conversion for support at index"
+                f" {support_idx}: {e}. This might indicate an issue with byte_end_idx"
+                " calculation."
+            ) from e
+
+        if char_end_idx > len(original_text_str):
+            char_end_idx = len(original_text_str)
+
+        citation_str = "".join([f"[{idx}]" for idx in current_support_chunk_indices])
+
+        if citation_str:
+            insertions.append(
+                {
+                    "char_index": char_end_idx,
+                    "citation": citation_str,
+                    "original_byte_idx": byte_end_idx,
+                }
+            )
+
+    # Sort insertions by character index in reverse order to insert from end to start,
+    # preserving earlier indices.
+    insertions.sort(
+        key=lambda x: (x["char_index"], x["original_byte_idx"]), reverse=True
+    )
+
+    modified_text_list = list(original_text_str)
+    for insertion_info in insertions:
+        idx = insertion_info["char_index"]
+        citation = insertion_info["citation"]
+        if 0 <= idx <= len(modified_text_list):
+            modified_text_list.insert(idx, citation)
+        else:
+            raise ValueError(
+                f"Calculated insertion index {idx} is out of bounds for"
+                f" modified_text_list (length {len(modified_text_list)}). Citation:"
+                f" '{citation}'"
+            )
+
+    cited_text_output = "".join(modified_text_list)
+    references_output_string = format_bibliography(
+        cited_chunk_references, grounding_chunks
+    )
+    return _gapic_utils.convert_tuple_to_rag_cited_generation_response(
+        cited_text_output, references_output_string
+    )

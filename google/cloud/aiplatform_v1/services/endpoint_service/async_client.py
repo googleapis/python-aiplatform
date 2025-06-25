@@ -37,6 +37,7 @@ from google.api_core import gapic_v1
 from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 
 try:
@@ -1150,7 +1151,6 @@ class EndpointServiceAsyncClient:
                 # Initialize request argument(s)
                 deployed_model = aiplatform_v1.DeployedModel()
                 deployed_model.dedicated_resources.min_replica_count = 1803
-                deployed_model.model = "model_value"
 
                 request = aiplatform_v1.DeployModelRequest(
                     endpoint="endpoint_value",
@@ -1481,7 +1481,6 @@ class EndpointServiceAsyncClient:
                 # Initialize request argument(s)
                 deployed_model = aiplatform_v1.DeployedModel()
                 deployed_model.dedicated_resources.min_replica_count = 1803
-                deployed_model.model = "model_value"
 
                 request = aiplatform_v1.MutateDeployedModelRequest(
                     endpoint="endpoint_value",
@@ -2320,6 +2319,9 @@ class EndpointServiceAsyncClient:
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 __all__ = ("EndpointServiceAsyncClient",)

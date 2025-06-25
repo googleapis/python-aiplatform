@@ -54,6 +54,21 @@ def create_rag_corpus_mock():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_cmek():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_cmek:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants.TEST_GAPIC_CMEK_RAG_CORPUS
+        )
+        create_rag_corpus_mock_cmek.return_value = create_rag_corpus_lro_mock
+        yield create_rag_corpus_mock_cmek
+
+
+@pytest.fixture
 def create_rag_corpus_mock_vertex_vector_search():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -189,6 +204,113 @@ def list_rag_corpora_pager_mock():
         # this is needed because metadata wrapper inspects the signature
         list_rag_corpora_pager_mock.__signature__ = real_signature
         yield list_rag_corpora_pager_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_basic_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_basic_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants.TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC
+        )
+        update_rag_engine_config_basic_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_basic_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_scaled_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_scaled_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants.TEST_GAPIC_RAG_ENGINE_CONFIG_SCALED
+        )
+        update_rag_engine_config_scaled_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_scaled_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_unprovisioned_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_unprovisioned_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants.TEST_GAPIC_RAG_ENGINE_CONFIG_UNPROVISIONED
+        )
+        update_rag_engine_config_unprovisioned_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_unprovisioned_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_mock_exception():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_mock_exception:
+        update_rag_engine_config_mock_exception.side_effect = Exception
+        yield update_rag_engine_config_mock_exception
+
+
+@pytest.fixture()
+def get_rag_engine_basic_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_basic_config_mock:
+        get_rag_engine_basic_config_mock.return_value = (
+            test_rag_constants.TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC
+        )
+        yield get_rag_engine_basic_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_scaled_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_scaled_config_mock:
+        get_rag_engine_scaled_config_mock.return_value = (
+            test_rag_constants.TEST_GAPIC_RAG_ENGINE_CONFIG_SCALED
+        )
+        yield get_rag_engine_scaled_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_unprovisioned_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_unprovisioned_config_mock:
+        get_rag_engine_unprovisioned_config_mock.return_value = (
+            test_rag_constants.TEST_GAPIC_RAG_ENGINE_CONFIG_UNPROVISIONED
+        )
+        yield get_rag_engine_unprovisioned_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_config_mock_exception():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_config_mock_exception:
+        get_rag_engine_config_mock_exception.side_effect = Exception
+        yield get_rag_engine_config_mock_exception
 
 
 class MockResponse:
@@ -340,6 +462,13 @@ def import_files_request_eq(returned_request, expected_request):
     )
 
 
+def rag_engine_config_eq(returned_config, expected_config):
+    assert returned_config.name == expected_config.name
+    assert returned_config.rag_managed_db_config.__eq__(
+        expected_config.rag_managed_db_config
+    )
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestRagDataManagement:
     def setup_method(self):
@@ -372,6 +501,15 @@ class TestRagDataManagement:
         rag_corpus_eq(
             rag_corpus, test_rag_constants.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH
         )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_cmek")
+    def test_create_corpus_cmek_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+            encryption_spec=test_rag_constants.TEST_ENCRYPTION_SPEC,
+        )
+
+        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_CMEK_RAG_CORPUS)
 
     @pytest.mark.usefixtures("create_rag_corpus_mock_pinecone")
     def test_create_corpus_pinecone_success(self):
@@ -783,6 +921,16 @@ class TestRagDataManagement:
             rag.delete_file(test_rag_constants.TEST_RAG_FILE_RESOURCE_NAME)
         e.match("Failed in RagFile deletion due to")
 
+    @pytest.mark.usefixtures("rag_data_client_mock")
+    def test_inline_citations_and_references_success(self):
+        response = rag.add_inline_citations_and_references(
+            original_text_str=test_rag_constants.TEST_ORIGINAL_TEXT,
+            grounding_supports=test_rag_constants.TEST_GROUNDING_SUPPORTS,
+            grounding_chunks=test_rag_constants.TEST_GROUNDING_CHUNKS,
+        )
+        assert response.cited_text == test_rag_constants.TEST_CITED_TEXT
+        assert response.final_bibliography == test_rag_constants.TEST_FINAL_BIBLIOGRAPHY
+
     def test_prepare_import_files_request_list_gcs_uris(self):
         paths = [test_rag_constants.TEST_GCS_PATH]
         request = prepare_import_files_request(
@@ -931,7 +1079,7 @@ class TestRagDataManagement:
             corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
             paths=[test_rag_constants.TEST_DRIVE_FOLDER],
             transformation_config=create_transformation_config(),
-            parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+            layout_parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
         )
         import_files_request_eq(
             request,
@@ -945,7 +1093,7 @@ class TestRagDataManagement:
             corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
             paths=[test_rag_constants.TEST_DRIVE_FOLDER],
             transformation_config=create_transformation_config(),
-            parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH_CONFIG,
+            layout_parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH_CONFIG,
         )
         import_files_request_eq(
             request,
@@ -961,9 +1109,44 @@ class TestRagDataManagement:
                 corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
                 paths=[test_rag_constants.TEST_DRIVE_FOLDER],
                 transformation_config=create_transformation_config(),
-                parser=layout_parser,
+                layout_parser=layout_parser,
             )
         e.match("processor_name must be of the format")
+
+    def test_prepare_import_files_request_llm_parser(self):
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_DRIVE_FOLDER],
+            transformation_config=create_transformation_config(),
+            llm_parser=test_rag_constants.TEST_LLM_PARSER_CONFIG,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants.TEST_IMPORT_REQUEST_LLM_PARSER,
+        )
+
+    def test_layout_parser_and_llm_parser_both_set_error(self):
+        with pytest.raises(ValueError) as e:
+            rag.import_files(
+                corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                layout_parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+                llm_parser=test_rag_constants.TEST_LLM_PARSER_CONFIG,
+            )
+        e.match("Only one of layout_parser or llm_parser may be passed in at a time")
+
+    @pytest.mark.asyncio
+    async def test_layout_parser_and_llm_parser_both_set_error_async(self):
+        with pytest.raises(ValueError) as e:
+            await rag.import_files_async(
+                corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                layout_parser=test_rag_constants.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+                llm_parser=test_rag_constants.TEST_LLM_PARSER_CONFIG,
+            )
+        e.match("Only one of layout_parser or llm_parser may be passed in at a time")
 
     def test_set_embedding_model_config_set_both_error(self):
         embedding_model_config = rag.RagEmbeddingModelConfig(
@@ -1015,3 +1198,95 @@ class TestRagDataManagement:
                 test_rag_constants.TEST_GAPIC_RAG_CORPUS,
             )
         e.match("endpoint must be of the format ")
+
+    def test_update_rag_engine_config_success(
+        self, update_rag_engine_config_basic_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants.TEST_RAG_ENGINE_CONFIG_BASIC,
+        )
+        assert update_rag_engine_config_basic_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants.TEST_RAG_ENGINE_CONFIG_BASIC,
+        )
+
+    def test_update_rag_engine_config_scaled_success(
+        self, update_rag_engine_config_scaled_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants.TEST_RAG_ENGINE_CONFIG_SCALED,
+        )
+        assert update_rag_engine_config_scaled_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants.TEST_RAG_ENGINE_CONFIG_SCALED,
+        )
+
+    def test_update_rag_engine_config_unprovisioned_success(
+        self, update_rag_engine_config_unprovisioned_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants.TEST_RAG_ENGINE_CONFIG_UNPROVISIONED,
+        )
+        assert update_rag_engine_config_unprovisioned_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants.TEST_RAG_ENGINE_CONFIG_UNPROVISIONED,
+        )
+
+    @pytest.mark.usefixtures("update_rag_engine_config_mock_exception")
+    def test_update_rag_engine_config_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.update_rag_engine_config(
+                rag_engine_config=test_rag_constants.TEST_RAG_ENGINE_CONFIG_SCALED,
+            )
+        e.match("Failed in RagEngineConfig update due to")
+
+    @pytest.mark.usefixtures("update_rag_engine_config_basic_mock")
+    def test_update_rag_engine_config_bad_input(
+        self, update_rag_engine_config_basic_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants.TEST_DEFAULT_RAG_ENGINE_CONFIG,
+        )
+        assert update_rag_engine_config_basic_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants.TEST_RAG_ENGINE_CONFIG_BASIC,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_basic_config_mock")
+    def test_get_rag_engine_config_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config, test_rag_constants.TEST_RAG_ENGINE_CONFIG_BASIC
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_scaled_config_mock")
+    def test_get_rag_engine_config_scaled_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config, test_rag_constants.TEST_RAG_ENGINE_CONFIG_SCALED
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_unprovisioned_config_mock")
+    def test_get_rag_engine_config_unprovisioned_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config, test_rag_constants.TEST_RAG_ENGINE_CONFIG_UNPROVISIONED
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_config_mock_exception")
+    def test_get_rag_engine_config_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.get_rag_engine_config(
+                name=test_rag_constants.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+            )
+        e.match("Failed in getting the RagEngineConfig due to")

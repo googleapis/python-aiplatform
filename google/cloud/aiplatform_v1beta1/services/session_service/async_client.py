@@ -37,6 +37,7 @@ from google.api_core import gapic_v1
 from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 
 try:
@@ -85,6 +86,10 @@ class SessionServiceAsyncClient:
     _DEFAULT_ENDPOINT_TEMPLATE = SessionServiceClient._DEFAULT_ENDPOINT_TEMPLATE
     _DEFAULT_UNIVERSE = SessionServiceClient._DEFAULT_UNIVERSE
 
+    reasoning_engine_path = staticmethod(SessionServiceClient.reasoning_engine_path)
+    parse_reasoning_engine_path = staticmethod(
+        SessionServiceClient.parse_reasoning_engine_path
+    )
     session_path = staticmethod(SessionServiceClient.session_path)
     parse_session_path = staticmethod(SessionServiceClient.parse_session_path)
     session_event_path = staticmethod(SessionServiceClient.session_event_path)
@@ -333,7 +338,6 @@ class SessionServiceAsyncClient:
 
                 # Initialize request argument(s)
                 session = aiplatform_v1beta1.Session()
-                session.name = "name_value"
                 session.user_id = "user_id_value"
 
                 request = aiplatform_v1beta1.CreateSessionRequest(
@@ -715,7 +719,6 @@ class SessionServiceAsyncClient:
 
                 # Initialize request argument(s)
                 session = aiplatform_v1beta1.Session()
-                session.name = "name_value"
                 session.user_id = "user_id_value"
 
                 request = aiplatform_v1beta1.UpdateSessionRequest(
@@ -1106,7 +1109,6 @@ class SessionServiceAsyncClient:
 
                 # Initialize request argument(s)
                 event = aiplatform_v1beta1.SessionEvent()
-                event.name = "name_value"
                 event.author = "author_value"
                 event.invocation_id = "invocation_id_value"
 
@@ -1912,6 +1914,9 @@ class SessionServiceAsyncClient:
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 __all__ = ("SessionServiceAsyncClient",)

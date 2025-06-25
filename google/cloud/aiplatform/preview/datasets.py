@@ -602,6 +602,21 @@ class TuningValidationAssessmentResult:
     errors: List[str]
 
 
+@dataclasses.dataclass(frozen=True)
+class BatchPredictionResourceUsageAssessmentResult:
+    """The result of a batch prediction resource usage assessment.
+
+    Attributes:
+        token_count (int):
+            Number of tokens in the dataset.
+        audio_token_count (int):
+            Number of audio tokens in the dataset.
+    """
+
+    token_count: int
+    audio_token_count: int
+
+
 class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
     """A class representing a unified multimodal dataset."""
 
@@ -1093,6 +1108,18 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             create_request_timeout=create_request_timeout,
         )
 
+    def to_bigframes(self) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
+        """Converts a multimodal dataset to a BigFrames dataframe.
+
+        This is the preferred method to inspect the multimodal dataset in a
+        notebook.
+
+        Returns:
+            A BigFrames dataframe.
+        """
+        bigframes = _try_import_bigframes()
+        return bigframes.pandas.read_gbq_table(self.bigquery_table.lstrip("bq://"))
+
     @classmethod
     @base.optional_sync()
     def _create_from_bigquery(
@@ -1359,14 +1386,12 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
                 load_dataframe is True, otherwise None.
         """
         bigframes = _try_import_bigframes()
-        request = gca_dataset_service.AssembleDataRequest(name=self.resource_name)
-        if self.request_column_name is not None:
-            request.request_column_name = self.request_column_name
-        else:
-            template_config_to_use = _resolve_template_config(self, template_config)
-            request.gemini_template_config = (
-                template_config_to_use._raw_gemini_template_config
-            )
+        request = gca_dataset_service.AssembleDataRequest(
+            name=self.resource_name,
+            gemini_request_read_config=self._build_gemini_request_read_config(
+                template_config
+            ),
+        )
 
         assemble_lro = self.api_client.assemble_data(
             request=request, timeout=assemble_request_timeout
@@ -1410,7 +1435,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
               dataset.
 
         """
-        request = _build_assess_data_request(self, template_config)
+        request = self._build_assess_data_request(template_config)
         request.tuning_resource_usage_assessment_config = (
             gca_dataset_service.AssessDataRequest.TuningResourceUsageAssessmentConfig(
                 model_name=model_name
@@ -1474,7 +1499,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         if dataset_usage_enum == DatasetUsage.DATASET_USAGE_UNSPECIFIED:
             raise ValueError("Dataset usage must be specified.")
 
-        request = _build_assess_data_request(self, template_config)
+        request = self._build_assess_data_request(template_config)
         request.tuning_validation_assessment_config = (
             gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig(
                 model_name=model_name,
@@ -1489,32 +1514,114 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             errors=assessment_result.tuning_validation_assessment_result.errors
         )
 
+    def assess_batch_prediction_resources(
+        self,
+        *,
+        model_name: str,
+        template_config: Optional[GeminiTemplateConfig] = None,
+        assess_request_timeout: Optional[float] = None,
+    ) -> BatchPredictionResourceUsageAssessmentResult:
+        """Assess the batch prediction resources required for a given model.
 
-def _resolve_template_config(
-    dataset: MultimodalDataset,
-    template_config: Optional[GeminiTemplateConfig] = None,
-) -> GeminiTemplateConfig:
-    """Returns the passed template config if it is not None, otherwise
-    returns the template config attached to the dataset.
-    """
-    if template_config is not None:
-        return template_config
-    elif dataset.template_config is not None:
-        return dataset.template_config
-    else:
-        raise ValueError("No template config was passed or attached to the dataset.")
+        Args:
+            model_name (str):
+                Required. The name of the model to assess the batch prediction resources
+                for.
+            template_config (GeminiTemplateConfig):
+                Optional. The template config used to assemble the dataset
+                before assessing the batch prediction resources. If not provided, the
+                template config attached to the dataset will be used. Required
+                if no template config is attached to the dataset.
+            assess_request_timeout (float):
+                Optional. The timeout for the assess batch prediction resources request.
+        Returns:
+            A dict containing the batch prediction resource usage assessment result. The
+            dict contains the following keys:
+            - token_count: The number of tokens in the dataset.
+            - audio_token_count: The number of audio tokens in the dataset.
 
-
-def _build_assess_data_request(
-    dataset: MultimodalDataset,
-    template_config: Optional[GeminiTemplateConfig] = None,
-):
-    request = gca_dataset_service.AssessDataRequest(name=dataset.resource_name)
-    if dataset.request_column_name is not None:
-        request.request_column_name = dataset.request_column_name
-    else:
-        template_config_to_use = _resolve_template_config(dataset, template_config)
-        request.gemini_template_config = (
-            template_config_to_use._raw_gemini_template_config
+        """
+        request = self._build_assess_data_request(template_config)
+        request.batch_prediction_resource_usage_assessment_config = gca_dataset_service.AssessDataRequest.BatchPredictionResourceUsageAssessmentConfig(
+            model_name=model_name
         )
-    return request
+
+        assessment_result = (
+            self.api_client.assess_data(request=request, timeout=assess_request_timeout)
+            .result(timeout=None)
+            .batch_prediction_resource_usage_assessment_result
+        )
+        return BatchPredictionResourceUsageAssessmentResult(
+            token_count=assessment_result.token_count,
+            audio_token_count=assessment_result.audio_token_count,
+        )
+
+    def assess_batch_prediction_validity(
+        self,
+        *,
+        model_name: str,
+        template_config: Optional[GeminiTemplateConfig] = None,
+        assess_request_timeout: Optional[float] = None,
+    ) -> None:
+        """Assess if the assembled dataset is valid in terms of batch prediction
+        for a given model. Raises an error if the dataset is invalid, otherwise
+        returns None.
+
+        Args:
+            model_name (str):
+                Required. The name of the model to assess the batch prediction
+                validity for.
+            dataset_usage (str):
+                Required. The dataset usage to assess the batch prediction
+                validity for.
+                Must be one of the following: SFT_TRAINING, SFT_VALIDATION.
+            template_config (GeminiTemplateConfig):
+                Optional. The template config used to assemble the dataset
+                before assessing the batch prediction validity. If not provided, the
+                template config attached to the dataset will be used. Required
+                if no template config is attached to the dataset.
+            assess_request_timeout (float):
+                Optional. The timeout for the assess batch prediction validity request.
+        """
+        request = self._build_assess_data_request(template_config)
+        request.batch_prediction_validation_assessment_config = gca_dataset_service.AssessDataRequest.BatchPredictionValidationAssessmentConfig(
+            model_name=model_name,
+        )
+        assess_lro = self.api_client.assess_data(
+            request=request, timeout=assess_request_timeout
+        )
+        assess_lro.result(timeout=None)
+
+    def _build_assess_data_request(
+        self,
+        template_config: Optional[GeminiTemplateConfig] = None,
+    ):
+        return gca_dataset_service.AssessDataRequest(
+            name=self.resource_name,
+            gemini_request_read_config=self._build_gemini_request_read_config(
+                template_config
+            ),
+        )
+
+    def _build_gemini_request_read_config(
+        self, provided_template_config: Optional[GeminiTemplateConfig] = None
+    ) -> gca_dataset_service.GeminiRequestReadConfig:
+        """Returns the provided template config wrapped in a read config if it
+        is not None, otherwise returns the read config attached to the
+        dataset."""
+        if provided_template_config is not None:
+            return gca_dataset_service.GeminiRequestReadConfig(
+                template_config=provided_template_config._raw_gemini_template_config
+            )
+        elif self.template_config is not None:
+            return gca_dataset_service.GeminiRequestReadConfig(
+                template_config=self.template_config._raw_gemini_template_config
+            )
+        elif self.request_column_name is not None:
+            return gca_dataset_service.GeminiRequestReadConfig(
+                assembled_request_column_name=self.request_column_name
+            )
+        else:
+            raise ValueError(
+                "No template config was provided and no template config is attached to the dataset."
+            )

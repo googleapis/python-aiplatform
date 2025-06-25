@@ -117,6 +117,20 @@ def get_dataset_mock():
 
 
 @pytest.fixture
+def get_dataset_template_config_mock():
+    with mock.patch.object(
+        dataset_service.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_MULTIMODAL,
+            name=_TEST_NAME,
+            metadata=_TEST_METADATA_MULTIMODAL_WITH_TEMPLATE_CONFIG,
+        )
+        yield get_dataset_mock
+
+
+@pytest.fixture
 def get_dataset_request_column_name_mock():
     with mock.patch.object(
         dataset_service.DatasetServiceClient, "get_dataset"
@@ -263,6 +277,34 @@ def assess_data_tuning_validation_mock():
             tuning_validation_assessment_result=gca_dataset_service.AssessDataResponse.TuningValidationAssessmentResult(
                 errors=["error message"],
             )
+        )
+        assess_data_mock.return_value = assess_data_lro_mock
+        yield assess_data_mock
+
+
+@pytest.fixture
+def assess_data_batch_prediction_resources_mock():
+    with mock.patch.object(
+        dataset_service.DatasetServiceClient, "assess_data"
+    ) as assess_data_mock:
+        assess_data_lro_mock = mock.Mock(operation.Operation)
+        assess_data_lro_mock.result.return_value = gca_dataset_service.AssessDataResponse(
+            batch_prediction_resource_usage_assessment_result=gca_dataset_service.AssessDataResponse.BatchPredictionResourceUsageAssessmentResult(
+                token_count=100, audio_token_count=200
+            )
+        )
+        assess_data_mock.return_value = assess_data_lro_mock
+        yield assess_data_mock
+
+
+@pytest.fixture
+def assess_data_batch_prediction_validation_mock():
+    with mock.patch.object(
+        dataset_service.DatasetServiceClient, "assess_data"
+    ) as assess_data_mock:
+        assess_data_lro_mock = mock.Mock(operation.Operation)
+        assess_data_lro_mock.result.return_value = gca_dataset_service.AssessDataResponse(
+            batch_prediction_validation_assessment_result=gca_dataset_service.AssessDataResponse.BatchPredictionValidationAssessmentResult()
         )
         assess_data_mock.return_value = assess_data_lro_mock
         yield assess_data_mock
@@ -675,7 +717,9 @@ class TestMultimodalDataset:
                 tuning_resource_usage_assessment_config=gca_dataset_service.AssessDataRequest.TuningResourceUsageAssessmentConfig(
                     model_name="gemini-1.5-flash-exp"
                 ),
-                gemini_template_config=template_config._raw_gemini_template_config,
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
             ),
             timeout=None,
         )
@@ -696,7 +740,9 @@ class TestMultimodalDataset:
                 tuning_resource_usage_assessment_config=gca_dataset_service.AssessDataRequest.TuningResourceUsageAssessmentConfig(
                     model_name="gemini-1.5-flash-exp"
                 ),
-                request_column_name="requests",
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    assembled_request_column_name="requests"
+                ),
             ),
             timeout=None,
         )
@@ -720,11 +766,89 @@ class TestMultimodalDataset:
                     model_name="gemini-1.5-flash-exp",
                     dataset_usage=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage.SFT_TRAINING,
                 ),
-                gemini_template_config=template_config._raw_gemini_template_config,
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
             ),
             timeout=None,
         )
         assert result == ummd.TuningValidationAssessmentResult(errors=["error message"])
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_assess_batch_prediction_resources(
+        self, assess_data_batch_prediction_resources_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        template_config = ummd.GeminiTemplateConfig(
+            field_mapping={"question": "questionColumn"},
+        )
+        result = dataset.assess_batch_prediction_resources(
+            model_name="gemini-1.5-flash-exp",
+            template_config=template_config,
+        )
+        assess_data_batch_prediction_resources_mock.assert_called_once_with(
+            request=gca_dataset_service.AssessDataRequest(
+                name=_TEST_NAME,
+                batch_prediction_resource_usage_assessment_config=gca_dataset_service.AssessDataRequest.BatchPredictionResourceUsageAssessmentConfig(
+                    model_name="gemini-1.5-flash-exp"
+                ),
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
+            ),
+            timeout=None,
+        )
+        assert result == ummd.BatchPredictionResourceUsageAssessmentResult(
+            token_count=100, audio_token_count=200
+        )
+
+    @pytest.mark.usefixtures("get_dataset_request_column_name_mock")
+    def test_assess_batch_prediction_resources_request_column_name(
+        self, assess_data_batch_prediction_resources_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        dataset.assess_batch_prediction_resources(model_name="gemini-1.5-flash-exp")
+        assess_data_batch_prediction_resources_mock.assert_called_once_with(
+            request=gca_dataset_service.AssessDataRequest(
+                name=_TEST_NAME,
+                batch_prediction_resource_usage_assessment_config=gca_dataset_service.AssessDataRequest.BatchPredictionResourceUsageAssessmentConfig(
+                    model_name="gemini-1.5-flash-exp"
+                ),
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    assembled_request_column_name="requests"
+                ),
+            ),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_assess_batch_prediction_validity(
+        self, assess_data_batch_prediction_validation_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        template_config = ummd.GeminiTemplateConfig(
+            field_mapping={"question": "questionColumn"},
+        )
+        result = dataset.assess_batch_prediction_validity(
+            model_name="gemini-1.5-flash-exp",
+            template_config=template_config,
+        )
+        assess_data_batch_prediction_validation_mock.assert_called_once_with(
+            request=gca_dataset_service.AssessDataRequest(
+                name=_TEST_NAME,
+                batch_prediction_validation_assessment_config=gca_dataset_service.AssessDataRequest.BatchPredictionValidationAssessmentConfig(
+                    model_name="gemini-1.5-flash-exp",
+                ),
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
+            ),
+            timeout=None,
+        )
+        assert result is None
 
     @pytest.mark.usefixtures("get_dataset_request_column_name_mock")
     def test_assess_tuning_validity_request_column_name(
@@ -743,7 +867,63 @@ class TestMultimodalDataset:
                     model_name="gemini-1.5-flash-exp",
                     dataset_usage=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage.SFT_TRAINING,
                 ),
-                request_column_name="requests",
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    assembled_request_column_name="requests"
+                ),
+            ),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_template_config_mock")
+    def test_assess_tuning_validity_uses_attached_template_config(
+        self, assess_data_tuning_validation_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        dataset.assess_tuning_validity(
+            model_name="gemini-1.5-flash-exp",
+            dataset_usage="SFT_TRAINING",
+        )
+        assess_data_tuning_validation_mock.assert_called_once_with(
+            request=gca_dataset_service.AssessDataRequest(
+                name=_TEST_NAME,
+                tuning_validation_assessment_config=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig(
+                    model_name="gemini-1.5-flash-exp",
+                    dataset_usage=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage.SFT_TRAINING,
+                ),
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=_TEST_METADATA_MULTIMODAL_WITH_TEMPLATE_CONFIG[
+                        "geminiTemplateConfigSource"
+                    ]["geminiTemplateConfig"]
+                ),
+            ),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_request_column_name_mock")
+    def test_assess_tuning_validity_request_column_name_overridden_by_template_config(
+        self, assess_data_tuning_validation_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        template_config = ummd.GeminiTemplateConfig(
+            field_mapping={"question": "questionColumn"},
+        )
+        dataset.assess_tuning_validity(
+            model_name="gemini-1.5-flash-exp",
+            dataset_usage="SFT_TRAINING",
+            template_config=template_config,
+        )
+        assess_data_tuning_validation_mock.assert_called_once_with(
+            request=gca_dataset_service.AssessDataRequest(
+                name=_TEST_NAME,
+                tuning_validation_assessment_config=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig(
+                    model_name="gemini-1.5-flash-exp",
+                    dataset_usage=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage.SFT_TRAINING,
+                ),
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
             ),
             timeout=None,
         )
@@ -783,7 +963,9 @@ class TestMultimodalDataset:
         assemble_data_mock.assert_called_once_with(
             request=gca_dataset_service.AssembleDataRequest(
                 name=_TEST_NAME,
-                gemini_template_config=template_config._raw_gemini_template_config,
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
             ),
             timeout=None,
         )
@@ -802,7 +984,9 @@ class TestMultimodalDataset:
         assemble_data_mock.assert_called_once_with(
             request=gca_dataset_service.AssembleDataRequest(
                 name=_TEST_NAME,
-                request_column_name="requests",
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    assembled_request_column_name="requests"
+                ),
             ),
             timeout=None,
         )

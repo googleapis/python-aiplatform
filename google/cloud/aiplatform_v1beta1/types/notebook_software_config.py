@@ -32,35 +32,29 @@ __protobuf__ = proto.module(
 
 
 class PostStartupScriptConfig(proto.Message):
-    r"""Post startup script config.
+    r"""
 
     Attributes:
         post_startup_script (str):
-            Optional. Post startup script to run after
-            runtime is started.
+
         post_startup_script_url (str):
-            Optional. Post startup script url to
-            download. Example: https://bucket/script.sh
+
         post_startup_script_behavior (google.cloud.aiplatform_v1beta1.types.PostStartupScriptConfig.PostStartupScriptBehavior):
-            Optional. Post startup script behavior that
-            defines download and execution behavior.
+
     """
 
     class PostStartupScriptBehavior(proto.Enum):
-        r"""Represents a notebook runtime post startup script behavior.
+        r"""
 
         Values:
             POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED (0):
-                Unspecified post startup script behavior.
+                No description available.
             RUN_ONCE (1):
-                Run post startup script after runtime is
-                started.
+                No description available.
             RUN_EVERY_START (2):
-                Run post startup script after runtime is
-                stopped.
+                No description available.
             DOWNLOAD_AND_RUN_EVERY_START (3):
-                Download and run post startup script every
-                time runtime is started.
+                No description available.
         """
         POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED = 0
         RUN_ONCE = 1
@@ -83,14 +77,14 @@ class PostStartupScriptConfig(proto.Message):
 
 
 class NotebookSoftwareConfig(proto.Message):
-    r"""Notebook Software Config.
+    r"""
 
     Attributes:
         env (MutableSequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
             Optional. Environment variables to be passed
             to the container. Maximum limit is 100.
         post_startup_script_config (google.cloud.aiplatform_v1beta1.types.PostStartupScriptConfig):
-            Optional. Post startup script config.
+
     """
 
     env: MutableSequence[env_var.EnvVar] = proto.RepeatedField(
