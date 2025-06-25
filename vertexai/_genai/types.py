@@ -93,6 +93,108 @@ class PairwiseChoice(_common.CaseInSensitiveEnum):
     """Winner cannot be determined"""
 
 
+class Strategy(_common.CaseInSensitiveEnum):
+    """Optional. This determines which type of scheduling strategy to use."""
+
+    STRATEGY_UNSPECIFIED = "STRATEGY_UNSPECIFIED"
+    """Strategy will default to STANDARD."""
+    ON_DEMAND = "ON_DEMAND"
+    """Deprecated. Regular on-demand provisioning strategy."""
+    LOW_COST = "LOW_COST"
+    """Deprecated. Low cost by making potential use of spot resources."""
+    STANDARD = "STANDARD"
+    """Standard provisioning strategy uses regular on-demand resources."""
+    SPOT = "SPOT"
+    """Spot provisioning strategy uses spot resources."""
+    FLEX_START = "FLEX_START"
+    """Flex Start strategy uses DWS to queue for resources."""
+
+
+class AcceleratorType(_common.CaseInSensitiveEnum):
+    """Immutable.
+
+    The type of accelerator(s) that may be attached to the machine as per
+    accelerator_count.
+    """
+
+    ACCELERATOR_TYPE_UNSPECIFIED = "ACCELERATOR_TYPE_UNSPECIFIED"
+    """Unspecified accelerator type, which means no accelerator."""
+    NVIDIA_TESLA_K80 = "NVIDIA_TESLA_K80"
+    """Deprecated: Nvidia Tesla K80 GPU has reached end of support, see https://cloud.google.com/compute/docs/eol/k80-eol."""
+    NVIDIA_TESLA_P100 = "NVIDIA_TESLA_P100"
+    """Nvidia Tesla P100 GPU."""
+    NVIDIA_TESLA_V100 = "NVIDIA_TESLA_V100"
+    """Nvidia Tesla V100 GPU."""
+    NVIDIA_TESLA_P4 = "NVIDIA_TESLA_P4"
+    """Nvidia Tesla P4 GPU."""
+    NVIDIA_TESLA_T4 = "NVIDIA_TESLA_T4"
+    """Nvidia Tesla T4 GPU."""
+    NVIDIA_TESLA_A100 = "NVIDIA_TESLA_A100"
+    """Nvidia Tesla A100 GPU."""
+    NVIDIA_A100_80GB = "NVIDIA_A100_80GB"
+    """Nvidia A100 80GB GPU."""
+    NVIDIA_L4 = "NVIDIA_L4"
+    """Nvidia L4 GPU."""
+    NVIDIA_H100_80GB = "NVIDIA_H100_80GB"
+    """Nvidia H100 80Gb GPU."""
+    NVIDIA_H100_MEGA_80GB = "NVIDIA_H100_MEGA_80GB"
+    """Nvidia H100 Mega 80Gb GPU."""
+    NVIDIA_H200_141GB = "NVIDIA_H200_141GB"
+    """Nvidia H200 141Gb GPU."""
+    NVIDIA_B200 = "NVIDIA_B200"
+    """Nvidia B200 GPU."""
+    TPU_V2 = "TPU_V2"
+    """TPU v2."""
+    TPU_V3 = "TPU_V3"
+    """TPU v3."""
+    TPU_V4_POD = "TPU_V4_POD"
+    """TPU v4."""
+    TPU_V5_LITEPOD = "TPU_V5_LITEPOD"
+    """TPU v5."""
+
+
+class Type(_common.CaseInSensitiveEnum):
+    """Required. Specifies the reservation affinity type."""
+
+    TYPE_UNSPECIFIED = "TYPE_UNSPECIFIED"
+    """Default value. This should not be used."""
+    NO_RESERVATION = "NO_RESERVATION"
+    """Do not consume from any reserved capacity, only use on-demand."""
+    ANY_RESERVATION = "ANY_RESERVATION"
+    """Consume any reservation available, falling back to on-demand."""
+    SPECIFIC_RESERVATION = "SPECIFIC_RESERVATION"
+    """Consume from a specific reservation. When chosen, the reservation must be identified via the `key` and `values` fields."""
+
+
+class JobState(_common.CaseInSensitiveEnum):
+    """Output only. The detailed state of the job."""
+
+    JOB_STATE_UNSPECIFIED = "JOB_STATE_UNSPECIFIED"
+    """The job state is unspecified."""
+    JOB_STATE_QUEUED = "JOB_STATE_QUEUED"
+    """The job has been just created or resumed and processing has not yet begun."""
+    JOB_STATE_PENDING = "JOB_STATE_PENDING"
+    """The service is preparing to run the job."""
+    JOB_STATE_RUNNING = "JOB_STATE_RUNNING"
+    """The job is in progress."""
+    JOB_STATE_SUCCEEDED = "JOB_STATE_SUCCEEDED"
+    """The job completed successfully."""
+    JOB_STATE_FAILED = "JOB_STATE_FAILED"
+    """The job failed."""
+    JOB_STATE_CANCELLING = "JOB_STATE_CANCELLING"
+    """The job is being cancelled. From this state the job may only go to either `JOB_STATE_SUCCEEDED`, `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`."""
+    JOB_STATE_CANCELLED = "JOB_STATE_CANCELLED"
+    """The job has been cancelled."""
+    JOB_STATE_PAUSED = "JOB_STATE_PAUSED"
+    """The job has been stopped, and can be resumed."""
+    JOB_STATE_EXPIRED = "JOB_STATE_EXPIRED"
+    """The job has expired."""
+    JOB_STATE_UPDATING = "JOB_STATE_UPDATING"
+    """The job is being updated. Only jobs in the `RUNNING` state can be updated. After updating, the job goes back to the `RUNNING` state."""
+    JOB_STATE_PARTIALLY_SUCCEEDED = "JOB_STATE_PARTIALLY_SUCCEEDED"
+    """The job is partially succeeded, some results may be missing due to errors."""
+
+
 class BleuInstance(_common.BaseModel):
     """Bleu instance."""
 
@@ -2131,7 +2233,7 @@ class EvaluationDataset(_common.BaseModel):
     eval_cases: Optional[list[EvalCase]] = Field(
         default=None, description="""The evaluation cases to be evaluated."""
     )
-    eval_dataset_df: Optional[pd.DataFrame] = Field(
+    eval_dataset_df: Optional["pd.DataFrame"] = Field(
         default=None,
         description="""The evaluation dataset in the form of a Pandas DataFrame.""",
     )
@@ -2161,7 +2263,7 @@ class EvaluationDatasetDict(TypedDict, total=False):
     eval_cases: Optional[list[EvalCaseDict]]
     """The evaluation cases to be evaluated."""
 
-    eval_dataset_df: Optional[pd.DataFrame]
+    eval_dataset_df: Optional["pd.DataFrame"]
     """The evaluation dataset in the form of a Pandas DataFrame."""
 
     candidate_name: Optional[str]
@@ -2527,6 +2629,72 @@ class OptimizeResponseDict(TypedDict, total=False):
 OptimizeResponseOrDict = Union[OptimizeResponse, OptimizeResponseDict]
 
 
+class PscInterfaceConfig(_common.BaseModel):
+    """Configuration for PSC-I."""
+
+    network_attachment: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the Compute Engine [network attachment](https://cloud.google.com/vpc/docs/about-network-attachments) to attach to the resource within the region and user project. To specify this field, you must have already [created a network attachment] (https://cloud.google.com/vpc/docs/create-manage-network-attachments#create-network-attachments). This field is only used for resources using PSC-I.""",
+    )
+
+
+class PscInterfaceConfigDict(TypedDict, total=False):
+    """Configuration for PSC-I."""
+
+    network_attachment: Optional[str]
+    """Optional. The name of the Compute Engine [network attachment](https://cloud.google.com/vpc/docs/about-network-attachments) to attach to the resource within the region and user project. To specify this field, you must have already [created a network attachment] (https://cloud.google.com/vpc/docs/create-manage-network-attachments#create-network-attachments). This field is only used for resources using PSC-I."""
+
+
+PscInterfaceConfigOrDict = Union[PscInterfaceConfig, PscInterfaceConfigDict]
+
+
+class Scheduling(_common.BaseModel):
+    """All parameters related to queuing and scheduling of custom jobs."""
+
+    disable_retries: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Indicates if the job should retry for internal errors after the job starts running. If true, overrides `Scheduling.restart_job_on_worker_restart` to false.""",
+    )
+    max_wait_duration: Optional[str] = Field(
+        default=None,
+        description="""Optional. This is the maximum duration that a job will wait for the requested resources to be provisioned if the scheduling strategy is set to [Strategy.DWS_FLEX_START]. If set to 0, the job will wait indefinitely. The default is 24 hours.""",
+    )
+    restart_job_on_worker_restart: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Restarts the entire CustomJob if a worker gets restarted. This feature can be used by distributed training jobs that are not resilient to workers leaving and joining a job.""",
+    )
+    strategy: Optional[Strategy] = Field(
+        default=None,
+        description="""Optional. This determines which type of scheduling strategy to use.""",
+    )
+    timeout: Optional[str] = Field(
+        default=None,
+        description="""Optional. The maximum job running time. The default is 7 days.""",
+    )
+
+
+class SchedulingDict(TypedDict, total=False):
+    """All parameters related to queuing and scheduling of custom jobs."""
+
+    disable_retries: Optional[bool]
+    """Optional. Indicates if the job should retry for internal errors after the job starts running. If true, overrides `Scheduling.restart_job_on_worker_restart` to false."""
+
+    max_wait_duration: Optional[str]
+    """Optional. This is the maximum duration that a job will wait for the requested resources to be provisioned if the scheduling strategy is set to [Strategy.DWS_FLEX_START]. If set to 0, the job will wait indefinitely. The default is 24 hours."""
+
+    restart_job_on_worker_restart: Optional[bool]
+    """Optional. Restarts the entire CustomJob if a worker gets restarted. This feature can be used by distributed training jobs that are not resilient to workers leaving and joining a job."""
+
+    strategy: Optional[Strategy]
+    """Optional. This determines which type of scheduling strategy to use."""
+
+    timeout: Optional[str]
+    """Optional. The maximum job running time. The default is 7 days."""
+
+
+SchedulingOrDict = Union[Scheduling, SchedulingDict]
+
+
 class EnvVar(_common.BaseModel):
     """Represents an environment variable present in a Container or Python Module."""
 
@@ -2551,6 +2719,631 @@ class EnvVarDict(TypedDict, total=False):
 
 
 EnvVarOrDict = Union[EnvVar, EnvVarDict]
+
+
+class ContainerSpec(_common.BaseModel):
+    """The spec of a Container."""
+
+    args: Optional[list[str]] = Field(
+        default=None,
+        description="""The arguments to be passed when starting the container.""",
+    )
+    command: Optional[list[str]] = Field(
+        default=None,
+        description="""The command to be invoked when the container is started. It overrides the entrypoint instruction in Dockerfile when provided.""",
+    )
+    env: Optional[list[EnvVar]] = Field(
+        default=None,
+        description="""Environment variables to be passed to the container. Maximum limit is 100.""",
+    )
+    image_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. The URI of a container image in the Container Registry that is to be run on each worker replica.""",
+    )
+
+
+class ContainerSpecDict(TypedDict, total=False):
+    """The spec of a Container."""
+
+    args: Optional[list[str]]
+    """The arguments to be passed when starting the container."""
+
+    command: Optional[list[str]]
+    """The command to be invoked when the container is started. It overrides the entrypoint instruction in Dockerfile when provided."""
+
+    env: Optional[list[EnvVarDict]]
+    """Environment variables to be passed to the container. Maximum limit is 100."""
+
+    image_uri: Optional[str]
+    """Required. The URI of a container image in the Container Registry that is to be run on each worker replica."""
+
+
+ContainerSpecOrDict = Union[ContainerSpec, ContainerSpecDict]
+
+
+class DiskSpec(_common.BaseModel):
+    """Represents the spec of disk options."""
+
+    boot_disk_size_gb: Optional[int] = Field(
+        default=None,
+        description="""Size in GB of the boot disk (default is 100GB).""",
+    )
+    boot_disk_type: Optional[str] = Field(
+        default=None,
+        description="""Type of the boot disk. For non-A3U machines, the default value is "pd-ssd", for A3U machines, the default value is "hyperdisk-balanced". Valid values: "pd-ssd" (Persistent Disk Solid State Drive), "pd-standard" (Persistent Disk Hard Disk Drive) or "hyperdisk-balanced".""",
+    )
+
+
+class DiskSpecDict(TypedDict, total=False):
+    """Represents the spec of disk options."""
+
+    boot_disk_size_gb: Optional[int]
+    """Size in GB of the boot disk (default is 100GB)."""
+
+    boot_disk_type: Optional[str]
+    """Type of the boot disk. For non-A3U machines, the default value is "pd-ssd", for A3U machines, the default value is "hyperdisk-balanced". Valid values: "pd-ssd" (Persistent Disk Solid State Drive), "pd-standard" (Persistent Disk Hard Disk Drive) or "hyperdisk-balanced"."""
+
+
+DiskSpecOrDict = Union[DiskSpec, DiskSpecDict]
+
+
+class ReservationAffinity(_common.BaseModel):
+    """A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity."""
+
+    key: Optional[str] = Field(
+        default=None,
+        description="""Optional. Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key and specify the name of your reservation as its value.""",
+    )
+    reservation_affinity_type: Optional[Type] = Field(
+        default=None,
+        description="""Required. Specifies the reservation affinity type.""",
+    )
+    values: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Corresponds to the label values of a reservation resource. This must be the full resource name of the reservation or reservation block.""",
+    )
+
+
+class ReservationAffinityDict(TypedDict, total=False):
+    """A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity."""
+
+    key: Optional[str]
+    """Optional. Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key and specify the name of your reservation as its value."""
+
+    reservation_affinity_type: Optional[Type]
+    """Required. Specifies the reservation affinity type."""
+
+    values: Optional[list[str]]
+    """Optional. Corresponds to the label values of a reservation resource. This must be the full resource name of the reservation or reservation block."""
+
+
+ReservationAffinityOrDict = Union[ReservationAffinity, ReservationAffinityDict]
+
+
+class MachineSpec(_common.BaseModel):
+    """Specification of a single machine."""
+
+    accelerator_count: Optional[int] = Field(
+        default=None,
+        description="""The number of accelerators to attach to the machine.""",
+    )
+    accelerator_type: Optional[AcceleratorType] = Field(
+        default=None,
+        description="""Immutable. The type of accelerator(s) that may be attached to the machine as per accelerator_count.""",
+    )
+    machine_type: Optional[str] = Field(
+        default=None,
+        description="""Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required.""",
+    )
+    multihost_gpu_node_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. Immutable. The number of nodes per replica for multihost GPU deployments.""",
+    )
+    reservation_affinity: Optional[ReservationAffinity] = Field(
+        default=None,
+        description="""Optional. Immutable. Configuration controlling how this resource pool consumes reservation.""",
+    )
+    tpu_topology: Optional[str] = Field(
+        default=None,
+        description="""Immutable. The topology of the TPUs. Corresponds to the TPU topologies available from GKE. (Example: tpu_topology: "2x2x1").""",
+    )
+
+
+class MachineSpecDict(TypedDict, total=False):
+    """Specification of a single machine."""
+
+    accelerator_count: Optional[int]
+    """The number of accelerators to attach to the machine."""
+
+    accelerator_type: Optional[AcceleratorType]
+    """Immutable. The type of accelerator(s) that may be attached to the machine as per accelerator_count."""
+
+    machine_type: Optional[str]
+    """Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required."""
+
+    multihost_gpu_node_count: Optional[int]
+    """Optional. Immutable. The number of nodes per replica for multihost GPU deployments."""
+
+    reservation_affinity: Optional[ReservationAffinityDict]
+    """Optional. Immutable. Configuration controlling how this resource pool consumes reservation."""
+
+    tpu_topology: Optional[str]
+    """Immutable. The topology of the TPUs. Corresponds to the TPU topologies available from GKE. (Example: tpu_topology: "2x2x1")."""
+
+
+MachineSpecOrDict = Union[MachineSpec, MachineSpecDict]
+
+
+class NfsMount(_common.BaseModel):
+    """Represents a mount configuration for Network File System (NFS) to mount."""
+
+    mount_point: Optional[str] = Field(
+        default=None,
+        description="""Required. Destination mount path. The NFS will be mounted for the user under /mnt/nfs/""",
+    )
+    path: Optional[str] = Field(
+        default=None,
+        description="""Required. Source path exported from NFS server. Has to start with '/', and combined with the ip address, it indicates the source mount path in the form of `server:path`""",
+    )
+    server: Optional[str] = Field(
+        default=None, description="""Required. IP address of the NFS server."""
+    )
+
+
+class NfsMountDict(TypedDict, total=False):
+    """Represents a mount configuration for Network File System (NFS) to mount."""
+
+    mount_point: Optional[str]
+    """Required. Destination mount path. The NFS will be mounted for the user under /mnt/nfs/"""
+
+    path: Optional[str]
+    """Required. Source path exported from NFS server. Has to start with '/', and combined with the ip address, it indicates the source mount path in the form of `server:path`"""
+
+    server: Optional[str]
+    """Required. IP address of the NFS server."""
+
+
+NfsMountOrDict = Union[NfsMount, NfsMountDict]
+
+
+class PythonPackageSpec(_common.BaseModel):
+    """The spec of a Python packaged code."""
+
+    args: Optional[list[str]] = Field(
+        default=None,
+        description="""Command line arguments to be passed to the Python task.""",
+    )
+    env: Optional[list[EnvVar]] = Field(
+        default=None,
+        description="""Environment variables to be passed to the python module. Maximum limit is 100.""",
+    )
+    executor_image_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. The URI of a container image in Artifact Registry that will run the provided Python package. Vertex AI provides a wide range of executor images with pre-installed packages to meet users' various use cases. See the list of [pre-built containers for training](https://cloud.google.com/vertex-ai/docs/training/pre-built-containers). You must use an image from this list.""",
+    )
+    package_uris: Optional[list[str]] = Field(
+        default=None,
+        description="""Required. The Google Cloud Storage location of the Python package files which are the training program and its dependent packages. The maximum number of package URIs is 100.""",
+    )
+    python_module: Optional[str] = Field(
+        default=None,
+        description="""Required. The Python module name to run after installing the packages.""",
+    )
+
+
+class PythonPackageSpecDict(TypedDict, total=False):
+    """The spec of a Python packaged code."""
+
+    args: Optional[list[str]]
+    """Command line arguments to be passed to the Python task."""
+
+    env: Optional[list[EnvVarDict]]
+    """Environment variables to be passed to the python module. Maximum limit is 100."""
+
+    executor_image_uri: Optional[str]
+    """Required. The URI of a container image in Artifact Registry that will run the provided Python package. Vertex AI provides a wide range of executor images with pre-installed packages to meet users' various use cases. See the list of [pre-built containers for training](https://cloud.google.com/vertex-ai/docs/training/pre-built-containers). You must use an image from this list."""
+
+    package_uris: Optional[list[str]]
+    """Required. The Google Cloud Storage location of the Python package files which are the training program and its dependent packages. The maximum number of package URIs is 100."""
+
+    python_module: Optional[str]
+    """Required. The Python module name to run after installing the packages."""
+
+
+PythonPackageSpecOrDict = Union[PythonPackageSpec, PythonPackageSpecDict]
+
+
+class WorkerPoolSpec(_common.BaseModel):
+    """Represents the spec of a worker pool in a job."""
+
+    container_spec: Optional[ContainerSpec] = Field(
+        default=None, description="""The custom container task."""
+    )
+    disk_spec: Optional[DiskSpec] = Field(default=None, description="""Disk spec.""")
+    machine_spec: Optional[MachineSpec] = Field(
+        default=None,
+        description="""Optional. Immutable. The specification of a single machine.""",
+    )
+    nfs_mounts: Optional[list[NfsMount]] = Field(
+        default=None, description="""Optional. List of NFS mount spec."""
+    )
+    python_package_spec: Optional[PythonPackageSpec] = Field(
+        default=None, description="""The Python packaged task."""
+    )
+    replica_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. The number of worker replicas to use for this worker pool.""",
+    )
+
+
+class WorkerPoolSpecDict(TypedDict, total=False):
+    """Represents the spec of a worker pool in a job."""
+
+    container_spec: Optional[ContainerSpecDict]
+    """The custom container task."""
+
+    disk_spec: Optional[DiskSpecDict]
+    """Disk spec."""
+
+    machine_spec: Optional[MachineSpecDict]
+    """Optional. Immutable. The specification of a single machine."""
+
+    nfs_mounts: Optional[list[NfsMountDict]]
+    """Optional. List of NFS mount spec."""
+
+    python_package_spec: Optional[PythonPackageSpecDict]
+    """The Python packaged task."""
+
+    replica_count: Optional[int]
+    """Optional. The number of worker replicas to use for this worker pool."""
+
+
+WorkerPoolSpecOrDict = Union[WorkerPoolSpec, WorkerPoolSpecDict]
+
+
+class CustomJobSpec(_common.BaseModel):
+    """Represents a job that runs custom workloads such as a Docker container or a Python package."""
+
+    base_output_directory: Optional[GcsDestination] = Field(
+        default=None,
+        description="""The Cloud Storage location to store the output of this CustomJob or HyperparameterTuningJob. For HyperparameterTuningJob, the baseOutputDirectory of each child CustomJob backing a Trial is set to a subdirectory of name id under its parent HyperparameterTuningJob's baseOutputDirectory. The following Vertex AI environment variables will be passed to containers or python modules when this field is set: For CustomJob: * AIP_MODEL_DIR = `/model/` * AIP_CHECKPOINT_DIR = `/checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `/logs/` For CustomJob backing a Trial of HyperparameterTuningJob: * AIP_MODEL_DIR = `//model/` * AIP_CHECKPOINT_DIR = `//checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `//logs/`""",
+    )
+    enable_dashboard_access: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether you want Vertex AI to enable access to the customized dashboard in training chief container. If set to `true`, you can access the dashboard at the URIs given by CustomJob.web_access_uris or Trial.web_access_uris (within HyperparameterTuningJob.trials).""",
+    )
+    enable_web_access: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether you want Vertex AI to enable [interactive shell access](https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell) to training containers. If set to `true`, you can access interactive shells at the URIs given by CustomJob.web_access_uris or Trial.web_access_uris (within HyperparameterTuningJob.trials).""",
+    )
+    experiment: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Experiment associated with this job. Format: `projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}`""",
+    )
+    experiment_run: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Experiment Run associated with this job. Format: `projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}-{experiment-run-name}`""",
+    )
+    models: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The name of the Model resources for which to generate a mapping to artifact URIs. Applicable only to some of the Google-provided custom jobs. Format: `projects/{project}/locations/{location}/models/{model}` In order to retrieve a specific version of the model, also provide the version ID or version alias. Example: `projects/{project}/locations/{location}/models/{model}@2` or `projects/{project}/locations/{location}/models/{model}@golden` If no version ID or alias is specified, the "default" version will be returned. The "default" version alias is created for the first version of the model, and can be moved to other versions later on. There will be exactly one default version.""",
+    )
+    network: Optional[str] = Field(
+        default=None,
+        description="""Optional. The full name of the Compute Engine [network](/compute/docs/networks-and-firewalls#networks) to which the Job should be peered. For example, `projects/12345/global/networks/myVPC`. [Format](/compute/docs/reference/rest/v1/networks/insert) is of the form `projects/{project}/global/networks/{network}`. Where {project} is a project number, as in `12345`, and {network} is a network name. To specify this field, you must have already [configured VPC Network Peering for Vertex AI](https://cloud.google.com/vertex-ai/docs/general/vpc-peering). If this field is left unspecified, the job is not peered with any network.""",
+    )
+    persistent_resource_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The ID of the PersistentResource in the same Project and Location which to run If this is specified, the job will be run on existing machines held by the PersistentResource instead of on-demand short-live machines. The network and CMEK configs on the job should be consistent with those on the PersistentResource, otherwise, the job will be rejected.""",
+    )
+    protected_artifact_location_id: Optional[str] = Field(
+        default=None,
+        description="""The ID of the location to store protected artifacts. e.g. us-central1. Populate only when the location is different than CustomJob location. List of supported locations: https://cloud.google.com/vertex-ai/docs/general/locations""",
+    )
+    psc_interface_config: Optional[PscInterfaceConfig] = Field(
+        default=None,
+        description="""Optional. Configuration for PSC-I for CustomJob.""",
+    )
+    reserved_ip_ranges: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. A list of names for the reserved ip ranges under the VPC network that can be used for this job. If set, we will deploy the job within the provided ip ranges. Otherwise, the job will be deployed to any ip ranges under the provided VPC network. Example: ['vertex-ai-ip-range'].""",
+    )
+    scheduling: Optional[Scheduling] = Field(
+        default=None, description="""Scheduling options for a CustomJob."""
+    )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""Specifies the service account for workload run-as account. Users submitting jobs must have act-as permission on this run-as account. If unspecified, the [Vertex AI Custom Code Service Agent](https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents) for the CustomJob's project is used.""",
+    )
+    tensorboard: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of a Vertex AI Tensorboard resource to which this CustomJob will upload Tensorboard logs. Format: `projects/{project}/locations/{location}/tensorboards/{tensorboard}`""",
+    )
+    worker_pool_specs: Optional[list[WorkerPoolSpec]] = Field(
+        default=None,
+        description="""Required. The spec of the worker pools including machine type and Docker image. All worker pools except the first one are optional and can be skipped by providing an empty value.""",
+    )
+
+
+class CustomJobSpecDict(TypedDict, total=False):
+    """Represents a job that runs custom workloads such as a Docker container or a Python package."""
+
+    base_output_directory: Optional[GcsDestinationDict]
+    """The Cloud Storage location to store the output of this CustomJob or HyperparameterTuningJob. For HyperparameterTuningJob, the baseOutputDirectory of each child CustomJob backing a Trial is set to a subdirectory of name id under its parent HyperparameterTuningJob's baseOutputDirectory. The following Vertex AI environment variables will be passed to containers or python modules when this field is set: For CustomJob: * AIP_MODEL_DIR = `/model/` * AIP_CHECKPOINT_DIR = `/checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `/logs/` For CustomJob backing a Trial of HyperparameterTuningJob: * AIP_MODEL_DIR = `//model/` * AIP_CHECKPOINT_DIR = `//checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `//logs/`"""
+
+    enable_dashboard_access: Optional[bool]
+    """Optional. Whether you want Vertex AI to enable access to the customized dashboard in training chief container. If set to `true`, you can access the dashboard at the URIs given by CustomJob.web_access_uris or Trial.web_access_uris (within HyperparameterTuningJob.trials)."""
+
+    enable_web_access: Optional[bool]
+    """Optional. Whether you want Vertex AI to enable [interactive shell access](https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell) to training containers. If set to `true`, you can access interactive shells at the URIs given by CustomJob.web_access_uris or Trial.web_access_uris (within HyperparameterTuningJob.trials)."""
+
+    experiment: Optional[str]
+    """Optional. The Experiment associated with this job. Format: `projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}`"""
+
+    experiment_run: Optional[str]
+    """Optional. The Experiment Run associated with this job. Format: `projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}-{experiment-run-name}`"""
+
+    models: Optional[list[str]]
+    """Optional. The name of the Model resources for which to generate a mapping to artifact URIs. Applicable only to some of the Google-provided custom jobs. Format: `projects/{project}/locations/{location}/models/{model}` In order to retrieve a specific version of the model, also provide the version ID or version alias. Example: `projects/{project}/locations/{location}/models/{model}@2` or `projects/{project}/locations/{location}/models/{model}@golden` If no version ID or alias is specified, the "default" version will be returned. The "default" version alias is created for the first version of the model, and can be moved to other versions later on. There will be exactly one default version."""
+
+    network: Optional[str]
+    """Optional. The full name of the Compute Engine [network](/compute/docs/networks-and-firewalls#networks) to which the Job should be peered. For example, `projects/12345/global/networks/myVPC`. [Format](/compute/docs/reference/rest/v1/networks/insert) is of the form `projects/{project}/global/networks/{network}`. Where {project} is a project number, as in `12345`, and {network} is a network name. To specify this field, you must have already [configured VPC Network Peering for Vertex AI](https://cloud.google.com/vertex-ai/docs/general/vpc-peering). If this field is left unspecified, the job is not peered with any network."""
+
+    persistent_resource_id: Optional[str]
+    """Optional. The ID of the PersistentResource in the same Project and Location which to run If this is specified, the job will be run on existing machines held by the PersistentResource instead of on-demand short-live machines. The network and CMEK configs on the job should be consistent with those on the PersistentResource, otherwise, the job will be rejected."""
+
+    protected_artifact_location_id: Optional[str]
+    """The ID of the location to store protected artifacts. e.g. us-central1. Populate only when the location is different than CustomJob location. List of supported locations: https://cloud.google.com/vertex-ai/docs/general/locations"""
+
+    psc_interface_config: Optional[PscInterfaceConfigDict]
+    """Optional. Configuration for PSC-I for CustomJob."""
+
+    reserved_ip_ranges: Optional[list[str]]
+    """Optional. A list of names for the reserved ip ranges under the VPC network that can be used for this job. If set, we will deploy the job within the provided ip ranges. Otherwise, the job will be deployed to any ip ranges under the provided VPC network. Example: ['vertex-ai-ip-range']."""
+
+    scheduling: Optional[SchedulingDict]
+    """Scheduling options for a CustomJob."""
+
+    service_account: Optional[str]
+    """Specifies the service account for workload run-as account. Users submitting jobs must have act-as permission on this run-as account. If unspecified, the [Vertex AI Custom Code Service Agent](https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents) for the CustomJob's project is used."""
+
+    tensorboard: Optional[str]
+    """Optional. The name of a Vertex AI Tensorboard resource to which this CustomJob will upload Tensorboard logs. Format: `projects/{project}/locations/{location}/tensorboards/{tensorboard}`"""
+
+    worker_pool_specs: Optional[list[WorkerPoolSpecDict]]
+    """Required. The spec of the worker pools including machine type and Docker image. All worker pools except the first one are optional and can be skipped by providing an empty value."""
+
+
+CustomJobSpecOrDict = Union[CustomJobSpec, CustomJobSpecDict]
+
+
+class EncryptionSpec(_common.BaseModel):
+    """Represents a customer-managed encryption key spec that can be applied to a top-level resource."""
+
+    kms_key_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`. The key needs to be in the same region as where the compute resource is created.""",
+    )
+
+
+class EncryptionSpecDict(TypedDict, total=False):
+    """Represents a customer-managed encryption key spec that can be applied to a top-level resource."""
+
+    kms_key_name: Optional[str]
+    """Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`. The key needs to be in the same region as where the compute resource is created."""
+
+
+EncryptionSpecOrDict = Union[EncryptionSpec, EncryptionSpecDict]
+
+
+class GoogleRpcStatus(_common.BaseModel):
+    """The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs.
+
+    It is used by [gRPC](https://github.com/grpc). Each `Status` message
+    contains three pieces of data: error code, error message, and error details.
+    You can find out more about this error model and how to work with it in the
+    [API Design Guide](https://cloud.google.com/apis/design/errors).
+    """
+
+    code: Optional[int] = Field(
+        default=None,
+        description="""The status code, which should be an enum value of google.rpc.Code.""",
+    )
+    details: Optional[list[dict[str, Any]]] = Field(
+        default=None,
+        description="""A list of messages that carry the error details. There is a common set of message types for APIs to use.""",
+    )
+    message: Optional[str] = Field(
+        default=None,
+        description="""A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client.""",
+    )
+
+
+class GoogleRpcStatusDict(TypedDict, total=False):
+    """The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs.
+
+    It is used by [gRPC](https://github.com/grpc). Each `Status` message
+    contains three pieces of data: error code, error message, and error details.
+    You can find out more about this error model and how to work with it in the
+    [API Design Guide](https://cloud.google.com/apis/design/errors).
+    """
+
+    code: Optional[int]
+    """The status code, which should be an enum value of google.rpc.Code."""
+
+    details: Optional[list[dict[str, Any]]]
+    """A list of messages that carry the error details. There is a common set of message types for APIs to use."""
+
+    message: Optional[str]
+    """A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client."""
+
+
+GoogleRpcStatusOrDict = Union[GoogleRpcStatus, GoogleRpcStatusDict]
+
+
+class CustomJob(_common.BaseModel):
+    """Represents a job that runs custom workloads such as a Docker container or a Python package."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the CustomJob. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
+    )
+    job_spec: Optional[CustomJobSpec] = Field(
+        default=None, description="""Required. Job spec."""
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Time when the CustomJob was created.""",
+    )
+    encryption_spec: Optional[EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key options for a CustomJob. If this is set, then all resources created by the CustomJob will be encrypted with the provided encryption key.""",
+    )
+    end_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Time when the CustomJob entered any of the following states: `JOB_STATE_SUCCEEDED`, `JOB_STATE_FAILED`, `JOB_STATE_CANCELLED`.""",
+    )
+    error: Optional[GoogleRpcStatus] = Field(
+        default=None,
+        description="""Output only. Only populated when job's state is `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`.""",
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The labels with user-defined metadata to organize CustomJobs. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Resource name of a CustomJob.""",
+    )
+    satisfies_pzi: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    satisfies_pzs: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    start_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Time when the CustomJob for the first time entered the `JOB_STATE_RUNNING` state.""",
+    )
+    state: Optional[JobState] = Field(
+        default=None,
+        description="""Output only. The detailed state of the job.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Time when the CustomJob was most recently updated.""",
+    )
+    web_access_uris: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Output only. URIs for accessing [interactive shells](https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell) (one URI for each training node). Only available if job_spec.enable_web_access is `true`. The keys are names of each node in the training job; for example, `workerpool0-0` for the primary node, `workerpool1-0` for the first node in the second worker pool, and `workerpool1-1` for the second node in the second worker pool. The values are the URIs for each node's interactive shell.""",
+    )
+
+
+class CustomJobDict(TypedDict, total=False):
+    """Represents a job that runs custom workloads such as a Docker container or a Python package."""
+
+    display_name: Optional[str]
+    """Required. The display name of the CustomJob. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
+
+    job_spec: Optional[CustomJobSpecDict]
+    """Required. Job spec."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Time when the CustomJob was created."""
+
+    encryption_spec: Optional[EncryptionSpecDict]
+    """Customer-managed encryption key options for a CustomJob. If this is set, then all resources created by the CustomJob will be encrypted with the provided encryption key."""
+
+    end_time: Optional[datetime.datetime]
+    """Output only. Time when the CustomJob entered any of the following states: `JOB_STATE_SUCCEEDED`, `JOB_STATE_FAILED`, `JOB_STATE_CANCELLED`."""
+
+    error: Optional[GoogleRpcStatusDict]
+    """Output only. Only populated when job's state is `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`."""
+
+    labels: Optional[dict[str, str]]
+    """The labels with user-defined metadata to organize CustomJobs. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
+
+    name: Optional[str]
+    """Output only. Resource name of a CustomJob."""
+
+    satisfies_pzi: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    satisfies_pzs: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    start_time: Optional[datetime.datetime]
+    """Output only. Time when the CustomJob for the first time entered the `JOB_STATE_RUNNING` state."""
+
+    state: Optional[JobState]
+    """Output only. The detailed state of the job."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Time when the CustomJob was most recently updated."""
+
+    web_access_uris: Optional[dict[str, str]]
+    """Output only. URIs for accessing [interactive shells](https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell) (one URI for each training node). Only available if job_spec.enable_web_access is `true`. The keys are names of each node in the training job; for example, `workerpool0-0` for the primary node, `workerpool1-0` for the first node in the second worker pool, and `workerpool1-1` for the second node in the second worker pool. The values are the URIs for each node's interactive shell."""
+
+
+CustomJobOrDict = Union[CustomJob, CustomJobDict]
+
+
+class BaseConfig(_common.BaseModel):
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class BaseConfigDict(TypedDict, total=False):
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+BaseConfigOrDict = Union[BaseConfig, BaseConfigDict]
+
+
+class _CustomJobParameters(_common.BaseModel):
+    """Represents a job that runs custom workloads such as a Docker container or a Python package."""
+
+    custom_job: Optional[CustomJob] = Field(default=None, description="""""")
+    config: Optional[BaseConfig] = Field(default=None, description="""""")
+
+
+class _CustomJobParametersDict(TypedDict, total=False):
+    """Represents a job that runs custom workloads such as a Docker container or a Python package."""
+
+    custom_job: Optional[CustomJobDict]
+    """"""
+
+    config: Optional[BaseConfigDict]
+    """"""
+
+
+_CustomJobParametersOrDict = Union[_CustomJobParameters, _CustomJobParametersDict]
+
+
+class _GetCustomJobParameters(_common.BaseModel):
+    """Represents a job that runs custom workloads such as a Docker container or a Python package."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[BaseConfig] = Field(default=None, description="""""")
+
+
+class _GetCustomJobParametersDict(TypedDict, total=False):
+    """Represents a job that runs custom workloads such as a Docker container or a Python package."""
+
+    name: Optional[str]
+    """"""
+
+    config: Optional[BaseConfigDict]
+    """"""
+
+
+_GetCustomJobParametersOrDict = Union[
+    _GetCustomJobParameters, _GetCustomJobParametersDict
+]
 
 
 class SecretRef(_common.BaseModel):
@@ -3315,7 +4108,8 @@ class PromptOptimizerVAPOConfig(_common.BaseModel):
     config_path: Optional[str] = Field(
         default=None, description="""The gcs path to the config file."""
     )
-    wait_for_completion: Optional[bool] = Field(default=None, description="""""")
+    service_account: Optional[str] = Field(default=None, description="""""")
+    wait_for_completion: Optional[bool] = Field(default=True, description="""""")
 
 
 class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
@@ -3323,6 +4117,9 @@ class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
 
     config_path: Optional[str]
     """The gcs path to the config file."""
+
+    service_account: Optional[str]
+    """"""
 
     wait_for_completion: Optional[bool]
     """"""

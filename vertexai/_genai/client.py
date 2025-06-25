@@ -150,6 +150,18 @@ class Client:
 
     @property
     @_common.experimental_warning(
+        "The Vertex SDK GenAI prompt optimizer module is experimental, and may change in future "
+        "versions."
+    )
+    def prompt_optimizer(self):
+        if self._prompt_optimizer is None:
+            self._prompt_optimizer = importlib.import_module(
+                ".prompt_optimizer", __package__
+            )
+        return self._prompt_optimizer.PromptOptimizer(self._api_client)
+
+    @property
+    @_common.experimental_warning(
         "The Vertex SDK GenAI async client is experimental, "
         "and may change in future versions."
     )
