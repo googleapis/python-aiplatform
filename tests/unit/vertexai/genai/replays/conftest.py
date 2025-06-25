@@ -26,6 +26,20 @@ from google.genai import _replay_api_client
 from google.genai import client as google_genai_client_module
 import pytest
 
+IS_KOKORO = os.getenv("KOKORO_BUILD_NUMBER") is not None
+
+
+def pytest_collection_modifyitems(config, items):
+    if IS_KOKORO:
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        for item in items:
+            if test_dir in item.fspath.strpath:
+                item.add_marker(
+                    pytest.mark.skipif(
+                        IS_KOKORO, reason="This test is only run in google3 env."
+                    )
+                )
+
 
 def pytest_addoption(parser):
     parser.addoption(

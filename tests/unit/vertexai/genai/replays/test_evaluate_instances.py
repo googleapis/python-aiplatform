@@ -14,32 +14,59 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
-import os
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
-import pytest
+import pandas as pd
 
 
-IS_KOKORO = os.getenv("KOKORO_BUILD_NUMBER") is not None
+def test_bleu_metric(client):
+    test_bleu_input = types.BleuInput(
+        instances=[
+            types.BleuInstance(
+                reference="The quick brown fox jumps over the lazy dog.",
+                prediction="A fast brown fox leaps over a lazy dog.",
+            )
+        ],
+        metric_spec=types.BleuSpec(),
+    )
+    response = client.evals._evaluate_instances(bleu_input=test_bleu_input)
+    assert len(response.bleu_results.bleu_metric_values) == 1
 
 
-@pytest.mark.skipif(IS_KOKORO, reason="This test is only run in google3 env.")
-class TestEvaluateInstances:
-    """Tests for evaluate instances."""
+def test_run_inference_with_string_model(client):
+    test_df = pd.DataFrame({"prompt": ["test prompt"]})
 
-    def test_bleu_metric(self, client):
-        test_bleu_input = types.BleuInput(
-            instances=[
-                types.BleuInstance(
-                    reference="The quick brown fox jumps over the lazy dog.",
-                    prediction="A fast brown fox leaps over a lazy dog.",
-                )
-            ],
-            metric_spec=types.BleuSpec(),
-        )
-        response = client.evals._evaluate_instances(bleu_input=test_bleu_input)
-        assert len(response.bleu_results.bleu_metric_values) == 1
+    inference_result = client.evals.run_inference(
+        model="gemini-pro",
+        src=test_df,
+    )
+    assert inference_result.candidate_name == "gemini-pro"
+    assert inference_result.gcs_source is None
+
+
+def test_run_inference_with_callable_model_sets_candidate_name(client):
+    test_df = pd.DataFrame({"prompt": ["test prompt"]})
+
+    def my_model_fn(contents):
+        return "callable response"
+
+    inference_result = client.evals.run_inference(
+        model=my_model_fn,
+        src=test_df,
+    )
+    assert inference_result.candidate_name == "my_model_fn"
+    assert inference_result.gcs_source is None
+
+
+def test_inference_with_prompt_template(client):
+    test_df = pd.DataFrame({"text_input": ["world"]})
+    config = types.EvalRunInferenceConfig(prompt_template="Hello {text_input}")
+    inference_result = client.evals.run_inference(
+        model="gemini-2.0-flash-exp", src=test_df, config=config
+    )
+    assert inference_result.candidate_name == "gemini-2.0-flash-exp"
+    assert inference_result.gcs_source is None
 
 
 pytestmark = pytest_helper.setup(
