@@ -4850,6 +4850,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         version_description: Optional[str] = None,
         serving_container_predict_route: Optional[str] = None,
         serving_container_health_route: Optional[str] = None,
+        serving_container_invoke_route_prefix: Optional[str] = None,
         description: Optional[str] = None,
         serving_container_command: Optional[Sequence[str]] = None,
         serving_container_args: Optional[Sequence[str]] = None,
@@ -4936,6 +4937,12 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. An HTTP path to send health check requests to the container, and which
                 must be supported by it. If not specified a standard HTTP path will be
                 used by Vertex AI.
+            serving_container_invoke_route_prefix (str):
+                Optional. Invoke route prefix for the custom container. "/*" is the only
+                supported value right now. By setting this field, any non-root route on
+                this model will be accessible with invoke http call
+                eg: "/invoke/foo/bar", however the [PredictionService.Invoke] RPC is not
+                supported yet.
             description (str):
                 The description of the model.
             serving_container_command: Optional[Sequence[str]]=None,
@@ -5200,6 +5207,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 grpc_ports=grpc_ports,
                 predict_route=serving_container_predict_route,
                 health_route=serving_container_health_route,
+                invoke_route_prefix=serving_container_invoke_route_prefix
                 deployment_timeout=deployment_timeout,
                 shared_memory_size_mb=serving_container_shared_memory_size_mb,
                 startup_probe=startup_probe,

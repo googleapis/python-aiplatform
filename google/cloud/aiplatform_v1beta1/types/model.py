@@ -990,8 +990,9 @@ class ModelContainerSpec(proto.Message):
         invoke_route_prefix (str):
             Immutable. Invoke route prefix for the custom container.
             "/*" is the only supported value right now. By setting this
-            field, any non-root route on this model will be accessible
-            with [PredictionService.Invoke] eg: "/invoke/foo/bar".
+            field, any non-root route on this model will be accessible with
+            invoke http call eg: "/invoke/foo/bar", however the
+            [PredictionService.Invoke] RPC is not supported yet.
 
             Only one of ``predict_route`` or ``invoke_route_prefix`` can
             be set, and we default to using ``predict_route`` if this
