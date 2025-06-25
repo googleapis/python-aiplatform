@@ -3363,6 +3363,8 @@ class PrivateEndpoint(Endpoint):
             return None
         return self._gca_resource.deployed_models[0].private_endpoints.health_http_uri
 
+    # PrivateServiceConnectConfig is deprecated.
+    # Use service_networking.PrivateServiceConnectConfig instead.
     class PrivateServiceConnectConfig:
         """Represents a Vertex AI PrivateServiceConnectConfig resource."""
 
@@ -3399,7 +3401,10 @@ class PrivateEndpoint(Endpoint):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
-        private_service_connect_config: Optional[PrivateServiceConnectConfig] = None,
+        private_service_connect_config: Union[
+            Optional[PrivateServiceConnectConfig],
+            Optional[gca_service_networking.PrivateServiceConnectConfig],
+        ] = None,
         enable_request_response_logging=False,
         request_response_logging_sampling_rate: Optional[float] = None,
         request_response_logging_bq_destination_table: Optional[str] = None,
@@ -3428,7 +3433,8 @@ class PrivateEndpoint(Endpoint):
                 display_name="my_endpoint_name",
                 project="my_project_id",
                 location="us-central1",
-                private_service_connect=aiplatform.PrivateEndpoint.PrivateServiceConnectConfig(
+                private_service_connect=aiplatform.compat.types.service_networking.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
                     project_allowlist=["test-project"]),
             )
 
@@ -3436,7 +3442,8 @@ class PrivateEndpoint(Endpoint):
 
             my_private_endpoint = aiplatform.PrivateEndpoint.create(
                 display_name="my_endpoint_name",
-                private_service_connect=aiplatform.PrivateEndpoint.PrivateServiceConnectConfig(
+                private_service_connect=aiplatform.compat.types.service_networking.PrivateServiceConnectConfig(
+                    enable_private_service_connect=True,
                     project_allowlist=["test-project"]),
             )
         Args:
@@ -3475,12 +3482,11 @@ class PrivateEndpoint(Endpoint):
             sync (bool): Whether to execute this method synchronously. If False,
               this method will be executed in concurrent Future and any downstream
               object will be immediately returned and synced when the Future has
-              completed. private_service_connect_config
-              (aiplatform.PrivateEndpoint.PrivateServiceConnectConfig): [Private
-              Service
-              Connect](https://cloud.google.com/vpc/docs/private-service-connect)
-              configuration for the endpoint. Cannot be set when network is
-              specified.
+              completed.
+            private_service_connect_config
+              (aiplatform.compat.types.service_networking.PrivateServiceConnectConfig): [Private
+              Service Connect Configuration](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/PrivateServiceConnectConfig)
+            for the endpoint. Cannot be set when network is specified.
             enable_request_response_logging (bool): Optional. Whether to enable
               request & response logging for this endpoint.
             request_response_logging_sampling_rate (float): Optional. The request
@@ -3527,9 +3533,15 @@ class PrivateEndpoint(Endpoint):
 
         config = None
         if private_service_connect_config:
-            config = (
-                private_service_connect_config._gapic_private_service_connect_config
-            )
+            if hasattr(
+                private_service_connect_config,
+                "_gapic_private_service_connect_config",
+            ):
+                config = (
+                    private_service_connect_config._gapic_private_service_connect_config
+                )
+            else:
+                config = private_service_connect_config
 
         predict_request_response_logging_config = None
         if enable_request_response_logging:
