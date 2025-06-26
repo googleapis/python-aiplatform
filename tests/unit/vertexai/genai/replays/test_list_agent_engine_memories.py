@@ -14,32 +14,35 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
-import os
-
 from tests.unit.vertexai.genai.replays import pytest_helper
 
 
-def test_create_config_lightweight(client):
-    agent_display_name = "test-display-name"
-    agent_description = "my agent"
-
-    if not os.environ.get("GCS_BUCKET"):
-        raise ValueError("GCS_BUCKET environment variable is not set.")
-
-    config = client.agent_engines._create_config(
-        mode="create",
-        staging_bucket=os.environ["GCS_BUCKET"],
-        display_name=agent_display_name,
-        description=agent_description,
+def test_list_memories(client):
+    agent_engine = client.agent_engines.create()
+    assert not list(
+        client.agent_engines.list_memories(
+            name=agent_engine.api_resource.name,
+        )
     )
-    assert config == {
-        "display_name": agent_display_name,
-        "description": agent_description,
-    }
+    client.agent_engines.create_memory(
+        name=agent_engine.api_resource.name,
+        fact="memory_fact",
+        scope={"user_id": "123"},
+    )
+    assert (
+        len(
+            list(
+                client.agent_engines.list_memories(
+                    name=agent_engine.api_resource.name,
+                )
+            )
+        )
+        == 1
+    )
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.create",
+    test_method="agent_engines.list_memories",
 )
