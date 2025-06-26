@@ -1271,7 +1271,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         psc_automation_configs: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> "MatchingEngineIndexEndpoint":
-        """Deploys an existing index resource to this endpoint resource.
+        """Helper method to deploy an existing index resource to this endpoint resource.
 
         Args:
             index (MatchingEngineIndex):
