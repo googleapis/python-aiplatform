@@ -158,14 +158,13 @@ class TestEvals:
 
     @pytest.mark.usefixtures("google_auth_mock")
     @mock.patch.object(client.Client, "_get_api_client")
-    @mock.patch.object(evals.Evals, "batch_eval")
-    def test_eval_batch_eval(self, mock_evaluate, mock_get_api_client):
+    @mock.patch.object(evals.Evals, "batch_evaluate")
+    def test_eval_batch_evaluate(self, mock_evaluate, mock_get_api_client):
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        test_client.evals.batch_eval(
+        test_client.evals.batch_evaluate(
             dataset=vertexai_genai_types.EvaluationDataset(),
             metrics=[vertexai_genai_types.Metric(name="test")],
-            output_config=vertexai_genai_types.OutputConfig(),
-            autorater_config=vertexai_genai_types.AutoraterConfig(),
+            dest="gs://bucket/output",
             config=vertexai_genai_types.EvaluateDatasetConfig(),
         )
         mock_evaluate.assert_called_once()
@@ -376,13 +375,14 @@ class TestEvalsRunInference:
             mock_generate_content_response
         )
 
-        gcs_dest_path = "gs://bucket/output.jsonl"
-        config = vertexai_genai_types.EvalRunInferenceConfig(dest=gcs_dest_path)
+        gcs_dest_dir = "gs://bucket/output"
+        config = vertexai_genai_types.EvalRunInferenceConfig(dest=gcs_dest_dir)
 
         inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
         )
 
+        expected_gcs_path = os.path.join(gcs_dest_dir, "inference_results.jsonl")
         expected_df_to_save = pd.DataFrame(
             {
                 "prompt": ["test prompt"],
@@ -393,7 +393,7 @@ class TestEvalsRunInference:
         pd.testing.assert_frame_equal(saved_df, expected_df_to_save)
         mock_gcs_utils.return_value.upload_dataframe.assert_called_once_with(
             df=mock.ANY,
-            gcs_destination_blob_path=gcs_dest_path,
+            gcs_destination_blob_path=expected_gcs_path,
             file_type="jsonl",
         )
         pd.testing.assert_frame_equal(
@@ -401,7 +401,7 @@ class TestEvalsRunInference:
         )
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source == vertexai_genai_types.GcsSource(
-            uris=[gcs_dest_path]
+            uris=[expected_gcs_path]
         )
 
     @mock.patch.object(_evals_common, "Models")
@@ -434,16 +434,17 @@ class TestEvalsRunInference:
             mock_generate_content_response
         )
 
-        local_dest_path = "/tmp/test/output_dir/results.jsonl"
-        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_path)
+        local_dest_dir = "/tmp/test/output_dir"
+        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
 
         inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
         )
 
-        mock_makedirs.assert_called_once_with("/tmp/test/output_dir", exist_ok=True)
+        mock_makedirs.assert_called_once_with(local_dest_dir, exist_ok=True)
+        expected_save_path = os.path.join(local_dest_dir, "inference_results.jsonl")
         mock_df_to_json.assert_called_once_with(
-            local_dest_path, orient="records", lines=True
+            expected_save_path, orient="records", lines=True
         )
         expected_df = pd.DataFrame(
             {
@@ -457,7 +458,7 @@ class TestEvalsRunInference:
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
-    def test_inference_from_request_column_save_locally(
+    def test_inference_from_request_column_save_to_local_dir(
         self, mock_eval_dataset_loader, mock_models
     ):
         mock_df = pd.DataFrame(
@@ -494,8 +495,8 @@ class TestEvalsRunInference:
             mock_generate_content_responses
         )
 
-        local_dest_path = "/tmp/output.jsonl"
-        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_path)
+        local_dest_dir = "/tmp/test_output_dir"
+        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
 
         inference_result = self.client.evals.run_inference(
             model="gemini-pro", src=mock_df, config=config
@@ -530,13 +531,15 @@ class TestEvalsRunInference:
             expected_df.sort_values(by="request").reset_index(drop=True),
         )
 
-        with open(local_dest_path, "r") as f:
+        saved_file_path = os.path.join(local_dest_dir, "inference_results.jsonl")
+        with open(saved_file_path, "r") as f:
             saved_records = [json.loads(line) for line in f]
         expected_records = expected_df.to_dict(orient="records")
         assert sorted(saved_records, key=lambda x: x["request"]) == sorted(
             expected_records, key=lambda x: x["request"]
         )
-        os.remove(local_dest_path)
+        os.remove(saved_file_path)
+        os.rmdir(local_dest_dir)
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source is None
 
