@@ -465,7 +465,9 @@ def upload_file(
         "metadata": (None, str(js_rag_file)),
         "file": open(path, "rb"),
     }
-    credentials, _ = auth.default()
+    credentials, _ = auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
     authorized_session = google_auth_requests.AuthorizedSession(credentials=credentials)
     try:
         response = authorized_session.post(
