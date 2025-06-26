@@ -4047,11 +4047,7 @@ class Part(_common.BaseModel):
     )
     thought: Optional[bool] = Field(
         default=None,
-        description="""Optional. Indicates if the part is thought from the model.""",
-    )
-    thought_signature: Optional[bytes] = Field(
-        default=None,
-        description="""Optional. An opaque signature for the thought so it can be reused in subsequent requests.""",
+        description="""Output only. Indicates if the part is thought from the model.""",
     )
     video_metadata: Optional[VideoMetadata] = Field(
         default=None,
@@ -4090,10 +4086,7 @@ class PartDict(TypedDict, total=False):
     """Optional. Text part (can be code)."""
 
     thought: Optional[bool]
-    """Optional. Indicates if the part is thought from the model."""
-
-    thought_signature: Optional[bytes]
-    """Optional. An opaque signature for the thought so it can be reused in subsequent requests."""
+    """Output only. Indicates if the part is thought from the model."""
 
     video_metadata: Optional[VideoMetadataDict]
     """Optional. Video metadata. The metadata should only be specified while the video data is presented in inline_data or file_data."""
@@ -5210,6 +5203,9 @@ class PromptOptimizerVAPOConfig(_common.BaseModel):
         default=None, description="""The gcs path to the config file."""
     )
     service_account: Optional[str] = Field(default=None, description="""""")
+    service_account_project_number: Optional[Union[int, str]] = Field(
+        default=None, description=""""""
+    )
     wait_for_completion: Optional[bool] = Field(default=True, description="""""")
 
 
@@ -5220,6 +5216,9 @@ class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
     """The gcs path to the config file."""
 
     service_account: Optional[str]
+    """"""
+
+    service_account_project_number: Optional[Union[int, str]]
     """"""
 
     wait_for_completion: Optional[bool]
