@@ -182,7 +182,7 @@ class GcsUtils:
             )
         bucket = self.storage_client.bucket(bucket_name)
         blob = bucket.blob(blob_path)
-        content = blob.download_as_string().decode("utf-8")
+        content = blob.download_as_bytes().decode("utf-8")
         logger.info(f"Successfully read content from '{gcs_filepath}'")
         return content
 
