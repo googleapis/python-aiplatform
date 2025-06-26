@@ -112,6 +112,8 @@ def client(use_vertex, replays_prefix, http_options, request):
         )
         os.environ["GOOGLE_CLOUD_PROJECT"] = "project-id"
         os.environ["GOOGLE_CLOUD_LOCATION"] = "location"
+        os.environ["VAPO_CONFIG_PATH"] = "gs://dummy-test/dummy-config.json"
+        os.environ["VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"] = "1234567890"
 
         # Set the replay directory to the root directory of the replays.
         # This is needed to ensure that the replay files are found.
