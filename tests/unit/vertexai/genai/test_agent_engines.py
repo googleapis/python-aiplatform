@@ -850,7 +850,7 @@ class TestAgentEngineHelpers:
             ]
         )
 
-    def test_get_operation(self):
+    def test_get_agent_operation(self):
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -863,7 +863,7 @@ class TestAgentEngineHelpers:
                     }
                 ),
             )
-            operation = self.client.agent_engines._get_operation(
+            operation = self.client.agent_engines._get_agent_operation(
                 operation_name=_TEST_AGENT_ENGINE_OPERATION_NAME,
             )
             request_mock.assert_called_with(
@@ -898,7 +898,7 @@ class TestAgentEngineHelpers:
                 {"_url": {"operationName": _TEST_AGENT_ENGINE_OPERATION_NAME}},
                 None,
             )
-            assert isinstance(agent_engine, _genai_types.AgentEngine)
+            assert isinstance(agent_engine, _genai_types.AgentEngineOperation)
 
     def test_register_api_methods(self):
         agent = self.client.agent_engines._register_api_methods(
@@ -966,7 +966,7 @@ class TestAgentEngine:
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_create_agent_engine(self, mock_await_operation, mock_prepare):
-        mock_await_operation.return_value = _genai_types.AgentEngine()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1012,7 +1012,7 @@ class TestAgentEngine:
             display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
             description=_TEST_AGENT_ENGINE_DESCRIPTION,
         )
-        mock_await_operation.return_value = _genai_types.AgentEngine()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1052,7 +1052,6 @@ class TestAgentEngine:
                 "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
                 "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
             },
-            # "update_mask": "display_name,spec.package_spec.pickle_object_gcs_uri,spec.package_spec.requirements_gcs_uri",
         }
         mock_await_operation.return_value = _genai_types.AgentEngineOperation()
         with mock.patch.object(
@@ -1067,7 +1066,6 @@ class TestAgentEngine:
                     extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
                     env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
                     staging_bucket=_TEST_STAGING_BUCKET,
-                    return_agent=False,
                 ),
             )
             mock_create_config.assert_called_with(
@@ -1100,25 +1098,10 @@ class TestAgentEngine:
                 None,
             )
 
-    @mock.patch.object(agent_engines.AgentEngines, "_create")
-    @mock.patch.object(agent_engines.AgentEngines, "_create_config")
-    def test_create_agent_engine_operation(
-        self,
-        mock_create_config,
-        mock_create,
-    ):
-        mock_create.return_value = _genai_types.AgentEngineOperation(
-            name=_TEST_OPERATION_NAME,
-        )
-        operation = self.client.agent_engines.create(
-            config=_genai_types.AgentEngineConfig(return_agent=False)
-        )
-        assert operation.name == _TEST_OPERATION_NAME
-
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_requirements(self, mock_await_operation, mock_prepare):
-        mock_await_operation.return_value = _genai_types.AgentEngine()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1164,6 +1147,7 @@ class TestAgentEngine:
     def test_update_agent_engine_extra_packages(
         self, mock_await_operation, mock_prepare
     ):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1210,6 +1194,7 @@ class TestAgentEngine:
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_env_vars(self, mock_await_operation, mock_prepare):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1258,6 +1243,7 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_display_name(self, mock_await_operation):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1281,6 +1267,7 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_description(self, mock_await_operation):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
