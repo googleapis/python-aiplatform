@@ -14,7 +14,6 @@
 
 #  [START aiplatform_sdk_create_custom_job_psci_sample]
 from google.cloud import aiplatform
-from google.cloud import aiplatform_v1beta1
 
 
 def create_custom_job_psci_sample(
@@ -26,40 +25,40 @@ def create_custom_job_psci_sample(
     replica_count: int,
     image_uri: str,
     network_attachment: str,
+    domain: str,
+    target_project: str,
+    target_network: str,
 ):
-    """Custom training job sample with PSC-I through aiplatform_v1beta1."""
-    aiplatform.init(project=project, location=location, staging_bucket=bucket)
+  """Custom training job sample with PSC Interface Config."""
+  aiplatform.init(project=project, location=location, staging_bucket=bucket)
 
-    client_options = {"api_endpoint": f"{location}-aiplatform.googleapis.com"}
+  worker_pool_specs = [{
+      "machine_spec": {
+          "machine_type": machine_type,
+      },
+      "replica_count": replica_count,
+      "container_spec": {
+          "image_uri": image_uri,
+          "command": [],
+          "args": [],
+      },
+  }]
+  psc_interface_config = {
+      "network_attachment": network_attachment,
+      "dns_peering_configs": [
+          {
+              "domain": domain,
+              "target_project": target_project,
+              "target_network": target_network,
+          },
+      ],
+  }
+  job = aiplatform.CustomJob(
+      display_name=display_name,
+      worker_pool_specs=worker_pool_specs,
+  )
 
-    client = aiplatform_v1beta1.JobServiceClient(client_options=client_options)
-
-    request = aiplatform_v1beta1.CreateCustomJobRequest(
-        parent=f"projects/{project}/locations/{location}",
-        custom_job=aiplatform_v1beta1.CustomJob(
-            display_name=display_name,
-            job_spec=aiplatform_v1beta1.CustomJobSpec(
-                worker_pool_specs=[
-                    aiplatform_v1beta1.WorkerPoolSpec(
-                        machine_spec=aiplatform_v1beta1.MachineSpec(
-                            machine_type=machine_type,
-                        ),
-                        replica_count=replica_count,
-                        container_spec=aiplatform_v1beta1.ContainerSpec(
-                            image_uri=image_uri,
-                        ),
-                    )
-                ],
-                psc_interface_config=aiplatform_v1beta1.PscInterfaceConfig(
-                    network_attachment=network_attachment,
-                ),
-            ),
-        ),
-    )
-
-    response = client.create_custom_job(request=request)
-
-    return response
+  job.run(psc_interface_config=psc_interface_config)
 
 
 #  [END aiplatform_sdk_create_custom_job_psci_sample]
