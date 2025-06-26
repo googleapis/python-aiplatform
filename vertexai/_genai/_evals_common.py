@@ -617,19 +617,13 @@ def _execute_inference(
 
     if dest:
         file_name = "inference_results.jsonl"
-        full_dest_path = dest
         is_gcs_path = dest.startswith(_evals_utils.GCS_PREFIX)
 
         if is_gcs_path:
-            if not dest.endswith("/"):
-                pass
-            else:
-                full_dest_path = os.path.join(dest, file_name)
+            full_dest_path = os.path.join(dest, file_name)
         else:
-            if os.path.isdir(dest):
-                full_dest_path = os.path.join(dest, file_name)
-
-            os.makedirs(os.path.dirname(full_dest_path), exist_ok=True)
+            os.makedirs(dest, exist_ok=True)
+            full_dest_path = os.path.join(dest, file_name)
 
         logger.info("Saving inference results to: %s", full_dest_path)
         try:

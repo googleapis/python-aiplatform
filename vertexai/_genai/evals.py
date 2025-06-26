@@ -28,6 +28,7 @@ from google.genai._common import set_value_by_path as setv
 import pandas as pd
 
 from . import _evals_common
+from . import _evals_utils
 from . import types
 
 
@@ -550,18 +551,18 @@ def _AutoraterConfig_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["sampling_count"]) is not None:
+        setv(to_object, ["samplingCount"], getv(from_object, ["sampling_count"]))
+
+    if getv(from_object, ["flip_enabled"]) is not None:
+        setv(to_object, ["flipEnabled"], getv(from_object, ["flip_enabled"]))
+
     if getv(from_object, ["autorater_model"]) is not None:
         setv(
             to_object,
             ["autoraterModel"],
             getv(from_object, ["autorater_model"]),
         )
-
-    if getv(from_object, ["flip_enabled"]) is not None:
-        setv(to_object, ["flipEnabled"], getv(from_object, ["flip_enabled"]))
-
-    if getv(from_object, ["sampling_count"]) is not None:
-        setv(to_object, ["samplingCount"], getv(from_object, ["sampling_count"]))
 
     return to_object
 
@@ -646,136 +647,6 @@ def _EvaluateInstancesRequestParameters_to_vertex(
             _ToolParameterKVMatchInput_to_vertex(
                 getv(from_object, ["tool_parameter_kv_match_input"]), to_object
             ),
-        )
-
-    if getv(from_object, ["autorater_config"]) is not None:
-        setv(
-            to_object,
-            ["autoraterConfig"],
-            _AutoraterConfig_to_vertex(
-                getv(from_object, ["autorater_config"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _EvaluationDataset_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["gcs_source"]) is not None:
-        setv(
-            to_object,
-            ["dataset", "gcs_source"],
-            getv(from_object, ["gcs_source"]),
-        )
-
-    if getv(from_object, ["bigquery_source"]) is not None:
-        setv(
-            to_object,
-            ["dataset", "bigquery_source"],
-            getv(from_object, ["bigquery_source"]),
-        )
-
-    return to_object
-
-
-def _Metric_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["prompt_template"]) is not None:
-        setv(
-            to_object,
-            ["pointwise_metric_spec", "prompt_template"],
-            getv(from_object, ["prompt_template"]),
-        )
-
-    if getv(from_object, ["judge_model"]) is not None:
-        setv(
-            parent_object,
-            ["autorater_config", "autorater_model"],
-            getv(from_object, ["judge_model"]),
-        )
-
-    if getv(from_object, ["judge_model_sampling_count"]) is not None:
-        setv(
-            parent_object,
-            ["autorater_config", "sampling_count"],
-            getv(from_object, ["judge_model_sampling_count"]),
-        )
-
-    if getv(from_object, ["judge_model_system_instruction"]) is not None:
-        setv(
-            to_object,
-            ["pointwise_metric_spec", "system_instruction"],
-            getv(from_object, ["judge_model_system_instruction"]),
-        )
-
-    if getv(from_object, ["return_raw_output"]) is not None:
-        setv(
-            to_object,
-            [
-                "pointwise_metric_spec",
-                "custom_output_format_config",
-                "return_raw_output",
-            ],
-            getv(from_object, ["return_raw_output"]),
-        )
-
-    return to_object
-
-
-def _OutputConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["gcs_destination"]) is not None:
-        setv(
-            to_object,
-            ["gcsDestination"],
-            getv(from_object, ["gcs_destination"]),
-        )
-
-    return to_object
-
-
-def _EvaluateDatasetRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["dataset"]) is not None:
-        setv(
-            to_object,
-            ["dataset"],
-            _EvaluationDataset_to_vertex(getv(from_object, ["dataset"]), to_object),
-        )
-
-    if getv(from_object, ["metrics"]) is not None:
-        setv(
-            to_object,
-            ["metrics"],
-            [
-                _Metric_to_vertex(item, to_object)
-                for item in getv(from_object, ["metrics"])
-            ],
-        )
-
-    if getv(from_object, ["output_config"]) is not None:
-        setv(
-            to_object,
-            ["outputConfig"],
-            _OutputConfig_to_vertex(getv(from_object, ["output_config"]), to_object),
         )
 
     if getv(from_object, ["autorater_config"]) is not None:
@@ -919,56 +790,6 @@ def _EvaluateInstancesResponse_from_vertex(
     return to_object
 
 
-def _EvaluationDataset_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["dataset", "gcs_source"]) is not None:
-        setv(
-            to_object,
-            ["gcs_source"],
-            getv(from_object, ["dataset", "gcs_source"]),
-        )
-
-    if getv(from_object, ["dataset", "bigquery_source"]) is not None:
-        setv(
-            to_object,
-            ["bigquery_source"],
-            getv(from_object, ["dataset", "bigquery_source"]),
-        )
-
-    return to_object
-
-
-def _EvaluateDatasetOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _EvaluationDataset_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
 class Evals(_api_module.BaseModule):
     def _evaluate_instances(
         self,
@@ -1044,68 +865,8 @@ class Evals(_api_module.BaseModule):
         return_value = types.EvaluateInstancesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
+
         self._api_client._verify_response(return_value)
-
-        return return_value
-
-    def batch_eval(
-        self,
-        *,
-        dataset: types.EvaluationDatasetOrDict,
-        metrics: list[types.MetricOrDict],
-        output_config: types.OutputConfigOrDict,
-        autorater_config: Optional[types.AutoraterConfigOrDict] = None,
-        config: Optional[types.EvaluateDatasetConfigOrDict] = None,
-    ) -> types.EvaluateDatasetOperation:
-        """Evaluates a dataset based on a set of given metrics."""
-
-        parameter_model = types._EvaluateDatasetRequestParameters(
-            dataset=dataset,
-            metrics=metrics,
-            output_config=output_config,
-            autorater_config=autorater_config,
-            config=config,
-        )
-
-        request_url_dict: Optional[dict[str, str]]
-        if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
-        else:
-            request_dict = _EvaluateDatasetRequestParameters_to_vertex(parameter_model)
-            request_url_dict = request_dict.get("_url")
-            if request_url_dict:
-                path = ":evaluateDataset".format_map(request_url_dict)
-            else:
-                path = ":evaluateDataset"
-
-        query_params = request_dict.get("_query")
-        if query_params:
-            path = f"{path}?{urlencode(query_params)}"
-        # TODO: remove the hack that pops config.
-        request_dict.pop("config", None)
-
-        http_options: Optional[genai_types.HttpOptions] = None
-        if (
-            parameter_model.config is not None
-            and parameter_model.config.http_options is not None
-        ):
-            http_options = parameter_model.config.http_options
-
-        request_dict = _common.convert_to_dict(request_dict)
-        request_dict = _common.encode_unserializable_types(request_dict)
-
-        response = self._api_client.request("post", path, request_dict, http_options)
-
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _EvaluateDatasetOperation_from_vertex(response_dict)
-
-        return_value = types.EvaluateDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
-        )
-        self._api_client._verify_response(return_value)
-
         return return_value
 
     def run(self) -> types.EvaluateInstancesResponse:
@@ -1203,9 +964,11 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig.model_validate(config)
         if isinstance(dataset, list):
             dataset = [
-                types.EvaluationDataset.model_validate(ds_item)
-                if isinstance(ds_item, dict)
-                else ds_item
+                (
+                    types.EvaluationDataset.model_validate(ds_item)
+                    if isinstance(ds_item, dict)
+                    else ds_item
+                )
                 for ds_item in dataset
             ]
         else:
@@ -1219,6 +982,76 @@ class Evals(_api_module.BaseModule):
             dataset_schema=config.dataset_schema,
             dest=config.dest,
         )
+
+    def batch_evaluate(
+        self,
+        *,
+        dataset: types.EvaluationDatasetOrDict,
+        metrics: list[types.MetricOrDict],
+        dest: str,
+        config: Optional[types.EvaluateDatasetConfigOrDict] = None,
+    ) -> types.EvaluateDatasetOperation:
+        """Evaluates a dataset based on a set of given metrics."""
+
+        resolved_metrics = _evals_common._resolve_metrics(metrics, self._api_client)
+        output_config = types.OutputConfig(
+            gcs_destination=types.GcsDestination(output_uri_prefix=dest)
+        )
+        parameter_model = types.EvaluateDatasetRequestParameters(
+            dataset=dataset,
+            metrics=resolved_metrics,
+            output_config=output_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _evals_utils.BatchEvaluateRequestPreparer.EvaluateDatasetRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":evaluateDataset".format_map(request_url_dict)
+            else:
+                path = ":evaluateDataset"
+
+        request_dict = _evals_utils.BatchEvaluateRequestPreparer.prepare_metric_payload(
+            request_dict, resolved_metrics
+        )
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[genai_types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _evals_utils.BatchEvaluateRequestPreparer.EvaluateDatasetOperation_from_vertex(
+                response_dict
+            )
+
+        return_value = types.EvaluateDatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+        self._api_client._verify_response(return_value)
+
+        return return_value
 
 
 class AsyncEvals(_api_module.BaseModule):
@@ -1298,26 +1131,27 @@ class AsyncEvals(_api_module.BaseModule):
         return_value = types.EvaluateInstancesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
-        self._api_client._verify_response(return_value)
 
+        self._api_client._verify_response(return_value)
         return return_value
 
-    async def batch_eval(
+    async def batch_evaluate(
         self,
         *,
         dataset: types.EvaluationDatasetOrDict,
         metrics: list[types.MetricOrDict],
-        output_config: types.OutputConfigOrDict,
-        autorater_config: Optional[types.AutoraterConfigOrDict] = None,
+        dest: str,
         config: Optional[types.EvaluateDatasetConfigOrDict] = None,
     ) -> types.EvaluateDatasetOperation:
         """Evaluates a dataset based on a set of given metrics."""
-
-        parameter_model = types._EvaluateDatasetRequestParameters(
+        resolved_metrics = _evals_common._resolve_metrics(metrics, self._api_client)
+        output_config = types.OutputConfig(
+            gcs_destination=types.GcsDestination(output_uri_prefix=dest)
+        )
+        parameter_model = types.EvaluateDatasetRequestParameters(
             dataset=dataset,
-            metrics=metrics,
+            metrics=resolved_metrics,
             output_config=output_config,
-            autorater_config=autorater_config,
             config=config,
         )
 
@@ -1325,12 +1159,18 @@ class AsyncEvals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _EvaluateDatasetRequestParameters_to_vertex(parameter_model)
+            request_dict = _evals_utils.BatchEvaluateRequestPreparer.EvaluateDatasetRequestParameters_to_vertex(
+                parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":evaluateDataset".format_map(request_url_dict)
             else:
                 path = ":evaluateDataset"
+
+        request_dict = _evals_utils.BatchEvaluateRequestPreparer.prepare_metric_payload(
+            request_dict, resolved_metrics
+        )
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1355,7 +1195,9 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = "" if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _EvaluateDatasetOperation_from_vertex(response_dict)
+            response_dict = _evals_utils.BatchEvaluateRequestPreparer.EvaluateDatasetOperation_from_vertex(
+                response_dict
+            )
 
         return_value = types.EvaluateDatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
