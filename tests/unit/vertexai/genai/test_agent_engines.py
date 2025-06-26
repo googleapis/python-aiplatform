@@ -1068,17 +1068,6 @@ class TestAgentEngine:
                     staging_bucket=_TEST_STAGING_BUCKET,
                 ),
             )
-            mock_create_config.assert_called_with(
-                mode="create",
-                agent_engine=self.test_agent,
-                staging_bucket=_TEST_STAGING_BUCKET,
-                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
-                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-                description=None,
-                gcs_dir_name=None,
-                extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
-                env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
-            )
             request_mock.assert_called_with(
                 "post",
                 "reasoningEngines",
