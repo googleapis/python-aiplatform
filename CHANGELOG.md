@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.100.0](https://github.com/googleapis/python-aiplatform/compare/v1.99.0...v1.100.0) (2025-06-26)
+
+
+### Features
+
+* Add import_embeddings method in MatchingEngineIndex resource ([5a0df36](https://github.com/googleapis/python-aiplatform/commit/5a0df366b37eb296c8103912dc57db175d1e24a6))
+* Add invoke_route_prefix to ModelContainerSpec in aiplatform v1 models.proto ([4202177](https://github.com/googleapis/python-aiplatform/commit/4202177f887f4582f53150f5a011202c1186fcbc))
+* Add invoke_route_prefix to ModelContainerSpec in aiplatform v1beta1 models.proto ([d4ede02](https://github.com/googleapis/python-aiplatform/commit/d4ede02ea6cd01cdc40b15d1eda8ba64e0eafae1))
+* Add Model Garden deploy OSS model API ([d4ede02](https://github.com/googleapis/python-aiplatform/commit/d4ede02ea6cd01cdc40b15d1eda8ba64e0eafae1))
+* Add PSCAutomationConfig to PrivateServiceConnectConfig in service_networking.proto ([d4ede02](https://github.com/googleapis/python-aiplatform/commit/d4ede02ea6cd01cdc40b15d1eda8ba64e0eafae1))
+* Add validation assessment for batch prediction. ([d570fc9](https://github.com/googleapis/python-aiplatform/commit/d570fc9cee53cb5108a9bafafad7396837ddc411))
+* GenAI SDK client - Add batch_evaluate method for asynchronous batch eval. Add transformation support for consistent interface parameters with the evaluate method ([4d44f94](https://github.com/googleapis/python-aiplatform/commit/4d44f945ed7b31de1b2ee35245c2a52464ad51e5))
+* GenAI SDK client - Add Vertex AI Prompt Optimizer to the Gen AI SDK (experimental) ([5daacda](https://github.com/googleapis/python-aiplatform/commit/5daacda697989c0e397fbc0a03929ad47d8d6331))
+* GenAI SDK client - Initial release of Agent Engine Memories SDK ([e8d18b6](https://github.com/googleapis/python-aiplatform/commit/e8d18b6c1179b05ad6a19fc121cd1ed9aea691e5))
+* GenAI SDK client (evals) - add support for third-party model inference via litellm library ([e728d8b](https://github.com/googleapis/python-aiplatform/commit/e728d8bab26a97695ac2e83370543010091dbad3))
+* **matching-engine:** Add sync argument to deploy_index ([fee1e2d](https://github.com/googleapis/python-aiplatform/commit/fee1e2dbe6b28edb40d392b4a4c79f17e57b709b))
+* Reasoning Engine v1beta1 subresource updates ([d4ede02](https://github.com/googleapis/python-aiplatform/commit/d4ede02ea6cd01cdc40b15d1eda8ba64e0eafae1))
+* Updated explicit sync to existing decorator optional_sync ([fee1e2d](https://github.com/googleapis/python-aiplatform/commit/fee1e2dbe6b28edb40d392b4a4c79f17e57b709b))
+
+
+### Bug Fixes
+
+* Fix auth scope for RAG upload_file ([a506b94](https://github.com/googleapis/python-aiplatform/commit/a506b94ccbffe0c24b73480d18b6a74088e921d1))
+* Fixed return type for deploy_index and added test for sync values ([fee1e2d](https://github.com/googleapis/python-aiplatform/commit/fee1e2dbe6b28edb40d392b4a4c79f17e57b709b))
+* Use PrivateServiceConnectConfig in service_networking in PrivateEndpoint instead of the wrapper class PrivateServiceConnectConfig ([87c2c3e](https://github.com/googleapis/python-aiplatform/commit/87c2c3e1bf6450c0a27ecfb90f091f3d13d02adf))
+
 ## [1.99.0](https://github.com/googleapis/python-aiplatform/compare/v1.98.0...v1.99.0) (2025-06-24)
 
 
