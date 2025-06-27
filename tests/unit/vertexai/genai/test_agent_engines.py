@@ -521,16 +521,16 @@ _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA = _utils.generate_schema(
     OperationRegistrableEngine().custom_method,
     schema_name=_TEST_CUSTOM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STANDARD_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STANDARD_API_MODE
+)
 _TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA = _utils.generate_schema(
     OperationRegistrableEngine().custom_async_method,
     schema_name=_TEST_CUSTOM_ASYNC_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_API_MODE
+)
 _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA = _utils.generate_schema(
     StreamQueryEngine().stream_query,
     schema_name=_TEST_DEFAULT_STREAM_METHOD_NAME,
@@ -540,23 +540,23 @@ _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA = _utils.generate_schema(
     OperationRegistrableEngine().custom_stream_method,
     schema_name=_TEST_CUSTOM_STREAM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STREAM_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STREAM_API_MODE
+)
 _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA = _utils.generate_schema(
     AsyncStreamQueryEngine().async_stream_query,
     schema_name=_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_STREAM_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_STREAM_API_MODE
+)
 _TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA = _utils.generate_schema(
     OperationRegistrableEngine().custom_async_stream_method,
     schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_STREAM_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_STREAM_API_MODE
+)
 _TEST_OPERATION_REGISTRABLE_SCHEMAS = [
     _TEST_AGENT_ENGINE_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA,
@@ -581,9 +581,9 @@ _TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA = _utils.generate_schema(
     MethodToBeUnregisteredEngine().method_to_be_unregistered,
     schema_name=_TEST_METHOD_TO_BE_UNREGISTERED_NAME,
 )
-_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STANDARD_API_MODE
+_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STANDARD_API_MODE
+)
 _TEST_ASYNC_QUERY_SCHEMAS = [_TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA]
 _TEST_STREAM_QUERY_SCHEMAS = [
     _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA,
@@ -983,6 +983,10 @@ class TestAgentEngine:
                     env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
                 ),
             )
+            mock_await_operation.assert_called_once_with(
+                operation_name=None,
+                poll_interval_seconds=10,
+            )
             request_mock.assert_called_with(
                 "post",
                 "reasoningEngines",
@@ -1022,6 +1026,10 @@ class TestAgentEngine:
                     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
                     description=_TEST_AGENT_ENGINE_DESCRIPTION,
                 )
+            )
+            mock_await_operation.assert_called_once_with(
+                operation_name=None,
+                poll_interval_seconds=1,
             )
             request_mock.assert_called_with(
                 "post",
