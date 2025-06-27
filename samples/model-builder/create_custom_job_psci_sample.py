@@ -29,36 +29,36 @@ def create_custom_job_psci_sample(
     target_project: str,
     target_network: str,
 ):
-  """Custom training job sample with PSC Interface Config."""
-  aiplatform.init(project=project, location=location, staging_bucket=bucket)
+    """Custom training job sample with PSC Interface Config."""
+    aiplatform.init(project=project, location=location, staging_bucket=bucket)
 
-  worker_pool_specs = [{
-      "machine_spec": {
-          "machine_type": machine_type,
-      },
-      "replica_count": replica_count,
-      "container_spec": {
-          "image_uri": image_uri,
-          "command": [],
-          "args": [],
-      },
-  }]
-  psc_interface_config = {
-      "network_attachment": network_attachment,
-      "dns_peering_configs": [
-          {
-              "domain": domain,
-              "target_project": target_project,
-              "target_network": target_network,
-          },
-      ],
-  }
-  job = aiplatform.CustomJob(
-      display_name=display_name,
-      worker_pool_specs=worker_pool_specs,
-  )
+    worker_pool_specs = [{
+        "machine_spec": {
+            "machine_type": machine_type,
+        },
+        "replica_count": replica_count,
+        "container_spec": {
+            "image_uri": image_uri,
+            "command": [],
+            "args": [],
+        },
+    }]
+    psc_interface_config = {
+        "network_attachment": network_attachment,
+        "dns_peering_configs": [
+            {
+                "domain": domain,
+                "target_project": target_project,
+                "target_network": target_network,
+            },
+        ],
+    }
+    job = aiplatform.CustomJob(
+        display_name=display_name,
+        worker_pool_specs=worker_pool_specs,
+    )
 
-  job.run(psc_interface_config=psc_interface_config)
+    job.run(psc_interface_config=psc_interface_config)
 
 
 #  [END aiplatform_sdk_create_custom_job_psci_sample]
