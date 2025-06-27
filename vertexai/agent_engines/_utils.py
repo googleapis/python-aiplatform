@@ -361,28 +361,29 @@ def parse_constraints(
 def validate_requirements_or_warn(
     obj: Any,
     requirements: List[str],
+    logger: Any = LOGGER,
 ) -> Mapping[str, str]:
     """Compiles the requirements into a list of requirements."""
     requirements = requirements.copy()
     try:
         current_requirements = scan_requirements(obj)
-        LOGGER.info(f"Identified the following requirements: {current_requirements}")
+        logger.info(f"Identified the following requirements: {current_requirements}")
         constraints = parse_constraints(requirements)
         missing_requirements = compare_requirements(current_requirements, constraints)
         for warning_type, warnings in missing_requirements.get(
             _WARNINGS_KEY, {}
         ).items():
             if warnings:
-                LOGGER.warning(
+                logger.warning(
                     f"The following requirements are {warning_type}: {warnings}"
                 )
         for action_type, actions in missing_requirements.get(_ACTIONS_KEY, {}).items():
             if actions and action_type == _ACTION_APPEND:
                 for action in actions:
                     requirements.append(action)
-                LOGGER.info(f"The following requirements are appended: {actions}")
+                logger.info(f"The following requirements are appended: {actions}")
     except Exception as e:
-        LOGGER.warning(f"Failed to compile requirements: {e}")
+        logger.warning(f"Failed to compile requirements: {e}")
     return requirements
 
 
