@@ -15,6 +15,7 @@
 """Dataset converters for evals."""
 
 import abc
+import json
 import logging
 from typing import Any, Optional
 
@@ -355,7 +356,29 @@ class _OpenAIDataConverter(_EvalDataConverter):
                 continue
 
             request_data = item.get("request", {})
-            response_data = item.get("response", {})
+            response_data_raw = item.get("response", {})
+
+            response_data = {}
+            if isinstance(response_data_raw, str):
+                try:
+                    loaded_json = json.loads(response_data_raw)
+                    if isinstance(loaded_json, dict):
+                        response_data = loaded_json
+                    else:
+                        logger.warning(
+                            "Decoded response JSON is not a dictionary for case"
+                            " %s. Type: %s",
+                            i,
+                            type(loaded_json),
+                        )
+                except json.JSONDecodeError:
+                    logger.warning(
+                        "Could not decode response JSON string for case %s."
+                        " Treating as empty response.",
+                        i,
+                    )
+            elif isinstance(response_data_raw, dict):
+                response_data = response_data_raw
 
             messages = request_data.get("messages", [])
             choices = response_data.get("choices", [])

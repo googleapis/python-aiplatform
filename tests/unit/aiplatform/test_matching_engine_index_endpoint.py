@@ -1196,7 +1196,8 @@ class TestMatchingEngineIndexEndpoint:
         assert str(exception.value) == expected_message
 
     @pytest.mark.usefixtures("get_index_endpoint_mock", "get_index_mock")
-    def test_deploy_index(self, deploy_index_mock, undeploy_index_mock):
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_index(self, deploy_index_mock, undeploy_index_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
@@ -1218,8 +1219,12 @@ class TestMatchingEngineIndexEndpoint:
             auth_config_audiences=_TEST_AUTH_CONFIG_AUDIENCES,
             auth_config_allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
             request_metadata=_TEST_REQUEST_METADATA,
+            sync=sync,
             deploy_request_timeout=_TEST_TIMEOUT,
         )
+
+        if not sync:
+            my_index_endpoint.wait()
 
         deploy_index_mock.assert_called_once_with(
             index_endpoint=my_index_endpoint.resource_name,
@@ -1257,7 +1262,8 @@ class TestMatchingEngineIndexEndpoint:
         )
 
     @pytest.mark.usefixtures("get_psc_automated_index_endpoint_mock", "get_index_mock")
-    def test_deploy_index_psc_automation_configs(self, deploy_index_mock):
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_index_psc_automation_configs(self, deploy_index_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
@@ -1280,8 +1286,12 @@ class TestMatchingEngineIndexEndpoint:
             auth_config_allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
             psc_automation_configs=_TEST_PSC_AUTOMATION_CONFIGS,
             request_metadata=_TEST_REQUEST_METADATA,
+            sync=sync,
             deploy_request_timeout=_TEST_TIMEOUT,
         )
+
+        if not sync:
+            my_index_endpoint.wait()
 
         deploy_index_mock.assert_called_once_with(
             index_endpoint=my_index_endpoint.resource_name,
