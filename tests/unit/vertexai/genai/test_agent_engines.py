@@ -521,16 +521,16 @@ _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA = _utils.generate_schema(
     OperationRegistrableEngine().custom_method,
     schema_name=_TEST_CUSTOM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STANDARD_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STANDARD_API_MODE
+)
 _TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA = _utils.generate_schema(
     OperationRegistrableEngine().custom_async_method,
     schema_name=_TEST_CUSTOM_ASYNC_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_API_MODE
+)
 _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA = _utils.generate_schema(
     StreamQueryEngine().stream_query,
     schema_name=_TEST_DEFAULT_STREAM_METHOD_NAME,
@@ -540,23 +540,23 @@ _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA = _utils.generate_schema(
     OperationRegistrableEngine().custom_stream_method,
     schema_name=_TEST_CUSTOM_STREAM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STREAM_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STREAM_API_MODE
+)
 _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA = _utils.generate_schema(
     AsyncStreamQueryEngine().async_stream_query,
     schema_name=_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_STREAM_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_STREAM_API_MODE
+)
 _TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA = _utils.generate_schema(
     OperationRegistrableEngine().custom_async_stream_method,
     schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_STREAM_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_STREAM_API_MODE
+)
 _TEST_OPERATION_REGISTRABLE_SCHEMAS = [
     _TEST_AGENT_ENGINE_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA,
@@ -581,9 +581,9 @@ _TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA = _utils.generate_schema(
     MethodToBeUnregisteredEngine().method_to_be_unregistered,
     schema_name=_TEST_METHOD_TO_BE_UNREGISTERED_NAME,
 )
-_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STANDARD_API_MODE
+_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STANDARD_API_MODE
+)
 _TEST_ASYNC_QUERY_SCHEMAS = [_TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA]
 _TEST_STREAM_QUERY_SCHEMAS = [
     _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA,
@@ -963,10 +963,13 @@ class TestAgentEngine:
                 None,
             )
 
+    @pytest.mark.usefixtures("caplog")
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
-    def test_create_agent_engine(self, mock_await_operation, mock_prepare):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+    def test_create_agent_engine(self, mock_await_operation, mock_prepare, caplog):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1004,19 +1007,29 @@ class TestAgentEngine:
                 },
                 None,
             )
+            assert "View progress and logs at" in caplog.text
+            assert "Agent Engine created. To use it in another session:" in caplog.text
+            assert (
+                f"agent_engine = client.agent_engines.get("
+                f"'{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
+            )
 
+    @pytest.mark.usefixtures("caplog")
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_create_agent_engine_lightweight(
         self,
         mock_await_operation,
         mock_create_config,
+        caplog,
     ):
         mock_create_config.return_value = _genai_types.CreateAgentEngineConfig(
             display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
             description=_TEST_AGENT_ENGINE_DESCRIPTION,
         )
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1040,13 +1053,21 @@ class TestAgentEngine:
                 },
                 None,
             )
+            assert "View progress and logs at" in caplog.text
+            assert "Agent Engine created. To use it in another session:" in caplog.text
+            assert (
+                f"agent_engine = client.agent_engines.get("
+                f"'{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
+            )
 
+    @pytest.mark.usefixtures("caplog")
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_create_agent_engine_with_env_vars_dict(
         self,
         mock_await_operation,
         mock_create_config,
+        caplog,
     ):
         mock_create_config.return_value = {
             "display_name": _TEST_AGENT_ENGINE_DISPLAY_NAME,
@@ -1061,7 +1082,9 @@ class TestAgentEngine:
                 "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
             },
         }
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1105,11 +1128,19 @@ class TestAgentEngine:
                 },
                 None,
             )
+            assert "View progress and logs at" in caplog.text
+            assert "Agent Engine created. To use it in another session:" in caplog.text
+            assert (
+                f"agent_engine = client.agent_engines.get("
+                f"'{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
+            )
 
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_requirements(self, mock_await_operation, mock_prepare):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1155,7 +1186,9 @@ class TestAgentEngine:
     def test_update_agent_engine_extra_packages(
         self, mock_await_operation, mock_prepare
     ):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1202,7 +1235,9 @@ class TestAgentEngine:
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_env_vars(self, mock_await_operation, mock_prepare):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1251,7 +1286,9 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_display_name(self, mock_await_operation):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1275,7 +1312,9 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_description(self, mock_await_operation):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
