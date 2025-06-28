@@ -753,6 +753,61 @@ def predict_async_client_explain_mock():
 
 
 @pytest.fixture
+def invoke_endpoint_http_mock():
+  resp = requests.Response()
+  resp.status_code = 200
+  resp._content = json.dumps({
+      "predictions": _TEST_PREDICTION,
+      "metadata": _TEST_METADATA,
+      "deployedModelId": _TEST_DEPLOYED_MODELS[0].id,
+      "model": _TEST_MODEL_NAME,
+      "modelVersionId": "1",
+  }).encode("utf-8")
+  with mock.patch.object(
+      google_auth_requests.AuthorizedSession, "post"
+  ) as predict_mock:
+    predict_mock.return_value = resp
+    yield predict_mock
+
+
+@pytest.fixture
+def invoke_endpoint_http_mock_streaming():
+  with mock.patch.object(
+      google_auth_requests.AuthorizedSession, "post"
+  ) as invoke_streaming_mock:
+    # Create a mock response object
+    mock_response = mock.Mock(spec=requests.Response)
+
+    # Configure the mock to be used as a context manager
+    invoke_streaming_mock.return_value.__enter__.return_value = mock_response
+
+    # Set the status code to 200 (OK)
+    mock_response.status_code = 200
+
+    # Simulate streaming data with iter_lines
+    mock_response.iter_lines = mock.Mock(
+        return_value=iter([
+            json.dumps({
+                "predictions": [1.0, 2.0, 3.0],
+                "metadata": {"key": "value"},
+                "deployedModelId": "model-id-123",
+                "model": "model-name",
+                "modelVersionId": "1",
+            }).encode("utf-8"),
+            json.dumps({
+                "predictions": [4.0, 5.0, 6.0],
+                "metadata": {"key": "value"},
+                "deployedModelId": "model-id-123",
+                "model": "model-name",
+                "modelVersionId": "1",
+            }).encode("utf-8"),
+        ])
+    )
+
+    yield invoke_streaming_mock
+
+
+@pytest.fixture
 def preview_get_drp_mock():
     with mock.patch.object(
         deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
@@ -2885,6 +2940,110 @@ class TestEndpoint:
         assert true_prediction.text == test_prediction.text
         predict_endpoint_http_mock.assert_called_once_with(
             url=f"https://{_TEST_SHARED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:rawPredict",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    def test_invoke_dedicated_endpoint_default(self, invoke_endpoint_http_mock):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_prediction_response = test_endpoint.invoke(
+            request_path="/arbitrary/path",
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+        )
+
+        expected_prediction_response = requests.Response()
+        expected_prediction_response.status_code = 200
+        expected_prediction_response._content = json.dumps({
+            "predictions": _TEST_PREDICTION,
+            "metadata": _TEST_METADATA,
+            "deployedModelId": _TEST_DEPLOYED_MODELS[0].id,
+            "model": _TEST_MODEL_NAME,
+            "modelVersionId": "1",
+        }).encode("utf-8")
+
+        assert (
+            test_prediction_response.status_code
+            == expected_prediction_response.status_code
+        )
+        assert test_prediction_response.text == expected_prediction_response.text
+        invoke_endpoint_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}/invoke/arbitrary/path",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    def test_invoke_dedicated_endpoint_stream_true(
+        self, invoke_endpoint_http_mock_streaming
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        test_prediction_iterator = test_endpoint.invoke(
+            request_path="/arbitrary/path",
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            stream=True,
+        )
+
+        test_streaming_predction_result = list(test_prediction_iterator)
+        expected_streaming_prediction_result = [
+            json.dumps({
+                "predictions": [1.0, 2.0, 3.0],
+                "metadata": {"key": "value"},
+                "deployedModelId": "model-id-123",
+                "model": "model-name",
+                "modelVersionId": "1",
+            }).encode("utf-8"),
+            json.dumps({
+                "predictions": [4.0, 5.0, 6.0],
+                "metadata": {"key": "value"},
+                "deployedModelId": "model-id-123",
+                "model": "model-name",
+                "modelVersionId": "1",
+            }).encode("utf-8"),
+        ]
+        assert (
+            test_streaming_predction_result == expected_streaming_prediction_result
+        )
+        invoke_endpoint_http_mock_streaming.assert_called_once_with(
+            url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}/invoke/arbitrary/path",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
+            stream=True,
+        )
+
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    def test_invoke_with_deployed_model_id(self, invoke_endpoint_http_mock):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_prediction_response = test_endpoint.invoke(
+            request_path="/arbitrary/path",
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            deployed_model_id=_TEST_DEPLOYED_MODELS[0].id,
+        )
+
+        expected_prediction_response = requests.Response()
+        expected_prediction_response.status_code = 200
+        expected_prediction_response._content = json.dumps({
+            "predictions": _TEST_PREDICTION,
+            "metadata": _TEST_METADATA,
+            "deployedModelId": _TEST_DEPLOYED_MODELS[0].id,
+            "model": _TEST_MODEL_NAME,
+            "modelVersionId": "1",
+        }).encode("utf-8")
+
+        assert (
+            test_prediction_response.status_code
+            == expected_prediction_response.status_code
+        )
+        assert test_prediction_response.text == expected_prediction_response.text
+        invoke_endpoint_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}/deployedModels/{_TEST_DEPLOYED_MODELS[0].id}/invoke/arbitrary/path",
             data=_TEST_RAW_INPUTS,
             headers={"Content-Type": "application/json"},
             timeout=None,
