@@ -1867,11 +1867,11 @@ TrajectoryRecallMetricValueOrDict = Union[
 class TrajectoryRecallResults(_common.BaseModel):
     """Results for TrajectoryRecall metric."""
 
-    trajectory_recall_metric_values: Optional[
-        list[TrajectoryRecallMetricValue]
-    ] = Field(
-        default=None,
-        description="""Output only. TrajectoryRecall metric values.""",
+    trajectory_recall_metric_values: Optional[list[TrajectoryRecallMetricValue]] = (
+        Field(
+            default=None,
+            description="""Output only. TrajectoryRecall metric values.""",
+        )
     )
 
 
@@ -1985,11 +1985,11 @@ class EvaluateInstancesResponse(_common.BaseModel):
         default=None,
         description="""Results for tool parameter key value match metric.""",
     )
-    trajectory_any_order_match_results: Optional[
-        TrajectoryAnyOrderMatchResults
-    ] = Field(
-        default=None,
-        description="""Result for trajectory any order match metric.""",
+    trajectory_any_order_match_results: Optional[TrajectoryAnyOrderMatchResults] = (
+        Field(
+            default=None,
+            description="""Result for trajectory any order match metric.""",
+        )
     )
     trajectory_exact_match_results: Optional[TrajectoryExactMatchResults] = Field(
         default=None,
@@ -2005,11 +2005,11 @@ class EvaluateInstancesResponse(_common.BaseModel):
     trajectory_recall_results: Optional[TrajectoryRecallResults] = Field(
         default=None, description="""Results for trajectory recall metric."""
     )
-    trajectory_single_tool_use_results: Optional[
-        TrajectorySingleToolUseResults
-    ] = Field(
-        default=None,
-        description="""Results for trajectory single tool use metric.""",
+    trajectory_single_tool_use_results: Optional[TrajectorySingleToolUseResults] = (
+        Field(
+            default=None,
+            description="""Results for trajectory single tool use metric.""",
+        )
     )
 
 
@@ -4237,11 +4237,11 @@ class _GenerateAgentEngineMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""The vertex session source of the memories that should be generated.""",
     )
-    direct_contents_source: Optional[
-        GenerateMemoriesRequestDirectContentsSource
-    ] = Field(
-        default=None,
-        description="""The direct contents source of the memories that should be generated.""",
+    direct_contents_source: Optional[GenerateMemoriesRequestDirectContentsSource] = (
+        Field(
+            default=None,
+            description="""The direct contents source of the memories that should be generated.""",
+        )
     )
     scope: Optional[dict[str, str]] = Field(
         default=None,
@@ -4923,11 +4923,11 @@ class _RetrieveAgentEngineMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""Parameters for semantic similarity search based retrieval.""",
     )
-    simple_retrieval_params: Optional[
-        RetrieveMemoriesRequestSimpleRetrievalParams
-    ] = Field(
-        default=None,
-        description="""Parameters for simple (non-similarity search) retrieval.""",
+    simple_retrieval_params: Optional[RetrieveMemoriesRequestSimpleRetrievalParams] = (
+        Field(
+            default=None,
+            description="""Parameters for simple (non-similarity search) retrieval.""",
+        )
     )
     config: Optional[RetrieveAgentEngineMemoriesConfig] = Field(
         default=None, description=""""""
@@ -5760,9 +5760,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=fields_to_exclude_callables
-            if fields_to_exclude_callables
-            else None,
+            exclude=(
+                fields_to_exclude_callables if fields_to_exclude_callables else None
+            ),
         )
 
         if version:
@@ -6042,6 +6042,18 @@ class EvaluationDataset(_common.BaseModel):
         default=None,
         description="""The BigQuery source for the evaluation dataset.""",
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _check_pandas_installed(cls, data: Any) -> Any:
+        if isinstance(data, dict) and data.get("eval_dataset_df") is not None:
+            if pd is None:
+                logger.warning(
+                    "Pandas is not installed, some evals features are not"
+                    " available. Please install it with `pip install"
+                    " google-cloud-aiplatform[evaluation]`."
+                )
+        return data
 
     def show(self) -> None:
         """Shows the evaluation dataset."""
