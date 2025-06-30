@@ -5210,6 +5210,9 @@ class PromptOptimizerVAPOConfig(_common.BaseModel):
         default=None, description="""The gcs path to the config file."""
     )
     service_account: Optional[str] = Field(default=None, description="""""")
+    service_account_project_number: Optional[Union[int, str]] = Field(
+        default=None, description=""""""
+    )
     wait_for_completion: Optional[bool] = Field(default=True, description="""""")
 
 
@@ -5220,6 +5223,9 @@ class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
     """The gcs path to the config file."""
 
     service_account: Optional[str]
+    """"""
+
+    service_account_project_number: Optional[Union[int, str]]
     """"""
 
     wait_for_completion: Optional[bool]

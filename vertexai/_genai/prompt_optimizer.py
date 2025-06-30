@@ -429,8 +429,8 @@ class PromptOptimizer(_api_module.BaseModule):
         return_value = types.OptimizeResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
-        self._api_client._verify_response(return_value)
 
+        self._api_client._verify_response(return_value)
         return return_value
 
     def _create_custom_job_resource(
@@ -483,8 +483,8 @@ class PromptOptimizer(_api_module.BaseModule):
         return_value = types.CustomJob._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
-        self._api_client._verify_response(return_value)
 
+        self._api_client._verify_response(return_value)
         return return_value
 
     def _get_custom_job(
@@ -534,8 +534,8 @@ class PromptOptimizer(_api_module.BaseModule):
         return_value = types.CustomJob._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
-        self._api_client._verify_response(return_value)
 
+        self._api_client._verify_response(return_value)
         return return_value
 
     """Prompt Optimizer PO-Data."""
@@ -587,9 +587,15 @@ class PromptOptimizer(_api_module.BaseModule):
           method: The method for optimizing multiple prompts.
           config: The config to use. Config  consists of the following fields: -
             config_path: The gcs path to the config file, e.g.
-            gs://bucket/config.json. - service_account: The service account to
-              use for the job. - wait_for_completion: Optional. Whether to wait
-              for the job to complete. Default is True.
+            gs://bucket/config.json. - service_account: Optional. The service
+              account to use for the custom job. Cannot be provided at the same
+              time as 'service_account_project_number'. -
+            service_account_project_number: Optional. The project number used to
+              construct the default service account:
+              f"{service_account_project_number}-compute@developer.gserviceaccount.com"
+              Cannot be provided at the same time as 'service_account'. -
+            wait_for_completion: Optional. Whether to wait for the job to
+              complete. Default is True.
         """
 
         if method != "vapo":
@@ -626,10 +632,28 @@ class PromptOptimizer(_api_module.BaseModule):
             }
         ]
 
+        if config.service_account:
+            if config.service_account_project_number:
+                raise ValueError(
+                    "Only one of service_account or"
+                    " service_account_project_number can be provided."
+                )
+            service_account = config.service_account
+        elif config.project_number:
+            service_account = (
+                f"{config.service_account_project_number}"
+                "-compute@developer.gserviceaccount.com"
+            )
+        else:
+            raise ValueError(
+                "Either service_account or service_account_project_number is"
+                " required."
+            )
+
         job_spec = types.CustomJobSpec(
             worker_pool_specs=worker_pool_specs,
             base_output_directory=types.GcsDestination(output_uri_prefix=bucket),
-            service_account=config.service_account,
+            service_account=service_account,
         )
 
         custom_job = types.CustomJob(
@@ -706,8 +730,8 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         return_value = types.OptimizeResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
-        self._api_client._verify_response(return_value)
 
+        self._api_client._verify_response(return_value)
         return return_value
 
     async def _create_custom_job_resource(
@@ -762,8 +786,8 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         return_value = types.CustomJob._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
-        self._api_client._verify_response(return_value)
 
+        self._api_client._verify_response(return_value)
         return return_value
 
     async def _get_custom_job(
@@ -815,6 +839,6 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         return_value = types.CustomJob._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
-        self._api_client._verify_response(return_value)
 
+        self._api_client._verify_response(return_value)
         return return_value
