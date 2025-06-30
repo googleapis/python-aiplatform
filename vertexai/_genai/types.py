@@ -217,6 +217,17 @@ class Language(_common.CaseInSensitiveEnum):
     """Python >= 3.10, with numpy and simpy available."""
 
 
+class RubricContentType(_common.CaseInSensitiveEnum):
+    """Specifies the type of rubric content to generate."""
+
+    PROPERTY = "PROPERTY"
+    """Generate rubrics based on properties."""
+    NL_QUESTION_ANSWER = "NL_QUESTION_ANSWER"
+    """Generate rubrics in an NL question answer format."""
+    PYTHON_CODE_ASSERTION = "PYTHON_CODE_ASSERTION"
+    """Generate rubrics in a unit test format."""
+
+
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
     """The action to take."""
 
@@ -231,6 +242,19 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
       """
     DELETED = "DELETED"
     """The memory was deleted."""
+
+
+class Importance(_common.CaseInSensitiveEnum):
+    """Importance level of the rubric."""
+
+    IMPORTANCE_UNSPECIFIED = "IMPORTANCE_UNSPECIFIED"
+    """Importance is not specified."""
+    HIGH = "HIGH"
+    """High importance."""
+    MEDIUM = "MEDIUM"
+    """Medium importance."""
+    LOW = "LOW"
+    """Low importance."""
 
 
 class BleuInstance(_common.BaseModel):
@@ -1867,11 +1891,11 @@ TrajectoryRecallMetricValueOrDict = Union[
 class TrajectoryRecallResults(_common.BaseModel):
     """Results for TrajectoryRecall metric."""
 
-    trajectory_recall_metric_values: Optional[
-        list[TrajectoryRecallMetricValue]
-    ] = Field(
-        default=None,
-        description="""Output only. TrajectoryRecall metric values.""",
+    trajectory_recall_metric_values: Optional[list[TrajectoryRecallMetricValue]] = (
+        Field(
+            default=None,
+            description="""Output only. TrajectoryRecall metric values.""",
+        )
     )
 
 
@@ -1985,11 +2009,11 @@ class EvaluateInstancesResponse(_common.BaseModel):
         default=None,
         description="""Results for tool parameter key value match metric.""",
     )
-    trajectory_any_order_match_results: Optional[
-        TrajectoryAnyOrderMatchResults
-    ] = Field(
-        default=None,
-        description="""Result for trajectory any order match metric.""",
+    trajectory_any_order_match_results: Optional[TrajectoryAnyOrderMatchResults] = (
+        Field(
+            default=None,
+            description="""Result for trajectory any order match metric.""",
+        )
     )
     trajectory_exact_match_results: Optional[TrajectoryExactMatchResults] = Field(
         default=None,
@@ -2005,11 +2029,11 @@ class EvaluateInstancesResponse(_common.BaseModel):
     trajectory_recall_results: Optional[TrajectoryRecallResults] = Field(
         default=None, description="""Results for trajectory recall metric."""
     )
-    trajectory_single_tool_use_results: Optional[
-        TrajectorySingleToolUseResults
-    ] = Field(
-        default=None,
-        description="""Results for trajectory single tool use metric.""",
+    trajectory_single_tool_use_results: Optional[TrajectorySingleToolUseResults] = (
+        Field(
+            default=None,
+            description="""Results for trajectory single tool use metric.""",
+        )
     )
 
 
@@ -2078,6 +2102,222 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
 
 EvaluateInstancesResponseOrDict = Union[
     EvaluateInstancesResponse, EvaluateInstancesResponseDict
+]
+
+
+class RubricGenerationSpec(_common.BaseModel):
+    """Spec for generating rubrics."""
+
+    prompt_template: Optional[str] = Field(
+        default=None,
+        description="""Template for the prompt used to generate rubrics.
+      The details should be updated based on the most-recent recipe requirements.""",
+    )
+    generator_model_config: Optional[AutoraterConfig] = Field(
+        default=None,
+        description="""Configuration for the model used in rubric generation.
+      Configs including sampling count and base model can be specified here.
+      Flipping is not supported for rubric generation.""",
+    )
+    rubric_content_type: Optional[RubricContentType] = Field(
+        default=None,
+        description="""The type of rubric content to be generated.""",
+    )
+    rubric_type_ontology: Optional[list[str]] = Field(
+        default=None,
+        description="""An optional, pre-defined list of allowed types for generated rubrics.
+      If this field is provided, it implies `include_rubric_type` should be true,
+      and the generated rubric types should be chosen from this ontology.""",
+    )
+
+
+class RubricGenerationSpecDict(TypedDict, total=False):
+    """Spec for generating rubrics."""
+
+    prompt_template: Optional[str]
+    """Template for the prompt used to generate rubrics.
+      The details should be updated based on the most-recent recipe requirements."""
+
+    generator_model_config: Optional[AutoraterConfigDict]
+    """Configuration for the model used in rubric generation.
+      Configs including sampling count and base model can be specified here.
+      Flipping is not supported for rubric generation."""
+
+    rubric_content_type: Optional[RubricContentType]
+    """The type of rubric content to be generated."""
+
+    rubric_type_ontology: Optional[list[str]]
+    """An optional, pre-defined list of allowed types for generated rubrics.
+      If this field is provided, it implies `include_rubric_type` should be true,
+      and the generated rubric types should be chosen from this ontology."""
+
+
+RubricGenerationSpecOrDict = Union[RubricGenerationSpec, RubricGenerationSpecDict]
+
+
+class RubricGenerationConfig(_common.BaseModel):
+    """Config for generating rubrics."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class RubricGenerationConfigDict(TypedDict, total=False):
+    """Config for generating rubrics."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+RubricGenerationConfigOrDict = Union[RubricGenerationConfig, RubricGenerationConfigDict]
+
+
+class _GenerateInstanceRubricsRequest(_common.BaseModel):
+    """Parameters for generating rubrics."""
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None,
+        description="""The prompt to generate rubrics from. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.""",
+    )
+    rubric_generation_spec: Optional[RubricGenerationSpec] = Field(
+        default=None,
+        description="""Specification for how the rubrics should be generated.""",
+    )
+    config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
+
+
+class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
+    """Parameters for generating rubrics."""
+
+    contents: Optional[list[genai_types.Content]]
+    """The prompt to generate rubrics from. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request."""
+
+    rubric_generation_spec: Optional[RubricGenerationSpecDict]
+    """Specification for how the rubrics should be generated."""
+
+    config: Optional[RubricGenerationConfigDict]
+    """"""
+
+
+_GenerateInstanceRubricsRequestOrDict = Union[
+    _GenerateInstanceRubricsRequest, _GenerateInstanceRubricsRequestDict
+]
+
+
+class RubricContentProperty(_common.BaseModel):
+    """Defines criteria based on a specific property."""
+
+    description: Optional[str] = Field(
+        default=None,
+        description="""Description of the property being evaluated.
+      Example: "The model's response is grammatically correct." """,
+    )
+
+
+class RubricContentPropertyDict(TypedDict, total=False):
+    """Defines criteria based on a specific property."""
+
+    description: Optional[str]
+    """Description of the property being evaluated.
+      Example: "The model's response is grammatically correct." """
+
+
+RubricContentPropertyOrDict = Union[RubricContentProperty, RubricContentPropertyDict]
+
+
+class RubricContent(_common.BaseModel):
+    """Content of the rubric, defining the testable criteria."""
+
+    property: Optional[RubricContentProperty] = Field(
+        default=None,
+        description="""Evaluation criteria based on a specific property.""",
+    )
+
+
+class RubricContentDict(TypedDict, total=False):
+    """Content of the rubric, defining the testable criteria."""
+
+    property: Optional[RubricContentPropertyDict]
+    """Evaluation criteria based on a specific property."""
+
+
+RubricContentOrDict = Union[RubricContent, RubricContentDict]
+
+
+class Rubric(_common.BaseModel):
+    """Message representing a single testable criterion for evaluation.
+
+    One input prompt could have multiple rubrics.
+    """
+
+    rubric_id: Optional[str] = Field(
+        default=None,
+        description="""Required. Unique identifier for the rubric.
+      This ID is used to refer to this rubric, e.g., in RubricVerdict.""",
+    )
+    content: Optional[RubricContent] = Field(
+        default=None,
+        description="""Required. The actual testable criteria for the rubric.""",
+    )
+    type: Optional[str] = Field(
+        default=None,
+        description="""Optional. A type designator for the rubric, which can inform how it's
+      evaluated or interpreted by systems or users.
+      It's recommended to use consistent, well-defined, upper snake_case strings.
+      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
+      "INSTRUCTION_ADHERENCE".""",
+    )
+    importance: Optional[Importance] = Field(
+        default=None,
+        description="""Optional. The relative importance of this rubric.""",
+    )
+
+
+class RubricDict(TypedDict, total=False):
+    """Message representing a single testable criterion for evaluation.
+
+    One input prompt could have multiple rubrics.
+    """
+
+    rubric_id: Optional[str]
+    """Required. Unique identifier for the rubric.
+      This ID is used to refer to this rubric, e.g., in RubricVerdict."""
+
+    content: Optional[RubricContentDict]
+    """Required. The actual testable criteria for the rubric."""
+
+    type: Optional[str]
+    """Optional. A type designator for the rubric, which can inform how it's
+      evaluated or interpreted by systems or users.
+      It's recommended to use consistent, well-defined, upper snake_case strings.
+      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
+      "INSTRUCTION_ADHERENCE"."""
+
+    importance: Optional[Importance]
+    """Optional. The relative importance of this rubric."""
+
+
+RubricOrDict = Union[Rubric, RubricDict]
+
+
+class GenerateInstanceRubricsResponse(_common.BaseModel):
+    """Response for generating rubrics."""
+
+    generated_rubrics: Optional[list[Rubric]] = Field(
+        default=None, description="""A list of generated rubrics."""
+    )
+
+
+class GenerateInstanceRubricsResponseDict(TypedDict, total=False):
+    """Response for generating rubrics."""
+
+    generated_rubrics: Optional[list[RubricDict]]
+    """A list of generated rubrics."""
+
+
+GenerateInstanceRubricsResponseOrDict = Union[
+    GenerateInstanceRubricsResponse, GenerateInstanceRubricsResponseDict
 ]
 
 
@@ -4237,11 +4477,11 @@ class _GenerateAgentEngineMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""The vertex session source of the memories that should be generated.""",
     )
-    direct_contents_source: Optional[
-        GenerateMemoriesRequestDirectContentsSource
-    ] = Field(
-        default=None,
-        description="""The direct contents source of the memories that should be generated.""",
+    direct_contents_source: Optional[GenerateMemoriesRequestDirectContentsSource] = (
+        Field(
+            default=None,
+            description="""The direct contents source of the memories that should be generated.""",
+        )
     )
     scope: Optional[dict[str, str]] = Field(
         default=None,
@@ -4923,11 +5163,11 @@ class _RetrieveAgentEngineMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""Parameters for semantic similarity search based retrieval.""",
     )
-    simple_retrieval_params: Optional[
-        RetrieveMemoriesRequestSimpleRetrievalParams
-    ] = Field(
-        default=None,
-        description="""Parameters for simple (non-similarity search) retrieval.""",
+    simple_retrieval_params: Optional[RetrieveMemoriesRequestSimpleRetrievalParams] = (
+        Field(
+            default=None,
+            description="""Parameters for simple (non-similarity search) retrieval.""",
+        )
     )
     config: Optional[RetrieveAgentEngineMemoriesConfig] = Field(
         default=None, description=""""""
@@ -5760,9 +6000,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=fields_to_exclude_callables
-            if fields_to_exclude_callables
-            else None,
+            exclude=(
+                fields_to_exclude_callables if fields_to_exclude_callables else None
+            ),
         )
 
         if version:
