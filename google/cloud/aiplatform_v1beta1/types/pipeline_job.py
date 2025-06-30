@@ -573,6 +573,16 @@ class PipelineTaskDetail(proto.Message):
         outputs (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.PipelineTaskDetail.ArtifactList]):
             Output only. The runtime output artifacts of
             the task.
+        task_unique_name (str):
+            Output only. The unique name of a task. This field is used
+            by pipeline job reruns. Console UI and Vertex AI SDK will
+            support triggering pipeline job reruns. The name is
+            constructed by concatenating all the parent tasks' names
+            with the task name. For example, if a task named
+            "child_task" has a parent task named "parent_task_1" and
+            parent task 1 has a parent task named "parent_task_2", the
+            task unique name will be
+            "parent_task_2.parent_task_1.child_task".
     """
 
     class State(proto.Enum):
@@ -725,6 +735,10 @@ class PipelineTaskDetail(proto.Message):
         proto.MESSAGE,
         number=11,
         message=ArtifactList,
+    )
+    task_unique_name: str = proto.Field(
+        proto.STRING,
+        number=14,
     )
 
 

@@ -10088,6 +10088,7 @@ def test_create_pipeline_job_rest_call_success(request_type):
                     ],
                     "inputs": {},
                     "outputs": {},
+                    "task_unique_name": "task_unique_name_value",
                 }
             ],
         },
@@ -13140,6 +13141,7 @@ async def test_create_pipeline_job_rest_asyncio_call_success(request_type):
                     ],
                     "inputs": {},
                     "outputs": {},
+                    "task_unique_name": "task_unique_name_value",
                 }
             ],
         },

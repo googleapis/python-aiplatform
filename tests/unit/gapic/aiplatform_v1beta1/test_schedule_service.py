@@ -5696,6 +5696,7 @@ def test_create_schedule_rest_call_success(request_type):
                             ],
                             "inputs": {},
                             "outputs": {},
+                            "task_unique_name": "task_unique_name_value",
                         }
                     ],
                 },
@@ -6883,6 +6884,7 @@ def test_update_schedule_rest_call_success(request_type):
                             ],
                             "inputs": {},
                             "outputs": {},
+                            "task_unique_name": "task_unique_name_value",
                         }
                     ],
                 },
@@ -8260,6 +8262,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                             ],
                             "inputs": {},
                             "outputs": {},
+                            "task_unique_name": "task_unique_name_value",
                         }
                     ],
                 },
@@ -9547,6 +9550,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                             ],
                             "inputs": {},
                             "outputs": {},
+                            "task_unique_name": "task_unique_name_value",
                         }
                     ],
                 },
