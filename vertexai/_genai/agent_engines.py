@@ -1988,7 +1988,15 @@ class AgentEngines(_api_module.BaseModule):
             env_vars=config.env_vars,
         )
         operation = self._create(config=api_config)
-        operation = self._await_operation(operation_name=operation.name)
+        if agent_engine is None:
+            poll_interval_seconds = 1  # Lightweight agent engine resource creation.
+        else:
+            poll_interval_seconds = 10
+        operation = self._await_operation(
+            operation_name=operation.name,
+            poll_interval_seconds=poll_interval_seconds,
+        )
+
         agent = types.AgentEngine(
             api_client=self,
             api_async_client=AsyncAgentEngines(api_client_=self._api_client),
