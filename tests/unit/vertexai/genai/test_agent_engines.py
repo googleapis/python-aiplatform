@@ -983,6 +983,10 @@ class TestAgentEngine:
                     env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
                 ),
             )
+            mock_await_operation.assert_called_once_with(
+                operation_name=None,
+                poll_interval_seconds=10,
+            )
             request_mock.assert_called_with(
                 "post",
                 "reasoningEngines",
@@ -1022,6 +1026,10 @@ class TestAgentEngine:
                     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
                     description=_TEST_AGENT_ENGINE_DESCRIPTION,
                 )
+            )
+            mock_await_operation.assert_called_once_with(
+                operation_name=None,
+                poll_interval_seconds=1,
             )
             request_mock.assert_called_with(
                 "post",
