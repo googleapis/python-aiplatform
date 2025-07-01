@@ -24,7 +24,6 @@ from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
@@ -409,7 +408,7 @@ class PromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -463,7 +462,7 @@ class PromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -514,7 +513,7 @@ class PromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -667,6 +666,8 @@ class PromptOptimizer(_api_module.BaseModule):
 
         # Get the job resource name
         job_resource_name = job.name
+        if not job_resource_name:
+            raise ValueError(f"Error creating job: {job}")
         job_id = job_resource_name.split("/")[-1]
         logger.info("Job created: %s", job.name)
 
@@ -708,7 +709,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -764,7 +765,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -817,7 +818,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None

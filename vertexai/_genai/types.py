@@ -5254,7 +5254,7 @@ class PromptTemplate(_common.BaseModel):
             )
         return value
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def variables(self) -> set[str]:
         return set(re.findall(self._VARIABLE_NAME_REGEX, self.text))
@@ -5265,11 +5265,11 @@ class PromptTemplate(_common.BaseModel):
         for match in re.finditer(self._VARIABLE_NAME_REGEX, self.text):
             start, end = match.span()
             var_name = match.group(1)
-            if start > last_end:
+            if start > last_end and self.text:
                 parts.append(("text", self.text[last_end:start]))
             parts.append(("var", var_name))
             last_end = end
-        if last_end < len(self.text):
+        if last_end < len(self.text) and self.text:
             parts.append(("text", self.text[last_end:]))
         return parts
 
@@ -5342,7 +5342,7 @@ class PromptTemplate(_common.BaseModel):
         """Parses a multimodal JSON string and returns its list of Parts."""
         try:
             content = genai_types.Content.model_validate_json(value)
-            return content.parts
+            return content.parts if content.parts is not None else [genai_types.Part()]
         except Exception:
             return [genai_types.Part(text=value)]
 
@@ -5447,7 +5447,7 @@ class PromptTemplate(_common.BaseModel):
         return final_content_obj.model_dump_json(exclude_none=True)
 
     def __str__(self) -> str:
-        return self.text
+        return self.text if self.text else ""
 
     def __repr__(self) -> str:
         return f"PromptTemplate(text='{self.text}')"
@@ -5621,7 +5621,7 @@ class MetricPromptBuilder(PromptTemplate):
 
     def __str__(self) -> str:
         """Returns the fully constructed prompt template text."""
-        return self.text
+        return self.text if self.text else ""
 
 
 class PromptTemplateDict(TypedDict, total=False):
@@ -6518,9 +6518,13 @@ class AgentEngine(_common.BaseModel):
     model_config = ConfigDict(extra="allow")
 
     def __repr__(self) -> str:
-        return f"AgentEngine(api_resource.name='{self.api_resource.name}')"
+        return (
+            f"AgentEngine(api_resource.name='{self.api_resource.name}')"
+            if self.api_resource is not None
+            else "AgentEngine(api_resource.name=None)"
+        )
 
-    def operation_schemas(self) -> list[Dict[str, Any]]:
+    def operation_schemas(self) -> Optional[list[Dict[str, Any]]]:
         """Returns the schemas of all registered operations for the agent."""
         if not isinstance(self.api_resource, ReasoningEngine):
             raise ValueError("api_resource is not initialized.")
@@ -6532,7 +6536,7 @@ class AgentEngine(_common.BaseModel):
         self,
         force: bool = False,
         config: Optional[DeleteAgentEngineConfigOrDict] = None,
-    ):
+    ) -> None:
         """Deletes the agent engine.
 
         Args:
@@ -6545,7 +6549,7 @@ class AgentEngine(_common.BaseModel):
         """
         if not isinstance(self.api_resource, ReasoningEngine):
             raise ValueError("api_resource is not initialized.")
-        self.api_client.delete(name=self.api_resource.name, force=force, config=config)
+        self.api_client.delete(name=self.api_resource.name, force=force, config=config)  # type: ignore[union-attr]
 
 
 class AgentEngineDict(TypedDict, total=False):
