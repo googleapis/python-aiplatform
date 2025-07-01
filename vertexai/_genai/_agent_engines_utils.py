@@ -34,7 +34,7 @@ def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
         the `query` API.
     """
 
-    def _method(self: types.AgentEngine, **kwargs):
+    def _method(self: types.AgentEngine, **kwargs) -> Any:
         if not self.api_client:
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
@@ -52,7 +52,9 @@ def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
     return _method
 
 
-def _wrap_async_query_operation(*, method_name: str) -> Callable[..., Coroutine]:
+def _wrap_async_query_operation(
+    *, method_name: str
+) -> Callable[..., Coroutine[Any, Any, Any]]:
     """Wraps an Agent Engine method, creating an async callable for `query` API.
 
     This function creates a callable object that executes the specified
@@ -122,7 +124,7 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[
 
 def _wrap_async_stream_query_operation(
     *, method_name: str
-) -> Callable[..., AsyncIterator]:
+) -> Callable[..., AsyncIterator[Any]]:
     """Wraps an Agent Engine method, creating an async callable for `stream_query` API.
 
     This function creates a callable object that executes the specified

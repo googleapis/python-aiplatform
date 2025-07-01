@@ -253,7 +253,7 @@ def _execute_inference_concurrently(
                         e,
                     )
                     responses[index] = {"error": f"Inference task failed: {e}"}
-    return responses
+    return responses  # type: ignore[return-value]
 
 
 def _run_gemini_inference(
@@ -337,14 +337,14 @@ def _call_litellm_completion(model: str, messages: list[dict[str, Any]]) -> dict
 
 def _run_litellm_inference(
     model: str, prompt_dataset: pd.DataFrame
-) -> list[dict[str, Any]]:
+) -> list[Optional[dict[str, Any]]]:
     """Runs inference using LiteLLM with concurrency."""
     logger.info(
         "Generating responses for %d prompts using LiteLLM for third party model: %s",
         len(prompt_dataset),
         model,
     )
-    responses = [None] * len(prompt_dataset)
+    responses: list[Optional[dict[str, Any]]] = [None] * len(prompt_dataset)
     tasks = []
 
     with tqdm(total=len(prompt_dataset), desc=f"LiteLLM Inference ({model})") as pbar:
@@ -714,7 +714,7 @@ def _resolve_dataset_inputs(
         loaded_raw_datasets.append(current_loaded_data)
 
         if dataset_schema:
-            current_schema = _evals_data_converters.EvalDatasetSchema[dataset_schema]
+            current_schema = _evals_data_converters.EvalDatasetSchema(dataset_schema)
         else:
             current_schema = _evals_data_converters.auto_detect_dataset_schema(
                 current_loaded_data
@@ -826,11 +826,13 @@ def _execute_evaluation(
             " EvaluationDataset or a list of EvaluationDataset."
         )
     original_candidate_names = [
-        ds.candidate_name or f"candidate_{i+1}" for i, ds in enumerate(dataset_list)
+        ds.candidate_name or f"candidate_{i + 1}" for i, ds in enumerate(dataset_list)
     ]
     name_counts = collections.Counter(original_candidate_names)
     deduped_candidate_names = []
-    current_name_counts = collections.defaultdict(int)
+    current_name_counts: collections.defaultdict[Any, int] = collections.defaultdict(
+        int
+    )
 
     for name in original_candidate_names:
         if name_counts[name] > 1:
