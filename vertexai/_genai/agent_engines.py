@@ -920,6 +920,7 @@ def _RetrieveMemoriesResponse_from_vertex(
 
 
 class AgentEngines(_api_module.BaseModule):
+
     def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
@@ -1988,11 +1989,19 @@ class AgentEngines(_api_module.BaseModule):
             env_vars=config.env_vars,
         )
         operation = self._create(config=api_config)
+        logger.info(
+            "View progress and logs at"
+            f" https://console.cloud.google.com/logs/query?project={self._api_client.project}."
+        )
         operation = self._await_operation(operation_name=operation.name)
         agent = types.AgentEngine(
             api_client=self,
             api_async_client=AsyncAgentEngines(api_client_=self._api_client),
             api_resource=operation.response,
+        )
+        logger.info("Agent Engine created. To use it in another session:")
+        logger.info(
+            f"agent_engine =" f" client.agent_engines.get('{agent.api_resource.name}')"
         )
         if agent_engine is not None:
             # If the user did not provide an agent_engine (e.g. lightweight
@@ -2035,11 +2044,15 @@ class AgentEngines(_api_module.BaseModule):
         if agent_engine is not None:
             sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
             gcs_dir_name = gcs_dir_name or _agent_engines._DEFAULT_GCS_DIR_NAME
-            agent_engine = _agent_engines._validate_agent_engine_or_raise(agent_engine)
+            agent_engine = _agent_engines._validate_agent_engine_or_raise(
+                agent_engine=agent_engine,
+                logger=logger,
+            )
             _agent_engines._validate_staging_bucket_or_raise(staging_bucket)
             requirements = _agent_engines._validate_requirements_or_raise(
                 agent_engine=agent_engine,
                 requirements=requirements,
+                logger=logger,
             )
             extra_packages = _agent_engines._validate_extra_packages_or_raise(
                 extra_packages
@@ -2055,6 +2068,7 @@ class AgentEngines(_api_module.BaseModule):
                 staging_bucket=staging_bucket,
                 gcs_dir_name=gcs_dir_name,
                 extra_packages=extra_packages,
+                logger=logger,
             )
             # Update the package spec.
             update_masks.append("spec.package_spec.pickle_object_gcs_uri")
@@ -2082,15 +2096,15 @@ class AgentEngines(_api_module.BaseModule):
                 )
             agent_engine_spec = {"package_spec": package_spec}
             if env_vars is not None:
-                (
-                    deployment_spec,
-                    deployment_update_masks,
-                ) = self._generate_deployment_spec_or_raise(env_vars=env_vars)
+                deployment_spec, deployment_update_masks = (
+                    self._generate_deployment_spec_or_raise(env_vars=env_vars)
+                )
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
             class_methods = _agent_engines._generate_class_methods_spec_or_raise(
                 agent_engine=agent_engine,
                 operations=_agent_engines._get_registered_operations(agent_engine),
+                logger=logger,
             )
             agent_engine_spec["class_methods"] = [
                 _utils.to_dict(class_method) for class_method in class_methods
@@ -2515,6 +2529,7 @@ class AgentEngines(_api_module.BaseModule):
 
 
 class AsyncAgentEngines(_api_module.BaseModule):
+
     async def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
