@@ -116,6 +116,7 @@ _ACTION_APPEND = "append"
 _WARNINGS_KEY = "warnings"
 _WARNING_MISSING = "missing"
 _WARNING_INCOMPATIBLE = "incompatible"
+_INSTALLATION_SUBDIR = "installation_scripts"
 
 
 def to_proto(
@@ -767,3 +768,64 @@ def _import_autogen_tools_or_warn() -> Optional[types.ModuleType]:
             "call `pip install google-cloud-aiplatform[ag2]`."
         )
     return None
+
+
+def validate_installation_scripts_or_raise(
+    script_paths: Sequence[str],
+    extra_packages: Sequence[str],
+):
+    """Validates the installation scripts' path explicitly provided by the user.
+
+    Args:
+        script_paths (Sequence[str]):
+            Required. The paths to the installation scripts.
+        extra_packages (Sequence[str]):
+            Required. The extra packages to be updated.
+
+    Raises:
+        ValueError: If a user-defined script is not under the expected
+            subdirectory, or not in `extra_packages`, or if an extra package is
+            in the installation scripts subdirectory, but is not specified as an
+            installation script.
+    """
+    for script_path in script_paths:
+        if not script_path.startswith(_INSTALLATION_SUBDIR):
+            LOGGER.warning(
+                f"User-defined installation script '{script_path}' is not in "
+                f"the expected '{_INSTALLATION_SUBDIR}' subdirectory. "
+                f"Ensure it is placed in '{_INSTALLATION_SUBDIR}' within your "
+                f"`extra_packages`."
+            )
+            raise ValueError(
+                f"Required installation script '{script_path}' "
+                f"is not under '{_INSTALLATION_SUBDIR}'"
+            )
+
+        if script_path not in extra_packages:
+            LOGGER.warning(
+                f"User-defined installation script '{script_path}' is not in "
+                f"extra_packages. Ensure it is added to `extra_packages`."
+            )
+            raise ValueError(
+                f"User-defined installation script '{script_path}' "
+                f"does not exist in `extra_packages`"
+            )
+
+    for extra_package in extra_packages:
+        if (
+            extra_package.startswith(_INSTALLATION_SUBDIR)
+            and extra_package not in script_paths
+        ):
+            LOGGER.warning(
+                f"Extra package '{extra_package}' is in the installation "
+                "scripts subdirectory, but is not specified as an installation "
+                "script in `build_options`. "
+                "Ensure it is added to installation_scripts for "
+                "automatic execution."
+            )
+            raise ValueError(
+                f"Extra package '{extra_package}' is in the installation "
+                "scripts subdirectory, but is not specified as an installation "
+                "script in `build_options`."
+            )
+    return

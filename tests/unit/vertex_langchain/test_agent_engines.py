@@ -584,6 +584,10 @@ _TEST_PACKAGE_DISTRIBUTIONS = {
     "pydantic": ["pydantic"],
 }
 
+_TEST_BUILD_OPTIONS_INSTALLATION = _agent_engines._BUILD_OPTIONS_INSTALLATION
+_TEST_INSTALLATION_SUBDIR = _utils._INSTALLATION_SUBDIR
+_TEST_INSTALLATION_SCRIPT_PATH = f"{_TEST_INSTALLATION_SUBDIR}/install_package.sh"
+
 
 def _create_empty_fake_package(package_name: str) -> str:
     """Creates a temporary directory structure representing an empty fake Python package.
@@ -1141,6 +1145,47 @@ class TestAgentEngine:
                 spec=test_spec,
             ),
         )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
+    def test_create_agent_engine_with_build_options(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+
+        with mock.patch("os.path.exists", return_value=True):
+            agent_engines.create(
+                self.test_agent,
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                extra_packages=[
+                    _TEST_INSTALLATION_SCRIPT_PATH,
+                ],
+                build_options={
+                    _TEST_BUILD_OPTIONS_INSTALLATION: [_TEST_INSTALLATION_SCRIPT_PATH]
+                },
+            )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+
         get_agent_engine_mock.assert_called_with(
             name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             retry=_TEST_RETRY,
@@ -2788,8 +2833,8 @@ class TestAgentEngineErrors:
             ValueError,
             match=(
                 "At least one of `agent_engine`, `requirements`, "
-                "`extra_packages`, `display_name`, `description`, or `env_vars` "
-                "must be specified."
+                "`extra_packages`, `display_name`, `description`, "
+                "`env_vars`, or `build_options` must be specified."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
@@ -3228,3 +3273,114 @@ class TestRequirements:
             "cloudpickle": "3.0.0",
             "pydantic": "1.11.1",
         }
+
+
+class TestValidateInstallationScripts:
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "name, script_paths, extra_packages",
+        [
+            (
+                "valid_script_in_subdir_and_extra_packages",
+                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
+                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
+            ),
+            (
+                "multiple_valid_scripts",
+                [
+                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                ],
+                [
+                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                ],
+            ),
+            ("empty_script_paths_and_extra_packages", [], []),
+        ],
+    )
+    def test_validate_installation_scripts(self, name, script_paths, extra_packages):
+        _utils.validate_installation_scripts_or_raise(
+            script_paths=script_paths, extra_packages=extra_packages
+        )
+
+    @pytest.mark.parametrize(
+        "name, script_paths, extra_packages, error_message",
+        [
+            (
+                "script_not_in_subdir",
+                ["script.sh"],
+                ["script.sh"],
+                (
+                    f"Required installation script 'script.sh' is not under"
+                    f" '{_utils._INSTALLATION_SUBDIR}'"
+                ),
+            ),
+            (
+                "script_not_in_extra_packages",
+                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
+                [],
+                (
+                    "User-defined installation script "
+                    f"'{_utils._INSTALLATION_SUBDIR}/script.sh'"
+                    " does not exist in `extra_packages`"
+                ),
+            ),
+            (
+                "extra_package_in_subdir_but_not_script",
+                [],
+                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
+                (
+                    f"Extra package '{_utils._INSTALLATION_SUBDIR}/script.sh' "
+                    "is in the installation scripts subdirectory, but is not "
+                    "specified as an installation script."
+                ),
+            ),
+            (
+                "one_valid_one_invalid_script_not_in_subdir",
+                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh", "script2.sh"],
+                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh", "script2.sh"],
+                (
+                    f"Required installation script 'script2.sh' is not under"
+                    f" '{_utils._INSTALLATION_SUBDIR}'"
+                ),
+            ),
+            (
+                "one_valid_one_invalid_script_not_in_extra_packages",
+                [
+                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                ],
+                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh"],
+                (
+                    "User-defined installation script "
+                    f"'{_utils._INSTALLATION_SUBDIR}/script2.sh' "
+                    "does not exist in `extra_packages`"
+                ),
+            ),
+            (
+                "one_valid_one_invalid_extra_package_in_subdir",
+                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh"],
+                [
+                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                ],
+                (
+                    f"Extra package '{_utils._INSTALLATION_SUBDIR}/script2.sh' "
+                    "is in the installation scripts subdirectory, but is not "
+                    "specified as an installation script."
+                ),
+            ),
+        ],
+    )
+    def test_validate_installation_scripts_raises_error(
+        self,
+        name,
+        script_paths,
+        extra_packages,
+        error_message,
+    ):
+        with pytest.raises(ValueError, match=error_message):
+            _utils.validate_installation_scripts_or_raise(
+                script_paths=script_paths, extra_packages=extra_packages
+            )
