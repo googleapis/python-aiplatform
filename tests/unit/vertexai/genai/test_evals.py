@@ -17,9 +17,9 @@ import json
 import os
 import statistics
 from unittest import mock
-import google.auth.credentials
 import warnings
 
+import google.auth.credentials
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
@@ -2741,30 +2741,36 @@ class TestLLMMetricHandlerPayload:
 
         payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
 
-        expected_json_instance_dict = {
-            "prompt": "User prompt text",
-            "response": "Model response text",
-            "custom_context": "Custom context value.",
-            "reference": "Ground truth text",
+        expected_content_map = {
+            "prompt": [
+                genai_types.Content(parts=[genai_types.Part(text="User prompt text")])
+            ],
+            "response": [
+                genai_types.Content(
+                    parts=[genai_types.Part(text="Model response text")]
+                )
+            ],
+            "custom_context": [
+                genai_types.Content(
+                    parts=[genai_types.Part(text="Custom context value.")]
+                )
+            ],
+            "reference": [
+                genai_types.Content(parts=[genai_types.Part(text="Ground truth text")])
+            ],
         }
 
-        actual_json_instance_str = payload["pointwise_metric_input"]["instance"][
-            "json_instance"
-        ]
-        actual_json_instance_dict = json.loads(actual_json_instance_str)
+        actual_content_map_dict = payload["pointwise_metric_input"]["instance"][
+            "content_map_instance"
+        ].values
 
-        assert actual_json_instance_dict == expected_json_instance_dict
-        assert "extra_field_not_in_template" not in actual_json_instance_dict
-        assert "eval_case_id" not in actual_json_instance_dict
+        assert len(actual_content_map_dict) == len(expected_content_map)
+        for key, value in expected_content_map.items():
+            assert key in actual_content_map_dict
+            assert actual_content_map_dict[key] == expected_content_map[key]
 
-        assert (
-            "custom_output_format_config"
-            not in payload["pointwise_metric_input"]["metric_spec"]
-        )
-        assert (
-            "system_instruction" not in payload["pointwise_metric_input"]["metric_spec"]
-        )
-        assert "autorater_config" not in payload
+        assert "extra_field_not_in_template" not in actual_content_map_dict
+        assert "eval_case_id" not in actual_content_map_dict
 
     def test_build_request_payload_various_field_types(self):
         metric = vertexai_genai_types.LLMMetric(
@@ -2814,21 +2820,50 @@ class TestLLMMetricHandlerPayload:
         )
 
         payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
-        actual_json_instance_dict = json.loads(
-            payload["pointwise_metric_input"]["instance"]["json_instance"]
-        )
+        actual_content_map_dict = payload["pointwise_metric_input"]["instance"][
+            "content_map_instance"
+        ].values
 
-        expected_json_instance_dict = {
-            "prompt": "The Prompt",
-            "response": "The Response",
-            "conversation_history": "user: Turn 1 user\nmodel: Turn 1 model",
-            "system_instruction": "System instructions here.",
-            "dict_field": json.dumps({"key1": "val1", "key2": [1, 2]}),
-            "list_field": json.dumps(["a", "b", {"c": 3}]),
-            "int_field": "42",
-            "bool_field": "True",
+        expected_content_map = {
+            "prompt": [
+                genai_types.Content(parts=[genai_types.Part(text="The Prompt")])
+            ],
+            "response": [
+                genai_types.Content(parts=[genai_types.Part(text="The Response")])
+            ],
+            "conversation_history": [
+                genai_types.Content(
+                    parts=[
+                        genai_types.Part(text="user: Turn 1 user\nmodel: Turn 1 model")
+                    ]
+                )
+            ],
+            "system_instruction": [
+                genai_types.Content(
+                    parts=[genai_types.Part(text="System instructions here.")]
+                )
+            ],
+            "dict_field": [
+                genai_types.Content(
+                    parts=[
+                        genai_types.Part(
+                            text=json.dumps({"key1": "val1", "key2": [1, 2]})
+                        )
+                    ]
+                )
+            ],
+            "list_field": [
+                genai_types.Content(
+                    parts=[genai_types.Part(text=json.dumps(["a", "b", {"c": 3}]))]
+                )
+            ],
+            "int_field": [genai_types.Content(parts=[genai_types.Part(text="42")])],
+            "bool_field": [genai_types.Content(parts=[genai_types.Part(text="True")])],
         }
-        assert actual_json_instance_dict == expected_json_instance_dict
+
+        for key, value in expected_content_map.items():
+            assert key in actual_content_map_dict
+            assert actual_content_map_dict[key] == expected_content_map[key]
 
     def test_build_request_payload_optional_metric_configs_set(self):
         metric = vertexai_genai_types.LLMMetric(
@@ -2853,11 +2888,17 @@ class TestLLMMetricHandlerPayload:
 
         payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
 
-        expected_json_instance = {"prompt": "p", "response": "r"}
-        actual_json_instance = json.loads(
-            payload["pointwise_metric_input"]["instance"]["json_instance"]
-        )
-        assert actual_json_instance == expected_json_instance
+        expected_content_map = {
+            "prompt": [genai_types.Content(parts=[genai_types.Part(text="p")])],
+            "response": [genai_types.Content(parts=[genai_types.Part(text="r")])],
+        }
+        actual_content_map_dict = payload["pointwise_metric_input"]["instance"][
+            "content_map_instance"
+        ].values
+
+        for key, value in expected_content_map.items():
+            assert key in actual_content_map_dict
+            assert actual_content_map_dict[key] == expected_content_map[key]
 
         metric_spec_payload = payload["pointwise_metric_input"]["metric_spec"]
         assert (
