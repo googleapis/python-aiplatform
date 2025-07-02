@@ -3183,7 +3183,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                         "content": "Hello!",
                     }
                 ],
-                "stream": "true",
             }
 
             response = my_endpoint.invoke(
