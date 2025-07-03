@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.101.1](https://github.com/googleapis/python-aiplatform/compare/v1.101.0...v1.101.1) (2025-07-03)
+
+
+### Documentation
+
+* Fix the docstring example for unary Endpoint invoke method. ([a132e86](https://github.com/googleapis/python-aiplatform/commit/a132e865b93c78b3564f736fafcc29d21f1128dc))
+
 ## [1.101.0](https://github.com/googleapis/python-aiplatform/compare/v1.100.0...v1.101.0) (2025-07-01)
 
 
