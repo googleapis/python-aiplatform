@@ -23,19 +23,38 @@ def test_create_config_lightweight(client):
     agent_display_name = "test-display-name"
     agent_description = "my agent"
 
-    if not os.environ.get("GCS_BUCKET"):
-        raise ValueError("GCS_BUCKET environment variable is not set.")
-
-    config = client.agent_engines._create_config(
-        mode="create",
-        staging_bucket=os.environ["GCS_BUCKET"],
-        display_name=agent_display_name,
-        description=agent_description,
+    agent_engine = client.agent_engines.create(
+        config={
+            "display_name": agent_display_name,
+            "description": agent_description,
+        },
     )
-    assert config == {
-        "display_name": agent_display_name,
-        "description": agent_description,
-    }
+    assert agent_engine.api_resource.display_name == agent_display_name
+    assert agent_engine.api_resource.description == agent_description
+
+
+def test_create_config_with_context_spec(client):
+    if not os.environ.get("GOOGLE_CLOUD_PROJECT"):
+        raise ValueError("GOOGLE_CLOUD_PROJECT environ variable is not set.")
+    if not os.environ.get("GOOGLE_CLOUD_LOCATION"):
+        raise ValueError("GOOGLE_CLOUD_LOCATION environ variable is not set.")
+    project = os.environ["GOOGLE_CLOUD_PROJECT"]
+    location = os.environ["GOOGLE_CLOUD_LOCATION"]
+    parent = f"projects/{project}/locations/{location}"
+    generation_model = f"{parent}/publishers/google/models/gemini-2.0-flash-001"
+    embedding_model = f"{parent}/publishers/google/models/text-embedding-005"
+
+    agent_engine = client.agent_engines.create(
+        config={
+            "context_spec": {
+                "memory_bank_config": {
+                    "generation_config": {"model": generation_model},
+                    "similarity_search_config": {"embedding_model": embedding_model},
+                },
+            },
+        }
+    )
+    assert agent_engine.api_resource
 
 
 pytestmark = pytest_helper.setup(
