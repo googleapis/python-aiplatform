@@ -103,8 +103,8 @@ class NotebookExecutionJob(proto.Message):
             Max running time of the execution job in
             seconds (default 86400s / 24 hrs).
         schedule_resource_name (str):
-            Output only. The Schedule resource name if this job is
-            triggered by one. Format:
+            The Schedule resource name if this job is triggered by one.
+            Format:
             ``projects/{project_id}/locations/{location}/schedules/{schedule_id}``
         job_state (google.cloud.aiplatform_v1beta1.types.JobState):
             Output only. The state of the

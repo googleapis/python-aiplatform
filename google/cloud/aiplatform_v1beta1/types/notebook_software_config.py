@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "PostStartupScriptConfig",
+        "ColabImage",
         "NotebookSoftwareConfig",
     },
 )
@@ -76,10 +77,44 @@ class PostStartupScriptConfig(proto.Message):
     )
 
 
-class NotebookSoftwareConfig(proto.Message):
-    r"""
+class ColabImage(proto.Message):
+    r"""Colab image of the runtime.
 
     Attributes:
+        release_name (str):
+            Optional. The release name of the
+            NotebookRuntime Colab image, e.g. "py310". If
+            not specified, detault to the latest release.
+        description (str):
+            Output only. A human-readable description of
+            the specified colab image release, populated by
+            the system. Example: "Python 3.10", "Latest -
+            current Python 3.11".
+    """
+
+    release_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    description: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class NotebookSoftwareConfig(proto.Message):
+    r"""Notebook Software Config. This is passed to the backend when
+    user makes software configurations in UI.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        colab_image (google.cloud.aiplatform_v1beta1.types.ColabImage):
+            Optional. Google-managed NotebookRuntime
+            colab image.
+
+            This field is a member of `oneof`_ ``runtime_image``.
         env (MutableSequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
             Optional. Environment variables to be passed
             to the container. Maximum limit is 100.
@@ -87,6 +122,12 @@ class NotebookSoftwareConfig(proto.Message):
 
     """
 
+    colab_image: "ColabImage" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="runtime_image",
+        message="ColabImage",
+    )
     env: MutableSequence[env_var.EnvVar] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,

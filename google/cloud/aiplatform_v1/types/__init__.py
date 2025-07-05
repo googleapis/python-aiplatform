@@ -826,6 +826,7 @@ from .notebook_service import (
     NotebookExecutionJobView,
 )
 from .notebook_software_config import (
+    ColabImage,
     NotebookSoftwareConfig,
     PostStartupScriptConfig,
 )
@@ -1837,6 +1838,7 @@ __all__ = (
     "UpgradeNotebookRuntimeRequest",
     "UpgradeNotebookRuntimeResponse",
     "NotebookExecutionJobView",
+    "ColabImage",
     "NotebookSoftwareConfig",
     "PostStartupScriptConfig",
     "Schema",

@@ -972,6 +972,7 @@ from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
 from .types.notebook_service import UpgradeNotebookRuntimeResponse
 from .types.notebook_service import NotebookExecutionJobView
+from .types.notebook_software_config import ColabImage
 from .types.notebook_software_config import NotebookSoftwareConfig
 from .types.notebook_software_config import PostStartupScriptConfig
 from .types.openapi import Schema
@@ -1418,6 +1419,7 @@ __all__ = (
     "CoherenceInstance",
     "CoherenceResult",
     "CoherenceSpec",
+    "ColabImage",
     "CometInput",
     "CometInstance",
     "CometResult",

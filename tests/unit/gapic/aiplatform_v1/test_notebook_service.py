@@ -11970,6 +11970,10 @@ def test_create_notebook_runtime_template_rest_call_success(request_type):
         "network_tags": ["network_tags_value1", "network_tags_value2"],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "software_config": {
+            "colab_image": {
+                "release_name": "release_name_value",
+                "description": "description_value",
+            },
             "env": [{"name": "name_value", "value": "value_value"}],
             "post_startup_script_config": {
                 "post_startup_script": "post_startup_script_value",
@@ -12645,6 +12649,10 @@ def test_update_notebook_runtime_template_rest_call_success(request_type):
         "network_tags": ["network_tags_value1", "network_tags_value2"],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "software_config": {
+            "colab_image": {
+                "release_name": "release_name_value",
+                "description": "description_value",
+            },
             "env": [{"name": "name_value", "value": "value_value"}],
             "post_startup_script_config": {
                 "post_startup_script": "post_startup_script_value",
@@ -15534,6 +15542,10 @@ async def test_create_notebook_runtime_template_rest_asyncio_call_success(reques
         "network_tags": ["network_tags_value1", "network_tags_value2"],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "software_config": {
+            "colab_image": {
+                "release_name": "release_name_value",
+                "description": "description_value",
+            },
             "env": [{"name": "name_value", "value": "value_value"}],
             "post_startup_script_config": {
                 "post_startup_script": "post_startup_script_value",
@@ -16284,6 +16296,10 @@ async def test_update_notebook_runtime_template_rest_asyncio_call_success(reques
         "network_tags": ["network_tags_value1", "network_tags_value2"],
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "software_config": {
+            "colab_image": {
+                "release_name": "release_name_value",
+                "description": "description_value",
+            },
             "env": [{"name": "name_value", "value": "value_value"}],
             "post_startup_script_config": {
                 "post_startup_script": "post_startup_script_value",
