@@ -20,7 +20,7 @@ from concurrent import futures
 import json
 import logging
 import statistics
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar, Union
 
 from google.genai import _common
 from google.genai import types as genai_types
@@ -178,6 +178,10 @@ class ComputationMetricHandler(MetricHandler):
                 f"response_index {response_index} out of bounds for eval_case with"
                 f" {len(eval_case.responses)} responses."
             )
+        if eval_case.responses is None:
+            raise ValueError(
+                f"No responses found for eval_case with ID {eval_case.eval_case_id}."
+            )
         current_response_candidate = eval_case.responses[response_index]
         if _extract_text_from_content(current_response_candidate.response) is None:
             raise ValueError(
@@ -308,6 +312,10 @@ class TranslationMetricHandler(MetricHandler):
                 f" {len(eval_case.responses)} responses."
             )
 
+        if eval_case.responses is None:
+            raise ValueError(
+                f"No responses found for eval_case with ID {eval_case.eval_case_id}."
+            )
         current_response_candidate = eval_case.responses[response_index]
         if _extract_text_from_content(current_response_candidate.response) is None:
             raise ValueError(
@@ -442,6 +450,10 @@ class LLMMetricHandler(MetricHandler):
                 f"response_index {response_index} out of bounds for eval_case with"
                 f" {len(eval_case.responses)} responses."
             )
+        if eval_case.responses is None:
+            raise ValueError(
+                f"No responses found for eval_case with ID {eval_case.eval_case_id}."
+            )
         current_response_candidate = eval_case.responses[response_index]
 
         prompt_text = _extract_text_from_content(eval_case.prompt)
@@ -475,13 +487,15 @@ class LLMMetricHandler(MetricHandler):
                 original_attr_value = getattr(eval_case, var_name, None)
 
                 if isinstance(original_attr_value, genai_types.Content):
-                    instance_data_for_json[var_name] = _extract_text_from_content(
-                        original_attr_value
-                    )
+                    extracted_text = _extract_text_from_content(original_attr_value)
+                    if extracted_text is not None:
+                        instance_data_for_json[var_name] = extracted_text
                 elif isinstance(original_attr_value, types.ResponseCandidate):
-                    instance_data_for_json[var_name] = _extract_text_from_content(
+                    extracted_text = _extract_text_from_content(
                         original_attr_value.response
                     )
+                    if extracted_text is not None:
+                        instance_data_for_json[var_name] = extracted_text
                 elif (
                     isinstance(original_attr_value, list)
                     and original_attr_value
@@ -510,11 +524,11 @@ class LLMMetricHandler(MetricHandler):
         }
         metric_spec_payload = request_payload["pointwise_metric_input"]["metric_spec"]
         if self.metric.return_raw_output is not None:
-            metric_spec_payload["custom_output_format_config"] = {
+            metric_spec_payload["custom_output_format_config"] = {  # type: ignore[index]
                 "return_raw_output": self.metric.return_raw_output,
             }
         if self.metric.judge_model_system_instruction is not None:
-            metric_spec_payload[
+            metric_spec_payload[  # type: ignore[index]
                 "system_instruction"
             ] = self.metric.judge_model_system_instruction
 
@@ -524,9 +538,9 @@ class LLMMetricHandler(MetricHandler):
         if self.metric.judge_model_sampling_count is not None:
             autorater_config_payload[
                 "sampling_count"
-            ] = self.metric.judge_model_sampling_count
+            ] = self.metric.judge_model_sampling_count  # type: ignore[assignment]
         if autorater_config_payload:
-            request_payload["autorater_config"] = autorater_config_payload
+            request_payload["autorater_config"] = autorater_config_payload  # type: ignore[assignment]
 
         logger.debug("request_payload: %s", request_payload)
 
@@ -650,6 +664,9 @@ class CustomMetricHandler(MetricHandler):
                 ),
             )
 
+        if not eval_case.responses:
+            raise ValueError(f"EvalCase {eval_case.eval_case_id} has no responses.")
+
         current_response_candidate = eval_case.responses[response_index]
 
         instance_for_custom_fn = eval_case.model_dump(
@@ -663,29 +680,33 @@ class CustomMetricHandler(MetricHandler):
         score = None
         explanation = None
         try:
-            custom_function_result = self.metric.custom_function(instance_for_custom_fn)
-
-            if isinstance(custom_function_result, types.EvalCaseMetricResult):
-                return custom_function_result
-            elif (
-                isinstance(custom_function_result, dict)
-                and "score" in custom_function_result
-            ):
-                score = custom_function_result["score"]
-                explanation = custom_function_result.get("explanation", None)
-            elif isinstance(custom_function_result, (float, int)):
-                score = custom_function_result
-                explanation = None
-            else:
-                error_msg = (
-                    f"CustomFunctionError({self.metric.custom_function}): Returned"
-                    f" unexpected type {type(custom_function_result)}"
+            if self.metric.custom_function:
+                custom_function_result = self.metric.custom_function(
+                    instance_for_custom_fn
                 )
+
+                if isinstance(custom_function_result, types.EvalCaseMetricResult):
+                    return custom_function_result
+                elif (
+                    isinstance(custom_function_result, dict)
+                    and "score" in custom_function_result
+                ):
+                    score = custom_function_result["score"]
+                    explanation = custom_function_result.get("explanation", None)
+                elif isinstance(custom_function_result, (float, int)):
+                    score = custom_function_result
+                    explanation = None
+                else:
+                    error_msg = (
+                        f"CustomFunctionError({self.metric.custom_function}): Returned"
+                        f" unexpected type {type(custom_function_result)}"
+                    )
 
         except Exception as e:
             custom_function_name = (
                 self.metric.custom_function.__name__
-                if hasattr(self.metric.custom_function, "__name__")
+                if self.metric.custom_function
+                and hasattr(self.metric.custom_function, "__name__")
                 else "unknown_custom_function"
             )
             error_msg = f"CustomFunctionError({custom_function_name}): {e}"
@@ -735,10 +756,10 @@ MetricHandlerType = TypeVar(
 
 def get_handler_for_metric(
     module: "evals.Evals", metric: types.Metric
-) -> MetricHandlerType:
+) -> Union[MetricHandlerType, Any]:
     """Returns a metric handler for the given metric."""
     for condition, handler_class in _METRIC_HANDLER_MAPPING:
-        if condition(metric):
+        if condition(metric):  # type: ignore[no-untyped-call]
             return handler_class(module=module, metric=metric)
     raise ValueError(f"Unsupported metric: {metric.name}")
 
@@ -803,11 +824,16 @@ def _aggregate_metric_results(
         metric_name = handler.metric.name
         results_for_this_metric: list[types.EvalCaseMetricResult] = []
         for case_result in eval_case_results:
-            for response_candidate_res in case_result.response_candidate_results:
-                if metric_name in response_candidate_res.metric_results:
-                    results_for_this_metric.append(
-                        response_candidate_res.metric_results[metric_name]
-                    )
+            if case_result.response_candidate_results:
+                for response_candidate_res in case_result.response_candidate_results:
+                    if (
+                        response_candidate_res.metric_results
+                        and metric_name in response_candidate_res.metric_results
+                        and isinstance(metric_name, str)
+                    ):
+                        results_for_this_metric.append(
+                            response_candidate_res.metric_results[metric_name]
+                        )
         if not results_for_this_metric:
             logger.warning(
                 "No results found for metric '%s' to aggregate.", metric_name
@@ -865,9 +891,9 @@ def compute_metrics_and_aggregate(
     """Computes metrics and aggregates them for a given evaluation run config."""
     metric_handlers = []
     all_futures = []
-    results_by_case_response_metric = collections.defaultdict(
-        lambda: collections.defaultdict(dict)
-    )
+    results_by_case_response_metric: collections.defaultdict[
+        Any, collections.defaultdict[Any, dict[Any, Any]]
+    ] = collections.defaultdict(lambda: collections.defaultdict(dict))
     submission_errors = []
     execution_errors = []
     case_indices_with_errors = set()

@@ -948,7 +948,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1008,7 +1008,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1079,7 +1079,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1143,7 +1143,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1209,7 +1209,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1265,7 +1265,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1327,7 +1327,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1377,7 +1377,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1433,7 +1433,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1487,7 +1487,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1541,7 +1541,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1595,7 +1595,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1651,7 +1651,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1717,7 +1717,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1773,7 +1773,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1833,7 +1833,7 @@ class AgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1988,7 +1988,15 @@ class AgentEngines(_api_module.BaseModule):
             env_vars=config.env_vars,
         )
         operation = self._create(config=api_config)
-        operation = self._await_operation(operation_name=operation.name)
+        if agent_engine is None:
+            poll_interval_seconds = 1  # Lightweight agent engine resource creation.
+        else:
+            poll_interval_seconds = 10
+        operation = self._await_operation(
+            operation_name=operation.name,
+            poll_interval_seconds=poll_interval_seconds,
+        )
+
         agent = types.AgentEngine(
             api_client=self,
             api_async_client=AsyncAgentEngines(api_client_=self._api_client),
@@ -2110,7 +2118,7 @@ class AgentEngines(_api_module.BaseModule):
         *,
         env_vars: Optional[dict[str, Union[str, Any]]] = None,
     ):
-        deployment_spec = {}
+        deployment_spec: dict[str, Any] = {}
         update_masks = []
         if env_vars:
             deployment_spec["env"] = []
@@ -2380,6 +2388,8 @@ class AgentEngines(_api_module.BaseModule):
                 )
             # We need to make a call to get the memory because the operation
             # response might not contain the relevant fields.
+            if not operation.response:
+                raise ValueError("Error retrieving memory.")
             operation.response = self.get_memory(name=operation.response.name)
         return operation
 
@@ -2543,7 +2553,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -2605,7 +2615,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -2678,7 +2688,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -2744,7 +2754,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -2812,7 +2822,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -2870,7 +2880,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -2934,7 +2944,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -2986,7 +2996,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -3044,7 +3054,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -3100,7 +3110,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -3156,7 +3166,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -3212,7 +3222,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -3270,7 +3280,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -3338,7 +3348,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -3396,7 +3406,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -3458,7 +3468,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None

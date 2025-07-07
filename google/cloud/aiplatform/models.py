@@ -3161,6 +3161,151 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             explanations=explain_response.explanations,
         )
 
+    def invoke(
+        self,
+        request_path: str,
+        body: bytes,
+        headers: Dict[str, str],
+        deployed_model_id: Optional[str] = None,
+        stream: bool = False,
+        timeout: Optional[float] = None,
+    ) -> Union[requests.models.Response, Iterator[requests.models.Response]]:
+        """Makes a prediction request for arbitrary paths.
+
+        Example usage:
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            # Unary request
+            body = {
+                "model": "",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Hello!",
+                    }
+                ],
+            }
+
+            response = my_endpoint.invoke(
+                request_path="/v1/chat/completions",
+                body = json.dumps(body).encode("utf-8"),
+                headers = {'Content-Type':'application/json'},
+            )
+            status_code = response.status_code
+            results = json.dumps(response.text)
+
+            # Streaming request
+            body = {
+                "model": "",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Hello!",
+                    }
+                ],
+                "stream": "true",
+            }
+
+            for chunk in my_endpoint.invoke(
+                request_path="/v1/chat/completions",
+                body = json.dumps(body).encode("utf-8"),
+                headers = {'Content-Type':'application/json'},
+                stream=True,
+            ):
+                chunk_text = chunk.decode('utf-8')
+
+        Args:
+            request_path (str):
+                The request url to the model server. The request path must be
+                a string that starts with a forward slash. Root can't be
+                accessed.
+
+            body (bytes):
+                The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
+
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no restrictions on the header.
+
+            deployed_model_id (str):
+                Optional. If specified, this InvokeRequest will be served by the
+                chosen DeployedModel, overriding this Endpoint's traffic split.
+
+            stream (bool): If set to True, streaming will be enabled.
+
+            timeout (float): Optional. The timeout for this request in seconds.
+
+        Returns:
+            By default, a requests.models.Response object containing the status code and prediction results is returned.
+            For stream=True, the response will be of type Iterator[requests.models.Response].
+
+        Raises:
+            ImportError: If there is an issue importing the `TCPKeepAliveAdapter` package.
+        """
+        if not self.authorized_session:
+            self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.authorized_session = google_auth_requests.AuthorizedSession(
+                self.credentials
+            )
+        if not self.dedicated_endpoint_enabled:
+            raise ValueError(
+                "Invoke method is only supported on dedicated endpoints. Please"
+                "make sure endpoint and model are correctly configured."
+            )
+        if self.dedicated_endpoint_dns is None:
+            raise ValueError(
+                "Dedicated endpoint DNS is empty. Please make sure endpoint"
+                "and model are ready before making a prediction."
+            )
+        if len(request_path) < 0 or request_path[0] != "/":
+            raise ValueError(
+                "container path must be a string that starts with a forward slash."
+            )
+        url = f"https://{self.dedicated_endpoint_dns}/v1/{self.resource_name}"
+
+        if deployed_model_id:
+            deployed_model_ids = set()
+            if hasattr(self._gca_resource, "deployed_models"):
+                for deployed_model in self._gca_resource.deployed_models:
+                    deployed_model_ids.add(deployed_model.id)
+            if deployed_model_id not in deployed_model_ids:
+                raise ValueError(
+                    f"Deployed model {deployed_model_id} not found in endpoint"
+                    f" {self.name}."
+                )
+            url += f"/deployedModels/{deployed_model_id}"
+        url += "/invoke" + request_path
+        if timeout is not None and timeout > google_auth_requests._DEFAULT_TIMEOUT:
+            try:
+                from requests_toolbelt.adapters.socket_options import (
+                    TCPKeepAliveAdapter,
+                )
+            except ImportError:
+                raise ImportError(
+                    "Cannot import the requests-toolbelt library."
+                    "Please install requests-toolbelt."
+                )
+            # count * interval need to be larger than 1 hr (3600s)
+            keep_alive = TCPKeepAliveAdapter(idle=120, count=100, interval=100)
+            self.authorized_session.mount("https://", keep_alive)
+
+        def invoke_stream_response():
+            with self.authorized_session.post(
+                url=url,
+                data=body,
+                headers=headers,
+                timeout=timeout,
+                stream=True,
+            ) as resp:
+                for line in resp.iter_lines():
+                    yield line
+
+        if stream:
+            # This wrapping allows a Response object is returned for
+            # non-streaming requests.
+            return invoke_stream_response()
+        return self.authorized_session.post(
+            url=url, data=body, headers=headers, timeout=timeout
+        )
+
     @classmethod
     def list(
         cls,
@@ -4005,6 +4150,132 @@ class PrivateEndpoint(Endpoint):
         raise NotImplementedError(
             f"{self.__class__.__name__} class does not support 'explain' as of now."
         )
+
+    def invoke(
+        self,
+        request_path: str,
+        body: bytes,
+        headers: Dict[str, str],
+        deployed_model_id: Optional[str] = None,
+        stream: bool = False,
+        timeout: Optional[float] = None,
+        endpoint_override: Optional[str] = None,
+    ) -> Iterator[bytes]:
+        """Makes a prediction request for arbitrary paths.
+
+        Example usage:
+            my_endpoint = aiplatform.PrivateEndpoint(ENDPOINT_ID)
+            response = my_endpoint.invoke(
+                request_path="/v1/chat/completions",
+                body = json.dumps(DATA).encode("utf-8"),
+                headers = {'Content-Type':'application/json'},
+                endpoint_override="10.128.0.3",
+            )
+            status_code = response.status_code
+            results = json.dumps(response.text)
+
+            for stream_response in my_endpoint.invoke(
+                request_path="/v1/chat/completions",
+                body = json.dumps(DATA).encode("utf-8"),
+                headers = {'Content-Type':'application/json'},
+                stream=True,
+                endpoint_override="10.128.0.3",
+            ):
+                stream_response_text = stream_response.decode('utf-8')
+
+        Args:
+            request_path (str):
+                The request url to the model server. The request path must be
+                a string that starts with a forward slash. Root can't be
+                accessed.
+
+            body (bytes):
+                The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
+
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no restrictions on the header.
+
+            deployed_model_id (str):
+                Optional. If specified, this InvokeRequest will be served by the
+                chosen DeployedModel, overriding this Endpoint's traffic split.
+
+            stream (bool): If set to True, streaming will be enabled.
+
+            timeout (float): Optional. The timeout for this request in seconds.
+
+            endpoint_override (Optional[str]):
+                The Private Service Connect endpoint's IP address or DNS that
+                points to the endpoint's service attachment.
+
+        Returns:
+            By default, a requests.models.Response object containing the status code and prediction results is returned.
+            For stream=True, the response will be of type Iterator[requests.models.Response].
+
+        Raises:
+            ValueError: If a endpoint override is not provided for PSC based
+                endpoint.
+            ValueError: If a endpoint override is invalid for PSC based endpoint.
+        """
+        self.wait()
+        if self.network or not self.private_service_connect_config:
+            raise ValueError("PSA based private endpoint does not support invoke.")
+
+        if self.private_service_connect_config:
+            if not endpoint_override:
+                raise ValueError(
+                    "Cannot make an invoke request because endpoint override is"
+                    "not provided. Please ensure an endpoint override is"
+                    "provided."
+                )
+            if not self._validate_endpoint_override(endpoint_override):
+                raise ValueError(
+                    "Invalid endpoint override provided. Please only use IP"
+                    "address or DNS."
+                )
+
+            if not self._authorized_session:
+                self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+                self._authorized_session = google_auth_requests.AuthorizedSession(
+                    self.credentials,
+                )
+                self._authorized_session.verify = False
+            if len(request_path) < 0 or request_path[0] != "/":
+                raise ValueError(
+                    "container path must be a string that starts with a forward slash."
+                )
+
+            url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}"
+            if deployed_model_id:
+                deployed_model_ids = set()
+                if hasattr(self._gca_resource, "deployed_models"):
+                    for deployed_model in self._gca_resource.deployed_models:
+                        deployed_model_ids.add(deployed_model.id)
+                if deployed_model_id not in deployed_model_ids:
+                    raise ValueError(
+                        f"Deployed model {deployed_model_id} not found in endpoint"
+                        f" {self.name}."
+                    )
+                url += f"/deployedModels/{deployed_model_id}"
+            url += "/invoke" + request_path
+
+            def invoke_stream_response():
+                with self._authorized_session.post(
+                    url=url,
+                    data=body,
+                    headers=headers,
+                    timeout=timeout,
+                    stream=True,
+                ) as resp:
+                    for line in resp.iter_lines():
+                        yield line
+
+            if stream:
+                # This wrapping allows a Response object is returned for
+                # non-streaming requests.
+                return invoke_stream_response()
+            return self._authorized_session.post(
+                url=url, data=body, headers=headers, timeout=timeout
+            )
 
     def health_check(self) -> bool:
         """

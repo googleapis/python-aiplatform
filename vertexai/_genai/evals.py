@@ -845,7 +845,7 @@ class Evals(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -925,7 +925,7 @@ class Evals(_api_module.BaseModule):
             config = types.EvalRunInferenceConfig()
         if isinstance(config, dict):
             config = types.EvalRunInferenceConfig.model_validate(config)
-        return _evals_common._execute_inference(
+        return _evals_common._execute_inference(  # type: ignore[no-any-return]
             api_client=self._api_client,
             model=model,
             src=src,
@@ -964,11 +964,9 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig.model_validate(config)
         if isinstance(dataset, list):
             dataset = [
-                (
-                    types.EvaluationDataset.model_validate(ds_item)
-                    if isinstance(ds_item, dict)
-                    else ds_item
-                )
+                types.EvaluationDataset.model_validate(ds_item)
+                if isinstance(ds_item, dict)
+                else ds_item
                 for ds_item in dataset
             ]
         else:
@@ -1109,7 +1107,7 @@ class AsyncEvals(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1202,6 +1200,6 @@ class AsyncEvals(_api_module.BaseModule):
         return_value = types.EvaluateDatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
-
         self._api_client._verify_response(return_value)
+
         return return_value

@@ -45,7 +45,7 @@ class GcsUtils:
 
     def __init__(self, api_client: BaseApiClient):
         self.api_client = api_client
-        self.storage_client = storage.Client(
+        self.storage_client = storage.Client(  # type: ignore[attr-defined]
             project=self.api_client.project,
             credentials=self.api_client._credentials,
         )
@@ -65,7 +65,7 @@ class GcsUtils:
     def upload_file_to_gcs(self, upload_gcs_path: str, filename: str) -> None:
         """Uploads the provided file to a Google Cloud Storage location."""
 
-        storage.Blob.from_string(
+        storage.Blob.from_string(  # type: ignore[attr-defined]
             uri=upload_gcs_path, client=self.storage_client
         ).upload_from_filename(filename)
 
@@ -171,7 +171,7 @@ class GcsUtils:
         self.upload_json(data, full_gcs_path)
         return full_gcs_path
 
-    def read_file_contents(self, gcs_filepath: str) -> str:
+    def read_file_contents(self, gcs_filepath: str) -> Union[str, Any]:
         """Reads the contents of a file from Google Cloud Storage."""
 
         bucket_name, blob_path = self.parse_gcs_path(gcs_filepath)
@@ -236,7 +236,9 @@ class EvalDatasetLoader:
         self.gcs_utils = GcsUtils(self.api_client)
         self.bigquery_utils = BigQueryUtils(self.api_client)
 
-    def _load_file(self, filepath: str, file_type: str) -> list[dict[str, Any]]:
+    def _load_file(
+        self, filepath: str, file_type: str
+    ) -> Union[list[dict[str, Any]], Any]:
         """Loads data from a file into a list of dictionaries."""
         if filepath.startswith(GCS_PREFIX):
             df = self.gcs_utils.read_gcs_file_to_dataframe(filepath, file_type)
@@ -254,7 +256,9 @@ class EvalDatasetLoader:
                     " 'csv'."
                 )
 
-    def load(self, source: Union[str, "pd.DataFrame"]) -> list[dict[str, Any]]:
+    def load(
+        self, source: Union[str, "pd.DataFrame"]
+    ) -> Union[list[dict[str, Any]], Any]:
         """Loads dataset from various sources into a list of dictionaries."""
         if isinstance(source, pd.DataFrame):
             return source.to_dict(orient="records")

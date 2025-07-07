@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.101.0](https://github.com/googleapis/python-aiplatform/compare/v1.100.0...v1.101.0) (2025-07-01)
+
+
+### Features
+
+* **Allow installation scripts in AgentEngine.** ([9296d4d](https://github.com/googleapis/python-aiplatform/commit/9296d4d9fc7cb40116f7adbce0e08f0c41a15413))
+* Add `invoke` method. It supports both streaming and non-streaming cases. ([e686932](https://github.com/googleapis/python-aiplatform/commit/e68693270a4f00aed51d78692a4c6bb78e7f3374))
+* Add computer use support to tools ([f56c42e](https://github.com/googleapis/python-aiplatform/commit/f56c42e1d52b052fac6003e6b523ee9f536b72a0))
+* Add computer use support to tools ([f56c42e](https://github.com/googleapis/python-aiplatform/commit/f56c42e1d52b052fac6003e6b523ee9f536b72a0))
+* Allow users to pass project_number for custom job service account when service_account is not provided. ([5b59030](https://github.com/googleapis/python-aiplatform/commit/5b59030d5ae98d6e4ff1a6d2e4e55dbe5b53fcf5))
+* Expose task_unique_name in pipeline task details for pipeline rerun ([f56c42e](https://github.com/googleapis/python-aiplatform/commit/f56c42e1d52b052fac6003e6b523ee9f536b72a0))
+* Support creating an invoke enabled model in Python SDK ([71a8d7b](https://github.com/googleapis/python-aiplatform/commit/71a8d7b375e5058de47901331071ccda9e2c41f6))
+
 ## [1.100.0](https://github.com/googleapis/python-aiplatform/compare/v1.99.0...v1.100.0) (2025-06-26)
 
 

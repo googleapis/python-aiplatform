@@ -1402,10 +1402,18 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         result = assemble_lro.result(timeout=None)
         _LOGGER.log_action_completed_against_resource("data", "assembled", self)
         table_id = result.bigquery_destination.lstrip("bq://")
-        return (
-            table_id,
-            bigframes.pandas.read_gbq(table_id) if load_dataframe else None,
-        )
+        if load_dataframe:
+            session_options = bigframes.BigQueryOptions(
+                credentials=initializer.global_config.credentials,
+                project=initializer.global_config.project,
+                location=initializer.global_config.location,
+            )
+            with bigframes.connect(session_options) as session:
+                df = session.read_gbq(table_id)
+        else:
+            df = None
+
+        return (table_id, df)
 
     def assess_tuning_resources(
         self,

@@ -435,16 +435,17 @@ def display_evaluation_result(
         ):
             base_df = _preprocess_df_for_json(input_dataset_list[0].eval_dataset_df)
             processed_rows = []
-            for _, row in base_df.iterrows():
-                prompt_key = "request" if "request" in row else "prompt"
-                prompt_info = _extract_text_and_raw_json(row.get(prompt_key))
-                processed_row = {
-                    "prompt_display_text": prompt_info["display_text"],
-                    "prompt_raw_json": prompt_info["raw_json"],
-                    "reference": row.get("reference", ""),
-                }
-                processed_rows.append(processed_row)
-            metadata_payload["dataset"] = processed_rows
+            if base_df is not None:
+                for _, row in base_df.iterrows():
+                    prompt_key = "request" if "request" in row else "prompt"
+                    prompt_info = _extract_text_and_raw_json(row.get(prompt_key))
+                    processed_row = {
+                        "prompt_display_text": prompt_info["display_text"],
+                        "prompt_raw_json": prompt_info["raw_json"],
+                        "reference": row.get("reference", ""),
+                    }
+                    processed_rows.append(processed_row)
+                metadata_payload["dataset"] = processed_rows
 
         if "eval_case_results" in result_dump:
             for case_res in result_dump["eval_case_results"]:
@@ -453,6 +454,7 @@ def display_evaluation_result(
                 ):
                     if (
                         resp_idx < len(input_dataset_list)
+                        and input_dataset_list is not None
                         and input_dataset_list[resp_idx].eval_dataset_df is not None
                     ):
                         df = _preprocess_df_for_json(
@@ -486,18 +488,19 @@ def display_evaluation_result(
             and single_dataset.eval_dataset_df is not None
         ):
             processed_df = _preprocess_df_for_json(single_dataset.eval_dataset_df)
-            for _, row in processed_df.iterrows():
-                prompt_key = "request" if "request" in row else "prompt"
-                prompt_info = _extract_text_and_raw_json(row.get(prompt_key))
-                response_info = _extract_text_and_raw_json(row.get("response"))
-                processed_row = {
-                    "prompt_display_text": prompt_info["display_text"],
-                    "prompt_raw_json": prompt_info["raw_json"],
-                    "reference": row.get("reference", ""),
-                    "response_display_text": response_info["display_text"],
-                    "response_raw_json": response_info["raw_json"],
-                }
-                processed_rows.append(processed_row)
+            if processed_df is not None:
+                for _, row in processed_df.iterrows():
+                    prompt_key = "request" if "request" in row else "prompt"
+                    prompt_info = _extract_text_and_raw_json(row.get(prompt_key))
+                    response_info = _extract_text_and_raw_json(row.get("response"))
+                    processed_row = {
+                        "prompt_display_text": prompt_info["display_text"],
+                        "prompt_raw_json": prompt_info["raw_json"],
+                        "reference": row.get("reference", ""),
+                        "response_display_text": response_info["display_text"],
+                        "response_raw_json": response_info["raw_json"],
+                    }
+                    processed_rows.append(processed_row)
             metadata_payload["dataset"] = processed_rows
 
             if "eval_case_results" in result_dump and processed_rows:
