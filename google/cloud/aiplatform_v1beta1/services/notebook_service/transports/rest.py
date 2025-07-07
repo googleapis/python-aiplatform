@@ -4676,7 +4676,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     A runtime is a virtual machine
                 allocated to a particular user for a
                 particular Notebook file on temporary
-                basis with lifetime limited to 24 hours.
+                basis with lifetime. Default runtimes
+                have a lifetime of 18 hours, while
+                custom runtimes last for 6 months from
+                their creation or last upgrade.
 
             """
 
