@@ -6043,6 +6043,18 @@ class EvaluationDataset(_common.BaseModel):
         description="""The BigQuery source for the evaluation dataset.""",
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def _check_pandas_installed(cls, data: Any) -> Any:
+        if isinstance(data, dict) and data.get("eval_dataset_df") is not None:
+            if pd is None:
+                logger.warning(
+                    "Pandas is not installed, some evals features are not"
+                    " available. Please install it with `pip install"
+                    " google-cloud-aiplatform[evaluation]`."
+                )
+        return data
+
     def show(self) -> None:
         """Shows the evaluation dataset."""
         from . import _evals_visualization
