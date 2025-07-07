@@ -5207,29 +5207,37 @@ class PromptOptimizerVAPOConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
     config_path: Optional[str] = Field(
-        default=None, description="""The gcs path to the config file."""
+        default=None,
+        description="""The gcs path to the config file, e.g. gs://bucket/config.json.""",
     )
-    service_account: Optional[str] = Field(default=None, description="""""")
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""The service account to use for the custom job. Cannot be provided at the same time as service_account_project_number.""",
+    )
     service_account_project_number: Optional[Union[int, str]] = Field(
-        default=None, description=""""""
+        default=None,
+        description="""The project number used to construct the default service account:{service_account_project_number}-compute@developer.gserviceaccount.comCannot be provided at the same time as "service_account".""",
     )
-    wait_for_completion: Optional[bool] = Field(default=True, description="""""")
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the job tocomplete. Ignored for async jobs.""",
+    )
 
 
 class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
     """VAPO Prompt Optimizer Config."""
 
     config_path: Optional[str]
-    """The gcs path to the config file."""
+    """The gcs path to the config file, e.g. gs://bucket/config.json."""
 
     service_account: Optional[str]
-    """"""
+    """The service account to use for the custom job. Cannot be provided at the same time as service_account_project_number."""
 
     service_account_project_number: Optional[Union[int, str]]
-    """"""
+    """The project number used to construct the default service account:{service_account_project_number}-compute@developer.gserviceaccount.comCannot be provided at the same time as "service_account"."""
 
     wait_for_completion: Optional[bool]
-    """"""
+    """Whether to wait for the job tocomplete. Ignored for async jobs."""
 
 
 PromptOptimizerVAPOConfigOrDict = Union[

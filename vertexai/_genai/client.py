@@ -32,6 +32,7 @@ class AsyncClient:
         self._api_client = api_client
         self._evals = None
         self._agent_engines = None
+        self._prompt_optimizer = None
 
     @property
     @_common.experimental_warning(
@@ -52,7 +53,17 @@ class AsyncClient:
                 ) from e
         return self._evals.AsyncEvals(self._api_client)
 
-    # TODO(b/424176979): add async prompt optimizer here.
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI prompt optimizer module is experimental, "
+        "and may change in future versions."
+    )
+    def prompt_optimizer(self):
+        if self._prompt_optimizer is None:
+            self._prompt_optimizer = importlib.import_module(
+                ".prompt_optimizer", __package__
+            )
+        return self._prompt_optimizer.AsyncPromptOptimizer(self._api_client)
 
     @property
     @_common.experimental_warning(

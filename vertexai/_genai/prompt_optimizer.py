@@ -27,6 +27,7 @@ from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
+from . import _prompt_optimizer_utils
 from . import types
 
 
@@ -574,6 +575,7 @@ class PromptOptimizer(_api_module.BaseModule):
             raise RuntimeError(f"Job failed with state: {job.state}")
         else:
             logger.info(f"Job completed with state: {job.state}")
+        return job
 
     def optimize(
         self,
@@ -584,21 +586,15 @@ class PromptOptimizer(_api_module.BaseModule):
 
         Args:
           method: The method for optimizing multiple prompts.
-          config: The config to use. Config  consists of the following fields: -
-            config_path: The gcs path to the config file, e.g.
-            gs://bucket/config.json. - service_account: Optional. The service
-              account to use for the custom job. Cannot be provided at the same
-              time as 'service_account_project_number'. -
-            service_account_project_number: Optional. The project number used to
-              construct the default service account:
-              f"{service_account_project_number}-compute@developer.gserviceaccount.com"
-              Cannot be provided at the same time as 'service_account'. -
-            wait_for_completion: Optional. Whether to wait for the job to
-              complete. Default is True.
+          config: PromptOptimizerVAPOConfig instance containing the
+            configuration for prompt optimization.
+
+        Returns:
+          The custom job that was created.
         """
 
         if method != "vapo":
-            raise ValueError("Only vapo methods is currently supported.")
+            raise ValueError("Only vapo method is currently supported.")
 
         if isinstance(config, dict):
             config = types.PromptOptimizerVAPOConfig(**config)
@@ -631,23 +627,7 @@ class PromptOptimizer(_api_module.BaseModule):
             }
         ]
 
-        if config.service_account:
-            if config.service_account_project_number:
-                raise ValueError(
-                    "Only one of service_account or"
-                    " service_account_project_number can be provided."
-                )
-            service_account = config.service_account
-        elif config.project_number:
-            service_account = (
-                f"{config.service_account_project_number}"
-                "-compute@developer.gserviceaccount.com"
-            )
-        else:
-            raise ValueError(
-                "Either service_account or service_account_project_number is"
-                " required."
-            )
+        service_account = _prompt_optimizer_utils._get_service_account(config)
 
         job_spec = types.CustomJobSpec(
             worker_pool_specs=worker_pool_specs,
@@ -672,11 +652,11 @@ class PromptOptimizer(_api_module.BaseModule):
         logger.info("Job created: %s", job.name)
 
         # Construct the dashboard URL
-        dashboard_url = f"https://pantheon.corp.google.com/vertex-ai/locations/{region}/training/{job_id}/cpu?e=13802955&project={project}"
+        dashboard_url = f"https://console.cloud.google.com/vertex-ai/locations/{region}/training/{job_id}/cpu?project={project}"
         logger.info("View the job status at: %s", dashboard_url)
 
         if wait_for_completion:
-            self._wait_for_completion(job_id)
+            job = self._wait_for_completion(job_id)
         return job
 
 
@@ -843,3 +823,92 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    async def optimize(
+        self,
+        method: str,
+        config: types.PromptOptimizerVAPOConfigOrDict,
+    ) -> types.CustomJob:
+        """Call async Vertex AI Prompt Optimizer (VAPO).
+
+        # Todo: b/428953357 - Add example in the README.
+          Example usage:
+          client = vertexai.Client(project=PROJECT_NAME, location='us-central1')
+          vapo_config = vertexai.types.PromptOptimizerVAPOConfig(
+              config_path="gs://you-bucket-name/your-config.json",
+              service_account=service_account,
+              wait_for_completion=True
+          )
+          job = await client.aio.prompt_optimizer.optimize(
+              method="vapo", config=vapo_config)
+
+          Args:
+            method: The method for optimizing multiple prompts (currently only
+              vapo is supported).
+            config: PromptOptimizerVAPOConfig instance containing the
+              configuration for prompt optimization.
+
+          Returns:
+            The custom job that was created.
+        """
+        if method != "vapo":
+            raise ValueError("Only vapo methods is currently supported.")
+
+        if isinstance(config, dict):
+            config = types.PromptOptimizerVAPOConfig(**config)
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        display_name = f"vapo-optimizer-{timestamp}"
+
+        if not config.config_path:
+            raise ValueError("Config path is required.")
+        bucket = "/".join(config.config_path.split("/")[:-1])
+
+        container_uri = "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0"
+
+        region = self._api_client.location
+        project = self._api_client.project
+        container_args = {
+            "config": config.config_path,
+        }
+        args = ["--%s=%s" % (k, v) for k, v in container_args.items()]
+        worker_pool_specs = [
+            {
+                "replica_count": 1,
+                "container_spec": {
+                    "image_uri": container_uri,
+                    "args": args,
+                },
+                "machine_spec": {
+                    "machine_type": "n1-standard-4",
+                },
+            }
+        ]
+
+        service_account = _prompt_optimizer_utils._get_service_account(config)
+
+        job_spec = types.CustomJobSpec(
+            worker_pool_specs=worker_pool_specs,
+            base_output_directory=types.GcsDestination(output_uri_prefix=bucket),
+            service_account=service_account,
+        )
+
+        custom_job = types.CustomJob(
+            display_name=display_name,
+            job_spec=job_spec,
+        )
+
+        job = await self._create_custom_job_resource(
+            custom_job=custom_job,
+        )
+
+        # Get the job id for the dashboard url and display to the user.
+        job_resource_name = job.name
+        job_id = job_resource_name.split("/")[-1]
+        logger.info("Job created: %s", job.name)
+
+        # Construct the dashboard URL to show to the user.
+        dashboard_url = f"https://console.cloud.google.com/vertex-ai/locations/{region}/training/{job_id}/cpu?project={project}"
+        logger.info("View the job status at: %s", dashboard_url)
+
+        return job
