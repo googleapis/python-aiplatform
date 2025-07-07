@@ -964,9 +964,11 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig.model_validate(config)
         if isinstance(dataset, list):
             dataset = [
-                types.EvaluationDataset.model_validate(ds_item)
-                if isinstance(ds_item, dict)
-                else ds_item
+                (
+                    types.EvaluationDataset.model_validate(ds_item)
+                    if isinstance(ds_item, dict)
+                    else ds_item
+                )
                 for ds_item in dataset
             ]
         else:
