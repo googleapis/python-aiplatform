@@ -189,5 +189,7 @@ class TestPrompts(e2e_base.TestEndToEnd):
         assert prompt.tools
 
         # Generate content using the prompt
-        response = prompt.generate_content(contents=prompt.assemble_contents())
+        response = prompt.generate_content(
+            model_name="gemini-1.5-pro-002", contents=prompt.assemble_contents()
+        )
         assert response
