@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.102.0](https://github.com/googleapis/python-aiplatform/compare/v1.101.0...v1.102.0) (2025-07-08)
+
+
+### Features
+
+* Add message ColabImage, add field colab_image to NotebookSoftwareConfig ([2c64a76](https://github.com/googleapis/python-aiplatform/commit/2c64a769e535d28abfa0dad6aadba76c8e929cbc))
+* Add message ColabImage, add field colab_image to NotebookSoftwareConfig ([2c64a76](https://github.com/googleapis/python-aiplatform/commit/2c64a769e535d28abfa0dad6aadba76c8e929cbc))
+* Configure Bigframes implicitly in `MultimodalDataset.assess()`. ([0664ea3](https://github.com/googleapis/python-aiplatform/commit/0664ea32eff7be779968e082a8b7e85f72c4791f))
+* GenAI SDK client - add async version of prompt optimizer ([4564c9c](https://github.com/googleapis/python-aiplatform/commit/4564c9c66ae2de79405012ef237c538a9aca88c5))
+* GenAI SDK client (evals)  - add LLMMetric.load function to load a config file (local or GCS) ([56252e8](https://github.com/googleapis/python-aiplatform/commit/56252e81423968cd514bd354a754e7a2e66eeea7))
+
+
+### Documentation
+
+* Fix the docstring example for unary Endpoint invoke method. ([a132e86](https://github.com/googleapis/python-aiplatform/commit/a132e865b93c78b3564f736fafcc29d21f1128dc))
+
 ## [1.101.0](https://github.com/googleapis/python-aiplatform/compare/v1.100.0...v1.101.0) (2025-07-01)
 
 
