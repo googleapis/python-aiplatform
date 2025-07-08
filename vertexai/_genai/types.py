@@ -19,6 +19,7 @@ import datetime
 import importlib
 import json
 import logging
+import os
 import re
 import typing
 from typing import (
@@ -5802,6 +5803,90 @@ class LLMMetric(Metric):
         if value is not None and (value < 1 or value > 32):
             raise ValueError("judge_model_sampling_count must be between 1 and 32.")
         return value
+
+    @classmethod
+    def load(cls, config_path: str, client: Optional[Any] = None) -> "LLMMetric":
+        """Loads a metric configuration from a YAML or JSON file.
+
+        This method allows for the creation of an LLMMetric instance from a
+        local file path or a Google Cloud Storage (GCS) URI. It will
+        automatically
+        detect the file type (.yaml, .yml, or .json) and parse it accordingly.
+
+        Args:
+            config_path: The local path or GCS URI (e.g.,
+              'gs://bucket/metric.yaml') to the metric configuration file.
+            client: Optional. The Vertex AI client instance to use for
+              authentication. If not provided, Application Default Credentials
+              (ADC) will be used.
+
+        Returns:
+            An instance of LLMMetric configured with the loaded data.
+
+        Raises:
+            ValueError: If the file path is invalid or the file content cannot
+            be parsed.
+            ImportError: If a required library like 'PyYAML' or
+            'google-cloud-storage' is not installed.
+            IOError: If the file cannot be read from the specified path.
+        """
+        file_extension = os.path.splitext(config_path)[1].lower()
+        if file_extension not in [".yaml", ".yml", ".json"]:
+            raise ValueError(
+                "Unsupported file extension for metric config. Must be .yaml,"
+                " .yml, or .json"
+            )
+
+        content_str: str
+        if config_path.startswith("gs://"):
+            try:
+                from google.cloud import storage
+
+                storage_client = storage.Client(
+                    credentials=client._api_client._credentials if client else None
+                )
+                path_without_prefix = config_path[len("gs://") :]
+                bucket_name, blob_path = path_without_prefix.split("/", 1)
+
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_path)
+                content_str = blob.download_as_bytes().decode("utf-8")
+            except ImportError as e:
+                raise ImportError(
+                    "Reading from GCS requires the 'google-cloud-storage'"
+                    " library. Please install it with 'pip install"
+                    " google-cloud-aiplatform[evaluation]'."
+                ) from e
+            except Exception as e:
+                raise IOError(f"Failed to read from GCS path {config_path}: {e}") from e
+        else:
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    content_str = f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    f"Local configuration file not found at: {config_path}"
+                )
+            except Exception as e:
+                raise IOError(f"Failed to read local file {config_path}: {e}") from e
+
+        data: Dict[str, Any]
+
+        if file_extension in [".yaml", ".yml"]:
+            if yaml is None:
+                raise ImportError(
+                    "YAML parsing requires the pyyaml library. Please install"
+                    " it with 'pip install"
+                    " google-cloud-aiplatform[evaluation]'."
+                )
+            data = yaml.safe_load(content_str)
+        elif file_extension == ".json":
+            data = json.loads(content_str)
+
+        if not isinstance(data, dict):
+            raise ValueError("Metric config content did not parse into a dictionary.")
+
+        return cls.model_validate(data)
 
 
 class MetricDict(TypedDict, total=False):
