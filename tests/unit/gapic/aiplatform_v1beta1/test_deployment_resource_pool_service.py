@@ -95,6 +95,7 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -6121,6 +6122,7 @@ def test_update_deployment_resource_pool_rest_call_success(request_type):
                 {"metric_name": "metric_name_value", "target": 647}
             ],
             "spot": True,
+            "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",
@@ -7924,6 +7926,7 @@ async def test_update_deployment_resource_pool_rest_asyncio_call_success(request
                 {"metric_name": "metric_name_value", "target": 647}
             ],
             "spot": True,
+            "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",
