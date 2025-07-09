@@ -20,6 +20,8 @@ from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 
 
+# If you re-record this test, you will need to update the replay file to
+# include the placeholder values for config path and service account
 def test_optimize(client):
     """Tests the optimize request parameters method."""
 
@@ -36,6 +38,7 @@ def test_optimize(client):
         service_account_project_number=os.environ.get(
             "VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"
         ),
+        optimizer_job_display_name="optimizer_job_test",
     )
     job = client.prompt_optimizer.optimize(
         method="vapo",

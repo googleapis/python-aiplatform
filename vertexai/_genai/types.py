@@ -5223,6 +5223,10 @@ class PromptOptimizerVAPOConfig(_common.BaseModel):
         default=True,
         description="""Whether to wait for the job tocomplete. Ignored for async jobs.""",
     )
+    optimizer_job_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name of the optimization job. If not provided, a display name in the format of "vapo-optimizer-{timestamp}" will be used.""",
+    )
 
 
 class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
@@ -5239,6 +5243,9 @@ class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
 
     wait_for_completion: Optional[bool]
     """Whether to wait for the job tocomplete. Ignored for async jobs."""
+
+    optimizer_job_display_name: Optional[str]
+    """The display name of the optimization job. If not provided, a display name in the format of "vapo-optimizer-{timestamp}" will be used."""
 
 
 PromptOptimizerVAPOConfigOrDict = Union[
@@ -5769,9 +5776,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=(
-                fields_to_exclude_callables if fields_to_exclude_callables else None
-            ),
+            exclude=fields_to_exclude_callables
+            if fields_to_exclude_callables
+            else None,
         )
 
         if version:

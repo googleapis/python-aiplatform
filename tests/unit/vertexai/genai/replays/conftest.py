@@ -22,8 +22,11 @@ from unittest import mock
 from vertexai._genai import (
     client as vertexai_genai_client_module,
 )
+from google.cloud import storage, bigquery
 from google.genai import _replay_api_client
 from google.genai import client as google_genai_client_module
+from vertexai._genai import _evals_utils
+from vertexai._genai import prompt_optimizer
 import pytest
 
 IS_KOKORO = os.getenv("KOKORO_BUILD_NUMBER") is not None
@@ -82,11 +85,39 @@ def _get_replay_id(use_vertex: bool, replays_prefix: str) -> str:
     return "/".join([replays_prefix, test_name])
 
 
+EVAL_CONFIG_GCS_URI = (
+    "gs://vertex-ai-generative-ai-eval-sdk-resources/metrics/text_quality/v1.0.0.yaml"
+)
+
+
+def _mock_read_file_contents_side_effect(uri: str):
+    """
+    Side effect to mock GcsUtils.read_file_contents for eval test test_batch_evaluate.
+    """
+    if uri == EVAL_CONFIG_GCS_URI:
+        # Construct the absolute path to the local mock file.
+        current_dir = os.path.dirname(__file__)
+        local_yaml_path = os.path.join(
+            current_dir, "test_resources/mock_eval_config.yaml"
+        )
+        try:
+            with open(local_yaml_path, "r") as f:
+                return f.read()
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                "The mock data file 'mock_eval_config.yaml' was not found."
+            )
+
+    raise ValueError(
+        f"Unexpected GCS URI '{uri}' in replay test. Only "
+        f"'{EVAL_CONFIG_GCS_URI}' is mocked."
+    )
+
+
 @pytest.fixture
 def client(use_vertex, replays_prefix, http_options, request):
 
     mode = request.config.getoption("--mode")
-    replays_directory_prefix = request.config.getoption("--replays-directory-prefix")
     if mode not in ["auto", "record", "replay", "api", "tap"]:
         raise ValueError("Invalid mode: " + mode)
     test_function_name = request.function.__name__
@@ -114,13 +145,14 @@ def client(use_vertex, replays_prefix, http_options, request):
         os.environ["GOOGLE_CLOUD_LOCATION"] = "location"
         os.environ["VAPO_CONFIG_PATH"] = "gs://dummy-test/dummy-config.json"
         os.environ["VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"] = "1234567890"
+        os.environ["GCS_BUCKET"] = "test-bucket"
 
         # Set the replay directory to the root directory of the replays.
         # This is needed to ensure that the replay files are found.
         replays_root_directory = os.path.abspath(
             os.path.join(
                 os.path.dirname(__file__),
-                "../../../../../../../../../google/cloud/aiplatform/sdk/genai/replays",
+                "../../../../../../../../../../google/cloud/aiplatform/sdk/genai/replays",
             )
         )
         os.environ["GOOGLE_GENAI_REPLAYS_DIRECTORY"] = replays_root_directory
@@ -131,18 +163,46 @@ def client(use_vertex, replays_prefix, http_options, request):
         http_options=http_options,
     )
 
-    replay_client.replays_directory = (
-        f"{replays_directory_prefix}/google/cloud/aiplatform/sdk/replays/"
-    )
-
     with mock.patch.object(
         google_genai_client_module.Client, "_get_api_client"
     ) as patch_method:
         patch_method.return_value = replay_client
         google_genai_client = vertexai_genai_client_module.Client()
 
-        # Yield the client so that cleanup can be completed at the end of the test.
-        yield google_genai_client
+        if mode != "replay":
+            yield google_genai_client
+        else:
+            # Eval tests make a call to GCS and BigQuery
+            # Need to mock this so it doesn't call the service in replay mode
+            with mock.patch.object(storage, "Client") as mock_storage_client:
+                mock_client_instance = mock.MagicMock()
 
-        # Save the replay after the test if we're in recording mode.
+                mock_blob = mock.MagicMock()
+
+                mock_blob.name = "v1.0.0.yaml"
+
+                mock_client_instance.list_blobs.return_value = [mock_blob]
+
+                mock_storage_client.return_value = mock_client_instance
+
+                with mock.patch.object(bigquery, "Client") as mock_bigquery_client:
+                    mock_bigquery_client.return_value = mock.MagicMock()
+
+                    with mock.patch.object(
+                        _evals_utils.GcsUtils, "read_file_contents"
+                    ) as mock_read_file_contents:
+                        mock_read_file_contents.side_effect = (
+                            _mock_read_file_contents_side_effect
+                        )
+
+                        with mock.patch.object(
+                            prompt_optimizer.time, "sleep"
+                        ) as mock_job_wait:
+                            mock_job_wait.return_value = None
+
+                            google_genai_client = vertexai_genai_client_module.Client()
+
+                            # Yield the client so that cleanup can be completed at the end of the test.
+                            yield google_genai_client
+
         replay_client.close()

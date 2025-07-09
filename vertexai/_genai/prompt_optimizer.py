@@ -599,8 +599,11 @@ class PromptOptimizer(_api_module.BaseModule):
         if isinstance(config, dict):
             config = types.PromptOptimizerVAPOConfig(**config)
 
-        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        display_name = f"vapo-optimizer-{timestamp}"
+        if config.optimizer_job_display_name:
+            display_name = config.optimizer_job_display_name
+        else:
+            timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            display_name = f"vapo-optimizer-{timestamp}"
         wait_for_completion = config.wait_for_completion
         if not config.config_path:
             raise ValueError("Config path is required.")
@@ -857,8 +860,11 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         if isinstance(config, dict):
             config = types.PromptOptimizerVAPOConfig(**config)
 
-        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        display_name = f"vapo-optimizer-{timestamp}"
+        if config.optimizer_job_display_name:
+            display_name = config.optimizer_job_display_name
+        else:
+            timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            display_name = f"vapo-optimizer-{timestamp}"
 
         if not config.config_path:
             raise ValueError("Config path is required.")
