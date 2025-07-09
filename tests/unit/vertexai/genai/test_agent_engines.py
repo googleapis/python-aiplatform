@@ -15,6 +15,7 @@
 import asyncio
 import importlib
 import json
+import logging
 import os
 import pytest
 import sys
@@ -963,10 +964,17 @@ class TestAgentEngine:
                 None,
             )
 
+    @pytest.mark.usefixtures("caplog")
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
-    def test_create_agent_engine(self, mock_await_operation, mock_prepare):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+    def test_create_agent_engine(self, mock_await_operation, mock_prepare, caplog):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        caplog.set_level(logging.INFO, logger="vertexai_genai.agentengines")
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1004,6 +1012,12 @@ class TestAgentEngine:
                 },
                 None,
             )
+            assert "View progress and logs at" in caplog.text
+            assert "Agent Engine created. To use it in another session:" in caplog.text
+            assert (
+                f"agent_engine=client.agent_engines.get("
+                f"'{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
+            )
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
@@ -1016,7 +1030,12 @@ class TestAgentEngine:
             display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
             description=_TEST_AGENT_ENGINE_DESCRIPTION,
         )
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1061,7 +1080,12 @@ class TestAgentEngine:
                 "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
             },
         }
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1106,10 +1130,19 @@ class TestAgentEngine:
                 None,
             )
 
+    @pytest.mark.usefixtures("caplog")
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
-    def test_update_agent_engine_requirements(self, mock_await_operation, mock_prepare):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+    def test_update_agent_engine_requirements(
+        self, mock_await_operation, mock_prepare, caplog
+    ):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        caplog.set_level(logging.INFO, logger="vertexai_genai.agentengines")
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1149,13 +1182,23 @@ class TestAgentEngine:
                 },
                 None,
             )
+            assert "Agent Engine updated. To use it in another session:" in caplog.text
+            assert (
+                f"agent_engine=client.agent_engines.get("
+                f"'{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
+            )
 
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_extra_packages(
         self, mock_await_operation, mock_prepare
     ):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1201,8 +1244,15 @@ class TestAgentEngine:
 
     @mock.patch.object(_agent_engines, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
-    def test_update_agent_engine_env_vars(self, mock_await_operation, mock_prepare):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+    def test_update_agent_engine_env_vars(
+        self, mock_await_operation, mock_prepare, caplog
+    ):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1251,7 +1301,12 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_display_name(self, mock_await_operation):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -1275,7 +1330,12 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_description(self, mock_await_operation):
-        mock_await_operation.return_value = _genai_types.AgentEngineOperation()
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:

@@ -788,6 +788,7 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
 
 def _validate_agent_engine_or_raise(
     agent_engine: _AgentEngineInterface,
+    logger: base.Logger = _LOGGER,
 ) -> _AgentEngineInterface:
     """Tries to validate the agent engine.
 
@@ -813,7 +814,7 @@ def _validate_agent_engine_or_raise(
         from google.adk.agents import BaseAgent
 
         if isinstance(agent_engine, BaseAgent):
-            _LOGGER.info("Deploying google.adk.agents.Agent as an application.")
+            logger.info("Deploying google.adk.agents.Agent as an application.")
             from vertexai.preview import reasoning_engines
 
             agent_engine = reasoning_engines.AdkApp(agent=agent_engine)
@@ -903,20 +904,25 @@ def _validate_requirements_or_raise(
     *,
     agent_engine: _AgentEngineInterface,
     requirements: Optional[Sequence[str]] = None,
+    logger: base.Logger = _LOGGER,
 ) -> Sequence[str]:
     """Tries to validate the requirements."""
     if requirements is None:
         requirements = []
     elif isinstance(requirements, str):
         try:
-            _LOGGER.info(f"Reading requirements from {requirements=}")
+            logger.info(f"Reading requirements from {requirements=}")
             with open(requirements) as f:
                 requirements = f.read().splitlines()
-                _LOGGER.info(f"Read the following lines: {requirements}")
+                logger.info(f"Read the following lines: {requirements}")
         except IOError as err:
             raise IOError(f"Failed to read requirements from {requirements=}") from err
-    requirements = _utils.validate_requirements_or_warn(agent_engine, requirements)
-    _LOGGER.info(f"The final list of requirements: {requirements}")
+    requirements = _utils.validate_requirements_or_warn(
+        obj=agent_engine,
+        requirements=requirements,
+        logger=logger,
+    )
+    logger.info(f"The final list of requirements: {requirements}")
     return requirements
 
 
@@ -940,7 +946,11 @@ def _validate_extra_packages_or_raise(
 
 
 def _get_gcs_bucket(
-    *, project: str, location: str, staging_bucket: str
+    *,
+    project: str,
+    location: str,
+    staging_bucket: str,
+    logger: base.Logger = _LOGGER,
 ) -> storage.Bucket:
     """Gets or creates the GCS bucket."""
     storage = _utils._import_cloud_storage_or_raise()
@@ -948,11 +958,11 @@ def _get_gcs_bucket(
     staging_bucket = staging_bucket.replace("gs://", "")
     try:
         gcs_bucket = storage_client.get_bucket(staging_bucket)
-        _LOGGER.info(f"Using bucket {staging_bucket}")
+        logger.info(f"Using bucket {staging_bucket}")
     except exceptions.NotFound:
         new_bucket = storage_client.bucket(staging_bucket)
         gcs_bucket = storage_client.create_bucket(new_bucket, location=location)
-        _LOGGER.info(f"Creating bucket {staging_bucket} in {location=}")
+        logger.info(f"Creating bucket {staging_bucket} in {location=}")
     return gcs_bucket
 
 
@@ -961,6 +971,7 @@ def _upload_agent_engine(
     agent_engine: _AgentEngineInterface,
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
+    logger: base.Logger = _LOGGER,
 ) -> None:
     """Uploads the agent engine to GCS."""
     cloudpickle = _utils._import_cloudpickle_or_raise()
@@ -979,7 +990,7 @@ def _upload_agent_engine(
         except Exception as e:
             raise TypeError("Agent engine serialized to an invalid format") from e
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
-    _LOGGER.info(f"Wrote to {dir_name}/{_BLOB_FILENAME}")
+    logger.info(f"Wrote to {dir_name}/{_BLOB_FILENAME}")
 
 
 def _upload_requirements(
@@ -987,12 +998,13 @@ def _upload_requirements(
     requirements: Sequence[str],
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
+    logger: base.Logger = _LOGGER,
 ) -> None:
     """Uploads the requirements file to GCS."""
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_REQUIREMENTS_FILE}")
     blob.upload_from_string("\n".join(requirements))
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
-    _LOGGER.info(f"Writing to {dir_name}/{_REQUIREMENTS_FILE}")
+    logger.info(f"Writing to {dir_name}/{_REQUIREMENTS_FILE}")
 
 
 def _upload_extra_packages(
@@ -1000,9 +1012,10 @@ def _upload_extra_packages(
     extra_packages: Sequence[str],
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
+    logger: base.Logger = _LOGGER,
 ) -> None:
     """Uploads extra packages to GCS."""
-    _LOGGER.info("Creating in-memory tarfile of extra_packages")
+    logger.info("Creating in-memory tarfile of extra_packages")
     tar_fileobj = io.BytesIO()
     with tarfile.open(fileobj=tar_fileobj, mode="w|gz") as tar:
         for file in extra_packages:
@@ -1011,7 +1024,7 @@ def _upload_extra_packages(
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_EXTRA_PACKAGES_FILE}")
     blob.upload_from_string(tar_fileobj.read())
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
-    _LOGGER.info(f"Writing to {dir_name}/{_EXTRA_PACKAGES_FILE}")
+    logger.info(f"Writing to {dir_name}/{_EXTRA_PACKAGES_FILE}")
 
 
 def _prepare(
@@ -1022,6 +1035,7 @@ def _prepare(
     location: str,
     staging_bucket: str,
     gcs_dir_name: str,
+    logger: base.Logger = _LOGGER,
 ) -> None:
     """Prepares the agent engine for creation or updates in Vertex AI.
 
@@ -1047,23 +1061,27 @@ def _prepare(
         project=project,
         location=location,
         staging_bucket=staging_bucket,
+        logger=logger,
     )
     _upload_agent_engine(
         agent_engine=agent_engine,
         gcs_bucket=gcs_bucket,
         gcs_dir_name=gcs_dir_name,
+        logger=logger,
     )
     if requirements is not None:
         _upload_requirements(
             requirements=requirements,
             gcs_bucket=gcs_bucket,
             gcs_dir_name=gcs_dir_name,
+            logger=logger,
         )
     if extra_packages is not None:
         _upload_extra_packages(
             extra_packages=extra_packages,
             gcs_bucket=gcs_bucket,
             gcs_dir_name=gcs_dir_name,
+            logger=logger,
         )
 
 
@@ -1474,7 +1492,10 @@ def _get_registered_operations(
 
 
 def _generate_class_methods_spec_or_raise(
-    *, agent_engine: _AgentEngineInterface, operations: Dict[str, List[str]]
+    *,
+    agent_engine: _AgentEngineInterface,
+    operations: Dict[str, List[str]],
+    logger: base.Logger = _LOGGER,
 ) -> List[proto.Message]:
     """Generates a ReasoningEngineSpec based on the registered operations.
 
@@ -1512,7 +1533,7 @@ def _generate_class_methods_spec_or_raise(
             try:
                 schema_dict = _utils.generate_schema(method, schema_name=method_name)
             except Exception as e:
-                _LOGGER.warning(f"failed to generate schema for {method_name}: {e}")
+                logger.warning(f"failed to generate schema for {method_name}: {e}")
                 continue
 
             class_method = _utils.to_proto(schema_dict)
