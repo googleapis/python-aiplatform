@@ -463,11 +463,6 @@ class AdkApp:
             )
         for key, value in self._tmpl_attrs.get("env_vars").items():
             os.environ[key] = value
-        if "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
-            self._tmpl_attrs["app_name"] = os.environ.get(
-                "GOOGLE_CLOUD_AGENT_ENGINE_ID",
-                self._tmpl_attrs.get("app_name"),
-            )
 
         artifact_service_builder = self._tmpl_attrs.get("artifact_service_builder")
         if artifact_service_builder:
