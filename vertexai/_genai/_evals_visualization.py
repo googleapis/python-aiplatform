@@ -490,9 +490,18 @@ def display_evaluation_result(
             processed_df = _preprocess_df_for_json(single_dataset.eval_dataset_df)
             if processed_df is not None:
                 for _, row in processed_df.iterrows():
-                    prompt_key = "request" if "request" in row else "prompt"
+                    prompt_key = "prompt"
+                    if "request" in row:
+                        prompt_key = "request"
+                    elif "input" in row:
+                        prompt_key = "input"
+
+                    response_key = "response"
+                    if "output" in row:
+                        response_key = "output"
+
                     prompt_info = _extract_text_and_raw_json(row.get(prompt_key))
-                    response_info = _extract_text_and_raw_json(row.get("response"))
+                    response_info = _extract_text_and_raw_json(row.get(response_key))
                     processed_row = {
                         "prompt_display_text": prompt_info["display_text"],
                         "prompt_raw_json": prompt_info["raw_json"],

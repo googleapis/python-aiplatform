@@ -35,6 +35,7 @@ class EvalDatasetSchema(_common.CaseInSensitiveEnum):
     GEMINI = "gemini"
     FLATTEN = "flatten"
     OPENAI = "openai"
+    OBSERVABILITY = "observability"
     UNKNOWN = "unknown"
 
 
@@ -442,6 +443,179 @@ class _OpenAIDataConverter(_EvalDataConverter):
         return types.EvaluationDataset(eval_cases=eval_cases)
 
 
+class _ObservabilityDataConverter(_EvalDataConverter):
+    """Converter for dataset in GCP Observability GenAI format."""
+
+    def _message_to_content(self, message: dict[str, Any]) -> genai_types.Content:
+        """Converts Obs GenAI message format to Content."""
+        parts = []
+        message_parts = message.get("parts", [])
+        if isinstance(message_parts, list):
+            for message_part in message_parts:
+                part = None
+                part_type = message_part.get("type", "")
+                match part_type:
+                    case "text":
+                        part = genai_types.Part(
+                            text=message_part.get("content", "")
+                        )
+
+                    case "blob":
+                        part = genai_types.Part(inline_data=genai_types.Blob(
+                            data=message_part.get("data", ""),
+                            mime_type=message_part.get("mime_type", "")
+                        ))
+
+                    case "file_data":
+                        part = genai_types.Part(file_data=genai_types.FileData(
+                            file_uri=message_part.get("file_uri", ""),
+                            mime_type=message_part.get("mime_type", "")
+                        ))
+
+                    case "tool_call":
+                        part = genai_types.Part(
+                            function_call=genai_types.FunctionCall(
+                                id=message_part.get("id", ""),
+                                name=message_part.get("name", ""),
+                                args=message_part.get("arguments", {})
+                            )
+                        )
+
+                    case "tool_call_response":
+                        part = genai_types.Part(
+                            function_response=genai_types.FunctionResponse(
+                                id=message_part.get("id", ""),
+                                name=message_part.get("name", ""),
+                                response=message_part.get("result", {})
+                            )
+                        )
+
+                    case _:
+                        logger.warning(
+                            "Unrecgonized message part type of '%s' found."
+                            "Skipping part.",
+                            part_type
+                        )
+
+                if part is not None:
+                    parts.append(part)
+
+        return genai_types.Content(
+            parts=parts,
+            role=message.get("role", "")
+        )
+
+    def _parse_messages(
+        self,
+        eval_case_id: str,
+        input_dict: dict[str, Any],
+        output_dict: dict[str, Any],
+        system_dict: Optional[dict[str, Any]] = None
+    ) -> types.EvalCase:
+        """Parses a set of messages into an EvalCase."""
+
+        # System message
+        system_instruction = None
+        if system_dict is not None:
+            system_msgs = system_dict.get("messages", [])
+            if system_msgs:
+                system_instruction = self._message_to_content(system_msgs[0])
+
+        # Input message
+        prompt = None
+        conversation_history = []
+        input_msgs = input_dict.get("messages", [])
+        if input_msgs:
+            # Extract latest message as prompt
+            prompt = self._message_to_content(input_msgs[-1])
+
+            # All previous messages are history
+            if len(input_msgs) > 1:
+                for turn_id, msg in enumerate(input_msgs[:-1]):
+                    conversation_history.append(types.Message(
+                        turn_id=str(turn_id),
+                        content=self._message_to_content(msg),
+                        author=msg.get("role", "")
+                    ))
+
+        # Output message
+        responses = []
+        output_choices = output_dict.get("choices", [])
+        for choice in output_choices:
+            response = types.ResponseCandidate(
+                response=self._message_to_content(choice.get("message", {}))
+            )
+            responses.append(response)
+
+        return types.EvalCase(
+            eval_case_id=eval_case_id,
+            prompt=prompt,
+            responses=responses,
+            system_instruction=system_instruction,
+            conversation_history=conversation_history,
+            reference=None
+        )
+
+    def _load_raw_data(self, data: Any, case_index: int) -> dict[Any, str]:
+        """Loads raw data into dict if possible."""
+        if isinstance(data, str):
+            try:
+                loaded_json = json.loads(data)
+                if isinstance(loaded_json, dict):
+                    return loaded_json
+                else:
+                    logger.warning(
+                        "Decoded response JSON is not a dictionary for case"
+                        " %s. Type: %s",
+                        case_index,
+                        type(loaded_json),
+                    )
+            except json.JSONDecodeError:
+                logger.warning(
+                    "Could not decode response JSON string for case %s."
+                    " Treating as empty response.",
+                    case_index,
+                )
+        elif isinstance(data, dict):
+            return data
+
+    @override
+    def convert(self, raw_data: list[dict[str, Any]]) -> types.EvaluationDataset:
+        """Converts a list of GCP Observability GenAI data into an EvaluationDataset."""
+        eval_cases = []
+
+        for i, item in enumerate(raw_data):
+            eval_case_id = f"observability_eval_case_{i}"
+
+            if "input" not in item or "output" not in item:
+                logger.warning(
+                    "Skipping case %s due to missing 'input' or 'output' key.",
+                    i
+                )
+                continue
+
+            input_data = item.get("input", {})
+            input_dict = self._load_raw_data(input_data, i)
+
+            output_data = item.get("output", {})
+            output_dict = self._load_raw_data(output_data, i)
+
+            system_dict = None
+            if "system" in item:
+                system_data = item.get("system", {})
+                system_dict = self._load_raw_data(system_data, i)
+
+            eval_case = self._parse_messages(
+                eval_case_id,
+                input_dict,
+                output_dict,
+                system_dict
+            )
+            eval_cases.append(eval_case)
+
+        return types.EvaluationDataset(eval_cases=eval_cases)
+
+
 def auto_detect_dataset_schema(
     raw_dataset: list[dict[str, Any]],
 ) -> Union[EvalDatasetSchema, str]:
@@ -476,6 +650,11 @@ def auto_detect_dataset_schema(
                 if "role" in messages_list[0] and "content" in messages_list[0]:
                     return EvalDatasetSchema.OPENAI
 
+    if "format" in keys:
+        format_content = first_item.get("format", "")
+        if isinstance(format_content, str) and format_content == "observability":
+            return EvalDatasetSchema.OBSERVABILITY
+
     if {"prompt", "response"}.issubset(keys) or {
         "response",
         "reference",
@@ -489,6 +668,7 @@ _CONVERTER_REGISTRY = {
     EvalDatasetSchema.GEMINI: _GeminiEvalDataConverter,
     EvalDatasetSchema.FLATTEN: _FlattenEvalDataConverter,
     EvalDatasetSchema.OPENAI: _OpenAIDataConverter,
+    EvalDatasetSchema.OBSERVABILITY: _ObservabilityDataConverter,
 }
 
 
