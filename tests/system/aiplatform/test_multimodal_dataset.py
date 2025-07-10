@@ -105,14 +105,30 @@ class TestDataset(e2e_base.TestEndToEnd):
         # to clean up the table.
         yield
 
-    def test_create_new_dataset(self, shared_state):
+    def test_create_new_dataset_from_bq_table_uri(self, shared_state):
         assert shared_state["bigquery_test_table"]
         bigquery_table = f"bq://{shared_state['bigquery_test_table']}"
         display_name = "test dataset"
         labels = {"label1": "value1", "label2": "value2"}
         try:
             ds = datasets.MultimodalDataset.from_bigquery(
-                bigquery_uri=bigquery_table, display_name=display_name, labels=labels
+                bigquery_source=bigquery_table, display_name=display_name, labels=labels
+            )
+            assert ds.display_name == display_name
+            assert ds.bigquery_table == bigquery_table
+            assert ds.labels == labels
+            assert ds.location == _TEST_LOCATION
+        finally:
+            ds.delete()
+
+    def test_create_new_dataset_from_bq_table_id(self, shared_state):
+        assert shared_state["bigquery_test_table"]
+        bigquery_table = f"{shared_state['bigquery_test_table']}"
+        display_name = "test dataset"
+        labels = {"label1": "value1", "label2": "value2"}
+        try:
+            ds = datasets.MultimodalDataset.from_bigquery(
+                bigquery_source=bigquery_table, display_name=display_name, labels=labels
             )
             assert ds.display_name == display_name
             assert ds.bigquery_table == bigquery_table

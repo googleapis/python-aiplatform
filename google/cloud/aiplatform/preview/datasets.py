@@ -690,7 +690,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
     def from_bigquery(
         cls,
         *,
-        bigquery_uri: str,
+        bigquery_source: str,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -702,10 +702,10 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         """Creates a multimodal dataset from a BigQuery table.
 
         Args:
-            bigquery_uri (str):
-                Required. The BigQuery table URI to be used for the created
-                dataset. The table uri can be in the format of
-                "bq://dataset.table" or "bq://project.dataset.table".
+            bigquery_source (str):
+                Required. The BigQuery table URI or ID to be used for the created
+                dataset, which can be in the format of "bq://dataset.table",
+                "bq://project.dataset.table" or "project.dataset.table".
             display_name (str):
                 Optional. The user-defined name of the dataset. The name can be
                 up to 128 characters long and can consist of any UTF-8
@@ -741,9 +741,10 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             dataset (MultimodalDataset):
                 The created multimodal dataset.
         """
+        if not bigquery_source.startswith("bq://"):
+            bigquery_source = f"bq://{bigquery_source}"
         return cls._create_from_bigquery(
-            bigquery_uri=bigquery_uri,
-            metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
+            metadata=_get_metadata_for_bq(bq_uri=bigquery_source),
             display_name=display_name,
             project=project,
             location=location,
@@ -856,7 +857,6 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
         bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
-            bigquery_uri=bigquery_uri,
             metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
             display_name=display_name,
             project=project,
@@ -958,7 +958,6 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
         bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
-            bigquery_uri=bigquery_uri,
             metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
             display_name=display_name,
             project=project,
@@ -1095,7 +1094,6 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
         bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
-            bigquery_uri=bigquery_uri,
             metadata=_get_metadata_for_bq(
                 bq_uri=bigquery_uri, request_column_name=request_column_name
             ),
@@ -1125,7 +1123,6 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
     def _create_from_bigquery(
         cls,
         *,
-        bigquery_uri: str,
         metadata: struct_pb2.Value,
         display_name: Optional[str] = None,
         project: Optional[str] = None,

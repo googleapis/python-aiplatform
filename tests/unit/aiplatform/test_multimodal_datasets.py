@@ -438,7 +438,7 @@ class TestMultimodalDataset:
     def test_create_dataset_from_bigquery(self, create_dataset_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
         new_dataset = ummd.MultimodalDataset.from_bigquery(
-            bigquery_uri=_TEST_SOURCE_URI_BQ,
+            bigquery_source=_TEST_SOURCE_URI_BQ,
             display_name=_TEST_DISPLAY_NAME,
             sync=sync,
         )
