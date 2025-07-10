@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.103.0](https://github.com/googleapis/python-aiplatform/compare/v1.102.0...v1.103.0) (2025-07-10)
+
+
+### Features
+
+* Add ADK version check and set MemoryBankService as default when google-adk&gt;=1.5.0 ([262fbc3](https://github.com/googleapis/python-aiplatform/commit/262fbc3c58e7ebe98b4420d81402f6bb805a0be4))
+* Add logging for agent engine creation ([795ee17](https://github.com/googleapis/python-aiplatform/commit/795ee171e0ac9034d834db1989d3d38c623c3dcb))
+* Populate task_unique_name from initial pipeline run in Pipeline Task Rerun Configs for pipeline job rerun ([116a0a6](https://github.com/googleapis/python-aiplatform/commit/116a0a63a5b062fa76b75818c77f2c49c4f60432))
+* Ummd.MultimodalDataset.from_bigquery() now also accepts a table id (not just a BQ table URI). ([6e5c421](https://github.com/googleapis/python-aiplatform/commit/6e5c4214483c1e19512d39351346929289c5eeee))
+
 ## [1.102.0](https://github.com/googleapis/python-aiplatform/compare/v1.101.0...v1.102.0) (2025-07-08)
 
 
