@@ -91,6 +91,13 @@ try:
 except ImportError:
     AutogenRunResponse = Any
 
+try:
+    import pydantic
+
+    BaseModel = pydantic.BaseModel
+except ImportError:
+    BaseModel = Any
+
 JsonDict = Dict[str, Any]
 
 
@@ -608,6 +615,14 @@ def is_noop_or_proxy_tracer_provider(tracer_provider) -> bool:
     ProxyTracerProvider = opentelemetry.trace.ProxyTracerProvider
     NoOpTracerProvider = opentelemetry.trace.NoOpTracerProvider
     return isinstance(tracer_provider, (NoOpTracerProvider, ProxyTracerProvider))
+
+
+def dump_event_for_json(event: BaseModel) -> Dict[str, Any]:
+    """Dumps an ADK event to a JSON-serializable dictionary."""
+    return event.model_dump(
+        exclude_none=True,
+        exclude={"content": {"parts": {"__all__": {"thought_signature"}}}},
+    )
 
 
 def _import_cloud_storage_or_raise() -> types.ModuleType:

@@ -102,6 +102,7 @@ class _MockRunner:
                 "content": {
                     "parts": [
                         {
+                            "thought_signature": b"test_signature",
                             "function_call": {
                                 "args": {
                                     "currency_date": "2025-04-03",
@@ -110,7 +111,7 @@ class _MockRunner:
                                 },
                                 "id": "af-c5a57692-9177-4091-a3df-098f834ee849",
                                 "name": "get_exchange_rate",
-                            }
+                            },
                         }
                     ],
                     "role": "model",
@@ -129,6 +130,7 @@ class _MockRunner:
                 "content": {
                     "parts": [
                         {
+                            "thought_signature": b"test_signature",
                             "function_call": {
                                 "args": {
                                     "currency_date": "2025-04-03",
@@ -137,7 +139,7 @@ class _MockRunner:
                                 },
                                 "id": "af-c5a57692-9177-4091-a3df-098f834ee849",
                                 "name": "get_exchange_rate",
-                            }
+                            },
                         }
                     ],
                     "role": "model",
@@ -398,6 +400,30 @@ class TestAdkApp:
         # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
         # app.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
+
+
+def test_dump_event_for_json():
+    from google.adk.events import event
+
+    test_event = event.Event(
+        **{
+            "author": "test_agent",
+            "content": {
+                "parts": [
+                    {
+                        "thought_signature": b"test_signature",
+                        "text": "This is a test",
+                    }
+                ],
+                "role": "model",
+            },
+            "id": "test_id",
+            "invocation_id": "test_invocation_id",
+        }
+    )
+    dumped_event = _utils.dump_event_for_json(test_event)
+    assert "thought_signature" not in dumped_event["content"]["parts"][0]
+    assert "text" in dumped_event["content"]["parts"][0]
 
 
 @pytest.mark.usefixtures("mock_adk_version")

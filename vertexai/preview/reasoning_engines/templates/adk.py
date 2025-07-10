@@ -181,11 +181,13 @@ class _StreamingRunResponse:
         # List of artifacts belonging to the session.
 
     def dump(self) -> Dict[str, Any]:
+        from vertexai.agent_engines import _utils
+
         result = {}
         if self.events:
             result["events"] = []
             for event in self.events:
-                event_dict = event.model_dump(exclude_none=True)
+                event_dict = _utils.dump_event_for_json(event)
                 event_dict["invocation_id"] = event_dict.get("invocation_id", "")
                 result["events"].append(event_dict)
         if self.artifacts:
@@ -556,6 +558,7 @@ class AdkApp:
         Yields:
             The output of querying the ADK application.
         """
+        from vertexai.agent_engines import _utils
         from google.genai import types
 
         if isinstance(message, Dict):
@@ -576,7 +579,7 @@ class AdkApp:
         for event in self._tmpl_attrs.get("runner").run(
             user_id=user_id, session_id=session_id, new_message=content, **kwargs
         ):
-            yield event.model_dump(exclude_none=True)
+            yield _utils.dump_event_for_json(event)
 
     async def async_stream_query(
         self,
@@ -603,6 +606,7 @@ class AdkApp:
         Yields:
             Event dictionaries asynchronously.
         """
+        from vertexai.agent_engines import _utils
         from google.genai import types
 
         if isinstance(message, Dict):
@@ -627,7 +631,7 @@ class AdkApp:
 
         async for event in events_async:
             # Yield the event data as a dictionary
-            yield event.model_dump(exclude_none=True)
+            yield _utils.dump_event_for_json(event)
 
     def streaming_agent_run_with_events(self, request_json: str):
         import json
