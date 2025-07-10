@@ -84,10 +84,10 @@ def simple_span_processor_mock():
 
 
 @pytest.fixture
-def mock_adk_major_version():
+def mock_adk_version():
     with mock.patch(
-        "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
-        return_value=1,
+        "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_version",
+        return_value="1.5.0",
     ):
         yield
 
@@ -148,17 +148,17 @@ class _MockRunner:
         )
 
 
-@pytest.mark.usefixtures("google_auth_mock", "mock_adk_major_version")
+@pytest.mark.usefixtures("google_auth_mock")
 class TestAdkApp:
-    def test_adk_major_version(self):
+    def test_adk_version(self):
         with mock.patch(
-            "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
-            return_value=0,
+            "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_version",
+            return_value="0.5.0",
         ):
             with pytest.raises(
                 ValueError,
                 match=(
-                    "Unsupported google-adk major version: 0, please use"
+                    "Unsupported google-adk version: 0.5.0, please use"
                     " google-adk>=1.0.0 for AdkApp deployment."
                 ),
             ):
@@ -400,7 +400,7 @@ class TestAdkApp:
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
 
-@pytest.mark.usefixtures("mock_adk_major_version")
+@pytest.mark.usefixtures("mock_adk_version")
 class TestAdkAppErrors:
     def test_raise_get_session_not_found_error(self):
         with pytest.raises(

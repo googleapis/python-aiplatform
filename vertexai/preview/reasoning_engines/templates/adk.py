@@ -81,14 +81,31 @@ _DEFAULT_APP_NAME = "default-app-name"
 _DEFAULT_USER_ID = "default-user-id"
 
 
-def get_adk_major_version() -> int:
-    """Get the major version of google-adk."""
+def get_adk_version() -> Optional[str]:
+    """Returns the version of the ADK package."""
     try:
         from google.adk import version
 
-        return int(version.__version__.split(".")[0])
+        return version.__version__
     except ImportError:
-        return 0
+        return None
+
+
+def is_version_sufficient(version_to_check: str) -> bool:
+    """Compares the existing version of ADK with the required version.
+
+    Args:
+        version_to_check: The version string to check.
+
+    Returns:
+        True if the existing version is sufficient, False otherwise.
+    """
+    try:
+        from packaging.version import parse
+
+        return parse(get_adk_version()) >= parse(version_to_check)
+    except (AttributeError, ImportError):
+        return False
 
 
 class _ArtifactVersion:
@@ -294,10 +311,10 @@ class AdkApp:
         """An ADK Application."""
         from google.cloud.aiplatform import initializer
 
-        adk_major_version = get_adk_major_version()
-        if adk_major_version < 1:
+        adk_version = get_adk_version()
+        if not is_version_sufficient("1.0.0"):
             msg = (
-                f"Unsupported google-adk major version: {adk_major_version}, "
+                f"Unsupported google-adk version: {adk_version}, "
                 "please use google-adk>=1.0.0 for AdkApp deployment."
             )
             raise ValueError(msg)
@@ -464,16 +481,35 @@ class AdkApp:
                 VertexAiSessionService,
             )
 
-            self._tmpl_attrs["session_service"] = VertexAiSessionService(
-                project=project,
-                location=location,
-            )
+            if is_version_sufficient("1.5.0"):
+                self._tmpl_attrs["session_service"] = VertexAiSessionService(
+                    project=project,
+                    location=location,
+                    agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                )
+            else:
+                self._tmpl_attrs["session_service"] = VertexAiSessionService(
+                    project=project,
+                    location=location,
+                )
         else:
             self._tmpl_attrs["session_service"] = InMemorySessionService()
 
         memory_service_builder = self._tmpl_attrs.get("memory_service_builder")
         if memory_service_builder:
             self._tmpl_attrs["memory_service"] = memory_service_builder()
+        elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ and is_version_sufficient(
+            "1.5.0"
+        ):
+            from google.adk.memory.vertex_ai_memory_bank_service import (
+                VertexAiMemoryBankService,
+            )
+
+            self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
+                project=project,
+                location=location,
+                agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+            )
         else:
             self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
 
