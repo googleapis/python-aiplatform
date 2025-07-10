@@ -211,6 +211,8 @@ from .evaluated_annotation import (
     EvaluatedAnnotationExplanation,
 )
 from .evaluation_service import (
+    AggregationOutput,
+    AggregationResult,
     AutoraterConfig,
     BleuInput,
     BleuInstance,
@@ -1594,6 +1596,8 @@ __all__ = (
     "ErrorAnalysisAnnotation",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
+    "AggregationOutput",
+    "AggregationResult",
     "AutoraterConfig",
     "BleuInput",
     "BleuInstance",
