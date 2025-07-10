@@ -260,6 +260,8 @@ from .types.env_var import SecretRef
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
+from .types.evaluation_service import AggregationOutput
+from .types.evaluation_service import AggregationResult
 from .types.evaluation_service import AutoraterConfig
 from .types.evaluation_service import BleuInput
 from .types.evaluation_service import BleuInstance
@@ -1335,6 +1337,8 @@ __all__ = (
     "AddExecutionEventsRequest",
     "AddExecutionEventsResponse",
     "AddTrialMeasurementRequest",
+    "AggregationOutput",
+    "AggregationResult",
     "Annotation",
     "AnnotationSpec",
     "ApiAuth",

@@ -31,6 +31,8 @@ __protobuf__ = proto.module(
         "EvaluateDatasetOperationMetadata",
         "EvaluateDatasetResponse",
         "OutputInfo",
+        "AggregationOutput",
+        "AggregationResult",
         "EvaluateDatasetRequest",
         "OutputConfig",
         "Metric",
@@ -228,11 +230,20 @@ class EvaluateDatasetResponse(proto.Message):
     r"""Response in LRO for EvaluationService.EvaluateDataset.
 
     Attributes:
+        aggregation_output (google.cloud.aiplatform_v1beta1.types.AggregationOutput):
+            Output only. Aggregation statistics derived
+            from results of
+            EvaluationService.EvaluateDataset.
         output_info (google.cloud.aiplatform_v1beta1.types.OutputInfo):
             Output only. Output info for
             EvaluationService.EvaluateDataset.
     """
 
+    aggregation_output: "AggregationOutput" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="AggregationOutput",
+    )
     output_info: "OutputInfo" = proto.Field(
         proto.MESSAGE,
         number=3,
@@ -261,6 +272,102 @@ class OutputInfo(proto.Message):
         proto.STRING,
         number=1,
         oneof="output_location",
+    )
+
+
+class AggregationOutput(proto.Message):
+    r"""The aggregation result for the entire dataset and all
+    metrics.
+
+    Attributes:
+        dataset (google.cloud.aiplatform_v1beta1.types.EvaluationDataset):
+            The dataset used for evaluation &
+            aggregation.
+        aggregation_results (MutableSequence[google.cloud.aiplatform_v1beta1.types.AggregationResult]):
+            One AggregationResult per metric.
+    """
+
+    dataset: "EvaluationDataset" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="EvaluationDataset",
+    )
+    aggregation_results: MutableSequence["AggregationResult"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="AggregationResult",
+    )
+
+
+class AggregationResult(proto.Message):
+    r"""The aggregation result for a single metric.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        pointwise_metric_result (google.cloud.aiplatform_v1beta1.types.PointwiseMetricResult):
+            Result for pointwise metric.
+
+            This field is a member of `oneof`_ ``aggregation_result``.
+        pairwise_metric_result (google.cloud.aiplatform_v1beta1.types.PairwiseMetricResult):
+            Result for pairwise metric.
+
+            This field is a member of `oneof`_ ``aggregation_result``.
+        exact_match_metric_value (google.cloud.aiplatform_v1beta1.types.ExactMatchMetricValue):
+            Results for exact match metric.
+
+            This field is a member of `oneof`_ ``aggregation_result``.
+        bleu_metric_value (google.cloud.aiplatform_v1beta1.types.BleuMetricValue):
+            Results for bleu metric.
+
+            This field is a member of `oneof`_ ``aggregation_result``.
+        rouge_metric_value (google.cloud.aiplatform_v1beta1.types.RougeMetricValue):
+            Results for rouge metric.
+
+            This field is a member of `oneof`_ ``aggregation_result``.
+        aggregation_metric (google.cloud.aiplatform_v1beta1.types.Metric.AggregationMetric):
+            Aggregation metric.
+    """
+
+    pointwise_metric_result: "PointwiseMetricResult" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="aggregation_result",
+        message="PointwiseMetricResult",
+    )
+    pairwise_metric_result: "PairwiseMetricResult" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="aggregation_result",
+        message="PairwiseMetricResult",
+    )
+    exact_match_metric_value: "ExactMatchMetricValue" = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        oneof="aggregation_result",
+        message="ExactMatchMetricValue",
+    )
+    bleu_metric_value: "BleuMetricValue" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        oneof="aggregation_result",
+        message="BleuMetricValue",
+    )
+    rouge_metric_value: "RougeMetricValue" = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        oneof="aggregation_result",
+        message="RougeMetricValue",
+    )
+    aggregation_metric: "Metric.AggregationMetric" = proto.Field(
+        proto.ENUM,
+        number=4,
+        enum="Metric.AggregationMetric",
     )
 
 
@@ -373,25 +480,34 @@ class Metric(proto.Message):
             AGGREGATION_METRIC_UNSPECIFIED (0):
                 Unspecified aggregation metric.
             AVERAGE (1):
-                Average aggregation metric.
+                Average aggregation metric. Not supported for
+                Pairwise metric.
             MODE (2):
                 Mode aggregation metric.
             STANDARD_DEVIATION (3):
-                Standard deviation aggregation metric.
+                Standard deviation aggregation metric. Not
+                supported for pairwise metric.
             VARIANCE (4):
-                Variance aggregation metric.
+                Variance aggregation metric. Not supported
+                for pairwise metric.
             MINIMUM (5):
-                Minimum aggregation metric.
+                Minimum aggregation metric. Not supported for
+                pairwise metric.
             MAXIMUM (6):
-                Maximum aggregation metric.
+                Maximum aggregation metric. Not supported for
+                pairwise metric.
             MEDIAN (7):
-                Median aggregation metric.
+                Median aggregation metric. Not supported for
+                pairwise metric.
             PERCENTILE_P90 (8):
-                90th percentile aggregation metric.
+                90th percentile aggregation metric. Not
+                supported for pairwise metric.
             PERCENTILE_P95 (9):
-                95th percentile aggregation metric.
+                95th percentile aggregation metric. Not
+                supported for pairwise metric.
             PERCENTILE_P99 (10):
-                99th percentile aggregation metric.
+                99th percentile aggregation metric. Not
+                supported for pairwise metric.
         """
         AGGREGATION_METRIC_UNSPECIFIED = 0
         AVERAGE = 1
@@ -494,9 +610,9 @@ class AutoraterConfig(proto.Message):
 
             This field is a member of `oneof`_ ``_sampling_count``.
         flip_enabled (bool):
-            Optional. Whether to flip the candidate and baseline
-            responses. This is only applicable to the pairwise metric.
-            If enabled, also provide
+            Optional. Default is true. Whether to flip the candidate and
+            baseline responses. This is only applicable to the pairwise
+            metric. If enabled, also provide
             PairwiseMetricSpec.candidate_response_field_name and
             PairwiseMetricSpec.baseline_response_field_name. When
             rendering PairwiseMetricSpec.metric_prompt_template, the
