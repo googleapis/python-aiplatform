@@ -578,12 +578,34 @@ class _PipelineJob(
             pipeline_job.original_pipeline_job_id = int(
                 original_pipeline_job.labels["vertex-ai-pipelines-run-billing-id"]
             )
+            original_pipeline_task_details = (
+                original_pipeline_job.job_detail.task_details
+            )
         except Exception as e:
             raise ValueError(
                 f"Failed to get original pipeline job: {original_pipelinejob_name}"
             ) from e
 
-        pipeline_job.pipeline_task_rerun_configs = pipeline_task_rerun_configs
+        task_id_to_task_rerun_config = {}
+        for task_rerun_config in pipeline_task_rerun_configs:
+            task_id_to_task_rerun_config[task_rerun_config.task_id] = task_rerun_config
+
+        pipeline_job.pipeline_task_rerun_configs = []
+        for task_detail in original_pipeline_task_details:
+            if task_detail.task_id in task_id_to_task_rerun_config:
+                task_rerun_config = task_id_to_task_rerun_config[task_detail.task_id]
+                if task_detail.task_unique_name:
+                    task_rerun_config.task_name = task_detail.task_unique_name
+                pipeline_job.pipeline_task_rerun_configs.append(task_rerun_config)
+            else:
+                pipeline_job.pipeline_task_rerun_configs.append(
+                    aiplatform_v1beta1.PipelineTaskRerunConfig(
+                        task_id=task_detail.task_id,
+                        task_name=task_detail.task_unique_name,
+                        skip_task=task_detail.state
+                        == aiplatform_v1beta1.PipelineTaskDetail.State.SUCCEEDED,
+                    )
+                )
 
         if parameter_values:
             runtime_config = self._v1_beta1_pipeline_job.runtime_config
