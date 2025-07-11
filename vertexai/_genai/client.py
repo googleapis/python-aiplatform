@@ -24,6 +24,8 @@ from google.genai import client as genai_client
 from google.genai import types
 
 
+# Test change to trigger presubmit
+
 class AsyncClient:
 
     """Async Client for the GenAI SDK."""
