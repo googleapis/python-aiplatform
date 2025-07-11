@@ -146,9 +146,8 @@ adk_extra_require = [
 
 reasoning_engine_extra_require = [
     "cloudpickle >= 3.0, < 4.0",
-    "google-cloud-trace < 2",
     "opentelemetry-sdk < 2",
-    "opentelemetry-exporter-gcp-trace < 2",
+    "opentelemetry-exporter-otlp < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
 ]
@@ -156,10 +155,9 @@ reasoning_engine_extra_require = [
 agent_engines_extra_require = [
     "packaging >= 24.0",
     "cloudpickle >= 3.0, < 4.0",
-    "google-cloud-trace < 2",
     "google-cloud-logging < 4",
     "opentelemetry-sdk < 2",
-    "opentelemetry-exporter-gcp-trace < 2",
+    "opentelemetry-exporter-otlp < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
 ]
