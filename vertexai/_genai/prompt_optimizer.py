@@ -838,7 +838,6 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
           vapo_config = vertexai.types.PromptOptimizerVAPOConfig(
               config_path="gs://you-bucket-name/your-config.json",
               service_account=service_account,
-              wait_for_completion=True
           )
           job = await client.aio.prompt_optimizer.optimize(
               method="vapo", config=vapo_config)
@@ -857,6 +856,12 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         if isinstance(config, dict):
             config = types.PromptOptimizerVAPOConfig(**config)
+
+        if config.wait_for_completion:
+            logger.info(
+                "Ignoring wait_for_completion=True since the AsyncClient does"
+                " not support it."
+            )
 
         if config.optimizer_job_display_name:
             display_name = config.optimizer_job_display_name
