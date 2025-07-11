@@ -62,12 +62,16 @@ def __getattr__(name: str) -> typing.Any:
 
 if typing.TYPE_CHECKING:
     import pandas as pd
+
+    PandasDataFrame = pd.DataFrame
 else:
-    pd: typing.Type = Any
     try:
         import pandas as pd
+
+        PandasDataFrame = pd.DataFrame
     except ImportError:
         pd = None
+        PandasDataFrame = Any
 if typing.TYPE_CHECKING:
     import yaml
 else:
@@ -6366,7 +6370,7 @@ class EvaluationDataset(_common.BaseModel):
     eval_cases: Optional[list[EvalCase]] = Field(
         default=None, description="""The evaluation cases to be evaluated."""
     )
-    eval_dataset_df: Optional["pd.DataFrame"] = Field(
+    eval_dataset_df: Optional[PandasDataFrame] = Field(
         default=None,
         description="""The evaluation dataset in the form of a Pandas DataFrame.""",
     )
@@ -6408,7 +6412,7 @@ class EvaluationDatasetDict(TypedDict, total=False):
     eval_cases: Optional[list[EvalCaseDict]]
     """The evaluation cases to be evaluated."""
 
-    eval_dataset_df: Optional["pd.DataFrame"]
+    eval_dataset_df: Optional[PandasDataFrame]
     """The evaluation dataset in the form of a Pandas DataFrame."""
 
     candidate_name: Optional[str]
