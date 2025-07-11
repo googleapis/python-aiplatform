@@ -250,6 +250,11 @@ class DeployRequest(proto.Message):
             ID like ``google/gemma-2-2b-it``.
 
             This field is a member of `oneof`_ ``artifacts``.
+        custom_model (google.cloud.aiplatform_v1beta1.types.DeployRequest.CustomModel):
+            The custom model to deploy from a Google
+            Cloud Storage URI.
+
+            This field is a member of `oneof`_ ``artifacts``.
         destination (str):
             Required. The resource name of the Location to deploy the
             model in. Format:
@@ -267,6 +272,29 @@ class DeployRequest(proto.Message):
             deployment. If not specified, the default deploy
             config will be used.
     """
+
+    class CustomModel(proto.Message):
+        r"""The custom model to deploy from model weights in a Google
+        Cloud Storage URI or Model Registry model.
+
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            gcs_uri (str):
+                Immutable. The Google Cloud Storage URI of
+                the custom model, storing weights and config
+                files (which can be used to infer the base
+                model).
+
+                This field is a member of `oneof`_ ``model_source``.
+        """
+
+        gcs_uri: str = proto.Field(
+            proto.STRING,
+            number=2,
+            oneof="model_source",
+        )
 
     class ModelConfig(proto.Message):
         r"""The model config to use for the deployment.
@@ -386,6 +414,12 @@ class DeployRequest(proto.Message):
         proto.STRING,
         number=2,
         oneof="artifacts",
+    )
+    custom_model: CustomModel = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="artifacts",
+        message=CustomModel,
     )
     destination: str = proto.Field(
         proto.STRING,
