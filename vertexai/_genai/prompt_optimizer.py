@@ -618,16 +618,14 @@ class PromptOptimizer(_api_module.BaseModule):
         }
         args = ["--%s=%s" % (k, v) for k, v in container_args.items()]
         worker_pool_specs = [
-            {
-                "replica_count": 1,
-                "container_spec": {
-                    "image_uri": container_uri,
-                    "args": args,
-                },
-                "machine_spec": {
-                    "machine_type": "n1-standard-4",
-                },
-            }
+            types.WorkerPoolSpec(
+                replica_count=1,
+                machine_spec=types.MachineSpec(machine_type="n1-standard-4"),
+                container_spec=types.ContainerSpec(
+                    image_uri=container_uri,
+                    args=args,
+                ),
+            )
         ]
 
         service_account = _prompt_optimizer_utils._get_service_account(config)
@@ -879,16 +877,14 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         }
         args = ["--%s=%s" % (k, v) for k, v in container_args.items()]
         worker_pool_specs = [
-            {
-                "replica_count": 1,
-                "container_spec": {
-                    "image_uri": container_uri,
-                    "args": args,
-                },
-                "machine_spec": {
-                    "machine_type": "n1-standard-4",
-                },
-            }
+            types.WorkerPoolSpec(
+                replica_count=1,
+                machine_spec=types.MachineSpec(machine_type="n1-standard-4"),
+                container_spec=types.ContainerSpec(
+                    image_uri=container_uri,
+                    args=args,
+                ),
+            )
         ]
 
         service_account = _prompt_optimizer_utils._get_service_account(config)

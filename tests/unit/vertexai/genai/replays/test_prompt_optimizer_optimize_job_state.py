@@ -44,6 +44,7 @@ def test_optimize(client):
         method="vapo",
         config=config,
     )
+    assert isinstance(job, types.CustomJob)
     assert job.state == types.JobState.JOB_STATE_SUCCEEDED
 
 
