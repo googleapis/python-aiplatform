@@ -229,6 +229,19 @@ class RubricContentType(_common.CaseInSensitiveEnum):
     """Generate rubrics in a unit test format."""
 
 
+class Importance(_common.CaseInSensitiveEnum):
+    """Importance level of the rubric."""
+
+    IMPORTANCE_UNSPECIFIED = "IMPORTANCE_UNSPECIFIED"
+    """Importance is not specified."""
+    HIGH = "HIGH"
+    """High importance."""
+    MEDIUM = "MEDIUM"
+    """Medium importance."""
+    LOW = "LOW"
+    """Low importance."""
+
+
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
     """The action to take."""
 
@@ -243,19 +256,6 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
       """
     DELETED = "DELETED"
     """The memory was deleted."""
-
-
-class Importance(_common.CaseInSensitiveEnum):
-    """Importance level of the rubric."""
-
-    IMPORTANCE_UNSPECIFIED = "IMPORTANCE_UNSPECIFIED"
-    """Importance is not specified."""
-    HIGH = "HIGH"
-    """High importance."""
-    MEDIUM = "MEDIUM"
-    """Medium importance."""
-    LOW = "LOW"
-    """Low importance."""
 
 
 class BleuInstance(_common.BaseModel):
@@ -1110,6 +1110,331 @@ EvaluateInstancesConfigOrDict = Union[
 ]
 
 
+class RubricContentProperty(_common.BaseModel):
+    """Defines criteria based on a specific property."""
+
+    description: Optional[str] = Field(
+        default=None,
+        description="""Description of the property being evaluated.
+      Example: "The model's response is grammatically correct." """,
+    )
+
+
+class RubricContentPropertyDict(TypedDict, total=False):
+    """Defines criteria based on a specific property."""
+
+    description: Optional[str]
+    """Description of the property being evaluated.
+      Example: "The model's response is grammatically correct." """
+
+
+RubricContentPropertyOrDict = Union[RubricContentProperty, RubricContentPropertyDict]
+
+
+class RubricContent(_common.BaseModel):
+    """Content of the rubric, defining the testable criteria."""
+
+    property: Optional[RubricContentProperty] = Field(
+        default=None,
+        description="""Evaluation criteria based on a specific property.""",
+    )
+
+
+class RubricContentDict(TypedDict, total=False):
+    """Content of the rubric, defining the testable criteria."""
+
+    property: Optional[RubricContentPropertyDict]
+    """Evaluation criteria based on a specific property."""
+
+
+RubricContentOrDict = Union[RubricContent, RubricContentDict]
+
+
+class Rubric(_common.BaseModel):
+    """Message representing a single testable criterion for evaluation.
+
+    One input prompt could have multiple rubrics.
+    """
+
+    rubric_id: Optional[str] = Field(
+        default=None,
+        description="""Required. Unique identifier for the rubric.
+      This ID is used to refer to this rubric, e.g., in RubricVerdict.""",
+    )
+    content: Optional[RubricContent] = Field(
+        default=None,
+        description="""Required. The actual testable criteria for the rubric.""",
+    )
+    type: Optional[str] = Field(
+        default=None,
+        description="""Optional. A type designator for the rubric, which can inform how it's
+      evaluated or interpreted by systems or users.
+      It's recommended to use consistent, well-defined, upper snake_case strings.
+      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
+      "INSTRUCTION_ADHERENCE".""",
+    )
+    importance: Optional[Importance] = Field(
+        default=None,
+        description="""Optional. The relative importance of this rubric.""",
+    )
+
+
+class RubricDict(TypedDict, total=False):
+    """Message representing a single testable criterion for evaluation.
+
+    One input prompt could have multiple rubrics.
+    """
+
+    rubric_id: Optional[str]
+    """Required. Unique identifier for the rubric.
+      This ID is used to refer to this rubric, e.g., in RubricVerdict."""
+
+    content: Optional[RubricContentDict]
+    """Required. The actual testable criteria for the rubric."""
+
+    type: Optional[str]
+    """Optional. A type designator for the rubric, which can inform how it's
+      evaluated or interpreted by systems or users.
+      It's recommended to use consistent, well-defined, upper snake_case strings.
+      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
+      "INSTRUCTION_ADHERENCE"."""
+
+    importance: Optional[Importance]
+    """Optional. The relative importance of this rubric."""
+
+
+RubricOrDict = Union[Rubric, RubricDict]
+
+
+class RubricGenerationSpec(_common.BaseModel):
+    """Spec for generating rubrics."""
+
+    prompt_template: Optional[str] = Field(
+        default=None,
+        description="""Template for the prompt used to generate rubrics.
+      The details should be updated based on the most-recent recipe requirements.""",
+    )
+    generator_model_config: Optional[AutoraterConfig] = Field(
+        default=None,
+        description="""Configuration for the model used in rubric generation.
+      Configs including sampling count and base model can be specified here.
+      Flipping is not supported for rubric generation.""",
+    )
+    rubric_content_type: Optional[RubricContentType] = Field(
+        default=None,
+        description="""The type of rubric content to be generated.""",
+    )
+    rubric_type_ontology: Optional[list[str]] = Field(
+        default=None,
+        description="""An optional, pre-defined list of allowed types for generated rubrics.
+      If this field is provided, it implies `include_rubric_type` should be true,
+      and the generated rubric types should be chosen from this ontology.""",
+    )
+
+
+class RubricGenerationSpecDict(TypedDict, total=False):
+    """Spec for generating rubrics."""
+
+    prompt_template: Optional[str]
+    """Template for the prompt used to generate rubrics.
+      The details should be updated based on the most-recent recipe requirements."""
+
+    generator_model_config: Optional[AutoraterConfigDict]
+    """Configuration for the model used in rubric generation.
+      Configs including sampling count and base model can be specified here.
+      Flipping is not supported for rubric generation."""
+
+    rubric_content_type: Optional[RubricContentType]
+    """The type of rubric content to be generated."""
+
+    rubric_type_ontology: Optional[list[str]]
+    """An optional, pre-defined list of allowed types for generated rubrics.
+      If this field is provided, it implies `include_rubric_type` should be true,
+      and the generated rubric types should be chosen from this ontology."""
+
+
+RubricGenerationSpecOrDict = Union[RubricGenerationSpec, RubricGenerationSpecDict]
+
+
+class RubricBasedMetricSpec(_common.BaseModel):
+    """Specification for a metric that is based on rubrics."""
+
+    metric_prompt_template: Optional[str] = Field(
+        default=None,
+        description="""Template for the prompt used by the judge model to evaluate against
+      rubrics.""",
+    )
+    judge_autorater_config: Optional[AutoraterConfig] = Field(
+        default=None,
+        description="""Optional configuration for the judge LLM (Autorater).""",
+    )
+    inline_rubrics: Optional[list[Rubric]] = Field(
+        default=None,
+        description="""Use rubrics provided directly in the spec.""",
+    )
+    rubric_group_key: Optional[str] = Field(
+        default=None,
+        description="""Use a pre-defined group of rubrics associated with the input content.
+      This refers to a key in the `rubric_groups` map of
+      `RubricEnhancedContents`.""",
+    )
+    rubric_generation_spec: Optional[RubricGenerationSpec] = Field(
+        default=None,
+        description="""Dynamically generate rubrics for evaluation using this specification.""",
+    )
+
+
+class RubricBasedMetricSpecDict(TypedDict, total=False):
+    """Specification for a metric that is based on rubrics."""
+
+    metric_prompt_template: Optional[str]
+    """Template for the prompt used by the judge model to evaluate against
+      rubrics."""
+
+    judge_autorater_config: Optional[AutoraterConfigDict]
+    """Optional configuration for the judge LLM (Autorater)."""
+
+    inline_rubrics: Optional[list[RubricDict]]
+    """Use rubrics provided directly in the spec."""
+
+    rubric_group_key: Optional[str]
+    """Use a pre-defined group of rubrics associated with the input content.
+      This refers to a key in the `rubric_groups` map of
+      `RubricEnhancedContents`."""
+
+    rubric_generation_spec: Optional[RubricGenerationSpecDict]
+    """Dynamically generate rubrics for evaluation using this specification."""
+
+
+RubricBasedMetricSpecOrDict = Union[RubricBasedMetricSpec, RubricBasedMetricSpecDict]
+
+
+class ContentMap(_common.BaseModel):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    values: Optional[dict[str, list[genai_types.Content]]] = Field(
+        default=None, description="""Map of placeholder to contents."""
+    )
+
+
+class ContentMapDict(TypedDict, total=False):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    values: Optional[dict[str, list[genai_types.Content]]]
+    """Map of placeholder to contents."""
+
+
+ContentMapOrDict = Union[ContentMap, ContentMapDict]
+
+
+class RubricEnhancedContents(_common.BaseModel):
+    """Rubric-enhanced contents for evaluation."""
+
+    prompt: Optional[list[genai_types.Content]] = Field(
+        default=None,
+        description="""User prompt, using the standard Content message from Gemini API.""",
+    )
+    rubric_groups: Optional[dict[str, "RubricGroup"]] = Field(
+        default=None,
+        description="""Named groups of rubrics associated with this prompt.
+      The key is a user-defined name for the rubric group.""",
+    )
+    response: Optional[list[genai_types.Content]] = Field(
+        default=None,
+        description="""Response, using the standard Content message from Gemini API.""",
+    )
+    other_content: Optional[ContentMap] = Field(
+        default=None,
+        description="""Other contents needed for the metric.
+      For example, if `reference` is needed for the metric, it can be provided
+      here.""",
+    )
+
+
+class RubricEnhancedContentsDict(TypedDict, total=False):
+    """Rubric-enhanced contents for evaluation."""
+
+    prompt: Optional[list[genai_types.Content]]
+    """User prompt, using the standard Content message from Gemini API."""
+
+    rubric_groups: Optional[dict[str, "RubricGroup"]]
+    """Named groups of rubrics associated with this prompt.
+      The key is a user-defined name for the rubric group."""
+
+    response: Optional[list[genai_types.Content]]
+    """Response, using the standard Content message from Gemini API."""
+
+    other_content: Optional[ContentMapDict]
+    """Other contents needed for the metric.
+      For example, if `reference` is needed for the metric, it can be provided
+      here."""
+
+
+RubricEnhancedContentsOrDict = Union[RubricEnhancedContents, RubricEnhancedContentsDict]
+
+
+class RubricBasedMetricInstance(_common.BaseModel):
+    """Defines an instance for Rubric-based metrics, allowing various input formats."""
+
+    json_instance: Optional[str] = Field(
+        default=None,
+        description="""Specify evaluation fields and their string values in JSON format.""",
+    )
+    content_map_instance: Optional[ContentMap] = Field(
+        default=None,
+        description="""Specify evaluation fields and their content values using a ContentMap.""",
+    )
+    rubric_enhanced_contents: Optional[RubricEnhancedContents] = Field(
+        default=None,
+        description="""Provide input as Gemini Content along with one or more
+      associated rubric groups.""",
+    )
+
+
+class RubricBasedMetricInstanceDict(TypedDict, total=False):
+    """Defines an instance for Rubric-based metrics, allowing various input formats."""
+
+    json_instance: Optional[str]
+    """Specify evaluation fields and their string values in JSON format."""
+
+    content_map_instance: Optional[ContentMapDict]
+    """Specify evaluation fields and their content values using a ContentMap."""
+
+    rubric_enhanced_contents: Optional[RubricEnhancedContentsDict]
+    """Provide input as Gemini Content along with one or more
+      associated rubric groups."""
+
+
+RubricBasedMetricInstanceOrDict = Union[
+    RubricBasedMetricInstance, RubricBasedMetricInstanceDict
+]
+
+
+class RubricBasedMetricInput(_common.BaseModel):
+    """Input for a rubric-based metrics."""
+
+    metric_spec: Optional[RubricBasedMetricSpec] = Field(
+        default=None,
+        description="""Specification for the rubric-based metric.""",
+    )
+    instance: Optional[RubricBasedMetricInstance] = Field(
+        default=None, description="""The instance to be evaluated."""
+    )
+
+
+class RubricBasedMetricInputDict(TypedDict, total=False):
+    """Input for a rubric-based metrics."""
+
+    metric_spec: Optional[RubricBasedMetricSpecDict]
+    """Specification for the rubric-based metric."""
+
+    instance: Optional[RubricBasedMetricInstanceDict]
+    """The instance to be evaluated."""
+
+
+RubricBasedMetricInputOrDict = Union[RubricBasedMetricInput, RubricBasedMetricInputDict]
+
+
 class _EvaluateInstancesRequestParameters(_common.BaseModel):
     """Parameters for evaluating instances."""
 
@@ -1134,6 +1459,9 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
         default=None, description=""""""
     )
     tool_parameter_kv_match_input: Optional[ToolParameterKVMatchInput] = Field(
+        default=None, description=""""""
+    )
+    rubric_based_metric_input: Optional[RubricBasedMetricInput] = Field(
         default=None, description=""""""
     )
     autorater_config: Optional[AutoraterConfig] = Field(
@@ -1172,6 +1500,9 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
     tool_parameter_kv_match_input: Optional[ToolParameterKVMatchInputDict]
     """"""
 
+    rubric_based_metric_input: Optional[RubricBasedMetricInputDict]
+    """"""
+
     autorater_config: Optional[AutoraterConfigDict]
     """"""
 
@@ -1181,6 +1512,78 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
 
 _EvaluateInstancesRequestParametersOrDict = Union[
     _EvaluateInstancesRequestParameters, _EvaluateInstancesRequestParametersDict
+]
+
+
+class RubricVerdict(_common.BaseModel):
+    """Represents the verdict of an evaluation against a single rubric."""
+
+    evaluated_rubric: Optional[Rubric] = Field(
+        default=None,
+        description="""Required. The full rubric definition that was evaluated.
+      Storing this ensures the verdict is self-contained and understandable,
+      especially if the original rubric definition changes or was dynamically
+      generated.""",
+    )
+    verdict: Optional[bool] = Field(
+        default=None,
+        description="""Required. Outcome of the evaluation against the rubric, represented as a
+      boolean. `true` indicates a "Pass", `false` indicates a "Fail".""",
+    )
+    reasoning: Optional[str] = Field(
+        default=None,
+        description="""Optional. Human-readable reasoning or explanation for the verdict.
+      This can include specific examples or details from the evaluated content
+      that justify the given verdict.""",
+    )
+
+
+class RubricVerdictDict(TypedDict, total=False):
+    """Represents the verdict of an evaluation against a single rubric."""
+
+    evaluated_rubric: Optional[RubricDict]
+    """Required. The full rubric definition that was evaluated.
+      Storing this ensures the verdict is self-contained and understandable,
+      especially if the original rubric definition changes or was dynamically
+      generated."""
+
+    verdict: Optional[bool]
+    """Required. Outcome of the evaluation against the rubric, represented as a
+      boolean. `true` indicates a "Pass", `false` indicates a "Fail"."""
+
+    reasoning: Optional[str]
+    """Optional. Human-readable reasoning or explanation for the verdict.
+      This can include specific examples or details from the evaluated content
+      that justify the given verdict."""
+
+
+RubricVerdictOrDict = Union[RubricVerdict, RubricVerdictDict]
+
+
+class RubricBasedMetricResult(_common.BaseModel):
+    """Result for a rubric-based metric."""
+
+    score: Optional[float] = Field(
+        default=None, description="""Passing rate of all the rubrics."""
+    )
+    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+        default=None,
+        description="""The details of all the rubrics and their verdicts.""",
+    )
+
+
+class RubricBasedMetricResultDict(TypedDict, total=False):
+    """Result for a rubric-based metric."""
+
+    score: Optional[float]
+    """Passing rate of all the rubrics."""
+
+    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    """The details of all the rubrics and their verdicts."""
+
+
+RubricBasedMetricResultOrDict = Union[
+    RubricBasedMetricResult, RubricBasedMetricResultDict
 ]
 
 
@@ -1428,95 +1831,6 @@ class RougeResultsDict(TypedDict, total=False):
 RougeResultsOrDict = Union[RougeResults, RougeResultsDict]
 
 
-class RubricCritiqueResult(_common.BaseModel):
-    """Rubric critique result."""
-
-    rubric: Optional[str] = Field(
-        default=None, description="""Output only. Rubric to be evaluated."""
-    )
-    verdict: Optional[bool] = Field(
-        default=None,
-        description="""Output only. Verdict for the rubric - true if the rubric is met, false otherwise.""",
-    )
-
-
-class RubricCritiqueResultDict(TypedDict, total=False):
-    """Rubric critique result."""
-
-    rubric: Optional[str]
-    """Output only. Rubric to be evaluated."""
-
-    verdict: Optional[bool]
-    """Output only. Verdict for the rubric - true if the rubric is met, false otherwise."""
-
-
-RubricCritiqueResultOrDict = Union[RubricCritiqueResult, RubricCritiqueResultDict]
-
-
-class RubricBasedInstructionFollowingResult(_common.BaseModel):
-    """Result for RubricBasedInstructionFollowing metric."""
-
-    rubric_critique_results: Optional[list[RubricCritiqueResult]] = Field(
-        default=None,
-        description="""Output only. List of per rubric critique results.""",
-    )
-    score: Optional[float] = Field(
-        default=None,
-        description="""Output only. Overall score for the instruction following.""",
-    )
-
-
-class RubricBasedInstructionFollowingResultDict(TypedDict, total=False):
-    """Result for RubricBasedInstructionFollowing metric."""
-
-    rubric_critique_results: Optional[list[RubricCritiqueResultDict]]
-    """Output only. List of per rubric critique results."""
-
-    score: Optional[float]
-    """Output only. Overall score for the instruction following."""
-
-
-RubricBasedInstructionFollowingResultOrDict = Union[
-    RubricBasedInstructionFollowingResult,
-    RubricBasedInstructionFollowingResultDict,
-]
-
-
-class SummarizationVerbosityResult(_common.BaseModel):
-    """Spec for summarization verbosity result."""
-
-    confidence: Optional[float] = Field(
-        default=None,
-        description="""Output only. Confidence for summarization verbosity score.""",
-    )
-    explanation: Optional[str] = Field(
-        default=None,
-        description="""Output only. Explanation for summarization verbosity score.""",
-    )
-    score: Optional[float] = Field(
-        default=None,
-        description="""Output only. Summarization Verbosity score.""",
-    )
-
-
-class SummarizationVerbosityResultDict(TypedDict, total=False):
-    """Spec for summarization verbosity result."""
-
-    confidence: Optional[float]
-    """Output only. Confidence for summarization verbosity score."""
-
-    explanation: Optional[str]
-    """Output only. Explanation for summarization verbosity score."""
-
-    score: Optional[float]
-    """Output only. Summarization Verbosity score."""
-
-
-SummarizationVerbosityResultOrDict = Union[
-    SummarizationVerbosityResult, SummarizationVerbosityResultDict
-]
-
-
 class ToolCallValidMetricValue(_common.BaseModel):
     """Tool call valid metric value for an instance."""
 
@@ -1687,280 +2001,12 @@ ToolParameterKVMatchResultsOrDict = Union[
 ]
 
 
-class TrajectoryAnyOrderMatchMetricValue(_common.BaseModel):
-    """TrajectoryAnyOrderMatch metric value for an instance."""
-
-    score: Optional[float] = Field(
-        default=None,
-        description="""Output only. TrajectoryAnyOrderMatch score.""",
-    )
-
-
-class TrajectoryAnyOrderMatchMetricValueDict(TypedDict, total=False):
-    """TrajectoryAnyOrderMatch metric value for an instance."""
-
-    score: Optional[float]
-    """Output only. TrajectoryAnyOrderMatch score."""
-
-
-TrajectoryAnyOrderMatchMetricValueOrDict = Union[
-    TrajectoryAnyOrderMatchMetricValue, TrajectoryAnyOrderMatchMetricValueDict
-]
-
-
-class TrajectoryAnyOrderMatchResults(_common.BaseModel):
-    """Results for TrajectoryAnyOrderMatch metric."""
-
-    trajectory_any_order_match_metric_values: Optional[
-        list[TrajectoryAnyOrderMatchMetricValue]
-    ] = Field(
-        default=None,
-        description="""Output only. TrajectoryAnyOrderMatch metric values.""",
-    )
-
-
-class TrajectoryAnyOrderMatchResultsDict(TypedDict, total=False):
-    """Results for TrajectoryAnyOrderMatch metric."""
-
-    trajectory_any_order_match_metric_values: Optional[
-        list[TrajectoryAnyOrderMatchMetricValueDict]
-    ]
-    """Output only. TrajectoryAnyOrderMatch metric values."""
-
-
-TrajectoryAnyOrderMatchResultsOrDict = Union[
-    TrajectoryAnyOrderMatchResults, TrajectoryAnyOrderMatchResultsDict
-]
-
-
-class TrajectoryExactMatchMetricValue(_common.BaseModel):
-    """TrajectoryExactMatch metric value for an instance."""
-
-    score: Optional[float] = Field(
-        default=None, description="""Output only. TrajectoryExactMatch score."""
-    )
-
-
-class TrajectoryExactMatchMetricValueDict(TypedDict, total=False):
-    """TrajectoryExactMatch metric value for an instance."""
-
-    score: Optional[float]
-    """Output only. TrajectoryExactMatch score."""
-
-
-TrajectoryExactMatchMetricValueOrDict = Union[
-    TrajectoryExactMatchMetricValue, TrajectoryExactMatchMetricValueDict
-]
-
-
-class TrajectoryExactMatchResults(_common.BaseModel):
-    """Results for TrajectoryExactMatch metric."""
-
-    trajectory_exact_match_metric_values: Optional[
-        list[TrajectoryExactMatchMetricValue]
-    ] = Field(
-        default=None,
-        description="""Output only. TrajectoryExactMatch metric values.""",
-    )
-
-
-class TrajectoryExactMatchResultsDict(TypedDict, total=False):
-    """Results for TrajectoryExactMatch metric."""
-
-    trajectory_exact_match_metric_values: Optional[
-        list[TrajectoryExactMatchMetricValueDict]
-    ]
-    """Output only. TrajectoryExactMatch metric values."""
-
-
-TrajectoryExactMatchResultsOrDict = Union[
-    TrajectoryExactMatchResults, TrajectoryExactMatchResultsDict
-]
-
-
-class TrajectoryInOrderMatchMetricValue(_common.BaseModel):
-    """TrajectoryInOrderMatch metric value for an instance."""
-
-    score: Optional[float] = Field(
-        default=None,
-        description="""Output only. TrajectoryInOrderMatch score.""",
-    )
-
-
-class TrajectoryInOrderMatchMetricValueDict(TypedDict, total=False):
-    """TrajectoryInOrderMatch metric value for an instance."""
-
-    score: Optional[float]
-    """Output only. TrajectoryInOrderMatch score."""
-
-
-TrajectoryInOrderMatchMetricValueOrDict = Union[
-    TrajectoryInOrderMatchMetricValue, TrajectoryInOrderMatchMetricValueDict
-]
-
-
-class TrajectoryInOrderMatchResults(_common.BaseModel):
-    """Results for TrajectoryInOrderMatch metric."""
-
-    trajectory_in_order_match_metric_values: Optional[
-        list[TrajectoryInOrderMatchMetricValue]
-    ] = Field(
-        default=None,
-        description="""Output only. TrajectoryInOrderMatch metric values.""",
-    )
-
-
-class TrajectoryInOrderMatchResultsDict(TypedDict, total=False):
-    """Results for TrajectoryInOrderMatch metric."""
-
-    trajectory_in_order_match_metric_values: Optional[
-        list[TrajectoryInOrderMatchMetricValueDict]
-    ]
-    """Output only. TrajectoryInOrderMatch metric values."""
-
-
-TrajectoryInOrderMatchResultsOrDict = Union[
-    TrajectoryInOrderMatchResults, TrajectoryInOrderMatchResultsDict
-]
-
-
-class TrajectoryPrecisionMetricValue(_common.BaseModel):
-    """TrajectoryPrecision metric value for an instance."""
-
-    score: Optional[float] = Field(
-        default=None, description="""Output only. TrajectoryPrecision score."""
-    )
-
-
-class TrajectoryPrecisionMetricValueDict(TypedDict, total=False):
-    """TrajectoryPrecision metric value for an instance."""
-
-    score: Optional[float]
-    """Output only. TrajectoryPrecision score."""
-
-
-TrajectoryPrecisionMetricValueOrDict = Union[
-    TrajectoryPrecisionMetricValue, TrajectoryPrecisionMetricValueDict
-]
-
-
-class TrajectoryPrecisionResults(_common.BaseModel):
-    """Results for TrajectoryPrecision metric."""
-
-    trajectory_precision_metric_values: Optional[
-        list[TrajectoryPrecisionMetricValue]
-    ] = Field(
-        default=None,
-        description="""Output only. TrajectoryPrecision metric values.""",
-    )
-
-
-class TrajectoryPrecisionResultsDict(TypedDict, total=False):
-    """Results for TrajectoryPrecision metric."""
-
-    trajectory_precision_metric_values: Optional[
-        list[TrajectoryPrecisionMetricValueDict]
-    ]
-    """Output only. TrajectoryPrecision metric values."""
-
-
-TrajectoryPrecisionResultsOrDict = Union[
-    TrajectoryPrecisionResults, TrajectoryPrecisionResultsDict
-]
-
-
-class TrajectoryRecallMetricValue(_common.BaseModel):
-    """TrajectoryRecall metric value for an instance."""
-
-    score: Optional[float] = Field(
-        default=None, description="""Output only. TrajectoryRecall score."""
-    )
-
-
-class TrajectoryRecallMetricValueDict(TypedDict, total=False):
-    """TrajectoryRecall metric value for an instance."""
-
-    score: Optional[float]
-    """Output only. TrajectoryRecall score."""
-
-
-TrajectoryRecallMetricValueOrDict = Union[
-    TrajectoryRecallMetricValue, TrajectoryRecallMetricValueDict
-]
-
-
-class TrajectoryRecallResults(_common.BaseModel):
-    """Results for TrajectoryRecall metric."""
-
-    trajectory_recall_metric_values: Optional[
-        list[TrajectoryRecallMetricValue]
-    ] = Field(
-        default=None,
-        description="""Output only. TrajectoryRecall metric values.""",
-    )
-
-
-class TrajectoryRecallResultsDict(TypedDict, total=False):
-    """Results for TrajectoryRecall metric."""
-
-    trajectory_recall_metric_values: Optional[list[TrajectoryRecallMetricValueDict]]
-    """Output only. TrajectoryRecall metric values."""
-
-
-TrajectoryRecallResultsOrDict = Union[
-    TrajectoryRecallResults, TrajectoryRecallResultsDict
-]
-
-
-class TrajectorySingleToolUseMetricValue(_common.BaseModel):
-    """TrajectorySingleToolUse metric value for an instance."""
-
-    score: Optional[float] = Field(
-        default=None,
-        description="""Output only. TrajectorySingleToolUse score.""",
-    )
-
-
-class TrajectorySingleToolUseMetricValueDict(TypedDict, total=False):
-    """TrajectorySingleToolUse metric value for an instance."""
-
-    score: Optional[float]
-    """Output only. TrajectorySingleToolUse score."""
-
-
-TrajectorySingleToolUseMetricValueOrDict = Union[
-    TrajectorySingleToolUseMetricValue, TrajectorySingleToolUseMetricValueDict
-]
-
-
-class TrajectorySingleToolUseResults(_common.BaseModel):
-    """Results for TrajectorySingleToolUse metric."""
-
-    trajectory_single_tool_use_metric_values: Optional[
-        list[TrajectorySingleToolUseMetricValue]
-    ] = Field(
-        default=None,
-        description="""Output only. TrajectorySingleToolUse metric values.""",
-    )
-
-
-class TrajectorySingleToolUseResultsDict(TypedDict, total=False):
-    """Results for TrajectorySingleToolUse metric."""
-
-    trajectory_single_tool_use_metric_values: Optional[
-        list[TrajectorySingleToolUseMetricValueDict]
-    ]
-    """Output only. TrajectorySingleToolUse metric values."""
-
-
-TrajectorySingleToolUseResultsOrDict = Union[
-    TrajectorySingleToolUseResults, TrajectorySingleToolUseResultsDict
-]
-
-
 class EvaluateInstancesResponse(_common.BaseModel):
     """Result of evaluating an LLM metric."""
 
+    rubric_based_metric_result: Optional[RubricBasedMetricResult] = Field(
+        default=None, description="""Result for rubric based metric."""
+    )
     bleu_results: Optional[BleuResults] = Field(
         default=None, description="""Results for bleu metric."""
     )
@@ -1985,16 +2031,6 @@ class EvaluateInstancesResponse(_common.BaseModel):
     rouge_results: Optional[RougeResults] = Field(
         default=None, description="""Results for rouge metric."""
     )
-    rubric_based_instruction_following_result: Optional[
-        RubricBasedInstructionFollowingResult
-    ] = Field(
-        default=None,
-        description="""Result for rubric based instruction following metric.""",
-    )
-    summarization_verbosity_result: Optional[SummarizationVerbosityResult] = Field(
-        default=None,
-        description="""Result for summarization verbosity metric.""",
-    )
     tool_call_valid_results: Optional[ToolCallValidResults] = Field(
         default=None,
         description="""Tool call metrics. Results for tool call valid metric.""",
@@ -2010,36 +2046,13 @@ class EvaluateInstancesResponse(_common.BaseModel):
         default=None,
         description="""Results for tool parameter key value match metric.""",
     )
-    trajectory_any_order_match_results: Optional[
-        TrajectoryAnyOrderMatchResults
-    ] = Field(
-        default=None,
-        description="""Result for trajectory any order match metric.""",
-    )
-    trajectory_exact_match_results: Optional[TrajectoryExactMatchResults] = Field(
-        default=None,
-        description="""Result for trajectory exact match metric.""",
-    )
-    trajectory_in_order_match_results: Optional[TrajectoryInOrderMatchResults] = Field(
-        default=None,
-        description="""Result for trajectory in order match metric.""",
-    )
-    trajectory_precision_results: Optional[TrajectoryPrecisionResults] = Field(
-        default=None, description="""Result for trajectory precision metric."""
-    )
-    trajectory_recall_results: Optional[TrajectoryRecallResults] = Field(
-        default=None, description="""Results for trajectory recall metric."""
-    )
-    trajectory_single_tool_use_results: Optional[
-        TrajectorySingleToolUseResults
-    ] = Field(
-        default=None,
-        description="""Results for trajectory single tool use metric.""",
-    )
 
 
 class EvaluateInstancesResponseDict(TypedDict, total=False):
     """Result of evaluating an LLM metric."""
+
+    rubric_based_metric_result: Optional[RubricBasedMetricResultDict]
+    """Result for rubric based metric."""
 
     bleu_results: Optional[BleuResultsDict]
     """Results for bleu metric."""
@@ -2062,14 +2075,6 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
     rouge_results: Optional[RougeResultsDict]
     """Results for rouge metric."""
 
-    rubric_based_instruction_following_result: Optional[
-        RubricBasedInstructionFollowingResultDict
-    ]
-    """Result for rubric based instruction following metric."""
-
-    summarization_verbosity_result: Optional[SummarizationVerbosityResultDict]
-    """Result for summarization verbosity metric."""
-
     tool_call_valid_results: Optional[ToolCallValidResultsDict]
     """Tool call metrics. Results for tool call valid metric."""
 
@@ -2082,78 +2087,10 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
     tool_parameter_kv_match_results: Optional[ToolParameterKVMatchResultsDict]
     """Results for tool parameter key value match metric."""
 
-    trajectory_any_order_match_results: Optional[TrajectoryAnyOrderMatchResultsDict]
-    """Result for trajectory any order match metric."""
-
-    trajectory_exact_match_results: Optional[TrajectoryExactMatchResultsDict]
-    """Result for trajectory exact match metric."""
-
-    trajectory_in_order_match_results: Optional[TrajectoryInOrderMatchResultsDict]
-    """Result for trajectory in order match metric."""
-
-    trajectory_precision_results: Optional[TrajectoryPrecisionResultsDict]
-    """Result for trajectory precision metric."""
-
-    trajectory_recall_results: Optional[TrajectoryRecallResultsDict]
-    """Results for trajectory recall metric."""
-
-    trajectory_single_tool_use_results: Optional[TrajectorySingleToolUseResultsDict]
-    """Results for trajectory single tool use metric."""
-
 
 EvaluateInstancesResponseOrDict = Union[
     EvaluateInstancesResponse, EvaluateInstancesResponseDict
 ]
-
-
-class RubricGenerationSpec(_common.BaseModel):
-    """Spec for generating rubrics."""
-
-    prompt_template: Optional[str] = Field(
-        default=None,
-        description="""Template for the prompt used to generate rubrics.
-      The details should be updated based on the most-recent recipe requirements.""",
-    )
-    generator_model_config: Optional[AutoraterConfig] = Field(
-        default=None,
-        description="""Configuration for the model used in rubric generation.
-      Configs including sampling count and base model can be specified here.
-      Flipping is not supported for rubric generation.""",
-    )
-    rubric_content_type: Optional[RubricContentType] = Field(
-        default=None,
-        description="""The type of rubric content to be generated.""",
-    )
-    rubric_type_ontology: Optional[list[str]] = Field(
-        default=None,
-        description="""An optional, pre-defined list of allowed types for generated rubrics.
-      If this field is provided, it implies `include_rubric_type` should be true,
-      and the generated rubric types should be chosen from this ontology.""",
-    )
-
-
-class RubricGenerationSpecDict(TypedDict, total=False):
-    """Spec for generating rubrics."""
-
-    prompt_template: Optional[str]
-    """Template for the prompt used to generate rubrics.
-      The details should be updated based on the most-recent recipe requirements."""
-
-    generator_model_config: Optional[AutoraterConfigDict]
-    """Configuration for the model used in rubric generation.
-      Configs including sampling count and base model can be specified here.
-      Flipping is not supported for rubric generation."""
-
-    rubric_content_type: Optional[RubricContentType]
-    """The type of rubric content to be generated."""
-
-    rubric_type_ontology: Optional[list[str]]
-    """An optional, pre-defined list of allowed types for generated rubrics.
-      If this field is provided, it implies `include_rubric_type` should be true,
-      and the generated rubric types should be chosen from this ontology."""
-
-
-RubricGenerationSpecOrDict = Union[RubricGenerationSpec, RubricGenerationSpecDict]
 
 
 class RubricGenerationConfig(_common.BaseModel):
@@ -2204,102 +2141,6 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
 _GenerateInstanceRubricsRequestOrDict = Union[
     _GenerateInstanceRubricsRequest, _GenerateInstanceRubricsRequestDict
 ]
-
-
-class RubricContentProperty(_common.BaseModel):
-    """Defines criteria based on a specific property."""
-
-    description: Optional[str] = Field(
-        default=None,
-        description="""Description of the property being evaluated.
-      Example: "The model's response is grammatically correct." """,
-    )
-
-
-class RubricContentPropertyDict(TypedDict, total=False):
-    """Defines criteria based on a specific property."""
-
-    description: Optional[str]
-    """Description of the property being evaluated.
-      Example: "The model's response is grammatically correct." """
-
-
-RubricContentPropertyOrDict = Union[RubricContentProperty, RubricContentPropertyDict]
-
-
-class RubricContent(_common.BaseModel):
-    """Content of the rubric, defining the testable criteria."""
-
-    property: Optional[RubricContentProperty] = Field(
-        default=None,
-        description="""Evaluation criteria based on a specific property.""",
-    )
-
-
-class RubricContentDict(TypedDict, total=False):
-    """Content of the rubric, defining the testable criteria."""
-
-    property: Optional[RubricContentPropertyDict]
-    """Evaluation criteria based on a specific property."""
-
-
-RubricContentOrDict = Union[RubricContent, RubricContentDict]
-
-
-class Rubric(_common.BaseModel):
-    """Message representing a single testable criterion for evaluation.
-
-    One input prompt could have multiple rubrics.
-    """
-
-    rubric_id: Optional[str] = Field(
-        default=None,
-        description="""Required. Unique identifier for the rubric.
-      This ID is used to refer to this rubric, e.g., in RubricVerdict.""",
-    )
-    content: Optional[RubricContent] = Field(
-        default=None,
-        description="""Required. The actual testable criteria for the rubric.""",
-    )
-    type: Optional[str] = Field(
-        default=None,
-        description="""Optional. A type designator for the rubric, which can inform how it's
-      evaluated or interpreted by systems or users.
-      It's recommended to use consistent, well-defined, upper snake_case strings.
-      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
-      "INSTRUCTION_ADHERENCE".""",
-    )
-    importance: Optional[Importance] = Field(
-        default=None,
-        description="""Optional. The relative importance of this rubric.""",
-    )
-
-
-class RubricDict(TypedDict, total=False):
-    """Message representing a single testable criterion for evaluation.
-
-    One input prompt could have multiple rubrics.
-    """
-
-    rubric_id: Optional[str]
-    """Required. Unique identifier for the rubric.
-      This ID is used to refer to this rubric, e.g., in RubricVerdict."""
-
-    content: Optional[RubricContentDict]
-    """Required. The actual testable criteria for the rubric."""
-
-    type: Optional[str]
-    """Optional. A type designator for the rubric, which can inform how it's
-      evaluated or interpreted by systems or users.
-      It's recommended to use consistent, well-defined, upper snake_case strings.
-      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
-      "INSTRUCTION_ADHERENCE"."""
-
-    importance: Optional[Importance]
-    """Optional. The relative importance of this rubric."""
-
-
-RubricOrDict = Union[Rubric, RubricDict]
 
 
 class GenerateInstanceRubricsResponse(_common.BaseModel):
@@ -5923,251 +5764,121 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
 
 
-class Metric(_common.BaseModel):
-    """The metric used for evaluation."""
+class EvaluateMethodConfig(_common.BaseModel):
+    """Optional parameters for the evaluate method."""
 
-    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
-    custom_function: Optional[Callable] = Field(
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = Field(
         default=None,
-        description="""The custom function that defines the end-to-end logic for metric computation.""",
+        description="""The schema to use for the dataset.
+      If not specified, the dataset schema will be inferred from the first
+      example in the dataset.""",
     )
-    prompt_template: Optional[str] = Field(
-        default=None, description="""The prompt template for the metric."""
-    )
-    judge_model: Optional[str] = Field(
-        default=None, description="""The judge model for the metric."""
-    )
-    judge_model_sampling_count: Optional[int] = Field(
-        default=None, description="""The sampling count for the judge model."""
-    )
-    judge_model_system_instruction: Optional[str] = Field(
+    dest: Optional[str] = Field(
         default=None,
-        description="""The system instruction for the judge model.""",
+        description="""The destination path for the evaluation results.""",
     )
-    return_raw_output: Optional[bool] = Field(
+
+
+class EvaluateMethodConfigDict(TypedDict, total=False):
+    """Optional parameters for the evaluate method."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]]
+    """The schema to use for the dataset.
+      If not specified, the dataset schema will be inferred from the first
+      example in the dataset."""
+
+    dest: Optional[str]
+    """The destination path for the evaluation results."""
+
+
+EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]
+
+
+class GcsSource(_common.BaseModel):
+    """Cloud storage source holds the dataset.
+
+    Currently only one Cloud Storage file path is supported.
+    """
+
+    uris: Optional[list[str]] = Field(
         default=None,
-        description="""Whether to return the raw output from the judge model.""",
+        description="""Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards.""",
     )
-    parse_and_reduce_fn: Optional[Callable] = Field(
+
+
+class GcsSourceDict(TypedDict, total=False):
+    """Cloud storage source holds the dataset.
+
+    Currently only one Cloud Storage file path is supported.
+    """
+
+    uris: Optional[list[str]]
+    """Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards."""
+
+
+GcsSourceOrDict = Union[GcsSource, GcsSourceDict]
+
+
+class BigQuerySource(_common.BaseModel):
+    """The BigQuery location for the input content."""
+
+    input_uri: Optional[str] = Field(
         default=None,
-        description="""The parse and reduce function for the judge model.""",
+        description="""Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`.""",
     )
-    aggregate_summary_fn: Optional[Callable] = Field(
+
+
+class BigQuerySourceDict(TypedDict, total=False):
+    """The BigQuery location for the input content."""
+
+    input_uri: Optional[str]
+    """Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`."""
+
+
+BigQuerySourceOrDict = Union[BigQuerySource, BigQuerySourceDict]
+
+
+class OutputConfig(_common.BaseModel):
+    """Config for evaluation output."""
+
+    gcs_destination: Optional[GcsDestination] = Field(
         default=None,
-        description="""The aggregate summary function for the judge model.""",
+        description="""Cloud storage destination for evaluation output.""",
     )
 
-    # Allow extra fields to support metric-specific config fields.
-    model_config = ConfigDict(extra="allow")
 
-    _is_predefined: bool = PrivateAttr(default=False)
-    """A boolean indicating whether the metric is predefined."""
+class OutputConfigDict(TypedDict, total=False):
+    """Config for evaluation output."""
 
-    _config_source: Optional[str] = PrivateAttr(default=None)
-    """An optional string indicating the source of the metric configuration."""
-
-    _version: Optional[str] = PrivateAttr(default=None)
-    """An optional string indicating the version of the metric."""
-
-    @model_validator(mode="after")
-    @classmethod
-    def validate_name(cls, model: "Metric") -> "Metric":
-        if not model.name:
-            raise ValueError("Metric name cannot be empty.")
-        model.name = model.name.lower()
-        return model
-
-    def to_yaml_file(self, file_path: str, version: Optional[str] = None) -> None:
-        """Dumps the metric object to a YAML file.
-
-        Args:
-            file_path: The path to the YAML file.
-            version: Optional version string to include in the YAML output.
-
-        Raises:
-            ImportError: If the pyyaml library is not installed.
-        """
-        if yaml is None:
-            raise ImportError(
-                "YAML serialization requires the pyyaml library. Please install"
-                " it using 'pip install google-cloud-aiplatform[evaluation]'."
-            )
-
-        fields_to_exclude_callables = set()
-        for field_name, field_info in self.model_fields.items():
-            annotation = field_info.annotation
-            origin = typing.get_origin(annotation)
-
-            is_field_callable_type = False
-            if annotation is Callable or origin is Callable:
-                is_field_callable_type = True
-            elif origin is Union:
-                args = typing.get_args(annotation)
-                if any(
-                    arg is Callable or typing.get_origin(arg) is Callable
-                    for arg in args
-                ):
-                    is_field_callable_type = True
-
-            if is_field_callable_type:
-                fields_to_exclude_callables.add(field_name)
-
-        data_to_dump = self.model_dump(
-            exclude_unset=True,
-            exclude_none=True,
-            mode="json",
-            exclude=fields_to_exclude_callables
-            if fields_to_exclude_callables
-            else None,
-        )
-
-        if version:
-            data_to_dump["version"] = version
-
-        with open(file_path, "w", encoding="utf-8") as f:
-            yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
+    gcs_destination: Optional[GcsDestinationDict]
+    """Cloud storage destination for evaluation output."""
 
 
-class LLMMetric(Metric):
-    """A metric that uses LLM-as-a-judge for evaluation."""
-
-    @field_validator("prompt_template", mode="before")
-    @classmethod
-    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
-        """Validates prompt template to be a non-empty string."""
-        if value is None:
-            raise ValueError("Prompt template cannot be empty.")
-        if isinstance(value, MetricPromptBuilder):
-            value = str(value)
-        if not value.strip():
-            raise ValueError("Prompt template cannot be an empty string.")
-        return value
-
-    @field_validator("judge_model_sampling_count")
-    @classmethod
-    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
-        """Validates judge_model_sampling_count to be between 1 and 32."""
-        if value is not None and (value < 1 or value > 32):
-            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
-        return value
-
-    @classmethod
-    def load(cls, config_path: str, client: Optional[Any] = None) -> "LLMMetric":
-        """Loads a metric configuration from a YAML or JSON file.
-
-        This method allows for the creation of an LLMMetric instance from a
-        local file path or a Google Cloud Storage (GCS) URI. It will
-        automatically
-        detect the file type (.yaml, .yml, or .json) and parse it accordingly.
-
-        Args:
-            config_path: The local path or GCS URI (e.g.,
-              'gs://bucket/metric.yaml') to the metric configuration file.
-            client: Optional. The Vertex AI client instance to use for
-              authentication. If not provided, Application Default Credentials
-              (ADC) will be used.
-
-        Returns:
-            An instance of LLMMetric configured with the loaded data.
-
-        Raises:
-            ValueError: If the file path is invalid or the file content cannot
-            be parsed.
-            ImportError: If a required library like 'PyYAML' or
-            'google-cloud-storage' is not installed.
-            IOError: If the file cannot be read from the specified path.
-        """
-        file_extension = os.path.splitext(config_path)[1].lower()
-        if file_extension not in [".yaml", ".yml", ".json"]:
-            raise ValueError(
-                "Unsupported file extension for metric config. Must be .yaml,"
-                " .yml, or .json"
-            )
-
-        content_str: str
-        if config_path.startswith("gs://"):
-            try:
-                from google.cloud import storage
-
-                storage_client = storage.Client(
-                    credentials=client._api_client._credentials if client else None
-                )
-                path_without_prefix = config_path[len("gs://") :]
-                bucket_name, blob_path = path_without_prefix.split("/", 1)
-
-                bucket = storage_client.bucket(bucket_name)
-                blob = bucket.blob(blob_path)
-                content_str = blob.download_as_bytes().decode("utf-8")
-            except ImportError as e:
-                raise ImportError(
-                    "Reading from GCS requires the 'google-cloud-storage'"
-                    " library. Please install it with 'pip install"
-                    " google-cloud-aiplatform[evaluation]'."
-                ) from e
-            except Exception as e:
-                raise IOError(f"Failed to read from GCS path {config_path}: {e}") from e
-        else:
-            try:
-                with open(config_path, "r", encoding="utf-8") as f:
-                    content_str = f.read()
-            except FileNotFoundError:
-                raise FileNotFoundError(
-                    f"Local configuration file not found at: {config_path}"
-                )
-            except Exception as e:
-                raise IOError(f"Failed to read local file {config_path}: {e}") from e
-
-        data: Dict[str, Any]
-
-        if file_extension in [".yaml", ".yml"]:
-            if yaml is None:
-                raise ImportError(
-                    "YAML parsing requires the pyyaml library. Please install"
-                    " it with 'pip install"
-                    " google-cloud-aiplatform[evaluation]'."
-                )
-            data = yaml.safe_load(content_str)
-        elif file_extension == ".json":
-            data = json.loads(content_str)
-
-        if not isinstance(data, dict):
-            raise ValueError("Metric config content did not parse into a dictionary.")
-
-        return cls.model_validate(data)
+OutputConfigOrDict = Union[OutputConfig, OutputConfigDict]
 
 
-class MetricDict(TypedDict, total=False):
-    """The metric used for evaluation."""
+class EvaluateDatasetConfig(_common.BaseModel):
+    """Config for evaluate instances."""
 
-    name: Optional[str]
-    """The name of the metric."""
-
-    custom_function: Optional[Callable]
-    """The custom function that defines the end-to-end logic for metric computation."""
-
-    prompt_template: Optional[str]
-    """The prompt template for the metric."""
-
-    judge_model: Optional[str]
-    """The judge model for the metric."""
-
-    judge_model_sampling_count: Optional[int]
-    """The sampling count for the judge model."""
-
-    judge_model_system_instruction: Optional[str]
-    """The system instruction for the judge model."""
-
-    return_raw_output: Optional[bool]
-    """Whether to return the raw output from the judge model."""
-
-    parse_and_reduce_fn: Optional[Callable]
-    """The parse and reduce function for the judge model."""
-
-    aggregate_summary_fn: Optional[Callable]
-    """The aggregate summary function for the judge model."""
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
 
 
-MetricOrDict = Union[Metric, MetricDict]
+class EvaluateDatasetConfigDict(TypedDict, total=False):
+    """Config for evaluate instances."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+EvaluateDatasetConfigOrDict = Union[EvaluateDatasetConfig, EvaluateDatasetConfigDict]
 
 
 class Message(_common.BaseModel):
@@ -6316,50 +6027,6 @@ class EvalCaseDict(TypedDict, total=False):
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
 
 
-class GcsSource(_common.BaseModel):
-    """Cloud storage source holds the dataset.
-
-    Currently only one Cloud Storage file path is supported.
-    """
-
-    uris: Optional[list[str]] = Field(
-        default=None,
-        description="""Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards.""",
-    )
-
-
-class GcsSourceDict(TypedDict, total=False):
-    """Cloud storage source holds the dataset.
-
-    Currently only one Cloud Storage file path is supported.
-    """
-
-    uris: Optional[list[str]]
-    """Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards."""
-
-
-GcsSourceOrDict = Union[GcsSource, GcsSourceDict]
-
-
-class BigQuerySource(_common.BaseModel):
-    """The BigQuery location for the input content."""
-
-    input_uri: Optional[str] = Field(
-        default=None,
-        description="""Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`.""",
-    )
-
-
-class BigQuerySourceDict(TypedDict, total=False):
-    """The BigQuery location for the input content."""
-
-    input_uri: Optional[str]
-    """Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`."""
-
-
-BigQuerySourceOrDict = Union[BigQuerySource, BigQuerySourceDict]
-
-
 class EvaluationDataset(_common.BaseModel):
     """The dataset used for evaluation."""
 
@@ -6424,6 +6091,375 @@ class EvaluationDatasetDict(TypedDict, total=False):
 EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
 
 
+class Metric(_common.BaseModel):
+    """The metric used for evaluation."""
+
+    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
+    custom_function: Optional[Callable] = Field(
+        default=None,
+        description="""The custom function that defines the end-to-end logic for metric computation.""",
+    )
+    prompt_template: Optional[str] = Field(
+        default=None, description="""The prompt template for the metric."""
+    )
+    judge_model: Optional[str] = Field(
+        default=None, description="""The judge model for the metric."""
+    )
+    judge_model_sampling_count: Optional[int] = Field(
+        default=None, description="""The sampling count for the judge model."""
+    )
+    judge_model_system_instruction: Optional[str] = Field(
+        default=None,
+        description="""The system instruction for the judge model.""",
+    )
+    return_raw_output: Optional[bool] = Field(
+        default=None,
+        description="""Whether to return the raw output from the judge model.""",
+    )
+    parse_and_reduce_fn: Optional[Callable] = Field(
+        default=None,
+        description="""The parse and reduce function for the judge model.""",
+    )
+    aggregate_summary_fn: Optional[Callable] = Field(
+        default=None,
+        description="""The aggregate summary function for the judge model.""",
+    )
+
+    # Allow extra fields to support metric-specific config fields.
+    model_config = ConfigDict(extra="allow")
+
+    _is_predefined: bool = PrivateAttr(default=False)
+    """A boolean indicating whether the metric is predefined."""
+
+    _config_source: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the source of the metric configuration."""
+
+    _version: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the version of the metric."""
+
+    @model_validator(mode="after")
+    @classmethod
+    def validate_name(cls, model: "Metric") -> "Metric":
+        if not model.name:
+            raise ValueError("Metric name cannot be empty.")
+        model.name = model.name.lower()
+        return model
+
+    def to_yaml_file(self, file_path: str, version: Optional[str] = None) -> None:
+        """Dumps the metric object to a YAML file.
+
+        Args:
+            file_path: The path to the YAML file.
+            version: Optional version string to include in the YAML output.
+
+        Raises:
+            ImportError: If the pyyaml library is not installed.
+        """
+        if yaml is None:
+            raise ImportError(
+                "YAML serialization requires the pyyaml library. Please install"
+                " it using 'pip install google-cloud-aiplatform[evaluation]'."
+            )
+
+        fields_to_exclude_callables = set()
+        for field_name, field_info in self.model_fields.items():
+            annotation = field_info.annotation
+            origin = typing.get_origin(annotation)
+
+            is_field_callable_type = False
+            if annotation is Callable or origin is Callable:
+                is_field_callable_type = True
+            elif origin is Union:
+                args = typing.get_args(annotation)
+                if any(
+                    arg is Callable or typing.get_origin(arg) is Callable
+                    for arg in args
+                ):
+                    is_field_callable_type = True
+
+            if is_field_callable_type:
+                fields_to_exclude_callables.add(field_name)
+
+        data_to_dump = self.model_dump(
+            exclude_unset=True,
+            exclude_none=True,
+            mode="json",
+            exclude=fields_to_exclude_callables
+            if fields_to_exclude_callables
+            else None,
+        )
+
+        if version:
+            data_to_dump["version"] = version
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
+
+
+class LLMMetric(Metric):
+    """A metric that uses LLM-as-a-judge for evaluation."""
+
+    rubric_group_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the column in the EvaluationDataset containing the list of rubrics to use for this metric.""",
+    )
+
+    @field_validator("prompt_template", mode="before")
+    @classmethod
+    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
+        """Validates prompt template to be a non-empty string."""
+        if value is None:
+            raise ValueError("Prompt template cannot be empty.")
+        if isinstance(value, MetricPromptBuilder):
+            value = str(value)
+        if not value.strip():
+            raise ValueError("Prompt template cannot be an empty string.")
+        return value
+
+    @field_validator("judge_model_sampling_count")
+    @classmethod
+    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
+        """Validates judge_model_sampling_count to be between 1 and 32."""
+        if value is not None and (value < 1 or value > 32):
+            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
+        return value
+
+    @classmethod
+    def load(cls, config_path: str, client: Optional[Any] = None) -> "LLMMetric":
+        """Loads a metric configuration from a YAML or JSON file.
+
+        This method allows for the creation of an LLMMetric instance from a
+        local file path or a Google Cloud Storage (GCS) URI. It will
+        automatically
+        detect the file type (.yaml, .yml, or .json) and parse it accordingly.
+
+        Args:
+            config_path: The local path or GCS URI (e.g.,
+              'gs://bucket/metric.yaml') to the metric configuration file.
+            client: Optional. The Vertex AI client instance to use for
+              authentication. If not provided, Application Default Credentials
+              (ADC) will be used.
+
+        Returns:
+            An instance of LLMMetric configured with the loaded data.
+
+        Raises:
+            ValueError: If the file path is invalid or the file content cannot
+            be parsed.
+            ImportError: If a required library like 'PyYAML' or
+            'google-cloud-storage' is not installed.
+            IOError: If the file cannot be read from the specified path.
+        """
+        file_extension = os.path.splitext(config_path)[1].lower()
+        if file_extension not in [".yaml", ".yml", ".json"]:
+            raise ValueError(
+                "Unsupported file extension for metric config. Must be .yaml,"
+                " .yml, or .json"
+            )
+
+        content_str: str
+        if config_path.startswith("gs://"):
+            try:
+                from google.cloud import storage
+
+                storage_client = storage.Client(
+                    credentials=client._api_client._credentials if client else None
+                )
+                path_without_prefix = config_path[len("gs://") :]
+                bucket_name, blob_path = path_without_prefix.split("/", 1)
+
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_path)
+                content_str = blob.download_as_bytes().decode("utf-8")
+            except ImportError as e:
+                raise ImportError(
+                    "Reading from GCS requires the 'google-cloud-storage'"
+                    " library. Please install it with 'pip install"
+                    " google-cloud-aiplatform[evaluation]'."
+                ) from e
+            except Exception as e:
+                raise IOError(f"Failed to read from GCS path {config_path}: {e}") from e
+        else:
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    content_str = f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    f"Local configuration file not found at: {config_path}"
+                )
+            except Exception as e:
+                raise IOError(f"Failed to read local file {config_path}: {e}") from e
+
+        data: Dict[str, Any]
+
+        if file_extension in [".yaml", ".yml"]:
+            if yaml is None:
+                raise ImportError(
+                    "YAML parsing requires the pyyaml library. Please install"
+                    " it with 'pip install"
+                    " google-cloud-aiplatform[evaluation]'."
+                )
+            data = yaml.safe_load(content_str)
+        elif file_extension == ".json":
+            data = json.loads(content_str)
+
+        if not isinstance(data, dict):
+            raise ValueError("Metric config content did not parse into a dictionary.")
+
+        return cls.model_validate(data)
+
+
+class MetricDict(TypedDict, total=False):
+    """The metric used for evaluation."""
+
+    name: Optional[str]
+    """The name of the metric."""
+
+    custom_function: Optional[Callable]
+    """The custom function that defines the end-to-end logic for metric computation."""
+
+    prompt_template: Optional[str]
+    """The prompt template for the metric."""
+
+    judge_model: Optional[str]
+    """The judge model for the metric."""
+
+    judge_model_sampling_count: Optional[int]
+    """The sampling count for the judge model."""
+
+    judge_model_system_instruction: Optional[str]
+    """The system instruction for the judge model."""
+
+    return_raw_output: Optional[bool]
+    """Whether to return the raw output from the judge model."""
+
+    parse_and_reduce_fn: Optional[Callable]
+    """The parse and reduce function for the judge model."""
+
+    aggregate_summary_fn: Optional[Callable]
+    """The aggregate summary function for the judge model."""
+
+
+MetricOrDict = Union[Metric, MetricDict]
+
+
+class EvaluateDatasetRequestParameters(_common.BaseModel):
+    """Parameters for batch dataset evaluation."""
+
+    dataset: Optional[EvaluationDataset] = Field(default=None, description="""""")
+    metrics: Optional[list[Metric]] = Field(default=None, description="""""")
+    output_config: Optional[OutputConfig] = Field(default=None, description="""""")
+    autorater_config: Optional[AutoraterConfig] = Field(
+        default=None, description=""""""
+    )
+    config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
+
+
+class EvaluateDatasetRequestParametersDict(TypedDict, total=False):
+    """Parameters for batch dataset evaluation."""
+
+    dataset: Optional[EvaluationDatasetDict]
+    """"""
+
+    metrics: Optional[list[MetricDict]]
+    """"""
+
+    output_config: Optional[OutputConfigDict]
+    """"""
+
+    autorater_config: Optional[AutoraterConfigDict]
+    """"""
+
+    config: Optional[EvaluateDatasetConfigDict]
+    """"""
+
+
+EvaluateDatasetRequestParametersOrDict = Union[
+    EvaluateDatasetRequestParameters, EvaluateDatasetRequestParametersDict
+]
+
+
+class EvaluateDatasetOperation(_common.BaseModel):
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[EvaluationDataset] = Field(default=None, description="""""")
+
+
+class EvaluateDatasetOperationDict(TypedDict, total=False):
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[EvaluationDatasetDict]
+    """"""
+
+
+EvaluateDatasetOperationOrDict = Union[
+    EvaluateDatasetOperation, EvaluateDatasetOperationDict
+]
+
+
+class RubricGroup(_common.BaseModel):
+    """A group of rubrics, used for grouping rubrics based on a metric or a version."""
+
+    group_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the group."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Human-readable name for the group. This should be unique
+      within a given context if used for display or selection.
+      Example: "Instruction Following V1", "Content Quality - Summarization
+      Task".""",
+    )
+    rubrics: Optional[list[Rubric]] = Field(
+        default=None, description="""Rubrics that are part of this group."""
+    )
+
+
+class RubricGroupDict(TypedDict, total=False):
+    """A group of rubrics, used for grouping rubrics based on a metric or a version."""
+
+    group_id: Optional[str]
+    """Unique identifier for the group."""
+
+    display_name: Optional[str]
+    """Human-readable name for the group. This should be unique
+      within a given context if used for display or selection.
+      Example: "Instruction Following V1", "Content Quality - Summarization
+      Task"."""
+
+    rubrics: Optional[list[RubricDict]]
+    """Rubrics that are part of this group."""
+
+
+RubricGroupOrDict = Union[RubricGroup, RubricGroupDict]
+
+
 class WinRateStats(_common.BaseModel):
     """Statistics for win rates for a single metric."""
 
@@ -6459,12 +6495,12 @@ class EvalCaseMetricResult(_common.BaseModel):
     explanation: Optional[str] = Field(
         default=None, description="""Explanation of the metric."""
     )
+    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+        default=None,
+        description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
+    )
     raw_output: Optional[list[str]] = Field(
         default=None, description="""Raw output of the metric."""
-    )
-    rubrics: Optional[list[str]] = Field(
-        default=None,
-        description="""A list of rubrics used to evaluate the example for rubric-based metrics.""",
     )
     error_message: Optional[str] = Field(
         default=None, description="""Error message for the metric."""
@@ -6483,11 +6519,11 @@ class EvalCaseMetricResultDict(TypedDict, total=False):
     explanation: Optional[str]
     """Explanation of the metric."""
 
+    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    """The details of all the rubrics and their verdicts for rubric-based metrics."""
+
     raw_output: Optional[list[str]]
     """Raw output of the metric."""
-
-    rubrics: Optional[list[str]]
-    """A list of rubrics used to evaluate the example for rubric-based metrics."""
 
     error_message: Optional[str]
     """Error message for the metric."""
@@ -6696,159 +6732,6 @@ class EvaluationResultDict(TypedDict, total=False):
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
-
-
-class EvaluateMethodConfig(_common.BaseModel):
-    """Optional parameters for the evaluate method."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = Field(
-        default=None,
-        description="""The schema to use for the dataset.
-      If not specified, the dataset schema will be inferred from the first
-      example in the dataset.""",
-    )
-    dest: Optional[str] = Field(
-        default=None,
-        description="""The destination path for the evaluation results.""",
-    )
-
-
-class EvaluateMethodConfigDict(TypedDict, total=False):
-    """Optional parameters for the evaluate method."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]]
-    """The schema to use for the dataset.
-      If not specified, the dataset schema will be inferred from the first
-      example in the dataset."""
-
-    dest: Optional[str]
-    """The destination path for the evaluation results."""
-
-
-EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]
-
-
-class OutputConfig(_common.BaseModel):
-    """Config for evaluation output."""
-
-    gcs_destination: Optional[GcsDestination] = Field(
-        default=None,
-        description="""Cloud storage destination for evaluation output.""",
-    )
-
-
-class OutputConfigDict(TypedDict, total=False):
-    """Config for evaluation output."""
-
-    gcs_destination: Optional[GcsDestinationDict]
-    """Cloud storage destination for evaluation output."""
-
-
-OutputConfigOrDict = Union[OutputConfig, OutputConfigDict]
-
-
-class EvaluateDatasetConfig(_common.BaseModel):
-    """Config for evaluate instances."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class EvaluateDatasetConfigDict(TypedDict, total=False):
-    """Config for evaluate instances."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-
-EvaluateDatasetConfigOrDict = Union[EvaluateDatasetConfig, EvaluateDatasetConfigDict]
-
-
-class EvaluateDatasetRequestParameters(_common.BaseModel):
-    """Parameters for batch dataset evaluation."""
-
-    dataset: Optional[EvaluationDataset] = Field(default=None, description="""""")
-    metrics: Optional[list[Metric]] = Field(default=None, description="""""")
-    output_config: Optional[OutputConfig] = Field(default=None, description="""""")
-    autorater_config: Optional[AutoraterConfig] = Field(
-        default=None, description=""""""
-    )
-    config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
-
-
-class EvaluateDatasetRequestParametersDict(TypedDict, total=False):
-    """Parameters for batch dataset evaluation."""
-
-    dataset: Optional[EvaluationDatasetDict]
-    """"""
-
-    metrics: Optional[list[MetricDict]]
-    """"""
-
-    output_config: Optional[OutputConfigDict]
-    """"""
-
-    autorater_config: Optional[AutoraterConfigDict]
-    """"""
-
-    config: Optional[EvaluateDatasetConfigDict]
-    """"""
-
-
-EvaluateDatasetRequestParametersOrDict = Union[
-    EvaluateDatasetRequestParameters, EvaluateDatasetRequestParametersDict
-]
-
-
-class EvaluateDatasetOperation(_common.BaseModel):
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-    response: Optional[EvaluationDataset] = Field(default=None, description="""""")
-
-
-class EvaluateDatasetOperationDict(TypedDict, total=False):
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-    response: Optional[EvaluationDatasetDict]
-    """"""
-
-
-EvaluateDatasetOperationOrDict = Union[
-    EvaluateDatasetOperation, EvaluateDatasetOperationDict
-]
 
 
 class AgentEngine(_common.BaseModel):
