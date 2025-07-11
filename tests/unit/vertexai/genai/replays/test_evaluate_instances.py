@@ -14,10 +14,10 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
-
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 import pandas as pd
+import pytest
 
 
 def test_bleu_metric(client):
@@ -74,3 +74,21 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="evals.evaluate",
 )
+
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_bleu_metric_async(client):
+    test_bleu_input = types.BleuInput(
+        instances=[
+            types.BleuInstance(
+                reference="The quick brown fox jumps over the lazy dog.",
+                prediction="A fast brown fox leaps over a lazy dog.",
+            )
+        ],
+        metric_spec=types.BleuSpec(),
+    )
+    response = await client.aio.evals._evaluate_instances(bleu_input=test_bleu_input)
+    assert len(response.bleu_results.bleu_metric_values) == 1
