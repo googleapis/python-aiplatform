@@ -18,6 +18,7 @@
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 import pandas as pd
+import json
 
 
 def test_bleu_metric(client):
@@ -32,6 +33,78 @@ def test_bleu_metric(client):
     )
     response = client.evals._evaluate_instances(bleu_input=test_bleu_input)
     assert len(response.bleu_results.bleu_metric_values) == 1
+
+
+def test_exact_match_metric(client):
+    """Tests the _evaluate_instances method with ExactMatchInput."""
+    test_exact_match_input = types.ExactMatchInput(
+        instances=[
+            types.ExactMatchInstance(
+                prediction="The quick brown fox jumps over the lazy dog.",
+                reference="The quick brown fox jumps over the lazy dog.",
+            )
+        ],
+        metric_spec=types.ExactMatchSpec(),
+    )
+    response = client.evals._evaluate_instances(
+        exact_match_input=test_exact_match_input
+    )
+    assert len(response.exact_match_results.exact_match_metric_values) == 1
+
+
+def test_rouge_metric(client):
+    """Tests the _evaluate_instances method with RougeInput."""
+    test_rouge_input = types.RougeInput(
+        instances=[
+            types.RougeInstance(
+                prediction="A fast brown fox leaps over a lazy dog.",
+                reference="The quick brown fox jumps over the lazy dog.",
+            )
+        ],
+        metric_spec=types.RougeSpec(rouge_type="rougeL"),
+    )
+    response = client.evals._evaluate_instances(rouge_input=test_rouge_input)
+    assert len(response.rouge_results.rouge_metric_values) == 1
+
+
+def test_pointwise_metric(client):
+    """Tests the _evaluate_instances method with PointwiseMetricInput."""
+    instance_dict = {"prompt": "What is the capital of France?", "response": "Paris"}
+    json_instance = json.dumps(instance_dict)
+
+    test_input = types.PointwiseMetricInput(
+        instance=types.PointwiseMetricInstance(json_instance=json_instance),
+        metric_spec=types.PointwiseMetricSpec(
+            metric_prompt_template="Evaluate if the response '{response}' correctly answers the prompt '{prompt}'."
+        ),
+    )
+    response = client.evals._evaluate_instances(pointwise_metric_input=test_input)
+    assert response.pointwise_metric_result is not None
+    assert response.pointwise_metric_result.score is not None
+
+
+def test_pairwise_metric_with_autorater(client):
+    """Tests the _evaluate_instances method with PairwiseMetricInput and AutoraterConfig."""
+
+    instance_dict = {
+        "baseline_response": "Short summary.",
+        "candidate_response": "A longer, more detailed summary.",
+    }
+    json_instance = json.dumps(instance_dict)
+
+    test_input = types.PairwiseMetricInput(
+        instance=types.PairwiseMetricInstance(json_instance=json_instance),
+        metric_spec=types.PairwiseMetricSpec(
+            metric_prompt_template="Which response is a better summary? Baseline: '{baseline_response}' or Candidate: '{candidate_response}'"
+        ),
+    )
+    autorater_config = types.AutoraterConfig(sampling_count=2)
+
+    response = client.evals._evaluate_instances(
+        pairwise_metric_input=test_input, autorater_config=autorater_config
+    )
+    assert response.pairwise_metric_result is not None
+    assert response.pairwise_metric_result.pairwise_choice is not None
 
 
 def test_run_inference_with_string_model(client):
