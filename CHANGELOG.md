@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.104.0](https://github.com/googleapis/python-aiplatform/compare/v1.103.0...v1.104.0) (2025-07-11)
+
+
+### Features
+
+* GenAI SDK client(evals) - Add Generate Rubrics API config and internal method ([6727fb3](https://github.com/googleapis/python-aiplatform/commit/6727fb3761e91d32359e13b1c28494d2f16d165a))
+
+
+### Bug Fixes
+
+* GenAI SDK client(evals) - Handle optional pandas dependency in type hints ([cee8d8b](https://github.com/googleapis/python-aiplatform/commit/cee8d8b85f00efb259dbee5e2fa6d0cbed73e24c))
+
 ## [1.103.0](https://github.com/googleapis/python-aiplatform/compare/v1.102.0...v1.103.0) (2025-07-10)
 
 
