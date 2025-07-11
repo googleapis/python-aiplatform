@@ -6395,6 +6395,99 @@ class EvaluationDataset(_common.BaseModel):
                 )
         return data
 
+    @classmethod
+    def load_from_sources(
+        cls,
+        input_source: str,
+        output_source: str,
+        system_source: Optional[str] = None,
+        client: Optional[Any] = None,
+    ) -> "EvaluationDataset":
+        if (
+            not input_source.startswith("gs://")
+            or not output_source.startswith("gs://")
+            or (
+                system_source is not None
+                and not system_source.startswith("gs://")
+            )
+        ):
+            raise TypeError("Only GCS sources are supported.")
+
+        try:
+            from google.cloud import storage
+
+            storage_client = storage.Client(
+                credentials=client._api_client._credentials if client else None
+            )
+
+            # Input source
+            try:
+                path_without_prefix = input_source[len("gs://") :]
+                bucket_name, blob_path = path_without_prefix.split("/", 1)
+
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_path)
+
+                input_str = blob.download_as_bytes().decode("utf-8")
+            except Exception as e:
+                raise IOError(
+                    f"Failed to read from GCS path {input_source}: {e}"
+                ) from e
+
+            # Output source
+            try:
+                path_without_prefix = output_source[len("gs://") :]
+                bucket_name, blob_path = path_without_prefix.split("/", 1)
+
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_path)
+
+                output_str = blob.download_as_bytes().decode("utf-8")
+            except Exception as e:
+                raise IOError(
+                    f"Failed to read from GCS path {output_source}: {e}"
+                ) from e
+
+            # System source
+            system_str = ""
+            if system_source is not None:
+                try:
+                    path_without_prefix = system_source[len("gs://") :]
+                    bucket_name, blob_path = path_without_prefix.split("/", 1)
+
+                    bucket = storage_client.bucket(bucket_name)
+                    blob = bucket.blob(blob_path)
+
+                    system_str = blob.download_as_bytes().decode("utf-8")
+                except Exception as e:
+                    raise IOError(
+                        f"Failed to read from GCS path {system_str}: {e}"
+                    ) from e
+
+        except ImportError as e:
+            raise ImportError(
+                "Reading from GCS requires the 'google-cloud-storage'"
+                " library. Please install it with 'pip install"
+                " google-cloud-aiplatform[evaluation]'."
+            ) from e
+
+        try:
+            import pandas as pd
+
+            eval_dataset_df = pd.DataFrame(
+                {
+                    "format": ["observability"],
+                    "input": [input_str],
+                    "output": [output_str],
+                    "system": [system_str],
+                }
+            )
+
+        except ImportError as e:
+            raise ImportError("Pandas DataFrame library is required.") from e
+
+        return EvaluationDataset(eval_dataset_df=eval_dataset_df)
+
     def show(self) -> None:
         """Shows the evaluation dataset."""
         from . import _evals_visualization
