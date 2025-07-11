@@ -14,6 +14,8 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import pytest
+
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 
@@ -43,3 +45,24 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="evals.batch_evaluate",
 )
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_batch_eval_async(client):
+    eval_dataset = types.EvaluationDataset(
+        gcs_source=types.GcsSource(
+            uris=["gs://genai-eval-sdk-replay-test/test_data/inference_results.jsonl"]
+        )
+    )
+
+    response = await client.aio.evals.batch_evaluate(
+        dataset=eval_dataset,
+        metrics=[
+            types.PrebuiltMetric.TEXT_QUALITY,
+        ],
+        dest="gs://genai-eval-sdk-replay-test/test_data/batch_eval_output",
+    )
+    assert "operations" in response.name
+    assert "EvaluateDatasetOperationMetadata" in response.metadata.get("@type")
