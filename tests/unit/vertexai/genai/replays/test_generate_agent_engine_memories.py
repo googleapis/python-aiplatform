@@ -15,6 +15,7 @@
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
 from tests.unit.vertexai.genai.replays import pytest_helper
+from vertexai._genai import types
 
 
 def test_generate_memories(client):
@@ -26,19 +27,21 @@ def test_generate_memories(client):
     )
     client.agent_engines.generate_memories(
         name=agent_engine.api_resource.name,
-        direct_contents_source={
-            "events": [
-                {
-                    "content": {
-                        "role": "model",
-                        "parts": [
-                            {"text": "I am a software engineer focusing in security"}
-                        ],
-                    }
-                }
-            ]
-        },
         scope={"user_id": "test-user-id"},
+        direct_contents_source=types.GenerateMemoriesRequestDirectContentsSource(
+            events=[
+                types.GenerateMemoriesRequestDirectContentsSourceEvent(
+                    content=types.Content(
+                        role="model",
+                        parts=[
+                            types.Part(
+                                text="I am a software engineer focusing in security"
+                            )
+                        ],
+                    )
+                )
+            ]
+        ),
     )
     assert (
         len(

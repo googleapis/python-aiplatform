@@ -15,14 +15,19 @@
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
 from tests.unit.vertexai.genai.replays import pytest_helper
+from vertexai._genai import types
+from google.genai import pagers
 
 
-def test_retrieve_memories(client):
+def test_retrieve_memories_with_similarity_search_params(client):
     agent_engine = client.agent_engines.create()
     assert not list(
         client.agent_engines.retrieve_memories(
             name=agent_engine.api_resource.name,
             scope={"user_id": "123"},
+            similarity_search_params=types.RetrieveMemoriesRequestSimilaritySearchParams(
+                search_query="memory_fact_1",
+            ),
         )
     )
     client.agent_engines.create_memory(
@@ -63,6 +68,25 @@ def test_retrieve_memories(client):
         )
         == 2
     )
+
+
+def test_retrieve_memories_with_simple_retrieval_params(client):
+    agent_engine = client.agent_engines.create()
+    client.agent_engines.create_memory(
+        name=agent_engine.api_resource.name,
+        fact="memory_fact_1",
+        scope={"user_id": "123"},
+    )
+    memories = client.agent_engines.retrieve_memories(
+        name=agent_engine.api_resource.name,
+        scope={"user_id": "123"},
+        simple_retrieval_params=types.RetrieveMemoriesRequestSimpleRetrievalParams(
+            page_size=1,
+        ),
+    )
+    assert isinstance(memories, pagers.Pager)
+    assert isinstance(memories.page[0], types.RetrieveMemoriesResponseRetrievedMemory)
+    assert memories.page_size == 1
 
 
 pytestmark = pytest_helper.setup(

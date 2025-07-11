@@ -15,15 +15,21 @@
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
 from tests.unit.vertexai.genai.replays import pytest_helper
+from vertexai._genai import types
 
 
 def test_create_memory(client):
     agent_engine = client.agent_engines.create()
+    assert isinstance(agent_engine, types.AgentEngine)
+    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+
     operation = client.agent_engines.create_memory(
         name=agent_engine.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
+        config=types.AgentEngineMemoryConfig(display_name="my_memory_fact"),
     )
+    assert isinstance(operation, types.AgentEngineMemoryOperation)
     assert operation.response.fact == "memory_fact"
     assert operation.response.scope == {"user_id": "123"}
     assert operation.response.name.startswith(agent_engine.api_resource.name)
