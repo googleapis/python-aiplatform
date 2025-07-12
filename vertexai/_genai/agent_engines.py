@@ -63,6 +63,21 @@ def _ReasoningEngineSpec_to_vertex(
     return to_object
 
 
+def _ReasoningEngineContextSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memory_bank_config"]) is not None:
+        setv(
+            to_object,
+            ["memoryBankConfig"],
+            getv(from_object, ["memory_bank_config"]),
+        )
+
+    return to_object
+
+
 def _CreateAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -80,6 +95,15 @@ def _CreateAgentEngineConfig_to_vertex(
             parent_object,
             ["spec"],
             _ReasoningEngineSpec_to_vertex(getv(from_object, ["spec"]), to_object),
+        )
+
+    if getv(from_object, ["context_spec"]) is not None:
+        setv(
+            parent_object,
+            ["contextSpec"],
+            _ReasoningEngineContextSpec_to_vertex(
+                getv(from_object, ["context_spec"]), to_object
+            ),
         )
 
     return to_object
@@ -548,6 +572,15 @@ def _UpdateAgentEngineConfig_to_vertex(
             parent_object,
             ["spec"],
             _ReasoningEngineSpec_to_vertex(getv(from_object, ["spec"]), to_object),
+        )
+
+    if getv(from_object, ["context_spec"]) is not None:
+        setv(
+            parent_object,
+            ["contextSpec"],
+            _ReasoningEngineContextSpec_to_vertex(
+                getv(from_object, ["context_spec"]), to_object
+            ),
         )
 
     if getv(from_object, ["update_mask"]) is not None:
@@ -1986,6 +2019,7 @@ class AgentEngines(_api_module.BaseModule):
             gcs_dir_name=config.gcs_dir_name,
             extra_packages=config.extra_packages,
             env_vars=config.env_vars,
+            context_spec=config.context_spec,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -2029,6 +2063,7 @@ class AgentEngines(_api_module.BaseModule):
         gcs_dir_name: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
         env_vars: Optional[dict[str, Union[str, Any]]] = None,
+        context_spec: Optional[types.ReasoningEngineContextSpecOrDict] = None,
     ):
         import sys
         from vertexai.agent_engines import _agent_engines
@@ -2049,6 +2084,10 @@ class AgentEngines(_api_module.BaseModule):
         if description is not None:
             update_masks.append("description")
             config["description"] = description
+        if context_spec is not None:
+            if isinstance(context_spec, types.ReasoningEngineContextSpec):
+                context_spec = context_spec.model_dump()
+            config["context_spec"] = context_spec
         if agent_engine is not None:
             sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
             gcs_dir_name = gcs_dir_name or _agent_engines._DEFAULT_GCS_DIR_NAME
@@ -2317,6 +2356,7 @@ class AgentEngines(_api_module.BaseModule):
             gcs_dir_name=config.gcs_dir_name,
             extra_packages=config.extra_packages,
             env_vars=config.env_vars,
+            context_spec=config.context_spec,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(
