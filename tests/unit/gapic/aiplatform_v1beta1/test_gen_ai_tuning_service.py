@@ -1214,10 +1214,12 @@ def test_create_tuning_job(request_type, transport: str = "grpc"):
             name="name_value",
             tuned_model_display_name="tuned_model_display_name_value",
             description="description_value",
+            custom_base_model="custom_base_model_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
             pipeline_job="pipeline_job_value",
             service_account="service_account_value",
+            output_uri="output_uri_value",
             base_model="base_model_value",
         )
         response = client.create_tuning_job(request)
@@ -1233,10 +1235,12 @@ def test_create_tuning_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.tuned_model_display_name == "tuned_model_display_name_value"
     assert response.description == "description_value"
+    assert response.custom_base_model == "custom_base_model_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
     assert response.pipeline_job == "pipeline_job_value"
     assert response.service_account == "service_account_value"
+    assert response.output_uri == "output_uri_value"
 
 
 def test_create_tuning_job_non_empty_request_with_auto_populated_field():
@@ -1372,10 +1376,12 @@ async def test_create_tuning_job_async(
                 name="name_value",
                 tuned_model_display_name="tuned_model_display_name_value",
                 description="description_value",
+                custom_base_model="custom_base_model_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 experiment="experiment_value",
                 pipeline_job="pipeline_job_value",
                 service_account="service_account_value",
+                output_uri="output_uri_value",
             )
         )
         response = await client.create_tuning_job(request)
@@ -1391,10 +1397,12 @@ async def test_create_tuning_job_async(
     assert response.name == "name_value"
     assert response.tuned_model_display_name == "tuned_model_display_name_value"
     assert response.description == "description_value"
+    assert response.custom_base_model == "custom_base_model_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
     assert response.pipeline_job == "pipeline_job_value"
     assert response.service_account == "service_account_value"
+    assert response.output_uri == "output_uri_value"
 
 
 @pytest.mark.asyncio
@@ -1587,10 +1595,12 @@ def test_get_tuning_job(request_type, transport: str = "grpc"):
             name="name_value",
             tuned_model_display_name="tuned_model_display_name_value",
             description="description_value",
+            custom_base_model="custom_base_model_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
             pipeline_job="pipeline_job_value",
             service_account="service_account_value",
+            output_uri="output_uri_value",
             base_model="base_model_value",
         )
         response = client.get_tuning_job(request)
@@ -1606,10 +1616,12 @@ def test_get_tuning_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.tuned_model_display_name == "tuned_model_display_name_value"
     assert response.description == "description_value"
+    assert response.custom_base_model == "custom_base_model_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
     assert response.pipeline_job == "pipeline_job_value"
     assert response.service_account == "service_account_value"
+    assert response.output_uri == "output_uri_value"
 
 
 def test_get_tuning_job_non_empty_request_with_auto_populated_field():
@@ -1739,10 +1751,12 @@ async def test_get_tuning_job_async(
                 name="name_value",
                 tuned_model_display_name="tuned_model_display_name_value",
                 description="description_value",
+                custom_base_model="custom_base_model_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 experiment="experiment_value",
                 pipeline_job="pipeline_job_value",
                 service_account="service_account_value",
+                output_uri="output_uri_value",
             )
         )
         response = await client.get_tuning_job(request)
@@ -1758,10 +1772,12 @@ async def test_get_tuning_job_async(
     assert response.name == "name_value"
     assert response.tuned_model_display_name == "tuned_model_display_name_value"
     assert response.description == "description_value"
+    assert response.custom_base_model == "custom_base_model_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
     assert response.pipeline_job == "pipeline_job_value"
     assert response.service_account == "service_account_value"
+    assert response.output_uri == "output_uri_value"
 
 
 @pytest.mark.asyncio
@@ -4371,10 +4387,12 @@ async def test_create_tuning_job_empty_call_grpc_asyncio():
                 name="name_value",
                 tuned_model_display_name="tuned_model_display_name_value",
                 description="description_value",
+                custom_base_model="custom_base_model_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 experiment="experiment_value",
                 pipeline_job="pipeline_job_value",
                 service_account="service_account_value",
+                output_uri="output_uri_value",
             )
         )
         await client.create_tuning_job(request=None)
@@ -4404,10 +4422,12 @@ async def test_get_tuning_job_empty_call_grpc_asyncio():
                 name="name_value",
                 tuned_model_display_name="tuned_model_display_name_value",
                 description="description_value",
+                custom_base_model="custom_base_model_value",
                 state=job_state.JobState.JOB_STATE_QUEUED,
                 experiment="experiment_value",
                 pipeline_job="pipeline_job_value",
                 service_account="service_account_value",
+                output_uri="output_uri_value",
             )
         )
         await client.get_tuning_job(request=None)
@@ -4553,9 +4573,12 @@ def test_create_tuning_job_rest_call_success(request_type):
             "hyper_parameters": {
                 "epoch_count": 1175,
                 "learning_rate_multiplier": 0.2561,
+                "learning_rate": 0.1371,
                 "adapter_size": 1,
+                "batch_size": 1052,
             },
             "export_last_checkpoint_only": True,
+            "tuning_mode": 1,
         },
         "distillation_spec": {
             "base_teacher_model": "base_teacher_model_value",
@@ -4578,6 +4601,7 @@ def test_create_tuning_job_rest_call_success(request_type):
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",
         "description": "description_value",
+        "custom_base_model": "custom_base_model_value",
         "state": 1,
         "create_time": {"seconds": 751, "nanos": 543},
         "start_time": {},
@@ -4701,6 +4725,7 @@ def test_create_tuning_job_rest_call_success(request_type):
         "pipeline_job": "pipeline_job_value",
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",
+        "output_uri": "output_uri_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -4778,10 +4803,12 @@ def test_create_tuning_job_rest_call_success(request_type):
             name="name_value",
             tuned_model_display_name="tuned_model_display_name_value",
             description="description_value",
+            custom_base_model="custom_base_model_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
             pipeline_job="pipeline_job_value",
             service_account="service_account_value",
+            output_uri="output_uri_value",
             base_model="base_model_value",
         )
 
@@ -4802,10 +4829,12 @@ def test_create_tuning_job_rest_call_success(request_type):
     assert response.name == "name_value"
     assert response.tuned_model_display_name == "tuned_model_display_name_value"
     assert response.description == "description_value"
+    assert response.custom_base_model == "custom_base_model_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
     assert response.pipeline_job == "pipeline_job_value"
     assert response.service_account == "service_account_value"
+    assert response.output_uri == "output_uri_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -4919,10 +4948,12 @@ def test_get_tuning_job_rest_call_success(request_type):
             name="name_value",
             tuned_model_display_name="tuned_model_display_name_value",
             description="description_value",
+            custom_base_model="custom_base_model_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
             pipeline_job="pipeline_job_value",
             service_account="service_account_value",
+            output_uri="output_uri_value",
             base_model="base_model_value",
         )
 
@@ -4943,10 +4974,12 @@ def test_get_tuning_job_rest_call_success(request_type):
     assert response.name == "name_value"
     assert response.tuned_model_display_name == "tuned_model_display_name_value"
     assert response.description == "description_value"
+    assert response.custom_base_model == "custom_base_model_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
     assert response.pipeline_job == "pipeline_job_value"
     assert response.service_account == "service_account_value"
+    assert response.output_uri == "output_uri_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -6200,9 +6233,12 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
             "hyper_parameters": {
                 "epoch_count": 1175,
                 "learning_rate_multiplier": 0.2561,
+                "learning_rate": 0.1371,
                 "adapter_size": 1,
+                "batch_size": 1052,
             },
             "export_last_checkpoint_only": True,
+            "tuning_mode": 1,
         },
         "distillation_spec": {
             "base_teacher_model": "base_teacher_model_value",
@@ -6225,6 +6261,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",
         "description": "description_value",
+        "custom_base_model": "custom_base_model_value",
         "state": 1,
         "create_time": {"seconds": 751, "nanos": 543},
         "start_time": {},
@@ -6348,6 +6385,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
         "pipeline_job": "pipeline_job_value",
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",
+        "output_uri": "output_uri_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6425,10 +6463,12 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
             name="name_value",
             tuned_model_display_name="tuned_model_display_name_value",
             description="description_value",
+            custom_base_model="custom_base_model_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
             pipeline_job="pipeline_job_value",
             service_account="service_account_value",
+            output_uri="output_uri_value",
             base_model="base_model_value",
         )
 
@@ -6451,10 +6491,12 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
     assert response.name == "name_value"
     assert response.tuned_model_display_name == "tuned_model_display_name_value"
     assert response.description == "description_value"
+    assert response.custom_base_model == "custom_base_model_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
     assert response.pipeline_job == "pipeline_job_value"
     assert response.service_account == "service_account_value"
+    assert response.output_uri == "output_uri_value"
 
 
 @pytest.mark.asyncio
@@ -6582,10 +6624,12 @@ async def test_get_tuning_job_rest_asyncio_call_success(request_type):
             name="name_value",
             tuned_model_display_name="tuned_model_display_name_value",
             description="description_value",
+            custom_base_model="custom_base_model_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
             experiment="experiment_value",
             pipeline_job="pipeline_job_value",
             service_account="service_account_value",
+            output_uri="output_uri_value",
             base_model="base_model_value",
         )
 
@@ -6608,10 +6652,12 @@ async def test_get_tuning_job_rest_asyncio_call_success(request_type):
     assert response.name == "name_value"
     assert response.tuned_model_display_name == "tuned_model_display_name_value"
     assert response.description == "description_value"
+    assert response.custom_base_model == "custom_base_model_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.experiment == "experiment_value"
     assert response.pipeline_job == "pipeline_job_value"
     assert response.service_account == "service_account_value"
+    assert response.output_uri == "output_uri_value"
 
 
 @pytest.mark.asyncio
