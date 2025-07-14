@@ -53,8 +53,8 @@ from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
 
 def create_ray_cluster(
     head_node_type: Optional[resources.Resources] = resources.Resources(),
-    python_version: Optional[str] = "3.10",
-    ray_version: Optional[str] = "2.42",
+    python_version: Optional[str] = None,
+    ray_version: Optional[str] = "2.47",
     network: Optional[str] = None,
     service_account: Optional[str] = None,
     cluster_name: Optional[str] = None,
@@ -78,7 +78,7 @@ def create_ray_cluster(
         node_count=1,
         accelerator_type="NVIDIA_TESLA_T4",
         accelerator_count=1,
-        custom_image="us-docker.pkg.dev/my-project/ray-cpu-image.2.33:latest",  # Optional
+        custom_image="us-docker.pkg.dev/my-project/ray-2-47-cpu-py3.11:latest",  # Optional
     )
 
     worker_node_types = [Resources(
@@ -86,7 +86,7 @@ def create_ray_cluster(
         node_count=2,
         accelerator_type="NVIDIA_TESLA_T4",
         accelerator_count=1,
-        custom_image="us-docker.pkg.dev/my-project/ray-gpu-image.2.33:latest",  # Optional
+        custom_image="us-docker.pkg.dev/my-project/ray-2-47-gpu-py3.11:latest",  # Optional
     )]
 
     cluster_resource_name = vertex_ray.create_ray_cluster(
@@ -95,7 +95,7 @@ def create_ray_cluster(
         service_account="my-service-account@my-project-number.iam.gserviceaccount.com",  # Optional
         cluster_name="my-cluster-name",  # Optional
         worker_node_types=worker_node_types,
-        ray_version="2.33",
+        ray_version="2.47",
     )
 
     After a ray cluster is set up, you can call
@@ -109,7 +109,7 @@ def create_ray_cluster(
         head_node_type: The head node resource. Resources.node_count must be 1.
             If not set, default value of Resources() class will be used.
         python_version: Python version for the ray cluster.
-        ray_version: Ray version for the ray cluster. Default is 2.42.0.
+        ray_version: Ray version for the ray cluster. Default is 2.47.1.
         network: Virtual private cloud (VPC) network. For Ray Client, VPC
             peering is required to connect to the Ray Cluster managed in the
             Vertex API service. For Ray Job API, VPC network is not required
@@ -162,7 +162,7 @@ def create_ray_cluster(
     local_ray_verion = _validation_utils.get_local_ray_version()
     if ray_version != local_ray_verion:
         if custom_images is None and head_node_type.custom_image is None:
-            install_ray_version = "2.42.0"
+            install_ray_version = "2.47.1"
             logging.info(
                 "[Ray on Vertex]: Local runtime has Ray version %s"
                 ", but the requested cluster runtime has %s. Please "
