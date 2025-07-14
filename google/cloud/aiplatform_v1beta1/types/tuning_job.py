@@ -90,6 +90,15 @@ class TuningJob(proto.Message):
         description (str):
             Optional. The description of the
             [TuningJob][google.cloud.aiplatform.v1.TuningJob].
+        custom_base_model (str):
+            Optional. The user-provided path to custom model weights.
+            Set this field to tune a custom model. The path must be a
+            Cloud Storage directory that contains the model weights in
+            .safetensors format along with associated model metadata
+            files. If this field is set, the base_model field must still
+            be set to indicate which base model the custom model is
+            derived from. This feature is only available for open source
+            models.
         state (google.cloud.aiplatform_v1beta1.types.JobState):
             Output only. The detailed state of the job.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -154,6 +163,11 @@ class TuningJob(proto.Message):
             Users starting the pipeline must have the
             ``iam.serviceAccounts.actAs`` permission on this service
             account.
+        output_uri (str):
+            Optional. Cloud Storage path to the directory
+            where tuning job outputs are written to. This
+            field is only available and required for open
+            source models.
     """
 
     base_model: str = proto.Field(
@@ -190,6 +204,10 @@ class TuningJob(proto.Message):
     description: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+    custom_base_model: str = proto.Field(
+        proto.STRING,
+        number=26,
     )
     state: job_state.JobState = proto.Field(
         proto.ENUM,
@@ -253,6 +271,10 @@ class TuningJob(proto.Message):
         proto.STRING,
         number=22,
     )
+    output_uri: str = proto.Field(
+        proto.STRING,
+        number=25,
+    )
 
 
 class TunedModel(proto.Message):
@@ -262,7 +284,14 @@ class TunedModel(proto.Message):
     Attributes:
         model (str):
             Output only. The resource name of the TunedModel. Format:
-            ``projects/{project}/locations/{location}/models/{model}``.
+
+            ``projects/{project}/locations/{location}/models/{model}@{version_id}``
+
+            When tuning from a base model, the version_id will be 1.
+
+            For continuous tuning, the version id will be incremented by
+            1 from the last version id in the parent model. E.g.,
+            ``projects/{project}/locations/{location}/models/{model}@{last_version_id + 1}``
         endpoint (str):
             Output only. A resource name of an Endpoint. Format:
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
@@ -711,10 +740,18 @@ class SupervisedHyperParameters(proto.Message):
             makes over the entire training dataset during
             training.
         learning_rate_multiplier (float):
-            Optional. Multiplier for adjusting the
-            default learning rate.
+            Optional. Multiplier for adjusting the default learning
+            rate. Mutually exclusive with ``learning_rate``.
+        learning_rate (float):
+            Optional. Learning rate for tuning. Mutually exclusive with
+            ``learning_rate_multiplier``. This feature is only available
+            for open source models.
         adapter_size (google.cloud.aiplatform_v1beta1.types.SupervisedHyperParameters.AdapterSize):
             Optional. Adapter size for tuning.
+        batch_size (int):
+            Optional. Batch size for tuning.
+            This feature is only available for open source
+            models.
     """
 
     class AdapterSize(proto.Enum):
@@ -752,10 +789,18 @@ class SupervisedHyperParameters(proto.Message):
         proto.DOUBLE,
         number=2,
     )
+    learning_rate: float = proto.Field(
+        proto.DOUBLE,
+        number=6,
+    )
     adapter_size: AdapterSize = proto.Field(
         proto.ENUM,
         number=3,
         enum=AdapterSize,
+    )
+    batch_size: int = proto.Field(
+        proto.INT64,
+        number=5,
     )
 
 
@@ -764,13 +809,15 @@ class SupervisedTuningSpec(proto.Message):
 
     Attributes:
         training_dataset_uri (str):
-            Required. Cloud Storage path to file
-            containing training dataset for tuning. The
-            dataset must be formatted as a JSONL file.
+            Required. Training dataset used for tuning.
+            The dataset can be specified as either a Cloud
+            Storage path to a JSONL file or as the resource
+            name of a Vertex Multimodal Dataset.
         validation_dataset_uri (str):
-            Optional. Cloud Storage path to file
-            containing validation dataset for tuning. The
-            dataset must be formatted as a JSONL file.
+            Optional. Validation dataset used for tuning.
+            The dataset can be specified as either a Cloud
+            Storage path to a JSONL file or as the resource
+            name of a Vertex Multimodal Dataset.
         hyper_parameters (google.cloud.aiplatform_v1beta1.types.SupervisedHyperParameters):
             Optional. Hyperparameters for SFT.
         export_last_checkpoint_only (bool):
@@ -779,7 +826,24 @@ class SupervisedTuningSpec(proto.Message):
             last checkpoint will be exported. Otherwise,
             enable intermediate checkpoints for SFT. Default
             is false.
+        tuning_mode (google.cloud.aiplatform_v1beta1.types.SupervisedTuningSpec.TuningMode):
+            Tuning mode.
     """
+
+    class TuningMode(proto.Enum):
+        r"""Supported tuning modes.
+
+        Values:
+            TUNING_MODE_UNSPECIFIED (0):
+                Tuning mode is unspecified.
+            TUNING_MODE_FULL (1):
+                Full fine-tuning mode.
+            TUNING_MODE_PEFT_ADAPTER (2):
+                PEFT adapter tuning mode.
+        """
+        TUNING_MODE_UNSPECIFIED = 0
+        TUNING_MODE_FULL = 1
+        TUNING_MODE_PEFT_ADAPTER = 2
 
     training_dataset_uri: str = proto.Field(
         proto.STRING,
@@ -797,6 +861,11 @@ class SupervisedTuningSpec(proto.Message):
     export_last_checkpoint_only: bool = proto.Field(
         proto.BOOL,
         number=6,
+    )
+    tuning_mode: TuningMode = proto.Field(
+        proto.ENUM,
+        number=7,
+        enum=TuningMode,
     )
 
 

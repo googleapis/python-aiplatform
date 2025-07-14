@@ -260,6 +260,8 @@ from .types.env_var import SecretRef
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
+from .types.evaluation_service import AggregationOutput
+from .types.evaluation_service import AggregationResult
 from .types.evaluation_service import AutoraterConfig
 from .types.evaluation_service import BleuInput
 from .types.evaluation_service import BleuInstance
@@ -731,6 +733,7 @@ from .types.machine_resources import AutoscalingMetricSpec
 from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
+from .types.machine_resources import FlexStart
 from .types.machine_resources import MachineSpec
 from .types.machine_resources import NfsMount
 from .types.machine_resources import PersistentDiskSpec
@@ -1334,6 +1337,8 @@ __all__ = (
     "AddExecutionEventsRequest",
     "AddExecutionEventsResponse",
     "AddTrialMeasurementRequest",
+    "AggregationOutput",
+    "AggregationResult",
     "Annotation",
     "AnnotationSpec",
     "ApiAuth",
@@ -1725,6 +1730,7 @@ __all__ = (
     "FilterSplit",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
+    "FlexStart",
     "FluencyInput",
     "FluencyInstance",
     "FluencyResult",
