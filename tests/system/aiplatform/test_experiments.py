@@ -121,6 +121,35 @@ class TestExperiments(e2e_base.TestEndToEnd):
         assert run.name == _RUN
         assert run.state == aiplatform.gapic.Execution.State.RUNNING
 
+    def test_list_experiment(self):
+        experiments = aiplatform.Experiment.list(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        assert isinstance(experiments, list)
+        assert any(
+            experiment.name == self._experiment_name for experiment in experiments
+        )
+
+    def test_list_experiment_filter(self):
+        experiments = aiplatform.Experiment.list(
+            filter=f"display_name = {self._experiment_name}",
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        assert len(experiments) == 1
+        assert any(
+            experiment.name == self._experiment_name for experiment in experiments
+        )
+
+    def test_list_experiment_filter_no_results(self):
+        experiments = aiplatform.Experiment.list(
+            filter="display_name = not_mathcing_filter_name",
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+        assert len(experiments) == 0
+
     def test_log_params(self):
         aiplatform.init(
             project=e2e_base._PROJECT,
