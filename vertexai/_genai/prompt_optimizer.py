@@ -825,6 +825,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    # Todo: b/428953357 - Add example in the README.
     async def optimize(
         self,
         method: str,
@@ -832,31 +833,38 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
     ) -> types.CustomJob:
         """Call async Vertex AI Prompt Optimizer (VAPO).
 
-        # Todo: b/428953357 - Add example in the README.
-          Example usage:
-          client = vertexai.Client(project=PROJECT_NAME, location='us-central1')
-          vapo_config = vertexai.types.PromptOptimizerVAPOConfig(
-              config_path="gs://you-bucket-name/your-config.json",
-              service_account=service_account,
-              wait_for_completion=True
-          )
-          job = await client.aio.prompt_optimizer.optimize(
-              method="vapo", config=vapo_config)
+        Note: The `wait_for_completion` parameter in the config will be
+        ignored when using the AsyncClient, as it is not supported.
 
-          Args:
-            method: The method for optimizing multiple prompts (currently only
-              vapo is supported).
-            config: PromptOptimizerVAPOConfig instance containing the
-              configuration for prompt optimization.
+        Example usage:
+        client = vertexai.Client(project=PROJECT_NAME, location='us-central1')
+        vapo_config = vertexai.types.PromptOptimizerVAPOConfig(
+            config_path="gs://you-bucket-name/your-config.json",
+            service_account=service_account,
+        )
+        job = await client.aio.prompt_optimizer.optimize(
+            method="vapo", config=vapo_config)
 
-          Returns:
-            The custom job that was created.
+        Args:
+          method: The method for optimizing multiple prompts (currently only
+            vapo is supported).
+          config: PromptOptimizerVAPOConfig instance containing the
+            configuration for prompt optimization.
+
+        Returns:
+          The custom job that was created.
         """
         if method != "vapo":
             raise ValueError("Only vapo methods is currently supported.")
 
         if isinstance(config, dict):
             config = types.PromptOptimizerVAPOConfig(**config)
+
+        if config.wait_for_completion:
+            logger.info(
+                "Ignoring wait_for_completion=True since the AsyncClient does"
+                " not support it."
+            )
 
         if config.optimizer_job_display_name:
             display_name = config.optimizer_job_display_name

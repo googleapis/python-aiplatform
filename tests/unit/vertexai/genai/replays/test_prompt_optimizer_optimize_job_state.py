@@ -18,6 +18,16 @@ import os
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+import pytest
+
+
+def _raise_for_unset_env_vars() -> None:
+    if not os.environ.get("VAPO_CONFIG_PATH"):
+        raise ValueError("VAPO_CONFIG_PATH environment variable is not set.")
+    if not os.environ.get("VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"):
+        raise ValueError(
+            "VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER " "environment variable is not set."
+        )
 
 
 # If you re-record this test, you will need to update the replay file to
@@ -25,12 +35,7 @@ from vertexai._genai import types
 def test_optimize(client):
     """Tests the optimize request parameters method."""
 
-    if not os.environ.get("VAPO_CONFIG_PATH"):
-        raise ValueError("VAPO_CONFIG_PATH environment variable is not set.")
-    if not os.environ.get("VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"):
-        raise ValueError(
-            "VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER " "environment variable is not set."
-        )
+    _raise_for_unset_env_vars()
 
     config = types.PromptOptimizerVAPOConfig(
         config_path=os.environ.get("VAPO_CONFIG_PATH"),
@@ -53,3 +58,46 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="prompt_optimizer.optimize",
 )
+
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_optimize_async(client):
+    _raise_for_unset_env_vars()
+
+    config = types.PromptOptimizerVAPOConfig(
+        config_path=os.environ.get("VAPO_CONFIG_PATH"),
+        service_account_project_number=os.environ.get(
+            "VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"
+        ),
+        optimizer_job_display_name="optimizer_job_test",
+    )
+    job = await client.aio.prompt_optimizer.optimize(
+        method="vapo",
+        config=config,
+    )
+    assert isinstance(job, types.CustomJob)
+    assert job.state == types.JobState.JOB_STATE_PENDING
+
+
+@pytest.mark.asyncio
+async def test_optimize_async_with_config_wait_for_completion(client, caplog):
+    _raise_for_unset_env_vars()
+
+    config = types.PromptOptimizerVAPOConfig(
+        config_path=os.environ.get("VAPO_CONFIG_PATH"),
+        service_account_project_number=os.environ.get(
+            "VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"
+        ),
+        optimizer_job_display_name="optimizer_job_test",
+        wait_for_completion=True,
+    )
+    job = await client.aio.prompt_optimizer.optimize(
+        method="vapo",
+        config=config,
+    )
+    assert isinstance(job, types.CustomJob)
+    assert job.state == types.JobState.JOB_STATE_PENDING
+    assert "Ignoring wait_for_completion=True" in caplog.text
