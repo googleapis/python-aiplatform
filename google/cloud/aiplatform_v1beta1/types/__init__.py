@@ -211,6 +211,8 @@ from .evaluated_annotation import (
     EvaluatedAnnotationExplanation,
 )
 from .evaluation_service import (
+    AggregationOutput,
+    AggregationResult,
     AutoraterConfig,
     BleuInput,
     BleuInstance,
@@ -756,6 +758,7 @@ from .machine_resources import (
     BatchDedicatedResources,
     DedicatedResources,
     DiskSpec,
+    FlexStart,
     MachineSpec,
     NfsMount,
     PersistentDiskSpec,
@@ -1593,6 +1596,8 @@ __all__ = (
     "ErrorAnalysisAnnotation",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
+    "AggregationOutput",
+    "AggregationResult",
     "AutoraterConfig",
     "BleuInput",
     "BleuInstance",
@@ -2060,6 +2065,7 @@ __all__ = (
     "BatchDedicatedResources",
     "DedicatedResources",
     "DiskSpec",
+    "FlexStart",
     "MachineSpec",
     "NfsMount",
     "PersistentDiskSpec",
