@@ -25,6 +25,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.aiplatform_v1beta1.types import (
     reservation_affinity as gca_reservation_affinity,
 )
+from google.protobuf import duration_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -40,6 +41,7 @@ __protobuf__ = proto.module(
         "NfsMount",
         "AutoscalingMetricSpec",
         "ShieldedVmConfig",
+        "FlexStart",
     },
 )
 
@@ -115,33 +117,32 @@ class MachineSpec(proto.Message):
 
 class DedicatedResources(proto.Message):
     r"""A description of resources that are dedicated to a
-    DeployedModel, and that need a higher degree of manual
-    configuration.
+    DeployedModel or DeployedIndex, and that need a higher degree of
+    manual configuration.
 
     Attributes:
         machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
             Required. Immutable. The specification of a
-            single machine used by the prediction.
+            single machine being used.
         min_replica_count (int):
             Required. Immutable. The minimum number of
-            machine replicas this DeployedModel will be
-            always deployed on. This value must be greater
-            than or equal to 1.
+            machine replicas that will be always deployed
+            on. This value must be greater than or equal to
+            1.
 
-            If traffic against the DeployedModel increases,
-            it may dynamically be deployed onto more
-            replicas, and as traffic decreases, some of
-            these extra replicas may be freed.
+            If traffic increases, it may dynamically be
+            deployed onto more replicas, and as traffic
+            decreases, some of these extra replicas may be
+            freed.
         max_replica_count (int):
-            Immutable. The maximum number of replicas this DeployedModel
-            may be deployed on when the traffic against it increases. If
-            the requested value is too large, the deployment will error,
-            but if deployment succeeds then the ability to scale the
-            model to that many replicas is guaranteed (barring service
-            outages). If traffic against the DeployedModel increases
-            beyond what its replicas at maximum may handle, a portion of
-            the traffic will be dropped. If this value is not provided,
-            will use
+            Immutable. The maximum number of replicas that may be
+            deployed on when the traffic against it increases. If the
+            requested value is too large, the deployment will error, but
+            if deployment succeeds then the ability to scale to that
+            many replicas is guaranteed (barring service outages). If
+            traffic increases beyond what its replicas at maximum may
+            handle, a portion of the traffic will be dropped. If this
+            value is not provided, will use
             [min_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.min_replica_count]
             as the default value.
 
@@ -153,8 +154,8 @@ class DedicatedResources(proto.Message):
         required_replica_count (int):
             Optional. Number of required available replicas for the
             deployment to succeed. This field is only needed when
-            partial model deployment/mutation is desired. If set, the
-            model deploy/mutate operation will succeed once
+            partial deployment/mutation is desired. If set, the
+            deploy/mutate operation will succeed once
             available_replica_count reaches required_replica_count, and
             the rest of the replicas will be retried. If not set, the
             default required_replica_count will be min_replica_count.
@@ -189,6 +190,11 @@ class DedicatedResources(proto.Message):
         spot (bool):
             Optional. If true, schedule the deployment workload on `spot
             VMs <https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms>`__.
+        flex_start (google.cloud.aiplatform_v1beta1.types.FlexStart):
+            Optional. Immutable. If set, use DWS resource
+            to schedule the deployment workload. reference:
+
+            (https://cloud.google.com/blog/products/compute/introducing-dynamic-workload-scheduler)
     """
 
     machine_spec: "MachineSpec" = proto.Field(
@@ -219,6 +225,11 @@ class DedicatedResources(proto.Message):
         proto.BOOL,
         number=5,
     )
+    flex_start: "FlexStart" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message="FlexStart",
+    )
 
 
 class AutomaticResources(proto.Message):
@@ -229,28 +240,27 @@ class AutomaticResources(proto.Message):
 
     Attributes:
         min_replica_count (int):
-            Immutable. The minimum number of replicas this DeployedModel
-            will be always deployed on. If traffic against it increases,
-            it may dynamically be deployed onto more replicas up to
+            Immutable. The minimum number of replicas that will be
+            always deployed on. If traffic against it increases, it may
+            dynamically be deployed onto more replicas up to
             [max_replica_count][google.cloud.aiplatform.v1beta1.AutomaticResources.max_replica_count],
             and as traffic decreases, some of these extra replicas may
             be freed. If the requested value is too large, the
             deployment will error.
         max_replica_count (int):
             Immutable. The maximum number of replicas
-            this DeployedModel may be deployed on when the
-            traffic against it increases. If the requested
-            value is too large, the deployment will error,
-            but if deployment succeeds then the ability to
-            scale the model to that many replicas is
-            guaranteed (barring service outages). If traffic
-            against the DeployedModel increases beyond what
-            its replicas at maximum may handle, a portion of
-            the traffic will be dropped. If this value is
-            not provided, a no upper bound for scaling under
-            heavy traffic will be assume, though Vertex AI
-            may be unable to scale beyond certain replica
-            number.
+            that may be deployed on when the traffic against
+            it increases. If the requested value is too
+            large, the deployment will error, but if
+            deployment succeeds then the ability to scale to
+            that many replicas is guaranteed (barring
+            service outages). If traffic increases beyond
+            what its replicas at maximum may handle, a
+            portion of the traffic will be dropped. If this
+            value is not provided, a no upper bound for
+            scaling under heavy traffic will be assume,
+            though Vertex AI may be unable to scale beyond
+            certain replica number.
     """
 
     min_replica_count: int = proto.Field(
@@ -321,10 +331,12 @@ class DiskSpec(proto.Message):
 
     Attributes:
         boot_disk_type (str):
-            Type of the boot disk (default is "pd-ssd").
-            Valid values: "pd-ssd" (Persistent Disk Solid
-            State Drive) or "pd-standard" (Persistent Disk
-            Hard Disk Drive).
+            Type of the boot disk. For non-A3U machines,
+            the default value is "pd-ssd", for A3U machines,
+            the default value is "hyperdisk-balanced". Valid
+            values: "pd-ssd" (Persistent Disk Solid State
+            Drive), "pd-standard" (Persistent Disk Hard Disk
+            Drive) or "hyperdisk-balanced".
         boot_disk_size_gb (int):
             Size in GB of the boot disk (default is
             100GB).
@@ -448,6 +460,24 @@ class ShieldedVmConfig(proto.Message):
     enable_secure_boot: bool = proto.Field(
         proto.BOOL,
         number=1,
+    )
+
+
+class FlexStart(proto.Message):
+    r"""FlexStart is used to schedule the deployment workload on DWS
+    resource. It contains the max duration of the deployment.
+
+    Attributes:
+        max_runtime_duration (google.protobuf.duration_pb2.Duration):
+            The max duration of the deployment is max_runtime_duration.
+            The deployment will be terminated after the duration. The
+            max_runtime_duration can be set up to 7 days.
+    """
+
+    max_runtime_duration: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=duration_pb2.Duration,
     )
 
 
