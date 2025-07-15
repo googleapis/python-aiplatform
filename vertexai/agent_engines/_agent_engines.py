@@ -16,6 +16,7 @@
 import abc
 import inspect
 import io
+import logging
 import os
 import sys
 import tarfile
@@ -66,7 +67,7 @@ _DEFAULT_ASYNC_METHOD_NAME = "async_query"
 _DEFAULT_STREAM_METHOD_NAME = "stream_query"
 _DEFAULT_ASYNC_STREAM_METHOD_NAME = "async_stream_query"
 _DEFAULT_METHOD_RETURN_TYPE = "dict[str, Any]"
-_DEFAULT_ASYNC_METHOD_RETURN_TYPE = "Coroutine[Any]"
+_DEFAULT_ASYNC_METHOD_RETURN_TYPE = "Coroutine[Any, Any, Any]"
 _DEFAULT_STREAM_METHOD_RETURN_TYPE = "Iterable[Any]"
 _DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE = "AsyncIterable[Any]"
 _DEFAULT_METHOD_DOCSTRING_TEMPLATE = """
@@ -116,7 +117,7 @@ class Queryable(Protocol):
     """Protocol for Agent Engines that can be queried."""
 
     @abc.abstractmethod
-    def query(self, **kwargs):
+    def query(self, **kwargs) -> Any:
         """Runs the Agent Engine to serve the user query."""
 
 
@@ -125,7 +126,7 @@ class AsyncQueryable(Protocol):
     """Protocol for Agent Engines that can be queried asynchronously."""
 
     @abc.abstractmethod
-    def async_query(self, **kwargs):
+    def async_query(self, **kwargs) -> Coroutine[Any, Any, Any]:
         """Runs the Agent Engine to serve the user query asynchronously."""
 
 
@@ -143,7 +144,7 @@ class StreamQueryable(Protocol):
     """Protocol for Agent Engines that can stream responses."""
 
     @abc.abstractmethod
-    def stream_query(self, **kwargs):
+    def stream_query(self, **kwargs) -> Iterable[Any]:
         """Stream responses to serve the user query."""
 
 
@@ -152,7 +153,7 @@ class Cloneable(Protocol):
     """Protocol for Agent Engines that can be cloned."""
 
     @abc.abstractmethod
-    def clone(self):
+    def clone(self) -> Any:
         """Return a clone of the object."""
 
 
@@ -161,7 +162,7 @@ class OperationRegistrable(Protocol):
     """Protocol for agents that have registered operations."""
 
     @abc.abstractmethod
-    def register_operations(self, **kwargs):
+    def register_operations(self, **kwargs) -> Dict[str, Sequence[str]]:
         """Register the user provided operations (modes and methods)."""
 
 
@@ -238,7 +239,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
             sys_paths=self._tmpl_attrs.get("sys_paths"),
         )
 
-    def register_operations(self) -> Dict[str, Sequence[str]]:
+    def register_operations(self, **kwargs) -> Dict[str, Sequence[str]]:
         return self._tmpl_attrs.get("register_operations")
 
     def set_up(self) -> None:
@@ -441,7 +442,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         staging_bucket = initializer.global_config.staging_bucket
         if agent_engine is not None:
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
-            _validate_staging_bucket_or_raise(staging_bucket)
+            staging_bucket = _validate_staging_bucket_or_raise(staging_bucket)
         if agent_engine is None:
             if requirements is not None:
                 raise ValueError("requirements must be None if agent_engine is None.")
@@ -634,7 +635,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             nonexistent file.
         """
         staging_bucket = initializer.global_config.staging_bucket
-        _validate_staging_bucket_or_raise(staging_bucket)
+        staging_bucket = _validate_staging_bucket_or_raise(staging_bucket)
         historical_operation_schemas = self.operation_schemas()
         gcs_dir_name = gcs_dir_name or _DEFAULT_GCS_DIR_NAME
 
@@ -780,12 +781,13 @@ def _validate_sys_version_or_raise(sys_version: str) -> None:
         )
 
 
-def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
+def _validate_staging_bucket_or_raise(staging_bucket: Optional[str]) -> str:
     """Tries to validate the staging bucket."""
     if not staging_bucket:
         raise ValueError("Please provide a `staging_bucket` in `vertexai.init(...)`")
     if not staging_bucket.startswith("gs://"):
         raise ValueError(f"{staging_bucket=} must start with `gs://`")
+    return staging_bucket
 
 
 def _validate_agent_engine_or_raise(
@@ -906,7 +908,7 @@ def _validate_requirements_or_raise(
     *,
     agent_engine: _AgentEngineInterface,
     requirements: Optional[Sequence[str]] = None,
-    logger: base.Logger = _LOGGER,
+    logger: logging.getLoggerClass() = _LOGGER,
 ) -> Sequence[str]:
     """Tries to validate the requirements."""
     if requirements is None:
@@ -929,7 +931,7 @@ def _validate_requirements_or_raise(
 
 
 def _validate_extra_packages_or_raise(
-    extra_packages: Sequence[str],
+    extra_packages: Optional[Sequence[str]],
     build_options: Optional[Dict[str, Sequence[str]]] = None,
 ) -> Sequence[str]:
     """Tries to validates the extra packages."""
@@ -1165,6 +1167,7 @@ def _get_agent_framework(
     if (
         hasattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
         and getattr(agent_engine, _AGENT_FRAMEWORK_ATTR) is not None
+        and isinstance(getattr(agent_engine, _AGENT_FRAMEWORK_ATTR), str)
     ):
         return getattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
     return _DEFAULT_AGENT_FRAMEWORK
