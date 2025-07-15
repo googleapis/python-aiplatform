@@ -1110,6 +1110,7 @@ class TestAgentEngine:
                 gcs_dir_name=None,
                 extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
                 env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
+                context_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
