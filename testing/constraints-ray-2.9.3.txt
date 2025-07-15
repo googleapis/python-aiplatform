@@ -1,5 +1,6 @@
 ray==2.9.3
 # Below constraints are inherited from constraints-3.10.txt
+setuptools<70.0.0
 google-api-core
 proto-plus==1.22.3
 protobuf

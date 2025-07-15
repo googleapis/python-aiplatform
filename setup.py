@@ -110,8 +110,6 @@ ray_extra_require = [
         " 2.36.*, !=2.37.*, !=2.38.*, !=2.39.*, !=2.40.*, !=2.41.*;"
         " python_version<'3.11'"
     ),
-    # To avoid  ImportError: cannot import name 'packaging' from 'pkg_resources'
-    "setuptools < 70.0.0",
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
     "ray[default] >= 2.5, <= 2.42.0; python_version=='3.11'",
     "google-cloud-bigquery-storage",
