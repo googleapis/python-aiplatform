@@ -381,9 +381,11 @@ class TranslationMetricHandler(MetricHandler):
                         "Comet result missing in API response for metric '%s'."
                         " API response: %s",
                         metric_name,
-                        api_response.model_dump_json(exclude_none=True)
-                        if api_response
-                        else "None",
+                        (
+                            api_response.model_dump_json(exclude_none=True)
+                            if api_response
+                            else "None"
+                        ),
                     )
             elif metric_name == "metricx":
                 if api_response and api_response.metricx_result:
@@ -393,28 +395,34 @@ class TranslationMetricHandler(MetricHandler):
                         "MetricX result missing in API response for metric '%s'."
                         " API response: %s",
                         metric_name,
-                        api_response.model_dump_json(exclude_none=True)
-                        if api_response
-                        else "None",
+                        (
+                            api_response.model_dump_json(exclude_none=True)
+                            if api_response
+                            else "None"
+                        ),
                     )
             if score is None and not error_message:
                 logger.warning(
                     "Score could not be extracted for translation metric '%s'."
                     " API response: %s",
                     metric_name,
-                    api_response.model_dump_json(exclude_none=True)
-                    if api_response
-                    else "None",
+                    (
+                        api_response.model_dump_json(exclude_none=True)
+                        if api_response
+                        else "None"
+                    ),
                 )
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error(
                 "Error processing/extracting score for translation metric '%s': %s."
                 " API response: %s",
                 metric_name,
                 e,
-                api_response.model_dump_json(exclude_none=True)
-                if api_response
-                else "None",
+                (
+                    api_response.model_dump_json(exclude_none=True)
+                    if api_response
+                    else "None"
+                ),
                 exc_info=True,
             )
             error_message = f"Error extracting score: {e}"
@@ -440,135 +448,202 @@ class LLMMetricHandler(MetricHandler):
     def __init__(self, module: "evals.Evals", metric: types.LLMMetric):
         super().__init__(module=module, metric=metric)
 
+    def _build_rubric_based_input(
+        self, eval_case: types.EvalCase, response_content: genai_types.Content
+    ) -> dict[str, Any]:
+        """Builds the payload for a rubric-based LLM metric."""
+        eval_case_dict = eval_case.model_dump(exclude={"responses"})
+        # TODO: b/414660471 - add rubric_groups to eval_case type definition.
+        rubric_groups_data = eval_case_dict.get("rubric_groups")
+
+        if not isinstance(rubric_groups_data, dict):
+            raise ValueError(
+                f"Dataset column 'rubric_groups' for case {eval_case.eval_case_id} "
+                "must be a dictionary."
+            )
+
+        rubrics_list = rubric_groups_data.get(self.metric.rubric_group_name, [])
+        if not isinstance(rubrics_list, list):
+            logger.warning(
+                "Rubric group '%s' in 'rubric_groups' is not a list for case %s.",
+                self.metric.rubric_group_name,
+                eval_case.eval_case_id,
+            )
+            rubrics_list = []
+
+        rubric_enhanced_contents = {
+            "prompt": [eval_case.prompt.model_dump(mode="json", exclude_none=True)],
+            "response": [response_content.model_dump(mode="json", exclude_none=True)],
+            "rubric_groups": {
+                self.metric.rubric_group_name: {
+                    "rubrics": [
+                        r.model_dump(mode="json") if isinstance(r, types.Rubric) else r
+                        for r in rubrics_list
+                    ]
+                }
+            },
+        }
+
+        metric_spec_payload = {
+            "metric_prompt_template": self.metric.prompt_template,
+            "rubric_group_key": self.metric.rubric_group_name,
+        }
+
+        return {
+            "rubric_based_metric_input": {
+                "metric_spec": metric_spec_payload,
+                "instance": {"rubric_enhanced_contents": rubric_enhanced_contents},
+            }
+        }
+
+    def _build_pointwise_input(
+        self, eval_case: types.EvalCase, response_content: genai_types.Content
+    ) -> dict[str, Any]:
+        """Builds the payload for a standard pointwise LLM metric."""
+        instance_data = {
+            "prompt": eval_case.prompt,
+            "response": response_content,
+        }
+        template_obj = types.PromptTemplate(text=self.metric.prompt_template)
+        required_vars = template_obj.variables - set(instance_data.keys())
+        for var_name in required_vars:
+            if hasattr(eval_case, var_name):
+                instance_data[var_name] = getattr(eval_case, var_name)
+
+        content_map_values = {}
+        for key, value in instance_data.items():
+            content_list_to_serialize = []
+            if isinstance(value, genai_types.Content):
+                content_list_to_serialize = [value]
+            elif isinstance(value, types.ResponseCandidate):
+                if value.response:
+                    content_list_to_serialize = [value.response]
+            elif isinstance(value, list) and value:
+                if isinstance(value[0], genai_types.Content):
+                    content_list_to_serialize = value
+                elif isinstance(value[0], types.Message):
+                    history_texts = []
+                    for msg_obj in value:
+                        msg_text = _extract_text_from_content(msg_obj.content)
+                        if msg_text:
+                            role = msg_obj.content.role or msg_obj.author or "user"
+                            history_texts.append(f"{role}: {msg_text}")
+                    content_list_to_serialize = [
+                        types.Content(parts=[types.Part(text="\n".join(history_texts))])
+                    ]
+                else:
+                    content_list_to_serialize = [
+                        types.Content(parts=[types.Part(text=json.dumps(value))])
+                    ]
+            elif isinstance(value, dict):
+                content_list_to_serialize = [
+                    types.Content(parts=[types.Part(text=json.dumps(value))])
+                ]
+            else:
+                content_list_to_serialize = [
+                    types.Content(parts=[types.Part(text=str(value))])
+                ]
+
+            content_map_values[key] = types.ContentMapContents(
+                contents=content_list_to_serialize
+            )
+
+        instance_payload = types.PointwiseMetricInstance(
+            content_map_instance=types.ContentMap(values=content_map_values)
+        )
+
+        metric_spec_payload = {"metric_prompt_template": self.metric.prompt_template}
+        if self.metric.return_raw_output is not None:
+            metric_spec_payload["custom_output_format_config"] = {
+                "return_raw_output": self.metric.return_raw_output
+            }
+        if self.metric.judge_model_system_instruction:
+            metric_spec_payload[
+                "system_instruction"
+            ] = self.metric.judge_model_system_instruction
+
+        return {
+            "pointwise_metric_input": {
+                "metric_spec": metric_spec_payload,
+                "instance": instance_payload.model_dump(mode="json", exclude_none=True),
+            }
+        }
+
+    def _add_autorater_config(self, payload: dict[str, Any]):
+        """Adds autorater config to the request payload if specified."""
+        autorater_config = {}
+        if self.metric.judge_model:
+            autorater_config["autorater_model"] = self.metric.judge_model
+        if self.metric.judge_model_sampling_count:
+            autorater_config["sampling_count"] = self.metric.judge_model_sampling_count
+
+        if not autorater_config:
+            return
+
+        if "rubric_based_metric_input" in payload:
+            spec = payload["rubric_based_metric_input"]["metric_spec"]
+            if "judge_autorater_config" not in spec:
+                spec["judge_autorater_config"] = {}
+            spec["judge_autorater_config"].update(autorater_config)
+        else:
+            payload["autorater_config"] = autorater_config
+
     def _build_request_payload(
         self, eval_case: types.EvalCase, response_index: int
     ) -> dict[str, Any]:
         """Builds the request parameters for evaluate instances request."""
-        request_payload = {}
-        if response_index >= len(eval_case.responses):
-            raise IndexError(
-                f"response_index {response_index} out of bounds for eval_case with"
-                f" {len(eval_case.responses)} responses."
-            )
-        if eval_case.responses is None:
+        if not eval_case.responses or response_index >= len(eval_case.responses):
+            raise IndexError(f"response_index {response_index} is out of bounds.")
+
+        response_content = eval_case.responses[response_index].response
+        if not response_content:
             raise ValueError(
-                f"No responses found for eval_case with ID {eval_case.eval_case_id}."
-            )
-        current_response_candidate = eval_case.responses[response_index]
-
-        prompt_text = _extract_text_from_content(eval_case.prompt)
-        if prompt_text is None:
-            raise ValueError(
-                f"Prompt text missing for eval_case "
-                f"{eval_case.eval_case_id or 'Unknown ID'}."
+                f"Response content missing for candidate {response_index}."
             )
 
-        response_text = _extract_text_from_content(current_response_candidate.response)
-        if response_text is None:
-            raise ValueError(
-                f"Response text missing for candidate {response_index} in eval_case"
-                f" {eval_case.eval_case_id or 'Unknown ID'}."
-            )
+        if self.metric.rubric_group_name:
+            payload = self._build_rubric_based_input(eval_case, response_content)
+        else:
+            payload = self._build_pointwise_input(eval_case, response_content)
 
-        instance_data_for_json = {
-            "prompt": prompt_text,
-            "response": response_text,
-        }
-
-        template_obj = types.PromptTemplate(text=self.metric.prompt_template)
-        required_vars_from_template = template_obj.variables
-        eval_case_all_data = eval_case.model_dump(exclude_none=True, by_alias=False)
-
-        for var_name in required_vars_from_template:
-            if var_name in instance_data_for_json:
-                continue
-
-            if var_name in eval_case_all_data:
-                original_attr_value = getattr(eval_case, var_name, None)
-
-                if isinstance(original_attr_value, genai_types.Content):
-                    extracted_text = _extract_text_from_content(original_attr_value)
-                    if extracted_text is not None:
-                        instance_data_for_json[var_name] = extracted_text
-                elif isinstance(original_attr_value, types.ResponseCandidate):
-                    extracted_text = _extract_text_from_content(
-                        original_attr_value.response
-                    )
-                    if extracted_text is not None:
-                        instance_data_for_json[var_name] = extracted_text
-                elif (
-                    isinstance(original_attr_value, list)
-                    and original_attr_value
-                    and isinstance(original_attr_value[0], types.Message)
-                ):
-                    history_texts = []
-                    for _, msg_obj in enumerate(original_attr_value):
-                        if msg_obj.content:
-                            msg_text = _extract_text_from_content(msg_obj.content)
-                            if msg_text:
-                                role = msg_obj.content.role or msg_obj.author or "user"
-                                history_texts.append(f"{role}: {msg_text}")
-                    instance_data_for_json[var_name] = (
-                        "\n".join(history_texts) if history_texts else ""
-                    )
-                elif eval_case_all_data[var_name] is not None:
-                    value_from_dump = eval_case_all_data[var_name]
-                    if isinstance(value_from_dump, (dict, list)):
-                        instance_data_for_json[var_name] = json.dumps(value_from_dump)
-                    else:
-                        instance_data_for_json[var_name] = str(value_from_dump)
-
-        request_payload["pointwise_metric_input"] = {
-            "metric_spec": {"metric_prompt_template": self.metric.prompt_template},
-            "instance": {"json_instance": json.dumps(instance_data_for_json)},
-        }
-        metric_spec_payload = request_payload["pointwise_metric_input"]["metric_spec"]
-        if self.metric.return_raw_output is not None:
-            metric_spec_payload["custom_output_format_config"] = {  # type: ignore[index]
-                "return_raw_output": self.metric.return_raw_output,
-            }
-        if self.metric.judge_model_system_instruction is not None:
-            metric_spec_payload[  # type: ignore[index]
-                "system_instruction"
-            ] = self.metric.judge_model_system_instruction
-
-        autorater_config_payload = {}
-        if self.metric.judge_model is not None:
-            autorater_config_payload["autorater_model"] = self.metric.judge_model
-        if self.metric.judge_model_sampling_count is not None:
-            autorater_config_payload[
-                "sampling_count"
-            ] = self.metric.judge_model_sampling_count  # type: ignore[assignment]
-        if autorater_config_payload:
-            request_payload["autorater_config"] = autorater_config_payload  # type: ignore[assignment]
-
-        logger.debug("request_payload: %s", request_payload)
-
-        return request_payload
+        self._add_autorater_config(payload)
+        return payload
 
     @override
     def process(
         self, eval_case: types.EvalCase, response_index: int
     ) -> types.EvalCaseMetricResult:
+        """Processes a single evaluation case for a specific LLM metric."""
         metric_name = self.metric.name
-        logger.debug(
-            "LLMMetricHandler: Processing '%s' for case: %s",
-            metric_name,
-            eval_case.model_dump(exclude_none=True),
-        )
-        response = self.module.evaluate_instances(
-            metric_config=self._build_request_payload(eval_case, response_index)
-        )
+        try:
+            payload = self._build_request_payload(eval_case, response_index)
+            response = self.module.evaluate_instances(metric_config=payload)
 
-        return types.EvalCaseMetricResult(
-            metric_name=self.metric.name,
-            score=response.pointwise_metric_result.score
-            if response.pointwise_metric_result
-            else None,
-            explanation=response.pointwise_metric_result.explanation
-            if response.pointwise_metric_result
-            else None,
-        )
+            if self.metric.rubric_group_name:
+                result_data = response.rubric_based_metric_result
+                return types.EvalCaseMetricResult(
+                    metric_name=metric_name,
+                    score=result_data.score if result_data else None,
+                    rubric_verdicts=result_data.rubric_verdicts if result_data else [],
+                )
+            else:
+                result_data = response.pointwise_metric_result
+                return types.EvalCaseMetricResult(
+                    metric_name=metric_name,
+                    score=result_data.score if result_data else None,
+                    explanation=result_data.explanation if result_data else None,
+                )
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error(
+                "Error processing metric %s for case %s: %s",
+                metric_name,
+                eval_case.eval_case_id,
+                e,
+                exc_info=True,
+            )
+            return types.EvalCaseMetricResult(
+                metric_name=metric_name, error_message=str(e)
+            )
 
     @override
     def aggregate(
@@ -608,7 +683,7 @@ class LLMMetricHandler(MetricHandler):
                     metric_name=self.metric.name,
                     **final_summary_dict,
                 )
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.error(
                     "Error executing custom aggregate_summary_fn for metric '%s': %s."
                     " Falling back to default aggregation.",
@@ -702,13 +777,13 @@ class CustomMetricHandler(MetricHandler):
                         f" unexpected type {type(custom_function_result)}"
                     )
 
-        except Exception as e:
-            custom_function_name = (
-                self.metric.custom_function.__name__
-                if self.metric.custom_function
-                and hasattr(self.metric.custom_function, "__name__")
-                else "unknown_custom_function"
-            )
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            if self.metric.custom_function and hasattr(
+                self.metric.custom_function, "__name__"
+            ):
+                custom_function_name = self.metric.custom_function.__name__
+            else:
+                custom_function_name = "unknown_custom_function"
             error_msg = f"CustomFunctionError({custom_function_name}): {e}"
             score = None
             explanation = None
@@ -940,8 +1015,8 @@ def compute_metrics_and_aggregate(
                             )
                             future.add_done_callback(lambda _: pbar.update(1))
                             logger.debug(
-                                "Submitting metric computation for case %d, response %d for"
-                                " metric %s.",
+                                "Submitting metric computation for case %d, "
+                                "response %d for metric %s.",
                                 eval_case_index,
                                 response_index,
                                 metric_handler_instance.metric.name,
@@ -956,8 +1031,8 @@ def compute_metrics_and_aggregate(
                             )
                         except Exception as e:  # pylint: disable=broad-exception-caught
                             logger.error(
-                                "Error submitting metric computation for case %d, response %d"
-                                " for metric %s: %s",
+                                "Error submitting metric computation for case %d, "
+                                "response %d for metric %s: %s",
                                 eval_case_index,
                                 response_index,
                                 metric_handler_instance.metric.name,
@@ -1002,7 +1077,7 @@ def compute_metrics_and_aggregate(
                     eval_case_index,
                     response_index,
                 )
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.error(
                     "Error executing metric '%s' for case %s, response %s: %s",
                     metric_name,
@@ -1094,9 +1169,5 @@ def compute_metrics_and_aggregate(
         try:
             eval_result.win_rates = calculate_win_rates(eval_result)
         except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.error(
-                "Error calculating win rates: %s",
-                e,
-                exc_info=True,
-            )
+            logger.error("Error calculating win rates: %s", e, exc_info=True)
     return eval_result

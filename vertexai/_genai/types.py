@@ -473,12 +473,34 @@ class RougeInputDict(TypedDict, total=False):
 RougeInputOrDict = Union[RougeInput, RougeInputDict]
 
 
+class ContentMap(_common.BaseModel):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    values: Optional[dict[str, "ContentMapContents"]] = Field(
+        default=None, description="""Map of placeholder to contents."""
+    )
+
+
+class ContentMapDict(TypedDict, total=False):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    values: Optional[dict[str, "ContentMapContents"]]
+    """Map of placeholder to contents."""
+
+
+ContentMapOrDict = Union[ContentMap, ContentMapDict]
+
+
 class PointwiseMetricInstance(_common.BaseModel):
     """Pointwise metric instance."""
 
     json_instance: Optional[str] = Field(
         default=None,
         description="""Instance specified as a json string. String key-value pairs are expected in the json_instance to render PointwiseMetricSpec.instance_prompt_template.""",
+    )
+    content_map_instance: Optional[ContentMap] = Field(
+        default=None,
+        description="""Key-value contents for the mutlimodality input, including text, image, video, audio, and pdf, etc. The key is placeholder in metric prompt template, and the value is the multimodal content.""",
     )
 
 
@@ -487,6 +509,9 @@ class PointwiseMetricInstanceDict(TypedDict, total=False):
 
     json_instance: Optional[str]
     """Instance specified as a json string. String key-value pairs are expected in the json_instance to render PointwiseMetricSpec.instance_prompt_template."""
+
+    content_map_instance: Optional[ContentMapDict]
+    """Key-value contents for the mutlimodality input, including text, image, video, audio, and pdf, etc. The key is placeholder in metric prompt template, and the value is the multimodal content."""
 
 
 PointwiseMetricInstanceOrDict = Union[
@@ -1311,24 +1336,6 @@ class RubricBasedMetricSpecDict(TypedDict, total=False):
 
 
 RubricBasedMetricSpecOrDict = Union[RubricBasedMetricSpec, RubricBasedMetricSpecDict]
-
-
-class ContentMap(_common.BaseModel):
-    """Map of placeholder in metric prompt template to contents of model input."""
-
-    values: Optional[dict[str, list[genai_types.Content]]] = Field(
-        default=None, description="""Map of placeholder to contents."""
-    )
-
-
-class ContentMapDict(TypedDict, total=False):
-    """Map of placeholder in metric prompt template to contents of model input."""
-
-    values: Optional[dict[str, list[genai_types.Content]]]
-    """Map of placeholder to contents."""
-
-
-ContentMapOrDict = Union[ContentMap, ContentMapDict]
 
 
 class RubricEnhancedContents(_common.BaseModel):
@@ -5890,6 +5897,11 @@ class Metric(_common.BaseModel):
 class LLMMetric(Metric):
     """A metric that uses LLM-as-a-judge for evaluation."""
 
+    rubric_group_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the column in the EvaluationDataset containing the list of rubrics to use for this metric.""",
+    )
+
     @field_validator("prompt_template", mode="before")
     @classmethod
     def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
@@ -6555,6 +6567,24 @@ class EvaluationResultDict(TypedDict, total=False):
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
+
+
+class ContentMapContents(_common.BaseModel):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""Contents of the model input."""
+    )
+
+
+class ContentMapContentsDict(TypedDict, total=False):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.Content]]
+    """Contents of the model input."""
+
+
+ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
 
 
 class EvaluateMethodConfig(_common.BaseModel):

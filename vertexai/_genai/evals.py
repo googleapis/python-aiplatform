@@ -205,6 +205,13 @@ def _PointwiseMetricInstance_to_vertex(
     if getv(from_object, ["json_instance"]) is not None:
         setv(to_object, ["jsonInstance"], getv(from_object, ["json_instance"]))
 
+    if getv(from_object, ["content_map_instance"]) is not None:
+        setv(
+            to_object,
+            ["contentMapInstance"],
+            getv(from_object, ["content_map_instance"]),
+        )
+
     return to_object
 
 
@@ -1195,6 +1202,113 @@ class Evals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
 
         return return_value
+
+    def generate_rubrics(
+        self,
+        *,
+        src: Union[str, "pd.DataFrame"],
+        prompt_template: str,
+        rubric_group_name: str,
+        generator_model_config: Optional["types.AutoraterConfigOrDict"] = None,
+        rubric_content_type: Optional["types.RubricContentType"] = None,
+        rubric_type_ontology: Optional[list[str]] = None,
+        config: Optional[types.RubricGenerationConfigOrDict] = None,
+    ) -> "pd.DataFrame":
+        """Generates rubrics for each prompt in the source and adds them as a new column
+
+        structured as a dictionary.
+
+        Args:
+            src: The source of the prompts. Can be a string (path to a local
+              file, a GCS path, or a BigQuery table) or a Pandas DataFrame. The
+              loaded data must contain either a 'prompt' column (for text) or a
+              'request' column (for text or multimodal Gemini Content).
+            prompt_template: Template for the rubric generation prompt. If using
+              a 'prompt' column, use {prompt} as the placeholder. If using a
+              'request' column, this template is passed to the service along
+              with the content.
+            rubric_group_name: Name for the key within the dictionary in the new
+              column.
+            generator_model_config: Optional. Configuration for the model used
+              in rubric generation, including the model name (e.g.,
+              "gemini-1.5-flash") within the 'autorater_model' field.
+            rubric_content_type: Optional. The type of rubric content to be
+              generated.
+            rubric_type_ontology: Optional. A pre-defined list of allowed types
+              for generated rubrics.
+
+        Returns:
+            DataFrame with an added column named `rubric_groups`. Each cell in
+            this column contains a dictionary like: {rubric_group_name:
+            [list[Rubric]]}.
+        """
+        try:
+            prompts_df = _evals_common._load_dataframe(self._api_client, src)
+        except Exception as e:
+            raise ValueError(
+                f"Failed to load prompt dataset from source: {src}. Error: {e}"
+            )
+
+        if "prompt" not in prompts_df.columns and "request" not in prompts_df.columns:
+            raise ValueError("Loaded dataset must have a 'prompt' or 'request' column.")
+        if not rubric_group_name:
+            raise ValueError("rubric_group_name cannot be empty.")
+
+        input_column = "request" if "request" in prompts_df.columns else "prompt"
+        logger.info(
+            f"Generating rubrics for {len(prompts_df)} prompts from column"
+            f" '{input_column}', group: '{rubric_group_name}'..."
+        )
+        all_rubric_groups = []
+
+        spec_dict = {
+            "prompt_template": prompt_template,
+            "rubric_content_type": rubric_content_type,
+            "rubric_type_ontology": rubric_type_ontology,
+            "generator_model_config": generator_model_config,
+        }
+        spec_dict = {k: v for k, v in spec_dict.items() if v is not None}
+        spec = types.RubricGenerationSpec.model_validate(spec_dict)
+
+        for _, row in prompts_df.iterrows():
+            input_data = row[input_column]
+            if isinstance(input_data, str):
+                contents = [types.Content(parts=[types.Part(text=input_data)])]
+            elif isinstance(input_data, list):
+                contents = input_data
+            else:
+                logger.warning(
+                    "Skipping row: Unexpected input format in column"
+                    f" '{input_column}'."
+                )
+                all_rubric_groups.append({rubric_group_name: []})
+                continue
+
+            current_spec = spec.model_copy(deep=True)
+
+            try:
+                response = self._generate_rubrics(
+                    contents=contents,
+                    rubric_generation_spec=current_spec,
+                    config=config,
+                )
+                rubric_group = {rubric_group_name: response.generated_rubrics}
+                all_rubric_groups.append(rubric_group)
+            except Exception as e:
+                logger.error(
+                    "Rubric generation failed for input: %s... Error: %s",
+                    str(input_data)[:50],
+                    e,
+                )
+                all_rubric_groups.append({rubric_group_name: []})
+
+        prompts_with_rubrics = prompts_df.copy()
+        prompts_with_rubrics["rubric_groups"] = all_rubric_groups
+        logger.info(
+            "Rubric generation complete. Added column 'rubric_groups' with key"
+            f" '{rubric_group_name}'."
+        )
+        return prompts_with_rubrics
 
 
 class AsyncEvals(_api_module.BaseModule):
