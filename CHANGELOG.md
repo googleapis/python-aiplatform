@@ -1,5 +1,43 @@
 # Changelog
 
+## [1.104.0](https://github.com/googleapis/python-aiplatform/compare/v1.103.0...v1.104.0) (2025-07-15)
+
+
+### Features
+
+* Add Aggregation Output in EvaluateDataset Get Operation Response ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Add API for Managed OSS Fine Tuning ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Add flexstart option to v1beta1 ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Expose task_unique_name in pipeline task details for pipeline rerun ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* GenAI SDK client - Add support for context specs when creating agent engine instances ([8321826](https://github.com/googleapis/python-aiplatform/commit/8321826fe3c18b8b938861fe0930aa7ec4e97fa3))
+* GenAI SDK client(evals) - Add Generate Rubrics API config and internal method ([6727fb3](https://github.com/googleapis/python-aiplatform/commit/6727fb3761e91d32359e13b1c28494d2f16d165a))
+* GenAI SDK client(evals) - add rubric-based evaluation types ([df2390e](https://github.com/googleapis/python-aiplatform/commit/df2390e881b06629da29adb21a69c8cc68585aba))
+* GenAI SDK client(evals) - Add support for rubric-based metrics, and rubric customization eval workflow ([36bfda2](https://github.com/googleapis/python-aiplatform/commit/36bfda246eeb2b2a171cec9fb2602f4802601b7d))
+* Some comments changes in machine_resources.proto to v1beta1 ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Vertex AI Model Garden custom model deploy Public Preview ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+
+
+### Bug Fixes
+
+* GenAI SDK client(evals) - Handle optional pandas dependency in type hints ([cee8d8b](https://github.com/googleapis/python-aiplatform/commit/cee8d8b85f00efb259dbee5e2fa6d0cbed73e24c))
+
+
+### Documentation
+
+* A comment for field `boot_disk_type` in message `.google.cloud.aiplatform.v1beta1.DiskSpec` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `learning_rate_multiplier` in message `.google.cloud.aiplatform.v1beta1.SupervisedHyperParameters` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `machine_spec` in message `.google.cloud.aiplatform.v1beta1.DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `max_replica_count` in message `.google.cloud.aiplatform.v1beta1.AutomaticResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `max_replica_count` in message `.google.cloud.aiplatform.v1beta1.DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `min_replica_count` in message `.google.cloud.aiplatform.v1beta1.AutomaticResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `min_replica_count` in message `.google.cloud.aiplatform.v1beta1.DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `model` in message `.google.cloud.aiplatform.v1beta1.TunedModel` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `required_replica_count` in message `.google.cloud.aiplatform.v1beta1.DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `training_dataset_uri` in message `.google.cloud.aiplatform.v1beta1.SupervisedTuningSpec` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `validation_dataset_uri` in message `.google.cloud.aiplatform.v1beta1.SupervisedTuningSpec` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for message `DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Add constraints for AggregationMetric enum and default value for flip_enabled field in AutoraterConfig ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+
 ## [1.103.0](https://github.com/googleapis/python-aiplatform/compare/v1.102.0...v1.103.0) (2025-07-10)
 
 
