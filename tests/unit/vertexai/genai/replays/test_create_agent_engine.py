@@ -38,6 +38,34 @@ def test_create_config_lightweight(client):
     }
 
 
+def test_create_with_context_spec(client):
+    project = "test-project"
+    location = "us-central1"
+    parent = f"projects/{project}/locations/{location}"
+    generation_model = f"{parent}/publishers/google/models/gemini-2.0-flash-001"
+    embedding_model = f"{parent}/publishers/google/models/text-embedding-005"
+
+    agent_engine = client.agent_engines.create(
+        config={
+            "context_spec": {
+                "memory_bank_config": {
+                    "generation_config": {"model": generation_model},
+                    "similarity_search_config": {
+                        "embedding_model": embedding_model,
+                    },
+                },
+            },
+            "http_options": {"api_version": "v1beta1"},
+        },
+    )
+    agent_engine = client.agent_engines.get(name=agent_engine.api_resource.name)
+    memory_bank_config = agent_engine.api_resource.context_spec.memory_bank_config
+    assert memory_bank_config.generation_config.model == generation_model
+    assert (
+        memory_bank_config.similarity_search_config.embedding_model == embedding_model
+    )
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),

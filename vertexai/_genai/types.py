@@ -3127,7 +3127,7 @@ ReasoningEngineSpecPackageSpecOrDict = Union[
 
 
 class ReasoningEngineSpec(_common.BaseModel):
-    """The specification of a Reasoning Engine."""
+    """The specification of an agent engine."""
 
     agent_framework: Optional[str] = Field(
         default=None,
@@ -3148,7 +3148,7 @@ class ReasoningEngineSpec(_common.BaseModel):
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
-    """The specification of a Reasoning Engine."""
+    """The specification of an agent engine."""
 
     agent_framework: Optional[str]
     """Optional. The OSS agent framework used to develop the agent. Currently supported values: "google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"."""
@@ -3164,72 +3164,6 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
-
-
-class CreateAgentEngineConfig(_common.BaseModel):
-    """Config for create agent engine."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""The user-defined name of the Agent Engine.
-
-      The display name can be up to 128 characters long and can comprise any
-      UTF-8 characters.
-      """,
-    )
-    description: Optional[str] = Field(
-        default=None, description="""The description of the Agent Engine."""
-    )
-    spec: Optional[ReasoningEngineSpec] = Field(
-        default=None,
-        description="""Optional. Configurations of the ReasoningEngine.""",
-    )
-
-
-class CreateAgentEngineConfigDict(TypedDict, total=False):
-    """Config for create agent engine."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    display_name: Optional[str]
-    """The user-defined name of the Agent Engine.
-
-      The display name can be up to 128 characters long and can comprise any
-      UTF-8 characters.
-      """
-
-    description: Optional[str]
-    """The description of the Agent Engine."""
-
-    spec: Optional[ReasoningEngineSpecDict]
-    """Optional. Configurations of the ReasoningEngine."""
-
-
-CreateAgentEngineConfigOrDict = Union[
-    CreateAgentEngineConfig, CreateAgentEngineConfigDict
-]
-
-
-class _CreateAgentEngineRequestParameters(_common.BaseModel):
-    """Parameters for creating agent engines."""
-
-    config: Optional[CreateAgentEngineConfig] = Field(default=None, description="""""")
-
-
-class _CreateAgentEngineRequestParametersDict(TypedDict, total=False):
-    """Parameters for creating agent engines."""
-
-    config: Optional[CreateAgentEngineConfigDict]
-    """"""
-
-
-_CreateAgentEngineRequestParametersOrDict = Union[
-    _CreateAgentEngineRequestParameters, _CreateAgentEngineRequestParametersDict
-]
 
 
 class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseModel):
@@ -3320,7 +3254,7 @@ ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
 
 
 class ReasoningEngineContextSpec(_common.BaseModel):
-    """Configuration for how Agent Engine sub-resources should manage context."""
+    """The configuration for agent engine sub-resources to manage context."""
 
     memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfig] = Field(
         default=None,
@@ -3329,7 +3263,7 @@ class ReasoningEngineContextSpec(_common.BaseModel):
 
 
 class ReasoningEngineContextSpecDict(TypedDict, total=False):
-    """Configuration for how Agent Engine sub-resources should manage context."""
+    """The configuration for agent engine sub-resources to manage context."""
 
     memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
     """Optional. Specification for a Memory Bank, which manages memories for the Agent Engine."""
@@ -3337,6 +3271,79 @@ class ReasoningEngineContextSpecDict(TypedDict, total=False):
 
 ReasoningEngineContextSpecOrDict = Union[
     ReasoningEngineContextSpec, ReasoningEngineContextSpecDict
+]
+
+
+class CreateAgentEngineConfig(_common.BaseModel):
+    """Config for create agent engine."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the Agent Engine.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """,
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the Agent Engine."""
+    )
+    spec: Optional[ReasoningEngineSpec] = Field(
+        default=None,
+        description="""Optional. Configurations of the Agent Engine.""",
+    )
+    context_spec: Optional[ReasoningEngineContextSpec] = Field(
+        default=None,
+        description="""Optional. The context spec to be used for the Agent Engine.""",
+    )
+
+
+class CreateAgentEngineConfigDict(TypedDict, total=False):
+    """Config for create agent engine."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The user-defined name of the Agent Engine.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """
+
+    description: Optional[str]
+    """The description of the Agent Engine."""
+
+    spec: Optional[ReasoningEngineSpecDict]
+    """Optional. Configurations of the Agent Engine."""
+
+    context_spec: Optional[ReasoningEngineContextSpecDict]
+    """Optional. The context spec to be used for the Agent Engine."""
+
+
+CreateAgentEngineConfigOrDict = Union[
+    CreateAgentEngineConfig, CreateAgentEngineConfigDict
+]
+
+
+class _CreateAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for creating agent engines."""
+
+    config: Optional[CreateAgentEngineConfig] = Field(default=None, description="""""")
+
+
+class _CreateAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating agent engines."""
+
+    config: Optional[CreateAgentEngineConfigDict]
+    """"""
+
+
+_CreateAgentEngineRequestParametersOrDict = Union[
+    _CreateAgentEngineRequestParameters, _CreateAgentEngineRequestParametersDict
 ]
 
 
@@ -4374,7 +4381,7 @@ _GenerateAgentEngineMemoriesRequestParametersOrDict = Union[
 
 
 class GenerateMemoriesResponseGeneratedMemory(_common.BaseModel):
-    """A memmory that was generated."""
+    """A memory that was generated."""
 
     memory: Optional[Memory] = Field(
         default=None, description="""The generated memory."""
@@ -4385,7 +4392,7 @@ class GenerateMemoriesResponseGeneratedMemory(_common.BaseModel):
 
 
 class GenerateMemoriesResponseGeneratedMemoryDict(TypedDict, total=False):
-    """A memmory that was generated."""
+    """A memory that was generated."""
 
     memory: Optional[MemoryDict]
     """The generated memory."""
@@ -5125,7 +5132,11 @@ class UpdateAgentEngineConfig(_common.BaseModel):
     )
     spec: Optional[ReasoningEngineSpec] = Field(
         default=None,
-        description="""Optional. Configurations of the ReasoningEngine.""",
+        description="""Optional. Configurations of the Agent Engine.""",
+    )
+    context_spec: Optional[ReasoningEngineContextSpec] = Field(
+        default=None,
+        description="""Optional. The context spec to be used for the Agent Engine.""",
     )
     update_mask: Optional[str] = Field(
         default=None,
@@ -5151,7 +5162,10 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
     """The description of the Agent Engine."""
 
     spec: Optional[ReasoningEngineSpecDict]
-    """Optional. Configurations of the ReasoningEngine."""
+    """Optional. Configurations of the Agent Engine."""
+
+    context_spec: Optional[ReasoningEngineContextSpecDict]
+    """Optional. The context spec to be used for the Agent Engine."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -6849,6 +6863,10 @@ class AgentEngineConfig(_common.BaseModel):
       If it is a dictionary, the keys are the environment variable names, and
       the values are the corresponding values.""",
     )
+    context_spec: Optional[ReasoningEngineContextSpec] = Field(
+        default=None,
+        description="""The context spec to be used for the Agent Engine.""",
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -6891,6 +6909,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
       If it is a dictionary, the keys are the environment variable names, and
       the values are the corresponding values."""
+
+    context_spec: Optional[ReasoningEngineContextSpecDict]
+    """The context spec to be used for the Agent Engine."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
