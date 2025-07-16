@@ -57,7 +57,7 @@ UNIT_TEST_AG2_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
 UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
 PYTHON_TO_RAY_VERSIONS = {
     "3.10": ["2.9.3", "2.33.0", "2.42.0"],
-    "3.11": ["2.42.0"],
+    "3.11": ["2.42.0", "2.47.1"],
 }
 UNIT_TEST_STANDARD_DEPENDENCIES = [
     "mock",
@@ -261,7 +261,7 @@ def unit_genai_minimal_dependencies(session):
 
 
 @nox.session(python=["3.10", "3.11"])
-@nox.parametrize("ray", ["2.9.3", "2.33.0", "2.42.0"])
+@nox.parametrize("ray", ["2.9.3", "2.33.0", "2.42.0", "2.47.1"])
 def unit_ray(session, ray):
     # check if ray version is supported
     if ray not in PYTHON_TO_RAY_VERSIONS[session.python]:

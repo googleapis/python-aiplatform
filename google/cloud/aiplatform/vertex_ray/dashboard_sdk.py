@@ -29,7 +29,7 @@ def get_job_submission_client_cluster_info(
     """A vertex_ray implementation of get_job_submission_client_cluster_info().
 
     Implements
-    https://github.com/ray-project/ray/blob/ray-2.42.0/python/ray/dashboard/modules/dashboard_sdk.py#L84
+    https://github.com/ray-project/ray/blob/ray-2.47.1/python/ray/dashboard/modules/dashboard_sdk.py#L84
     This will be called in from Ray Job API Python client.
 
     Args:
