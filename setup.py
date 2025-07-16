@@ -98,7 +98,7 @@ autologging_extra_require = ["mlflow>=1.27.0,<=2.16.0"]
 preview_extra_require = []
 
 ray_extra_require = [
-    # Cluster only supports 2.9.3, 2.33.0, and 2.42.0. Keep 2.4.0 for our
+    # Cluster only supports 2.9.3, 2.33.0, 2.42.0 and 2.47.1. Keep 2.4.0 for our
     # testing environment.
     # Note that testing is submitting a job in a cluster with Ray 2.9.3 remotely.
     (
@@ -111,7 +111,7 @@ ray_extra_require = [
         " python_version<'3.11'"
     ),
     # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
-    "ray[default] >= 2.5, <= 2.42.0; python_version=='3.11'",
+    "ray[default] >= 2.5, <= 2.47.1; python_version=='3.11'",
     "google-cloud-bigquery-storage",
     "google-cloud-bigquery",
     "pandas >= 1.0.0",

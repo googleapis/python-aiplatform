@@ -70,7 +70,7 @@ class NodeImages:
     """Custom images for a ray cluster.
 
     We currently support Ray v2.9, v2.33, v2.42 and python v3.10.
-    We also support python v3.11 for Ray v2.42.
+    We also support python v3.11 for Ray v2.42 and v2.47.
     The custom images must be extended from the following base images:
     "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-9.py310:latest",
     "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-9.py310:latest",
@@ -78,13 +78,15 @@ class NodeImages:
     "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-33.py310:latest",
     "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-42.py310:latest",
     "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-42.py310:latest",
-    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-42.py311:latest", or
-    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-42.py311:latest". In
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-42.py311:latest",
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-42.py311:latest".
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-cpu.2-47.py311:latest", or
+    "{region}-docker.pkg.dev/vertex-ai/training/ray-gpu.2-47.py311:latest". In
     order to use custom images, need to specify both head and worker images.
 
     Attributes:
-        head: image for head node (eg. us-docker.pkg.dev/my-project/ray-cpu.2-33.py310-tf:latest).
-        worker: image for all worker nodes (eg. us-docker.pkg.dev/my-project/ray-gpu.2-33.py310-tf:latest).
+        head: image for head node (eg. us-docker.pkg.dev/my-project/ray-cpu.2-47.py311:latest).
+        worker: image for all worker nodes (eg. us-docker.pkg.dev/my-project/ray-gpu.2-47.py311:latest).
     """
 
     head: str = None
@@ -151,8 +153,8 @@ class Cluster:
         service_account: Service account to be used for running Ray programs on
             the cluster.
         state: Describes the cluster state (defined in PersistentResource.State).
-        python_version: Python version for the ray cluster (e.g. "3.10").
-        ray_version: Ray version for the ray cluster (e.g. "2.33").
+        python_version: Python version for the ray cluster (e.g. "3.11").
+        ray_version: Ray version for the ray cluster (e.g. "2.47").
         head_node_type: The head node resource. Resources.node_count must be 1.
             If not set, by default it is a CPU node with machine_type of n1-standard-8.
         worker_node_types: The list of Resources of the worker nodes. Should not
