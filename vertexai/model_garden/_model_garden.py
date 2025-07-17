@@ -818,3 +818,215 @@ class OpenModel:
             publisher_model=self._publisher_model_name,
         )
         return self._model_garden_client.accept_publisher_model_eula(request)
+
+
+class CustomModel:
+    """Represents a Model Garden Custom model."""
+
+    def __init__(
+        self,
+        gcs_uri: Optional[str] = None,
+    ):
+        r"""Initializes a Model Garden Custom model.
+
+        Usage:
+
+            ```
+            model = vertexai.CustomModel(
+                gcs_uri = 'gs://tuning-job-output/node-0/checkpoints/final')
+            ```
+
+        Args:
+            gcs_uri: The GCS URI of the custom model, storing weights and config
+              files
+        """
+        if not gcs_uri:
+            raise ValueError("gcs_uri must be specified.")
+
+        project = initializer.global_config.project
+        location = initializer.global_config.location
+        credentials = initializer.global_config.credentials
+
+        self._gcs_uri = gcs_uri
+        self._project = project
+        self._location = location
+        self._credentials = credentials
+
+    @functools.cached_property
+    def _model_garden_client(
+        self,
+    ) -> model_garden_service.ModelGardenServiceClient:
+        """Returns the Model Garden client."""
+        return initializer.global_config.create_client(
+            client_class=_ModelGardenClientWithOverride,
+            credentials=self._credentials,
+            location_override=self._location,
+        )
+
+    def deploy(
+        self,
+        machine_type: Optional[str] = None,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        endpoint_display_name: Optional[str] = None,
+        model_display_name: Optional[str] = None,
+        deploy_request_timeout: Optional[float] = None,
+    ) -> aiplatform.Endpoint:
+        """Deploys a Custom Model to an endpoint.
+
+        Args:
+            machine_type (str): Optional. The type of machine. Not specifying
+              machine type will result in model to be deployed with automatic
+              resources.
+            min_replica_count (int): Optional. The minimum number of machine
+              replicas this deployed model will be always deployed on. If traffic
+              against it increases, it may dynamically be deployed onto more
+              replicas, and as traffic decreases, some of these extra replicas may
+              be freed.
+            max_replica_count (int): Optional. The maximum number of replicas this
+              deployed model may be deployed on when the traffic against it
+              increases. If requested value is too large, the deployment will error,
+              but if deployment succeeds then the ability to scale the model to that
+              many replicas is guaranteed (barring service outages). If traffic
+              against the deployed model increases beyond what its replicas at
+              maximum may handle, a portion of the traffic will be dropped. If this
+              value is not provided, the larger value of min_replica_count or 1 will
+              be used. If value provided is smaller than min_replica_count, it will
+              automatically be increased to be min_replica_count.
+            accelerator_type (str): Optional. Hardware accelerator type. Must also
+              set accelerator_count if used.
+            accelerator_count (int): Optional. The number of accelerators to attach
+              to a worker replica.
+            endpoint_display_name: The display name of the created endpoint.
+            model_display_name: The display name of the custom model.
+            deploy_request_timeout: The timeout for the deploy request. Default is 2
+              hours.
+
+        Returns:
+            endpoint (aiplatform.Endpoint):
+                Created endpoint.
+        """
+        return self._deploy_gcs_uri(
+            machine_type,
+            min_replica_count,
+            max_replica_count,
+            accelerator_type,
+            accelerator_count,
+            endpoint_display_name,
+            model_display_name,
+            deploy_request_timeout,
+        )
+
+    def _deploy_model_registry_model(self) -> aiplatform.Endpoint:
+        """Deploys a Model Registry model to an endpoint."""
+        raise NotImplementedError(
+            "Not implemented yet. Please provide gcs_uri in CustomModel constructor."
+        )
+
+    def _deploy_gcs_uri(
+        self,
+        machine_type: Optional[str] = None,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        endpoint_display_name: Optional[str] = None,
+        model_display_name: Optional[str] = None,
+        deploy_request_timeout: Optional[float] = None,
+    ) -> aiplatform.Endpoint:
+        """Deploys a Custom Model to an endpoint.
+
+        Args:
+            machine_type (str): Optional. The type of machine. Not specifying
+              machine type will result in model to be deployed with automatic
+              resources.
+            min_replica_count (int): Optional. The minimum number of machine
+              replicas this deployed model will be always deployed on. If traffic
+              against it increases, it may dynamically be deployed onto more
+              replicas, and as traffic decreases, some of these extra replicas may
+              be freed.
+            max_replica_count (int): Optional. The maximum number of replicas this
+              deployed model may be deployed on when the traffic against it
+              increases. If requested value is too large, the deployment will error,
+              but if deployment succeeds then the ability to scale the model to that
+              many replicas is guaranteed (barring service outages). If traffic
+              against the deployed model increases beyond what its replicas at
+              maximum may handle, a portion of the traffic will be dropped. If this
+              value is not provided, the larger value of min_replica_count or 1 will
+              be used. If value provided is smaller than min_replica_count, it will
+              automatically be increased to be min_replica_count.
+            accelerator_type (str): Optional. Hardware accelerator type. Must also
+              set accelerator_count if used. One of ACCELERATOR_TYPE_UNSPECIFIED,
+              NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100,
+              NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
+            accelerator_count (int): Optional. The number of accelerators to attach
+              to a worker replica.
+            endpoint_display_name: The display name of the created endpoint.
+            model_display_name: The display name of the custom model.
+            deploy_request_timeout: The timeout for the deploy request. Default is 2
+              hours.
+
+        Returns:
+            endpoint (aiplatform.Endpoint):
+                Created endpoint.
+        """
+        # Validation on machine type, accelerator type and count.
+        # Return true if all three of them have value or are None.
+        def has_all_or_none_values(var1, var2, var3) -> bool:
+            return (var1 and var2 and var3) or (not var1 and not var2 and not var3)
+
+        if not has_all_or_none_values(
+            machine_type, accelerator_type, accelerator_count
+        ):
+            raise ValueError(
+                "machine_type, accelerator_type and accelerator_count must all be provided or not provided."
+            )
+
+        request = types.DeployRequest(
+            destination=f"projects/{self._project}/locations/{self._location}",
+        )
+        request.custom_model = types.DeployRequest.CustomModel(gcs_uri=self._gcs_uri)
+        if endpoint_display_name:
+            request.endpoint_config.endpoint_display_name = endpoint_display_name
+        if model_display_name:
+            request.model_config.model_display_name = model_display_name
+
+        if machine_type and accelerator_type and accelerator_count:
+            request.deploy_config.dedicated_resources = types.DedicatedResources(
+                machine_spec=types.MachineSpec(
+                    machine_type=machine_type,
+                    accelerator_type=accelerator_type,
+                    accelerator_count=accelerator_count,
+                )
+            )
+        if min_replica_count:
+            request.deploy_config.dedicated_resources.min_replica_count = (
+                min_replica_count
+            )
+        if max_replica_count:
+            request.deploy_config.dedicated_resources.max_replica_count = (
+                max_replica_count
+            )
+
+        _LOGGER.info(f"Deploying custom model: {self._gcs_uri}")
+
+        try:
+            operation_future = self._model_garden_client.deploy(request)
+            _LOGGER.info(f"LRO: {operation_future.operation.name}")
+            deploy_response = operation_future.result(
+                timeout=deploy_request_timeout or _DEFAULT_TIMEOUT
+            )
+            _LOGGER.info(f"End time: {datetime.datetime.now()}")
+            self._endpoint_name = deploy_response.endpoint
+            _LOGGER.info(f"Endpoint: {self._endpoint_name}")
+            endpoint = aiplatform.Endpoint._construct_sdk_resource_from_gapic(
+                aiplatform_models.gca_endpoint_compat.Endpoint(
+                    name=self._endpoint_name
+                ),
+            )
+            return endpoint
+        except ValueError as e:
+            _LOGGER.error(f"Failed to deploy custom model: {e}")
+            raise e
