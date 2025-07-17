@@ -1522,3 +1522,21 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
 
         return return_value
+
+    async def evaluate_instances(
+        self,
+        *,
+        metric_config: types._EvaluateInstancesRequestParameters,
+    ) -> types.EvaluateInstancesResponse:
+        """Evaluates an instance of a model."""
+
+        if isinstance(metric_config, types._EvaluateInstancesRequestParameters):
+            metric_config = metric_config.model_dump()
+        else:
+            metric_config = dict(metric_config)
+
+        result = await self._evaluate_instances(
+            **metric_config,
+        )
+
+        return result

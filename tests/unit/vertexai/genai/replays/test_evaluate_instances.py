@@ -14,11 +14,12 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import json
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 import pandas as pd
-import json
+import pytest
 
 
 def test_bleu_metric(client):
@@ -31,7 +32,11 @@ def test_bleu_metric(client):
         ],
         metric_spec=types.BleuSpec(),
     )
-    response = client.evals._evaluate_instances(bleu_input=test_bleu_input)
+    response = client.evals.evaluate_instances(
+        metric_config=types._EvaluateInstancesRequestParameters(
+            bleu_input=test_bleu_input
+        )
+    )
     assert len(response.bleu_results.bleu_metric_values) == 1
 
 
@@ -46,8 +51,10 @@ def test_exact_match_metric(client):
         ],
         metric_spec=types.ExactMatchSpec(),
     )
-    response = client.evals._evaluate_instances(
-        exact_match_input=test_exact_match_input
+    response = client.evals.evaluate_instances(
+        metric_config=types._EvaluateInstancesRequestParameters(
+            exact_match_input=test_exact_match_input
+        )
     )
     assert len(response.exact_match_results.exact_match_metric_values) == 1
 
@@ -63,7 +70,11 @@ def test_rouge_metric(client):
         ],
         metric_spec=types.RougeSpec(rouge_type="rougeL"),
     )
-    response = client.evals._evaluate_instances(rouge_input=test_rouge_input)
+    response = client.evals.evaluate_instances(
+        metric_config=types._EvaluateInstancesRequestParameters(
+            rouge_input=test_rouge_input
+        )
+    )
     assert len(response.rouge_results.rouge_metric_values) == 1
 
 
@@ -78,7 +89,11 @@ def test_pointwise_metric(client):
             metric_prompt_template="Evaluate if the response '{response}' correctly answers the prompt '{prompt}'."
         ),
     )
-    response = client.evals._evaluate_instances(pointwise_metric_input=test_input)
+    response = client.evals.evaluate_instances(
+        metric_config=types._EvaluateInstancesRequestParameters(
+            pointwise_metric_input=test_input
+        )
+    )
     assert response.pointwise_metric_result is not None
     assert response.pointwise_metric_result.score is not None
 
@@ -100,8 +115,10 @@ def test_pairwise_metric_with_autorater(client):
     )
     autorater_config = types.AutoraterConfig(sampling_count=2)
 
-    response = client.evals._evaluate_instances(
-        pairwise_metric_input=test_input, autorater_config=autorater_config
+    response = client.evals.evaluate_instances(
+        metric_config=types._EvaluateInstancesRequestParameters(
+            pairwise_metric_input=test_input, autorater_config=autorater_config
+        )
     )
     assert response.pairwise_metric_result is not None
     assert response.pairwise_metric_result.pairwise_choice is not None
@@ -147,3 +164,25 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="evals.evaluate",
 )
+
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_bleu_metric_async(client):
+    test_bleu_input = types.BleuInput(
+        instances=[
+            types.BleuInstance(
+                reference="The quick brown fox jumps over the lazy dog.",
+                prediction="A fast brown fox leaps over a lazy dog.",
+            )
+        ],
+        metric_spec=types.BleuSpec(),
+    )
+    response = await client.aio.evals.evaluate_instances(
+        metric_config=types._EvaluateInstancesRequestParameters(
+            bleu_input=test_bleu_input
+        )
+    )
+    assert len(response.bleu_results.bleu_metric_values) == 1
