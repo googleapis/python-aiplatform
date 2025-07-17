@@ -221,6 +221,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
                 to the system path in the sequence being specified here, and
                 only be appended if it is not already in the system path.
         """
+        self.agent_framework = None
         self._tmpl_attrs = {
             "module_name": module_name,
             "agent_name": agent_name,
@@ -271,6 +272,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
                 f"Agent {agent_name} not found in module "
                 f"{self._tmpl_attrs.get('module_name')}"
             ) from e
+        self.agent_framework = _get_agent_framework(agent)
         self._tmpl_attrs["agent"] = agent
         if hasattr(agent, "set_up"):
             agent.set_up()
