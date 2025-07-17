@@ -26,21 +26,21 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
 
 SUPPORTED_RAY_VERSIONS = immutabledict(
-    {"2.9": "2.9.3", "2.33": "2.33.0", "2.42": "2.42.0"}
+    {"2.9": "2.9.3", "2.33": "2.33.0", "2.42": "2.42.0", "2.47": "2.47.1"}
 )
 SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS = immutabledict(
     {
         "3.10": ("2.9", "2.33", "2.42"),
-        "3.11": ("2.42"),
+        "3.11": ("2.42", "2.47"),
     }
 )
 _V2_4_WARNING_MESSAGE = (
-    "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result"
-    " in an error. Please use Ray version = 2.33.0 or 2.42.0 (default) instead."
+    "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result in "
+    "an error. Please use Ray version = 2.33.0, 2.42.0 or 2.47.1 (default) instead."
 )
 _V2_9_WARNING_MESSAGE = (
     "In March 2025, using Ray version = 2.9 will result in an error. "
-    "Please use Ray version = 2.33.0 or 2.42.0 (default) instead."
+    "Please use Ray version = 2.33.0, 2.42.0, or 2.47.1 (default) instead."
 )
 
 
