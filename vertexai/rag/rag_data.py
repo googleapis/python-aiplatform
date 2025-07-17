@@ -76,6 +76,7 @@ def create_corpus(
         ]
     ] = None,
     encryption_spec: Optional[EncryptionSpec] = None,
+    timeout: int = 600,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -93,15 +94,17 @@ def create_corpus(
 
     Args:
         display_name: If not provided, SDK will create one. The display name of
-            the RagCorpus. The name can be up to 128 characters long and can
-            consist of any UTF-8 characters.
+          the RagCorpus. The name can be up to 128 characters long and can consist
+          of any UTF-8 characters.
         description: The description of the RagCorpus.
         vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
             Note: backend_config cannot be set if vertex_ai_search_config is
-            specified.
-        backend_config: The backend config of the RagCorpus, specifying a
-          data store and/or embedding model.
+              specified.
+        backend_config: The backend config of the RagCorpus, specifying a data
+          store and/or embedding model.
         encryption_spec: The encryption spec of the RagCorpus.
+        timeout: Default is 600 seconds.
+
     Returns:
         RagCorpus.
     Raises:
@@ -146,7 +149,7 @@ def create_corpus(
         response = client.create_rag_corpus(request=request)
     except Exception as e:
         raise RuntimeError("Failed in RagCorpus creation due to: ", e) from e
-    return _gapic_utils.convert_gapic_to_rag_corpus(response.result(timeout=600))
+    return _gapic_utils.convert_gapic_to_rag_corpus(response.result(timeout=timeout))
 
 
 def update_corpus(
@@ -160,10 +163,12 @@ def update_corpus(
             None,
         ]
     ] = None,
+    timeout: int = 600,
 ) -> RagCorpus:
-    """Updates a RagCorpus resource. It is intended to update 3rd party vector
-    DBs (Vector Search, Vertex AI Feature Store, Weaviate, Pinecone) but not
-    Vertex RagManagedDb.
+    """Updates a RagCorpus resource.
+
+    It is intended to update 3rd party vector DBs (Vector Search, Vertex AI
+    Feature Store, Weaviate, Pinecone) but not Vertex RagManagedDb.
 
     Example usage:
     ```
@@ -187,12 +192,13 @@ def update_corpus(
           and can consist of any UTF-8 characters.
         description: The description of the RagCorpus. If not provided, the
           description will not be updated.
-        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
-          If not provided, the Vertex AI Search config will not be updated.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus. If
+          not provided, the Vertex AI Search config will not be updated.
           Note: backend_config cannot be set if vertex_ai_search_config is
-          specified.
-        backend_config: The backend config of the RagCorpus, specifying a
-          data store and/or embedding model.
+            specified.
+        backend_config: The backend config of the RagCorpus, specifying a data
+          store and/or embedding model.
+        timeout: Default is 600 seconds.
 
     Returns:
         RagCorpus.
@@ -239,7 +245,7 @@ def update_corpus(
     except Exception as e:
         raise RuntimeError("Failed in RagCorpus update due to: ", e) from e
     return _gapic_utils.convert_gapic_to_rag_corpus_no_embedding_model_config(
-        response.result(timeout=600)
+        response.result(timeout=timeout)
     )
 
 
@@ -902,6 +908,7 @@ def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
 
 def update_rag_engine_config(
     rag_engine_config: RagEngineConfig,
+    timeout: int = 600,
 ) -> RagEngineConfig:
     """Update RagEngineConfig.
 
@@ -923,6 +930,7 @@ def update_rag_engine_config(
 
     Args:
         rag_engine_config: The RagEngineConfig to update.
+        timeout: Default is 600 seconds.
 
     Raises:
         RuntimeError: Failed in RagEngineConfig update due to exception.
@@ -938,7 +946,9 @@ def update_rag_engine_config(
         response = client.update_rag_engine_config(request=request)
     except Exception as e:
         raise RuntimeError("Failed in RagEngineConfig update due to: ", e) from e
-    return _gapic_utils.convert_gapic_to_rag_engine_config(response.result(timeout=600))
+    return _gapic_utils.convert_gapic_to_rag_engine_config(
+        response.result(timeout=timeout)
+    )
 
 
 def get_rag_engine_config(name: str) -> RagEngineConfig:

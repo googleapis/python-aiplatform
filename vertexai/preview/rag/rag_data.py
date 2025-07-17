@@ -73,11 +73,18 @@ def create_corpus(
     corpus_type_config: Optional[RagCorpusTypeConfig] = None,
     embedding_model_config: Optional[EmbeddingModelConfig] = None,
     vector_db: Optional[
-        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
+        Union[
+            Weaviate,
+            VertexFeatureStore,
+            VertexVectorSearch,
+            Pinecone,
+            RagManagedDb,
+        ]
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
     backend_config: Optional[RagVectorDbConfig] = None,
     encryption_spec: Optional[EncryptionSpec] = None,
+    timeout: int = 600,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -95,21 +102,22 @@ def create_corpus(
 
     Args:
         display_name: If not provided, SDK will create one. The display name of
-            the RagCorpus. The name can be up to 128 characters long and can consist
-            of any UTF-8 characters.
+          the RagCorpus. The name can be up to 128 characters long and can consist
+          of any UTF-8 characters.
         description: The description of the RagCorpus.
         corpus_type_config: The corpus type config of the RagCorpus.
         embedding_model_config: The embedding model config.
             Note: Deprecated. Use backend_config instead.
         vector_db: The vector db config of the RagCorpus. If unspecified, the
-            default database Spanner is used.
+          default database Spanner is used.
             Note: Deprecated. Use backend_config instead.
         vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
             Note: embedding_model_config or vector_db cannot be set if
-            vertex_ai_search_config is specified.
+              vertex_ai_search_config is specified.
         backend_config: The backend config of the RagCorpus. It can specify a
-            Vector DB and/or the embedding model config.
+          Vector DB and/or the embedding model config.
         encryption_spec: The encryption spec of the RagCorpus.
+        timeout: Default is 600 seconds.
 
     Returns:
         RagCorpus.
@@ -186,7 +194,7 @@ def create_corpus(
         response = client.create_rag_corpus(request=request)
     except Exception as e:
         raise RuntimeError("Failed in RagCorpus creation due to: ", e) from e
-    return _gapic_utils.convert_gapic_to_rag_corpus(response.result(timeout=600))
+    return _gapic_utils.convert_gapic_to_rag_corpus(response.result(timeout=timeout))
 
 
 def update_corpus(
@@ -204,6 +212,7 @@ def update_corpus(
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
     backend_config: Optional[RagVectorDbConfig] = None,
+    timeout: int = 600,
 ) -> RagCorpus:
     """Updates a RagCorpus resource.
 
@@ -231,12 +240,13 @@ def update_corpus(
           description will not be updated.
         vector_db: The vector db config of the RagCorpus. If not provided, the
           vector db will not be updated.
-        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
-          If not provided, the Vertex AI Search config will not be updated.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus. If
+          not provided, the Vertex AI Search config will not be updated.
           Note: embedding_model_config or vector_db cannot be set if
-          vertex_ai_search_config is specified.
-        backend_config: The backend config of the RagCorpus. Specifies a Vector
-          DB and/or the embedding model config.
+            vertex_ai_search_config is specified.
+        backend_config: The backend config of the RagCorpus. Specifies a Vector DB
+          and/or the embedding model config.
+        timeout: Default is 600 seconds.
 
     Returns:
         RagCorpus.
@@ -286,7 +296,7 @@ def update_corpus(
     except Exception as e:
         raise RuntimeError("Failed in RagCorpus update due to: ", e) from e
     return _gapic_utils.convert_gapic_to_rag_corpus_no_embedding_model_config(
-        response.result(timeout=600)
+        response.result(timeout=timeout)
     )
 
 
@@ -998,6 +1008,7 @@ def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
 
 def update_rag_engine_config(
     rag_engine_config: RagEngineConfig,
+    timeout: int = 600,
 ) -> RagEngineConfig:
     """Update RagEngineConfig.
 
@@ -1019,6 +1030,7 @@ def update_rag_engine_config(
 
     Args:
         rag_engine_config: The RagEngineConfig to update.
+        timeout: Default is 600 seconds.
 
     Raises:
         RuntimeError: Failed in RagEngineConfig update due to exception.
@@ -1034,7 +1046,9 @@ def update_rag_engine_config(
         response = client.update_rag_engine_config(request=request)
     except Exception as e:
         raise RuntimeError("Failed in RagEngineConfig update due to: ", e) from e
-    return _gapic_utils.convert_gapic_to_rag_engine_config(response.result(timeout=600))
+    return _gapic_utils.convert_gapic_to_rag_engine_config(
+        response.result(timeout=timeout)
+    )
 
 
 def get_rag_engine_config(name: str) -> RagEngineConfig:
