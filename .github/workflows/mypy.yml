@@ -34,4 +34,4 @@ jobs:
           pip install google-cloud-aiplatform
 
       - name: Run mypy  ${{ matrix.python-version }}
-        run: mypy vertexai/_genai/ --strict --config-file=mypy.ini
+        run: mypy vertexai/_genai/ --strict --config-file=vertexai/_genai/mypy.ini
