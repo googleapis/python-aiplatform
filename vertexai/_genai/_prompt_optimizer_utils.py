@@ -21,22 +21,19 @@ def _get_service_account(
     config: types.PromptOptimizerVAPOConfigOrDict,
 ) -> str:
     """Get the service account from the config for the custom job."""
-    if hasattr(config, "service_account") and config.service_account:
-        if (
-            hasattr(config, "service_account_project_number")
-            and config.service_account_project_number
-        ):
-            raise ValueError(
-                "Only one of service_account or service_account_project_number "
-                "can be provided."
-            )
+    if isinstance(config, dict):
+        config = types.PromptOptimizerVAPOConfig.model_validate(config)
+
+    if config.service_account and config.service_account_project_number:
+        raise ValueError(
+            "Only one of service_account or "
+            "service_account_project_number can be provided."
+        )
+    elif config.service_account:
         return config.service_account
-    elif (
-        hasattr(config, "service_account_project_number")
-        and config.service_account_project_number
-    ):
+    elif config.service_account_project_number:
         return f"{config.service_account_project_number}-compute@developer.gserviceaccount.com"
     else:
         raise ValueError(
-            "Either service_account or service_account_project_number is required."
+            "Either service_account or service_account_project_number " "is required."
         )
