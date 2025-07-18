@@ -101,7 +101,7 @@ def _get_evaluation_html(eval_result_json: str) -> str:
         <div id="details-section"></div>
     </div>
     <script>
-        const data = {eval_result_json};
+        const vizData = {eval_result_json};
         function renderSummary(summaryMetrics) {{
             const container = document.getElementById('summary-section');
             let content = '<h2>Summary Metrics</h2>';
@@ -150,8 +150,8 @@ def _get_evaluation_html(eval_result_json: str) -> str:
                 container.innerHTML += card + '</details>';
             }});
         }}
-        renderSummary(data.summary_metrics);
-        renderDetails(data.eval_case_results, data.metadata);
+        renderSummary(vizData.summary_metrics);
+        renderDetails(vizData.eval_case_results, vizData.metadata);
     </script>
 </body>
 </html>
@@ -196,7 +196,7 @@ def _get_comparison_html(eval_result_json: str) -> str:
         <div id="details-section"></div>
     </div>
     <script>
-        const data = {eval_result_json};
+        const vizData = {eval_result_json};
         function renderSummary(summaryMetrics, metadata) {{
             const container = document.getElementById('summary-section');
             if (!summaryMetrics || summaryMetrics.length === 0) {{ container.innerHTML = '<h2>Summary Metrics</h2><p>No summary metrics.</p>'; return; }}
@@ -252,8 +252,8 @@ def _get_comparison_html(eval_result_json: str) -> str:
                 container.innerHTML += card + '</div></details>';
             }});
         }}
-        renderSummary(data.summary_metrics, data.metadata);
-        renderDetails(data.eval_case_results, data.metadata);
+        renderSummary(vizData.summary_metrics, vizData.metadata);
+        renderDetails(vizData.eval_case_results, vizData.metadata);
     </script>
 </body>
 </html>
@@ -289,7 +289,7 @@ def _get_inference_html(dataframe_json: str) -> str:
         <div id="results-table"></div>
     </div>
     <script>
-        const data = {dataframe_json};
+        const vizData = {dataframe_json};
         const container = document.getElementById('results-table');
 
         function renderCell(cellValue) {{
@@ -306,13 +306,13 @@ def _get_inference_html(dataframe_json: str) -> str:
             return `<td>${{cellContent}}</td>`;
         }}
 
-        if (!data || data.length === 0) {{ container.innerHTML = "<p>No data.</p>"; }}
+        if (!vizData || vizData.length === 0) {{ container.innerHTML = "<p>No data.</p>"; }}
         else {{
             let table = '<table><thead><tr>';
-            const headers = Object.keys(data[0] || {{}});
+            const headers = Object.keys(vizData[0] || {{}});
             headers.forEach(h => table += `<th>${{h}}</th>`);
             table += '</tr></thead><tbody>';
-            data.forEach(row => {{
+            vizData.forEach(row => {{
                 table += '<tr>';
                 headers.forEach(header => {{
                     table += renderCell(row[header]);
