@@ -2796,12 +2796,8 @@ class DatasetServiceAsyncClient:
                 tuning_validation_assessment_config.model_name = "model_name_value"
                 tuning_validation_assessment_config.dataset_usage = "SFT_VALIDATION"
 
-                gemini_template_config = aiplatform_v1beta1.GeminiTemplateConfig()
-                gemini_template_config.gemini_example.contents.parts.text = "text_value"
-
                 request = aiplatform_v1beta1.AssessDataRequest(
                     tuning_validation_assessment_config=tuning_validation_assessment_config,
-                    gemini_template_config=gemini_template_config,
                     name="name_value",
                 )
 
@@ -2903,11 +2899,7 @@ class DatasetServiceAsyncClient:
                 client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
-                gemini_template_config = aiplatform_v1beta1.GeminiTemplateConfig()
-                gemini_template_config.gemini_example.contents.parts.text = "text_value"
-
                 request = aiplatform_v1beta1.AssembleDataRequest(
-                    gemini_template_config=gemini_template_config,
                     name="name_value",
                 )
 

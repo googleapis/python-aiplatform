@@ -39,11 +39,7 @@ def sample_assemble_data():
     client = aiplatform_v1beta1.DatasetServiceClient()
 
     # Initialize request argument(s)
-    gemini_template_config = aiplatform_v1beta1.GeminiTemplateConfig()
-    gemini_template_config.gemini_example.contents.parts.text = "text_value"
-
     request = aiplatform_v1beta1.AssembleDataRequest(
-        gemini_template_config=gemini_template_config,
         name="name_value",
     )
 
