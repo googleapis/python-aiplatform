@@ -34,7 +34,7 @@ class TestUtils:
             )
 
         persistent_client_stopping_mock.assert_called_once()
-        e.match(regexp=r"The cluster is stopping.")
+        e.match(regexp=r"Cluster .* is stopping.")
 
     def test_get_persistent_resource_error(self, persistent_client_error_mock):
         with pytest.raises(RuntimeError) as e:
@@ -43,4 +43,4 @@ class TestUtils:
             )
 
         persistent_client_error_mock.assert_called_once()
-        e.match(regexp=r"The cluster encountered an error.")
+        e.match(regexp=r"Cluster .* encountered an error.")
