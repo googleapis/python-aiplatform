@@ -619,10 +619,7 @@ def is_noop_or_proxy_tracer_provider(tracer_provider) -> bool:
 
 def dump_event_for_json(event: BaseModel) -> Dict[str, Any]:
     """Dumps an ADK event to a JSON-serializable dictionary."""
-    return event.model_dump(
-        exclude_none=True,
-        exclude={"content": {"parts": {"__all__": {"thought_signature"}}}},
-    )
+    return json.loads(event.model_dump_json(exclude_none=True))
 
 
 def _import_cloud_storage_or_raise() -> types.ModuleType:
