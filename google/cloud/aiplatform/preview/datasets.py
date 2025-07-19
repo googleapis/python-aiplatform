@@ -1041,6 +1041,10 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
         if not project:
             project = initializer.global_config.project
+        if not location:
+            location = initializer.global_config.location
+        if not credentials:
+            credentials = initializer.global_config.credentials
 
         if target_table_id:
             target_table_id = _normalize_and_validate_table_id(
@@ -1087,10 +1091,11 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             )
             temp_table_id = temp_bigframes_df.to_gbq()
         client = bigquery.Client(project=project, credentials=credentials)
-        client.copy_table(
+        copy_job = client.copy_table(
             sources=temp_table_id,
             destination=target_table_id,
         )
+        copy_job.result()
 
         bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
