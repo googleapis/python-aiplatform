@@ -41,6 +41,7 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources_v1beta1 as gca_machine_resources_compat,
     model_v1 as gca_model_compat,
 )
+from google.protobuf import duration_pb2
 from google.protobuf import json_format
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
@@ -140,6 +141,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         create_request_timeout: Optional[float] = None,
         required_replica_count: Optional[int] = 0,
         multihost_gpu_node_count: Optional[int] = None,
+        max_runtime_duration: Optional[int] = None,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -209,6 +211,12 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             multihost_gpu_node_count (int):
                 Optional. The number of nodes per replica for multihost GPU
                 deployments. Required for multihost GPU deployments.
+            max_runtime_duration (int):
+                Optional. Immutable. If set, use DWS resource
+                to schedule the deployment workload. The DWS resource will be available
+                for a maximum of 7 days or up to the max_runtime_duration specified,
+                whichever is shorter. After this period, the model will be
+                automatically undeployed. The value is in seconds.
 
         Returns:
             DeploymentResourcePool
@@ -237,6 +245,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             create_request_timeout=create_request_timeout,
             required_replica_count=required_replica_count,
             multihost_gpu_node_count=multihost_gpu_node_count,
+            max_runtime_duration=max_runtime_duration,
         )
 
     @classmethod
@@ -260,6 +269,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         create_request_timeout: Optional[float] = None,
         required_replica_count: Optional[int] = 0,
         multihost_gpu_node_count: Optional[int] = None,
+        max_runtime_duration: Optional[int] = None,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -332,7 +342,12 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             multihost_gpu_node_count (int):
                 Optional. The number of nodes per replica for multihost GPU
                 deployments. Required for multihost GPU deployments.
-
+            max_runtime_duration (int):
+                Optional. Immutable. If set, use DWS resource
+                to schedule the deployment workload. The DWS resource will be available
+                for a maximum of 7 days or up to the max_runtime_duration specified,
+                whichever is shorter. After this period, the model will be
+                automatically undeployed. The value is in seconds.
         Returns:
             DeploymentResourcePool
         """
@@ -346,6 +361,12 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             required_replica_count=required_replica_count,
         )
+
+        if max_runtime_duration is not None and max_runtime_duration > 0:
+            flex_start = gca_machine_resources_compat.FlexStart(
+                max_runtime_duration=duration_pb2.Duration(seconds=max_runtime_duration)
+            )
+            dedicated_resources.flex_start = flex_start
 
         machine_spec = gca_machine_resources_compat.MachineSpec(
             machine_type=machine_type,
@@ -706,6 +727,7 @@ class Endpoint(aiplatform.Endpoint):
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
+        max_runtime_duration: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -809,6 +831,12 @@ class Endpoint(aiplatform.Endpoint):
             multihost_gpu_node_count (int): Optional. The number of nodes per
               replica for multihost GPU deployments. Required for multihost GPU
               deployments.
+            max_runtime_duration (int):
+                Optional. Immutable. If set, use DWS resource
+                to schedule the deployment workload. The DWS resource will be available
+                for a maximum of 7 days or up to the max_runtime_duration specified,
+                whichever is shorter. After this period, the model will be
+                automatically undeployed. The value is in seconds.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -853,6 +881,7 @@ class Endpoint(aiplatform.Endpoint):
             required_replica_count=required_replica_count,
             rollout_options=rollout_options,
             multihost_gpu_node_count=multihost_gpu_node_count,
+            max_runtime_duration=max_runtime_duration,
         )
 
     @base.optional_sync()
@@ -882,6 +911,7 @@ class Endpoint(aiplatform.Endpoint):
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
+        max_runtime_duration: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -979,7 +1009,12 @@ class Endpoint(aiplatform.Endpoint):
             multihost_gpu_node_count (int): Optional. The number of nodes per
               replica for multihost GPU deployments. Required for multihost
               GPU deployments.
-
+            max_runtime_duration (int):
+                Optional. Immutable. If set, use DWS resource
+                to schedule the deployment workload. The DWS resource will be available
+                for a maximum of 7 days or up to the max_runtime_duration specified,
+                whichever is shorter. After this period, the model will be
+                automatically undeployed. The value is in seconds.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -1013,6 +1048,7 @@ class Endpoint(aiplatform.Endpoint):
             required_replica_count=required_replica_count,
             rollout_options=rollout_options,
             multihost_gpu_node_count=multihost_gpu_node_count,
+            max_runtime_duration=max_runtime_duration,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1049,6 +1085,7 @@ class Endpoint(aiplatform.Endpoint):
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
+        max_runtime_duration: Optional[int] = None,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1153,6 +1190,12 @@ class Endpoint(aiplatform.Endpoint):
             multihost_gpu_node_count (int):
               Optional. The number of nodes per replica for multihost GPU
               deployments. Required for multihost GPU deployments.
+            max_runtime_duration (int):
+                Optional. Immutable. If set, use DWS resource
+                to schedule the deployment workload. The DWS resource will be available
+                for a maximum of 7 days or up to the max_runtime_duration specified,
+                whichever is shorter. After this period, the model will be
+                automatically undeployed. The value is in seconds.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is
@@ -1234,6 +1277,13 @@ class Endpoint(aiplatform.Endpoint):
                     max_replica_count=max_replica_count,
                     required_replica_count=required_replica_count,
                 )
+
+                if max_runtime_duration is not None and max_runtime_duration > 0:
+                  dedicated_resources.flex_start = (
+                      gca_machine_resources_compat.FlexStart(
+                          max_runtime_duration=duration_pb2.Duration(seconds=max_runtime_duration)
+                      )
+                  )
 
                 machine_spec = gca_machine_resources_compat.MachineSpec(
                     machine_type=machine_type,
@@ -1599,6 +1649,7 @@ class Model(aiplatform.Model):
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
+        max_runtime_duration: Optional[int] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1723,7 +1774,12 @@ class Model(aiplatform.Model):
             multihost_gpu_node_count (int):
               Optional. The number of nodes per replica for multihost GPU
               deployments. Required for multihost GPU deployments.
-
+            max_runtime_duration (int):
+                Optional. Immutable. If set, use DWS resource
+                to schedule the deployment workload. The DWS resource will be available
+                for a maximum of 7 days or up to the max_runtime_duration specified,
+                whichever is shorter. After this period, the model will be
+                automatically undeployed. The value is in seconds.
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
                 Endpoint with the deployed model.
@@ -1785,6 +1841,7 @@ class Model(aiplatform.Model):
             required_replica_count=required_replica_count,
             rollout_options=rollout_options,
             multihost_gpu_node_count=multihost_gpu_node_count,
+            max_runtime_duration=max_runtime_duration,
         )
 
     def _should_enable_dedicated_endpoint(self, fast_tryout_enabled: bool) -> bool:
@@ -1823,6 +1880,7 @@ class Model(aiplatform.Model):
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
+        max_runtime_duration: Optional[int] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1938,6 +1996,12 @@ class Model(aiplatform.Model):
             multihost_gpu_node_count (int):
               Optional. The number of nodes per replica for multihost GPU
               deployments. Required for multihost GPU deployments.
+            max_runtime_duration (int):
+                Optional. Immutable. If set, use DWS resource
+                to schedule the deployment workload. The DWS resource will be available
+                for a maximum of 7 days or up to the max_runtime_duration specified,
+                whichever is shorter. After this period, the model will be
+                automatically undeployed. The value is in seconds.
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
                 Endpoint with the deployed model.
@@ -2004,6 +2068,7 @@ class Model(aiplatform.Model):
             system_labels=system_labels,
             required_replica_count=required_replica_count,
             multihost_gpu_node_count=multihost_gpu_node_count,
+            max_runtime_duration=max_runtime_duration,
             **preview_kwargs,
         )
 
