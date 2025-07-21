@@ -1,5 +1,3 @@
-# type: ignore
-
 # Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +17,31 @@ import importlib
 from typing import Optional, Union
 
 import google.auth
+from google.cloud.aiplatform import version as aip_version
+from google.genai import _api_client
 from google.genai import _common
 from google.genai import client as genai_client
 from google.genai import types
+
+
+_GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
+
+
+def _add_tracking_headers(headers: dict[str, str]) -> None:
+    """Appends Vertex Gen AI modules tracking information to the request headers."""
+
+    tracking_label = f"{_GENAI_MODULES_TELEMETRY_HEADER}/{aip_version.__version__}"
+
+    user_agent = headers.get("user-agent", "")
+    if tracking_label not in user_agent:
+        headers["user-agent"] = f"{user_agent} {tracking_label}".strip()
+
+    api_client = headers.get("x-goog-api-client", "")
+    if tracking_label not in api_client:
+        headers["x-goog-api-client"] = f"{api_client} {tracking_label}".strip()
+
+
+_api_client._append_library_version_headers = _add_tracking_headers
 
 
 class AsyncClient:
