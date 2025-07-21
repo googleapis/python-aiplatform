@@ -18,8 +18,9 @@
 # pylint: disable=g-multiple-import,g-importing-member
 from vertexai.model_garden._model_garden import (
     OpenModel,
+    CustomModel,
     list_deployable_models,
 )
 
 
-__all__ = ("OpenModel", "list_deployable_models")
+__all__ = ("OpenModel", "list_deployable_models", "CustomModel")
