@@ -290,7 +290,7 @@ def cluster_eq(returned_cluster, expected_cluster):
     assert returned_cluster.state == expected_cluster.state
 
 
-@pytest.mark.parametrize("ray_version", ["2.9", "2.33", "2.42"])
+@pytest.mark.parametrize("ray_version", ["2.9", "2.33", "2.42", "2.47"])
 @pytest.mark.usefixtures("google_auth_mock", "get_project_number_mock")
 class TestClusterManagement:
     def setup_method(self, ray_version):
@@ -322,8 +322,10 @@ class TestClusterManagement:
             head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
         elif ray_version == "2.33":
             head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
-        else:
+        elif ray_version == "2.42":
             head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_42
+        else:
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_47
         test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
             "head-node"
         ] = head_node_image
@@ -395,8 +397,10 @@ class TestClusterManagement:
             head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
         elif ray_version == "2.33":
             head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
-        else:
+        elif ray_version == "2.42":
             head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_42
+        else:
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_47
 
         test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
             "head-node"
@@ -461,9 +465,12 @@ class TestClusterManagement:
         elif ray_version == "2.33":
             head_node_image = tc.ClusterConstants.TEST_CPU_IMAGE_2_33
             worker_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
-        else:
+        elif ray_version == "2.42":
             head_node_image = tc.ClusterConstants.TEST_CPU_IMAGE_2_42
             worker_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_42
+        else:
+            head_node_image = tc.ClusterConstants.TEST_CPU_IMAGE_2_47
+            worker_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_47
 
         test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
             "head-node"
@@ -539,8 +546,10 @@ class TestClusterManagement:
             head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_9
         elif ray_version == "2.33":
             head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_33
-        else:
+        elif ray_version == "2.42":
             head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_42
+        else:
+            head_node_image = tc.ClusterConstants.TEST_GPU_IMAGE_2_47
 
         test_persistent_resource.resource_runtime_spec.ray_spec.resource_pool_images[
             "head-node"
