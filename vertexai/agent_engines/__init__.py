@@ -24,6 +24,7 @@ from google.cloud.aiplatform_v1 import types as aip_types
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
 from vertexai.agent_engines._agent_engines import (
+    _AgentEngineInterface,
     AgentEngine,
     Cloneable,
     ModuleAgent,
@@ -60,7 +61,7 @@ def get(resource_name: str) -> AgentEngine:
 
 
 def create(
-    agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+    agent_engine: Optional[_AgentEngineInterface] = None,
     *,
     requirements: Optional[Union[str, Sequence[str]]] = None,
     display_name: Optional[str] = None,
