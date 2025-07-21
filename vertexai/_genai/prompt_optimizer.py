@@ -540,7 +540,7 @@ class PromptOptimizer(_api_module.BaseModule):
 
     """Prompt Optimizer PO-Data."""
 
-    def _wait_for_completion(self, job_name: str) -> None:
+    def _wait_for_completion(self, job_name: str) -> types.CustomJob:
 
         JOB_COMPLETE_STATES = [
             types.JobState.JOB_STATE_SUCCEEDED,
@@ -914,6 +914,8 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         # Get the job id for the dashboard url and display to the user.
         job_resource_name = job.name
+        if not job_resource_name:
+            raise ValueError(f"Error creating job: {job}")
         job_id = job_resource_name.split("/")[-1]
         logger.info("Job created: %s", job.name)
 
