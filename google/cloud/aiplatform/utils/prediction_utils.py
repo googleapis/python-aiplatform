@@ -26,6 +26,10 @@ from typing import Any, Optional, Sequence, Tuple, Type
 from google.cloud import storage
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.utils import path_utils
+from google.cloud.aiplatform.compat.types import (
+    machine_resources_v1beta1 as gca_machine_resources_compat,
+)
+from google.protobuf import duration_pb2
 
 _logger = logging.getLogger(__name__)
 
@@ -151,3 +155,22 @@ def download_model_artifacts(artifact_uri: str) -> None:
     else:
         # Copy files to the current working directory.
         shutil.copytree(artifact_uri, ".", dirs_exist_ok=True)
+
+
+def add_flex_start_to_dedicated_resources(
+    dedicated_resources: gca_machine_resources_compat.DedicatedResources,
+    max_runtime_duration: Optional[int] = None,
+) -> None:
+    """Adds FlexStart configuration to DedicatedResources if max_runtime_duration is provided.
+
+    Args:
+        dedicated_resources (gca_machine_resources_compat.DedicatedResources):
+            Required. The DedicatedResources object to modify.
+        max_runtime_duration (int):
+            Optional. The maximum runtime duration in seconds. If provided and
+            greater than 0, a FlexStart configuration will be added.
+    """
+    if max_runtime_duration is not None and max_runtime_duration > 0:
+        dedicated_resources.flex_start = gca_machine_resources_compat.FlexStart(
+            max_runtime_duration=duration_pb2.Duration(seconds=max_runtime_duration)
+        )

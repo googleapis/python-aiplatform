@@ -279,6 +279,8 @@ _TEST_CLIENT_CONNECTION_CONFIG = gca_endpoint.ClientConnectionConfig(
     inference_timeout=duration_pb2.Duration(seconds=_TEST_INFERENCE_TIMEOUT)
 )
 
+_TEST_MAX_RUNTIME_DURATION = 600
+
 """
 ----------------------------------------------------------------------------
 Endpoint Fixtures
@@ -4645,3 +4647,60 @@ class TestPrivateEndpoint:
         )
         assert endpoint2.project != _TEST_PROJECT
         assert endpoint2.location != _TEST_LOCATION
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_no_endpoint_with_max_runtime_duration(
+        self, preview_deploy_model_mock, sync
+    ):
+        test_model = preview_models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint = test_model.deploy(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            max_runtime_duration=_TEST_MAX_RUNTIME_DURATION,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+            spot=False,
+            required_replica_count=0,
+            flex_start=gca_machine_resources_v1beta1.FlexStart(
+                max_runtime_duration=duration_pb2.Duration(
+                    seconds=_TEST_MAX_RUNTIME_DURATION
+                ),
+            ),
+        )
+        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            enable_container_logging=True,
+            faster_deployment_config=gca_endpoint_v1beta1.FasterDeploymentConfig(),
+        )
+        preview_deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
