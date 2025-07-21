@@ -103,7 +103,7 @@ def to_dict(message: proto.Message) -> JsonDict:
     return result
 
 
-def dataclass_to_dict(obj: dataclasses.dataclass) -> JsonDict:
+def dataclass_to_dict(obj: dataclasses.dataclass) -> Any:
     """Converts a dataclass to a JSON dictionary.
 
     Args:
@@ -116,7 +116,7 @@ def dataclass_to_dict(obj: dataclasses.dataclass) -> JsonDict:
     return json.loads(json.dumps(dataclasses.asdict(obj)))
 
 
-def _llama_index_response_to_dict(obj: LlamaIndexResponse) -> Dict[str, Any]:
+def _llama_index_response_to_dict(obj: LlamaIndexResponse) -> Any:
     response = {}
     if hasattr(obj, "response"):
         response["response"] = obj.response
@@ -128,15 +128,11 @@ def _llama_index_response_to_dict(obj: LlamaIndexResponse) -> Dict[str, Any]:
     return json.loads(json.dumps(response))
 
 
-def _llama_index_chat_response_to_dict(
-    obj: LlamaIndexChatResponse,
-) -> Dict[str, Any]:
+def _llama_index_chat_response_to_dict(obj: LlamaIndexChatResponse) -> Any:
     return json.loads(obj.message.model_dump_json())
 
 
-def _llama_index_base_model_to_dict(
-    obj: LlamaIndexBaseModel,
-) -> Dict[str, Any]:
+def _llama_index_base_model_to_dict(obj: LlamaIndexBaseModel) -> Any:
     return json.loads(obj.model_dump_json())
 
 
@@ -330,7 +326,7 @@ def _import_cloud_storage_or_raise() -> types.ModuleType:
     except ImportError as e:
         raise ImportError(
             "Cloud Storage is not installed. Please call "
-            "'pip install google-cloud-aiplatform[reasoningengine]'."
+            "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
     return storage
 
@@ -342,7 +338,7 @@ def _import_cloudpickle_or_raise() -> types.ModuleType:
     except ImportError as e:
         raise ImportError(
             "cloudpickle is not installed. Please call "
-            "'pip install google-cloud-aiplatform[reasoningengine]'."
+            "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
     return cloudpickle
 
@@ -358,7 +354,7 @@ def _import_pydantic_or_raise() -> types.ModuleType:
     except ImportError as e:
         raise ImportError(
             "pydantic is not installed. Please call "
-            "'pip install google-cloud-aiplatform[reasoningengine]'."
+            "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
     return pydantic
 
@@ -372,7 +368,7 @@ def _import_opentelemetry_or_warn() -> Optional[types.ModuleType]:
     except ImportError:
         _LOGGER.warning(
             "opentelemetry-sdk is not installed. Please call "
-            "'pip install google-cloud-aiplatform[reasoningengine]'."
+            "'pip install google-cloud-aiplatform[agent_engines]'."
         )
     return None
 
@@ -386,7 +382,7 @@ def _import_opentelemetry_sdk_trace_or_warn() -> Optional[types.ModuleType]:
     except ImportError:
         _LOGGER.warning(
             "opentelemetry-sdk is not installed. Please call "
-            "'pip install google-cloud-aiplatform[reasoningengine]'."
+            "'pip install google-cloud-aiplatform[agent_engines]'."
         )
     return None
 
@@ -400,7 +396,7 @@ def _import_cloud_trace_v2_or_warn() -> Optional[types.ModuleType]:
     except ImportError:
         _LOGGER.warning(
             "google-cloud-trace is not installed. Please call "
-            "'pip install google-cloud-aiplatform[reasoningengine]'."
+            "'pip install google-cloud-aiplatform[agent_engines]'."
         )
     return None
 
