@@ -30,9 +30,8 @@ from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer
 from vertexai._genai import agent_engines
+from vertexai._genai import _agent_engines_utils
 from vertexai._genai import types as _genai_types
-from vertexai.agent_engines import _agent_engines
-from vertexai.agent_engines import _utils
 from google.genai import client as genai_client
 from google.genai import types as genai_types
 
@@ -316,25 +315,25 @@ _TEST_AGENT_ENGINE_OPERATION_NAME = f"{_TEST_PARENT}/operations/{_TEST_OPERATION
 _TEST_AGENT_ENGINE_DISPLAY_NAME = "Agent Engine Display Name"
 _TEST_AGENT_ENGINE_DESCRIPTION = "Agent Engine Description"
 _TEST_AGENT_ENGINE_LIST_FILTER = f'display_name="{_TEST_AGENT_ENGINE_DISPLAY_NAME}"'
-_TEST_GCS_DIR_NAME = _agent_engines._DEFAULT_GCS_DIR_NAME
-_TEST_BLOB_FILENAME = _agent_engines._BLOB_FILENAME
-_TEST_REQUIREMENTS_FILE = _agent_engines._REQUIREMENTS_FILE
-_TEST_EXTRA_PACKAGES_FILE = _agent_engines._EXTRA_PACKAGES_FILE
-_TEST_STANDARD_API_MODE = _agent_engines._STANDARD_API_MODE
-_TEST_ASYNC_API_MODE = _agent_engines._ASYNC_API_MODE
-_TEST_STREAM_API_MODE = _agent_engines._STREAM_API_MODE
-_TEST_ASYNC_STREAM_API_MODE = _agent_engines._ASYNC_STREAM_API_MODE
-_TEST_DEFAULT_METHOD_NAME = _agent_engines._DEFAULT_METHOD_NAME
-_TEST_DEFAULT_ASYNC_METHOD_NAME = _agent_engines._DEFAULT_ASYNC_METHOD_NAME
-_TEST_DEFAULT_STREAM_METHOD_NAME = _agent_engines._DEFAULT_STREAM_METHOD_NAME
+_TEST_GCS_DIR_NAME = _agent_engines_utils._DEFAULT_GCS_DIR_NAME
+_TEST_BLOB_FILENAME = _agent_engines_utils._BLOB_FILENAME
+_TEST_REQUIREMENTS_FILE = _agent_engines_utils._REQUIREMENTS_FILE
+_TEST_EXTRA_PACKAGES_FILE = _agent_engines_utils._EXTRA_PACKAGES_FILE
+_TEST_STANDARD_API_MODE = _agent_engines_utils._STANDARD_API_MODE
+_TEST_ASYNC_API_MODE = _agent_engines_utils._ASYNC_API_MODE
+_TEST_STREAM_API_MODE = _agent_engines_utils._STREAM_API_MODE
+_TEST_ASYNC_STREAM_API_MODE = _agent_engines_utils._ASYNC_STREAM_API_MODE
+_TEST_DEFAULT_METHOD_NAME = _agent_engines_utils._DEFAULT_METHOD_NAME
+_TEST_DEFAULT_ASYNC_METHOD_NAME = _agent_engines_utils._DEFAULT_ASYNC_METHOD_NAME
+_TEST_DEFAULT_STREAM_METHOD_NAME = _agent_engines_utils._DEFAULT_STREAM_METHOD_NAME
 _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME = (
-    _agent_engines._DEFAULT_ASYNC_STREAM_METHOD_NAME
+    _agent_engines_utils._DEFAULT_ASYNC_STREAM_METHOD_NAME
 )
 _TEST_CAPITALIZE_ENGINE_METHOD_DOCSTRING = "Runs the engine."
 _TEST_STREAM_METHOD_DOCSTRING = "Runs the stream engine."
 _TEST_ASYNC_STREAM_METHOD_DOCSTRING = "Runs the async stream engine."
-_TEST_MODE_KEY_IN_SCHEMA = _agent_engines._MODE_KEY_IN_SCHEMA
-_TEST_METHOD_NAME_KEY_IN_SCHEMA = _agent_engines._METHOD_NAME_KEY_IN_SCHEMA
+_TEST_MODE_KEY_IN_SCHEMA = _agent_engines_utils._MODE_KEY_IN_SCHEMA
+_TEST_METHOD_NAME_KEY_IN_SCHEMA = _agent_engines_utils._METHOD_NAME_KEY_IN_SCHEMA
 _TEST_CUSTOM_METHOD_NAME = "custom_method"
 _TEST_CUSTOM_ASYNC_METHOD_NAME = "custom_async_method"
 _TEST_CUSTOM_STREAM_METHOD_NAME = "custom_stream_method"
@@ -422,13 +421,13 @@ _TEST_AGENT_ENGINE_INVALID_EXTRA_PACKAGES = [
     "lib",
     "main.py",
 ]
-_TEST_AGENT_ENGINE_QUERY_SCHEMA = _utils.generate_schema(
+_TEST_AGENT_ENGINE_QUERY_SCHEMA = _agent_engines_utils._generate_schema(
     CapitalizeEngine().query,
     schema_name=_TEST_DEFAULT_METHOD_NAME,
 )
 _TEST_AGENT_ENGINE_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = _TEST_STANDARD_API_MODE
 _TEST_PYTHON_VERSION = f"{sys.version_info.major}.{sys.version_info.minor}"
-_TEST_AGENT_ENGINE_FRAMEWORK = _agent_engines._DEFAULT_AGENT_FRAMEWORK
+_TEST_AGENT_ENGINE_FRAMEWORK = _agent_engines_utils._DEFAULT_AGENT_FRAMEWORK
 _TEST_AGENT_ENGINE_CLASS_METHOD_1 = {
     "description": "Runs the engine.",
     "name": "query",
@@ -513,47 +512,49 @@ _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
 _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE = [{"output": "hello"}, {"output": "world"}]
 _TEST_AGENT_ENGINE_OPERATION_SCHEMAS = []
 _TEST_AGENT_ENGINE_EXTRA_PACKAGE = "fake.py"
-_TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA = _utils.generate_schema(
+_TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA = _agent_engines_utils._generate_schema(
     AsyncQueryEngine().async_query,
     schema_name=_TEST_DEFAULT_ASYNC_METHOD_NAME,
 )
 _TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = _TEST_ASYNC_API_MODE
-_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA = _utils.generate_schema(
+_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA = _agent_engines_utils._generate_schema(
     OperationRegistrableEngine().custom_method,
     schema_name=_TEST_CUSTOM_METHOD_NAME,
 )
 _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[
     _TEST_MODE_KEY_IN_SCHEMA
 ] = _TEST_STANDARD_API_MODE
-_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA = _utils.generate_schema(
+_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA = _agent_engines_utils._generate_schema(
     OperationRegistrableEngine().custom_async_method,
     schema_name=_TEST_CUSTOM_ASYNC_METHOD_NAME,
 )
 _TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[
     _TEST_MODE_KEY_IN_SCHEMA
 ] = _TEST_ASYNC_API_MODE
-_TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA = _utils.generate_schema(
+_TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA = _agent_engines_utils._generate_schema(
     StreamQueryEngine().stream_query,
     schema_name=_TEST_DEFAULT_STREAM_METHOD_NAME,
 )
 _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = _TEST_STREAM_API_MODE
-_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA = _utils.generate_schema(
+_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA = _agent_engines_utils._generate_schema(
     OperationRegistrableEngine().custom_stream_method,
     schema_name=_TEST_CUSTOM_STREAM_METHOD_NAME,
 )
 _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[
     _TEST_MODE_KEY_IN_SCHEMA
 ] = _TEST_STREAM_API_MODE
-_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA = _utils.generate_schema(
+_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA = _agent_engines_utils._generate_schema(
     AsyncStreamQueryEngine().async_stream_query,
     schema_name=_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
 )
 _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[
     _TEST_MODE_KEY_IN_SCHEMA
 ] = _TEST_ASYNC_STREAM_API_MODE
-_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA = _utils.generate_schema(
-    OperationRegistrableEngine().custom_async_stream_method,
-    schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
+_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA = (
+    _agent_engines_utils._generate_schema(
+        OperationRegistrableEngine().custom_async_stream_method,
+        schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
+    )
 )
 _TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[
     _TEST_MODE_KEY_IN_SCHEMA
@@ -578,7 +579,7 @@ _TEST_REGISTERED_OPERATION_NOT_EXIST_SCHEMAS = [
 _TEST_NO_OPERATION_REGISTRABLE_SCHEMAS = [
     _TEST_AGENT_ENGINE_QUERY_SCHEMA,
 ]
-_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA = _utils.generate_schema(
+_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA = _agent_engines_utils._generate_schema(
     MethodToBeUnregisteredEngine().method_to_be_unregistered,
     schema_name=_TEST_METHOD_TO_BE_UNREGISTERED_NAME,
 )
@@ -747,7 +748,7 @@ class TestAgentEngineHelpers:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    @mock.patch.object(_agent_engines, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_create_agent_engine_config_lightweight(self, mock_prepare):
         config = self.client.agent_engines._create_config(
             mode="create",
@@ -760,7 +761,7 @@ class TestAgentEngineHelpers:
             "description": _TEST_AGENT_ENGINE_DESCRIPTION,
         }
 
-    @mock.patch.object(_agent_engines, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_create_agent_engine_config_full(self, mock_prepare):
         config = self.client.agent_engines._create_config(
             mode="create",
@@ -799,7 +800,7 @@ class TestAgentEngineHelpers:
         }
         assert config["spec"]["class_methods"] == [_TEST_AGENT_ENGINE_CLASS_METHOD_1]
 
-    @mock.patch.object(_agent_engines, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_update_agent_engine_config_full(self, mock_prepare):
         config = self.client.agent_engines._create_config(
             mode="update",
@@ -965,7 +966,7 @@ class TestAgentEngine:
             )
 
     @pytest.mark.usefixtures("caplog")
-    @mock.patch.object(_agent_engines, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_create_agent_engine(self, mock_await_operation, mock_prepare, caplog):
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
@@ -1132,7 +1133,7 @@ class TestAgentEngine:
             )
 
     @pytest.mark.usefixtures("caplog")
-    @mock.patch.object(_agent_engines, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_requirements(
         self, mock_await_operation, mock_prepare, caplog
@@ -1189,7 +1190,7 @@ class TestAgentEngine:
                 f"'{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
             )
 
-    @mock.patch.object(_agent_engines, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_extra_packages(
         self, mock_await_operation, mock_prepare
@@ -1243,7 +1244,7 @@ class TestAgentEngine:
                 None,
             )
 
-    @mock.patch.object(_agent_engines, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
     def test_update_agent_engine_env_vars(
         self, mock_await_operation, mock_prepare, caplog
@@ -1522,7 +1523,7 @@ class TestAgentEngine:
                 _TEST_NO_OPERATION_REGISTRABLE_SCHEMAS,
                 [
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             CapitalizeEngine().query,
                             schema_name=_TEST_DEFAULT_METHOD_NAME,
                         ),
@@ -1535,56 +1536,56 @@ class TestAgentEngine:
                 _TEST_OPERATION_REGISTRABLE_SCHEMAS,
                 [
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             OperationRegistrableEngine().query,
                             schema_name=_TEST_DEFAULT_METHOD_NAME,
                         ),
                         _TEST_STANDARD_API_MODE,
                     ),
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             OperationRegistrableEngine().custom_method,
                             schema_name=_TEST_CUSTOM_METHOD_NAME,
                         ),
                         _TEST_STANDARD_API_MODE,
                     ),
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             OperationRegistrableEngine().async_query,
                             schema_name=_TEST_DEFAULT_ASYNC_METHOD_NAME,
                         ),
                         _TEST_ASYNC_API_MODE,
                     ),
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             OperationRegistrableEngine().custom_async_method,
                             schema_name=_TEST_CUSTOM_ASYNC_METHOD_NAME,
                         ),
                         _TEST_ASYNC_API_MODE,
                     ),
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             OperationRegistrableEngine().stream_query,
                             schema_name=_TEST_DEFAULT_STREAM_METHOD_NAME,
                         ),
                         _TEST_STREAM_API_MODE,
                     ),
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             OperationRegistrableEngine().custom_stream_method,
                             schema_name=_TEST_CUSTOM_STREAM_METHOD_NAME,
                         ),
                         _TEST_STREAM_API_MODE,
                     ),
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             OperationRegistrableEngine().async_stream_query,
                             schema_name=_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
                         ),
                         _TEST_ASYNC_STREAM_API_MODE,
                     ),
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             OperationRegistrableEngine().custom_async_stream_method,
                             schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
                         ),
@@ -1597,7 +1598,7 @@ class TestAgentEngine:
                 _TEST_OPERATION_NOT_REGISTERED_SCHEMAS,
                 [
                     (
-                        _utils.generate_schema(
+                        _agent_engines_utils._generate_schema(
                             OperationNotRegisteredEngine().custom_method,
                             schema_name=_TEST_CUSTOM_METHOD_NAME,
                         ),

@@ -2072,8 +2072,6 @@ class AgentEngines(_api_module.BaseModule):
         context_spec: Optional[types.ReasoningEngineContextSpecDict] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
-        from vertexai.agent_engines import _agent_engines
-        from vertexai.agent_engines import _utils
 
         config: types.UpdateAgentEngineConfigDict = {}
         update_masks = []
@@ -2100,25 +2098,29 @@ class AgentEngines(_api_module.BaseModule):
             if location is None:
                 raise ValueError("location must be set using `vertexai.Client`.")
             sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-            gcs_dir_name = gcs_dir_name or _agent_engines._DEFAULT_GCS_DIR_NAME
-            agent_engine = _agent_engines._validate_agent_engine_or_raise(
-                agent_engine=agent_engine, logger=logger
+            gcs_dir_name = gcs_dir_name or _agent_engines_utils._DEFAULT_GCS_DIR_NAME
+            agent_engine = _agent_engines_utils._validate_agent_engine_or_raise(
+                agent_engine=agent_engine,
             )
-            staging_bucket = _agent_engines._validate_staging_bucket_or_raise(
-                staging_bucket=staging_bucket
+            staging_bucket = (
+                staging_bucket
+            ) = _agent_engines_utils._validate_staging_bucket_or_raise(
+                staging_bucket=staging_bucket,
             )
-            requirements = _agent_engines._validate_requirements_or_raise(
+            requirements = _agent_engines_utils._validate_requirements_or_raise(
                 agent_engine=agent_engine,
                 requirements=requirements,
-                logger=logger,
             )
-            extra_packages = _agent_engines._validate_extra_packages_or_raise(
+            extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
+                extra_packages=extra_packages,
+            )
+            extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
                 extra_packages=extra_packages,
             )
             # Prepares the Agent Engine for creation/update in Vertex AI. This
             # involves packaging and uploading the artifacts for agent_engine,
             # requirements and extra_packages to `staging_bucket/gcs_dir_name`.
-            _agent_engines._prepare(
+            _agent_engines_utils._prepare(
                 agent_engine=agent_engine,
                 requirements=requirements,
                 project=project,
@@ -2126,7 +2128,6 @@ class AgentEngines(_api_module.BaseModule):
                 staging_bucket=staging_bucket,
                 gcs_dir_name=gcs_dir_name,
                 extra_packages=extra_packages,
-                logger=logger,
             )
             # Update the package spec.
             update_masks.append("spec.package_spec.pickle_object_gcs_uri")
@@ -2135,7 +2136,7 @@ class AgentEngines(_api_module.BaseModule):
                 "pickle_object_gcs_uri": "{}/{}/{}".format(
                     staging_bucket,
                     gcs_dir_name,
-                    _agent_engines._BLOB_FILENAME,
+                    _agent_engines_utils._BLOB_FILENAME,
                 ),
             }
             if extra_packages:
@@ -2143,14 +2144,14 @@ class AgentEngines(_api_module.BaseModule):
                 package_spec["dependency_files_gcs_uri"] = "{}/{}/{}".format(
                     staging_bucket,
                     gcs_dir_name,
-                    _agent_engines._EXTRA_PACKAGES_FILE,
+                    _agent_engines_utils._EXTRA_PACKAGES_FILE,
                 )
             if requirements:
                 update_masks.append("spec.package_spec.requirements_gcs_uri")
                 package_spec["requirements_gcs_uri"] = "{}/{}/{}".format(
                     staging_bucket,
                     gcs_dir_name,
-                    _agent_engines._REQUIREMENTS_FILE,
+                    _agent_engines_utils._REQUIREMENTS_FILE,
                 )
             agent_engine_spec: types.ReasoningEngineSpecDict = {
                 "package_spec": package_spec,
@@ -2162,18 +2163,20 @@ class AgentEngines(_api_module.BaseModule):
                 ) = self._generate_deployment_spec_or_raise(env_vars=env_vars)
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
-            class_methods = _agent_engines._generate_class_methods_spec_or_raise(
+            class_methods = _agent_engines_utils._generate_class_methods_spec_or_raise(
                 agent_engine=agent_engine,
-                operations=_agent_engines._get_registered_operations(agent_engine),
-                logger=logger,
+                operations=_agent_engines_utils._get_registered_operations(
+                    agent_engine
+                ),
             )
             agent_engine_spec["class_methods"] = [
-                _utils.to_dict(class_method) for class_method in class_methods
+                _agent_engines_utils._to_dict(class_method)
+                for class_method in class_methods
             ]
             update_masks.append("spec.class_methods")
-            agent_engine_spec["agent_framework"] = _agent_engines._get_agent_framework(
-                agent_engine
-            )
+            agent_engine_spec[
+                "agent_framework"
+            ] = _agent_engines_utils._get_agent_framework(agent_engine)
             update_masks.append("spec.agent_framework")
             config["spec"] = agent_engine_spec
         if update_masks and mode == "update":
@@ -2256,10 +2259,8 @@ class AgentEngines(_api_module.BaseModule):
 
     def _register_api_methods(self, *, agent: types.AgentEngine) -> types.AgentEngine:
         """Registers the API methods for the agent engine."""
-        from vertexai.agent_engines import _agent_engines
-
         try:
-            _agent_engines._register_api_methods_or_raise(
+            _agent_engines_utils._register_api_methods_or_raise(
                 agent,
                 wrap_operation_fn={
                     "": _agent_engines_utils._wrap_query_operation,
@@ -2270,7 +2271,7 @@ class AgentEngines(_api_module.BaseModule):
             )
         except Exception as e:
             logger.warning(
-                _agent_engines._FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE,
+                _agent_engines_utils._FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE,
                 e,
             )
         return agent
