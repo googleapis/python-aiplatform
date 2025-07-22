@@ -32,37 +32,31 @@ RAY_VERSION = "2.4.0"
 SDK_VERSION = aiplatform.__version__
 PROJECT_ID = "ucaip-sample-tests"
 
-my_script_ray29 = """
+
+def create_bigquery_script(version: str):
+    """Creates a bigquery script for the given Ray version.
+
+    Args:
+        version: The Ray version.
+
+    Returns:
+        The bigquery script.
+    """
+    if version == "2.9":
+        num_blocks_arg = "parallelism"
+    else:
+        num_blocks_arg = "override_num_blocks"
+    version_without_dot = version.replace(".", "")
+
+    return f"""
 import ray
 import vertex_ray
 
-parallelism = 10
+{num_blocks_arg} = 10
 query = "SELECT * FROM `bigquery-public-data.ml_datasets.ulb_fraud_detection` LIMIT 10000000"
 
 ds = vertex_ray.data.read_bigquery(
-    parallelism=parallelism,
-    query=query
-)
-
-# The reads are lazy, so the end time cannot be captured until ds.materialize() is called
-ds.materialize()
-
-# Write
-vertex_ray.data.write_bigquery(
-    ds,
-    dataset="bugbashbq1.system_test_ray29_write",
-)
-"""
-
-my_script_ray233 = """
-import ray
-import vertex_ray
-
-override_num_blocks = 10
-query = "SELECT * FROM `bigquery-public-data.ml_datasets.ulb_fraud_detection` LIMIT 10000000"
-
-ds = vertex_ray.data.read_bigquery(
-    override_num_blocks=override_num_blocks,
+    {num_blocks_arg}={num_blocks_arg},
     query=query,
 )
 
@@ -72,39 +66,21 @@ ds.materialize()
 # Write
 vertex_ray.data.write_bigquery(
     ds,
-    dataset="bugbashbq1.system_test_ray233_write",
+    dataset="bugbashbq1.system_test_ray{version_without_dot}_write",
 )
 """
 
-my_script_ray242 = """
-import ray
-import vertex_ray
 
-override_num_blocks = 10
-query = "SELECT * FROM `bigquery-public-data.ml_datasets.ulb_fraud_detection` LIMIT 10000000"
-
-ds = vertex_ray.data.read_bigquery(
-    override_num_blocks=override_num_blocks,
-    query=query,
-)
-
-# The reads are lazy, so the end time cannot be captured until ds.materialize() is called
-ds.materialize()
-
-# Write
-vertex_ray.data.write_bigquery(
-    ds,
-    dataset="bugbashbq1.system_test_ray242_write",
-)
-"""
-
-my_script = {"2.9": my_script_ray29, "2.33": my_script_ray233, "2.42": my_script_ray242}
+my_script = {
+    version: create_bigquery_script(version)
+    for version in ["2.9", "2.33", "2.42", "2.47"]
+}
 
 
 class TestRayData(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-ray-data"
 
-    @pytest.mark.parametrize("cluster_ray_version", ["2.33", "2.42"])
+    @pytest.mark.parametrize("cluster_ray_version", ["2.33", "2.42", "2.47"])
     def test_ray_data(self, cluster_ray_version):
         head_node_type = vertex_ray.Resources()
         worker_node_types = [

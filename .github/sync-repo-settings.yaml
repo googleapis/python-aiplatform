@@ -24,6 +24,7 @@ branchProtectionRules:
     - 'Presubmit - Unit Tests Ray 2.33.0'
     - 'Presubmit - Unit Tests Ray 2.42.0 (Python 3.10)'
     - 'Presubmit - Unit Tests Ray 2.42.0 (Python 3.11)'
+    - 'Presubmit - Unit Tests Ray 2.47.1 (Python 3.11)'
     - 'Presubmit - Unit Tests LangChain (Python 3.9)'
     - 'Presubmit - Unit Tests LangChain (Python 3.10)'
     - 'Presubmit - Unit Tests LangChain (Python 3.11)'
