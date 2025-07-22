@@ -16,8 +16,10 @@
 
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
+from vertexai.preview.tuning._tuning import SourceModel
 from vertexai.tuning._tuning import TuningJob
 
 __all__ = [
+    "SourceModel",
     "TuningJob",
 ]

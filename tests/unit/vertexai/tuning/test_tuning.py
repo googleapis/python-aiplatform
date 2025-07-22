@@ -39,9 +39,12 @@ from vertexai.preview import tuning
 from vertexai.preview.tuning import (
     sft as preview_supervised_tuning,
 )
-from vertexai.tuning import sft as supervised_tuning
+from vertexai.preview.tuning._tuning import SourceModel
 from vertexai.tuning import _distillation
+from vertexai.tuning import sft as supervised_tuning
 from google.cloud import storage
+from vertexai.preview.tuning._tuning import TuningJob as PreviewTuningJob
+
 
 import pytest
 
@@ -184,18 +187,18 @@ class TestgenerativeModelTuning:
         initializer.global_pool.shutdown(wait=True)
 
     @mock.patch.object(
-        target=tuning.TuningJob,
+        target=PreviewTuningJob,
         attribute="client_class",
         new=MockTuningJobClientWithOverride,
     )
     @pytest.mark.parametrize(
         "supervised_tuning",
-        [supervised_tuning, preview_supervised_tuning],
+        [preview_supervised_tuning],
     )
     def test_genai_tuning_service_supervised_tuning_tune_model(
         self, supervised_tuning: supervised_tuning
     ):
-        sft_tuning_job = supervised_tuning.train(
+        sft_tuning_job = supervised_tuning.preview_train(
             source_model="gemini-1.0-pro-001",
             train_dataset="gs://some-bucket/some_dataset.jsonl",
             # Optional:
@@ -230,13 +233,13 @@ class TestgenerativeModelTuning:
         assert sft_tuning_job.tuned_model_endpoint_name
 
     @mock.patch.object(
-        target=tuning.TuningJob,
+        target=PreviewTuningJob,
         attribute="client_class",
         new=MockTuningJobClientWithOverride,
     )
     @pytest.mark.parametrize(
         "supervised_tuning",
-        [supervised_tuning, preview_supervised_tuning],
+        [preview_supervised_tuning],
     )
     def test_genai_tuning_service_encryption_spec(
         self, supervised_tuning: supervised_tuning
@@ -244,20 +247,20 @@ class TestgenerativeModelTuning:
         """Test that the global encryption spec propagates to the tuning job."""
         vertexai.init(encryption_spec_key_name="test-key")
 
-        sft_tuning_job = supervised_tuning.train(
+        sft_tuning_job = supervised_tuning.preview_train(
             source_model="gemini-1.0-pro-001",
             train_dataset="gs://some-bucket/some_dataset.jsonl",
         )
         assert sft_tuning_job.encryption_spec.kms_key_name == "test-key"
 
     @mock.patch.object(
-        target=tuning.TuningJob,
+        target=PreviewTuningJob,
         attribute="client_class",
         new=MockTuningJobClientWithOverride,
     )
     @pytest.mark.parametrize(
         "supervised_tuning",
-        [supervised_tuning, preview_supervised_tuning],
+        [preview_supervised_tuning],
     )
     def test_genai_tuning_service_service_account(
         self, supervised_tuning: supervised_tuning
@@ -265,7 +268,7 @@ class TestgenerativeModelTuning:
         """Test that the service account propagates to the tuning job."""
         vertexai.init(service_account="test-sa@test-project.iam.gserviceaccount.com")
 
-        sft_tuning_job = supervised_tuning.train(
+        sft_tuning_job = supervised_tuning.preview_train(
             source_model="gemini-1.0-pro-002",
             train_dataset="gs://some-bucket/some_dataset.jsonl",
         )
@@ -318,3 +321,52 @@ class TestgenerativeModelTuning:
         assert tuning_job.has_ended
         assert tuning_job.has_succeeded
         assert tuning_job.tuned_model_name
+
+    @mock.patch.object(
+        target=PreviewTuningJob,
+        attribute="client_class",
+        new=MockTuningJobClientWithOverride,
+    )
+    @pytest.mark.parametrize(
+        "supervised_tuning",
+        [preview_supervised_tuning],
+    )
+    def test_create_tuning_job_success(
+        self, supervised_tuning: preview_supervised_tuning
+    ):
+        model = SourceModel(
+            base_model="meta/llama3_1@llama-3.1-8b-instruct",
+            custom_base_model="gs://test-bucket/custom-weights",
+        )
+        sft_tuning_job = supervised_tuning.preview_train(
+            source_model=model,
+            epochs=1,
+            train_dataset="gs://test-bucket/test_train_dataset/",
+            validation_dataset="gs://test-bucket/test_validation_dataset/",
+            output_uri="gs://test-bucket/test_output_uri/",
+            tuned_model_display_name="sft_llama3_1",
+        )
+        assert sft_tuning_job.state == job_state.JobState.JOB_STATE_PENDING
+        assert not sft_tuning_job.has_ended
+        assert not sft_tuning_job.has_succeeded
+
+        # Refreshing the job
+        sft_tuning_job.refresh()
+        assert sft_tuning_job.state == job_state.JobState.JOB_STATE_PENDING
+        assert not sft_tuning_job.has_ended
+        assert not sft_tuning_job.has_succeeded
+
+        # Refreshing the job
+        sft_tuning_job.refresh()
+        assert sft_tuning_job.state == job_state.JobState.JOB_STATE_RUNNING
+        assert not sft_tuning_job.has_ended
+        assert not sft_tuning_job.has_succeeded
+
+        # Refreshing the job
+        sft_tuning_job.refresh()
+        assert sft_tuning_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
+        assert sft_tuning_job.has_ended
+        assert sft_tuning_job.has_succeeded
+        assert sft_tuning_job._experiment_name
+        assert sft_tuning_job.tuned_model_name
+        assert sft_tuning_job.tuned_model_endpoint_name
