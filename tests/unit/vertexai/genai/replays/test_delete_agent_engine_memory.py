@@ -14,6 +14,9 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import pytest
+
+
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 
@@ -36,3 +39,21 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="agent_engines.delete_memory",
 )
+
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_delete_memory_async(client):
+    # TODO(b/431785750): use async methods for create() and create_memory() when available
+    agent_engine = client.agent_engines.create()
+    operation = client.agent_engines.create_memory(
+        name=agent_engine.api_resource.name,
+        fact="memory_fact",
+        scope={"user_id": "123"},
+    )
+    memory = operation.response
+    operation = await client.aio.agent_engines.delete_memory(name=memory.name)
+    assert isinstance(operation, types.DeleteAgentEngineMemoryOperation)
+    assert operation.name.startswith(memory.name + "/operations/")
