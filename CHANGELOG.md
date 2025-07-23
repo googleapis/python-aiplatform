@@ -15,8 +15,6 @@
 * RAG - add timeout options for create_corpus, update_corpus and update_rag_engine_config for both v1 and v1beta1 apis. ([afa5610](https://github.com/googleapis/python-aiplatform/commit/afa5610b89cd5acb96f69ebdde3aedd80810bd8b))
 * Update Ray version support to include Ray v2.47" ([e0ee94c](https://github.com/googleapis/python-aiplatform/commit/e0ee94ccbbd6bfa2e4b53e554ddbda5b5ac5d29c))
 * Vertex AI Model Garden custom model deploy SDK Public Preview ([1ceb2e1](https://github.com/googleapis/python-aiplatform/commit/1ceb2e1023e323c53b56dbd8fd4bad1123990618))
-* Vertex AI Model Garden custom model deploy SDK Public Preview ([7319600](https://github.com/googleapis/python-aiplatform/commit/731960076e983cae778f0c7383d9e95362087254))
-* Vertex AI Model Garden custom model deploy SDK Public Preview ([74310d3](https://github.com/googleapis/python-aiplatform/commit/74310d37e685fe07768a7d8cba451bc296af8a9a))
 
 
 ### Bug Fixes
