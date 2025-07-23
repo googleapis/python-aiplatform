@@ -32,7 +32,7 @@ def train(
     tuned_model_display_name: Optional[str] = None,
     epochs: Optional[int] = None,
     learning_rate_multiplier: Optional[float] = None,
-    adapter_size: Optional[Literal[1, 4, 8, 16]] = None,
+    adapter_size: Optional[Literal[1, 4, 8, 16, 32]] = None,
     labels: Optional[Dict[str, str]] = None,
 ) -> "SupervisedTuningJob":
     """Tunes a model using supervised training.
@@ -70,9 +70,13 @@ def train(
         adapter_size_value = (
             gca_tuning_job_types.SupervisedHyperParameters.AdapterSize.ADAPTER_SIZE_SIXTEEN
         )
+    elif adapter_size == 32:
+        adapter_size_value = (
+            gca_tuning_job_types.SupervisedHyperParameters.AdapterSize.ADAPTER_SIZE_THIRTY_TWO
+        )
     else:
         raise ValueError(
-            f"Unsupported adapter size: {adapter_size}. The supported sizes are [1, 4, 8, 16]"
+            f"Unsupported adapter size: {adapter_size}. The supported sizes are [1, 4, 8, 16, 32]"
         )
     if isinstance(train_dataset, datasets.MultimodalDataset):
         train_dataset = train_dataset.resource_name
