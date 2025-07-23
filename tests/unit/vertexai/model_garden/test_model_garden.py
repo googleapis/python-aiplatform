@@ -65,6 +65,10 @@ _TEST_MODEL_HUGGING_FACE_FULL_RESOURCE_NAME = (
     "publishers/hf-meta-llama/models/llama-3.3-70b-instruct@001"
 )
 _TEST_HUGGING_FACE_ACCESS_TOKEN = "test-access-token"
+
+_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME = "publishers/ai21/models/jamba-large-1.6@001"
+_TEST_PARTNER_MODEL_SIMPLIFIED_RESOURCE_NAME = "ai21/jamba-large-1.6@001"
+
 _TEST_GCS_URI = "gs://some-bucket/some-model"
 _TEST_ENDPOINT_NAME = "projects/test-project/locations/us-central1/endpoints/1234567890"
 _TEST_MODEL_NAME = "projects/test-project/locations/us-central1/models/9876543210"
@@ -488,6 +492,157 @@ def accept_model_license_agreement_mock():
             )
         )
         yield accept_model_license_agreement
+
+
+@pytest.mark.usefixtures(
+    "google_auth_mock",
+    "deploy_mock",
+)
+class TestModelGardenPartnerModel:
+    """Test cases for Model Garden PartnerModel class."""
+
+    def setup_method(self):
+        importlib.reload(aiplatform.initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT)
+
+    def teardown_method(self):
+        aiplatform.initializer.global_pool.shutdown(wait=True)
+
+    def test_deploy_full_resource_name_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.PartnerModel(
+            model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME
+        )
+        model.deploy()
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+            )
+        )
+
+    def test_deploy_simplified_resource_name_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.PartnerModel(
+            model_name=_TEST_PARTNER_MODEL_SIMPLIFIED_RESOURCE_NAME
+        )
+        model.deploy()
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+            )
+        )
+
+    def test_deploy_specify_machine_spec_success(self, deploy_mock):
+        """Tests deploying a model with specified machine spec."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.PartnerModel(
+            model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME
+        )
+        model.deploy(
+            machine_type="n1-standard-4",
+            accelerator_type="NVIDIA_TESLA_T4",
+            accelerator_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        machine_spec=types.MachineSpec(
+                            machine_type="n1-standard-4",
+                            accelerator_type="NVIDIA_TESLA_T4",
+                            accelerator_count=1,
+                        ),
+                        min_replica_count=1,
+                        max_replica_count=1,
+                    )
+                ),
+            )
+        )
+
+    def test_deploy_specify_partial_machine_spec_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.PartnerModel(
+            model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME
+        )
+        model.deploy(
+            accelerator_type="NVIDIA_TESLA_T4",
+        )
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        machine_spec=types.MachineSpec(
+                            accelerator_type="NVIDIA_TESLA_T4",
+                        ),
+                        min_replica_count=1,
+                        max_replica_count=1,
+                    )
+                ),
+            )
+        )
+
+    def test_deploy_with_timeout_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.PartnerModel(
+            model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME
+        )
+        model.deploy(deploy_request_timeout=10)
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+            ),
+        )
+
+    def test_deploy_with_display_names_success(self, deploy_mock):
+        """Tests deploying a model with display names."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.PartnerModel(
+            model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME
+        )
+        model.deploy(
+            endpoint_display_name="test-endpoint",
+            model_display_name="test-model",
+        )
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_PARTNER_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                model_config=types.DeployRequest.ModelConfig(
+                    model_display_name="test-model",
+                ),
+                endpoint_config=types.DeployRequest.EndpointConfig(
+                    endpoint_display_name="test-endpoint",
+                ),
+            )
+        )
 
 
 @pytest.mark.usefixtures(

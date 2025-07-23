@@ -261,10 +261,9 @@ class OpenModel:
 
     Attributes:
         model_name: Model Garden model resource name in the format of
-            `publishers/{publisher}/models/{model}@{version}`, or a
-            simplified resource name in the format of
-            `{publisher}/{model}@{version}`, or a Hugging Face model ID in
-            the format of `{organization}/{model}`.
+          `publishers/{publisher}/models/{model}@{version}`, or a simplified
+          resource name in the format of `{publisher}/{model}@{version}`, or a
+          Hugging Face model ID in the format of `{organization}/{model}`.
     """
 
     __module__ = "vertexai.model_garden"
@@ -283,10 +282,9 @@ class OpenModel:
 
         Args:
             model_name: Model Garden model resource name in the format of
-                `publishers/{publisher}/models/{model}@{version}`, or a
-                simplified resource name in the format of
-                `{publisher}/{model}@{version}`, or a Hugging Face model ID in
-                the format of `{organization}/{model}`.
+              `publishers/{publisher}/models/{model}@{version}`, or a simplified
+              resource name in the format of `{publisher}/{model}@{version}`, or a
+              Hugging Face model ID in the format of `{organization}/{model}`.
         """
         project = initializer.global_config.project
         location = initializer.global_config.location
@@ -661,7 +659,7 @@ class OpenModel:
 
         Args:
             concise: If true, returns a human-readable string with container and
-            machine specs.
+              machine specs.
 
         Returns:
             A list of deploy options or a concise formatted string.
@@ -736,31 +734,30 @@ class OpenModel:
         """Perform batch prediction on the model.
 
         Args:
-            input_dataset (Union[str, List[str]]):
-                GCS URI(-s) or BigQuery URI to your input data to run batch
-                prediction on. Example: "gs://path/to/input/data.jsonl" or
-                "bq://projectId.bqDatasetId.bqTableId"
-            output_uri_prefix (Optional[str]):
-                GCS or BigQuery URI prefix for the output predictions. Example:
-                "gs://path/to/output/data" or "bq://projectId.bqDatasetId"
-                If not specified, f"{STAGING_BUCKET}/gen-ai-batch-prediction" will
-                be used for GCS source and
-                f"bq://projectId.gen_ai_batch_prediction.predictions_{TIMESTAMP}"
-                will be used for BigQuery source.
-            job_display_name (Optional[str]):
-                The user-defined name of the BatchPredictionJob.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
-            machine_type (Optional[str]):
-                The machine type for the batch prediction job.
-            accelerator_type (Optional[str]):
-                The accelerator type for the batch prediction job.
-            accelerator_count (Optional[int]):
-                The accelerator count for the batch prediction job.
-            starting_replica_count (Optional[int]):
-                The starting replica count for the batch prediction job.
-            max_replica_count (Optional[int]):
-                The maximum replica count for the batch prediction job.
+            input_dataset (Union[str, List[str]]): GCS URI(-s) or BigQuery URI to
+              your input data to run batch prediction on. Example:
+              "gs://path/to/input/data.jsonl" or
+              "bq://projectId.bqDatasetId.bqTableId"
+            output_uri_prefix (Optional[str]): GCS or BigQuery URI prefix for the
+              output predictions. Example: "gs://path/to/output/data" or
+              "bq://projectId.bqDatasetId" If not specified,
+              f"{STAGING_BUCKET}/gen-ai-batch-prediction" will be used for GCS
+              source and
+              f"bq://projectId.gen_ai_batch_prediction.predictions_{TIMESTAMP}" will
+              be used for BigQuery source.
+            job_display_name (Optional[str]): The user-defined name of the
+              BatchPredictionJob. The name can be up to 128 characters long and can
+              be consist of any UTF-8 characters.
+            machine_type (Optional[str]): The machine type for the batch prediction
+              job.
+            accelerator_type (Optional[str]): The accelerator type for the batch
+              prediction job.
+            accelerator_count (Optional[int]): The accelerator count for the batch
+              prediction job.
+            starting_replica_count (Optional[int]): The starting replica count for
+              the batch prediction job.
+            max_replica_count (Optional[int]): The maximum replica count for the
+              batch prediction job.
 
         Returns:
             batch_prediction.BatchPredictionJob:
@@ -1030,3 +1027,135 @@ class CustomModel:
         except ValueError as e:
             _LOGGER.error(f"Failed to deploy custom model: {e}")
             raise e
+
+
+class PartnerModel:
+    """Represents a Model Garden Partner model."""
+
+    def __init__(
+        self,
+        model_name: str,
+    ):
+        r"""Initializes a Model Garden partner model.
+
+        Usage:
+
+            ```
+            model = PartnerModel("publishers/ai21/models/jamba-large-1.6@001")
+            ```
+
+        Args:
+            model_name: Model Garden model resource name in the format of
+              `publishers/{publisher}/models/{model}@{version}`, or a simplified
+              resource name in the format of `{publisher}/{model}@{version}`.
+        """
+        project = initializer.global_config.project
+        location = initializer.global_config.location
+        credentials = initializer.global_config.credentials
+
+        self._model_name = model_name
+        self._publisher_model_name = _reconcile_model_name(model_name)
+        self._project = project
+        self._location = location
+        self._credentials = credentials
+
+    @functools.cached_property
+    def _model_garden_client(
+        self,
+    ) -> model_garden_service.ModelGardenServiceClient:
+        """Returns the Model Garden client."""
+        return initializer.global_config.create_client(
+            client_class=_ModelGardenClientWithOverride,
+            credentials=self._credentials,
+            location_override=self._location,
+        )
+
+    def deploy(
+        self,
+        machine_type: Optional[str] = None,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        endpoint_display_name: Optional[str] = None,
+        model_display_name: Optional[str] = None,
+        deploy_request_timeout: Optional[float] = None,
+    ) -> aiplatform.Endpoint:
+        """Deploys an Open Model to an endpoint.
+
+        Args:
+            machine_type (str): Optional. The type of machine. Not specifying
+              machine type will result in model to be deployed with automatic
+              resources.
+            min_replica_count (int): Optional. The minimum number of machine
+              replicas this deployed model will be always deployed on. If traffic
+              against it increases, it may dynamically be deployed onto more
+              replicas, and as traffic decreases, some of these extra replicas may
+              be freed.
+            max_replica_count (int): Optional. The maximum number of replicas this
+              deployed model may be deployed on when the traffic against it
+              increases. If requested value is too large, the deployment will error,
+              but if deployment succeeds then the ability to scale the model to that
+              many replicas is guaranteed (barring service outages). If traffic
+              against the deployed model increases beyond what its replicas at
+              maximum may handle, a portion of the traffic will be dropped. If this
+              value is not provided, the larger value of min_replica_count or 1 will
+              be used. If value provided is smaller than min_replica_count, it will
+              automatically be increased to be min_replica_count.
+            accelerator_type (str): Optional. Hardware accelerator type. Must also
+              set accelerator_count if used. One of ACCELERATOR_TYPE_UNSPECIFIED,
+              NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100,
+              NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
+            accelerator_count (int): Optional. The number of accelerators to attach
+              to a worker replica.
+            endpoint_display_name: The display name of the created endpoint.
+            model_display_name: The display name of the uploaded model.
+            deploy_request_timeout: The timeout for the deploy request. Default is 2
+              hours.
+
+        Returns:
+            endpoint (aiplatform.Endpoint):
+                Created endpoint.
+        """
+        request = types.DeployRequest(
+            destination=f"projects/{self._project}/locations/{self._location}",
+        )
+        request.publisher_model_name = self._publisher_model_name
+
+        if endpoint_display_name:
+            request.endpoint_config.endpoint_display_name = endpoint_display_name
+        if model_display_name:
+            request.model_config.model_display_name = model_display_name
+
+        provided_custom_machine_spec = (
+            machine_type or accelerator_type or accelerator_count
+        )
+        if provided_custom_machine_spec:
+            dedicated_resources = types.DedicatedResources(
+                machine_spec=types.MachineSpec(
+                    machine_type=machine_type,
+                    accelerator_type=accelerator_type,
+                    accelerator_count=accelerator_count,
+                ),
+                min_replica_count=min_replica_count,
+                max_replica_count=max_replica_count,
+            )
+            request.deploy_config.dedicated_resources = dedicated_resources
+
+        _LOGGER.info(f"Deploying model: {self._model_name}")
+
+        operation_future = self._model_garden_client.deploy(request)
+        _LOGGER.info(f"LRO: {operation_future.operation.name}")
+
+        _LOGGER.info(f"Start time: {datetime.datetime.now()}")
+        deploy_response = operation_future.result(
+            timeout=deploy_request_timeout or _DEFAULT_TIMEOUT
+        )
+        _LOGGER.info(f"End time: {datetime.datetime.now()}")
+
+        self._endpoint_name = deploy_response.endpoint
+        _LOGGER.info(f"Endpoint: {self._endpoint_name}")
+        endpoint = aiplatform.Endpoint._construct_sdk_resource_from_gapic(
+            aiplatform_models.gca_endpoint_compat.Endpoint(name=self._endpoint_name),
+        )
+        return endpoint
