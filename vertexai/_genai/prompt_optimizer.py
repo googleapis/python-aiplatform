@@ -39,6 +39,9 @@ def _OptimizeRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt"]) is not None:
+        setv(to_object, ["prompt"], getv(from_object, ["prompt"]))
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -224,11 +227,77 @@ def _GetCustomJobParameters_to_vertex(
     return to_object
 
 
+def _ApplicableGuideline_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["applicableGuideline"]) is not None:
+        setv(
+            to_object,
+            ["applicable_guideline"],
+            getv(from_object, ["applicableGuideline"]),
+        )
+
+    if getv(from_object, ["suggestedImprovement"]) is not None:
+        setv(
+            to_object,
+            ["suggested_improvement"],
+            getv(from_object, ["suggestedImprovement"]),
+        )
+
+    if getv(from_object, ["textBeforeChange"]) is not None:
+        setv(
+            to_object,
+            ["text_before_change"],
+            getv(from_object, ["textBeforeChange"]),
+        )
+
+    if getv(from_object, ["textAfterChange"]) is not None:
+        setv(
+            to_object,
+            ["text_after_change"],
+            getv(from_object, ["textAfterChange"]),
+        )
+
+    return to_object
+
+
 def _OptimizeResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["optimizationMode"]) is not None:
+        setv(
+            to_object,
+            ["optimization_mode"],
+            getv(from_object, ["optimizationMode"]),
+        )
+
+    if getv(from_object, ["applicableGuidelines"]) is not None:
+        setv(
+            to_object,
+            ["applicable_guidelines"],
+            [
+                _ApplicableGuideline_from_vertex(item, to_object)
+                for item in getv(from_object, ["applicableGuidelines"])
+            ],
+        )
+
+    if getv(from_object, ["originalPrompt"]) is not None:
+        setv(
+            to_object,
+            ["original_prompt"],
+            getv(from_object, ["originalPrompt"]),
+        )
+
+    if getv(from_object, ["suggestedPrompt"]) is not None:
+        setv(
+            to_object,
+            ["suggested_prompt"],
+            getv(from_object, ["suggestedPrompt"]),
+        )
 
     return to_object
 
@@ -383,12 +452,16 @@ def _CustomJob_from_vertex(
 class PromptOptimizer(_api_module.BaseModule):
     """Prompt Optimizer"""
 
-    def _optimize_dummy(
-        self, *, config: Optional[types.OptimizeConfigOrDict] = None
+    def _optimize_prompt(
+        self,
+        *,
+        prompt: types.ContentOrDict,
+        config: Optional[types.OptimizePromptConfigOrDict] = None,
     ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+        """Optimize a single prompt."""
 
         parameter_model = types._OptimizeRequestParameters(
+            prompt=prompt,
             config=config,
         )
 
@@ -399,9 +472,9 @@ class PromptOptimizer(_api_module.BaseModule):
             request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = ":optimize".format_map(request_url_dict)
+                path = ":optimizePrompt".format_map(request_url_dict)
             else:
-                path = ":optimize"
+                path = ":optimizePrompt"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -660,16 +733,44 @@ class PromptOptimizer(_api_module.BaseModule):
             job = self._wait_for_completion(job_id)
         return job
 
+    def optimize_prompt(
+        self,
+        prompt: str,
+        config: Optional[types.OptimizePromptConfig | None] = None,
+    ) -> types.OptimizeResponse:
+        """Call PO-zero prompt optimizer for a single prompt.
+
+        Args:
+          prompt: The prompt to optimize.
+          config: None for now. Support will be added in the future.
+
+        Returns:
+          The optimized prompt.
+        """
+        if config is not None:
+            raise ValueError(
+                "Currently, config is not supported for a single prompt"
+                " optimization."
+            )
+        # prompt = [types.Content(parts=[types.Part(text=prompt)])]
+        logger.info("Calling prompt optimizer")
+        prompt = types.Content(parts=[types.Part(text=prompt)])
+        return self._optimize_prompt(prompt=prompt)
+
 
 class AsyncPromptOptimizer(_api_module.BaseModule):
     """Prompt Optimizer"""
 
-    async def _optimize_dummy(
-        self, *, config: Optional[types.OptimizeConfigOrDict] = None
+    async def _optimize_prompt(
+        self,
+        *,
+        prompt: types.ContentOrDict,
+        config: Optional[types.OptimizePromptConfigOrDict] = None,
     ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+        """Optimize a single prompt."""
 
         parameter_model = types._OptimizeRequestParameters(
+            prompt=prompt,
             config=config,
         )
 
@@ -680,9 +781,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = ":optimize".format_map(request_url_dict)
+                path = ":optimizePrompt".format_map(request_url_dict)
             else:
-                path = ":optimize"
+                path = ":optimizePrompt"
 
         query_params = request_dict.get("_query")
         if query_params:
