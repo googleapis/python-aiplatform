@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.105.0](https://github.com/googleapis/python-aiplatform/compare/v1.104.0...v1.105.0) (2025-07-22)
+
+
+### Features
+
+* Add FlexStart option to DeploymentResourcePool.create, Endpoint.deploy, and Model.deploy (preview) ([82dd075](https://github.com/googleapis/python-aiplatform/commit/82dd0754ada332cda6f801af2224135a4db61ee4))
+* Add Ray 2.47 support to RoV Bigquery read/write ([8e6df42](https://github.com/googleapis/python-aiplatform/commit/8e6df4243f39c8b638eeaa220b2b043ef81beb6a))
+* Add Ray 2.47 support to SDK Client Builder ([dde560d](https://github.com/googleapis/python-aiplatform/commit/dde560d20b8b801abe66b3eb32807592554b1e20))
+* Add support for managed oss fine tuning service ([2672ec3](https://github.com/googleapis/python-aiplatform/commit/2672ec3cdab66c348c3b8bbfcf6b6f8b26f21460))
+* GenAI SDK client(evals) - Add async evaluate_instances method ([a52198a](https://github.com/googleapis/python-aiplatform/commit/a52198acfe759267a1079e138d8f678bb0e62f5e))
+* Improve PersistentResource exception logging to include cluster name ([4b88698](https://github.com/googleapis/python-aiplatform/commit/4b88698c180832f7b853961119d033a8390d5bd3))
+* Provide docs for using invoke method. ([1315df7](https://github.com/googleapis/python-aiplatform/commit/1315df79db93bb997519cbe049538c59ed3dacdd))
+* RAG - add timeout options for create_corpus, update_corpus and update_rag_engine_config for both v1 and v1beta1 apis. ([afa5610](https://github.com/googleapis/python-aiplatform/commit/afa5610b89cd5acb96f69ebdde3aedd80810bd8b))
+* Update Ray version support to include Ray v2.47" ([e0ee94c](https://github.com/googleapis/python-aiplatform/commit/e0ee94ccbbd6bfa2e4b53e554ddbda5b5ac5d29c))
+* Vertex AI Model Garden custom model deploy SDK Public Preview ([1ceb2e1](https://github.com/googleapis/python-aiplatform/commit/1ceb2e1023e323c53b56dbd8fd4bad1123990618))
+
+
+### Bug Fixes
+
+* GenAI SDK client - Fix JS variable name conflict in evals visualization for VS Code iPython environment ([079b1f9](https://github.com/googleapis/python-aiplatform/commit/079b1f9f7737eaee8799611a5e11a816a2cfe66d))
+
 ## [1.104.0](https://github.com/googleapis/python-aiplatform/compare/v1.103.0...v1.104.0) (2025-07-15)
 
 
