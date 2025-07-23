@@ -4581,7 +4581,9 @@ def test_import_extension_rest_call_success(request_type):
                         "ref": "ref_value",
                         "defs": {},
                     },
+                    "parameters_json_schema": {},
                     "response": {},
+                    "response_json_schema": {},
                 },
             }
         ],
@@ -5160,7 +5162,9 @@ def test_update_extension_rest_call_success(request_type):
                         "ref": "ref_value",
                         "defs": {},
                     },
+                    "parameters_json_schema": {},
                     "response": {},
+                    "response_json_schema": {},
                 },
             }
         ],
@@ -6369,7 +6373,9 @@ async def test_import_extension_rest_asyncio_call_success(request_type):
                         "ref": "ref_value",
                         "defs": {},
                     },
+                    "parameters_json_schema": {},
                     "response": {},
+                    "response_json_schema": {},
                 },
             }
         ],
@@ -6996,7 +7002,9 @@ async def test_update_extension_rest_asyncio_call_success(request_type):
                         "ref": "ref_value",
                         "defs": {},
                     },
+                    "parameters_json_schema": {},
                     "response": {},
+                    "response_json_schema": {},
                 },
             }
         ],

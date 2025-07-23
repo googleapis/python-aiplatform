@@ -28,6 +28,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
         "Tool",
+        "UrlContext",
         "FunctionDeclaration",
         "FunctionCall",
         "FunctionResponse",
@@ -91,6 +92,14 @@ class Tool(proto.Message):
             Optional. CodeExecution tool type.
             Enables the model to execute code as part of
             generation.
+        url_context (google.cloud.aiplatform_v1.types.UrlContext):
+            Optional. Tool to support URL context
+            retrieval.
+        computer_use (google.cloud.aiplatform_v1.types.Tool.ComputerUse):
+            Optional. Tool to support the model
+            interacting directly with the computer. If
+            enabled, it automatically populates computer-use
+            specific Function Declarations.
     """
 
     class GoogleSearch(proto.Message):
@@ -107,6 +116,33 @@ class Tool(proto.Message):
         and output to this tool.
 
         """
+
+    class ComputerUse(proto.Message):
+        r"""Tool to support computer use.
+
+        Attributes:
+            environment (google.cloud.aiplatform_v1.types.Tool.ComputerUse.Environment):
+                Required. The environment being operated.
+        """
+
+        class Environment(proto.Enum):
+            r"""Represents the environment being operated, such as a web
+            browser.
+
+            Values:
+                ENVIRONMENT_UNSPECIFIED (0):
+                    Defaults to browser.
+                ENVIRONMENT_BROWSER (1):
+                    Operates in a web browser.
+            """
+            ENVIRONMENT_UNSPECIFIED = 0
+            ENVIRONMENT_BROWSER = 1
+
+        environment: "Tool.ComputerUse.Environment" = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum="Tool.ComputerUse.Environment",
+        )
 
     function_declarations: MutableSequence["FunctionDeclaration"] = proto.RepeatedField(
         proto.MESSAGE,
@@ -138,6 +174,20 @@ class Tool(proto.Message):
         number=4,
         message=CodeExecution,
     )
+    url_context: "UrlContext" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="UrlContext",
+    )
+    computer_use: ComputerUse = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=ComputerUse,
+    )
+
+
+class UrlContext(proto.Message):
+    r"""Tool to support URL context."""
 
 
 class FunctionDeclaration(proto.Message):
@@ -182,12 +232,37 @@ class FunctionDeclaration(proto.Message):
             required:
 
              - param1
+        parameters_json_schema (google.protobuf.struct_pb2.Value):
+            Optional. Describes the parameters to the function in JSON
+            Schema format. The schema must describe an object where the
+            properties are the parameters to the function. For example:
+
+            ::
+
+               {
+                 "type": "object",
+                 "properties": {
+                   "name": { "type": "string" },
+                   "age": { "type": "integer" }
+                 },
+                 "additionalProperties": false,
+                 "required": ["name", "age"],
+                 "propertyOrdering": ["name", "age"]
+               }
+
+            This field is mutually exclusive with ``parameters``.
         response (google.cloud.aiplatform_v1.types.Schema):
             Optional. Describes the output from this
             function in JSON Schema format. Reflects the
             Open API 3.03 Response Object. The Schema
             defines the type used for the response value of
             the function.
+        response_json_schema (google.protobuf.struct_pb2.Value):
+            Optional. Describes the output from this function in JSON
+            Schema format. The value specified by the schema is the
+            response value of the function.
+
+            This field is mutually exclusive with ``response``.
     """
 
     name: str = proto.Field(
@@ -203,10 +278,20 @@ class FunctionDeclaration(proto.Message):
         number=3,
         message=openapi.Schema,
     )
+    parameters_json_schema: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=struct_pb2.Value,
+    )
     response: openapi.Schema = proto.Field(
         proto.MESSAGE,
         number=4,
         message=openapi.Schema,
+    )
+    response_json_schema: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=struct_pb2.Value,
     )
 
 

@@ -42,6 +42,7 @@ from vertexai.preview.language_models import (
 STAGING_DIR_URI = "gs://ucaip-samples-us-central1/tmp/staging"
 
 
+@pytest.mark.skip(reason="Models are deprecated.")
 class TestLanguageModels(e2e_base.TestEndToEnd):
     """System tests for language models."""
 

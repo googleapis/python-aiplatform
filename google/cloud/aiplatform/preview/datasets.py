@@ -602,6 +602,21 @@ class TuningValidationAssessmentResult:
     errors: List[str]
 
 
+@dataclasses.dataclass(frozen=True)
+class BatchPredictionResourceUsageAssessmentResult:
+    """The result of a batch prediction resource usage assessment.
+
+    Attributes:
+        token_count (int):
+            Number of tokens in the dataset.
+        audio_token_count (int):
+            Number of audio tokens in the dataset.
+    """
+
+    token_count: int
+    audio_token_count: int
+
+
 class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
     """A class representing a unified multimodal dataset."""
 
@@ -675,7 +690,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
     def from_bigquery(
         cls,
         *,
-        bigquery_uri: str,
+        bigquery_source: str,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -687,10 +702,10 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         """Creates a multimodal dataset from a BigQuery table.
 
         Args:
-            bigquery_uri (str):
-                Required. The BigQuery table URI to be used for the created
-                dataset. The table uri can be in the format of
-                "bq://dataset.table" or "bq://project.dataset.table".
+            bigquery_source (str):
+                Required. The BigQuery table URI or ID to be used for the created
+                dataset, which can be in the format of "bq://dataset.table",
+                "bq://project.dataset.table" or "project.dataset.table".
             display_name (str):
                 Optional. The user-defined name of the dataset. The name can be
                 up to 128 characters long and can consist of any UTF-8
@@ -726,9 +741,10 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             dataset (MultimodalDataset):
                 The created multimodal dataset.
         """
+        if not bigquery_source.startswith("bq://"):
+            bigquery_source = f"bq://{bigquery_source}"
         return cls._create_from_bigquery(
-            bigquery_uri=bigquery_uri,
-            metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
+            metadata=_get_metadata_for_bq(bq_uri=bigquery_source),
             display_name=display_name,
             project=project,
             location=location,
@@ -841,7 +857,6 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
         bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
-            bigquery_uri=bigquery_uri,
             metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
             display_name=display_name,
             project=project,
@@ -943,7 +958,6 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
         bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
-            bigquery_uri=bigquery_uri,
             metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
             display_name=display_name,
             project=project,
@@ -1080,7 +1094,6 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
         bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
-            bigquery_uri=bigquery_uri,
             metadata=_get_metadata_for_bq(
                 bq_uri=bigquery_uri, request_column_name=request_column_name
             ),
@@ -1103,14 +1116,13 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             A BigFrames dataframe.
         """
         bigframes = _try_import_bigframes()
-        return bigframes.pandas.read_gbq_table(self.bigquery_table().lstrip("bq://"))
+        return bigframes.pandas.read_gbq_table(self.bigquery_table.lstrip("bq://"))
 
     @classmethod
     @base.optional_sync()
     def _create_from_bigquery(
         cls,
         *,
-        bigquery_uri: str,
         metadata: struct_pb2.Value,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
@@ -1387,10 +1399,18 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         result = assemble_lro.result(timeout=None)
         _LOGGER.log_action_completed_against_resource("data", "assembled", self)
         table_id = result.bigquery_destination.lstrip("bq://")
-        return (
-            table_id,
-            bigframes.pandas.read_gbq(table_id) if load_dataframe else None,
-        )
+        if load_dataframe:
+            session_options = bigframes.BigQueryOptions(
+                credentials=initializer.global_config.credentials,
+                project=initializer.global_config.project,
+                location=initializer.global_config.location,
+            )
+            with bigframes.connect(session_options) as session:
+                df = session.read_gbq(table_id)
+        else:
+            df = None
+
+        return (table_id, df)
 
     def assess_tuning_resources(
         self,
@@ -1498,6 +1518,84 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         return TuningValidationAssessmentResult(
             errors=assessment_result.tuning_validation_assessment_result.errors
         )
+
+    def assess_batch_prediction_resources(
+        self,
+        *,
+        model_name: str,
+        template_config: Optional[GeminiTemplateConfig] = None,
+        assess_request_timeout: Optional[float] = None,
+    ) -> BatchPredictionResourceUsageAssessmentResult:
+        """Assess the batch prediction resources required for a given model.
+
+        Args:
+            model_name (str):
+                Required. The name of the model to assess the batch prediction resources
+                for.
+            template_config (GeminiTemplateConfig):
+                Optional. The template config used to assemble the dataset
+                before assessing the batch prediction resources. If not provided, the
+                template config attached to the dataset will be used. Required
+                if no template config is attached to the dataset.
+            assess_request_timeout (float):
+                Optional. The timeout for the assess batch prediction resources request.
+        Returns:
+            A dict containing the batch prediction resource usage assessment result. The
+            dict contains the following keys:
+            - token_count: The number of tokens in the dataset.
+            - audio_token_count: The number of audio tokens in the dataset.
+
+        """
+        request = self._build_assess_data_request(template_config)
+        request.batch_prediction_resource_usage_assessment_config = gca_dataset_service.AssessDataRequest.BatchPredictionResourceUsageAssessmentConfig(
+            model_name=model_name
+        )
+
+        assessment_result = (
+            self.api_client.assess_data(request=request, timeout=assess_request_timeout)
+            .result(timeout=None)
+            .batch_prediction_resource_usage_assessment_result
+        )
+        return BatchPredictionResourceUsageAssessmentResult(
+            token_count=assessment_result.token_count,
+            audio_token_count=assessment_result.audio_token_count,
+        )
+
+    def assess_batch_prediction_validity(
+        self,
+        *,
+        model_name: str,
+        template_config: Optional[GeminiTemplateConfig] = None,
+        assess_request_timeout: Optional[float] = None,
+    ) -> None:
+        """Assess if the assembled dataset is valid in terms of batch prediction
+        for a given model. Raises an error if the dataset is invalid, otherwise
+        returns None.
+
+        Args:
+            model_name (str):
+                Required. The name of the model to assess the batch prediction
+                validity for.
+            dataset_usage (str):
+                Required. The dataset usage to assess the batch prediction
+                validity for.
+                Must be one of the following: SFT_TRAINING, SFT_VALIDATION.
+            template_config (GeminiTemplateConfig):
+                Optional. The template config used to assemble the dataset
+                before assessing the batch prediction validity. If not provided, the
+                template config attached to the dataset will be used. Required
+                if no template config is attached to the dataset.
+            assess_request_timeout (float):
+                Optional. The timeout for the assess batch prediction validity request.
+        """
+        request = self._build_assess_data_request(template_config)
+        request.batch_prediction_validation_assessment_config = gca_dataset_service.AssessDataRequest.BatchPredictionValidationAssessmentConfig(
+            model_name=model_name,
+        )
+        assess_lro = self.api_client.assess_data(
+            request=request, timeout=assess_request_timeout
+        )
+        assess_lro.result(timeout=None)
 
     def _build_assess_data_request(
         self,

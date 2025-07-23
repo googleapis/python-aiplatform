@@ -84,10 +84,10 @@ def simple_span_processor_mock():
 
 
 @pytest.fixture
-def mock_adk_major_version():
+def mock_adk_version():
     with mock.patch(
-        "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
-        return_value=1,
+        "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_version",
+        return_value="1.5.0",
     ):
         yield
 
@@ -102,6 +102,7 @@ class _MockRunner:
                 "content": {
                     "parts": [
                         {
+                            "thought_signature": b"test_signature",
                             "function_call": {
                                 "args": {
                                     "currency_date": "2025-04-03",
@@ -110,7 +111,7 @@ class _MockRunner:
                                 },
                                 "id": "af-c5a57692-9177-4091-a3df-098f834ee849",
                                 "name": "get_exchange_rate",
-                            }
+                            },
                         }
                     ],
                     "role": "model",
@@ -129,6 +130,7 @@ class _MockRunner:
                 "content": {
                     "parts": [
                         {
+                            "thought_signature": b"test_signature",
                             "function_call": {
                                 "args": {
                                     "currency_date": "2025-04-03",
@@ -137,7 +139,7 @@ class _MockRunner:
                                 },
                                 "id": "af-c5a57692-9177-4091-a3df-098f834ee849",
                                 "name": "get_exchange_rate",
-                            }
+                            },
                         }
                     ],
                     "role": "model",
@@ -148,17 +150,17 @@ class _MockRunner:
         )
 
 
-@pytest.mark.usefixtures("google_auth_mock", "mock_adk_major_version")
+@pytest.mark.usefixtures("google_auth_mock")
 class TestAdkApp:
-    def test_adk_major_version(self):
+    def test_adk_version(self):
         with mock.patch(
-            "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
-            return_value=0,
+            "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_version",
+            return_value="0.5.0",
         ):
             with pytest.raises(
                 ValueError,
                 match=(
-                    "Unsupported google-adk major version: 0, please use"
+                    "Unsupported google-adk version: 0.5.0, please use"
                     " google-adk>=1.0.0 for AdkApp deployment."
                 ),
             ):
@@ -400,7 +402,31 @@ class TestAdkApp:
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
 
-@pytest.mark.usefixtures("mock_adk_major_version")
+def test_dump_event_for_json():
+    from google.adk.events import event
+
+    test_event = event.Event(
+        **{
+            "author": "test_agent",
+            "content": {
+                "parts": [
+                    {
+                        "thought_signature": b"test_signature",
+                        "text": "This is a test",
+                    }
+                ],
+                "role": "model",
+            },
+            "id": "test_id",
+            "invocation_id": "test_invocation_id",
+        }
+    )
+    dumped_event = _utils.dump_event_for_json(test_event)
+    assert "thought_signature" not in dumped_event["content"]["parts"][0]
+    assert "text" in dumped_event["content"]["parts"][0]
+
+
+@pytest.mark.usefixtures("mock_adk_version")
 class TestAdkAppErrors:
     def test_raise_get_session_not_found_error(self):
         with pytest.raises(

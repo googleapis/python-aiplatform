@@ -94,7 +94,9 @@ class _Config:
             )
             if project_number:
                 if not self._credentials:
-                    credentials, _ = google.auth.default()
+                    credentials, _ = google.auth.default(
+                        scopes=constants.DEFAULT_AUTHED_SCOPES
+                    )
                     self._credentials = credentials
                 # Try to convert project number to project ID which is more readable.
                 try:
@@ -114,7 +116,7 @@ class _Config:
                 self._project = project
 
         if not self._credentials and not self._api_key:
-            credentials, _ = google.auth.default()
+            credentials, _ = google.auth.default(scopes=constants.DEFAULT_AUTHED_SCOPES)
             self._credentials = credentials
 
     def __init__(self):

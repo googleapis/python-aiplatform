@@ -52,6 +52,7 @@ from vertexai.preview.rag.utils.resources import (
     LlmParserConfig,
     Pinecone,
     RagCorpus,
+    RagCorpusTypeConfig,
     RagEngineConfig,
     RagFile,
     RagManagedDb,
@@ -69,13 +70,21 @@ from vertexai.preview.rag.utils.resources import (
 def create_corpus(
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    corpus_type_config: Optional[RagCorpusTypeConfig] = None,
     embedding_model_config: Optional[EmbeddingModelConfig] = None,
     vector_db: Optional[
-        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
+        Union[
+            Weaviate,
+            VertexFeatureStore,
+            VertexVectorSearch,
+            Pinecone,
+            RagManagedDb,
+        ]
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
     backend_config: Optional[RagVectorDbConfig] = None,
     encryption_spec: Optional[EncryptionSpec] = None,
+    timeout: int = 600,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -93,20 +102,22 @@ def create_corpus(
 
     Args:
         display_name: If not provided, SDK will create one. The display name of
-            the RagCorpus. The name can be up to 128 characters long and can consist
-            of any UTF-8 characters.
+          the RagCorpus. The name can be up to 128 characters long and can consist
+          of any UTF-8 characters.
         description: The description of the RagCorpus.
+        corpus_type_config: The corpus type config of the RagCorpus.
         embedding_model_config: The embedding model config.
             Note: Deprecated. Use backend_config instead.
         vector_db: The vector db config of the RagCorpus. If unspecified, the
-            default database Spanner is used.
+          default database Spanner is used.
             Note: Deprecated. Use backend_config instead.
         vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
             Note: embedding_model_config or vector_db cannot be set if
-            vertex_ai_search_config is specified.
+              vertex_ai_search_config is specified.
         backend_config: The backend config of the RagCorpus. It can specify a
-            Vector DB and/or the embedding model config.
+          Vector DB and/or the embedding model config.
         encryption_spec: The encryption spec of the RagCorpus.
+        timeout: Default is 600 seconds.
 
     Returns:
         RagCorpus.
@@ -119,6 +130,13 @@ def create_corpus(
     parent = initializer.global_config.common_location_path(project=None, location=None)
 
     rag_corpus = GapicRagCorpus(display_name=display_name, description=description)
+
+    if corpus_type_config:
+        _gapic_utils.set_corpus_type_config(
+            corpus_type_config=corpus_type_config,
+            rag_corpus=rag_corpus,
+        )
+
     if embedding_model_config:
         _gapic_utils.set_embedding_model_config(
             embedding_model_config=embedding_model_config,
@@ -176,7 +194,7 @@ def create_corpus(
         response = client.create_rag_corpus(request=request)
     except Exception as e:
         raise RuntimeError("Failed in RagCorpus creation due to: ", e) from e
-    return _gapic_utils.convert_gapic_to_rag_corpus(response.result(timeout=600))
+    return _gapic_utils.convert_gapic_to_rag_corpus(response.result(timeout=timeout))
 
 
 def update_corpus(
@@ -194,6 +212,7 @@ def update_corpus(
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
     backend_config: Optional[RagVectorDbConfig] = None,
+    timeout: int = 600,
 ) -> RagCorpus:
     """Updates a RagCorpus resource.
 
@@ -221,12 +240,13 @@ def update_corpus(
           description will not be updated.
         vector_db: The vector db config of the RagCorpus. If not provided, the
           vector db will not be updated.
-        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
-          If not provided, the Vertex AI Search config will not be updated.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus. If
+          not provided, the Vertex AI Search config will not be updated.
           Note: embedding_model_config or vector_db cannot be set if
-          vertex_ai_search_config is specified.
-        backend_config: The backend config of the RagCorpus. Specifies a Vector
-          DB and/or the embedding model config.
+            vertex_ai_search_config is specified.
+        backend_config: The backend config of the RagCorpus. Specifies a Vector DB
+          and/or the embedding model config.
+        timeout: Default is 600 seconds.
 
     Returns:
         RagCorpus.
@@ -276,7 +296,7 @@ def update_corpus(
     except Exception as e:
         raise RuntimeError("Failed in RagCorpus update due to: ", e) from e
     return _gapic_utils.convert_gapic_to_rag_corpus_no_embedding_model_config(
-        response.result(timeout=600)
+        response.result(timeout=timeout)
     )
 
 
@@ -455,7 +475,9 @@ def upload_file(
         "metadata": (None, str(js_rag_file)),
         "file": open(path, "rb"),
     }
-    credentials, _ = auth.default()
+    credentials, _ = auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
     authorized_session = google_auth_requests.AuthorizedSession(credentials=credentials)
     try:
         response = authorized_session.post(
@@ -486,6 +508,7 @@ def import_files(
     transformation_config: Optional[TransformationConfig] = None,
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
+    global_max_embedding_requests_per_min: Optional[int] = None,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
@@ -595,6 +618,13 @@ def import_files(
             page on the project to set an appropriate value
             here. If unspecified, a default value of 1,000
             QPM would be used.
+        global_max_embedding_requests_per_min:
+            Optional. The max number of queries per minute that the indexing
+            pipeline job is allowed to make to the embedding model specified in
+            the project. Please follow the quota usage guideline of the embedding
+            model you use to set the value properly. If this value is not specified,
+            max_embedding_requests_per_min will be used by indexing pipeline job
+            as the global limit and this means parallel import jobs are not allowed.
         timeout: Default is 600 seconds.
         use_advanced_pdf_parsing: Whether to use advanced PDF
             parsing on uploaded files. This field is deprecated.
@@ -653,6 +683,7 @@ def import_files(
         chunk_overlap=chunk_overlap,
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
+        global_max_embedding_requests_per_min=global_max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
         layout_parser=layout_parser,
@@ -676,6 +707,7 @@ async def import_files_async(
     chunk_overlap: int = 200,
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
+    global_max_embedding_requests_per_min: Optional[int] = None,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
@@ -786,6 +818,13 @@ async def import_files_async(
             page on the project to set an appropriate value
             here. If unspecified, a default value of 1,000
             QPM would be used.
+        global_max_embedding_requests_per_min:
+            Optional. The max number of queries per minute that the indexing
+            pipeline job is allowed to make to the embedding model specified in
+            the project. Please follow the quota usage guideline of the embedding
+            model you use to set the value properly. If this value is not specified,
+            max_embedding_requests_per_min will be used by indexing pipeline job
+            as the global limit and this means parallel import jobs are not allowed.
         use_advanced_pdf_parsing: Whether to use advanced PDF
             parsing on uploaded files.
         partial_failures_sink: Either a GCS path to store partial failures or a
@@ -842,6 +881,7 @@ async def import_files_async(
         chunk_overlap=chunk_overlap,
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
+        global_max_embedding_requests_per_min=global_max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
         layout_parser=layout_parser,
@@ -968,6 +1008,7 @@ def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
 
 def update_rag_engine_config(
     rag_engine_config: RagEngineConfig,
+    timeout: int = 600,
 ) -> RagEngineConfig:
     """Update RagEngineConfig.
 
@@ -989,6 +1030,7 @@ def update_rag_engine_config(
 
     Args:
         rag_engine_config: The RagEngineConfig to update.
+        timeout: Default is 600 seconds.
 
     Raises:
         RuntimeError: Failed in RagEngineConfig update due to exception.
@@ -1004,7 +1046,9 @@ def update_rag_engine_config(
         response = client.update_rag_engine_config(request=request)
     except Exception as e:
         raise RuntimeError("Failed in RagEngineConfig update due to: ", e) from e
-    return _gapic_utils.convert_gapic_to_rag_engine_config(response.result(timeout=600))
+    return _gapic_utils.convert_gapic_to_rag_engine_config(
+        response.result(timeout=timeout)
+    )
 
 
 def get_rag_engine_config(name: str) -> RagEngineConfig:

@@ -24,6 +24,7 @@ from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import machine_resources
+from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
@@ -234,6 +235,9 @@ class CustomJobSpec(proto.Message):
             under the provided VPC network.
 
             Example: ['vertex-ai-ip-range'].
+        psc_interface_config (google.cloud.aiplatform_v1.types.PscInterfaceConfig):
+            Optional. Configuration for PSC-I for
+            CustomJob.
         base_output_directory (google.cloud.aiplatform_v1.types.GcsDestination):
             The Cloud Storage location to store the output of this
             CustomJob or HyperparameterTuningJob. For
@@ -348,6 +352,11 @@ class CustomJobSpec(proto.Message):
     reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=13,
+    )
+    psc_interface_config: service_networking.PscInterfaceConfig = proto.Field(
+        proto.MESSAGE,
+        number=21,
+        message=service_networking.PscInterfaceConfig,
     )
     base_output_directory: io.GcsDestination = proto.Field(
         proto.MESSAGE,

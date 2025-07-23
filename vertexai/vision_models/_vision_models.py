@@ -29,6 +29,7 @@ from google.cloud import storage
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai._model_garden import _model_garden_models
+from vertexai._utils import warning_logs
 
 # pylint: disable=g-import-not-at-top
 try:
@@ -149,6 +150,7 @@ class Image:
             image_bytes: Image file bytes. Image can be in PNG or JPEG format.
             gcs_uri: Image URI in Google Cloud Storage.
         """
+        warning_logs.show_deprecation_warning()
         if bool(image_bytes) == bool(gcs_uri):
             raise ValueError("Either image_bytes or gcs_uri must be provided.")
 
@@ -487,6 +489,7 @@ class Video:
                 MP4, MPEG, MPG, WEBM, and WMV formats.
             gcs_uri: Image URI in Google Cloud Storage.
         """
+        warning_logs.show_deprecation_warning()
         if bool(video_bytes) == bool(gcs_uri):
             raise ValueError("Either video_bytes or gcs_uri must be provided.")
 
@@ -594,6 +597,7 @@ class VideoSegmentConfig:
             end_offset_sec: End time offset (in seconds) to generate embeddings for.
             interval_sec: Interval to divide video for generated embeddings.
         """
+        warning_logs.show_deprecation_warning()
         self.start_offset_sec = start_offset_sec
         self.end_offset_sec = end_offset_sec
         self.interval_sec = interval_sec
@@ -618,6 +622,7 @@ class VideoEmbedding:
             end_offset_sec: End time offset (in seconds) of generated embeddings.
             embedding: Generated embedding for interval.
         """
+        warning_logs.show_deprecation_warning()
         self.start_offset_sec = start_offset_sec
         self.end_offset_sec = end_offset_sec
         self.embedding = embedding
@@ -1422,6 +1427,7 @@ class GeneratedImage(Image):
             generation_parameters: Image generation parameter values.
             gcs_uri: Image file Google Cloud Storage uri.
         """
+        warning_logs.show_deprecation_warning()
         super().__init__(image_bytes=image_bytes, gcs_uri=gcs_uri)
         self._generation_parameters = generation_parameters
 

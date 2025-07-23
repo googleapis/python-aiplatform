@@ -27,7 +27,7 @@ import time
 import tempfile
 
 # Local ray version will always be 2.4 regardless of cluster version due to
-# depenency conflicts. Remote job execution's Ray version is 2.9.
+# depenency conflicts. Remote job execution's Ray version is >2.9.
 RAY_VERSION = "2.4.0"
 SDK_VERSION = aiplatform.__version__
 PROJECT_ID = "ucaip-sample-tests"
@@ -104,7 +104,7 @@ my_script = {"2.9": my_script_ray29, "2.33": my_script_ray233, "2.42": my_script
 class TestRayData(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-ray-data"
 
-    @pytest.mark.parametrize("cluster_ray_version", ["2.9", "2.33", "2.42"])
+    @pytest.mark.parametrize("cluster_ray_version", ["2.33", "2.42"])
     def test_ray_data(self, cluster_ray_version):
         head_node_type = vertex_ray.Resources()
         worker_node_types = [

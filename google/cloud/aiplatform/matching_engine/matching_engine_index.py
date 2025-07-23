@@ -20,8 +20,10 @@ from typing import Dict, List, Optional, Sequence, Tuple
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import compat
 from google.cloud.aiplatform.compat.types import (
     index_service as gca_index_service,
+    index_service_v1beta1 as gca_index_service_v1beta1,
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
     matching_engine_index as gca_matching_engine_index,
     encryption_spec as gca_encryption_spec,
@@ -390,6 +392,58 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         self._gca_resource = update_lro.result(timeout=None)
 
         _LOGGER.log_action_completed_against_resource("index", "Updated", self)
+
+        return self
+
+    def import_embeddings(
+        self,
+        config: gca_index_service_v1beta1.ImportIndexRequest.ConnectorConfig,
+        is_complete_overwrite: Optional[bool] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        import_request_timeout: Optional[float] = None,
+    ) -> "MatchingEngineIndex":
+        """Imports embeddings from an external source, e.g., BigQuery.
+
+        Args:
+            config (aiplatform.compat.types.index_service.ConnectorConfig):
+                Required. The configuration for importing data from an external source.
+            is_complete_overwrite (bool):
+                Optional. If true, completely replace existing index data. Must be
+                true for streaming update indexes.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            import_request_timeout (float):
+                Optional. The timeout for the request in seconds.
+
+        Returns:
+            MatchingEngineIndex - The updated index resource object.
+        """
+        self.wait()
+
+        _LOGGER.log_action_start_against_resource(
+            "Importing embeddings",
+            "index",
+            self,
+        )
+
+        api_v1beta1_client = self.api_client.select_version(compat.V1BETA1)
+        import_lro = api_v1beta1_client.import_index(
+            request=gca_index_service_v1beta1.ImportIndexRequest(
+                name=self.resource_name,
+                config=config,
+                is_complete_overwrite=is_complete_overwrite,
+            ),
+            metadata=request_metadata,
+            timeout=import_request_timeout,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Import", "index", self.__class__, import_lro
+        )
+
+        self._gca_resource = import_lro.result(timeout=None)
+
+        _LOGGER.log_action_completed_against_resource("index", "Imported", self)
 
         return self
 

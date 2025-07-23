@@ -1,16 +1,13 @@
 Vertex AI SDK for Python
 =================================================
 
-
-Gemini API and Generative AI on Vertex AI
------------------------------------------
-
 .. note::
 
-   For Gemini API and Generative AI on Vertex AI, please reference `Vertex Generative AI SDK for Python`_
-.. _Vertex Generative AI SDK for Python: https://cloud.google.com/vertex-ai/generative-ai/docs/reference/python/latest
-
------------------------------------------
+   The following Generative AI modules in the Vertex AI SDK are deprecated as of June 24, 2025 and will be removed on June 24, 2026:
+   `vertexai.generative_models`, `vertexai.language_models`, `vertexai.vision_models`, `vertexai.tuning`, `vertexai.caching`. Please use the
+   [Google Gen AI SDK](https://pypi.org/project/google-genai/) to access these features. See
+   [the migration guide](https://cloud.google.com/vertex-ai/generative-ai/docs/deprecations/genai-vertexai-sdk) for details.
+   You can continue using all other Vertex AI SDK modules, as they are the recommended way to use the API.
 
 |GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
 
@@ -34,6 +31,75 @@ Gemini API and Generative AI on Vertex AI
 .. _Vertex AI: https://cloud.google.com/vertex-ai/docs
 .. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
+
+Gemini API and Generative AI on Vertex AI
+-----------------------------------------
+
+.. note::
+
+   For Gemini API and Generative AI on Vertex AI, please reference `Vertex Generative AI SDK for Python`_
+.. _Vertex Generative AI SDK for Python: https://cloud.google.com/vertex-ai/generative-ai/docs/reference/python/latest
+
+Using the Google Gen AI SDK client from the Vertex AI SDK (Experimental)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To use features from the Google Gen AI SDK from the Vertex AI SDK, you can instantiate the client with the following:
+
+.. code-block:: Python
+
+    import vertexai
+    from vertexai import types
+
+    # Instantiate GenAI client from Vertex SDK
+    # Replace with your project ID and location
+    client = vertexai.Client(project='my-project', location='us-central1')
+
+See the examples below for guidance on how to use specific features supported by the Gen AI SDK client.
+
+Gen AI Evaluation
+^^^^^^^^^^^^^^^^^
+
+To run evaluation, first generate model responses from a set of prompts.
+
+.. code-block:: Python
+
+    import pandas as pd
+
+    prompts_df = pd.DataFrame({
+        "prompt": [
+            "What is the capital of France?",
+            "Write a haiku about a cat.",
+            "Write a Python function to calculate the factorial of a number.",
+            "Translate 'How are you?' to French.",
+        ],
+
+        "reference": [
+            "Paris",
+            "Sunbeam on the floor,\nA furry puddle sleeping,\nTwitching tail tells tales.",
+            "def factorial(n):\n    if n < 0:\n        return 'Factorial does not exist for negative numbers'\n    elif n == 0:\n        return 1\n    else:\n        fact = 1\n        i = 1\n        while i <= n:\n            fact *= i\n            i += 1\n        return fact",
+            "Comment ça va ?",
+        ]
+    })
+
+    inference_results = client.evals.run_inference(
+        model="gemini-2.5-flash-preview-05-20",
+        src=prompts_df
+    )
+
+Then run evaluation by providing the inference results and specifying the metric types.
+
+.. code-block:: Python
+
+    eval_result = client.evals.evaluate(
+        dataset=inference_results,
+        metrics=[
+            types.Metric(name='exact_match'),
+            types.Metric(name='rouge_l_sum'),
+            types.PrebuiltMetric.TEXT_QUALITY,
+        ]
+    )
+
+-----------------------------------------
 
 Quick Start
 -----------

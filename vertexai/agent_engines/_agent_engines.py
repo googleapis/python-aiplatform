@@ -16,6 +16,7 @@
 import abc
 import inspect
 import io
+import logging
 import os
 import sys
 import tarfile
@@ -66,20 +67,17 @@ _DEFAULT_ASYNC_METHOD_NAME = "async_query"
 _DEFAULT_STREAM_METHOD_NAME = "stream_query"
 _DEFAULT_ASYNC_STREAM_METHOD_NAME = "async_stream_query"
 _DEFAULT_METHOD_RETURN_TYPE = "dict[str, Any]"
-_DEFAULT_ASYNC_METHOD_RETURN_TYPE = "Coroutine[Any]"
+_DEFAULT_ASYNC_METHOD_RETURN_TYPE = "Coroutine[Any, Any, Any]"
 _DEFAULT_STREAM_METHOD_RETURN_TYPE = "Iterable[Any]"
 _DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE = "AsyncIterable[Any]"
 _DEFAULT_METHOD_DOCSTRING_TEMPLATE = """
     Runs the Agent Engine to serve the user request.
-
     This will be based on the `.{method_name}(...)` of the python object that
     was passed in when creating the Agent Engine. The method will invoke the
     `{default_method_name}` API client of the python object.
-
     Args:
         **kwargs:
             Optional. The arguments of the `.{method_name}(...)` method.
-
     Returns:
         {return_type}: The response from serving the user request.
 """
@@ -91,6 +89,27 @@ _FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE = (
 )
 _AGENT_FRAMEWORK_ATTR = "agent_framework"
 _DEFAULT_AGENT_FRAMEWORK = "custom"
+_BUILD_OPTIONS_INSTALLATION = "installation_scripts"
+_DEFAULT_METHOD_NAME_MAP = {
+    _STANDARD_API_MODE: _DEFAULT_METHOD_NAME,
+    _ASYNC_API_MODE: _DEFAULT_ASYNC_METHOD_NAME,
+    _STREAM_API_MODE: _DEFAULT_STREAM_METHOD_NAME,
+    _ASYNC_STREAM_API_MODE: _DEFAULT_ASYNC_STREAM_METHOD_NAME,
+}
+_DEFAULT_METHOD_RETURN_TYPE_MAP = {
+    _STANDARD_API_MODE: _DEFAULT_METHOD_RETURN_TYPE,
+    _ASYNC_API_MODE: _DEFAULT_ASYNC_METHOD_RETURN_TYPE,
+    _STREAM_API_MODE: _DEFAULT_STREAM_METHOD_RETURN_TYPE,
+    _ASYNC_STREAM_API_MODE: _DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE,
+}
+
+
+try:
+    from google.adk.agents import BaseAgent
+
+    ADKAgent = BaseAgent
+except (ImportError, AttributeError):
+    ADKAgent = None
 
 
 @typing.runtime_checkable
@@ -98,7 +117,7 @@ class Queryable(Protocol):
     """Protocol for Agent Engines that can be queried."""
 
     @abc.abstractmethod
-    def query(self, **kwargs):
+    def query(self, **kwargs) -> Any:
         """Runs the Agent Engine to serve the user query."""
 
 
@@ -107,7 +126,7 @@ class AsyncQueryable(Protocol):
     """Protocol for Agent Engines that can be queried asynchronously."""
 
     @abc.abstractmethod
-    def async_query(self, **kwargs):
+    def async_query(self, **kwargs) -> Coroutine[Any, Any, Any]:
         """Runs the Agent Engine to serve the user query asynchronously."""
 
 
@@ -125,7 +144,7 @@ class StreamQueryable(Protocol):
     """Protocol for Agent Engines that can stream responses."""
 
     @abc.abstractmethod
-    def stream_query(self, **kwargs):
+    def stream_query(self, **kwargs) -> Iterable[Any]:
         """Stream responses to serve the user query."""
 
 
@@ -134,7 +153,7 @@ class Cloneable(Protocol):
     """Protocol for Agent Engines that can be cloned."""
 
     @abc.abstractmethod
-    def clone(self):
+    def clone(self) -> Any:
         """Return a clone of the object."""
 
 
@@ -143,8 +162,18 @@ class OperationRegistrable(Protocol):
     """Protocol for agents that have registered operations."""
 
     @abc.abstractmethod
-    def register_operations(self, **kwargs):
+    def register_operations(self, **kwargs) -> Dict[str, Sequence[str]]:
         """Register the user provided operations (modes and methods)."""
+
+
+_AgentEngineInterface = Union[
+    ADKAgent,
+    AsyncQueryable,
+    AsyncStreamQueryable,
+    OperationRegistrable,
+    Queryable,
+    StreamQueryable,
+]
 
 
 def _wrap_agent_operation(agent: Any, operation: str):
@@ -193,6 +222,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
                 to the system path in the sequence being specified here, and
                 only be appended if it is not already in the system path.
         """
+        self.agent_framework = None
         self._tmpl_attrs = {
             "module_name": module_name,
             "agent_name": agent_name,
@@ -209,7 +239,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
             sys_paths=self._tmpl_attrs.get("sys_paths"),
         )
 
-    def register_operations(self) -> Dict[str, Sequence[str]]:
+    def register_operations(self, **kwargs) -> Dict[str, Sequence[str]]:
         return self._tmpl_attrs.get("register_operations")
 
     def set_up(self) -> None:
@@ -243,6 +273,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
                 f"Agent {agent_name} not found in module "
                 f"{self._tmpl_attrs.get('module_name')}"
             ) from e
+        self.agent_framework = _get_agent_framework(agent)
         self._tmpl_attrs["agent"] = agent
         if hasattr(agent, "set_up"):
             agent.set_up()
@@ -294,7 +325,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+        agent_engine: Optional[_AgentEngineInterface] = None,
         *,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
@@ -304,6 +335,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         env_vars: Optional[
             Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
         ] = None,
+        build_options: Optional[Dict[str, Sequence[str]]] = None,
     ) -> "AgentEngine":
         """Creates a new Agent Engine.
 
@@ -319,6 +351,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             |-- requirements.txt
             |-- user_code/
             |   |-- utils.py
+            |   |-- ...
+            |-- installation_scripts/
+            |   |-- install_package.sh
             |   |-- ...
             |-- ...
 
@@ -339,6 +374,12 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                     "./user_src_dir/user_code", # a directory
                     ...
                 ],
+                build_options={
+                    "installation_scripts": [
+                        "./user_src_dir/installation_scripts/install_package.sh",
+                        ...
+                    ],
+                },
             )
 
         Args:
@@ -365,6 +406,14 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 a valid key to `os.environ`. If it is a dictionary, the keys are
                 the environment variable names, and the values are the
                 corresponding values.
+            build_options (Dict[str, Sequence[str]]):
+                Optional. The build options for the Agent Engine.
+                The following keys are supported:
+                - installation_scripts:
+                    Optional. The paths to the installation scripts to be
+                    executed in the Docker image.
+                    The scripts must be located in the `installation_scripts`
+                    subdirectory and the path must be added to `extra_packages`.
 
         Returns:
             AgentEngine: The Agent Engine that was created.
@@ -393,7 +442,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         staging_bucket = initializer.global_config.staging_bucket
         if agent_engine is not None:
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
-            _validate_staging_bucket_or_raise(staging_bucket)
+            staging_bucket = _validate_staging_bucket_or_raise(staging_bucket)
         if agent_engine is None:
             if requirements is not None:
                 raise ValueError("requirements must be None if agent_engine is None.")
@@ -403,7 +452,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             agent_engine=agent_engine,
             requirements=requirements,
         )
-        extra_packages = _validate_extra_packages_or_raise(extra_packages)
+        extra_packages = _validate_extra_packages_or_raise(
+            extra_packages=extra_packages,
+            build_options=build_options,
+        )
 
         sdk_resource = cls.__new__(cls)
         base.VertexAiResourceNounWithFutureManager.__init__(sdk_resource)
@@ -503,7 +555,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
     def update(
         self,
         *,
-        agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+        agent_engine: Optional[_AgentEngineInterface] = None,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
@@ -512,6 +564,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         env_vars: Optional[
             Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
         ] = None,
+        build_options: Optional[Dict[str, Sequence[str]]] = None,
     ) -> "AgentEngine":
         """Updates an existing Agent Engine.
 
@@ -553,6 +606,14 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 a valid key to `os.environ`. If it is a dictionary, the keys are
                 the environment variable names, and the values are the
                 corresponding values.
+            build_options (Dict[str, Sequence[str]]):
+                Optional. The build options for the Agent Engine.
+                The following keys are supported:
+                - installation_scripts:
+                    Optional. The paths to the installation scripts to be
+                    executed in the Docker image.
+                    The scripts must be located in the `installation_scripts`
+                    subdirectory and the path must be added to `extra_packages`.
 
         Returns:
             AgentEngine: The Agent Engine that was updated.
@@ -574,7 +635,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             nonexistent file.
         """
         staging_bucket = initializer.global_config.staging_bucket
-        _validate_staging_bucket_or_raise(staging_bucket)
+        staging_bucket = _validate_staging_bucket_or_raise(staging_bucket)
         historical_operation_schemas = self.operation_schemas()
         gcs_dir_name = gcs_dir_name or _DEFAULT_GCS_DIR_NAME
 
@@ -587,12 +648,13 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 display_name,
                 description,
                 env_vars,
+                build_options,
             ]
         ):
             raise ValueError(
                 "At least one of `agent_engine`, `requirements`, "
-                "`extra_packages`, `display_name`, `description`, or `env_vars` "
-                "must be specified."
+                "`extra_packages`, `display_name`, `description`, "
+                "`env_vars`, or `build_options` must be specified."
             )
         if requirements is not None:
             requirements = _validate_requirements_or_raise(
@@ -600,7 +662,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 requirements=requirements,
             )
         if extra_packages is not None:
-            extra_packages = _validate_extra_packages_or_raise(extra_packages)
+            extra_packages = _validate_extra_packages_or_raise(
+                extra_packages=extra_packages,
+                build_options=build_options,
+            )
         if agent_engine is not None:
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
 
@@ -716,19 +781,19 @@ def _validate_sys_version_or_raise(sys_version: str) -> None:
         )
 
 
-def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
+def _validate_staging_bucket_or_raise(staging_bucket: Optional[str]) -> str:
     """Tries to validate the staging bucket."""
     if not staging_bucket:
         raise ValueError("Please provide a `staging_bucket` in `vertexai.init(...)`")
     if not staging_bucket.startswith("gs://"):
         raise ValueError(f"{staging_bucket=} must start with `gs://`")
+    return staging_bucket
 
 
 def _validate_agent_engine_or_raise(
-    agent_engine: Union[
-        Queryable, OperationRegistrable, StreamQueryable, AsyncStreamQueryable
-    ],
-) -> Union[Queryable, OperationRegistrable, StreamQueryable, AsyncStreamQueryable]:
+    agent_engine: _AgentEngineInterface,
+    logger: base.Logger = _LOGGER,
+) -> _AgentEngineInterface:
     """Tries to validate the agent engine.
 
     The agent engine must have one of the following:
@@ -753,7 +818,7 @@ def _validate_agent_engine_or_raise(
         from google.adk.agents import BaseAgent
 
         if isinstance(agent_engine, BaseAgent):
-            _LOGGER.info("Deploying google.adk.agents.Agent as an application.")
+            logger.info("Deploying google.adk.agents.Agent as an application.")
             from vertexai.preview import reasoning_engines
 
             agent_engine = reasoning_engines.AdkApp(agent=agent_engine)
@@ -841,28 +906,41 @@ def _validate_agent_engine_or_raise(
 
 def _validate_requirements_or_raise(
     *,
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: _AgentEngineInterface,
     requirements: Optional[Sequence[str]] = None,
+    logger: logging.getLoggerClass() = _LOGGER,
 ) -> Sequence[str]:
     """Tries to validate the requirements."""
     if requirements is None:
         requirements = []
     elif isinstance(requirements, str):
         try:
-            _LOGGER.info(f"Reading requirements from {requirements=}")
+            logger.info(f"Reading requirements from {requirements=}")
             with open(requirements) as f:
                 requirements = f.read().splitlines()
-                _LOGGER.info(f"Read the following lines: {requirements}")
+                logger.info(f"Read the following lines: {requirements}")
         except IOError as err:
             raise IOError(f"Failed to read requirements from {requirements=}") from err
-    requirements = _utils.validate_requirements_or_warn(agent_engine, requirements)
-    _LOGGER.info(f"The final list of requirements: {requirements}")
+    requirements = _utils.validate_requirements_or_warn(
+        obj=agent_engine,
+        requirements=requirements,
+        logger=logger,
+    )
+    logger.info(f"The final list of requirements: {requirements}")
     return requirements
 
 
-def _validate_extra_packages_or_raise(extra_packages: Sequence[str]) -> Sequence[str]:
+def _validate_extra_packages_or_raise(
+    extra_packages: Optional[Sequence[str]],
+    build_options: Optional[Dict[str, Sequence[str]]] = None,
+) -> Sequence[str]:
     """Tries to validates the extra packages."""
     extra_packages = extra_packages or []
+    if build_options and _BUILD_OPTIONS_INSTALLATION in build_options:
+        _utils.validate_installation_scripts_or_raise(
+            script_paths=build_options[_BUILD_OPTIONS_INSTALLATION],
+            extra_packages=extra_packages,
+        )
     for extra_package in extra_packages:
         if not os.path.exists(extra_package):
             raise FileNotFoundError(
@@ -872,7 +950,11 @@ def _validate_extra_packages_or_raise(extra_packages: Sequence[str]) -> Sequence
 
 
 def _get_gcs_bucket(
-    *, project: str, location: str, staging_bucket: str
+    *,
+    project: str,
+    location: str,
+    staging_bucket: str,
+    logger: base.Logger = _LOGGER,
 ) -> storage.Bucket:
     """Gets or creates the GCS bucket."""
     storage = _utils._import_cloud_storage_or_raise()
@@ -880,19 +962,20 @@ def _get_gcs_bucket(
     staging_bucket = staging_bucket.replace("gs://", "")
     try:
         gcs_bucket = storage_client.get_bucket(staging_bucket)
-        _LOGGER.info(f"Using bucket {staging_bucket}")
+        logger.info(f"Using bucket {staging_bucket}")
     except exceptions.NotFound:
         new_bucket = storage_client.bucket(staging_bucket)
         gcs_bucket = storage_client.create_bucket(new_bucket, location=location)
-        _LOGGER.info(f"Creating bucket {staging_bucket} in {location=}")
+        logger.info(f"Creating bucket {staging_bucket} in {location=}")
     return gcs_bucket
 
 
 def _upload_agent_engine(
     *,
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: _AgentEngineInterface,
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
+    logger: base.Logger = _LOGGER,
 ) -> None:
     """Uploads the agent engine to GCS."""
     cloudpickle = _utils._import_cloudpickle_or_raise()
@@ -911,7 +994,7 @@ def _upload_agent_engine(
         except Exception as e:
             raise TypeError("Agent engine serialized to an invalid format") from e
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
-    _LOGGER.info(f"Wrote to {dir_name}/{_BLOB_FILENAME}")
+    logger.info(f"Wrote to {dir_name}/{_BLOB_FILENAME}")
 
 
 def _upload_requirements(
@@ -919,12 +1002,13 @@ def _upload_requirements(
     requirements: Sequence[str],
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
+    logger: base.Logger = _LOGGER,
 ) -> None:
     """Uploads the requirements file to GCS."""
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_REQUIREMENTS_FILE}")
     blob.upload_from_string("\n".join(requirements))
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
-    _LOGGER.info(f"Writing to {dir_name}/{_REQUIREMENTS_FILE}")
+    logger.info(f"Writing to {dir_name}/{_REQUIREMENTS_FILE}")
 
 
 def _upload_extra_packages(
@@ -932,9 +1016,10 @@ def _upload_extra_packages(
     extra_packages: Sequence[str],
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
+    logger: base.Logger = _LOGGER,
 ) -> None:
     """Uploads extra packages to GCS."""
-    _LOGGER.info("Creating in-memory tarfile of extra_packages")
+    logger.info("Creating in-memory tarfile of extra_packages")
     tar_fileobj = io.BytesIO()
     with tarfile.open(fileobj=tar_fileobj, mode="w|gz") as tar:
         for file in extra_packages:
@@ -943,17 +1028,18 @@ def _upload_extra_packages(
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_EXTRA_PACKAGES_FILE}")
     blob.upload_from_string(tar_fileobj.read())
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
-    _LOGGER.info(f"Writing to {dir_name}/{_EXTRA_PACKAGES_FILE}")
+    logger.info(f"Writing to {dir_name}/{_EXTRA_PACKAGES_FILE}")
 
 
 def _prepare(
-    agent_engine: Optional[Union[Queryable, OperationRegistrable]],
+    agent_engine: Optional[_AgentEngineInterface],
     requirements: Optional[Sequence[str]],
     extra_packages: Optional[Sequence[str]],
     project: str,
     location: str,
     staging_bucket: str,
     gcs_dir_name: str,
+    logger: base.Logger = _LOGGER,
 ) -> None:
     """Prepares the agent engine for creation or updates in Vertex AI.
 
@@ -979,23 +1065,27 @@ def _prepare(
         project=project,
         location=location,
         staging_bucket=staging_bucket,
+        logger=logger,
     )
     _upload_agent_engine(
         agent_engine=agent_engine,
         gcs_bucket=gcs_bucket,
         gcs_dir_name=gcs_dir_name,
+        logger=logger,
     )
     if requirements is not None:
         _upload_requirements(
             requirements=requirements,
             gcs_bucket=gcs_bucket,
             gcs_dir_name=gcs_dir_name,
+            logger=logger,
         )
     if extra_packages is not None:
         _upload_extra_packages(
             extra_packages=extra_packages,
             gcs_bucket=gcs_bucket,
             gcs_dir_name=gcs_dir_name,
+            logger=logger,
         )
 
 
@@ -1072,11 +1162,12 @@ def _generate_deployment_spec_or_raise(
 
 
 def _get_agent_framework(
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: _AgentEngineInterface,
 ) -> str:
     if (
         hasattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
         and getattr(agent_engine, _AGENT_FRAMEWORK_ATTR) is not None
+        and isinstance(getattr(agent_engine, _AGENT_FRAMEWORK_ATTR), str)
     ):
         return getattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
     return _DEFAULT_AGENT_FRAMEWORK
@@ -1087,7 +1178,7 @@ def _generate_update_request_or_raise(
     resource_name: str,
     staging_bucket: str,
     gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
-    agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+    agent_engine: Optional[_AgentEngineInterface] = None,
     requirements: Optional[Union[str, Sequence[str]]] = None,
     extra_packages: Optional[Sequence[str]] = None,
     display_name: Optional[str] = None,
@@ -1163,7 +1254,7 @@ def _generate_update_request_or_raise(
     )
 
 
-def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.JsonDict]:
+def _wrap_query_operation(method_name: str) -> Callable[..., _utils.JsonDict]:
     """Wraps an Agent Engine method, creating a callable for `query` API.
 
     This function creates a callable object that executes the specified
@@ -1190,13 +1281,10 @@ def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.Js
         output = _utils.to_dict(response)
         return output.get("output", output)
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
-
     return _method
 
 
-def _wrap_async_query_operation(method_name: str, doc: str) -> Callable[..., Coroutine]:
+def _wrap_async_query_operation(method_name: str) -> Callable[..., Coroutine]:
     """Wraps an Agent Engine method, creating an async callable for `query` API.
 
     This function creates a callable object that executes the specified
@@ -1223,15 +1311,10 @@ def _wrap_async_query_operation(method_name: str, doc: str) -> Callable[..., Cor
         output = _utils.to_dict(response)
         return output.get("output", output)
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
-
     return _method
 
 
-def _wrap_stream_query_operation(
-    *, method_name: str, doc: str
-) -> Callable[..., Iterable[Any]]:
+def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterable[Any]]:
     """Wraps an Agent Engine method, creating a callable for `stream_query` API.
 
     This function creates a callable object that executes the specified
@@ -1260,14 +1343,11 @@ def _wrap_stream_query_operation(
                 if parsed_json is not None:
                     yield parsed_json
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
-
     return _method
 
 
 def _wrap_async_stream_query_operation(
-    *, method_name: str, doc: str
+    *, method_name: str
 ) -> Callable[..., AsyncIterable[Any]]:
     """Wraps an Agent Engine method, creating an async callable for `stream_query` API.
 
@@ -1297,9 +1377,6 @@ def _wrap_async_stream_query_operation(
                 if parsed_json is not None:
                     yield parsed_json
 
-    _method.__name__ = method_name
-    _method.__doc__ = doc
-
     return _method
 
 
@@ -1324,7 +1401,12 @@ def _unregister_api_methods(
                 delattr(obj, method_name)
 
 
-def _register_api_methods_or_raise(obj: "AgentEngine"):
+def _register_api_methods_or_raise(
+    obj: "AgentEngine",
+    wrap_operation_fn: Optional[
+        dict[str, Callable[[str, str], Callable[..., Any]]]
+    ] = None,
+):
     """Registers Agent Engine API methods based on operation schemas.
 
     This function iterates through operation schemas provided by the
@@ -1335,6 +1417,8 @@ def _register_api_methods_or_raise(obj: "AgentEngine"):
 
     Args:
         obj: The AgentEngine object to augment with API methods.
+        wrap_operation_fn: A dictionary of API modes and method wrapping
+            functions.
 
     Raises:
         ValueError: If the API mode is not supported or if the operation schema
@@ -1353,72 +1437,49 @@ def _register_api_methods_or_raise(obj: "AgentEngine"):
                 f" contain a `{_METHOD_NAME_KEY_IN_SCHEMA}` field."
             )
         method_name = operation_schema.get(_METHOD_NAME_KEY_IN_SCHEMA)
-        method_description = operation_schema.get("description")
-
-        if api_mode == _STANDARD_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_METHOD_NAME,
-                    return_type=_DEFAULT_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_query_operation(
+        method_description = operation_schema.get(
+            "description",
+            _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
                 method_name=method_name,
-                doc=method_description,
-            )
-        elif api_mode == _ASYNC_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_ASYNC_METHOD_NAME,
-                    return_type=_DEFAULT_ASYNC_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_async_query_operation(
-                method_name=method_name,
-                doc=method_description,
-            )
-        elif api_mode == _STREAM_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_STREAM_METHOD_NAME,
-                    return_type=_DEFAULT_STREAM_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_stream_query_operation(
-                method_name=method_name,
-                doc=method_description,
-            )
-        elif api_mode == _ASYNC_STREAM_API_MODE:
-            method_description = (
-                method_description
-                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
-                    method_name=method_name,
-                    default_method_name=_DEFAULT_ASYNC_STREAM_METHOD_NAME,
-                    return_type=_DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE,
-                )
-            )
-            method = _wrap_async_stream_query_operation(
-                method_name=method_name,
-                doc=method_description,
-            )
+                default_method_name=_DEFAULT_METHOD_NAME_MAP.get(
+                    api_mode, _DEFAULT_METHOD_NAME
+                ),
+                return_type=_DEFAULT_METHOD_RETURN_TYPE_MAP.get(
+                    api_mode,
+                    _DEFAULT_METHOD_RETURN_TYPE,
+                ),
+            ),
+        )
+        _wrap_operation_map = {
+            _STANDARD_API_MODE: _wrap_query_operation,
+            _ASYNC_API_MODE: _wrap_async_query_operation,
+            _STREAM_API_MODE: _wrap_stream_query_operation,
+            _ASYNC_STREAM_API_MODE: _wrap_async_stream_query_operation,
+        }
+        if isinstance(wrap_operation_fn, dict) and api_mode in wrap_operation_fn:
+            # Override the default function with user-specified function if it exists.
+            _wrap_operation = wrap_operation_fn[api_mode]
+        elif api_mode in _wrap_operation_map:
+            _wrap_operation = _wrap_operation_map[api_mode]
         else:
+            supported_api_modes = ", ".join(
+                f"`{mode}`" for mode in sorted(_wrap_operation_map.keys())
+            )
             raise ValueError(
                 f"Unsupported api mode: `{api_mode}`,"
-                f" Supported modes are: `{_STANDARD_API_MODE}`, `{_ASYNC_API_MODE}`,"
-                f" `{_STREAM_API_MODE}` and `{_ASYNC_STREAM_API_MODE}`."
+                f" Supported modes are: {supported_api_modes}."
             )
 
-        # Binds the method to the object.
+        # Bind the method to the object.
+        method = _wrap_operation(method_name=method_name)
+        method.__name__ = method_name
+        method.__doc__ = method_description
         setattr(obj, method_name, types.MethodType(method, obj))
 
 
-def _get_registered_operations(agent_engine: Any) -> Dict[str, List[str]]:
+def _get_registered_operations(
+    agent_engine: _AgentEngineInterface,
+) -> Dict[str, List[str]]:
     """Retrieves registered operations for a AgentEngine."""
     if isinstance(agent_engine, OperationRegistrable):
         return agent_engine.register_operations()
@@ -1436,7 +1497,10 @@ def _get_registered_operations(agent_engine: Any) -> Dict[str, List[str]]:
 
 
 def _generate_class_methods_spec_or_raise(
-    *, agent_engine: Any, operations: Dict[str, List[str]]
+    *,
+    agent_engine: _AgentEngineInterface,
+    operations: Dict[str, List[str]],
+    logger: base.Logger = _LOGGER,
 ) -> List[proto.Message]:
     """Generates a ReasoningEngineSpec based on the registered operations.
 
@@ -1474,7 +1538,7 @@ def _generate_class_methods_spec_or_raise(
             try:
                 schema_dict = _utils.generate_schema(method, schema_name=method_name)
             except Exception as e:
-                _LOGGER.warning(f"failed to generate schema for {method_name}: {e}")
+                logger.warning(f"failed to generate schema for {method_name}: {e}")
                 continue
 
             class_method = _utils.to_proto(schema_dict)

@@ -62,6 +62,7 @@ from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.protobuf import json_format
 from google.protobuf import field_mask_pb2
 import warnings
+from vertexai._utils import warning_logs
 
 if TYPE_CHECKING:
     from vertexai.caching import CachedContent
@@ -429,6 +430,7 @@ class _GenerativeModel:
                 Content of each part will become a separate paragraph.
             labels: labels that will be passed to billing for cost tracking.
         """
+        warning_logs.show_deprecation_warning()
         project = aiplatform_initializer.global_config.project
         location = aiplatform_initializer.global_config.location
         model_name = _reconcile_model_name(model_name, project, location)

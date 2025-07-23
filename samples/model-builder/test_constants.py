@@ -116,6 +116,19 @@ MACHINE_TYPE = "n1-standard-4"
 ACCELERATOR_TYPE = "ACCELERATOR_TYPE_UNSPECIFIED"
 ACCELERATOR_COUNT = 0
 NETWORK_ATTACHMENT_NAME = "network-attachment-name"
+DOMAIN = "test.com"
+TARGET_PROJECT = "target-project"
+TARGET_NETWORK = "target-network"
+PSC_INTERFACE_CONFIG = {
+    "network_attachment": NETWORK_ATTACHMENT_NAME,
+    "dns_peering_configs": [
+        {
+            "domain": DOMAIN,
+            "target_project": TARGET_PROJECT,
+            "target_network": TARGET_NETWORK,
+        },
+    ],
+}
 
 # Model constants
 MODEL_RESOURCE_NAME = f"{PARENT}/models/1234"
@@ -377,6 +390,20 @@ CUSTOM_JOB_WORKER_POOL_SPECS = [
             "machine_type": "n1-standard-4",
             "accelerator_type": "NVIDIA_TESLA_K80",
             "accelerator_count": 1,
+        },
+        "replica_count": 1,
+        "container_spec": {
+            "image_uri": CONTAINER_URI,
+            "command": [],
+            "args": [],
+        },
+    }
+]
+
+CUSTOM_JOB_WORKER_POOL_SPECS_WITHOUT_ACCELERATOR = [
+    {
+        "machine_spec": {
+            "machine_type": "n1-standard-4",
         },
         "replica_count": 1,
         "container_spec": {

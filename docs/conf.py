@@ -416,6 +416,7 @@ def setup(*args, **kwargs):
     # 2. Giving pretty class names to the preview classes
     # 3. Making Sphinx automodule render the class members instead of
     #     dismissing the exported private classes as "Alias of".
+    from vertexai import agent_engines
     from vertexai import evaluation
     from vertexai import language_models
     from vertexai import vision_models
@@ -430,6 +431,7 @@ def setup(*args, **kwargs):
     # We select the publicly exported members that have an internal module ("*._*").
 
     # Setting the modules of the GA classes
+    adopt_members_reexported_from_private_modules(agent_engines)
     adopt_members_reexported_from_private_modules(evaluation)
     adopt_members_reexported_from_private_modules(language_models)
     adopt_members_reexported_from_private_modules(vision_models)

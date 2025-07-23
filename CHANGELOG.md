@@ -1,5 +1,213 @@
 # Changelog
 
+## [1.104.0](https://github.com/googleapis/python-aiplatform/compare/v1.103.0...v1.104.0) (2025-07-15)
+
+
+### Features
+
+* Add Aggregation Output in EvaluateDataset Get Operation Response ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Add API for Managed OSS Fine Tuning ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Add flexstart option to v1beta1 ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Expose task_unique_name in pipeline task details for pipeline rerun ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* GenAI SDK client - Add support for context specs when creating agent engine instances ([8321826](https://github.com/googleapis/python-aiplatform/commit/8321826fe3c18b8b938861fe0930aa7ec4e97fa3))
+* GenAI SDK client(evals) - Add Generate Rubrics API config and internal method ([6727fb3](https://github.com/googleapis/python-aiplatform/commit/6727fb3761e91d32359e13b1c28494d2f16d165a))
+* GenAI SDK client(evals) - add rubric-based evaluation types ([df2390e](https://github.com/googleapis/python-aiplatform/commit/df2390e881b06629da29adb21a69c8cc68585aba))
+* GenAI SDK client(evals) - Add support for rubric-based metrics, and rubric customization eval workflow ([36bfda2](https://github.com/googleapis/python-aiplatform/commit/36bfda246eeb2b2a171cec9fb2602f4802601b7d))
+* Some comments changes in machine_resources.proto to v1beta1 ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Vertex AI Model Garden custom model deploy Public Preview ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+
+
+### Bug Fixes
+
+* GenAI SDK client(evals) - Handle optional pandas dependency in type hints ([cee8d8b](https://github.com/googleapis/python-aiplatform/commit/cee8d8b85f00efb259dbee5e2fa6d0cbed73e24c))
+
+
+### Documentation
+
+* A comment for field `boot_disk_type` in message `.google.cloud.aiplatform.v1beta1.DiskSpec` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `learning_rate_multiplier` in message `.google.cloud.aiplatform.v1beta1.SupervisedHyperParameters` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `machine_spec` in message `.google.cloud.aiplatform.v1beta1.DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `max_replica_count` in message `.google.cloud.aiplatform.v1beta1.AutomaticResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `max_replica_count` in message `.google.cloud.aiplatform.v1beta1.DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `min_replica_count` in message `.google.cloud.aiplatform.v1beta1.AutomaticResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `min_replica_count` in message `.google.cloud.aiplatform.v1beta1.DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `model` in message `.google.cloud.aiplatform.v1beta1.TunedModel` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `required_replica_count` in message `.google.cloud.aiplatform.v1beta1.DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `training_dataset_uri` in message `.google.cloud.aiplatform.v1beta1.SupervisedTuningSpec` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for field `validation_dataset_uri` in message `.google.cloud.aiplatform.v1beta1.SupervisedTuningSpec` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* A comment for message `DedicatedResources` is changed ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+* Add constraints for AggregationMetric enum and default value for flip_enabled field in AutoraterConfig ([43eee8d](https://github.com/googleapis/python-aiplatform/commit/43eee8de3a6cbcf5e74a1272565b5307e882d194))
+
+## [1.103.0](https://github.com/googleapis/python-aiplatform/compare/v1.102.0...v1.103.0) (2025-07-10)
+
+
+### Features
+
+* Add ADK version check and set MemoryBankService as default when google-adk&gt;=1.5.0 ([262fbc3](https://github.com/googleapis/python-aiplatform/commit/262fbc3c58e7ebe98b4420d81402f6bb805a0be4))
+* Add logging for agent engine creation ([795ee17](https://github.com/googleapis/python-aiplatform/commit/795ee171e0ac9034d834db1989d3d38c623c3dcb))
+* Populate task_unique_name from initial pipeline run in Pipeline Task Rerun Configs for pipeline job rerun ([116a0a6](https://github.com/googleapis/python-aiplatform/commit/116a0a63a5b062fa76b75818c77f2c49c4f60432))
+* Ummd.MultimodalDataset.from_bigquery() now also accepts a table id (not just a BQ table URI). ([6e5c421](https://github.com/googleapis/python-aiplatform/commit/6e5c4214483c1e19512d39351346929289c5eeee))
+
+## [1.102.0](https://github.com/googleapis/python-aiplatform/compare/v1.101.0...v1.102.0) (2025-07-08)
+
+
+### Features
+
+* Add message ColabImage, add field colab_image to NotebookSoftwareConfig ([2c64a76](https://github.com/googleapis/python-aiplatform/commit/2c64a769e535d28abfa0dad6aadba76c8e929cbc))
+* Add message ColabImage, add field colab_image to NotebookSoftwareConfig ([2c64a76](https://github.com/googleapis/python-aiplatform/commit/2c64a769e535d28abfa0dad6aadba76c8e929cbc))
+* Configure Bigframes implicitly in `MultimodalDataset.assess()`. ([0664ea3](https://github.com/googleapis/python-aiplatform/commit/0664ea32eff7be779968e082a8b7e85f72c4791f))
+* GenAI SDK client - add async version of prompt optimizer ([4564c9c](https://github.com/googleapis/python-aiplatform/commit/4564c9c66ae2de79405012ef237c538a9aca88c5))
+* GenAI SDK client (evals)  - add LLMMetric.load function to load a config file (local or GCS) ([56252e8](https://github.com/googleapis/python-aiplatform/commit/56252e81423968cd514bd354a754e7a2e66eeea7))
+
+
+### Documentation
+
+* Fix the docstring example for unary Endpoint invoke method. ([a132e86](https://github.com/googleapis/python-aiplatform/commit/a132e865b93c78b3564f736fafcc29d21f1128dc))
+
+## [1.101.0](https://github.com/googleapis/python-aiplatform/compare/v1.100.0...v1.101.0) (2025-07-01)
+
+
+### Features
+
+* **Allow installation scripts in AgentEngine.** ([9296d4d](https://github.com/googleapis/python-aiplatform/commit/9296d4d9fc7cb40116f7adbce0e08f0c41a15413))
+* Add `invoke` method. It supports both streaming and non-streaming cases. ([e686932](https://github.com/googleapis/python-aiplatform/commit/e68693270a4f00aed51d78692a4c6bb78e7f3374))
+* Add computer use support to tools ([f56c42e](https://github.com/googleapis/python-aiplatform/commit/f56c42e1d52b052fac6003e6b523ee9f536b72a0))
+* Add computer use support to tools ([f56c42e](https://github.com/googleapis/python-aiplatform/commit/f56c42e1d52b052fac6003e6b523ee9f536b72a0))
+* Allow users to pass project_number for custom job service account when service_account is not provided. ([5b59030](https://github.com/googleapis/python-aiplatform/commit/5b59030d5ae98d6e4ff1a6d2e4e55dbe5b53fcf5))
+* Expose task_unique_name in pipeline task details for pipeline rerun ([f56c42e](https://github.com/googleapis/python-aiplatform/commit/f56c42e1d52b052fac6003e6b523ee9f536b72a0))
+* Support creating an invoke enabled model in Python SDK ([71a8d7b](https://github.com/googleapis/python-aiplatform/commit/71a8d7b375e5058de47901331071ccda9e2c41f6))
+
+## [1.100.0](https://github.com/googleapis/python-aiplatform/compare/v1.99.0...v1.100.0) (2025-06-26)
+
+
+### Features
+
+* Add import_embeddings method in MatchingEngineIndex resource ([5a0df36](https://github.com/googleapis/python-aiplatform/commit/5a0df366b37eb296c8103912dc57db175d1e24a6))
+* Add invoke_route_prefix to ModelContainerSpec in aiplatform v1 models.proto ([4202177](https://github.com/googleapis/python-aiplatform/commit/4202177f887f4582f53150f5a011202c1186fcbc))
+* Add invoke_route_prefix to ModelContainerSpec in aiplatform v1beta1 models.proto ([d4ede02](https://github.com/googleapis/python-aiplatform/commit/d4ede02ea6cd01cdc40b15d1eda8ba64e0eafae1))
+* Add Model Garden deploy OSS model API ([d4ede02](https://github.com/googleapis/python-aiplatform/commit/d4ede02ea6cd01cdc40b15d1eda8ba64e0eafae1))
+* Add PSCAutomationConfig to PrivateServiceConnectConfig in service_networking.proto ([d4ede02](https://github.com/googleapis/python-aiplatform/commit/d4ede02ea6cd01cdc40b15d1eda8ba64e0eafae1))
+* Add validation assessment for batch prediction. ([d570fc9](https://github.com/googleapis/python-aiplatform/commit/d570fc9cee53cb5108a9bafafad7396837ddc411))
+* GenAI SDK client - Add batch_evaluate method for asynchronous batch eval. Add transformation support for consistent interface parameters with the evaluate method ([4d44f94](https://github.com/googleapis/python-aiplatform/commit/4d44f945ed7b31de1b2ee35245c2a52464ad51e5))
+* GenAI SDK client - Add Vertex AI Prompt Optimizer to the Gen AI SDK (experimental) ([5daacda](https://github.com/googleapis/python-aiplatform/commit/5daacda697989c0e397fbc0a03929ad47d8d6331))
+* GenAI SDK client - Initial release of Agent Engine Memories SDK ([e8d18b6](https://github.com/googleapis/python-aiplatform/commit/e8d18b6c1179b05ad6a19fc121cd1ed9aea691e5))
+* GenAI SDK client (evals) - add support for third-party model inference via litellm library ([e728d8b](https://github.com/googleapis/python-aiplatform/commit/e728d8bab26a97695ac2e83370543010091dbad3))
+* **matching-engine:** Add sync argument to deploy_index ([fee1e2d](https://github.com/googleapis/python-aiplatform/commit/fee1e2dbe6b28edb40d392b4a4c79f17e57b709b))
+* Reasoning Engine v1beta1 subresource updates ([d4ede02](https://github.com/googleapis/python-aiplatform/commit/d4ede02ea6cd01cdc40b15d1eda8ba64e0eafae1))
+* Updated explicit sync to existing decorator optional_sync ([fee1e2d](https://github.com/googleapis/python-aiplatform/commit/fee1e2dbe6b28edb40d392b4a4c79f17e57b709b))
+
+
+### Bug Fixes
+
+* Fix auth scope for RAG upload_file ([a506b94](https://github.com/googleapis/python-aiplatform/commit/a506b94ccbffe0c24b73480d18b6a74088e921d1))
+* Fixed return type for deploy_index and added test for sync values ([fee1e2d](https://github.com/googleapis/python-aiplatform/commit/fee1e2dbe6b28edb40d392b4a4c79f17e57b709b))
+* Use PrivateServiceConnectConfig in service_networking in PrivateEndpoint instead of the wrapper class PrivateServiceConnectConfig ([87c2c3e](https://github.com/googleapis/python-aiplatform/commit/87c2c3e1bf6450c0a27ecfb90f091f3d13d02adf))
+
+## [1.99.0](https://github.com/googleapis/python-aiplatform/compare/v1.98.0...v1.99.0) (2025-06-24)
+
+
+### Features
+
+* [vertexai] Added concise option name to `OpenModel.list_deploy_options()` ([9a0eec6](https://github.com/googleapis/python-aiplatform/commit/9a0eec64544630ca3681acf1ba6bb79280ee8c11))
+* Add resource usage assessment for batch prediction. ([f63e436](https://github.com/googleapis/python-aiplatform/commit/f63e436ed0cb30316dc8569a6e1adfe5cb2cced8))
+* Add support for ADK memory service to AdkApp template ([733fddd](https://github.com/googleapis/python-aiplatform/commit/733fdddb7dd61ae9b9e5180e832776b0c4e2682b))
+* GenAI SDK client - Add automatic candidate naming and creation timestamp to evaluation dataset metadata ([e8897e7](https://github.com/googleapis/python-aiplatform/commit/e8897e7bee243fe9ac9996d451ad313e9ff6484c))
+* GenAI SDK client - Add support for OpenAI data format for evals ([f8f66f1](https://github.com/googleapis/python-aiplatform/commit/f8f66f1420271c9278236c6c1bf0b652126c4959))
+* GenAI SDK client - Adding client-based SDKs for Agent Engine ([7b51d9e](https://github.com/googleapis/python-aiplatform/commit/7b51d9e0a06662def2275c84cda6d08fed796740))
+
+
+### Documentation
+
+* Add deprecation notice to readme for Generative AI submodules: vertexai.generative_models, vertexai.language_models, vertexai.vision_models, vertexai.tuning, vertexai.caching ([beae2e3](https://github.com/googleapis/python-aiplatform/commit/beae2e3c39904c83a63f77be5bb7dc9958abd19d))
+* Add deprecation notice to readme for Generative AI submodules: vertexai.generative_models, vertexai.language_models, vertexai.vision_models, vertexai.tuning, vertexai.caching ([cdee7c2](https://github.com/googleapis/python-aiplatform/commit/cdee7c2406ad50dd2d3af0075f1c84d38b684b33))
+* Add deprecation notice to readme for Generative AI submodules: vertexai.generative_models, vertexai.language_models, vertexai.vision_models, vertexai.tuning, vertexai.caching ([9b0beae](https://github.com/googleapis/python-aiplatform/commit/9b0beae22be2f7618618ef52971f0b3603ae3885))
+
+## [1.98.0](https://github.com/googleapis/python-aiplatform/compare/v1.97.0...v1.98.0) (2025-06-19)
+
+
+### Features
+
+* Add DnsPeeringConfig in service_networking.proto ([c5bb99b](https://github.com/googleapis/python-aiplatform/commit/c5bb99b80dbbc76ababdba1228154717370eb5dd))
+* Add DnsPeeringConfig in service_networking.proto ([c5bb99b](https://github.com/googleapis/python-aiplatform/commit/c5bb99b80dbbc76ababdba1228154717370eb5dd))
+* Add EncryptionSpec field for RagCorpus CMEK feature to v1 ([9b48d24](https://github.com/googleapis/python-aiplatform/commit/9b48d24ab90c57d4a49b3adf22a79cffbe065351))
+* Add PSC interface config support for Custom Training Jobs ([267b53d](https://github.com/googleapis/python-aiplatform/commit/267b53d4a7db87cdf70181f76adb5c6980a2136a))
+* Add RagEngineConfig update/get APIs to v1 ([c5bb99b](https://github.com/googleapis/python-aiplatform/commit/c5bb99b80dbbc76ababdba1228154717370eb5dd))
+* Add Scaled tier for RagEngineConfig to v1beta, equivalent to Enterprise ([c5bb99b](https://github.com/googleapis/python-aiplatform/commit/c5bb99b80dbbc76ababdba1228154717370eb5dd))
+* Added `autoscaling_target_request_count_per_minute` to model deployment on Endpoint and Model classes ([4df909c](https://github.com/googleapis/python-aiplatform/commit/4df909cdfddf071c4b87a7d1dabed56437d528a2))
+* Adding VAPO Prompt Optimizer (PO-data) to the genai SDK. ([701b8d4](https://github.com/googleapis/python-aiplatform/commit/701b8d40ba7b1265051a8b6a507e8a6b8e242a54))
+* Enable asia-south2 ([a1f4205](https://github.com/googleapis/python-aiplatform/commit/a1f420582908bc3d9a3201d36bf8d075758d4644))
+* Enable Vertex Multimodal Dataset as input to supervised fine-tuning. ([959d798](https://github.com/googleapis/python-aiplatform/commit/959d79869468c1fa66b7691eb8c4071a5af3eec4))
+* Export global quota configs in preview sdk ([7f964d5](https://github.com/googleapis/python-aiplatform/commit/7f964d5625bea84fada767efc32661db34473a80))
+* GenAI SDK client - add `show` method for `EvaluationResult` and `EvaluationDataset` classes in IPython environment ([c43de0a](https://github.com/googleapis/python-aiplatform/commit/c43de0ab174b22adf95f1b97c701ec2c4b4581fb))
+* Introduce RagFileMetadataConfig for importing metadata to Rag ([9b48d24](https://github.com/googleapis/python-aiplatform/commit/9b48d24ab90c57d4a49b3adf22a79cffbe065351))
+* RAG - Add Basic, Scaled and Unprovisioned tier in v1. ([726d3a2](https://github.com/googleapis/python-aiplatform/commit/726d3a26c81b95163416af5b3da2367086317573))
+* RAG - Add Scaled and Unprovisioned tier in preview. ([726d3a2](https://github.com/googleapis/python-aiplatform/commit/726d3a26c81b95163416af5b3da2367086317573))
+* RAG - Implement v1 `get_rag_engine_config` in `rag_data.py` ([726d3a2](https://github.com/googleapis/python-aiplatform/commit/726d3a26c81b95163416af5b3da2367086317573))
+* RAG - Implement v1 `update_rag_engine_config` in `rag_data.py` ([726d3a2](https://github.com/googleapis/python-aiplatform/commit/726d3a26c81b95163416af5b3da2367086317573))
+* Update v1 `create_corpus` to accept `encryption_spec` in `rag_data.py` ([865a68c](https://github.com/googleapis/python-aiplatform/commit/865a68c1273aa4e4e946a203bf226b80a723523f))
+
+
+### Bug Fixes
+
+* Update supported python version for create_reasoning_engine ([0059c01](https://github.com/googleapis/python-aiplatform/commit/0059c01b7395fc93be8d9214c938299678f67d3e))
+* Use none check to avoid 30s delay in agent run. ([84895b6](https://github.com/googleapis/python-aiplatform/commit/84895b6c6cd8d898d8472f0a1ace12a8b420717b))
+
+
+### Documentation
+
+* Add GenAI client examples to readme ([f1e17a6](https://github.com/googleapis/python-aiplatform/commit/f1e17a6b35fb31b7a5eb589a132df5df0ad7e3e4))
+
+## [1.97.0](https://github.com/googleapis/python-aiplatform/compare/v1.96.0...v1.97.0) (2025-06-11)
+
+
+### Features
+
+* Add GenAI client (experimental) ([166b747](https://github.com/googleapis/python-aiplatform/commit/166b747b2f1676651cd020c9b66df169ca5920fa))
+* Expose UrlContextMetadata API to v1 ([b57cbd3](https://github.com/googleapis/python-aiplatform/commit/b57cbd34ca1de69ded45ea584ff5808fe30bd89c))
+* Expose UrlContextMetadata API to v1beta1 ([b57cbd3](https://github.com/googleapis/python-aiplatform/commit/b57cbd34ca1de69ded45ea584ff5808fe30bd89c))
+* Integration with Vertex AI Multimodal Datasets: Update `train_dataset` and `validation_dataset` in `sft.train()` docstring to include the Vertex Multimodal Dataset as a dataset source option. ([eac1de0](https://github.com/googleapis/python-aiplatform/commit/eac1de0e363624edd5abede7eb42de66c5ae4d17))
+* RAG - Introduce configuration to corpus types, with DocumentCorpus and MemoryCorpus options. ([ede4b5b](https://github.com/googleapis/python-aiplatform/commit/ede4b5b718197ba077e897e49f8079f3da21422e))
+
+
+### Bug Fixes
+
+* Add default auth scope ([3d747e7](https://github.com/googleapis/python-aiplatform/commit/3d747e7ea3c7b681c374c6036e008332e7e04888))
+* Add support for ADK Agents as a supported type for agent engine ([6b177ca](https://github.com/googleapis/python-aiplatform/commit/6b177ca9261afb07b291d36e4b8e214d359c4296))
+* Set memory corpus configuration into RagCorpus object. ([39d3c70](https://github.com/googleapis/python-aiplatform/commit/39d3c702443af4c4ef2c804d1c43f890c8915878))
+
+## [1.96.0](https://github.com/googleapis/python-aiplatform/compare/v1.95.1...v1.96.0) (2025-06-03)
+
+
+### Features
+
+* A new field `include_thoughts` is added to message `.google.cloud.aiplatform.v1.GenerationConfig.ThinkingConfig` ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* A new field `include_thoughts` is added to message `.google.cloud.aiplatform.v1.Part` ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* A new field `thought_signature` is added to message `.google.cloud.aiplatform.v1.Part` ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* A new field `thought` is added to message `.google.cloud.aiplatform.v1.Part` ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add json schema support to structured output and function declaration ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add json schema support to structured output and function declaration ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add network_attachment to PscInterfaceConfig ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add psc_interface_config to CustomJobSpec ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add psc_interface_config to PersistentResource ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add psc_interface_config to PipelineJob ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Expose URL Context API to v1 ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Expose URL Context API to v1beta1 ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+
+
+### Bug Fixes
+
+* Small fix in `MultimodalDataset.toBigframes()`. ([ee12f05](https://github.com/googleapis/python-aiplatform/commit/ee12f055cb7cd42b99b0d72908243e94907f5470))
+
+
+### Documentation
+
+* Allow field `thought` to be set as input ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+
+
+### Miscellaneous Chores
+
+* Release 1.96.0 ([97be629](https://github.com/googleapis/python-aiplatform/commit/97be629f2790b356340ed6b6ebfe78bff73afca5))
+
 ## [1.95.1](https://github.com/googleapis/python-aiplatform/compare/v1.95.0...v1.95.1) (2025-05-30)
 
 

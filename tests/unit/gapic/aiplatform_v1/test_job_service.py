@@ -103,6 +103,7 @@ from google.cloud.aiplatform_v1.types import nas_job
 from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import reservation_affinity
+from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.aiplatform_v1.types import study
 from google.cloud.aiplatform_v1.types import unmanaged_container_model
 from google.cloud.location import locations_pb2
@@ -24433,6 +24434,16 @@ def test_create_custom_job_rest_call_success(request_type):
                 "reserved_ip_ranges_value1",
                 "reserved_ip_ranges_value2",
             ],
+            "psc_interface_config": {
+                "network_attachment": "network_attachment_value",
+                "dns_peering_configs": [
+                    {
+                        "domain": "domain_value",
+                        "target_project": "target_project_value",
+                        "target_network": "target_network_value",
+                    }
+                ],
+            },
             "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
             "protected_artifact_location_id": "protected_artifact_location_id_value",
             "tensorboard": "tensorboard_value",
@@ -26081,6 +26092,16 @@ def test_create_hyperparameter_tuning_job_rest_call_success(request_type):
                 "reserved_ip_ranges_value1",
                 "reserved_ip_ranges_value2",
             ],
+            "psc_interface_config": {
+                "network_attachment": "network_attachment_value",
+                "dns_peering_configs": [
+                    {
+                        "domain": "domain_value",
+                        "target_project": "target_project_value",
+                        "target_network": "target_network_value",
+                    }
+                ],
+            },
             "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
             "protected_artifact_location_id": "protected_artifact_location_id_value",
             "tensorboard": "tensorboard_value",
@@ -26957,6 +26978,16 @@ def test_create_nas_job_rest_call_success(request_type):
                             "reserved_ip_ranges_value1",
                             "reserved_ip_ranges_value2",
                         ],
+                        "psc_interface_config": {
+                            "network_attachment": "network_attachment_value",
+                            "dns_peering_configs": [
+                                {
+                                    "domain": "domain_value",
+                                    "target_project": "target_project_value",
+                                    "target_network": "target_network_value",
+                                }
+                            ],
+                        },
                         "base_output_directory": {
                             "output_uri_prefix": "output_uri_prefix_value"
                         },
@@ -27998,6 +28029,7 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
                 "ports": [{"container_port": 1511}],
                 "predict_route": "predict_route_value",
                 "health_route": "health_route_value",
+                "invoke_route_prefix": "invoke_route_prefix_value",
                 "grpc_ports": {},
                 "deployment_timeout": {"seconds": 751, "nanos": 543},
                 "shared_memory_size_mb": 2231,
@@ -31836,6 +31868,16 @@ async def test_create_custom_job_rest_asyncio_call_success(request_type):
                 "reserved_ip_ranges_value1",
                 "reserved_ip_ranges_value2",
             ],
+            "psc_interface_config": {
+                "network_attachment": "network_attachment_value",
+                "dns_peering_configs": [
+                    {
+                        "domain": "domain_value",
+                        "target_project": "target_project_value",
+                        "target_network": "target_network_value",
+                    }
+                ],
+            },
             "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
             "protected_artifact_location_id": "protected_artifact_location_id_value",
             "tensorboard": "tensorboard_value",
@@ -33649,6 +33691,16 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_call_success(reques
                 "reserved_ip_ranges_value1",
                 "reserved_ip_ranges_value2",
             ],
+            "psc_interface_config": {
+                "network_attachment": "network_attachment_value",
+                "dns_peering_configs": [
+                    {
+                        "domain": "domain_value",
+                        "target_project": "target_project_value",
+                        "target_network": "target_network_value",
+                    }
+                ],
+            },
             "base_output_directory": {"output_uri_prefix": "output_uri_prefix_value"},
             "protected_artifact_location_id": "protected_artifact_location_id_value",
             "tensorboard": "tensorboard_value",
@@ -34623,6 +34675,16 @@ async def test_create_nas_job_rest_asyncio_call_success(request_type):
                             "reserved_ip_ranges_value1",
                             "reserved_ip_ranges_value2",
                         ],
+                        "psc_interface_config": {
+                            "network_attachment": "network_attachment_value",
+                            "dns_peering_configs": [
+                                {
+                                    "domain": "domain_value",
+                                    "target_project": "target_project_value",
+                                    "target_network": "target_network_value",
+                                }
+                            ],
+                        },
                         "base_output_directory": {
                             "output_uri_prefix": "output_uri_prefix_value"
                         },
@@ -35785,6 +35847,7 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
                 "ports": [{"container_port": 1511}],
                 "predict_route": "predict_route_value",
                 "health_route": "health_route_value",
+                "invoke_route_prefix": "invoke_route_prefix_value",
                 "grpc_ports": {},
                 "deployment_timeout": {"seconds": 751, "nanos": 543},
                 "shared_memory_size_mb": 2231,
@@ -40984,9 +41047,37 @@ def test_parse_network_path():
     assert expected == actual
 
 
-def test_notification_channel_path():
+def test_network_attachment_path():
     project = "whelk"
-    notification_channel = "octopus"
+    region = "octopus"
+    networkattachment = "oyster"
+    expected = "projects/{project}/regions/{region}/networkAttachments/{networkattachment}".format(
+        project=project,
+        region=region,
+        networkattachment=networkattachment,
+    )
+    actual = JobServiceClient.network_attachment_path(
+        project, region, networkattachment
+    )
+    assert expected == actual
+
+
+def test_parse_network_attachment_path():
+    expected = {
+        "project": "nudibranch",
+        "region": "cuttlefish",
+        "networkattachment": "mussel",
+    }
+    path = JobServiceClient.network_attachment_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_network_attachment_path(path)
+    assert expected == actual
+
+
+def test_notification_channel_path():
+    project = "winkle"
+    notification_channel = "nautilus"
     expected = "projects/{project}/notificationChannels/{notification_channel}".format(
         project=project,
         notification_channel=notification_channel,
@@ -40997,8 +41088,8 @@ def test_notification_channel_path():
 
 def test_parse_notification_channel_path():
     expected = {
-        "project": "oyster",
-        "notification_channel": "nudibranch",
+        "project": "scallop",
+        "notification_channel": "abalone",
     }
     path = JobServiceClient.notification_channel_path(**expected)
 
@@ -41008,9 +41099,9 @@ def test_parse_notification_channel_path():
 
 
 def test_persistent_resource_path():
-    project = "cuttlefish"
-    location = "mussel"
-    persistent_resource = "winkle"
+    project = "squid"
+    location = "clam"
+    persistent_resource = "whelk"
     expected = "projects/{project}/locations/{location}/persistentResources/{persistent_resource}".format(
         project=project,
         location=location,
@@ -41024,9 +41115,9 @@ def test_persistent_resource_path():
 
 def test_parse_persistent_resource_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "persistent_resource": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "persistent_resource": "nudibranch",
     }
     path = JobServiceClient.persistent_resource_path(**expected)
 
@@ -41036,9 +41127,9 @@ def test_parse_persistent_resource_path():
 
 
 def test_reservation_path():
-    project_id_or_number = "squid"
-    zone = "clam"
-    reservation_name = "whelk"
+    project_id_or_number = "cuttlefish"
+    zone = "mussel"
+    reservation_name = "winkle"
     expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
         project_id_or_number=project_id_or_number,
         zone=zone,
@@ -41052,9 +41143,9 @@ def test_reservation_path():
 
 def test_parse_reservation_path():
     expected = {
-        "project_id_or_number": "octopus",
-        "zone": "oyster",
-        "reservation_name": "nudibranch",
+        "project_id_or_number": "nautilus",
+        "zone": "scallop",
+        "reservation_name": "abalone",
     }
     path = JobServiceClient.reservation_path(**expected)
 
@@ -41064,9 +41155,9 @@ def test_parse_reservation_path():
 
 
 def test_tensorboard_path():
-    project = "cuttlefish"
-    location = "mussel"
-    tensorboard = "winkle"
+    project = "squid"
+    location = "clam"
+    tensorboard = "whelk"
     expected = (
         "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
             project=project,
@@ -41080,9 +41171,9 @@ def test_tensorboard_path():
 
 def test_parse_tensorboard_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "tensorboard": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "tensorboard": "nudibranch",
     }
     path = JobServiceClient.tensorboard_path(**expected)
 
@@ -41092,10 +41183,10 @@ def test_parse_tensorboard_path():
 
 
 def test_trial_path():
-    project = "squid"
-    location = "clam"
-    study = "whelk"
-    trial = "octopus"
+    project = "cuttlefish"
+    location = "mussel"
+    study = "winkle"
+    trial = "nautilus"
     expected = (
         "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
             project=project,
@@ -41110,10 +41201,10 @@ def test_trial_path():
 
 def test_parse_trial_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
-        "study": "cuttlefish",
-        "trial": "mussel",
+        "project": "scallop",
+        "location": "abalone",
+        "study": "squid",
+        "trial": "clam",
     }
     path = JobServiceClient.trial_path(**expected)
 
@@ -41123,7 +41214,7 @@ def test_parse_trial_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "winkle"
+    billing_account = "whelk"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -41133,7 +41224,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nautilus",
+        "billing_account": "octopus",
     }
     path = JobServiceClient.common_billing_account_path(**expected)
 
@@ -41143,7 +41234,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "scallop"
+    folder = "oyster"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -41153,7 +41244,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "abalone",
+        "folder": "nudibranch",
     }
     path = JobServiceClient.common_folder_path(**expected)
 
@@ -41163,7 +41254,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "squid"
+    organization = "cuttlefish"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -41173,7 +41264,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "clam",
+        "organization": "mussel",
     }
     path = JobServiceClient.common_organization_path(**expected)
 
@@ -41183,7 +41274,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "whelk"
+    project = "winkle"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -41193,7 +41284,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "octopus",
+        "project": "nautilus",
     }
     path = JobServiceClient.common_project_path(**expected)
 
@@ -41203,8 +41294,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "oyster"
-    location = "nudibranch"
+    project = "scallop"
+    location = "abalone"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -41215,8 +41306,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "cuttlefish",
-        "location": "mussel",
+        "project": "squid",
+        "location": "clam",
     }
     path = JobServiceClient.common_location_path(**expected)
 

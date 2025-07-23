@@ -189,6 +189,16 @@ class VertexRagDataServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_rag_engine_config: gapic_v1.method.wrap_method(
+                self.update_rag_engine_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_rag_engine_config: gapic_v1.method.wrap_method(
+                self.get_rag_engine_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -351,6 +361,26 @@ class VertexRagDataServiceTransport(abc.ABC):
     ) -> Callable[
         [vertex_rag_data_service.DeleteRagFileRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_rag_engine_config(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.UpdateRagEngineConfigRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_rag_engine_config(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.GetRagEngineConfigRequest],
+        Union[
+            vertex_rag_data.RagEngineConfig, Awaitable[vertex_rag_data.RagEngineConfig]
+        ],
     ]:
         raise NotImplementedError()
 

@@ -74,6 +74,7 @@ _TEST_PIPELINE_JOB_DISPLAY_NAME = "sample-pipeline-job-display-name"
 _TEST_PIPELINE_JOB_DISPLAY_NAME_2 = "sample-pipeline-job-display-name-2"
 _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
 _TEST_PIPELINE_JOB_ID_2 = "sample-test-pipeline-202111112"
+_TEST_PIPELINE_RERUN_JOB_ID = "sample-test-pipeline-rerun"
 _TEST_GCS_BUCKET_NAME = "my-bucket"
 _TEST_GCS_OUTPUT_DIRECTORY = f"gs://{_TEST_GCS_BUCKET_NAME}/output_artifacts/"
 _TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
@@ -335,6 +336,41 @@ def mock_pipeline_v1beta1_service_get():
                 gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
             ),
         ]
+
+        yield mock_get_pipeline_job
+
+
+@pytest.fixture
+def mock_pipeline_v1beta1_service_get_with_task_details():
+    pipeline_job = make_v1beta1_pipeline_job(
+        _TEST_PIPELINE_JOB_NAME,
+        gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+    )
+    pipeline_job.job_detail.task_details = [
+        v1beta1_pipeline_job.PipelineTaskDetail(
+            task_id=1,
+            task_name="task-1",
+            state=aiplatform_v1beta1.PipelineTaskDetail.State.SUCCEEDED,
+            task_unique_name="task-1",
+        ),
+        v1beta1_pipeline_job.PipelineTaskDetail(
+            task_id=2,
+            task_name="task-2",
+            state=aiplatform_v1beta1.PipelineTaskDetail.State.FAILED,
+            task_unique_name="task-2",
+        ),
+        v1beta1_pipeline_job.PipelineTaskDetail(
+            task_id=3,
+            task_name="task-3",
+            state=aiplatform_v1beta1.PipelineTaskDetail.State.SUCCEEDED,
+            task_unique_name="task-3",
+        ),
+    ]
+
+    with mock.patch.object(
+        v1beta1_pipeline_service.PipelineServiceClient, "get_pipeline_job"
+    ) as mock_get_pipeline_job:
+        mock_get_pipeline_job.side_effect = [pipeline_job]
 
         yield mock_get_pipeline_job
 
@@ -2416,6 +2452,63 @@ class TestPipelineJob:
 
         assert mock_pipeline_v1beta1_service_get.call_count == 1
         assert mock_pipeline_v1beta1_service_create.call_count == 2
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_v1beta1_service_create",
+        "mock_pipeline_v1beta1_service_get_with_task_details",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_rerun_v1beta1_pipeline_job_returns_response_with_task_details(
+        self,
+        mock_load_yaml_and_json,
+        job_spec,
+        mock_pipeline_v1beta1_service_create,
+        mock_pipeline_v1beta1_service_get_with_task_details,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = preview_pipeline_jobs._PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        job.submit()
+
+        job.rerun(
+            job_id=_TEST_PIPELINE_RERUN_JOB_ID,
+            original_pipelinejob_name=_TEST_PIPELINE_JOB_NAME,
+            pipeline_task_rerun_configs=[
+                aiplatform_v1beta1.PipelineTaskRerunConfig(
+                    task_id=1,
+                    skip_task=False,
+                )
+            ],
+            parameter_values={"param-1": "value-1"},
+        )
+
+        assert mock_pipeline_v1beta1_service_get_with_task_details.call_count == 1
+        assert mock_pipeline_v1beta1_service_create.call_count == 2
+
+        rerun_config = mock_pipeline_v1beta1_service_create.call_args[1][
+            "request"
+        ].pipeline_job.pipeline_task_rerun_configs
+        assert rerun_config[0].task_name == "task-1"
+        assert not rerun_config[0].skip_task
+        assert rerun_config[0].task_id == 1
+        assert rerun_config[1].task_name == "task-2"
+        assert not rerun_config[1].skip_task
+        assert rerun_config[1].task_id == 2
+        assert rerun_config[2].task_name == "task-3"
+        assert rerun_config[2].skip_task
+        assert rerun_config[2].task_id == 3
 
     @pytest.mark.parametrize(
         "job_spec",

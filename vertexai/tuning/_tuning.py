@@ -38,7 +38,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.aiplatform_v1beta1 import types as gca_types
 
 from google.rpc import status_pb2  # type: ignore
-
+from vertexai._utils import warning_logs
 
 _LOGGER = aiplatform_base.Logger(__name__)
 
@@ -71,6 +71,7 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
     api_client: gen_ai_tuning_service_v1beta1.client.GenAiTuningServiceClient
 
     def __init__(self, tuning_job_name: str):
+        warning_logs.show_deprecation_warning()
         super().__init__(resource_name=tuning_job_name)
         self._gca_resource: gca_tuning_job_types.TuningJob = self._get_gca_resource(
             resource_name=tuning_job_name

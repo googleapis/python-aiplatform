@@ -13,15 +13,13 @@
 # limitations under the License.
 
 import create_custom_job_psci_sample
-from google.cloud import aiplatform_v1beta1
 import test_constants as constants
 
 
 def test_create_custom_job_psci_sample(
     mock_sdk_init,
-    mock_get_job_service_client_v1beta1,
-    mock_get_create_custom_job_request_v1beta1,
-    mock_create_custom_job_v1beta1,
+    mock_get_custom_job,
+    mock_run_custom_job,
 ):
     """Custom training job sample with PSC-I through aiplatform_v1beta1."""
     create_custom_job_psci_sample.create_custom_job_psci_sample(
@@ -31,8 +29,11 @@ def test_create_custom_job_psci_sample(
         display_name=constants.DISPLAY_NAME,
         machine_type=constants.MACHINE_TYPE,
         replica_count=1,
-        image_uri=constants.TRAIN_IMAGE,
+        image_uri=constants.CONTAINER_URI,
         network_attachment=constants.NETWORK_ATTACHMENT_NAME,
+        domain=constants.DOMAIN,
+        target_project=constants.TARGET_PROJECT,
+        target_network=constants.TARGET_NETWORK,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -41,37 +42,11 @@ def test_create_custom_job_psci_sample(
         staging_bucket=constants.STAGING_BUCKET,
     )
 
-    mock_get_job_service_client_v1beta1.assert_called_once_with(
-        client_options={
-            "api_endpoint": f"{constants.LOCATION}-aiplatform.googleapis.com"
-        }
+    mock_get_custom_job.assert_called_once_with(
+        display_name=constants.DISPLAY_NAME,
+        worker_pool_specs=constants.CUSTOM_JOB_WORKER_POOL_SPECS_WITHOUT_ACCELERATOR,
     )
 
-    mock_get_create_custom_job_request_v1beta1.assert_called_once_with(
-        parent=f"projects/{constants.PROJECT}/locations/{constants.LOCATION}",
-        custom_job=aiplatform_v1beta1.CustomJob(
-            display_name=constants.DISPLAY_NAME,
-            job_spec=aiplatform_v1beta1.CustomJobSpec(
-                worker_pool_specs=[
-                    aiplatform_v1beta1.WorkerPoolSpec(
-                        machine_spec=aiplatform_v1beta1.MachineSpec(
-                            machine_type=constants.MACHINE_TYPE,
-                        ),
-                        replica_count=constants.REPLICA_COUNT,
-                        container_spec=aiplatform_v1beta1.ContainerSpec(
-                            image_uri=constants.TRAIN_IMAGE,
-                        ),
-                    )
-                ],
-                psc_interface_config=aiplatform_v1beta1.PscInterfaceConfig(
-                    network_attachment=constants.NETWORK_ATTACHMENT_NAME,
-                ),
-            ),
-        ),
+    mock_run_custom_job.assert_called_once_with(
+        psc_interface_config=constants.PSC_INTERFACE_CONFIG,
     )
-
-    request = aiplatform_v1beta1.CreateCustomJobRequest(
-        mock_get_create_custom_job_request_v1beta1.return_value
-    )
-
-    mock_create_custom_job_v1beta1.assert_called_once_with(request=request)

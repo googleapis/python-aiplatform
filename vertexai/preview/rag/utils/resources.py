@@ -257,37 +257,6 @@ class RagVectorDbConfig:
 
 
 @dataclasses.dataclass
-class RagCorpus:
-    """RAG corpus(output only).
-
-    Attributes:
-        name: Generated resource name. Format:
-            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}``
-        display_name: Display name that was configured at client side.
-        description: The description of the RagCorpus.
-        embedding_model_config: The embedding model config of the RagCorpus.
-            Note: Deprecated. Use backend_config instead.
-        vector_db: The Vector DB of the RagCorpus.
-            Note: Deprecated. Use backend_config instead.
-        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
-        backend_config: The backend config of the RagCorpus. It can specify a
-            Vector DB and/or the embedding model config.
-        encryption_spec: The encryption spec of the RagCorpus. Immutable.
-    """
-
-    name: Optional[str] = None
-    display_name: Optional[str] = None
-    description: Optional[str] = None
-    embedding_model_config: Optional[EmbeddingModelConfig] = None
-    vector_db: Optional[
-        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
-    ] = None
-    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None
-    backend_config: Optional[RagVectorDbConfig] = None
-    encryption_spec: Optional[EncryptionSpec] = None
-
-
-@dataclasses.dataclass
 class RagResource:
     """RagResource.
 
@@ -546,15 +515,24 @@ class LayoutParserConfig:
             https://cloud.google.com/document-ai/quotas and the Quota page for
             your project to set an appropriate value here. If unspecified, a
             default value of 120 QPM will be used.
+        global_max_parsing_requests_per_min (int):
+            The maximum number of requests the job is allowed to make to
+            the Document AI processor per minute in this project.
+            Consult https://cloud.google.com/document-ai/quotas and the
+            Quota page for your project to set an appropriate value
+            here. If this value is not specified,
+            max_parsing_requests_per_min will be used by indexing
+            pipeline as the global limit.
     """
 
     processor_name: str
     max_parsing_requests_per_min: Optional[int] = None
+    global_max_parsing_requests_per_min: Optional[int] = None
 
 
 @dataclasses.dataclass
 class LlmParserConfig:
-    """Configuration for the Document AI Layout Parser Processor.
+    """Configuration for the LLM Parser Processor.
 
     Attributes:
         model_name (str):
@@ -567,12 +545,20 @@ class LlmParserConfig:
             https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and
             the Quota page for your project to set an appropriate value here.
             If unspecified, a default value of 5000 QPM will be used.
+        global_max_parsing_requests_per_min (int):
+            The maximum number of requests the job is allowed to make to
+            the LLM model per minute in this project. Consult
+            https://cloud.google.com/vertex-ai/generative-ai/docs/quotas
+            and your document size to set an appropriate value here. If
+            this value is not specified, max_parsing_requests_per_min
+            will be used by indexing pipeline job as the global limit.
         custom_parsing_prompt (str):
             A custom prompt to use for parsing.
     """
 
     model_name: str
     max_parsing_requests_per_min: Optional[int] = None
+    global_max_parsing_requests_per_min: Optional[int] = None
     custom_parsing_prompt: Optional[str] = None
 
 
@@ -583,7 +569,16 @@ class Enterprise:
     autoscaling functionality. It is suitable for customers with large
     amounts of data or performance sensitive workloads.
 
-    NOTE: This is the default tier if not explicitly chosen.
+    NOTE: This is deprecated. Use Scaled tier instead.
+    """
+
+
+@dataclasses.dataclass
+class Scaled:
+    """Scaled tier offers production grade performance along with
+
+    autoscaling functionality. It is suitable for customers with large
+    amounts of data or performance sensitive workloads.
     """
 
 
@@ -595,6 +590,19 @@ class Basic:
     * Small data size.
     * Latency insensitive workload.
     * Only using RAG Engine with external vector DBs.
+
+    NOTE: This is the default tier if not explicitly chosen.
+    """
+
+
+@dataclasses.dataclass
+class Unprovisioned:
+    """Disables the RAG Engine service and deletes all your data held within
+    this service. This will halt the billing of the service.
+
+    NOTE: Once deleted the data cannot be recovered. To start using
+    RAG Engine again, you will need to update the tier by calling the
+    UpdateRagEngineConfig API.
     """
 
 
@@ -605,10 +613,10 @@ class RagManagedDbConfig:
     The config of the RagManagedDb used by RagEngine.
 
     Attributes:
-        tier: The tier of the RagManagedDb. The default tier is Enterprise.
+        tier: The tier of the RagManagedDb. The default tier is Basic.
     """
 
-    tier: Optional[Union[Enterprise, Basic]] = None
+    tier: Optional[Union[Enterprise, Basic, Scaled, Unprovisioned]] = None
 
 
 @dataclasses.dataclass
@@ -619,8 +627,69 @@ class RagEngineConfig:
         name: Generated resource name for singleton resource. Format:
           ``projects/{project}/locations/{location}/ragEngineConfig``
         rag_managed_db_config: The config of the RagManagedDb used by RagEngine.
-          The default tier is Enterprise.
+          The default tier is Basic.
     """
 
     name: str
     rag_managed_db_config: Optional[RagManagedDbConfig] = None
+
+
+@dataclasses.dataclass
+class DocumentCorpus:
+    """DocumentCorpus."""
+
+
+@dataclasses.dataclass
+class MemoryCorpus:
+    """MemoryCorpus.
+
+    Attributes:
+        llm_parser: The LLM parser to use for the memory corpus.
+    """
+
+    llm_parser: Optional[LlmParserConfig] = None
+
+
+@dataclasses.dataclass
+class RagCorpusTypeConfig:
+    """CorpusTypeConfig.
+
+    Attributes:
+        corpus_type_config: Can be one of the following: DocumentCorpus,
+            MemoryCorpus.
+    """
+
+    corpus_type_config: Optional[Union[DocumentCorpus, MemoryCorpus]] = None
+
+
+@dataclasses.dataclass
+class RagCorpus:
+    """RAG corpus(output only).
+
+    Attributes:
+        name: Generated resource name. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}``
+        display_name: Display name that was configured at client side.
+        description: The description of the RagCorpus.
+        corpus_type_config: The corpus type config of the RagCorpus.
+        embedding_model_config: The embedding model config of the RagCorpus.
+            Note: Deprecated. Use backend_config instead.
+        vector_db: The Vector DB of the RagCorpus.
+            Note: Deprecated. Use backend_config instead.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
+        backend_config: The backend config of the RagCorpus. It can specify a
+            Vector DB and/or the embedding model config.
+        encryption_spec: The encryption spec of the RagCorpus. Immutable.
+    """
+
+    name: Optional[str] = None
+    display_name: Optional[str] = None
+    description: Optional[str] = None
+    corpus_type_config: Optional[RagCorpusTypeConfig] = None
+    embedding_model_config: Optional[EmbeddingModelConfig] = None
+    vector_db: Optional[
+        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
+    ] = None
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None
+    backend_config: Optional[RagVectorDbConfig] = None
+    encryption_spec: Optional[EncryptionSpec] = None

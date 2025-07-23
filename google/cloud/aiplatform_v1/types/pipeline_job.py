@@ -25,6 +25,7 @@ from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_s
 from google.cloud.aiplatform_v1.types import execution as gca_execution
 from google.cloud.aiplatform_v1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1.types import pipeline_state
+from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.aiplatform_v1.types import value as gca_value
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -131,6 +132,9 @@ class PipelineJob(proto.Message):
             to any ip ranges under the provided VPC network.
 
             Example: ['vertex-ai-ip-range'].
+        psc_interface_config (google.cloud.aiplatform_v1.types.PscInterfaceConfig):
+            Optional. Configuration for PSC-I for
+            PipelineJob.
         template_uri (str):
             A template uri from where the
             [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec],
@@ -326,6 +330,11 @@ class PipelineJob(proto.Message):
         proto.STRING,
         number=25,
     )
+    psc_interface_config: service_networking.PscInterfaceConfig = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        message=service_networking.PscInterfaceConfig,
+    )
     template_uri: str = proto.Field(
         proto.STRING,
         number=19,
@@ -441,6 +450,15 @@ class PipelineTaskDetail(proto.Message):
         outputs (MutableMapping[str, google.cloud.aiplatform_v1.types.PipelineTaskDetail.ArtifactList]):
             Output only. The runtime output artifacts of
             the task.
+        task_unique_name (str):
+            Output only. The unique name of a task. This field is used
+            by rerun pipeline job. Console UI and Vertex AI SDK will
+            support triggering pipeline job reruns. The name is
+            constructed by concatenating all the parent tasks name with
+            the task name. For example, if a task named "child_task" has
+            a parent task named "parent_task_1" and parent task 1 has a
+            parent task named "parent_task_2", the task unique name will
+            be "parent_task_2.parent_task_1.child_task".
     """
 
     class State(proto.Enum):
@@ -593,6 +611,10 @@ class PipelineTaskDetail(proto.Message):
         proto.MESSAGE,
         number=11,
         message=ArtifactList,
+    )
+    task_unique_name: str = proto.Field(
+        proto.STRING,
+        number=14,
     )
 
 

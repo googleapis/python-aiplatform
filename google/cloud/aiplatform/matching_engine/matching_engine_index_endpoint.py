@@ -1112,6 +1112,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         auth_config_audiences: Optional[Sequence[str]] = None,
         auth_config_allowed_issuers: Optional[Sequence[str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
         deploy_request_timeout: Optional[float] = None,
         psc_automation_configs: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> "MatchingEngineIndexEndpoint":
@@ -1207,10 +1208,167 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 auth_config_audiences and auth_config_allowed_issuers must be passed together.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in a concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the request in seconds.
+            psc_automation_configs (Sequence[Tuple[str, str]]):
+                Optional. A list of (project_id, network) pairs for Private
+                Service Connection endpoints to be setup for the deployed index.
+                The project_id is the project number of the project that the
+                network is in, and network is the name of the network.
+                Network is the full name of the Google Compute Engine
+                `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
+                to which the index should be deployed to.
 
+                Format:{projects/{project}/global/networks/{network}. Where
+                {project} is a project number, as in '12345', and {network}
+                is network name.
+
+                For example:
+                [(project_id_1, network_1), (project_id_1, network_2))] will enable
+                PSC automation for the index to be deployed to project_id_1's network_1
+                and network_2 and can be queried within these networks.
+        Returns:
+            MatchingEngineIndexEndpoint - IndexEndpoint resource object
+        """
+        return self._deploy_index(
+            index=index,
+            deployed_index_id=deployed_index_id,
+            display_name=display_name,
+            machine_type=machine_type,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            enable_access_logging=enable_access_logging,
+            reserved_ip_ranges=reserved_ip_ranges,
+            deployment_group=deployment_group,
+            auth_config_audiences=auth_config_audiences,
+            auth_config_allowed_issuers=auth_config_allowed_issuers,
+            request_metadata=request_metadata,
+            sync=sync,
+            deploy_request_timeout=deploy_request_timeout,
+            psc_automation_configs=psc_automation_configs,
+        )
+
+    @base.optional_sync(return_input_arg="self")
+    def _deploy_index(
+        self,
+        index: matching_engine.MatchingEngineIndex,
+        deployed_index_id: str,
+        display_name: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        min_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
+        enable_access_logging: Optional[bool] = None,
+        reserved_ip_ranges: Optional[Sequence[str]] = None,
+        deployment_group: Optional[str] = None,
+        auth_config_audiences: Optional[Sequence[str]] = None,
+        auth_config_allowed_issuers: Optional[Sequence[str]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
+        deploy_request_timeout: Optional[float] = None,
+        psc_automation_configs: Optional[Sequence[Tuple[str, str]]] = None,
+    ) -> "MatchingEngineIndexEndpoint":
+        """Helper method to deploy an existing index resource to this endpoint resource.
+
+        Args:
+            index (MatchingEngineIndex):
+                Required. The Index this is the
+                deployment of. We may refer to this Index as the
+                DeployedIndex's "original" Index.
+            deployed_index_id (str):
+                Required. The user specified ID of the
+                DeployedIndex. The ID can be up to 128
+                characters long and must start with a letter and
+                only contain letters, numbers, and underscores.
+                The ID must be unique within the project it is
+                created in.
+            display_name (str):
+                The display name of the DeployedIndex. If not provided upon
+                creation, the Index's display_name is used.
+            machine_type (str):
+                Optional. The type of machine. Not specifying machine type will
+                result in model to be deployed with automatic resources.
+            min_replica_count (int):
+                Optional. The minimum number of machine replicas this deployed
+                model will be always deployed on. If traffic against it increases,
+                it may dynamically be deployed onto more replicas, and as traffic
+                decreases, some of these extra replicas may be freed.
+
+                If this value is not provided, the value of 2 will be used.
+            max_replica_count (int):
+                Optional. The maximum number of replicas this deployed model may
+                be deployed on when the traffic against it increases. If requested
+                value is too large, the deployment will error, but if deployment
+                succeeds then the ability to scale the model to that many replicas
+                is guaranteed (barring service outages). If traffic against the
+                deployed model increases beyond what its replicas at maximum may
+                handle, a portion of the traffic will be dropped. If this value
+                is not provided, the larger value of min_replica_count or 2 will
+                be used. If value provided is smaller than min_replica_count, it
+                will automatically be increased to be min_replica_count.
+            enable_access_logging (bool):
+                Optional. If true, private endpoint's access
+                logs are sent to StackDriver Logging.
+                These logs are like standard server access logs,
+                containing information like timestamp and
+                latency for each MatchRequest.
+                Note that Stackdriver logs may incur a cost,
+                especially if the deployed index receives a high
+                queries per second rate (QPS). Estimate your
+                costs before enabling this option.
+            reserved_ip_ranges (Sequence[str]):
+                Optional. A list of reserved ip ranges under
+                the VPC network that can be used for this
+                DeployedIndex.
+                If set, we will deploy the index within the
+                provided ip ranges. Otherwise, the index might
+                be deployed to any ip ranges under the provided
+                VPC network.
+
+                The value sohuld be the name of the address
+                (https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
+                Example: 'vertex-ai-ip-range'.
+            deployment_group (str):
+                Optional. The deployment group can be no longer than 64
+                characters (eg: 'test', 'prod'). If not set, we will use the
+                'default' deployment group.
+
+                Creating ``deployment_groups`` with ``reserved_ip_ranges``
+                is a recommended practice when the peered network has
+                multiple peering ranges. This creates your deployments from
+                predictable IP spaces for easier traffic administration.
+                Also, one deployment_group (except 'default') can only be
+                used with the same reserved_ip_ranges which means if the
+                deployment_group has been used with reserved_ip_ranges: [a,
+                b, c], using it with [a, b] or [d, e] is disallowed.
+
+                Note: we only support up to 5 deployment groups(not
+                including 'default').
+            auth_config_audiences (Sequence[str]):
+                The list of JWT
+                `audiences <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.3>`__.
+                that are allowed to access. A JWT containing any of these
+                audiences will be accepted.
+
+                auth_config_audiences and auth_config_allowed_issuers must be passed together.
+            auth_config_allowed_issuers (Sequence[str]):
+                A list of allowed JWT issuers. Each entry must be a valid
+                Google service account, in the following format:
+
+                ``service-account-name@project-id.iam.gserviceaccount.com``
+
+                auth_config_audiences and auth_config_allowed_issuers must be passed together.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in a concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+            deploy_request_timeout (float):
+                Optional. The timeout for the request in seconds.
             psc_automation_configs (Sequence[Tuple[str, str]]):
                 Optional. A list of (project_id, network) pairs for Private
                 Service Connection endpoints to be setup for the deployed index.

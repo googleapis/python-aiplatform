@@ -3922,6 +3922,7 @@ def test_get_rag_file(request_type, transport: str = "grpc"):
             description="description_value",
             size_bytes=1089,
             rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+            user_metadata="user_metadata_value",
         )
         response = client.get_rag_file(request)
 
@@ -3940,6 +3941,7 @@ def test_get_rag_file(request_type, transport: str = "grpc"):
     assert (
         response.rag_file_type == vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT
     )
+    assert response.user_metadata == "user_metadata_value"
 
 
 def test_get_rag_file_non_empty_request_with_auto_populated_field():
@@ -4071,6 +4073,7 @@ async def test_get_rag_file_async(
                 description="description_value",
                 size_bytes=1089,
                 rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+                user_metadata="user_metadata_value",
             )
         )
         response = await client.get_rag_file(request)
@@ -4090,6 +4093,7 @@ async def test_get_rag_file_async(
     assert (
         response.rag_file_type == vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT
     )
+    assert response.user_metadata == "user_metadata_value"
 
 
 @pytest.mark.asyncio
@@ -8771,6 +8775,7 @@ async def test_get_rag_file_empty_call_grpc_asyncio():
                 description="description_value",
                 size_bytes=1089,
                 rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+                user_metadata="user_metadata_value",
             )
         )
         await client.get_rag_file(request=None)
@@ -10107,6 +10112,7 @@ def test_get_rag_file_rest_call_success(request_type):
             description="description_value",
             size_bytes=1089,
             rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+            user_metadata="user_metadata_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -10130,6 +10136,7 @@ def test_get_rag_file_rest_call_success(request_type):
     assert (
         response.rag_file_type == vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT
     )
+    assert response.user_metadata == "user_metadata_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -10505,7 +10512,12 @@ def test_update_rag_engine_config_rest_call_success(request_type):
     }
     request_init["rag_engine_config"] = {
         "name": "projects/sample1/locations/sample2/ragEngineConfig",
-        "rag_managed_db_config": {"enterprise": {}, "basic": {}},
+        "rag_managed_db_config": {
+            "enterprise": {},
+            "scaled": {},
+            "basic": {},
+            "unprovisioned": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -13031,6 +13043,7 @@ async def test_get_rag_file_rest_asyncio_call_success(request_type):
             description="description_value",
             size_bytes=1089,
             rag_file_type=vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT,
+            user_metadata="user_metadata_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -13056,6 +13069,7 @@ async def test_get_rag_file_rest_asyncio_call_success(request_type):
     assert (
         response.rag_file_type == vertex_rag_data.RagFile.RagFileType.RAG_FILE_TYPE_TXT
     )
+    assert response.user_metadata == "user_metadata_value"
 
 
 @pytest.mark.asyncio
@@ -13477,7 +13491,12 @@ async def test_update_rag_engine_config_rest_asyncio_call_success(request_type):
     }
     request_init["rag_engine_config"] = {
         "name": "projects/sample1/locations/sample2/ragEngineConfig",
-        "rag_managed_db_config": {"enterprise": {}, "basic": {}},
+        "rag_managed_db_config": {
+            "enterprise": {},
+            "scaled": {},
+            "basic": {},
+            "unprovisioned": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

@@ -102,12 +102,15 @@ _TEST_MODEL_PARENT = test_constants.ModelConstants._TEST_MODEL_PARENT
 _TEST_MODEL_PARENT_ALT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME_ALT}"
 )
+_TEST_INVOKE_MODEL_NAME = "invoke-model"
+_TEST_INVOKE_MODEL_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_INVOKE_MODEL_NAME}"
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
 _TEST_SERVING_CONTAINER_IMAGE = (
     test_constants.ModelConstants._TEST_SERVING_CONTAINER_IMAGE
 )
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
 _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
+_TEST_SERVING_CONTAINER_INVOKE_ROUTE_PREFIX = "/*"
 _TEST_DESCRIPTION = "test description"
 _TEST_SERVING_CONTAINER_COMMAND = ["python3", "run_my_model.py"]
 _TEST_SERVING_CONTAINER_ARGS = ["--test", "arg"]
@@ -258,6 +261,9 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 )
 
 _TEST_MODEL_RESOURCE_NAME = test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+_TEST_INVOKE_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
+    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+)
 _TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT = (
     model_service_client.ModelServiceClient.model_path(
         _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
@@ -483,6 +489,15 @@ _TEST_MODELS_LIST = _TEST_MODEL_VERSIONS_LIST + [
         update_time=timestamp_pb2.Timestamp(),
         display_name=_TEST_MODEL_NAME_ALT,
         name=_TEST_MODEL_PARENT_ALT,
+        version_aliases=["default"],
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION_1,
+    ),
+    gca_model.Model(
+        version_id="1",
+        create_time=timestamp_pb2.Timestamp(),
+        update_time=timestamp_pb2.Timestamp(),
+        display_name=_TEST_INVOKE_MODEL_NAME,
+        name=_TEST_INVOKE_MODEL_PARENT,
         version_aliases=["default"],
         version_description=_TEST_MODEL_VERSION_DESCRIPTION_1,
     ),
@@ -1354,6 +1369,47 @@ class TestModel:
 
         get_model_mock.assert_called_once_with(
             name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_uploads_and_gets_invoke_model(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+
+        my_model = models.Model.upload(
+            display_name=_TEST_INVOKE_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_invoke_route_prefix=_TEST_SERVING_CONTAINER_INVOKE_ROUTE_PREFIX,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            sync=sync,
+            upload_request_timeout=None,
+        )
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            invoke_route_prefix=_TEST_SERVING_CONTAINER_INVOKE_ROUTE_PREFIX,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_INVOKE_MODEL_NAME,
+            container_spec=container_spec,
+            version_aliases=["default"],
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
+        )
+
+        get_model_mock.assert_called_once_with(
+            name=_TEST_INVOKE_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
 
     def test_upload_without_serving_container_image_uri_throw_error(
@@ -2392,6 +2448,62 @@ class TestModel:
         "get_endpoint_mock",
     )
     @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_no_endpoint_dedicated_resources_autoscaling_request_count_per_minute(
+        self, deploy_model_mock, sync
+    ):
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+
+        test_endpoint = test_model.deploy(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            system_labels=_TEST_LABELS,
+            autoscaling_target_request_count_per_minute=600,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
+            machine_spec=gca_machine_resources.MachineSpec(
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+            ),
+            min_replica_count=1,
+            max_replica_count=1,
+            autoscaling_metric_specs=[
+                gca_machine_resources.AutoscalingMetricSpec(
+                    metric_name=_TEST_METRIC_NAME_REQUEST_COUNT,
+                    target=600,
+                ),
+            ],
+        )
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            system_labels=_TEST_LABELS,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_model_mock",
+        "create_endpoint_mock",
+        "get_endpoint_mock",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
     def test_preview_deploy_no_endpoint_dedicated_resources_autoscaling_request_count_per_minute(
         self, preview_deploy_model_mock, sync
     ):
@@ -2436,6 +2548,63 @@ class TestModel:
             faster_deployment_config=gca_endpoint_v1beta1.FasterDeploymentConfig(),
             system_labels=_TEST_LABELS,
         )
+        preview_deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock",
+        "get_model_mock",
+        "create_endpoint_mock",
+        "preview_deploy_model_mock",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_preview_deploy_no_endpoint_with_flex_start(
+        self, preview_deploy_model_mock, sync
+    ):
+        test_model = preview_models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+
+        test_endpoint = test_model.deploy(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            max_runtime_duration=600,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+            spot=False,
+            flex_start=gca_machine_resources_v1beta1.FlexStart(
+                max_runtime_duration=duration_pb2.Duration(seconds=600),
+            ),
+        )
+        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            enable_container_logging=True,
+            faster_deployment_config=gca_endpoint_v1beta1.FasterDeploymentConfig(),
+        )
+
         preview_deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
             deployed_model=expected_deployed_model,

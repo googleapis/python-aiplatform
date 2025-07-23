@@ -48,6 +48,7 @@ except AttributeError:  # pragma: NO COVER
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.vertex_rag_data_service import pagers
+from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import vertex_rag_data
@@ -92,6 +93,12 @@ class VertexRagDataServiceAsyncClient:
     rag_corpus_path = staticmethod(VertexRagDataServiceClient.rag_corpus_path)
     parse_rag_corpus_path = staticmethod(
         VertexRagDataServiceClient.parse_rag_corpus_path
+    )
+    rag_engine_config_path = staticmethod(
+        VertexRagDataServiceClient.rag_engine_config_path
+    )
+    parse_rag_engine_config_path = staticmethod(
+        VertexRagDataServiceClient.parse_rag_engine_config_path
     )
     rag_file_path = staticmethod(VertexRagDataServiceClient.rag_file_path)
     parse_rag_file_path = staticmethod(VertexRagDataServiceClient.parse_rag_file_path)
@@ -1623,6 +1630,253 @@ class VertexRagDataServiceAsyncClient:
             self._client._transport.operations_client,
             empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def update_rag_engine_config(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.UpdateRagEngineConfigRequest, dict]
+        ] = None,
+        *,
+        rag_engine_config: Optional[vertex_rag_data.RagEngineConfig] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Updates a RagEngineConfig.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_update_rag_engine_config():
+                # Create a client
+                client = aiplatform_v1.VertexRagDataServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpdateRagEngineConfigRequest(
+                )
+
+                # Make the request
+                operation = client.update_rag_engine_config(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateRagEngineConfigRequest, dict]]):
+                The request object. Request message for
+                [VertexRagDataService.UpdateRagEngineConfig][google.cloud.aiplatform.v1.VertexRagDataService.UpdateRagEngineConfig].
+            rag_engine_config (:class:`google.cloud.aiplatform_v1.types.RagEngineConfig`):
+                Required. The updated
+                RagEngineConfig.
+                NOTE: Downgrading your RagManagedDb's
+                ComputeTier could temporarily increase
+                request latencies until the operation is
+                fully complete.
+
+                This corresponds to the ``rag_engine_config`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1.types.RagEngineConfig`
+                Config for RagEngine.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [rag_engine_config]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, vertex_rag_data_service.UpdateRagEngineConfigRequest
+        ):
+            request = vertex_rag_data_service.UpdateRagEngineConfigRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if rag_engine_config is not None:
+            request.rag_engine_config = rag_engine_config
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_rag_engine_config
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("rag_engine_config.name", request.rag_engine_config.name),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            vertex_rag_data.RagEngineConfig,
+            metadata_type=vertex_rag_data_service.UpdateRagEngineConfigOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_rag_engine_config(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.GetRagEngineConfigRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> vertex_rag_data.RagEngineConfig:
+        r"""Gets a RagEngineConfig.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_get_rag_engine_config():
+                # Create a client
+                client = aiplatform_v1.VertexRagDataServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetRagEngineConfigRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_rag_engine_config(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetRagEngineConfigRequest, dict]]):
+                The request object. Request message for
+                [VertexRagDataService.GetRagEngineConfig][google.cloud.aiplatform.v1.VertexRagDataService.GetRagEngineConfig]
+            name (:class:`str`):
+                Required. The name of the RagEngineConfig resource.
+                Format:
+                ``projects/{project}/locations/{location}/ragEngineConfig``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.RagEngineConfig:
+                Config for RagEngine.
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.GetRagEngineConfigRequest):
+            request = vertex_rag_data_service.GetRagEngineConfigRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_rag_engine_config
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.

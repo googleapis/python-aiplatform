@@ -35,6 +35,9 @@ from google.cloud.aiplatform_v1beta1 import types
 from google.cloud.aiplatform_v1beta1.services import model_garden_service
 from vertexai import batch_prediction
 from vertexai import model_garden
+from vertexai.preview import (
+    model_garden as model_garden_preview,
+)
 import pytest
 
 from google.protobuf import duration_pb2
@@ -65,8 +68,9 @@ _TEST_HUGGING_FACE_ACCESS_TOKEN = "test-access-token"
 _TEST_GCS_URI = "gs://some-bucket/some-model"
 _TEST_ENDPOINT_NAME = "projects/test-project/locations/us-central1/endpoints/1234567890"
 _TEST_MODEL_NAME = "projects/test-project/locations/us-central1/models/9876543210"
+_TEST_IMAGE_URI = "us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00"
 _TEST_MODEL_CONTAINER_SPEC = types.ModelContainerSpec(
-    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+    image_uri=_TEST_IMAGE_URI,
     command=["python", "main.py"],
     args=["--model-id=gemma-2b"],
     env=[types.EnvVar(name="MODEL_ID", value="gemma-2b")],
@@ -181,8 +185,9 @@ def get_publisher_model_mock():
                     multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
                         multi_deploy_vertex=[
                             types.PublisherModel.CallToAction.Deploy(
+                                deploy_task_name="vLLM 32K context",
                                 container_spec=types.ModelContainerSpec(
-                                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+                                    image_uri=_TEST_IMAGE_URI,
                                     command=["python", "main.py"],
                                     args=["--model-id=gemma-2b"],
                                     env=[
@@ -198,6 +203,7 @@ def get_publisher_model_mock():
                                 ),
                             ),
                             types.PublisherModel.CallToAction.Deploy(
+                                deploy_task_name="vLLM 128K context",
                                 container_spec=types.ModelContainerSpec(
                                     image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
                                     command=["python", "main.py"],
@@ -225,7 +231,7 @@ def get_publisher_model_mock():
                         multi_deploy_vertex=[
                             types.PublisherModel.CallToAction.Deploy(
                                 container_spec=types.ModelContainerSpec(
-                                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+                                    image_uri=_TEST_IMAGE_URI,
                                     command=["python", "main.py"],
                                     args=["--model-id=gemma-2b"],
                                     env=[
@@ -841,7 +847,7 @@ class TestModelGardenOpenModel:
         )
         model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
         model.deploy(
-            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+            serving_container_image_uri=_TEST_IMAGE_URI,
         )
         deploy_mock.assert_called_once_with(
             types.DeployRequest(
@@ -849,7 +855,7 @@ class TestModelGardenOpenModel:
                 destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
                 model_config=types.DeployRequest.ModelConfig(
                     container_spec=types.ModelContainerSpec(
-                        image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+                        image_uri=_TEST_IMAGE_URI,
                     )
                 ),
             )
@@ -910,11 +916,11 @@ class TestModelGardenOpenModel:
             model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
             model.deploy(
                 serving_container_spec=types.ModelContainerSpec(
-                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+                    image_uri=_TEST_IMAGE_URI,
                     predict_route="/predictions/v1/predict",
                     health_route="/ping",
                 ),
-                serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+                serving_container_image_uri=_TEST_IMAGE_URI,
             )
         assert str(exception.value) == expected_message
 
@@ -928,7 +934,7 @@ class TestModelGardenOpenModel:
         )
         model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
         model.deploy(
-            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+            serving_container_image_uri=_TEST_IMAGE_URI,
             serving_container_predict_route="/predictions/v1/predict",
             serving_container_health_route="/ping",
             serving_container_command=["python", "main.py"],
@@ -951,7 +957,7 @@ class TestModelGardenOpenModel:
                 destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
                 model_config=types.DeployRequest.ModelConfig(
                     container_spec=types.ModelContainerSpec(
-                        image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+                        image_uri=_TEST_IMAGE_URI,
                         command=["python", "main.py"],
                         args=["--model-id=gemma-2b"],
                         env=[types.EnvVar(name="MODEL_ID", value="gemma-2b")],
@@ -1032,17 +1038,17 @@ class TestModelGardenOpenModel:
         result = model.list_deploy_options(concise=True)
         expected_result = textwrap.dedent(
             """\
-        [Option 1]
-          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
-          machine_type="g2-standard-16",
-          accelerator_type="NVIDIA_L4",
-          accelerator_count=1,
+        [Option 1: vLLM 32K context]
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+            machine_type="g2-standard-16",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=1,
 
-        [Option 2]
-          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
-          machine_type="g2-standard-32",
-          accelerator_type="NVIDIA_L4",
-          accelerator_count=4,"""
+        [Option 2: vLLM 128K context]
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+            machine_type="g2-standard-32",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=4,"""
         )
         assert result == expected_result
         get_publisher_model_mock.assert_called_with(
@@ -1058,16 +1064,16 @@ class TestModelGardenOpenModel:
         expected_hf_result = textwrap.dedent(
             """\
         [Option 1]
-          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
-          machine_type="g2-standard-16",
-          accelerator_type="NVIDIA_L4",
-          accelerator_count=1,
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+            machine_type="g2-standard-16",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=1,
 
         [Option 2]
-          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
-          machine_type="g2-standard-32",
-          accelerator_type="NVIDIA_L4",
-          accelerator_count=4,"""
+            serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+            machine_type="g2-standard-32",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=4,"""
         )
         assert hf_result == expected_hf_result
         get_publisher_model_mock.assert_called_with(
@@ -1208,4 +1214,109 @@ class TestModelGardenOpenModel:
             project_number=_TEST_PROJECT_NUMBER,
             publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
             publisher_model_eula_acked=True,
+        )
+
+
+pytest.mark.usefixtures(
+    "google_auth_mock",
+    "deploy_mock",
+)
+
+
+class TestModelGardenCustomModel:
+    """Test cases for ModelGarden class."""
+
+    def setup_method(self):
+        importlib.reload(aiplatform.initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT)
+
+    def teardown_method(self):
+        aiplatform.initializer.global_pool.shutdown(wait=True)
+
+    def test_deploy_custom_model_gcs_uri_only_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+        model.deploy()
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                custom_model=types.DeployRequest.CustomModel(
+                    gcs_uri=_TEST_GCS_URI,
+                ),
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        min_replica_count=1,
+                        max_replica_count=1,
+                    )
+                ),
+            )
+        )
+
+    def test_deploy_custom_model_no_gcs_uri_raise_error(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with pytest.raises(ValueError) as exception:
+            model = model_garden_preview.CustomModel()
+            model.deploy()
+        assert str(exception.value) == "gcs_uri must be specified."
+
+    def test_deploy_custom_model_machine_type_only_raise_error(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with pytest.raises(ValueError) as exception:
+            model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+            model.deploy(machine_type="n1-standard-4")
+        assert (
+            str(exception.value)
+            == "machine_type, accelerator_type and accelerator_count must all"
+            " be provided or not provided."
+        )
+
+    def test_deploy_custom_model_with_all_config_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+        model.deploy(
+            machine_type="n1-standard-4",
+            accelerator_type="NVIDIA_TESLA_T4",
+            accelerator_count=1,
+            min_replica_count=2,
+            max_replica_count=3,
+            endpoint_display_name="custom-mode-endpoint",
+            model_display_name="custom-model-id",
+        )
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                custom_model=types.DeployRequest.CustomModel(
+                    gcs_uri=_TEST_GCS_URI,
+                ),
+                model_config=types.DeployRequest.ModelConfig(
+                    model_display_name="custom-model-id",
+                ),
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        min_replica_count=2,
+                        max_replica_count=3,
+                        machine_spec=types.MachineSpec(
+                            machine_type="n1-standard-4",
+                            accelerator_type="NVIDIA_TESLA_T4",
+                            accelerator_count=1,
+                        ),
+                    ),
+                ),
+                endpoint_config=types.DeployRequest.EndpointConfig(
+                    endpoint_display_name="custom-mode-endpoint",
+                ),
+            )
         )

@@ -8220,6 +8220,9 @@ def test_create_endpoint_rest_call_success(request_type):
                         {"metric_name": "metric_name_value", "target": 647}
                     ],
                     "spot": True,
+                    "flex_start": {
+                        "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
                 },
                 "automatic_resources": {
                     "min_replica_count": 1803,
@@ -8305,6 +8308,11 @@ def test_create_endpoint_rest_call_success(request_type):
                 },
                 "system_labels": {},
                 "checkpoint_id": "checkpoint_id_value",
+                "speculative_decoding_spec": {
+                    "draft_model_speculation": {"draft_model": "draft_model_value"},
+                    "ngram_speculation": {"ngram_size": 1071},
+                    "speculative_token_count": 2477,
+                },
             }
         ],
         "traffic_split": {},
@@ -8321,6 +8329,16 @@ def test_create_endpoint_rest_call_success(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "psc_automation_configs": [
+                {
+                    "project_id": "project_id_value",
+                    "network": "network_value",
+                    "ip_address": "ip_address_value",
+                    "forwarding_rule": "forwarding_rule_value",
+                    "state": 1,
+                    "error_message": "error_message_value",
+                }
+            ],
             "enable_secure_private_service_connect": True,
             "service_attachment": "service_attachment_value",
         },
@@ -8334,11 +8352,10 @@ def test_create_endpoint_rest_call_success(request_type):
         },
         "dedicated_endpoint_enabled": True,
         "dedicated_endpoint_dns": "dedicated_endpoint_dns_value",
-        "client_connection_config": {
-            "inference_timeout": {"seconds": 751, "nanos": 543}
-        },
+        "client_connection_config": {"inference_timeout": {}},
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8842,6 +8859,9 @@ def test_update_endpoint_rest_call_success(request_type):
                         {"metric_name": "metric_name_value", "target": 647}
                     ],
                     "spot": True,
+                    "flex_start": {
+                        "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
                 },
                 "automatic_resources": {
                     "min_replica_count": 1803,
@@ -8927,6 +8947,11 @@ def test_update_endpoint_rest_call_success(request_type):
                 },
                 "system_labels": {},
                 "checkpoint_id": "checkpoint_id_value",
+                "speculative_decoding_spec": {
+                    "draft_model_speculation": {"draft_model": "draft_model_value"},
+                    "ngram_speculation": {"ngram_size": 1071},
+                    "speculative_token_count": 2477,
+                },
             }
         ],
         "traffic_split": {},
@@ -8943,6 +8968,16 @@ def test_update_endpoint_rest_call_success(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "psc_automation_configs": [
+                {
+                    "project_id": "project_id_value",
+                    "network": "network_value",
+                    "ip_address": "ip_address_value",
+                    "forwarding_rule": "forwarding_rule_value",
+                    "state": 1,
+                    "error_message": "error_message_value",
+                }
+            ],
             "enable_secure_private_service_connect": True,
             "service_attachment": "service_attachment_value",
         },
@@ -8956,11 +8991,10 @@ def test_update_endpoint_rest_call_success(request_type):
         },
         "dedicated_endpoint_enabled": True,
         "dedicated_endpoint_dns": "dedicated_endpoint_dns_value",
-        "client_connection_config": {
-            "inference_timeout": {"seconds": 751, "nanos": 543}
-        },
+        "client_connection_config": {"inference_timeout": {}},
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10982,6 +11016,9 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                         {"metric_name": "metric_name_value", "target": 647}
                     ],
                     "spot": True,
+                    "flex_start": {
+                        "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
                 },
                 "automatic_resources": {
                     "min_replica_count": 1803,
@@ -11067,6 +11104,11 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                 },
                 "system_labels": {},
                 "checkpoint_id": "checkpoint_id_value",
+                "speculative_decoding_spec": {
+                    "draft_model_speculation": {"draft_model": "draft_model_value"},
+                    "ngram_speculation": {"ngram_size": 1071},
+                    "speculative_token_count": 2477,
+                },
             }
         ],
         "traffic_split": {},
@@ -11083,6 +11125,16 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "psc_automation_configs": [
+                {
+                    "project_id": "project_id_value",
+                    "network": "network_value",
+                    "ip_address": "ip_address_value",
+                    "forwarding_rule": "forwarding_rule_value",
+                    "state": 1,
+                    "error_message": "error_message_value",
+                }
+            ],
             "enable_secure_private_service_connect": True,
             "service_attachment": "service_attachment_value",
         },
@@ -11096,11 +11148,10 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
         },
         "dedicated_endpoint_enabled": True,
         "dedicated_endpoint_dns": "dedicated_endpoint_dns_value",
-        "client_connection_config": {
-            "inference_timeout": {"seconds": 751, "nanos": 543}
-        },
+        "client_connection_config": {"inference_timeout": {}},
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11655,6 +11706,9 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                         {"metric_name": "metric_name_value", "target": 647}
                     ],
                     "spot": True,
+                    "flex_start": {
+                        "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
                 },
                 "automatic_resources": {
                     "min_replica_count": 1803,
@@ -11740,6 +11794,11 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                 },
                 "system_labels": {},
                 "checkpoint_id": "checkpoint_id_value",
+                "speculative_decoding_spec": {
+                    "draft_model_speculation": {"draft_model": "draft_model_value"},
+                    "ngram_speculation": {"ngram_size": 1071},
+                    "speculative_token_count": 2477,
+                },
             }
         ],
         "traffic_split": {},
@@ -11756,6 +11815,16 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                 "project_allowlist_value1",
                 "project_allowlist_value2",
             ],
+            "psc_automation_configs": [
+                {
+                    "project_id": "project_id_value",
+                    "network": "network_value",
+                    "ip_address": "ip_address_value",
+                    "forwarding_rule": "forwarding_rule_value",
+                    "state": 1,
+                    "error_message": "error_message_value",
+                }
+            ],
             "enable_secure_private_service_connect": True,
             "service_attachment": "service_attachment_value",
         },
@@ -11769,11 +11838,10 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
         },
         "dedicated_endpoint_enabled": True,
         "dedicated_endpoint_dns": "dedicated_endpoint_dns_value",
-        "client_connection_config": {
-            "inference_timeout": {"seconds": 751, "nanos": 543}
-        },
+        "client_connection_config": {"inference_timeout": {}},
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

@@ -26,21 +26,21 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
 
 SUPPORTED_RAY_VERSIONS = immutabledict(
-    {"2.9": "2.9.3", "2.33": "2.33.0", "2.42": "2.42.0"}
+    {"2.9": "2.9.3", "2.33": "2.33.0", "2.42": "2.42.0", "2.47": "2.47.1"}
 )
 SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS = immutabledict(
     {
         "3.10": ("2.9", "2.33", "2.42"),
-        "3.11": ("2.42"),
+        "3.11": ("2.42", "2.47"),
     }
 )
 _V2_4_WARNING_MESSAGE = (
-    "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result"
-    " in an error. Please use Ray version = 2.33.0 or 2.42.0 (default) instead."
+    "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result in "
+    "an error. Please use Ray version = 2.33.0, 2.42.0 or 2.47.1 (default) instead."
 )
 _V2_9_WARNING_MESSAGE = (
     "In March 2025, using Ray version = 2.9 will result in an error. "
-    "Please use Ray version = 2.33.0 or 2.42.0 (default) instead."
+    "Please use Ray version = 2.33.0, 2.42.0 or 2.47.1 (default) instead."
 )
 
 
@@ -107,6 +107,11 @@ def get_image_uri(ray_version, python_version, enable_cuda):
                 list(SUPPORTED_RAY_VERSIONS.values())[1],
             )
         )
+    if python_version is None:
+        for pv, ray_versions in SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS.items():
+            if ray_version in ray_versions:
+                python_version = pv
+                break
     if python_version not in SUPPORTED_RAY_VERSIONS_FROM_PYTHON_VERSIONS:
         raise ValueError(
             "[Ray on Vertex AI]: The supported Python versions are 3.10 or 3.11."

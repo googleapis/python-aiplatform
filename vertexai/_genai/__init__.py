@@ -14,8 +14,28 @@
 #
 """The vertexai module."""
 
-from . import evals
-from .client import Client
+import importlib
+
+from .client import Client  # type: ignore[attr-defined]
+
+_evals = None
+
+
+def __getattr__(name):  # type: ignore[no-untyped-def]
+    if name == "evals":
+        global _evals
+        if _evals is None:
+            try:
+                _evals = importlib.import_module(".evals", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'evals' module requires additional dependencies. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[evaluation]"
+                ) from e
+        return _evals
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+
 
 __all__ = [
     "Client",

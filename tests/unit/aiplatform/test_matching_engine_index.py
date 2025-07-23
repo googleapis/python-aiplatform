@@ -30,6 +30,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.compat.services import (
     index_service_client,
+    index_service_client_v1beta1,
 )
 
 from google.cloud.aiplatform.matching_engine import (
@@ -40,6 +41,7 @@ from google.cloud.aiplatform.compat.types import (
     index as gca_index,
     encryption_spec as gca_encryption_spec,
     index_service as gca_index_service,
+    index_service_v1beta1 as gca_index_service_v1beta1,
 )
 import constants as test_constants
 
@@ -65,6 +67,11 @@ _TEST_INDEX_FEATURE_NORM_TYPE = (
 
 _TEST_CONTENTS_DELTA_URI_UPDATE = "gs://contents_update"
 _TEST_IS_COMPLETE_OVERWRITE_UPDATE = True
+
+_TEST_BQ_SOURCE_PATH = "bq://my-project.my-dataset.my-table"
+_TEST_ID_COLUMN = "id"
+_TEST_EMBEDDING_COLUMN = "embedding"
+
 
 _TEST_INDEX_CONFIG_DIMENSIONS = 100
 _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT = 150
@@ -209,6 +216,19 @@ def update_index_embeddings_mock():
 
 
 @pytest.fixture
+def import_index_mock():
+    with patch.object(
+        index_service_client_v1beta1.IndexServiceClient, "import_index"
+    ) as import_index_mock:
+        import_index_lro_mock = mock.Mock(operation.Operation)
+        import_index_lro_mock.result.return_value = gca_index.Index(
+            name=_TEST_INDEX_NAME,
+        )
+        import_index_mock.return_value = import_index_lro_mock
+        yield import_index_mock
+
+
+@pytest.fixture
 def list_indexes_mock():
     with patch.object(
         index_service_client.IndexServiceClient, "list_indexes"
@@ -335,6 +355,42 @@ class TestMatchingEngineIndex:
         )
 
         # The service only returns the name of the Index
+        assert updated_index.gca_resource == gca_index.Index(name=_TEST_INDEX_NAME)
+
+    @pytest.mark.usefixtures("get_index_mock")
+    @pytest.mark.parametrize("is_complete_overwrite", [True, False, None])
+    def test_import_embeddings(self, import_index_mock, is_complete_overwrite):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
+
+        config = gca_index_service_v1beta1.ImportIndexRequest.ConnectorConfig(
+            big_query_source_config=gca_index_service_v1beta1.ImportIndexRequest.ConnectorConfig.BigQuerySourceConfig(
+                table_path=_TEST_BQ_SOURCE_PATH,
+                datapoint_field_mapping=gca_index_service_v1beta1.ImportIndexRequest.ConnectorConfig.DatapointFieldMapping(
+                    id_column=_TEST_ID_COLUMN,
+                    embedding_column=_TEST_EMBEDDING_COLUMN,
+                ),
+            )
+        )
+
+        updated_index = my_index.import_embeddings(
+            config=config,
+            is_complete_overwrite=is_complete_overwrite,
+            import_request_timeout=_TEST_TIMEOUT,
+        )
+
+        expected_request = gca_index_service_v1beta1.ImportIndexRequest(
+            name=_TEST_INDEX_NAME,
+            config=config,
+            is_complete_overwrite=is_complete_overwrite,
+        )
+
+        import_index_mock.assert_called_once_with(
+            request=expected_request,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
+        )
         assert updated_index.gca_resource == gca_index.Index(name=_TEST_INDEX_NAME)
 
     def test_list_indexes(self, list_indexes_mock):

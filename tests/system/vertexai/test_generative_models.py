@@ -99,6 +99,7 @@ _RESPONSE_SCHEMA_STRUCT = {
 
 @pytest.mark.parametrize("api_endpoint_env_name", [PROD_API_ENDPOINT])
 @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+@pytest.mark.skip(reason="Models are deprecated.")
 class TestGenerativeModels(e2e_base.TestEndToEnd):
     """System tests for generative models."""
 

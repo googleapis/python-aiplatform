@@ -59,6 +59,13 @@ if TYPE_CHECKING:
         BaseArtifactService = Any
 
     try:
+        from google.adk.memory import BaseMemoryService
+
+        BaseMemoryService = BaseMemoryService
+    except (ImportError, AttributeError):
+        BaseMemoryService = Any
+
+    try:
         from opentelemetry.sdk import trace
 
         TracerProvider = trace.TracerProvider
@@ -74,14 +81,31 @@ _DEFAULT_APP_NAME = "default-app-name"
 _DEFAULT_USER_ID = "default-user-id"
 
 
-def get_adk_major_version() -> int:
-    """Get the major version of google-adk."""
+def get_adk_version() -> Optional[str]:
+    """Returns the version of the ADK package."""
     try:
         from google.adk import version
 
-        return int(version.__version__.split(".")[0])
+        return version.__version__
     except ImportError:
-        return 0
+        return None
+
+
+def is_version_sufficient(version_to_check: str) -> bool:
+    """Compares the existing version of ADK with the required version.
+
+    Args:
+        version_to_check: The version string to check.
+
+    Returns:
+        True if the existing version is sufficient, False otherwise.
+    """
+    try:
+        from packaging.version import parse
+
+        return parse(get_adk_version()) >= parse(version_to_check)
+    except (AttributeError, ImportError):
+        return False
 
 
 class _ArtifactVersion:
@@ -157,11 +181,13 @@ class _StreamingRunResponse:
         # List of artifacts belonging to the session.
 
     def dump(self) -> Dict[str, Any]:
+        from vertexai.agent_engines import _utils
+
         result = {}
         if self.events:
             result["events"] = []
             for event in self.events:
-                event_dict = event.model_dump(exclude_none=True)
+                event_dict = _utils.dump_event_for_json(event)
                 event_dict["invocation_id"] = event_dict.get("invocation_id", "")
                 result["events"].append(event_dict)
         if self.artifacts:
@@ -281,15 +307,16 @@ class AdkApp:
         enable_tracing: bool = False,
         session_service_builder: Optional[Callable[..., "BaseSessionService"]] = None,
         artifact_service_builder: Optional[Callable[..., "BaseArtifactService"]] = None,
+        memory_service_builder: Optional[Callable[..., "BaseMemoryService"]] = None,
         env_vars: Optional[Dict[str, str]] = None,
     ):
         """An ADK Application."""
         from google.cloud.aiplatform import initializer
 
-        adk_major_version = get_adk_major_version()
-        if adk_major_version < 1:
+        adk_version = get_adk_version()
+        if not is_version_sufficient("1.0.0"):
             msg = (
-                f"Unsupported google-adk major version: {adk_major_version}, "
+                f"Unsupported google-adk version: {adk_version}, "
                 "please use google-adk>=1.0.0 for AdkApp deployment."
             )
             raise ValueError(msg)
@@ -301,6 +328,7 @@ class AdkApp:
             "enable_tracing": enable_tracing,
             "session_service_builder": session_service_builder,
             "artifact_service_builder": artifact_service_builder,
+            "memory_service_builder": memory_service_builder,
             "app_name": _DEFAULT_APP_NAME,
             "env_vars": env_vars or {},
         }
@@ -410,6 +438,7 @@ class AdkApp:
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             session_service_builder=self._tmpl_attrs.get("session_service_builder"),
             artifact_service_builder=self._tmpl_attrs.get("artifact_service_builder"),
+            memory_service_builder=self._tmpl_attrs.get("memory_service_builder"),
             env_vars=self._tmpl_attrs.get("env_vars"),
         )
 
@@ -421,6 +450,7 @@ class AdkApp:
         from google.adk.artifacts.in_memory_artifact_service import (
             InMemoryArtifactService,
         )
+        from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
         project = self._tmpl_attrs.get("project")
@@ -453,25 +483,53 @@ class AdkApp:
                 VertexAiSessionService,
             )
 
-            self._tmpl_attrs["session_service"] = VertexAiSessionService(
-                project=project,
-                location=location,
-            )
+            if is_version_sufficient("1.5.0"):
+                self._tmpl_attrs["session_service"] = VertexAiSessionService(
+                    project=project,
+                    location=location,
+                    agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                )
+            else:
+                self._tmpl_attrs["session_service"] = VertexAiSessionService(
+                    project=project,
+                    location=location,
+                )
         else:
             self._tmpl_attrs["session_service"] = InMemorySessionService()
+
+        memory_service_builder = self._tmpl_attrs.get("memory_service_builder")
+        if memory_service_builder:
+            self._tmpl_attrs["memory_service"] = memory_service_builder()
+        elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ and is_version_sufficient(
+            "1.5.0"
+        ):
+            from google.adk.memory.vertex_ai_memory_bank_service import (
+                VertexAiMemoryBankService,
+            )
+
+            self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
+                project=project,
+                location=location,
+                agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+            )
+        else:
+            self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
 
         self._tmpl_attrs["runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
             session_service=self._tmpl_attrs.get("session_service"),
             artifact_service=self._tmpl_attrs.get("artifact_service"),
+            memory_service=self._tmpl_attrs.get("memory_service"),
             app_name=self._tmpl_attrs.get("app_name"),
         )
         self._tmpl_attrs["in_memory_session_service"] = InMemorySessionService()
         self._tmpl_attrs["in_memory_artifact_service"] = InMemoryArtifactService()
+        self._tmpl_attrs["in_memory_memory_service"] = InMemoryMemoryService()
         self._tmpl_attrs["in_memory_runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
             session_service=self._tmpl_attrs.get("in_memory_session_service"),
             artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
+            memory_service=self._tmpl_attrs.get("in_memory_memory_service"),
             app_name=self._tmpl_attrs.get("app_name"),
         )
 
@@ -500,6 +558,7 @@ class AdkApp:
         Yields:
             The output of querying the ADK application.
         """
+        from vertexai.agent_engines import _utils
         from google.genai import types
 
         if isinstance(message, Dict):
@@ -520,7 +579,7 @@ class AdkApp:
         for event in self._tmpl_attrs.get("runner").run(
             user_id=user_id, session_id=session_id, new_message=content, **kwargs
         ):
-            yield event.model_dump(exclude_none=True)
+            yield _utils.dump_event_for_json(event)
 
     async def async_stream_query(
         self,
@@ -547,6 +606,7 @@ class AdkApp:
         Yields:
             Event dictionaries asynchronously.
         """
+        from vertexai.agent_engines import _utils
         from google.genai import types
 
         if isinstance(message, Dict):
@@ -571,7 +631,7 @@ class AdkApp:
 
         async for event in events_async:
             # Yield the event data as a dictionary
-            yield event.model_dump(exclude_none=True)
+            yield _utils.dump_event_for_json(event)
 
     def streaming_agent_run_with_events(self, request_json: str):
         import json
@@ -627,15 +687,17 @@ class AdkApp:
                 asyncio.run(_invoke_agent_async())
             except RuntimeError as e:
                 event_queue.put(e)
+            finally:
+                # Use None as a sentinel to stop the main thread.
+                event_queue.put(None)
 
         thread = threading.Thread(target=_asyncio_thread_main)
         thread.start()
 
         try:
             while True:
-                try:
-                    event = event_queue.get(timeout=30)
-                except queue.Empty:
+                event = event_queue.get()
+                if event is None:
                     break
                 if isinstance(event, RuntimeError):
                     raise event

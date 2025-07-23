@@ -9156,6 +9156,7 @@ def test_create_training_pipeline_rest_call_success(request_type):
                 "ports": [{"container_port": 1511}],
                 "predict_route": "predict_route_value",
                 "health_route": "health_route_value",
+                "invoke_route_prefix": "invoke_route_prefix_value",
                 "grpc_ports": {},
                 "deployment_timeout": {"seconds": 751, "nanos": 543},
                 "shared_memory_size_mb": 2231,
@@ -10087,6 +10088,7 @@ def test_create_pipeline_job_rest_call_success(request_type):
                     ],
                     "inputs": {},
                     "outputs": {},
+                    "task_unique_name": "task_unique_name_value",
                 }
             ],
         },
@@ -10113,7 +10115,16 @@ def test_create_pipeline_job_rest_call_success(request_type):
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "template_uri": "template_uri_value",
         "template_metadata": {"version": "version_value"},
         "schedule_name": "schedule_name_value",
@@ -12118,6 +12129,7 @@ async def test_create_training_pipeline_rest_asyncio_call_success(request_type):
                 "ports": [{"container_port": 1511}],
                 "predict_route": "predict_route_value",
                 "health_route": "health_route_value",
+                "invoke_route_prefix": "invoke_route_prefix_value",
                 "grpc_ports": {},
                 "deployment_timeout": {"seconds": 751, "nanos": 543},
                 "shared_memory_size_mb": 2231,
@@ -13129,6 +13141,7 @@ async def test_create_pipeline_job_rest_asyncio_call_success(request_type):
                     ],
                     "inputs": {},
                     "outputs": {},
+                    "task_unique_name": "task_unique_name_value",
                 }
             ],
         },
@@ -13155,7 +13168,16 @@ async def test_create_pipeline_job_rest_asyncio_call_success(request_type):
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
-        "psc_interface_config": {"network_attachment": "network_attachment_value"},
+        "psc_interface_config": {
+            "network_attachment": "network_attachment_value",
+            "dns_peering_configs": [
+                {
+                    "domain": "domain_value",
+                    "target_project": "target_project_value",
+                    "target_network": "target_network_value",
+                }
+            ],
+        },
         "template_uri": "template_uri_value",
         "template_metadata": {"version": "version_value"},
         "schedule_name": "schedule_name_value",

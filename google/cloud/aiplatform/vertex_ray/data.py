@@ -61,17 +61,17 @@ def read_bigquery(
             executing the query if provided. Otherwise, the entire dataset is read.
             For query syntax guidelines, see
             https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
-        parallelism: 2.33.0, 2.42.0: This argument is deprecated. Use
+        parallelism: 2.33.0, 2.42.0, 2.47.1: This argument is deprecated. Use
             ``override_num_blocks`` argument. 2.9.3: The requested parallelism of
             the read. If -1, it will be automatically chosen based on the available
             cluster resources and estimated in-memory data size.
         ray_remote_args: kwargs passed to ray.remote in the read tasks.
-        concurrency: Supported for 2.33.0 and 2.42.0 only: The maximum number of
+        concurrency: Supported for 2.33.0, 2.42.0 and 2.47.1 only: The maximum number of
             Ray tasks to run concurrently. Set this to control number of tasks to
             run concurrently. This doesn't change the total number of tasks run or
             the total number of output blocks. By default, concurrency is
             dynamically decided based on the available resources.
-        override_num_blocks: Supported for 2.33.0 and 2.42.0 only: Override the
+        override_num_blocks: Supported for 2.33.0, 2.42.0 and 2.47.1 only: Override the
             number of output blocks from all read tasks. By default, the number of
             output blocks is dynamically decided based on input data size and
             available resources. You shouldn't manually set this value in most
@@ -95,7 +95,7 @@ def read_bigquery(
             parallelism=parallelism,
             ray_remote_args=ray_remote_args,
         )
-    elif ray.__version__ in ("2.33.0", "2.42.0"):
+    elif ray.__version__ in ("2.33.0", "2.42.0", "2.47.1"):
         return ray.data.read_datasource(
             datasource=datasource,
             parallelism=parallelism,
@@ -106,7 +106,7 @@ def read_bigquery(
     else:
         raise ImportError(
             f"[Ray on Vertex AI]: Unsupported version {ray.__version__}."
-            + "Only 2.42.0, 2.33.0, and 2.9.3 are supported."
+            + "Only 2.47.1, 2.42.0, 2.33.0, and 2.9.3 are supported."
         )
 
 
@@ -134,19 +134,20 @@ def write_bigquery(
             The default number of retries is 10.
         ray_remote_args: kwargs passed to ray.remote in the write tasks.
         overwrite_table: Not supported in 2.9.3.
-            2.33.0, 2.42.0: Whether the write will overwrite the table if it already
-            exists. The default behavior is to overwrite the table.
+            2.33.0, 2.42.0, 2.47.1: Whether the write will overwrite the table
+            if it already exists. The default behavior is to overwrite the table.
             If false, will append to the table if it exists.
         concurrency: Not supported in 2.9.3.
-            2.33.0, 2.42.0: The maximum number of Ray tasks to run concurrently. Set this
-            to control number of tasks to run concurrently. This doesn't change the
-            total number of tasks run or the total number of output blocks. By default,
-            concurrency is dynamically decided based on the available resources.
+            2.33.0, 2.42.0, 2.47.1: The maximum number of Ray tasks to run concurrently.
+            Set this to control number of tasks to run concurrently. This doesn't
+            change the total number of tasks run or the total number of output blocks.
+            By default, concurrency is dynamically decided based on the available
+            resources.
     """
     if ray.__version__ == "2.4.0":
         raise RuntimeError(_V2_4_WARNING_MESSAGE)
 
-    elif ray.__version__ in ("2.9.3", "2.33.0", "2.42.0"):
+    elif ray.__version__ in ("2.9.3", "2.33.0", "2.42.0", "2.47.1"):
         if ray.__version__ == "2.9.3":
             warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
         if ray_remote_args is None:
@@ -173,7 +174,7 @@ def write_bigquery(
                 datasink=datasink,
                 ray_remote_args=ray_remote_args,
             )
-        elif ray.__version__ in ("2.33.0", "2.42.0"):
+        elif ray.__version__ in ("2.33.0", "2.42.0", "2.47.1"):
             datasink = _BigQueryDatasink(
                 project_id=project_id,
                 dataset=dataset,
@@ -188,5 +189,5 @@ def write_bigquery(
     else:
         raise ImportError(
             f"[Ray on Vertex AI]: Unsupported version {ray.__version__}."
-            + "Only 2.42.0, 2.33.0 and 2.9.3 are supported."
+            + "Only 2.47.1, 2.42.0, 2.33.0 and 2.9.3 are supported."
         )

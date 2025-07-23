@@ -279,6 +279,8 @@ _TEST_CLIENT_CONNECTION_CONFIG = gca_endpoint.ClientConnectionConfig(
     inference_timeout=duration_pb2.Duration(seconds=_TEST_INFERENCE_TIMEOUT)
 )
 
+_TEST_MAX_RUNTIME_DURATION = 600
+
 """
 ----------------------------------------------------------------------------
 Endpoint Fixtures
@@ -357,6 +359,7 @@ def get_dedicated_endpoint_mock():
         get_endpoint_mock.return_value = gca_endpoint.Endpoint(
             display_name=_TEST_DISPLAY_NAME,
             name=_TEST_ENDPOINT_NAME,
+            deployed_models=_TEST_DEPLOYED_MODELS,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
             dedicated_endpoint_enabled=True,
             dedicated_endpoint_dns=_TEST_DEDICATED_ENDPOINT_DNS,
@@ -753,6 +756,69 @@ def predict_async_client_explain_mock():
 
 
 @pytest.fixture
+def invoke_public_dedicated_endpoint_http_mock():
+    resp = requests.Response()
+    resp.status_code = 200
+    resp._content = json.dumps(
+        {
+            "predictions": _TEST_PREDICTION,
+            "metadata": _TEST_METADATA,
+            "deployedModelId": _TEST_DEPLOYED_MODELS[0].id,
+            "model": _TEST_MODEL_NAME,
+            "modelVersionId": "1",
+        }
+    ).encode("utf-8")
+    with mock.patch.object(
+        google_auth_requests.AuthorizedSession, "post"
+    ) as predict_mock:
+        predict_mock.return_value = resp
+        yield predict_mock
+
+
+@pytest.fixture
+def invoke_public_dedicated_endpoint_http_mock_streaming():
+    with mock.patch.object(
+        google_auth_requests.AuthorizedSession, "post"
+    ) as invoke_streaming_mock:
+        # Create a mock response object
+        mock_response = mock.Mock(spec=requests.Response)
+
+        # Configure the mock to be used as a context manager
+        invoke_streaming_mock.return_value.__enter__.return_value = mock_response
+
+        # Set the status code to 200 (OK)
+        mock_response.status_code = 200
+
+        # Simulate streaming data with iter_lines
+        mock_response.iter_lines = mock.Mock(
+            return_value=iter(
+                [
+                    json.dumps(
+                        {
+                            "predictions": [1.0, 2.0, 3.0],
+                            "metadata": {"key": "value"},
+                            "deployedModelId": "model-id-123",
+                            "model": "model-name",
+                            "modelVersionId": "1",
+                        }
+                    ).encode("utf-8"),
+                    json.dumps(
+                        {
+                            "predictions": [4.0, 5.0, 6.0],
+                            "metadata": {"key": "value"},
+                            "deployedModelId": "model-id-123",
+                            "model": "model-name",
+                            "modelVersionId": "1",
+                        }
+                    ).encode("utf-8"),
+                ]
+            )
+        )
+
+        yield invoke_streaming_mock
+
+
+@pytest.fixture
 def preview_get_drp_mock():
     with mock.patch.object(
         deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
@@ -986,6 +1052,69 @@ def stream_raw_predict_private_endpoint_mock():
         )
 
         yield stream_raw_predict_mock
+
+
+@pytest.fixture
+def invoke_private_dedicated_endpoint_http_mock():
+    resp = requests.Response()
+    resp.status_code = 200
+    resp._content = json.dumps(
+        {
+            "predictions": _TEST_PREDICTION,
+            "metadata": _TEST_METADATA,
+            "deployedModelId": _TEST_LONG_DEPLOYED_MODELS[0].id,
+            "model": _TEST_MODEL_NAME,
+            "modelVersionId": "1",
+        }
+    ).encode("utf-8")
+    with mock.patch.object(
+        google_auth_requests.AuthorizedSession, "post"
+    ) as predict_mock:
+        predict_mock.return_value = resp
+        yield predict_mock
+
+
+@pytest.fixture
+def invoke_private_dedicated_endpoint_http_mock_streaming():
+    with mock.patch.object(
+        google_auth_requests.AuthorizedSession, "post"
+    ) as invoke_streaming_mock:
+        # Create a mock response object
+        mock_response = mock.Mock(spec=requests.Response)
+
+        # Configure the mock to be used as a context manager
+        invoke_streaming_mock.return_value.__enter__.return_value = mock_response
+
+        # Set the status code to 200 (OK)
+        mock_response.status_code = 200
+
+        # Simulate streaming data with iter_lines
+        mock_response.iter_lines = mock.Mock(
+            return_value=iter(
+                [
+                    json.dumps(
+                        {
+                            "predictions": [1.0, 2.0, 3.0],
+                            "metadata": {"key": "value"},
+                            "deployedModelId": _TEST_LONG_DEPLOYED_MODELS[0].id,
+                            "model": "model-name",
+                            "modelVersionId": "1",
+                        }
+                    ).encode("utf-8"),
+                    json.dumps(
+                        {
+                            "predictions": [4.0, 5.0, 6.0],
+                            "metadata": {"key": "value"},
+                            "deployedModelId": _TEST_LONG_DEPLOYED_MODELS[0].id,
+                            "model": "model-name",
+                            "modelVersionId": "1",
+                        }
+                    ).encode("utf-8"),
+                ]
+            )
+        )
+
+        yield invoke_streaming_mock
 
 
 @pytest.fixture
@@ -1917,11 +2046,61 @@ class TestEndpoint:
             if not sync:
                 test_endpoint.wait()
 
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_autoscaling_target_request_count_per_minute(
+        self, deploy_model_mock, sync
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint.deploy(
+            model=test_model,
+            machine_type=_TEST_MACHINE_TYPE,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            autoscaling_target_request_count_per_minute=600,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
+            machine_spec=gca_machine_resources.MachineSpec(
+                machine_type=_TEST_MACHINE_TYPE,
+            ),
+            min_replica_count=1,
+            max_replica_count=1,
+            autoscaling_metric_specs=[
+                gca_machine_resources.AutoscalingMetricSpec(
+                    metric_name=_TEST_METRIC_NAME_REQUEST_COUNT,
+                    target=600,
+                ),
+            ],
+        )
+
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures(
         "get_endpoint_mock", "get_model_mock", "preview_deploy_model_mock"
     )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_with_autoscaling_target_request_count_per_minute(
+    def test_deploy_with_autoscaling_target_request_count_per_minute_preview(
         self, preview_deploy_model_mock, sync
     ):
         test_endpoint = preview_models.Endpoint(_TEST_ENDPOINT_NAME)
@@ -2840,6 +3019,135 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    def test_invoke_dedicated_endpoint_default(
+        self, invoke_public_dedicated_endpoint_http_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_prediction_response = test_endpoint.invoke(
+            request_path="/arbitrary/path",
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+        )
+
+        expected_prediction_response = requests.Response()
+        expected_prediction_response.status_code = 200
+        expected_prediction_response._content = json.dumps(
+            {
+                "predictions": _TEST_PREDICTION,
+                "metadata": _TEST_METADATA,
+                "deployedModelId": _TEST_DEPLOYED_MODELS[0].id,
+                "model": _TEST_MODEL_NAME,
+                "modelVersionId": "1",
+            }
+        ).encode("utf-8")
+
+        assert (
+            test_prediction_response.status_code
+            == expected_prediction_response.status_code
+        )
+        assert test_prediction_response.text == expected_prediction_response.text
+        invoke_public_dedicated_endpoint_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}/invoke/arbitrary/path",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    def test_invoke_dedicated_endpoint_stream_true(
+        self, invoke_public_dedicated_endpoint_http_mock_streaming
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        test_prediction_iterator = test_endpoint.invoke(
+            request_path="/arbitrary/path",
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            stream=True,
+        )
+
+        test_streaming_predction_result = list(test_prediction_iterator)
+        expected_streaming_prediction_result = [
+            json.dumps(
+                {
+                    "predictions": [1.0, 2.0, 3.0],
+                    "metadata": {"key": "value"},
+                    "deployedModelId": "model-id-123",
+                    "model": "model-name",
+                    "modelVersionId": "1",
+                }
+            ).encode("utf-8"),
+            json.dumps(
+                {
+                    "predictions": [4.0, 5.0, 6.0],
+                    "metadata": {"key": "value"},
+                    "deployedModelId": "model-id-123",
+                    "model": "model-name",
+                    "modelVersionId": "1",
+                }
+            ).encode("utf-8"),
+        ]
+        assert test_streaming_predction_result == expected_streaming_prediction_result
+        invoke_public_dedicated_endpoint_http_mock_streaming.assert_called_once_with(
+            url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}/invoke/arbitrary/path",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
+            stream=True,
+        )
+
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    def test_invoke_with_deployed_model_id(
+        self, invoke_public_dedicated_endpoint_http_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_prediction_response = test_endpoint.invoke(
+            request_path="/arbitrary/path",
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            deployed_model_id=_TEST_DEPLOYED_MODELS[0].id,
+        )
+
+        expected_prediction_response = requests.Response()
+        expected_prediction_response.status_code = 200
+        expected_prediction_response._content = json.dumps(
+            {
+                "predictions": _TEST_PREDICTION,
+                "metadata": _TEST_METADATA,
+                "deployedModelId": _TEST_DEPLOYED_MODELS[0].id,
+                "model": _TEST_MODEL_NAME,
+                "modelVersionId": "1",
+            }
+        ).encode("utf-8")
+
+        assert (
+            test_prediction_response.status_code
+            == expected_prediction_response.status_code
+        )
+        assert test_prediction_response.text == expected_prediction_response.text
+        invoke_public_dedicated_endpoint_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}/deployedModels/{_TEST_DEPLOYED_MODELS[0].id}/invoke/arbitrary/path",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    def test_invoke_with_non_existent_deployed_model_id_raises_error(self):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        with pytest.raises(ValueError) as e:
+            _ = test_endpoint.invoke(
+                request_path="/arbitrary/path",
+                body=_TEST_RAW_INPUTS,
+                headers={"Content-Type": "application/json"},
+                deployed_model_id="non-existent-deployed-model-id",
+            )
+
+        assert e.match(
+            f"Deployed model non-existent-deployed-model-id not found in endpoint {_TEST_ID}."
+        )
+
     @pytest.mark.asyncio
     @pytest.mark.usefixtures("get_endpoint_mock")
     async def test_predict_async(self, predict_async_client_predict_mock):
@@ -3411,13 +3719,14 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.asyncio
     @pytest.mark.usefixtures("get_endpoint_mock")
     async def test_explain_async_with_explaination_spec_override(
         self, predict_async_client_v1beta1_explain_mock
     ):
         test_endpoint = aiplatform.Endpoint(_TEST_ID).preview
 
-        await test_endpoint.explain(
+        await test_endpoint.explain_async(
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             deployed_model_id=_TEST_MODEL_ID,
@@ -3429,13 +3738,14 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.asyncio
     @pytest.mark.usefixtures("get_endpoint_mock")
     async def test_explain_async_with_concurrent_explaination_spec_override(
         self, predict_async_client_v1beta1_explain_mock
     ):
         test_endpoint = aiplatform.Endpoint(_TEST_ID).preview
 
-        await test_endpoint.explain(
+        await test_endpoint.explain_async(
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             deployed_model_id=_TEST_MODEL_ID,
@@ -3604,6 +3914,40 @@ class TestPrivateEndpoint:
             location=_TEST_LOCATION,
             private_service_connect_config=models.PrivateEndpoint.PrivateServiceConnectConfig(
                 project_allowlist=_TEST_PROJECT_ALLOWLIST
+            ),
+            sync=sync,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                enable_private_service_connect=True,
+                project_allowlist=_TEST_PROJECT_ALLOWLIST,
+            ),
+        )
+
+        create_psc_private_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_psc_with_service_networking(
+        self, create_psc_private_endpoint_mock, sync
+    ):
+        test_endpoint = models.PrivateEndpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                enable_private_service_connect=True,
+                project_allowlist=_TEST_PROJECT_ALLOWLIST,
             ),
             sync=sync,
         )
@@ -3821,6 +4165,148 @@ class TestPrivateEndpoint:
         assert err.match(
             regexp=r"Invalid endpoint override provided. Please only use IP"
             "address or DNS."
+        )
+
+    @pytest.mark.usefixtures("get_psc_private_endpoint_with_many_model_mock")
+    def test_psc_invoke_default(self, invoke_private_dedicated_endpoint_http_mock):
+        test_endpoint = models.PrivateEndpoint(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, endpoint_name=_TEST_ID
+        )
+
+        test_prediction_response = test_endpoint.invoke(
+            request_path="/arbitrary/path",
+            body=_TEST_RAW_INPUTS,
+            headers={
+                "Content-Type": "application/json",
+            },
+            endpoint_override=_TEST_ENDPOINT_OVERRIDE,
+        )
+
+        expected_prediction_response = requests.Response()
+        expected_prediction_response.status_code = 200
+        expected_prediction_response._content = json.dumps(
+            {
+                "predictions": _TEST_PREDICTION,
+                "metadata": _TEST_METADATA,
+                "deployedModelId": _TEST_LONG_DEPLOYED_MODELS[0].id,
+                "model": _TEST_MODEL_NAME,
+                "modelVersionId": "1",
+            }
+        ).encode("utf-8")
+
+        assert (
+            test_prediction_response.status_code
+            == expected_prediction_response.status_code
+        )
+        assert test_prediction_response.text == expected_prediction_response.text
+        invoke_private_dedicated_endpoint_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_ENDPOINT_OVERRIDE}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}/invoke/arbitrary/path",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_psc_private_endpoint_with_many_model_mock")
+    def test_psc_invoke_dedicated_endpoint_stream_true(
+        self, invoke_private_dedicated_endpoint_http_mock_streaming
+    ):
+        test_endpoint = models.PrivateEndpoint(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, endpoint_name=_TEST_ID
+        )
+
+        test_prediction_iterator = test_endpoint.invoke(
+            request_path="/arbitrary/path",
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            stream=True,
+            endpoint_override=_TEST_ENDPOINT_OVERRIDE,
+        )
+
+        test_streaming_predction_result = list(test_prediction_iterator)
+        expected_streaming_prediction_result = [
+            json.dumps(
+                {
+                    "predictions": [1.0, 2.0, 3.0],
+                    "metadata": {"key": "value"},
+                    "deployedModelId": _TEST_LONG_DEPLOYED_MODELS[0].id,
+                    "model": "model-name",
+                    "modelVersionId": "1",
+                }
+            ).encode("utf-8"),
+            json.dumps(
+                {
+                    "predictions": [4.0, 5.0, 6.0],
+                    "metadata": {"key": "value"},
+                    "deployedModelId": _TEST_LONG_DEPLOYED_MODELS[0].id,
+                    "model": "model-name",
+                    "modelVersionId": "1",
+                }
+            ).encode("utf-8"),
+        ]
+        assert test_streaming_predction_result == expected_streaming_prediction_result
+        invoke_private_dedicated_endpoint_http_mock_streaming.assert_called_once_with(
+            url=f"https://{_TEST_ENDPOINT_OVERRIDE}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}/invoke/arbitrary/path",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
+            stream=True,
+        )
+
+    @pytest.mark.usefixtures("get_psc_private_endpoint_with_many_model_mock")
+    def test_psc_invoke_with_deployed_model_id(
+        self, invoke_private_dedicated_endpoint_http_mock
+    ):
+        test_endpoint = models.PrivateEndpoint(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, endpoint_name=_TEST_ID
+        )
+        test_prediction_response = test_endpoint.invoke(
+            request_path="/arbitrary/path",
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            deployed_model_id=_TEST_LONG_DEPLOYED_MODELS[0].id,
+            endpoint_override=_TEST_ENDPOINT_OVERRIDE,
+        )
+
+        expected_prediction_response = requests.Response()
+        expected_prediction_response.status_code = 200
+        expected_prediction_response._content = json.dumps(
+            {
+                "predictions": _TEST_PREDICTION,
+                "metadata": _TEST_METADATA,
+                "deployedModelId": _TEST_LONG_DEPLOYED_MODELS[0].id,
+                "model": _TEST_MODEL_NAME,
+                "modelVersionId": "1",
+            }
+        ).encode("utf-8")
+
+        assert (
+            test_prediction_response.status_code
+            == expected_prediction_response.status_code
+        )
+        assert test_prediction_response.text == expected_prediction_response.text
+        invoke_private_dedicated_endpoint_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_ENDPOINT_OVERRIDE}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}/deployedModels/{_TEST_LONG_DEPLOYED_MODELS[0].id}/invoke/arbitrary/path",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_psc_private_endpoint_with_many_model_mock")
+    def test_psc_invoke_with_non_existent_deployed_model_id_raises_error(self):
+        test_endpoint = models.PrivateEndpoint(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, endpoint_name=_TEST_ID
+        )
+        with pytest.raises(ValueError) as e:
+            _ = test_endpoint.invoke(
+                request_path="/arbitrary/path",
+                body=_TEST_RAW_INPUTS,
+                headers={"Content-Type": "application/json"},
+                deployed_model_id="non-existent-deployed-model-id",
+                endpoint_override=_TEST_ENDPOINT_OVERRIDE,
+            )
+
+        assert e.match(
+            f"Deployed model non-existent-deployed-model-id not found in endpoint {_TEST_ID}."
         )
 
     @pytest.mark.usefixtures("get_psa_private_endpoint_with_model_mock")
@@ -4161,3 +4647,60 @@ class TestPrivateEndpoint:
         )
         assert endpoint2.project != _TEST_PROJECT
         assert endpoint2.location != _TEST_LOCATION
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_no_endpoint_with_max_runtime_duration(
+        self, preview_deploy_model_mock, sync
+    ):
+        test_model = preview_models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint = test_model.deploy(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            max_runtime_duration=_TEST_MAX_RUNTIME_DURATION,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+            spot=False,
+            required_replica_count=0,
+            flex_start=gca_machine_resources_v1beta1.FlexStart(
+                max_runtime_duration=duration_pb2.Duration(
+                    seconds=_TEST_MAX_RUNTIME_DURATION
+                ),
+            ),
+        )
+        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            enable_container_logging=True,
+            faster_deployment_config=gca_endpoint_v1beta1.FasterDeploymentConfig(),
+        )
+        preview_deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )

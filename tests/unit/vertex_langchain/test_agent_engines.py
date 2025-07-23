@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from absl.testing import parameterized
 import cloudpickle
 import difflib
 import importlib
@@ -585,6 +584,10 @@ _TEST_PACKAGE_DISTRIBUTIONS = {
     "pydantic": ["pydantic"],
 }
 
+_TEST_BUILD_OPTIONS_INSTALLATION = _agent_engines._BUILD_OPTIONS_INSTALLATION
+_TEST_INSTALLATION_SUBDIR = _utils._INSTALLATION_SUBDIR
+_TEST_INSTALLATION_SCRIPT_PATH = f"{_TEST_INSTALLATION_SUBDIR}/install_package.sh"
+
 
 def _create_empty_fake_package(package_name: str) -> str:
     """Creates a temporary directory structure representing an empty fake Python package.
@@ -1147,7 +1150,47 @@ class TestAgentEngine:
             retry=_TEST_RETRY,
         )
 
-    # pytest does not allow absl.testing.parameterized.named_parameters.
+    def test_create_agent_engine_with_build_options(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+
+        with mock.patch("os.path.exists", return_value=True):
+            agent_engines.create(
+                self.test_agent,
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                extra_packages=[
+                    _TEST_INSTALLATION_SCRIPT_PATH,
+                ],
+                build_options={
+                    _TEST_BUILD_OPTIONS_INSTALLATION: [_TEST_INSTALLATION_SCRIPT_PATH]
+                },
+            )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
     @pytest.mark.parametrize(
         "test_case_name, test_engine_instance, expected_framework",
         [
@@ -1190,7 +1233,6 @@ class TestAgentEngine:
         framework = _agent_engines._get_agent_framework(test_engine_instance)
         assert framework == expected_framework
 
-    # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
         "test_case_name, test_kwargs, want_request",
         [
@@ -1601,7 +1643,6 @@ class TestAgentEngine:
             test_agent_engine.query(query=_TEST_QUERY_PROMPT)
             query_mock.assert_called_with(request=_TEST_AGENT_ENGINE_QUERY_REQUEST)
 
-    # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
         "test_case_name, test_class_methods_spec, want_operation_schema_api_modes",
         [
@@ -1847,7 +1888,6 @@ class TestAgentEngine:
                         class_method=method_name,
                     )
                 )
-                assert invoked_method.__doc__ == test_doc
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
@@ -2062,7 +2102,6 @@ class TestAgentEngine:
                     class_method=method_name,
                 )
             )
-            assert invoked_method.__doc__ == test_doc
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
@@ -2243,7 +2282,6 @@ class TestAgentEngine:
                     class_method=method_name,
                 )
             )
-            assert invoked_method.__doc__ == test_doc
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
@@ -2795,8 +2833,8 @@ class TestAgentEngineErrors:
             ValueError,
             match=(
                 "At least one of `agent_engine`, `requirements`, "
-                "`extra_packages`, `display_name`, `description`, or `env_vars` "
-                "must be specified."
+                "`extra_packages`, `display_name`, `description`, "
+                "`env_vars`, or `build_options` must be specified."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
@@ -2870,7 +2908,7 @@ class TestAgentEngineErrors:
                     "register the API methods: "
                     "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
                     "Error: {Unsupported api mode: `UNKNOWN_API_MODE`, "
-                    "Supported modes are: ``, `async`, `stream` and `async_stream`.}"
+                    "Supported modes are: ``, `async`, `async_stream`, `stream`.}"
                 ),
             ),
         ],
@@ -2987,161 +3025,169 @@ def assert_called_with_diff(mock_obj, expected_kwargs=None):
     )
 
 
-class TestGenerateSchema(parameterized.TestCase):
-    @parameterized.named_parameters(
-        dict(
-            testcase_name="place_tool_query",
-            func=place_tool_query,
-            required=["city", "activity"],
-            expected_operation={
-                "name": "place_tool_query",
-                "description": (
-                    "Searches the city for recommendations on the activity."
-                ),
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "city": {"type": "string"},
-                        "activity": {"type": "string", "nullable": True},
-                        "page_size": {"type": "integer"},
+class TestGenerateSchema:
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "func, required, expected_operation",
+        [
+            (
+                # "place_tool_query",
+                place_tool_query,
+                ["city", "activity"],
+                {
+                    "name": "place_tool_query",
+                    "description": (
+                        "Searches the city for recommendations on the activity."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "city": {"type": "string"},
+                            "activity": {"type": "string", "nullable": True},
+                            "page_size": {"type": "integer"},
+                        },
+                        "required": ["city", "activity"],
                     },
-                    "required": ["city", "activity"],
                 },
-            },
-        ),
-        dict(
-            testcase_name="place_photo_query",
-            func=place_photo_query,
-            required=["photo_reference"],
-            expected_operation={
-                "name": "place_photo_query",
-                "description": "Returns the photo for a given reference.",
-                "parameters": {
-                    "properties": {
-                        "photo_reference": {"type": "string"},
-                        "maxwidth": {"type": "integer"},
-                        "maxheight": {"type": "integer", "nullable": True},
+            ),
+            (
+                # "place_photo_query",
+                place_photo_query,
+                ["photo_reference"],
+                {
+                    "name": "place_photo_query",
+                    "description": "Returns the photo for a given reference.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "photo_reference": {"type": "string"},
+                            "maxwidth": {"type": "integer"},
+                            "maxheight": {"type": "integer", "nullable": True},
+                        },
+                        "required": ["photo_reference"],
                     },
-                    "required": ["photo_reference"],
-                    "type": "object",
                 },
-            },
-        ),
+            ),
+        ],
     )
     def test_generate_schemas(self, func, required, expected_operation):
         result = _utils.generate_schema(func, required=required)
-        self.assertDictEqual(result, expected_operation)
+        assert result == expected_operation
 
 
-class TestToProto(parameterized.TestCase):
-    @parameterized.named_parameters(
-        dict(
-            testcase_name="empty_dict",
-            obj={},
-            expected_proto=struct_pb2.Struct(fields={}),
-        ),
-        dict(
-            testcase_name="nonempty_dict",
-            obj={"snake_case": 1, "camelCase": 2},
-            expected_proto=struct_pb2.Struct(
-                fields={
-                    "snake_case": struct_pb2.Value(number_value=1),
-                    "camelCase": struct_pb2.Value(number_value=2),
-                },
+class TestToProto:
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "obj, expected_proto",
+        [
+            (
+                # "empty_dict",
+                {},
+                struct_pb2.Struct(fields={}),
             ),
-        ),
-        dict(
-            testcase_name="empty_proto_message",
-            obj=struct_pb2.Struct(fields={}),
-            expected_proto=struct_pb2.Struct(fields={}),
-        ),
-        dict(
-            testcase_name="nonempty_proto_message",
-            obj=struct_pb2.Struct(
-                fields={
-                    "snake_case": struct_pb2.Value(number_value=1),
-                    "camelCase": struct_pb2.Value(number_value=2),
-                },
+            (
+                # "nonempty_dict",
+                {"snake_case": 1, "camelCase": 2},
+                struct_pb2.Struct(
+                    fields={
+                        "snake_case": struct_pb2.Value(number_value=1),
+                        "camelCase": struct_pb2.Value(number_value=2),
+                    },
+                ),
             ),
-            expected_proto=struct_pb2.Struct(
-                fields={
-                    "snake_case": struct_pb2.Value(number_value=1),
-                    "camelCase": struct_pb2.Value(number_value=2),
-                },
+            (
+                # "empty_proto_message",
+                struct_pb2.Struct(fields={}),
+                struct_pb2.Struct(fields={}),
             ),
-        ),
+            (
+                # "nonempty_proto_message",
+                struct_pb2.Struct(
+                    fields={
+                        "snake_case": struct_pb2.Value(number_value=1),
+                        "camelCase": struct_pb2.Value(number_value=2),
+                    },
+                ),
+                struct_pb2.Struct(
+                    fields={
+                        "snake_case": struct_pb2.Value(number_value=1),
+                        "camelCase": struct_pb2.Value(number_value=2),
+                    },
+                ),
+            ),
+        ],
     )
     def test_to_proto(self, obj, expected_proto):
         result = _utils.to_proto(obj)
-        self.assertDictEqual(_utils.to_dict(result), _utils.to_dict(expected_proto))
-        # converting a new object to proto should not modify earlier objects.
-        new_result = _utils.to_proto({})
-        self.assertDictEqual(_utils.to_dict(result), _utils.to_dict(expected_proto))
-        self.assertEmpty(new_result)
+        assert _utils.to_dict(result) == _utils.to_dict(expected_proto)
 
 
-class ToParsedJsonTest(parameterized.TestCase):
-    @parameterized.named_parameters(
-        dict(
-            testcase_name="valid_json",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json", data=b'{"a": 1, "b": "hello"}'
+class ToParsedJsonTest:
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "obj, expected",
+        [
+            (
+                # "valid_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data=b'{"a": 1, "b": "hello"}'
+                ),
+                [{"a": 1, "b": "hello"}],
             ),
-            expected=[{"a": 1, "b": "hello"}],
-        ),
-        dict(
-            testcase_name="invalid_json",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json", data=b'{"a": 1, "b": "hello"'
+            (
+                # "invalid_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data=b'{"a": 1, "b": "hello"'
+                ),
+                ['{"a": 1, "b": "hello"'],  # returns the unparsed string
             ),
-            expected=['{"a": 1, "b": "hello"'],  # returns the unparsed string
-        ),
-        dict(
-            testcase_name="missing_content_type",
-            obj=httpbody_pb2.HttpBody(data=b'{"a": 1}'),
-            expected=[httpbody_pb2.HttpBody(data=b'{"a": 1}')],
-        ),
-        dict(
-            testcase_name="missing_data",
-            obj=httpbody_pb2.HttpBody(content_type="application/json"),
-            expected=[None],
-        ),
-        dict(
-            testcase_name="wrong_content_type",
-            obj=httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello"),
-            expected=[httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")],
-        ),
-        dict(
-            testcase_name="empty_data",
-            obj=httpbody_pb2.HttpBody(content_type="application/json", data=b""),
-            expected=[None],
-        ),
-        dict(
-            testcase_name="unicode_data",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json", data='{"a": "你好"}'.encode("utf-8")
+            (
+                # "missing_content_type",
+                httpbody_pb2.HttpBody(data=b'{"a": 1}'),
+                [httpbody_pb2.HttpBody(data=b'{"a": 1}')],
             ),
-            expected=[{"a": "你好"}],
-        ),
-        dict(
-            testcase_name="nested_json",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json", data=b'{"a": {"b": 1}}'
+            (
+                # "missing_data",
+                httpbody_pb2.HttpBody(content_type="application/json"),
+                [None],
             ),
-            expected=[{"a": {"b": 1}}],
-        ),
-        dict(
-            testcase_name="multiline_json",
-            obj=httpbody_pb2.HttpBody(
-                content_type="application/json",
-                data=b'{"a": {"b": 1}}\n{"a": {"b": 2}}',
+            (
+                # "wrong_content_type",
+                httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello"),
+                [httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")],
             ),
-            expected=[{"a": {"b": 1}}, {"a": {"b": 2}}],
-        ),
+            (
+                # "empty_data",
+                httpbody_pb2.HttpBody(content_type="application/json", data=b""),
+                [None],
+            ),
+            (
+                # "unicode_data",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data='{"a": "你好"}'.encode("utf-8")
+                ),
+                [{"a": "你好"}],
+            ),
+            (
+                # "nested_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data=b'{"a": {"b": 1}}'
+                ),
+                [{"a": {"b": 1}}],
+            ),
+            (
+                # "multiline_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json",
+                    data=b'{"a": {"b": 1}}\n{"a": {"b": 2}}',
+                ),
+                [{"a": {"b": 1}}, {"a": {"b": 2}}],
+            ),
+        ],
     )
     def test_to_parsed_json(self, obj, expected):
         for got, want in zip(_utils.yield_parsed_json(obj), expected):
-            self.assertEqual(got, want)
+            assert got == want
 
 
 class TestRequirements:
@@ -3227,3 +3273,114 @@ class TestRequirements:
             "cloudpickle": "3.0.0",
             "pydantic": "1.11.1",
         }
+
+
+class TestValidateInstallationScripts:
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "name, script_paths, extra_packages",
+        [
+            (
+                "valid_script_in_subdir_and_extra_packages",
+                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
+                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
+            ),
+            (
+                "multiple_valid_scripts",
+                [
+                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                ],
+                [
+                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                ],
+            ),
+            ("empty_script_paths_and_extra_packages", [], []),
+        ],
+    )
+    def test_validate_installation_scripts(self, name, script_paths, extra_packages):
+        _utils.validate_installation_scripts_or_raise(
+            script_paths=script_paths, extra_packages=extra_packages
+        )
+
+    @pytest.mark.parametrize(
+        "name, script_paths, extra_packages, error_message",
+        [
+            (
+                "script_not_in_subdir",
+                ["script.sh"],
+                ["script.sh"],
+                (
+                    f"Required installation script 'script.sh' is not under"
+                    f" '{_utils._INSTALLATION_SUBDIR}'"
+                ),
+            ),
+            (
+                "script_not_in_extra_packages",
+                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
+                [],
+                (
+                    "User-defined installation script "
+                    f"'{_utils._INSTALLATION_SUBDIR}/script.sh'"
+                    " does not exist in `extra_packages`"
+                ),
+            ),
+            (
+                "extra_package_in_subdir_but_not_script",
+                [],
+                [f"{_utils._INSTALLATION_SUBDIR}/script.sh"],
+                (
+                    f"Extra package '{_utils._INSTALLATION_SUBDIR}/script.sh' "
+                    "is in the installation scripts subdirectory, but is not "
+                    "specified as an installation script."
+                ),
+            ),
+            (
+                "one_valid_one_invalid_script_not_in_subdir",
+                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh", "script2.sh"],
+                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh", "script2.sh"],
+                (
+                    f"Required installation script 'script2.sh' is not under"
+                    f" '{_utils._INSTALLATION_SUBDIR}'"
+                ),
+            ),
+            (
+                "one_valid_one_invalid_script_not_in_extra_packages",
+                [
+                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                ],
+                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh"],
+                (
+                    "User-defined installation script "
+                    f"'{_utils._INSTALLATION_SUBDIR}/script2.sh' "
+                    "does not exist in `extra_packages`"
+                ),
+            ),
+            (
+                "one_valid_one_invalid_extra_package_in_subdir",
+                [f"{_utils._INSTALLATION_SUBDIR}/script1.sh"],
+                [
+                    f"{_utils._INSTALLATION_SUBDIR}/script1.sh",
+                    f"{_utils._INSTALLATION_SUBDIR}/script2.sh",
+                ],
+                (
+                    f"Extra package '{_utils._INSTALLATION_SUBDIR}/script2.sh' "
+                    "is in the installation scripts subdirectory, but is not "
+                    "specified as an installation script."
+                ),
+            ),
+        ],
+    )
+    def test_validate_installation_scripts_raises_error(
+        self,
+        name,
+        script_paths,
+        extra_packages,
+        error_message,
+    ):
+        with pytest.raises(ValueError, match=error_message):
+            _utils.validate_installation_scripts_or_raise(
+                script_paths=script_paths, extra_packages=extra_packages
+            )

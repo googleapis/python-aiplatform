@@ -24,6 +24,7 @@ from google.cloud.aiplatform_v1 import types as aip_types
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
 from vertexai.agent_engines._agent_engines import (
+    _AgentEngineInterface,
     AgentEngine,
     Cloneable,
     ModuleAgent,
@@ -60,7 +61,7 @@ def get(resource_name: str) -> AgentEngine:
 
 
 def create(
-    agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
+    agent_engine: Optional[_AgentEngineInterface] = None,
     *,
     requirements: Optional[Union[str, Sequence[str]]] = None,
     display_name: Optional[str] = None,
@@ -70,6 +71,7 @@ def create(
     env_vars: Optional[
         Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
     ] = None,
+    build_options: Optional[Dict[str, Sequence[str]]] = None,
 ) -> AgentEngine:
     """Creates a new Agent Engine.
 
@@ -85,6 +87,9 @@ def create(
         |-- requirements.txt
         |-- user_code/
         |   |-- utils.py
+        |   |-- ...
+        |-- installation_scripts/
+        |   |-- install_package.sh
         |   |-- ...
         |-- ...
 
@@ -105,6 +110,12 @@ def create(
                 "./user_src_dir/user_code", # a directory
                 ...
             ],
+            build_options={
+                "installation": [
+                    "./user_src_dir/installation_scripts/install_package.sh",
+                    ...
+                ],
+            },
         )
 
     Args:
@@ -131,6 +142,9 @@ def create(
             a valid key to `os.environ`. If it is a dictionary, the keys are
             the environment variable names, and the values are the
             corresponding values.
+        build_options (Dict[str, Sequence[str]]):
+            Optional. The build options for the Agent Engine. This includes
+            options such as installation scripts.
 
     Returns:
         AgentEngine: The Agent Engine that was created.
@@ -153,6 +167,7 @@ def create(
         gcs_dir_name=gcs_dir_name,
         extra_packages=extra_packages,
         env_vars=env_vars,
+        build_options=build_options,
     )
 
 
@@ -237,6 +252,7 @@ def update(
     env_vars: Optional[
         Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
     ] = None,
+    build_options: Optional[Dict[str, Sequence[str]]] = None,
 ) -> "AgentEngine":
     """Updates an existing Agent Engine.
 
@@ -280,6 +296,9 @@ def update(
             a valid key to `os.environ`. If it is a dictionary, the keys are
             the environment variable names, and the values are the
             corresponding values.
+        build_options (Dict[str, Sequence[str]]):
+            Optional. The build options for the Agent Engine. This includes
+            options such as installation scripts.
 
     Returns:
         AgentEngine: The Agent Engine that was updated.
@@ -290,8 +309,8 @@ def update(
         FileNotFoundError: If `extra_packages` includes a file or directory
         that does not exist.
         ValueError: if none of `display_name`, `description`,
-        `requirements`, `extra_packages`, or `agent_engine` were
-        specified.
+        `requirements`, `extra_packages`, `agent_engine`, or `build_options`
+        were specified.
         IOError: If requirements is a string that corresponds to a
         nonexistent file.
     """
@@ -304,6 +323,7 @@ def update(
         gcs_dir_name=gcs_dir_name,
         extra_packages=extra_packages,
         env_vars=env_vars,
+        build_options=build_options,
     )
 
 

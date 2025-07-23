@@ -250,8 +250,9 @@ class NotebookRuntimeTemplate(proto.Message):
 
 class NotebookRuntime(proto.Message):
     r"""A runtime is a virtual machine allocated to a particular user
-    for a particular Notebook file on temporary basis with lifetime
-    limited to 24 hours.
+    for a particular Notebook file on temporary basis with lifetime.
+    Default runtimes have a lifetime of 18 hours, while custom
+    runtimes last for 6 months from their creation or last upgrade.
 
     Attributes:
         name (str):
@@ -401,7 +402,9 @@ class NotebookRuntime(proto.Message):
             RUNNING (1):
                 NotebookRuntime is in running state.
             BEING_STARTED (2):
-                NotebookRuntime is in starting state.
+                NotebookRuntime is in starting state. This is
+                when the runtime is being started from a stopped
+                state.
             BEING_STOPPED (3):
                 NotebookRuntime is in stopping state.
             STOPPED (4):
