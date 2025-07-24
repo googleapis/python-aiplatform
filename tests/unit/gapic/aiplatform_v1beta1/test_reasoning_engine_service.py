@@ -4613,6 +4613,7 @@ def test_create_reasoning_engine_rest_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
                 "dependency_files_gcs_uri": "dependency_files_gcs_uri_value",
@@ -5127,6 +5128,7 @@ def test_update_reasoning_engine_rest_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
                 "dependency_files_gcs_uri": "dependency_files_gcs_uri_value",
@@ -6265,6 +6267,7 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
                 "dependency_files_gcs_uri": "dependency_files_gcs_uri_value",
@@ -6833,6 +6836,7 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
                 "dependency_files_gcs_uri": "dependency_files_gcs_uri_value",
