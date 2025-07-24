@@ -37,7 +37,20 @@ __protobuf__ = proto.module(
 class ReasoningEngineSpec(proto.Message):
     r"""ReasoningEngine configurations
 
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
+        service_account (str):
+            Optional. The service account that the
+            Reasoning Engine artifact runs as. It should
+            have "roles/storage.objectViewer" for reading
+            the user project's Cloud Storage and
+            "roles/aiplatform.user" for using Vertex
+            extensions. If not specified, the Vertex AI
+            Reasoning Engine Service Agent in the project
+            will be used.
+
+            This field is a member of `oneof`_ ``_service_account``.
         package_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.PackageSpec):
             Optional. User provided package spec of the ReasoningEngine.
             Ignored when users directly specify a deployment image
@@ -123,6 +136,11 @@ class ReasoningEngineSpec(proto.Message):
             message=env_var.SecretEnvVar,
         )
 
+    service_account: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
     package_spec: PackageSpec = proto.Field(
         proto.MESSAGE,
         number=2,
