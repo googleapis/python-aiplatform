@@ -885,6 +885,13 @@ def _ListReasoningEnginesResponse_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(
+            to_object,
+            ["sdk_http_response"],
+            getv(from_object, ["sdkHttpResponse"]),
+        )
+
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
 
@@ -906,6 +913,13 @@ def _ListReasoningEnginesMemoriesResponse_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(
+            to_object,
+            ["sdk_http_response"],
+            getv(from_object, ["sdkHttpResponse"]),
+        )
+
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
 
@@ -952,6 +966,7 @@ def _RetrieveMemoriesResponse_from_vertex(
 
 
 class AgentEngines(_api_module.BaseModule):
+
     def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
@@ -2102,10 +2117,10 @@ class AgentEngines(_api_module.BaseModule):
             agent_engine = _agent_engines_utils._validate_agent_engine_or_raise(
                 agent_engine=agent_engine,
             )
-            staging_bucket = (
-                staging_bucket
-            ) = _agent_engines_utils._validate_staging_bucket_or_raise(
-                staging_bucket=staging_bucket,
+            staging_bucket = staging_bucket = (
+                _agent_engines_utils._validate_staging_bucket_or_raise(
+                    staging_bucket=staging_bucket,
+                )
             )
             requirements = _agent_engines_utils._validate_requirements_or_raise(
                 agent_engine=agent_engine,
@@ -2174,9 +2189,9 @@ class AgentEngines(_api_module.BaseModule):
                 for class_method in class_methods
             ]
             update_masks.append("spec.class_methods")
-            agent_engine_spec[
-                "agent_framework"
-            ] = _agent_engines_utils._get_agent_framework(agent_engine)
+            agent_engine_spec["agent_framework"] = (
+                _agent_engines_utils._get_agent_framework(agent_engine)
+            )
             update_masks.append("spec.agent_framework")
             config["spec"] = agent_engine_spec
         if update_masks and mode == "update":
@@ -2546,9 +2561,11 @@ class AgentEngines(_api_module.BaseModule):
         Returns:
             Iterable[Memory]: An iterable of memories.
         """
+        from functools import partial
+
         return Pager(
             "memories",
-            self._list_memories,
+            partial(self._list_memories, name=name),
             self._list_memories(name=name, config=config),
             config,
         )
@@ -2607,6 +2624,7 @@ class AgentEngines(_api_module.BaseModule):
 
 
 class AsyncAgentEngines(_api_module.BaseModule):
+
     async def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
