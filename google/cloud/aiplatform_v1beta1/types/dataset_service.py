@@ -1164,18 +1164,6 @@ class AssessDataRequest(proto.Message):
             prediction resource usage assessment.
 
             This field is a member of `oneof`_ ``assessment_config``.
-        gemini_template_config (google.cloud.aiplatform_v1beta1.types.GeminiTemplateConfig):
-            Optional. Config for assembling templates
-            with a Gemini API structure to assess assembled
-            data.
-
-            This field is a member of `oneof`_ ``read_config``.
-        request_column_name (str):
-            Optional. The column name in the underlying
-            table that contains already fully assembled
-            requests.
-
-            This field is a member of `oneof`_ ``read_config``.
         name (str):
             Required. The name of the Dataset resource. Used only for
             MULTIMODAL datasets. Format:
@@ -1290,17 +1278,6 @@ class AssessDataRequest(proto.Message):
         number=7,
         oneof="assessment_config",
         message=BatchPredictionResourceUsageAssessmentConfig,
-    )
-    gemini_template_config: "GeminiTemplateConfig" = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        oneof="read_config",
-        message="GeminiTemplateConfig",
-    )
-    request_column_name: str = proto.Field(
-        proto.STRING,
-        number=5,
-        oneof="read_config",
     )
     name: str = proto.Field(
         proto.STRING,
@@ -1629,26 +1606,7 @@ class AssembleDataRequest(proto.Message):
     [DatasetService.AssembleData][google.cloud.aiplatform.v1beta1.DatasetService.AssembleData].
     Used only for MULTIMODAL datasets.
 
-    This message has `oneof`_ fields (mutually exclusive fields).
-    For each oneof, at most one member field can be set at the same time.
-    Setting any member of the oneof automatically clears all other
-    members.
-
-    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
-
     Attributes:
-        gemini_template_config (google.cloud.aiplatform_v1beta1.types.GeminiTemplateConfig):
-            Optional. Config for assembling templates
-            with a Gemini API structure.
-
-            This field is a member of `oneof`_ ``read_config``.
-        request_column_name (str):
-            Optional. The column name in the underlying
-            table that contains already fully assembled
-            requests. If this field is set, the original
-            request will be copied to the output table.
-
-            This field is a member of `oneof`_ ``read_config``.
         name (str):
             Required. The name of the Dataset resource (used only for
             MULTIMODAL datasets). Format:
@@ -1657,17 +1615,6 @@ class AssembleDataRequest(proto.Message):
             Optional. The read config for the dataset.
     """
 
-    gemini_template_config: "GeminiTemplateConfig" = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        oneof="read_config",
-        message="GeminiTemplateConfig",
-    )
-    request_column_name: str = proto.Field(
-        proto.STRING,
-        number=5,
-        oneof="read_config",
-    )
     name: str = proto.Field(
         proto.STRING,
         number=1,
