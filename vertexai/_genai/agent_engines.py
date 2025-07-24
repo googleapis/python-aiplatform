@@ -166,6 +166,48 @@ def _CreateAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
+def _CreateAgentEngineSessionConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["session_state"]) is not None:
+        setv(
+            parent_object,
+            ["sessionState"],
+            getv(from_object, ["session_state"]),
+        )
+
+    return to_object
+
+
+def _CreateAgentEngineSessionRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["user_id"]) is not None:
+        setv(to_object, ["userId"], getv(from_object, ["user_id"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _CreateAgentEngineSessionConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
 def _DeleteAgentEngineRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -184,6 +226,20 @@ def _DeleteAgentEngineRequestParameters_to_vertex(
 
 
 def _DeleteAgentEngineMemoryRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _DeleteAgentEngineSessionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -310,6 +366,20 @@ def _GetAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
+def _GetAgentEngineSessionRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
 def _ListAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -397,6 +467,52 @@ def _ListAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
+def _ListAgentEngineSessionsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["page_size"]) is not None:
+        setv(
+            parent_object,
+            ["_query", "pageSize"],
+            getv(from_object, ["page_size"]),
+        )
+
+    if getv(from_object, ["page_token"]) is not None:
+        setv(
+            parent_object,
+            ["_query", "pageToken"],
+            getv(from_object, ["page_token"]),
+        )
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
+
+    return to_object
+
+
+def _ListAgentEngineSessionsRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _ListAgentEngineSessionsConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
 def _GetAgentEngineOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -416,6 +532,24 @@ def _GetAgentEngineOperationParameters_to_vertex(
 
 
 def _GetAgentEngineMemoryOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object,
+            ["_url", "operationName"],
+            getv(from_object, ["operation_name"]),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GetAgentEngineSessionOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -660,6 +794,55 @@ def _UpdateAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
+def _UpdateAgentEngineSessionConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["session_state"]) is not None:
+        setv(
+            parent_object,
+            ["sessionState"],
+            getv(from_object, ["session_state"]),
+        )
+
+    if getv(from_object, ["update_mask"]) is not None:
+        setv(
+            parent_object,
+            ["_query", "updateMask"],
+            getv(from_object, ["update_mask"]),
+        )
+
+    if getv(from_object, ["user_id"]) is not None:
+        setv(parent_object, ["userId"], getv(from_object, ["user_id"]))
+
+    return to_object
+
+
+def _UpdateAgentEngineSessionRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _UpdateAgentEngineSessionConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
 def _ReasoningEngine_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -775,6 +958,59 @@ def _AgentEngineMemoryOperation_from_vertex(
     return to_object
 
 
+def _Session_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["sessionState"]) is not None:
+        setv(to_object, ["session_state"], getv(from_object, ["sessionState"]))
+
+    if getv(from_object, ["updateTime"]) is not None:
+        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
+
+    if getv(from_object, ["userId"]) is not None:
+        setv(to_object, ["user_id"], getv(from_object, ["userId"]))
+
+    return to_object
+
+
+def _AgentEngineSessionOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(
+            to_object,
+            ["response"],
+            _Session_from_vertex(getv(from_object, ["response"]), to_object),
+        )
+
+    return to_object
+
+
 def _DeleteAgentEngineOperation_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -796,6 +1032,26 @@ def _DeleteAgentEngineOperation_from_vertex(
 
 
 def _DeleteAgentEngineMemoryOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    return to_object
+
+
+def _DeleteAgentEngineSessionOperation_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -885,6 +1141,13 @@ def _ListReasoningEnginesResponse_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(
+            to_object,
+            ["sdk_http_response"],
+            getv(from_object, ["sdkHttpResponse"]),
+        )
+
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
 
@@ -906,6 +1169,13 @@ def _ListReasoningEnginesMemoriesResponse_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(
+            to_object,
+            ["sdk_http_response"],
+            getv(from_object, ["sdkHttpResponse"]),
+        )
+
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
 
@@ -916,6 +1186,34 @@ def _ListReasoningEnginesMemoriesResponse_from_vertex(
             [
                 _Memory_from_vertex(item, to_object)
                 for item in getv(from_object, ["memories"])
+            ],
+        )
+
+    return to_object
+
+
+def _ListReasoningEnginesSessionsResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(
+            to_object,
+            ["sdk_http_response"],
+            getv(from_object, ["sdkHttpResponse"]),
+        )
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["sessions"]) is not None:
+        setv(
+            to_object,
+            ["sessions"],
+            [
+                _Session_from_vertex(item, to_object)
+                for item in getv(from_object, ["sessions"])
             ],
         )
 
@@ -1064,6 +1362,77 @@ class AgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _create_session(
+        self,
+        *,
+        name: str,
+        user_id: str,
+        config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
+    ) -> types.AgentEngineSessionOperation:
+        """Creates a new session in the Agent Engine.
+
+        Args:
+            name (str): Required. The name of the Agent Engine session to be
+              created. Format:
+              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            user_id (str): Required. The user ID of the session.
+            config (CreateAgentEngineSessionConfig): Optional. Additional
+              configurations for creating the Agent Engine.
+
+        Returns:
+            AgentEngineSessionOperation: The operation for creating the Agent
+            Engine session.
+        """
+
+        parameter_model = types._CreateAgentEngineSessionRequestParameters(
+            name=name,
+            user_id=user_id,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateAgentEngineSessionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/sessions".format_map(request_url_dict)
+            else:
+                path = "{name}/sessions"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+
+        return_value = types.AgentEngineSessionOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def delete(
         self,
         *,
@@ -1193,6 +1562,76 @@ class AgentEngines(_api_module.BaseModule):
             response_dict = _DeleteAgentEngineMemoryOperation_from_vertex(response_dict)
 
         return_value = types.DeleteAgentEngineMemoryOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def delete_session(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteAgentEngineSessionConfigOrDict] = None,
+    ) -> types.DeleteAgentEngineSessionOperation:
+        """Delete an Agent Engine session.
+
+        Args:
+            name (str): Required. The name of the Agent Engine session to be
+              deleted. Format:
+              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (DeleteAgentEngineSessionConfig): Optional. Additional
+              configurations for deleting the Agent Engine.
+
+        Returns:
+            DeleteAgentEngineSessionOperation: The operation for deleting the
+            Agent Engine session.
+        """
+
+        parameter_model = types._DeleteAgentEngineSessionRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeleteAgentEngineSessionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _DeleteAgentEngineSessionOperation_from_vertex(
+                response_dict
+            )
+
+        return_value = types.DeleteAgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1383,6 +1822,73 @@ class AgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def get_session(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetAgentEngineSessionConfigOrDict] = None,
+    ) -> types.Session:
+        """Gets an agent engine session.
+
+        Args:
+            name (str): Required. The name of the Agent Engine session to get.
+              Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (GetAgentEngineSessionConfig): Optional. Additional
+              configurations for getting the Agent Engine.
+
+        Returns:
+            AgentEngineSession: The requested Agent Engine session.
+        """
+
+        parameter_model = types._GetAgentEngineSessionRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetAgentEngineSessionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _Session_from_vertex(response_dict)
+
+        return_value = types.Session._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _list(
         self, *, config: Optional[types.ListAgentEngineConfigOrDict] = None
     ) -> types.ListReasoningEnginesResponse:
@@ -1491,6 +1997,76 @@ class AgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _list_sessions(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
+    ) -> types.ListReasoningEnginesSessionsResponse:
+        """Lists Agent Engine sessions.
+
+        Args:
+            name (str): Required. The name of the Agent Engine to list sessions
+              for. Format:
+              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (ListAgentEngineSessionsConfig): Optional. Additional
+              configurations for listing the Agent Engine sessions.
+
+        Returns:
+            ListReasoningEnginesSessionsResponse: The requested Agent Engine
+            sessions.
+        """
+
+        parameter_model = types._ListAgentEngineSessionsRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListAgentEngineSessionsRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/sessions".format_map(request_url_dict)
+            else:
+                path = "{name}/sessions"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListReasoningEnginesSessionsResponse_from_vertex(
+                response_dict
+            )
+
+        return_value = types.ListReasoningEnginesSessionsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _get_agent_operation(
         self,
         *,
@@ -1591,6 +2167,60 @@ class AgentEngines(_api_module.BaseModule):
             response_dict = _AgentEngineMemoryOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineMemoryOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_session_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
+    ) -> types.AgentEngineSessionOperation:
+        parameter_model = types._GetAgentEngineSessionOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetAgentEngineSessionOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+
+        return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1889,6 +2519,74 @@ class AgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _update_session(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
+    ) -> types.AgentEngineSessionOperation:
+        """Updates an Agent Engine session.
+
+        Args:
+            name (str): Required. The name of the Agent Engine session to be
+              updated. Format:
+              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (UpdateAgentEngineSessionConfig): Optional. Additional
+              configurations for updating the Agent Engine.
+
+        Returns:
+            AgentEngineSessionOperation: The operation for updating the Agent
+            Engine session.
+        """
+
+        parameter_model = types._UpdateAgentEngineSessionRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _UpdateAgentEngineSessionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("patch", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+
+        return_value = types.AgentEngineSessionOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _list_pager(
         self, *, config: Optional[types.ListAgentEngineConfigOrDict] = None
     ) -> Pager[types.ReasoningEngine]:
@@ -2102,10 +2800,10 @@ class AgentEngines(_api_module.BaseModule):
             agent_engine = _agent_engines_utils._validate_agent_engine_or_raise(
                 agent_engine=agent_engine,
             )
-            staging_bucket = (
-                staging_bucket
-            ) = _agent_engines_utils._validate_staging_bucket_or_raise(
-                staging_bucket=staging_bucket,
+            staging_bucket = staging_bucket = (
+                _agent_engines_utils._validate_staging_bucket_or_raise(
+                    staging_bucket=staging_bucket,
+                )
             )
             requirements = _agent_engines_utils._validate_requirements_or_raise(
                 agent_engine=agent_engine,
@@ -2174,9 +2872,9 @@ class AgentEngines(_api_module.BaseModule):
                 for class_method in class_methods
             ]
             update_masks.append("spec.class_methods")
-            agent_engine_spec[
-                "agent_framework"
-            ] = _agent_engines_utils._get_agent_framework(agent_engine)
+            agent_engine_spec["agent_framework"] = (
+                _agent_engines_utils._get_agent_framework(agent_engine)
+            )
             update_masks.append("spec.agent_framework")
             config["spec"] = agent_engine_spec
         if update_masks and mode == "update":
@@ -2605,6 +3303,70 @@ class AgentEngines(_api_module.BaseModule):
             config,
         )
 
+    def create_session(
+        self,
+        *,
+        name: str,
+        user_id: str,
+        config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
+    ) -> types.AgentEngineSessionOperation:
+        """Creates a new session in the Agent Engine.
+
+        Args:
+            name (str): Required. The name of the agent engine to create the
+              session for.
+            user_id (str): Required. The user ID of the session.
+            config (CreateAgentEngineSessionConfig): Optional. The configuration
+              for the session to create.
+
+        Returns:
+            AgentEngineSessionOperation: The operation for creating the session.
+        """
+        operation = self._create_session(
+            name=name,
+            user_id=user_id,
+            config=config,
+        )
+        if config is None:
+            config = types.CreateAgentEngineSessionConfig()
+        elif isinstance(config, dict):
+            config = types.CreateAgentEngineSessionConfig.model_validate(config)
+        if config.wait_for_completion and not operation.done:
+            operation = self._await_operation(
+                operation_name=operation.name,
+                get_operation_fn=self._get_session_operation,
+            )
+            if not operation.response:
+                raise ValueError("Error retrieving session.")
+            operation.response = self.get_session(name=operation.response.name)
+        return operation
+
+    def list_sessions(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
+    ) -> Iterator[types.Session]:
+        """Lists Agent Engine sessions.
+
+        Args:
+            name (str): Required. The name of the agent engine to list sessions
+              for.
+            config (ListAgentEngineSessionConfig): Optional. The configuration
+              for the sessions to list.
+
+        Returns:
+            Iterable[Session]: An iterable of sessions.
+        """
+        from functools import partial
+
+        return Pager(
+            "sessions",
+            partial(self._list_sessions, name=name),
+            self._list_sessions(name=name, config=config),
+            config,
+        )
+
 
 class AsyncAgentEngines(_api_module.BaseModule):
     async def _create(
@@ -2717,6 +3479,79 @@ class AsyncAgentEngines(_api_module.BaseModule):
             response_dict = _AgentEngineMemoryOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineMemoryOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _create_session(
+        self,
+        *,
+        name: str,
+        user_id: str,
+        config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
+    ) -> types.AgentEngineSessionOperation:
+        """Creates a new session in the Agent Engine.
+
+        Args:
+            name (str): Required. The name of the Agent Engine session to be
+              created. Format:
+              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            user_id (str): Required. The user ID of the session.
+            config (CreateAgentEngineSessionConfig): Optional. Additional
+              configurations for creating the Agent Engine.
+
+        Returns:
+            AgentEngineSessionOperation: The operation for creating the Agent
+            Engine session.
+        """
+
+        parameter_model = types._CreateAgentEngineSessionRequestParameters(
+            name=name,
+            user_id=user_id,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateAgentEngineSessionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/sessions".format_map(request_url_dict)
+            else:
+                path = "{name}/sessions"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+
+        return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -2856,6 +3691,78 @@ class AsyncAgentEngines(_api_module.BaseModule):
             response_dict = _DeleteAgentEngineMemoryOperation_from_vertex(response_dict)
 
         return_value = types.DeleteAgentEngineMemoryOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def delete_session(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteAgentEngineSessionConfigOrDict] = None,
+    ) -> types.DeleteAgentEngineSessionOperation:
+        """Delete an Agent Engine session.
+
+        Args:
+            name (str): Required. The name of the Agent Engine session to be
+              deleted. Format:
+              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (DeleteAgentEngineSessionConfig): Optional. Additional
+              configurations for deleting the Agent Engine.
+
+        Returns:
+            DeleteAgentEngineSessionOperation: The operation for deleting the
+            Agent Engine session.
+        """
+
+        parameter_model = types._DeleteAgentEngineSessionRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeleteAgentEngineSessionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _DeleteAgentEngineSessionOperation_from_vertex(
+                response_dict
+            )
+
+        return_value = types.DeleteAgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -3052,6 +3959,75 @@ class AsyncAgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def get_session(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetAgentEngineSessionConfigOrDict] = None,
+    ) -> types.Session:
+        """Gets an agent engine session.
+
+        Args:
+            name (str): Required. The name of the Agent Engine session to get.
+              Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (GetAgentEngineSessionConfig): Optional. Additional
+              configurations for getting the Agent Engine.
+
+        Returns:
+            AgentEngineSession: The requested Agent Engine session.
+        """
+
+        parameter_model = types._GetAgentEngineSessionRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetAgentEngineSessionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _Session_from_vertex(response_dict)
+
+        return_value = types.Session._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _list(
         self, *, config: Optional[types.ListAgentEngineConfigOrDict] = None
     ) -> types.ListReasoningEnginesResponse:
@@ -3164,6 +4140,78 @@ class AsyncAgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _list_sessions(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
+    ) -> types.ListReasoningEnginesSessionsResponse:
+        """Lists Agent Engine sessions.
+
+        Args:
+            name (str): Required. The name of the Agent Engine to list sessions
+              for. Format:
+              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (ListAgentEngineSessionsConfig): Optional. Additional
+              configurations for listing the Agent Engine sessions.
+
+        Returns:
+            ListReasoningEnginesSessionsResponse: The requested Agent Engine
+            sessions.
+        """
+
+        parameter_model = types._ListAgentEngineSessionsRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListAgentEngineSessionsRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/sessions".format_map(request_url_dict)
+            else:
+                path = "{name}/sessions"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListReasoningEnginesSessionsResponse_from_vertex(
+                response_dict
+            )
+
+        return_value = types.ListReasoningEnginesSessionsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _get_agent_operation(
         self,
         *,
@@ -3268,6 +4316,62 @@ class AsyncAgentEngines(_api_module.BaseModule):
             response_dict = _AgentEngineMemoryOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineMemoryOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_session_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetAgentEngineOperationConfigOrDict] = None,
+    ) -> types.AgentEngineSessionOperation:
+        parameter_model = types._GetAgentEngineSessionOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetAgentEngineSessionOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+
+        return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -3570,6 +4674,76 @@ class AsyncAgentEngines(_api_module.BaseModule):
             response_dict = _AgentEngineMemoryOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineMemoryOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _update_session(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
+    ) -> types.AgentEngineSessionOperation:
+        """Updates an Agent Engine session.
+
+        Args:
+            name (str): Required. The name of the Agent Engine session to be
+              updated. Format:
+              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (UpdateAgentEngineSessionConfig): Optional. Additional
+              configurations for updating the Agent Engine.
+
+        Returns:
+            AgentEngineSessionOperation: The operation for updating the Agent
+            Engine session.
+        """
+
+        parameter_model = types._UpdateAgentEngineSessionRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _UpdateAgentEngineSessionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "patch", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+
+        return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
