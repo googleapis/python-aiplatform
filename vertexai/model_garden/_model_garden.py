@@ -969,6 +969,7 @@ class CustomModel:
             endpoint (aiplatform.Endpoint):
                 Created endpoint.
         """
+
         # Validation on machine type, accelerator type and count.
         # Return true if all three of them have value or are None.
         def has_all_or_none_values(var1, var2, var3) -> bool:
@@ -1159,3 +1160,52 @@ class PartnerModel:
             aiplatform_models.gca_endpoint_compat.Endpoint(name=self._endpoint_name),
         )
         return endpoint
+
+
+class Model:
+    """Represents a Model Garden model."""
+
+    def __init__(
+        self,
+        model_name: Optional[str] = None,
+    ):
+        r"""Initializes a Model Garden model.
+
+        Usage:
+
+            ```
+            model = Model("publishers/google/models/gemma3@gemma-3-27b-it")
+            model = Model("google/gemma3@gemma-3-27b-it")
+            model = Model("deepseek-ai/DeepSeek-V3-0324")
+            model = Model("gs://fine-tuning-output/node-0/checkpoints/final")
+            model = Model("projects/123/locations/us-central1/models/456")
+            ```
+
+        Args:
+            model_name: Name of the model artifact.
+
+            It can be:
+            1. A pretrained model
+              1.1 Model Garden model resource name in the format of
+              `publishers/{publisher}/models/{model}@{version}`, or
+              1.2 a simplified resource name in the format of `{publisher}/{model}@{version}`, or
+              1.3 a Hugging Face model ID in the format of `{organization}/{model}`.
+            2. A custom model weights like gs://fine-tuning-output/node-0/checkpoints/final
+            3. A Model Registry model like projects/123/locations/us-central1/models/456
+        """
+        if not model_name:
+            raise ValueError("model_name must be specified.")
+
+        if re.match(r"^gs://", model_name):
+            self._model = CustomModel(gcs_uri=model_name)
+        elif re.match(r"^projects/.*/locations/.*/models/.*", model_name):
+            raise NotImplementedError("Model Registry models are not supported yet.")
+        else:
+            self._model = OpenModel(model_name)
+
+    def deploy(
+        self,
+        **kwargs,
+    ) -> aiplatform.Endpoint:
+        """Deploys the model to an endpoint."""
+        return self._model.deploy(**kwargs)

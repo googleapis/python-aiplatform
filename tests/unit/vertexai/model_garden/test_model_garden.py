@@ -1475,3 +1475,100 @@ class TestModelGardenCustomModel:
                 ),
             )
         )
+
+
+class TestModelGardenModel:
+    """Test cases for Model Garden Model class."""
+
+    def setup_method(self):
+        importlib.reload(aiplatform.initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT)
+
+    def teardown_method(self):
+        aiplatform.initializer.global_pool.shutdown(wait=True)
+
+    def test_no_model_name_raises_error(self):
+        """Tests deploying a model with spot VM."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with pytest.raises(ValueError) as exception:
+            model_garden_preview.Model()
+        assert str(exception.value) == ("model_name must be specified.")
+
+    def test_deploy_full_resource_name_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.Model(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        model.deploy()
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+            )
+        )
+
+    def test_deploy_simplified_resource_name_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.Model(
+            model_name=_TEST_MODEL_SIMPLIFIED_RESOURCE_NAME
+        )
+        model.deploy()
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+            )
+        )
+
+    def test_deploy_hugging_face_id_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.Model(model_name=_TEST_MODEL_HUGGING_FACE_ID)
+        model.deploy()
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                hugging_face_model_id=_TEST_MODEL_HUGGING_FACE_ID.lower(),
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+            )
+        )
+
+    def test_deploy_gcs_uri_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.Model(model_name=_TEST_GCS_URI)
+        model.deploy()
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                custom_model=types.DeployRequest.CustomModel(
+                    gcs_uri=_TEST_GCS_URI,
+                ),
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        min_replica_count=1,
+                        max_replica_count=1,
+                    )
+                ),
+            )
+        )
+
+    def test_deploy_model_registry_model_success(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with pytest.raises(NotImplementedError) as exception:
+            model_garden_preview.Model(model_name=_TEST_MODEL_NAME)
+        assert str(exception.value) == "Model Registry models are not supported yet."
