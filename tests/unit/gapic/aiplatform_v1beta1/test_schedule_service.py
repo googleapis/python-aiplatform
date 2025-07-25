@@ -5793,6 +5793,13 @@ def test_create_schedule_rest_call_success(request_type):
                                     },
                                     "starting_replica_count": 2355,
                                     "max_replica_count": 1805,
+                                    "flex_start": {
+                                        "max_runtime_duration": {
+                                            "seconds": 751,
+                                            "nanos": 543,
+                                        }
+                                    },
+                                    "spot": True,
                                 },
                             },
                         },
@@ -5935,7 +5942,7 @@ def test_create_schedule_rest_call_success(request_type):
                 "workbench_runtime": {},
                 "name": "name_value",
                 "display_name": "display_name_value",
-                "execution_timeout": {"seconds": 751, "nanos": 543},
+                "execution_timeout": {},
                 "schedule_resource_name": "schedule_resource_name_value",
                 "job_state": 1,
                 "status": {},
@@ -6981,6 +6988,13 @@ def test_update_schedule_rest_call_success(request_type):
                                     },
                                     "starting_replica_count": 2355,
                                     "max_replica_count": 1805,
+                                    "flex_start": {
+                                        "max_runtime_duration": {
+                                            "seconds": 751,
+                                            "nanos": 543,
+                                        }
+                                    },
+                                    "spot": True,
                                 },
                             },
                         },
@@ -7123,7 +7137,7 @@ def test_update_schedule_rest_call_success(request_type):
                 "workbench_runtime": {},
                 "name": "name_value",
                 "display_name": "display_name_value",
-                "execution_timeout": {"seconds": 751, "nanos": 543},
+                "execution_timeout": {},
                 "schedule_resource_name": "schedule_resource_name_value",
                 "job_state": 1,
                 "status": {},
@@ -8359,6 +8373,13 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                                     },
                                     "starting_replica_count": 2355,
                                     "max_replica_count": 1805,
+                                    "flex_start": {
+                                        "max_runtime_duration": {
+                                            "seconds": 751,
+                                            "nanos": 543,
+                                        }
+                                    },
+                                    "spot": True,
                                 },
                             },
                         },
@@ -8501,7 +8522,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                 "workbench_runtime": {},
                 "name": "name_value",
                 "display_name": "display_name_value",
-                "execution_timeout": {"seconds": 751, "nanos": 543},
+                "execution_timeout": {},
                 "schedule_resource_name": "schedule_resource_name_value",
                 "job_state": 1,
                 "status": {},
@@ -9647,6 +9668,13 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                                     },
                                     "starting_replica_count": 2355,
                                     "max_replica_count": 1805,
+                                    "flex_start": {
+                                        "max_runtime_duration": {
+                                            "seconds": 751,
+                                            "nanos": 543,
+                                        }
+                                    },
+                                    "spot": True,
                                 },
                             },
                         },
@@ -9789,7 +9817,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                 "workbench_runtime": {},
                 "name": "name_value",
                 "display_name": "display_name_value",
-                "execution_timeout": {"seconds": 751, "nanos": 543},
+                "execution_timeout": {},
                 "schedule_resource_name": "schedule_resource_name_value",
                 "job_state": 1,
                 "status": {},
