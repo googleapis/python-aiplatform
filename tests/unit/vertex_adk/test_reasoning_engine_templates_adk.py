@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import base64
 import importlib
 import json
 from unittest import mock
@@ -405,15 +406,17 @@ class TestAdkApp:
 def test_dump_event_for_json():
     from google.adk.events import event
 
+    raw_signature = b"test_signature"
+    # Create an event with both a ThoughtPart and a FunctionCallPart
     test_event = event.Event(
         **{
             "author": "test_agent",
             "content": {
                 "parts": [
                     {
-                        "thought_signature": b"test_signature",
+                        "thought_signature": raw_signature,
                         "text": "This is a test",
-                    }
+                    },
                 ],
                 "role": "model",
             },
@@ -422,8 +425,13 @@ def test_dump_event_for_json():
         }
     )
     dumped_event = _utils.dump_event_for_json(test_event)
-    assert "thought_signature" not in dumped_event["content"]["parts"][0]
-    assert "text" in dumped_event["content"]["parts"][0]
+
+    part = dumped_event["content"]["parts"][0]
+    assert "text" in part
+    assert part["text"] == "This is a test"
+    assert "thought_signature" in part
+    assert isinstance(part["thought_signature"], str)
+    assert base64.b64decode(part["thought_signature"]) == raw_signature
 
 
 @pytest.mark.usefixtures("mock_adk_version")
