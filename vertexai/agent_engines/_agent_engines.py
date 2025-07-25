@@ -336,6 +336,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
         ] = None,
         build_options: Optional[Dict[str, Sequence[str]]] = None,
+        service_account: Optional[str] = None,
     ) -> "AgentEngine":
         """Creates a new Agent Engine.
 
@@ -414,6 +415,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                     executed in the Docker image.
                     The scripts must be located in the `installation_scripts`
                     subdirectory and the path must be added to `extra_packages`.
+            service_account (str):
+                Optional. The service account to be used for the Agent Engine.
+                If not specified, the default reasoning engine service agent
+                service account will be used.
 
         Returns:
             AgentEngine: The Agent Engine that was created.
@@ -511,6 +516,8 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 operations=_get_registered_operations(agent_engine),
             )
             agent_engine_spec.class_methods.extend(class_methods_spec)
+            if service_account:
+                agent_engine_spec.service_account = service_account
             reasoning_engine.spec = agent_engine_spec
             reasoning_engine.spec.agent_framework = _get_agent_framework(agent_engine)
         operation_future = sdk_resource.api_client.create_reasoning_engine(
@@ -565,6 +572,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
         ] = None,
         build_options: Optional[Dict[str, Sequence[str]]] = None,
+        service_account: Optional[str] = None,
     ) -> "AgentEngine":
         """Updates an existing Agent Engine.
 
@@ -614,6 +622,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                     executed in the Docker image.
                     The scripts must be located in the `installation_scripts`
                     subdirectory and the path must be added to `extra_packages`.
+            service_account (str):
+                Optional. The service account to be used for the Agent Engine.
+                If not specified, the default reasoning engine service agent
+                service account will be used.
 
         Returns:
             AgentEngine: The Agent Engine that was updated.
@@ -649,6 +661,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 description,
                 env_vars,
                 build_options,
+                service_account,
             ]
         ):
             raise ValueError(
@@ -691,6 +704,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             display_name=display_name,
             description=description,
             env_vars=env_vars,
+            service_account=service_account,
         )
         operation_future = self.api_client.update_reasoning_engine(
             request=update_request
@@ -1186,6 +1200,7 @@ def _generate_update_request_or_raise(
     env_vars: Optional[
         Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
     ] = None,
+    service_account: Optional[str] = None,
 ) -> reasoning_engine_service.UpdateReasoningEngineRequest:
     """Tries to generate the update request for the agent engine."""
     is_spec_update = False
@@ -1231,6 +1246,10 @@ def _generate_update_request_or_raise(
         )
         update_masks.extend(deployment_update_masks)
         agent_engine_spec.deployment_spec = deployment_spec
+    if service_account is not None:
+        is_spec_update = True
+        update_masks.append("spec.service_account")
+        agent_engine_spec.service_account = service_account
 
     agent_engine_message = aip_types.ReasoningEngine(name=resource_name)
     if is_spec_update:
