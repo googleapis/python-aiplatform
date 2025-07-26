@@ -18,7 +18,7 @@
 import json
 import logging
 import time
-from typing import Any, Iterator, Optional, Sequence, Tuple, Union
+from typing import Any, AsyncIterator, Iterator, Optional, Sequence, Tuple, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
@@ -885,6 +885,13 @@ def _ListReasoningEnginesResponse_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(
+            to_object,
+            ["sdk_http_response"],
+            getv(from_object, ["sdkHttpResponse"]),
+        )
+
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
 
@@ -906,6 +913,13 @@ def _ListReasoningEnginesMemoriesResponse_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(
+            to_object,
+            ["sdk_http_response"],
+            getv(from_object, ["sdkHttpResponse"]),
+        )
+
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
 
@@ -2102,9 +2116,7 @@ class AgentEngines(_api_module.BaseModule):
             agent_engine = _agent_engines_utils._validate_agent_engine_or_raise(
                 agent_engine=agent_engine,
             )
-            staging_bucket = (
-                staging_bucket
-            ) = _agent_engines_utils._validate_staging_bucket_or_raise(
+            staging_bucket = _agent_engines_utils._validate_staging_bucket_or_raise(
                 staging_bucket=staging_bucket,
             )
             requirements = _agent_engines_utils._validate_requirements_or_raise(
@@ -2431,6 +2443,42 @@ class AgentEngines(_api_module.BaseModule):
         ):
             yield response
 
+    async def _async_stream_query(
+        self,
+        *,
+        name: str,
+        config: Optional[types.QueryAgentEngineConfigOrDict] = None,
+    ) -> AsyncIterator[Any]:
+        """Streams the response of the agent engine asynchronously."""
+        parameter_model = types._QueryAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+        request_dict = _QueryAgentEngineRequestParameters_to_vertex(parameter_model)
+        request_url_dict = request_dict.get("_url")
+        if request_url_dict:
+            path = "{name}:streamQuery?alt=sse".format_map(request_url_dict)
+        else:
+            path = "{name}:streamQuery?alt=sse"
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+        http_options = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+        async for response in self._api_client.async_request_streamed(
+            "post", path, request_dict, http_options
+        ):
+            yield response
+
     def create_memory(
         self,
         *,
@@ -2546,9 +2594,11 @@ class AgentEngines(_api_module.BaseModule):
         Returns:
             Iterable[Memory]: An iterable of memories.
         """
+        from functools import partial
+
         return Pager(
             "memories",
-            self._list_memories,
+            partial(self._list_memories, name=name),
             self._list_memories(name=name, config=config),
             config,
         )

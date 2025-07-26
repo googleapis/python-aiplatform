@@ -1270,8 +1270,9 @@ AgentEngineOperationUnion = Union[
 
 
 class GetOperationFunction(Protocol):
-    def __call__(self, *, operation_name: str, **kwargs) -> AgentEngineOperationUnion:
-        ...
+    def __call__(
+        self, *, operation_name: str, **kwargs
+    ) -> AgentEngineOperationUnion: ...
 
 
 def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
@@ -1403,7 +1404,7 @@ def _wrap_async_stream_query_operation(
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
             raise ValueError("api_resource is not initialized.")
-        for response in self.api_client._stream_query(
+        for response in self.api_client._async_stream_query(
             name=self.api_resource.name,
             config={
                 "class_method": method_name,
