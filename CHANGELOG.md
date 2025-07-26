@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.106.0](https://github.com/googleapis/python-aiplatform/compare/v1.105.0...v1.106.0) (2025-07-26)
+
+
+### Features
+
+* Add service_account parameter to AgentEngine class for creation and update ([6359168](https://github.com/googleapis/python-aiplatform/commit/63591683bcf4d3f12fde48b9ea3cc7e075281b0a))
+* Add service_account to Reasoning Engine public protos ([7b6010b](https://github.com/googleapis/python-aiplatform/commit/7b6010b856ac4910cafe49b532ceb34d23fdf63e))
+* Add service_account to Reasoning Engine public protos ([7b6010b](https://github.com/googleapis/python-aiplatform/commit/7b6010b856ac4910cafe49b532ceb34d23fdf63e))
+* Add Vertex AI Model Garden deploy SDK unified Model class in Public Preview ([78c8fdd](https://github.com/googleapis/python-aiplatform/commit/78c8fddc8fc9a9cc83bf982a572ed3aeaf9b876b))
+* Allow adapter_size=32 for supervised tuning ([3a776a7](https://github.com/googleapis/python-aiplatform/commit/3a776a7a41d7b0e8f4a32e5e50401c33bde06985))
+* Vertex AI Model Garden deploy SDK Support for self-deploy Partner Model ([6c72801](https://github.com/googleapis/python-aiplatform/commit/6c728018b09cebe4ca7f7f958df71452acc5e39b))
+
 ## [1.105.0](https://github.com/googleapis/python-aiplatform/compare/v1.104.0...v1.105.0) (2025-07-22)
 
 
