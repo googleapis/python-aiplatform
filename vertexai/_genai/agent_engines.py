@@ -2558,9 +2558,11 @@ class AgentEngines(_api_module.BaseModule):
         Returns:
             Iterable[Memory]: An iterable of memories.
         """
+        from functools import partial
+
         return Pager(
             "memories",
-            self._list_memories,
+            partial(self._list_memories, name=name),
             self._list_memories(name=name, config=config),
             config,
         )
