@@ -606,6 +606,73 @@ class TestMultimodalDataset:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures(
+        "get_dataset_request_column_name_mock",
+        "uuid_mock",
+    )
+    def test_create_dataset_from_gemini_request_jsonl_without_target_table_id(
+        self,
+        create_dataset_mock,
+        mock_storage_client_bucket,
+        bigframes_import_mock,
+        bq_client_mock,
+    ):
+        bf_module, bpd_module, bbq_module = bigframes_import_mock
+
+        bpd_module.Series = pandas.Series
+        bpd_module.read_pandas = mock.MagicMock()
+        bbq_module.parse_json = lambda x: x
+
+        session_mock = mock.MagicMock()
+        bf_module.connect.return_value.__enter__.return_value = session_mock
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        ummd.MultimodalDataset.from_gemini_request_jsonl(
+            gcs_uri=f"gs://{_TEST_BUCKET_NAME}/test-file.jsonl",
+            display_name=_TEST_DISPLAY_NAME,
+        )
+        mock_storage_client_bucket, mock_bucket, mock_blob = mock_storage_client_bucket
+        mock_storage_client_bucket.assert_called_once_with(_TEST_BUCKET_NAME)
+        mock_bucket.blob.assert_called_once_with("test-file.jsonl")
+        mock_blob.download_as_text.assert_called_once()
+
+        pandas.testing.assert_frame_equal(
+            session_mock.read_pandas.call_args[0][0],
+            pandas.DataFrame({"requests": ["json_line_1", "json_line_2"]}),
+        )
+
+        # Assert that the default BQ dataset is created
+        location_str = _TEST_LOCATION.replace("-", "_")
+        bq_dataset_name = f"vertex_datasets_{location_str}"
+        bq_client_mock.return_value.create_dataset.assert_called_once()
+        create_dataset_args = bq_client_mock.return_value.create_dataset.call_args.args
+        assert create_dataset_args[0].reference == bigquery.DatasetReference(
+            dataset_id=bq_dataset_name, project=_TEST_PROJECT
+        )
+        assert create_dataset_args[0].location == _TEST_LOCATION
+        # Assert that the data is copied to the generated table
+        expected_bq_table = (
+            f"{_TEST_PROJECT}.{bq_dataset_name}.multimodal_dataset_{_TEST_UUID}"
+        )
+        bq_client_mock.return_value.copy_table.assert_called_once_with(
+            sources=mock.ANY,
+            destination=expected_bq_table,
+        )
+        # Assert that the Vertex AI Dataset is created with the correct metadata
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_MULTIMODAL,
+            metadata={
+                "inputConfig": {"bigquerySource": {"uri": f"bq://{expected_bq_table}"}},
+                "geminiTemplateConfigSource": {"requestColumnName": "requests"},
+            },
+        )
+        create_dataset_mock.assert_called_once_with(
+            dataset=expected_dataset,
+            parent=_TEST_PARENT,
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures("get_dataset_request_column_name_mock")
     def test_request_column_name_returns_correct_value(self):
         dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
