@@ -686,6 +686,8 @@ def _parse_constraints(
     result: Dict[str, Optional[_SpecifierSet]] = {}
     for constraint in constraints:
         try:
+            if constraint.endswith(".whl"):
+                constraint = os.path.basename(constraint)
             requirement = requirements.Requirement(constraint)
         except Exception as e:
             logger.warning(f"Failed to parse constraint: {constraint}. Exception: {e}")

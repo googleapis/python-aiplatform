@@ -3251,6 +3251,19 @@ class TestRequirements:
         _utils.parse_constraints(["invalid requirement line"])
         assert "Failed to parse constraint" in caplog.text
 
+    def test_requirements_with_whl_files(self):
+        whl_files = [
+            "wxPython-4.2.4-cp39-cp39-macosx_12_0_x86_64.whl",
+            "/content/wxPython-4.2.3-cp39-cp39-macosx_12_0_x86_64.whl",
+            "https://wxpython.org/Phoenix/snapshot-builds/wxPython-4.2.2-cp38-cp38-macosx_12_0_x86_64.whl",
+        ]
+        result = _utils.parse_constraints(whl_files)
+        assert result == {
+            "wxPython-4.2.2-cp38-cp38-macosx_12_0_x86_64.whl": None,
+            "wxPython-4.2.3-cp39-cp39-macosx_12_0_x86_64.whl": None,
+            "wxPython-4.2.4-cp39-cp39-macosx_12_0_x86_64.whl": None,
+        }
+
     def test_compare_requirements_with_required_packages(self):
         requirements = {"requests": "2.0.0"}
         constraints = ["requests==1.0.0"]

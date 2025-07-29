@@ -730,6 +730,14 @@ class InvalidCapitalizeEngineWithNoncallableQueryStreamQuery:
         pass
 
 
+def _create_fake_object_with_module(module_name):
+    class FakeObject:
+        pass
+
+    FakeObject.__module__ = module_name
+    return FakeObject()
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngineHelpers:
     def setup_method(self):
@@ -918,6 +926,102 @@ class TestAgentEngineHelpers:
         assert agent.query.__doc__ == _TEST_AGENT_ENGINE_CLASS_METHOD_1.get(
             "description"
         )
+
+    @pytest.mark.usefixtures("caplog")
+    def test_invalid_requirement_warning(self, caplog):
+        _agent_engines_utils._parse_constraints(["invalid requirement line"])
+        assert "Failed to parse constraint" in caplog.text
+
+    def test_requirements_with_whl_files(self):
+        whl_files = [
+            "wxPython-4.2.4-cp39-cp39-macosx_12_0_x86_64.whl",
+            "/content/wxPython-4.2.3-cp39-cp39-macosx_12_0_x86_64.whl",
+            "https://wxpython.org/Phoenix/snapshot-builds/wxPython-4.2.2-cp38-cp38-macosx_12_0_x86_64.whl",
+        ]
+        result = _agent_engines_utils._parse_constraints(whl_files)
+        assert result == {
+            "wxPython-4.2.2-cp38-cp38-macosx_12_0_x86_64.whl": None,
+            "wxPython-4.2.3-cp39-cp39-macosx_12_0_x86_64.whl": None,
+            "wxPython-4.2.4-cp39-cp39-macosx_12_0_x86_64.whl": None,
+        }
+
+    def test_compare_requirements_with_required_packages(self):
+        requirements = {"requests": "2.0.0"}
+        constraints = ["requests==1.0.0"]
+        result = _agent_engines_utils._compare_requirements(requirements, constraints)
+        assert result == {
+            "actions": {"append": set()},
+            "warnings": {
+                "incompatible": {"requests==2.0.0 (required: ==1.0.0)"},
+                "missing": set(),
+            },
+        }
+
+    @pytest.mark.usefixtures("importlib_metadata_version_mock")
+    def test_scan_simple_object(self):
+        """Test scanning an object importing a known third-party package."""
+        fake_obj = _create_fake_object_with_module("requests")
+        requirements = _agent_engines_utils._scan_requirements(
+            fake_obj,
+            package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
+        )
+        assert requirements == {
+            "cloudpickle": "3.0.0",
+            "pydantic": "1.11.1",
+            "requests": "2.0.0",
+        }
+
+    @pytest.mark.usefixtures("importlib_metadata_version_mock")
+    def test_scan_object_with_stdlib_module(self):
+        """Test that stdlib modules are ignored by default."""
+        fake_obj_stdlib = _create_fake_object_with_module("json")
+        requirements = _agent_engines_utils._scan_requirements(
+            fake_obj_stdlib,
+            package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
+        )
+        # Requirements should not contain 'json',
+        # because 'json' is a stdlib module.
+        assert requirements == {
+            "cloudpickle": "3.0.0",
+            "pydantic": "1.11.1",
+        }
+
+    @pytest.mark.usefixtures("importlib_metadata_version_mock")
+    def test_scan_with_default_ignore_modules(self, monkeypatch):
+        """Test implicitly ignoring a module."""
+        fake_obj = _create_fake_object_with_module("requests")
+        original_base = _agent_engines_utils._BASE_MODULES
+        monkeypatch.setattr(
+            _agent_engines_utils,
+            "_BASE_MODULES",
+            set(original_base) | {"requests"},
+        )
+        requirements = _agent_engines_utils._scan_requirements(
+            fake_obj,
+            package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
+        )
+        # Requirements should not contain 'requests',
+        # because 'requests' is implicitly ignored in `_BASE_MODULES`.
+        assert requirements == {
+            "cloudpickle": "3.0.0",
+            "pydantic": "1.11.1",
+        }
+
+    @pytest.mark.usefixtures("importlib_metadata_version_mock")
+    def test_scan_with_explicit_ignore_modules(self):
+        """Test explicitly ignoring a module."""
+        fake_obj = _create_fake_object_with_module("requests")
+        requirements = _agent_engines_utils._scan_requirements(
+            fake_obj,
+            ignore_modules=["requests"],
+            package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
+        )
+        # Requirements should not contain 'requests',
+        # because 'requests' is explicitly ignored in `ignore_modules`.
+        assert requirements == {
+            "cloudpickle": "3.0.0",
+            "pydantic": "1.11.1",
+        }
 
 
 @pytest.mark.usefixtures("google_auth_mock")
