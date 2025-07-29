@@ -50,6 +50,7 @@ from .content import (
     GroundingSupport,
     LogprobsResult,
     ModalityTokenCount,
+    ModelArmorConfig,
     Part,
     PrebuiltVoiceConfig,
     RetrievalMetadata,
@@ -1352,6 +1353,8 @@ from .tuning_job import (
     TunedModelRef,
     TuningDataStats,
     TuningJob,
+    VeoHyperParameters,
+    VeoTuningSpec,
 )
 from .types import (
     BoolArray,
@@ -1471,6 +1474,7 @@ __all__ = (
     "GroundingSupport",
     "LogprobsResult",
     "ModalityTokenCount",
+    "ModelArmorConfig",
     "Part",
     "PrebuiltVoiceConfig",
     "RetrievalMetadata",
@@ -2533,6 +2537,8 @@ __all__ = (
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
+    "VeoHyperParameters",
+    "VeoTuningSpec",
     "BoolArray",
     "DoubleArray",
     "Int64Array",
