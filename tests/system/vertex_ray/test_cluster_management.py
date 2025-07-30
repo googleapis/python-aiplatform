@@ -31,7 +31,7 @@ PROJECT_ID = "ucaip-sample-tests"
 class TestClusterManagement(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-rov-cluster-management"
 
-    @pytest.mark.parametrize("cluster_ray_version", ["2.9", "2.33", "2.42"])
+    @pytest.mark.parametrize("cluster_ray_version", ["2.9", "2.33", "2.42", "2.47"])
     def test_cluster_management(self, cluster_ray_version):
         assert ray.__version__ == RAY_VERSION
         aiplatform.init(project=PROJECT_ID, location="us-central1")
