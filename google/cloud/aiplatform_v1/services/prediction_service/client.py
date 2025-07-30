@@ -310,6 +310,28 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def template_path(
+        project: str,
+        location: str,
+        template: str,
+    ) -> str:
+        """Returns a fully-qualified template string."""
+        return "projects/{project}/locations/{location}/templates/{template}".format(
+            project=project,
+            location=location,
+            template=template,
+        )
+
+    @staticmethod
+    def parse_template_path(path: str) -> Dict[str, str]:
+        """Parses a template path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/templates/(?P<template>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def common_billing_account_path(
         billing_account: str,
     ) -> str:

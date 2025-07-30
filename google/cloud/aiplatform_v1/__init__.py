@@ -119,6 +119,7 @@ from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
 from .types.content import ModalityTokenCount
+from .types.content import ModelArmorConfig
 from .types.content import Part
 from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
@@ -1644,6 +1645,7 @@ __all__ = (
     "Modality",
     "ModalityTokenCount",
     "Model",
+    "ModelArmorConfig",
     "ModelContainerSpec",
     "ModelDeploymentMonitoringBigQueryTable",
     "ModelDeploymentMonitoringJob",
