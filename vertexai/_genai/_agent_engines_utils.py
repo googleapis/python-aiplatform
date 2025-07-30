@@ -45,6 +45,7 @@ from typing import (
 import proto
 
 from google.api_core import exceptions
+from google.genai import types as google_genai_types
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
 
@@ -1369,7 +1370,7 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
             raise ValueError("api_resource is not initialized.")
-        for response in self.api_client._stream_query(
+        for http_response in self.api_client._stream_query(
             name=self.api_resource.name,
             config={
                 "class_method": method_name,
@@ -1377,7 +1378,9 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[
                 "include_all_fields": True,
             },
         ):
-            yield response
+            for line in _yield_parsed_json(http_response=http_response):
+                if line is not None:
+                    yield line
 
     return _method
 
@@ -1405,7 +1408,7 @@ def _wrap_async_stream_query_operation(
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
             raise ValueError("api_resource is not initialized.")
-        for response in self.api_client._stream_query(
+        for http_response in self.api_client._stream_query(
             name=self.api_resource.name,
             config={
                 "class_method": method_name,
@@ -1413,6 +1416,32 @@ def _wrap_async_stream_query_operation(
                 "include_all_fields": True,
             },
         ):
-            yield response
+            for line in _yield_parsed_json(http_response=http_response):
+                if line is not None:
+                    yield line
 
     return _method
+
+
+def _yield_parsed_json(http_response: google_genai_types.HttpResponse) -> Iterator[Any]:
+    """Converts the body of the HTTP Response message to JSON format.
+
+    Args:
+        http_response (google.genai.types.HttpResponse):
+            Required. The httpbody body to be converted to JSON object(s).
+
+    Yields:
+        Any: A JSON object or line of the original body or None.
+    """
+    if not http_response.body:
+        yield None
+        return
+
+    # Handle the case of multiple dictionaries delimited by newlines.
+    for line in http_response.body.split("\n"):
+        if line:
+            try:
+                line = json.loads(line)
+            except Exception as e:
+                logger.warning(f"failed to parse json: {line}. Exception: {e}")
+            yield line

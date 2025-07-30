@@ -1023,6 +1023,46 @@ class TestAgentEngineHelpers:
             "pydantic": "1.11.1",
         }
 
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "obj, expected",
+        [
+            (
+                # "valid_json",
+                genai_types.HttpResponse(body='{"a": 1, "b": "hello"}'),
+                [{"a": 1, "b": "hello"}],
+            ),
+            (
+                # "invalid_json",
+                genai_types.HttpResponse(body='{"a": 1, "b": "hello"'),
+                ['{"a": 1, "b": "hello"'],  # returns the unparsed string
+            ),
+            (
+                # "nil_body",
+                genai_types.HttpResponse(body=None),
+                [None],
+            ),
+            (
+                # "empty_data",
+                genai_types.HttpResponse(body=""),
+                [None],
+            ),
+            (
+                # "nested_json",
+                genai_types.HttpResponse(body='{"a": {"b": 1}}'),
+                [{"a": {"b": 1}}],
+            ),
+            (
+                # "multiline_json",
+                genai_types.HttpResponse(body='{"a": {"b": 1}}\n{"a": {"b": 2}}'),
+                [{"a": {"b": 1}}, {"a": {"b": 2}}],
+            ),
+        ],
+    )
+    def test_to_parsed_json(self, obj, expected):
+        for got, want in zip(_agent_engines_utils._yield_parsed_json(obj), expected):
+            assert got == want
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngine:
