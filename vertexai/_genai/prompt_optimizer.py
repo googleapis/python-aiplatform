@@ -19,7 +19,7 @@ import datetime
 import json
 import logging
 import time
-from typing import Any, Optional, Union
+from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
@@ -38,11 +38,14 @@ def _OptimizeRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
+  to_object: dict[str, Any] = {}
+  if getv(from_object, ["content"]) is not None:
+    setv(to_object, ["content"], getv(from_object, ["content"]))
 
-    return to_object
+  if getv(from_object, ["config"]) is not None:
+    setv(to_object, ["config"], getv(from_object, ["config"]))
+
+  return to_object
 
 
 def _CustomJobSpec_to_vertex(
@@ -228,9 +231,11 @@ def _OptimizeResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
+  to_object: dict[str, Any] = {}
+  if getv(from_object, ["content"]) is not None:
+    setv(to_object, ["content"], getv(from_object, ["content"]))
 
-    return to_object
+  return to_object
 
 
 def _CustomJobSpec_from_vertex(
@@ -381,208 +386,212 @@ def _CustomJob_from_vertex(
 
 
 class PromptOptimizer(_api_module.BaseModule):
-    """Prompt Optimizer"""
+  """Prompt Optimizer"""
 
-    def _optimize_dummy(
-        self, *, config: Optional[types.OptimizeConfigOrDict] = None
-    ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+  def _optimize_prompt(
+      self,
+      *,
+      content: Optional[types.ContentOrDict] = None,
+      config: Optional[types.OptimizeConfigOrDict] = None,
+  ) -> types.OptimizeResponse:
+    """Optimize a single prompt."""
 
-        parameter_model = types._OptimizeRequestParameters(
-            config=config,
-        )
+    parameter_model = types._OptimizeRequestParameters(
+        content=content,
+        config=config,
+    )
 
-        request_url_dict: Optional[dict[str, str]]
-        if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
-        else:
-            request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
-            request_url_dict = request_dict.get("_url")
-            if request_url_dict:
-                path = ":optimize".format_map(request_url_dict)
-            else:
-                path = ":optimize"
+    request_url_dict: Optional[dict[str, str]]
+    if not self._api_client.vertexai:
+      raise ValueError("This method is only supported in the Vertex AI client.")
+    else:
+      request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
+      request_url_dict = request_dict.get("_url")
+      if request_url_dict:
+        path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
+      else:
+        path = "tuningJobs:optimizePrompt"
 
-        query_params = request_dict.get("_query")
-        if query_params:
-            path = f"{path}?{urlencode(query_params)}"
-        # TODO: remove the hack that pops config.
-        request_dict.pop("config", None)
+    query_params = request_dict.get("_query")
+    if query_params:
+      path = f"{path}?{urlencode(query_params)}"
+    # TODO: remove the hack that pops config.
+    request_dict.pop("config", None)
 
-        http_options: Optional[types.HttpOptions] = None
-        if (
-            parameter_model.config is not None
-            and parameter_model.config.http_options is not None
-        ):
-            http_options = parameter_model.config.http_options
+    http_options: Optional[types.HttpOptions] = None
+    if (
+        parameter_model.config is not None
+        and parameter_model.config.http_options is not None
+    ):
+      http_options = parameter_model.config.http_options
 
-        request_dict = _common.convert_to_dict(request_dict)
-        request_dict = _common.encode_unserializable_types(request_dict)
+    request_dict = _common.convert_to_dict(request_dict)
+    request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = self._api_client.request("post", path, request_dict, http_options)
+    response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
+    response_dict = "" if not response.body else json.loads(response.body)
 
-        if self._api_client.vertexai:
-            response_dict = _OptimizeResponse_from_vertex(response_dict)
+    if self._api_client.vertexai:
+      response_dict = _OptimizeResponse_from_vertex(response_dict)
 
-        return_value = types.OptimizeResponse._from_response(
+    return_value = types.OptimizeResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
-        self._api_client._verify_response(return_value)
-        return return_value
+    self._api_client._verify_response(return_value)
+    return return_value
 
-    def _create_custom_job_resource(
+  def _create_custom_job_resource(
         self,
         *,
         custom_job: types.CustomJobOrDict,
         config: Optional[types.BaseConfigOrDict] = None,
     ) -> types.CustomJob:
-        """Creates a custom job."""
+    """Creates a custom job."""
 
-        parameter_model = types._CustomJobParameters(
+    parameter_model = types._CustomJobParameters(
             custom_job=custom_job,
             config=config,
         )
 
-        request_url_dict: Optional[dict[str, str]]
-        if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
-        else:
-            request_dict = _CustomJobParameters_to_vertex(parameter_model)
-            request_url_dict = request_dict.get("_url")
-            if request_url_dict:
-                path = "customJobs".format_map(request_url_dict)
-            else:
-                path = "customJobs"
+    request_url_dict: Optional[dict[str, str]]
+    if not self._api_client.vertexai:
+      raise ValueError("This method is only supported in the Vertex AI client.")
+    else:
+      request_dict = _CustomJobParameters_to_vertex(parameter_model)
+      request_url_dict = request_dict.get("_url")
+      if request_url_dict:
+        path = "customJobs".format_map(request_url_dict)
+      else:
+        path = "customJobs"
 
-        query_params = request_dict.get("_query")
-        if query_params:
-            path = f"{path}?{urlencode(query_params)}"
-        # TODO: remove the hack that pops config.
-        request_dict.pop("config", None)
+    query_params = request_dict.get("_query")
+    if query_params:
+      path = f"{path}?{urlencode(query_params)}"
+    # TODO: remove the hack that pops config.
+    request_dict.pop("config", None)
 
-        http_options: Optional[types.HttpOptions] = None
-        if (
+    http_options: Optional[types.HttpOptions] = None
+    if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
         ):
-            http_options = parameter_model.config.http_options
+      http_options = parameter_model.config.http_options
 
-        request_dict = _common.convert_to_dict(request_dict)
-        request_dict = _common.encode_unserializable_types(request_dict)
+    request_dict = _common.convert_to_dict(request_dict)
+    request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = self._api_client.request("post", path, request_dict, http_options)
+    response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
+    response_dict = "" if not response.body else json.loads(response.body)
 
-        if self._api_client.vertexai:
-            response_dict = _CustomJob_from_vertex(response_dict)
+    if self._api_client.vertexai:
+      response_dict = _CustomJob_from_vertex(response_dict)
 
-        return_value = types.CustomJob._from_response(
+    return_value = types.CustomJob._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
-        self._api_client._verify_response(return_value)
-        return return_value
+    self._api_client._verify_response(return_value)
+    return return_value
 
-    def _get_custom_job(
+  def _get_custom_job(
         self, *, name: str, config: Optional[types.BaseConfigOrDict] = None
     ) -> types.CustomJob:
-        """Gets a custom job."""
+    """Gets a custom job."""
 
-        parameter_model = types._GetCustomJobParameters(
+    parameter_model = types._GetCustomJobParameters(
             name=name,
             config=config,
         )
 
-        request_url_dict: Optional[dict[str, str]]
-        if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
-        else:
-            request_dict = _GetCustomJobParameters_to_vertex(parameter_model)
-            request_url_dict = request_dict.get("_url")
-            if request_url_dict:
-                path = "customJobs/{name}".format_map(request_url_dict)
-            else:
-                path = "customJobs/{name}"
+    request_url_dict: Optional[dict[str, str]]
+    if not self._api_client.vertexai:
+      raise ValueError("This method is only supported in the Vertex AI client.")
+    else:
+      request_dict = _GetCustomJobParameters_to_vertex(parameter_model)
+      request_url_dict = request_dict.get("_url")
+      if request_url_dict:
+        path = "customJobs/{name}".format_map(request_url_dict)
+      else:
+        path = "customJobs/{name}"
 
-        query_params = request_dict.get("_query")
-        if query_params:
-            path = f"{path}?{urlencode(query_params)}"
-        # TODO: remove the hack that pops config.
-        request_dict.pop("config", None)
+    query_params = request_dict.get("_query")
+    if query_params:
+      path = f"{path}?{urlencode(query_params)}"
+    # TODO: remove the hack that pops config.
+    request_dict.pop("config", None)
 
-        http_options: Optional[types.HttpOptions] = None
-        if (
+    http_options: Optional[types.HttpOptions] = None
+    if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
         ):
-            http_options = parameter_model.config.http_options
+      http_options = parameter_model.config.http_options
 
-        request_dict = _common.convert_to_dict(request_dict)
-        request_dict = _common.encode_unserializable_types(request_dict)
+    request_dict = _common.convert_to_dict(request_dict)
+    request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = self._api_client.request("get", path, request_dict, http_options)
+    response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
+    response_dict = "" if not response.body else json.loads(response.body)
 
-        if self._api_client.vertexai:
-            response_dict = _CustomJob_from_vertex(response_dict)
+    if self._api_client.vertexai:
+      response_dict = _CustomJob_from_vertex(response_dict)
 
-        return_value = types.CustomJob._from_response(
+    return_value = types.CustomJob._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
-        self._api_client._verify_response(return_value)
-        return return_value
+    self._api_client._verify_response(return_value)
+    return return_value
 
-    """Prompt Optimizer PO-Data."""
+  """Prompt Optimizer PO-Data."""
 
-    def _wait_for_completion(self, job_name: str) -> types.CustomJob:
+  def _wait_for_completion(self, job_name: str) -> types.CustomJob:
 
-        JOB_COMPLETE_STATES = [
+    JOB_COMPLETE_STATES = [
             types.JobState.JOB_STATE_SUCCEEDED,
             types.JobState.JOB_STATE_FAILED,
             types.JobState.JOB_STATE_CANCELLED,
             types.JobState.JOB_STATE_PAUSED,
         ]
-        JOB_ERROR_STATES = [
+    JOB_ERROR_STATES = [
             types.JobState.JOB_STATE_FAILED,
             types.JobState.JOB_STATE_CANCELLED,
         ]
 
-        log_wait = 5
-        wait_multiplier = 2
-        max_wait_time = 60
-        previous_time = time.time()
+    log_wait = 5
+    wait_multiplier = 2
+    max_wait_time = 60
+    previous_time = time.time()
 
-        job = self._get_custom_job(name=job_name)
+    job = self._get_custom_job(name=job_name)
 
-        while job.state not in JOB_COMPLETE_STATES:
-            current_time = time.time()
-            if current_time - previous_time >= log_wait:
-                logger.info(f"Waiting for job to complete. Current state: {job.state}")
-                log_wait = min(log_wait * wait_multiplier, max_wait_time)
-                previous_time = current_time
-            time.sleep(log_wait)
-            job = self._get_custom_job(name=job_name)
+    while job.state not in JOB_COMPLETE_STATES:
+      current_time = time.time()
+      if current_time - previous_time >= log_wait:
+        logger.info(f"Waiting for job to complete. Current state: {job.state}")
+        log_wait = min(log_wait * wait_multiplier, max_wait_time)
+        previous_time = current_time
+      time.sleep(log_wait)
+      job = self._get_custom_job(name=job_name)
 
-        logger.info(f"Job state: {job.state}")
+    logger.info(f"Job state: {job.state}")
 
-        if job.state in JOB_ERROR_STATES:
-            raise RuntimeError(f"Job failed with state: {job.state}")
-        else:
-            logger.info(f"Job completed with state: {job.state}")
-        return job
+    if job.state in JOB_ERROR_STATES:
+      raise RuntimeError(f"Job failed with state: {job.state}")
+    else:
+      logger.info(f"Job completed with state: {job.state}")
+    return job
 
-    def optimize(
+  def optimize(
         self,
         method: str,
         config: types.PromptOptimizerVAPOConfigOrDict,
     ) -> types.CustomJob:
-        """Call PO-Data optimizer.
+    """Call PO-Data optimizer.
 
         Args:
           method: The method for optimizing multiple prompts.
@@ -593,31 +602,31 @@ class PromptOptimizer(_api_module.BaseModule):
           The custom job that was created.
         """
 
-        if method != "vapo":
-            raise ValueError("Only vapo method is currently supported.")
+    if method != "vapo":
+      raise ValueError("Only vapo method is currently supported.")
 
-        if isinstance(config, dict):
-            config = types.PromptOptimizerVAPOConfig(**config)
+    if isinstance(config, dict):
+      config = types.PromptOptimizerVAPOConfig(**config)
 
-        if config.optimizer_job_display_name:
-            display_name = config.optimizer_job_display_name
-        else:
-            timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-            display_name = f"vapo-optimizer-{timestamp}"
-        wait_for_completion = config.wait_for_completion
-        if not config.config_path:
-            raise ValueError("Config path is required.")
-        bucket = "/".join(config.config_path.split("/")[:-1])
+    if config.optimizer_job_display_name:
+      display_name = config.optimizer_job_display_name
+    else:
+      timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+      display_name = f"vapo-optimizer-{timestamp}"
+    wait_for_completion = config.wait_for_completion
+    if not config.config_path:
+      raise ValueError("Config path is required.")
+    bucket = "/".join(config.config_path.split("/")[:-1])
 
-        container_uri = "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0"
+    container_uri = "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0"
 
-        region = self._api_client.location
-        project = self._api_client.project
-        container_args = {
+    region = self._api_client.location
+    project = self._api_client.project
+    container_args = {
             "config": config.config_path,
         }
-        args = ["--%s=%s" % (k, v) for k, v in container_args.items()]
-        worker_pool_specs = [
+    args = ["--%s=%s" % (k, v) for k, v in container_args.items()]
+    worker_pool_specs = [
             types.WorkerPoolSpec(
                 replica_count=1,
                 machine_spec=types.MachineSpec(machine_type="n1-standard-4"),
@@ -628,210 +637,291 @@ class PromptOptimizer(_api_module.BaseModule):
             )
         ]
 
-        service_account = _prompt_optimizer_utils._get_service_account(config)
+    service_account = _prompt_optimizer_utils._get_service_account(config)
 
-        job_spec = types.CustomJobSpec(
+    job_spec = types.CustomJobSpec(
             worker_pool_specs=worker_pool_specs,
             base_output_directory=types.GcsDestination(output_uri_prefix=bucket),
             service_account=service_account,
         )
 
-        custom_job = types.CustomJob(
+    custom_job = types.CustomJob(
             display_name=display_name,
             job_spec=job_spec,
         )
 
-        job = self._create_custom_job_resource(
+    job = self._create_custom_job_resource(
             custom_job=custom_job,
         )
 
-        # Get the job resource name
-        job_resource_name = job.name
-        if not job_resource_name:
-            raise ValueError(f"Error creating job: {job}")
-        job_id = job_resource_name.split("/")[-1]
-        logger.info("Job created: %s", job.name)
+    # Get the job resource name
+    job_resource_name = job.name
+    if not job_resource_name:
+      raise ValueError(f"Error creating job: {job}")
+    job_id = job_resource_name.split("/")[-1]
+    logger.info("Job created: %s", job.name)
 
-        # Construct the dashboard URL
-        dashboard_url = f"https://console.cloud.google.com/vertex-ai/locations/{region}/training/{job_id}/cpu?project={project}"
-        logger.info("View the job status at: %s", dashboard_url)
+    # Construct the dashboard URL
+    dashboard_url = f"https://console.cloud.google.com/vertex-ai/locations/{region}/training/{job_id}/cpu?project={project}"
+    logger.info("View the job status at: %s", dashboard_url)
 
-        if wait_for_completion:
-            job = self._wait_for_completion(job_id)
-        return job
+    if wait_for_completion:
+      job = self._wait_for_completion(job_id)
+    return job
+
+  def optimize_prompt(
+      self, *, prompt: str, config: Optional[types.OptimizeConfig] = None
+  ) -> Iterator[types.OptimizeResponse]:
+    """Makes an API request to _optimize_prompt and yields the optimized prompt in chunks."""
+    if config is not None:
+      raise ValueError(
+          "Currently, config is not supported for a single prompt optimization."
+      )
+
+    prompt = types.Content(parts=[types.Part(text=prompt)], role="user")
+    return self._custom_optimize_prompt(content=prompt)
+
+  def _custom_optimize_prompt(
+      self,
+      *,
+      content: Optional[types.ContentOrDict] = None,
+      config: Optional[types.OptimizeConfigOrDict] = None,
+  ) -> types.OptimizeResponse:
+    """Optimize a single prompt."""
+
+    parameter_model = types._OptimizeRequestParameters(
+        content=content,
+        config=config,
+    )
+
+    request_url_dict: Optional[dict[str, str]]
+    if not self._api_client.vertexai:
+      raise ValueError("This method is only supported in the Vertex AI client.")
+    else:
+      request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
+      request_url_dict = request_dict.get("_url")
+      if request_url_dict:
+        path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
+      else:
+        path = "tuningJobs:optimizePrompt"
+
+    query_params = request_dict.get("_query")
+    if query_params:
+      path = f"{path}?{urlencode(query_params)}"
+    # TODO: remove the hack that pops config.
+    request_dict.pop("config", None)
+
+    http_options: Optional[types.HttpOptions] = None
+    if (
+        parameter_model.config is not None
+        and parameter_model.config.http_options is not None
+    ):
+      http_options = parameter_model.config.http_options
+
+    request_dict = _common.convert_to_dict(request_dict)
+    request_dict = _common.encode_unserializable_types(request_dict)
+
+    response = self._api_client.request(
+        "post", path, request_dict, http_options
+    )
+
+    response_list = "" if not response.body else json.loads(response.body)
+
+    return_value = []
+
+    for response_dict in response_list:
+      if self._api_client.vertexai:
+        response_dict = _OptimizeResponse_from_vertex(response_dict)
+
+      response_value = types.OptimizeResponse._from_response(
+          response=response_dict, kwargs=parameter_model.model_dump()
+      )
+      self._api_client._verify_response(response_value)
+      if (
+          response_value.content is not None
+          and len(response_value.content.parts) > 0
+          and response_value.content.parts[0].text is not None
+      ):
+        return_value.append(response_value.content.parts[0].text)
+
+    return "".join(return_value)
 
 
 class AsyncPromptOptimizer(_api_module.BaseModule):
-    """Prompt Optimizer"""
+  """Prompt Optimizer"""
 
-    async def _optimize_dummy(
-        self, *, config: Optional[types.OptimizeConfigOrDict] = None
-    ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+  async def _optimize_prompt(
+      self,
+      *,
+      content: Optional[types.ContentOrDict] = None,
+      config: Optional[types.OptimizeConfigOrDict] = None,
+  ) -> types.OptimizeResponse:
+    """Optimize a single prompt."""
 
-        parameter_model = types._OptimizeRequestParameters(
-            config=config,
-        )
+    parameter_model = types._OptimizeRequestParameters(
+        content=content,
+        config=config,
+    )
 
-        request_url_dict: Optional[dict[str, str]]
-        if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
-        else:
-            request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
-            request_url_dict = request_dict.get("_url")
-            if request_url_dict:
-                path = ":optimize".format_map(request_url_dict)
-            else:
-                path = ":optimize"
+    request_url_dict: Optional[dict[str, str]]
+    if not self._api_client.vertexai:
+      raise ValueError("This method is only supported in the Vertex AI client.")
+    else:
+      request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
+      request_url_dict = request_dict.get("_url")
+      if request_url_dict:
+        path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
+      else:
+        path = "tuningJobs:optimizePrompt"
 
-        query_params = request_dict.get("_query")
-        if query_params:
-            path = f"{path}?{urlencode(query_params)}"
-        # TODO: remove the hack that pops config.
-        request_dict.pop("config", None)
+    query_params = request_dict.get("_query")
+    if query_params:
+      path = f"{path}?{urlencode(query_params)}"
+    # TODO: remove the hack that pops config.
+    request_dict.pop("config", None)
 
-        http_options: Optional[types.HttpOptions] = None
-        if (
-            parameter_model.config is not None
-            and parameter_model.config.http_options is not None
-        ):
-            http_options = parameter_model.config.http_options
+    http_options: Optional[types.HttpOptions] = None
+    if (
+        parameter_model.config is not None
+        and parameter_model.config.http_options is not None
+    ):
+      http_options = parameter_model.config.http_options
 
-        request_dict = _common.convert_to_dict(request_dict)
-        request_dict = _common.encode_unserializable_types(request_dict)
+    request_dict = _common.convert_to_dict(request_dict)
+    request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = await self._api_client.async_request(
-            "post", path, request_dict, http_options
-        )
+    response = await self._api_client.async_request(
+        "post", path, request_dict, http_options
+    )
 
-        response_dict = "" if not response.body else json.loads(response.body)
+    response_dict = "" if not response.body else json.loads(response.body)
 
-        if self._api_client.vertexai:
-            response_dict = _OptimizeResponse_from_vertex(response_dict)
+    if self._api_client.vertexai:
+      response_dict = _OptimizeResponse_from_vertex(response_dict)
 
-        return_value = types.OptimizeResponse._from_response(
+    return_value = types.OptimizeResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
-        self._api_client._verify_response(return_value)
-        return return_value
+    self._api_client._verify_response(return_value)
+    return return_value
 
-    async def _create_custom_job_resource(
+  async def _create_custom_job_resource(
         self,
         *,
         custom_job: types.CustomJobOrDict,
         config: Optional[types.BaseConfigOrDict] = None,
     ) -> types.CustomJob:
-        """Creates a custom job."""
+    """Creates a custom job."""
 
-        parameter_model = types._CustomJobParameters(
+    parameter_model = types._CustomJobParameters(
             custom_job=custom_job,
             config=config,
         )
 
-        request_url_dict: Optional[dict[str, str]]
-        if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
-        else:
-            request_dict = _CustomJobParameters_to_vertex(parameter_model)
-            request_url_dict = request_dict.get("_url")
-            if request_url_dict:
-                path = "customJobs".format_map(request_url_dict)
-            else:
-                path = "customJobs"
+    request_url_dict: Optional[dict[str, str]]
+    if not self._api_client.vertexai:
+      raise ValueError("This method is only supported in the Vertex AI client.")
+    else:
+      request_dict = _CustomJobParameters_to_vertex(parameter_model)
+      request_url_dict = request_dict.get("_url")
+      if request_url_dict:
+        path = "customJobs".format_map(request_url_dict)
+      else:
+        path = "customJobs"
 
-        query_params = request_dict.get("_query")
-        if query_params:
-            path = f"{path}?{urlencode(query_params)}"
-        # TODO: remove the hack that pops config.
-        request_dict.pop("config", None)
+    query_params = request_dict.get("_query")
+    if query_params:
+      path = f"{path}?{urlencode(query_params)}"
+    # TODO: remove the hack that pops config.
+    request_dict.pop("config", None)
 
-        http_options: Optional[types.HttpOptions] = None
-        if (
+    http_options: Optional[types.HttpOptions] = None
+    if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
         ):
-            http_options = parameter_model.config.http_options
+      http_options = parameter_model.config.http_options
 
-        request_dict = _common.convert_to_dict(request_dict)
-        request_dict = _common.encode_unserializable_types(request_dict)
+    request_dict = _common.convert_to_dict(request_dict)
+    request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = await self._api_client.async_request(
+    response = await self._api_client.async_request(
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
+    response_dict = "" if not response.body else json.loads(response.body)
 
-        if self._api_client.vertexai:
-            response_dict = _CustomJob_from_vertex(response_dict)
+    if self._api_client.vertexai:
+      response_dict = _CustomJob_from_vertex(response_dict)
 
-        return_value = types.CustomJob._from_response(
+    return_value = types.CustomJob._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
-        self._api_client._verify_response(return_value)
-        return return_value
+    self._api_client._verify_response(return_value)
+    return return_value
 
-    async def _get_custom_job(
+  async def _get_custom_job(
         self, *, name: str, config: Optional[types.BaseConfigOrDict] = None
     ) -> types.CustomJob:
-        """Gets a custom job."""
+    """Gets a custom job."""
 
-        parameter_model = types._GetCustomJobParameters(
+    parameter_model = types._GetCustomJobParameters(
             name=name,
             config=config,
         )
 
-        request_url_dict: Optional[dict[str, str]]
-        if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
-        else:
-            request_dict = _GetCustomJobParameters_to_vertex(parameter_model)
-            request_url_dict = request_dict.get("_url")
-            if request_url_dict:
-                path = "customJobs/{name}".format_map(request_url_dict)
-            else:
-                path = "customJobs/{name}"
+    request_url_dict: Optional[dict[str, str]]
+    if not self._api_client.vertexai:
+      raise ValueError("This method is only supported in the Vertex AI client.")
+    else:
+      request_dict = _GetCustomJobParameters_to_vertex(parameter_model)
+      request_url_dict = request_dict.get("_url")
+      if request_url_dict:
+        path = "customJobs/{name}".format_map(request_url_dict)
+      else:
+        path = "customJobs/{name}"
 
-        query_params = request_dict.get("_query")
-        if query_params:
-            path = f"{path}?{urlencode(query_params)}"
-        # TODO: remove the hack that pops config.
-        request_dict.pop("config", None)
+    query_params = request_dict.get("_query")
+    if query_params:
+      path = f"{path}?{urlencode(query_params)}"
+    # TODO: remove the hack that pops config.
+    request_dict.pop("config", None)
 
-        http_options: Optional[types.HttpOptions] = None
-        if (
+    http_options: Optional[types.HttpOptions] = None
+    if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
         ):
-            http_options = parameter_model.config.http_options
+      http_options = parameter_model.config.http_options
 
-        request_dict = _common.convert_to_dict(request_dict)
-        request_dict = _common.encode_unserializable_types(request_dict)
+    request_dict = _common.convert_to_dict(request_dict)
+    request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = await self._api_client.async_request(
+    response = await self._api_client.async_request(
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
+    response_dict = "" if not response.body else json.loads(response.body)
 
-        if self._api_client.vertexai:
-            response_dict = _CustomJob_from_vertex(response_dict)
+    if self._api_client.vertexai:
+      response_dict = _CustomJob_from_vertex(response_dict)
 
-        return_value = types.CustomJob._from_response(
+    return_value = types.CustomJob._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
-        self._api_client._verify_response(return_value)
-        return return_value
+    self._api_client._verify_response(return_value)
+    return return_value
 
-    # Todo: b/428953357 - Add example in the README.
-    async def optimize(
+  # Todo: b/428953357 - Add example in the README.
+  async def optimize(
         self,
         method: str,
         config: types.PromptOptimizerVAPOConfigOrDict,
     ) -> types.CustomJob:
-        """Call async Vertex AI Prompt Optimizer (VAPO).
+    """Call async Vertex AI Prompt Optimizer (VAPO).
 
         Note: The `wait_for_completion` parameter in the config will be
         ignored when using the AsyncClient, as it is not supported.
@@ -854,37 +944,37 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         Returns:
           The custom job that was created.
         """
-        if method != "vapo":
-            raise ValueError("Only vapo methods is currently supported.")
+    if method != "vapo":
+      raise ValueError("Only vapo methods is currently supported.")
 
-        if isinstance(config, dict):
-            config = types.PromptOptimizerVAPOConfig(**config)
+    if isinstance(config, dict):
+      config = types.PromptOptimizerVAPOConfig(**config)
 
-        if config.wait_for_completion:
-            logger.info(
+    if config.wait_for_completion:
+      logger.info(
                 "Ignoring wait_for_completion=True since the AsyncClient does"
                 " not support it."
             )
 
-        if config.optimizer_job_display_name:
-            display_name = config.optimizer_job_display_name
-        else:
-            timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-            display_name = f"vapo-optimizer-{timestamp}"
+    if config.optimizer_job_display_name:
+      display_name = config.optimizer_job_display_name
+    else:
+      timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+      display_name = f"vapo-optimizer-{timestamp}"
 
-        if not config.config_path:
-            raise ValueError("Config path is required.")
-        bucket = "/".join(config.config_path.split("/")[:-1])
+    if not config.config_path:
+      raise ValueError("Config path is required.")
+    bucket = "/".join(config.config_path.split("/")[:-1])
 
-        container_uri = "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0"
+    container_uri = "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0"
 
-        region = self._api_client.location
-        project = self._api_client.project
-        container_args = {
+    region = self._api_client.location
+    project = self._api_client.project
+    container_args = {
             "config": config.config_path,
         }
-        args = ["--%s=%s" % (k, v) for k, v in container_args.items()]
-        worker_pool_specs = [
+    args = ["--%s=%s" % (k, v) for k, v in container_args.items()]
+    worker_pool_specs = [
             types.WorkerPoolSpec(
                 replica_count=1,
                 machine_spec=types.MachineSpec(machine_type="n1-standard-4"),
@@ -895,32 +985,32 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             )
         ]
 
-        service_account = _prompt_optimizer_utils._get_service_account(config)
+    service_account = _prompt_optimizer_utils._get_service_account(config)
 
-        job_spec = types.CustomJobSpec(
+    job_spec = types.CustomJobSpec(
             worker_pool_specs=worker_pool_specs,
             base_output_directory=types.GcsDestination(output_uri_prefix=bucket),
             service_account=service_account,
         )
 
-        custom_job = types.CustomJob(
+    custom_job = types.CustomJob(
             display_name=display_name,
             job_spec=job_spec,
         )
 
-        job = await self._create_custom_job_resource(
+    job = await self._create_custom_job_resource(
             custom_job=custom_job,
         )
 
-        # Get the job id for the dashboard url and display to the user.
-        job_resource_name = job.name
-        if not job_resource_name:
-            raise ValueError(f"Error creating job: {job}")
-        job_id = job_resource_name.split("/")[-1]
-        logger.info("Job created: %s", job.name)
+    # Get the job id for the dashboard url and display to the user.
+    job_resource_name = job.name
+    if not job_resource_name:
+      raise ValueError(f"Error creating job: {job}")
+    job_id = job_resource_name.split("/")[-1]
+    logger.info("Job created: %s", job.name)
 
-        # Construct the dashboard URL to show to the user.
-        dashboard_url = f"https://console.cloud.google.com/vertex-ai/locations/{region}/training/{job_id}/cpu?project={project}"
-        logger.info("View the job status at: %s", dashboard_url)
+    # Construct the dashboard URL to show to the user.
+    dashboard_url = f"https://console.cloud.google.com/vertex-ai/locations/{region}/training/{job_id}/cpu?project={project}"
+    logger.info("View the job status at: %s", dashboard_url)
 
-        return job
+    return job
