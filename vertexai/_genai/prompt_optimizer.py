@@ -19,7 +19,7 @@ import datetime
 import json
 import logging
 import time
-from typing import Any, Optional, Union
+from typing import Any, AsyncIterator, Awaitable, Iterator, Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
@@ -32,6 +32,7 @@ from . import types
 
 
 logger = logging.getLogger("vertexai_genai.promptoptimizer")
+logging.basicConfig(encoding="utf-8", level=logging.DEBUG, force=True)
 
 
 def _OptimizeRequestParameters_to_vertex(
@@ -39,6 +40,9 @@ def _OptimizeRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["content"]) is not None:
+        setv(to_object, ["content"], getv(from_object, ["content"]))
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -229,6 +233,8 @@ def _OptimizeResponse_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["content"]) is not None:
+        setv(to_object, ["content"], getv(from_object, ["content"]))
 
     return to_object
 
@@ -383,12 +389,16 @@ def _CustomJob_from_vertex(
 class PromptOptimizer(_api_module.BaseModule):
     """Prompt Optimizer"""
 
-    def _optimize_dummy(
-        self, *, config: Optional[types.OptimizeConfigOrDict] = None
-    ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+    def _optimize_prompt(
+        self,
+        *,
+        content: Optional[types.ContentOrDict] = None,
+        config: Optional[types.OptimizeConfigOrDict] = None,
+    ) -> Iterator[types.OptimizeResponse]:
+        """Optimize a single prompt."""
 
         parameter_model = types._OptimizeRequestParameters(
+            content=content,
             config=config,
         )
 
@@ -399,9 +409,9 @@ class PromptOptimizer(_api_module.BaseModule):
             request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = ":optimize".format_map(request_url_dict)
+                path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
             else:
-                path = ":optimize"
+                path = "tuningJobs:optimizePrompt"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -419,19 +429,34 @@ class PromptOptimizer(_api_module.BaseModule):
         request_dict = _common.convert_to_dict(request_dict)
         request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = self._api_client.request("post", path, request_dict, http_options)
+        if config is not None and getattr(config, "should_return_http_response", None):
+            raise ValueError(
+                "Accessing the raw HTTP response is not supported in streaming"
+                " methods."
+            )
+        logger.debug("----request_dict: %s", request_dict)
+        logger.debug("----http_options: %s", http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
+        for response in self._api_client.request_streamed(
+            "post", path, request_dict, http_options
+        ):
+            # print("response: %s" % response)
+            logger.debug("response: %s", response)
+            response_dict = "" if not response.body else json.loads(response.body)
+            # print("response_dict: %s" % response_dict)
+            logger.debug("response_dict: %s", response_dict)
+            if self._api_client.vertexai:
+                response_dict = _OptimizeResponse_from_vertex(response_dict)
+                # print("response_dict vertexai: %s" % response_dict)
+                logger.debug("response_dict vertexai: %s", response_dict)
 
-        if self._api_client.vertexai:
-            response_dict = _OptimizeResponse_from_vertex(response_dict)
-
-        return_value = types.OptimizeResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
-        )
-
-        self._api_client._verify_response(return_value)
-        return return_value
+            return_value = types.OptimizeResponse._from_response(
+                response=response_dict, kwargs=parameter_model.model_dump()
+            )
+            # print("return_value: %s" % return_value)
+            logger.debug("return_value: %s", return_value)
+            self._api_client._verify_response(return_value)
+            yield return_value
 
     def _create_custom_job_resource(
         self,
@@ -660,16 +685,45 @@ class PromptOptimizer(_api_module.BaseModule):
             job = self._wait_for_completion(job_id)
         return job
 
+    def optimize_prompt(
+        self, *, prompt: str, config: Optional[types.OptimizeConfig] = None
+    ) -> Iterator[types.OptimizeResponse]:
+        """Makes an API request to _optimize_prompt and yields the optimized prompt in chunks."""
+        if config is not None:
+            raise ValueError(
+                "Currently, config is not supported for a single prompt"
+                " optimization."
+            )
+
+        prompt = types.Content(parts=[types.Part(text=prompt)], role="user")
+        # response = self._optimize_prompt(content=prompt)
+        # logger.info(type(response))
+        # logger.info(response)
+
+        # for chunk in response:
+        #   yield chunk
+        for chunk in self._optimize_prompt(content=prompt):
+            #   logger.info(chunk)
+            #   if chunk.content and chunk.content.parts[0].text:
+            #     logger.info('chunk has content text %s', chunk.content.parts[0].text)
+            #   if chunk.parts[0]:
+            #     logger.info('chunk has parts %s', chunk.parts[0])
+            yield chunk
+
 
 class AsyncPromptOptimizer(_api_module.BaseModule):
     """Prompt Optimizer"""
 
-    async def _optimize_dummy(
-        self, *, config: Optional[types.OptimizeConfigOrDict] = None
-    ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+    async def _optimize_prompt(
+        self,
+        *,
+        content: Optional[types.ContentOrDict] = None,
+        config: Optional[types.OptimizeConfigOrDict] = None,
+    ) -> Awaitable[AsyncIterator[types.OptimizeResponse]]:
+        """Optimize a single prompt."""
 
         parameter_model = types._OptimizeRequestParameters(
+            content=content,
             config=config,
         )
 
@@ -680,9 +734,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = ":optimize".format_map(request_url_dict)
+                path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
             else:
-                path = ":optimize"
+                path = "tuningJobs:optimizePrompt"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -700,21 +754,32 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         request_dict = _common.convert_to_dict(request_dict)
         request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = await self._api_client.async_request(
+        if config is not None and getattr(config, "should_return_http_response", None):
+            raise ValueError(
+                "Accessing the raw HTTP response is not supported in streaming"
+                " methods."
+            )
+
+        response_stream = await self._api_client.async_request_streamed(
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
+        async def async_generator():  # type: ignore[no-untyped-def]
+            async for response in response_stream:
 
-        if self._api_client.vertexai:
-            response_dict = _OptimizeResponse_from_vertex(response_dict)
+                response_dict = "" if not response.body else json.loads(response.body)
 
-        return_value = types.OptimizeResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
-        )
+                if self._api_client.vertexai:
+                    response_dict = _OptimizeResponse_from_vertex(response_dict)
 
-        self._api_client._verify_response(return_value)
-        return return_value
+                return_value = types.OptimizeResponse._from_response(
+                    response=response_dict, kwargs=parameter_model.model_dump()
+                )
+
+                self._api_client._verify_response(return_value)
+                yield return_value
+
+        return async_generator()  # type: ignore[no-untyped-call, no-any-return]
 
     async def _create_custom_job_resource(
         self,
