@@ -4598,6 +4598,15 @@ def test_create_tuning_job_rest_call_success(request_type):
             "validation_dataset_uri": "validation_dataset_uri_value",
             "hyper_parameters": {},
         },
+        "veo_tuning_spec": {
+            "training_dataset_uri": "training_dataset_uri_value",
+            "validation_dataset_uri": "validation_dataset_uri_value",
+            "hyper_parameters": {
+                "epoch_count": 1175,
+                "learning_rate_multiplier": 0.2561,
+                "tuning_task": 1,
+            },
+        },
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",
         "description": "description_value",
@@ -6257,6 +6266,15 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
             "training_dataset_uri": "training_dataset_uri_value",
             "validation_dataset_uri": "validation_dataset_uri_value",
             "hyper_parameters": {},
+        },
+        "veo_tuning_spec": {
+            "training_dataset_uri": "training_dataset_uri_value",
+            "validation_dataset_uri": "validation_dataset_uri_value",
+            "hyper_parameters": {
+                "epoch_count": 1175,
+                "learning_rate_multiplier": 0.2561,
+                "tuning_task": 1,
+            },
         },
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",

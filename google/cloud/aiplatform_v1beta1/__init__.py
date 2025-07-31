@@ -131,6 +131,7 @@ from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
 from .types.content import ModalityTokenCount
+from .types.content import ModelArmorConfig
 from .types.content import Part
 from .types.content import PrebuiltVoiceConfig
 from .types.content import RetrievalMetadata
@@ -221,6 +222,7 @@ from .types.deployment_resource_pool_service import (
     UpdateDeploymentResourcePoolOperationMetadata,
 )
 from .types.deployment_resource_pool_service import UpdateDeploymentResourcePoolRequest
+from .types.deployment_stage import DeploymentStage
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
@@ -1209,6 +1211,8 @@ from .types.tuning_job import TunedModelCheckpoint
 from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
+from .types.tuning_job import VeoHyperParameters
+from .types.tuning_job import VeoTuningSpec
 from .types.types import BoolArray
 from .types.types import DoubleArray
 from .types.types import Int64Array
@@ -1611,6 +1615,7 @@ __all__ = (
     "DeployedModelRef",
     "DeploymentResourcePool",
     "DeploymentResourcePoolServiceClient",
+    "DeploymentStage",
     "DestinationFeatureSetting",
     "DirectPredictRequest",
     "DirectPredictResponse",
@@ -2014,6 +2019,7 @@ __all__ = (
     "Modality",
     "ModalityTokenCount",
     "Model",
+    "ModelArmorConfig",
     "ModelContainerSpec",
     "ModelDeploymentMonitoringBigQueryTable",
     "ModelDeploymentMonitoringJob",
@@ -2508,6 +2514,8 @@ __all__ = (
     "UrlMetadata",
     "UserActionReference",
     "Value",
+    "VeoHyperParameters",
+    "VeoTuningSpec",
     "VertexAISearch",
     "VertexAiSearchConfig",
     "VertexRagDataServiceClient",

@@ -50,6 +50,7 @@ from .content import (
     GroundingSupport,
     LogprobsResult,
     ModalityTokenCount,
+    ModelArmorConfig,
     Part,
     RetrievalMetadata,
     SafetyRating,
@@ -147,6 +148,9 @@ from .deployment_resource_pool_service import (
     QueryDeployedModelsResponse,
     UpdateDeploymentResourcePoolOperationMetadata,
     UpdateDeploymentResourcePoolRequest,
+)
+from .deployment_stage import (
+    DeploymentStage,
 )
 from .encryption_spec import (
     EncryptionSpec,
@@ -1206,6 +1210,7 @@ __all__ = (
     "GroundingSupport",
     "LogprobsResult",
     "ModalityTokenCount",
+    "ModelArmorConfig",
     "Part",
     "RetrievalMetadata",
     "SafetyRating",
@@ -1281,6 +1286,7 @@ __all__ = (
     "QueryDeployedModelsResponse",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
+    "DeploymentStage",
     "EncryptionSpec",
     "ClientConnectionConfig",
     "DeployedModel",

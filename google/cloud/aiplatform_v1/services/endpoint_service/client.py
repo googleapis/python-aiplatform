@@ -1986,8 +1986,9 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Updates an existing deployed model. Updatable fields include
         ``min_replica_count``, ``max_replica_count``,
-        ``autoscaling_metric_specs``, ``disable_container_logging`` (v1
-        only), and ``enable_container_logging`` (v1beta1 only).
+        ``required_replica_count``, ``autoscaling_metric_specs``,
+        ``disable_container_logging`` (v1 only), and
+        ``enable_container_logging`` (v1beta1 only).
 
         .. code-block:: python
 
@@ -2047,6 +2048,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                    [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
                    or
                    [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
+                -  ``required_replica_count`` in
+                   [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
                 -  [autoscaling_metric_specs][google.cloud.aiplatform.v1.DedicatedResources.autoscaling_metric_specs]
                 -  ``disable_container_logging`` (v1 only)
                 -  ``enable_container_logging`` (v1beta1 only)

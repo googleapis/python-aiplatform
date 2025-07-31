@@ -6493,6 +6493,7 @@ def test_create_index_endpoint_rest_call_success(request_type):
                     },
                 },
                 "enable_access_logging": True,
+                "enable_datapoint_upsert_logging": True,
                 "deployed_index_auth_config": {
                     "auth_provider": {
                         "audiences": ["audiences_value1", "audiences_value2"],
@@ -7076,6 +7077,7 @@ def test_update_index_endpoint_rest_call_success(request_type):
                     },
                 },
                 "enable_access_logging": True,
+                "enable_datapoint_upsert_logging": True,
                 "deployed_index_auth_config": {
                     "auth_provider": {
                         "audiences": ["audiences_value1", "audiences_value2"],
@@ -7766,6 +7768,7 @@ def test_mutate_deployed_index_rest_call_success(request_type):
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
         },
         "enable_access_logging": True,
+        "enable_datapoint_upsert_logging": True,
         "deployed_index_auth_config": {
             "auth_provider": {
                 "audiences": ["audiences_value1", "audiences_value2"],
@@ -8873,6 +8876,7 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                     },
                 },
                 "enable_access_logging": True,
+                "enable_datapoint_upsert_logging": True,
                 "deployed_index_auth_config": {
                     "auth_provider": {
                         "audiences": ["audiences_value1", "audiences_value2"],
@@ -9505,6 +9509,7 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                     },
                 },
                 "enable_access_logging": True,
+                "enable_datapoint_upsert_logging": True,
                 "deployed_index_auth_config": {
                     "auth_provider": {
                         "audiences": ["audiences_value1", "audiences_value2"],
@@ -10261,6 +10266,7 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
         },
         "enable_access_logging": True,
+        "enable_datapoint_upsert_logging": True,
         "deployed_index_auth_config": {
             "auth_provider": {
                 "audiences": ["audiences_value1", "audiences_value2"],

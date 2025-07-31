@@ -903,6 +903,10 @@ class GenerateContentRequest(proto.Message):
             Optional. Per request settings for blocking
             unsafe content. Enforced on
             GenerateContentResponse.candidates.
+        model_armor_config (google.cloud.aiplatform_v1beta1.types.ModelArmorConfig):
+            Optional. Settings for prompt and response sanitization
+            using the Model Armor service. If supplied, safety_settings
+            must not be supplied.
         generation_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig):
             Optional. Generation config.
     """
@@ -945,6 +949,11 @@ class GenerateContentRequest(proto.Message):
         proto.MESSAGE,
         number=3,
         message=content.SafetySetting,
+    )
+    model_armor_config: content.ModelArmorConfig = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=content.ModelArmorConfig,
     )
     generation_config: content.GenerationConfig = proto.Field(
         proto.MESSAGE,
@@ -1005,12 +1014,15 @@ class GenerateContentResponse(proto.Message):
                     included from the terminology blocklist.
                 PROHIBITED_CONTENT (4):
                     Candidates blocked due to prohibited content.
+                MODEL_ARMOR (5):
+                    The user prompt was blocked by Model Armor.
             """
             BLOCKED_REASON_UNSPECIFIED = 0
             SAFETY = 1
             OTHER = 2
             BLOCKLIST = 3
             PROHIBITED_CONTENT = 4
+            MODEL_ARMOR = 5
 
         block_reason: "GenerateContentResponse.PromptFeedback.BlockedReason" = (
             proto.Field(

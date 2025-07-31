@@ -293,6 +293,21 @@ class DeployedIndex(proto.Message):
             the deployed index receives a high queries per
             second rate (QPS). Estimate your costs before
             enabling this option.
+        enable_datapoint_upsert_logging (bool):
+            Optional. If true, logs to Cloud Logging
+            errors relating to datapoint upserts.
+
+            Under normal operation conditions, these log
+            entries should be very rare. However, if
+            incompatible datapoint updates are being
+            uploaded to an index, a high volume of log
+            entries may be generated in a short period of
+            time.
+
+            Note that logs may incur a cost, especially if
+            the deployed index receives a high volume of
+            datapoint upserts. Estimate your costs before
+            enabling this option.
         deployed_index_auth_config (google.cloud.aiplatform_v1.types.DeployedIndexAuthConfig):
             Optional. If set, the authentication is
             enabled for the private endpoint.
@@ -374,6 +389,10 @@ class DeployedIndex(proto.Message):
     enable_access_logging: bool = proto.Field(
         proto.BOOL,
         number=8,
+    )
+    enable_datapoint_upsert_logging: bool = proto.Field(
+        proto.BOOL,
+        number=20,
     )
     deployed_index_auth_config: "DeployedIndexAuthConfig" = proto.Field(
         proto.MESSAGE,

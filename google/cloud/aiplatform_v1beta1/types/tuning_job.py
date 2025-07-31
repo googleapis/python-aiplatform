@@ -44,6 +44,8 @@ __protobuf__ = proto.module(
         "DistillationHyperParameters",
         "PartnerModelTuningSpec",
         "TunedModelRef",
+        "VeoHyperParameters",
+        "VeoTuningSpec",
         "TunedModelCheckpoint",
     },
 )
@@ -76,6 +78,10 @@ class TuningJob(proto.Message):
         partner_model_tuning_spec (google.cloud.aiplatform_v1beta1.types.PartnerModelTuningSpec):
             Tuning Spec for open sourced and third party
             Partner models.
+
+            This field is a member of `oneof`_ ``tuning_spec``.
+        veo_tuning_spec (google.cloud.aiplatform_v1beta1.types.VeoTuningSpec):
+            Tuning Spec for Veo Tuning.
 
             This field is a member of `oneof`_ ``tuning_spec``.
         name (str):
@@ -192,6 +198,12 @@ class TuningJob(proto.Message):
         number=21,
         oneof="tuning_spec",
         message="PartnerModelTuningSpec",
+    )
+    veo_tuning_spec: "VeoTuningSpec" = proto.Field(
+        proto.MESSAGE,
+        number=33,
+        oneof="tuning_spec",
+        message="VeoTuningSpec",
     )
     name: str = proto.Field(
         proto.STRING,
@@ -1061,6 +1073,84 @@ class TunedModelRef(proto.Message):
         proto.STRING,
         number=3,
         oneof="tuned_model_ref",
+    )
+
+
+class VeoHyperParameters(proto.Message):
+    r"""Hyperparameters for Veo.
+
+    Attributes:
+        epoch_count (int):
+            Optional. Number of complete passes the model
+            makes over the entire training dataset during
+            training.
+        learning_rate_multiplier (float):
+            Optional. Multiplier for adjusting the
+            default learning rate.
+        tuning_task (google.cloud.aiplatform_v1beta1.types.VeoHyperParameters.TuningTask):
+            Optional. The tuning task. Either I2V or T2V.
+    """
+
+    class TuningTask(proto.Enum):
+        r"""An enum defining the tuning task used for Veo.
+
+        Values:
+            TUNING_TASK_UNSPECIFIED (0):
+                Default value. This value is unused.
+            TUNING_TASK_I2V (1):
+                Tuning task for image to video.
+            TUNING_TASK_T2V (2):
+                Tuning task for text to video.
+        """
+        TUNING_TASK_UNSPECIFIED = 0
+        TUNING_TASK_I2V = 1
+        TUNING_TASK_T2V = 2
+
+    epoch_count: int = proto.Field(
+        proto.INT64,
+        number=1,
+    )
+    learning_rate_multiplier: float = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    tuning_task: TuningTask = proto.Field(
+        proto.ENUM,
+        number=3,
+        enum=TuningTask,
+    )
+
+
+class VeoTuningSpec(proto.Message):
+    r"""Tuning Spec for Veo Model Tuning.
+
+    Attributes:
+        training_dataset_uri (str):
+            Required. Training dataset used for tuning.
+            The dataset can be specified as either a Cloud
+            Storage path to a JSONL file or as the resource
+            name of a Vertex Multimodal Dataset.
+        validation_dataset_uri (str):
+            Optional. Validation dataset used for tuning.
+            The dataset can be specified as either a Cloud
+            Storage path to a JSONL file or as the resource
+            name of a Vertex Multimodal Dataset.
+        hyper_parameters (google.cloud.aiplatform_v1beta1.types.VeoHyperParameters):
+            Optional. Hyperparameters for Veo.
+    """
+
+    training_dataset_uri: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    validation_dataset_uri: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    hyper_parameters: "VeoHyperParameters" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="VeoHyperParameters",
     )
 
 
