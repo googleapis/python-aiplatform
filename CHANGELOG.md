@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.107.0](https://github.com/googleapis/python-aiplatform/compare/v1.106.0...v1.107.0) (2025-07-31)
+
+
+### Features
+
+* Add autoscaling metrics parameters for PrivateEndpoint class's model deployment API ([58880be](https://github.com/googleapis/python-aiplatform/commit/58880befdd2fdecb2e4c5711f7ffde7c39a335da))
+* Add ray 2.47 unit tests as required checks ([5445648](https://github.com/googleapis/python-aiplatform/commit/5445648eae51d56ab696ad670b825f47cd4d2c22))
+* GenAI SDK client - Agent Engine Session SDK ([8f28c40](https://github.com/googleapis/python-aiplatform/commit/8f28c4015b9f2caa4a69f691a79524914c9c3258))
+
 ## [1.106.0](https://github.com/googleapis/python-aiplatform/compare/v1.105.0...v1.106.0) (2025-07-30)
 
 
