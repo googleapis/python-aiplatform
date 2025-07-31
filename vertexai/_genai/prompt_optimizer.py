@@ -65,11 +65,7 @@ def _CustomJobSpec_to_vertex(
         )
 
     if getv(from_object, ["enable_web_access"]) is not None:
-        setv(
-            to_object,
-            ["enableWebAccess"],
-            getv(from_object, ["enable_web_access"]),
-        )
+        setv(to_object, ["enableWebAccess"], getv(from_object, ["enable_web_access"]))
 
     if getv(from_object, ["experiment"]) is not None:
         setv(to_object, ["experiment"], getv(from_object, ["experiment"]))
@@ -105,31 +101,19 @@ def _CustomJobSpec_to_vertex(
         )
 
     if getv(from_object, ["reserved_ip_ranges"]) is not None:
-        setv(
-            to_object,
-            ["reservedIpRanges"],
-            getv(from_object, ["reserved_ip_ranges"]),
-        )
+        setv(to_object, ["reservedIpRanges"], getv(from_object, ["reserved_ip_ranges"]))
 
     if getv(from_object, ["scheduling"]) is not None:
         setv(to_object, ["scheduling"], getv(from_object, ["scheduling"]))
 
     if getv(from_object, ["service_account"]) is not None:
-        setv(
-            to_object,
-            ["serviceAccount"],
-            getv(from_object, ["service_account"]),
-        )
+        setv(to_object, ["serviceAccount"], getv(from_object, ["service_account"]))
 
     if getv(from_object, ["tensorboard"]) is not None:
         setv(to_object, ["tensorboard"], getv(from_object, ["tensorboard"]))
 
     if getv(from_object, ["worker_pool_specs"]) is not None:
-        setv(
-            to_object,
-            ["workerPoolSpecs"],
-            getv(from_object, ["worker_pool_specs"]),
-        )
+        setv(to_object, ["workerPoolSpecs"], getv(from_object, ["worker_pool_specs"]))
 
     return to_object
 
@@ -153,11 +137,7 @@ def _CustomJob_to_vertex(
         setv(to_object, ["createTime"], getv(from_object, ["create_time"]))
 
     if getv(from_object, ["encryption_spec"]) is not None:
-        setv(
-            to_object,
-            ["encryptionSpec"],
-            getv(from_object, ["encryption_spec"]),
-        )
+        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
 
     if getv(from_object, ["end_time"]) is not None:
         setv(to_object, ["endTime"], getv(from_object, ["end_time"]))
@@ -253,11 +233,7 @@ def _CustomJobSpec_from_vertex(
         )
 
     if getv(from_object, ["enableWebAccess"]) is not None:
-        setv(
-            to_object,
-            ["enable_web_access"],
-            getv(from_object, ["enableWebAccess"]),
-        )
+        setv(to_object, ["enable_web_access"], getv(from_object, ["enableWebAccess"]))
 
     if getv(from_object, ["experiment"]) is not None:
         setv(to_object, ["experiment"], getv(from_object, ["experiment"]))
@@ -293,31 +269,19 @@ def _CustomJobSpec_from_vertex(
         )
 
     if getv(from_object, ["reservedIpRanges"]) is not None:
-        setv(
-            to_object,
-            ["reserved_ip_ranges"],
-            getv(from_object, ["reservedIpRanges"]),
-        )
+        setv(to_object, ["reserved_ip_ranges"], getv(from_object, ["reservedIpRanges"]))
 
     if getv(from_object, ["scheduling"]) is not None:
         setv(to_object, ["scheduling"], getv(from_object, ["scheduling"]))
 
     if getv(from_object, ["serviceAccount"]) is not None:
-        setv(
-            to_object,
-            ["service_account"],
-            getv(from_object, ["serviceAccount"]),
-        )
+        setv(to_object, ["service_account"], getv(from_object, ["serviceAccount"]))
 
     if getv(from_object, ["tensorboard"]) is not None:
         setv(to_object, ["tensorboard"], getv(from_object, ["tensorboard"]))
 
     if getv(from_object, ["workerPoolSpecs"]) is not None:
-        setv(
-            to_object,
-            ["worker_pool_specs"],
-            getv(from_object, ["workerPoolSpecs"]),
-        )
+        setv(to_object, ["worker_pool_specs"], getv(from_object, ["workerPoolSpecs"]))
 
     return to_object
 
@@ -341,11 +305,7 @@ def _CustomJob_from_vertex(
         setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
 
     if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(
-            to_object,
-            ["encryption_spec"],
-            getv(from_object, ["encryptionSpec"]),
-        )
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
 
     if getv(from_object, ["endTime"]) is not None:
         setv(to_object, ["end_time"], getv(from_object, ["endTime"]))
@@ -386,7 +346,9 @@ class PromptOptimizer(_api_module.BaseModule):
     def _optimize_dummy(
         self, *, config: Optional[types.OptimizeConfigOrDict] = None
     ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+        """
+        Optimize multiple prompts.
+        """
 
         parameter_model = types._OptimizeRequestParameters(
             config=config,
@@ -439,7 +401,9 @@ class PromptOptimizer(_api_module.BaseModule):
         custom_job: types.CustomJobOrDict,
         config: Optional[types.BaseConfigOrDict] = None,
     ) -> types.CustomJob:
-        """Creates a custom job."""
+        """
+        Creates a custom job.
+        """
 
         parameter_model = types._CustomJobParameters(
             custom_job=custom_job,
@@ -490,7 +454,9 @@ class PromptOptimizer(_api_module.BaseModule):
     def _get_custom_job(
         self, *, name: str, config: Optional[types.BaseConfigOrDict] = None
     ) -> types.CustomJob:
-        """Gets a custom job."""
+        """
+        Gets a custom job.
+        """
 
         parameter_model = types._GetCustomJobParameters(
             name=name,
@@ -587,8 +553,7 @@ class PromptOptimizer(_api_module.BaseModule):
         Args:
           method: The method for optimizing multiple prompts.
           config: PromptOptimizerVAPOConfig instance containing the
-            configuration for prompt optimization.
-
+              configuration for prompt optimization.
         Returns:
           The custom job that was created.
         """
@@ -667,7 +632,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
     async def _optimize_dummy(
         self, *, config: Optional[types.OptimizeConfigOrDict] = None
     ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+        """
+        Optimize multiple prompts.
+        """
 
         parameter_model = types._OptimizeRequestParameters(
             config=config,
@@ -722,7 +689,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         custom_job: types.CustomJobOrDict,
         config: Optional[types.BaseConfigOrDict] = None,
     ) -> types.CustomJob:
-        """Creates a custom job."""
+        """
+        Creates a custom job.
+        """
 
         parameter_model = types._CustomJobParameters(
             custom_job=custom_job,
@@ -775,7 +744,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
     async def _get_custom_job(
         self, *, name: str, config: Optional[types.BaseConfigOrDict] = None
     ) -> types.CustomJob:
-        """Gets a custom job."""
+        """
+        Gets a custom job.
+        """
 
         parameter_model = types._GetCustomJobParameters(
             name=name,
@@ -833,6 +804,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
     ) -> types.CustomJob:
         """Call async Vertex AI Prompt Optimizer (VAPO).
 
+
         Note: The `wait_for_completion` parameter in the config will be
         ignored when using the AsyncClient, as it is not supported.
 
@@ -850,7 +822,6 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             vapo is supported).
           config: PromptOptimizerVAPOConfig instance containing the
             configuration for prompt optimization.
-
         Returns:
           The custom job that was created.
         """
@@ -862,8 +833,8 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         if config.wait_for_completion:
             logger.info(
-                "Ignoring wait_for_completion=True since the AsyncClient does"
-                " not support it."
+                "Ignoring wait_for_completion=True since the AsyncClient does not"
+                " support it."
             )
 
         if config.optimizer_job_display_name:
