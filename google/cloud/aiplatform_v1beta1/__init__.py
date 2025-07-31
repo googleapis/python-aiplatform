@@ -222,6 +222,7 @@ from .types.deployment_resource_pool_service import (
     UpdateDeploymentResourcePoolOperationMetadata,
 )
 from .types.deployment_resource_pool_service import UpdateDeploymentResourcePoolRequest
+from .types.deployment_stage import DeploymentStage
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
@@ -1614,6 +1615,7 @@ __all__ = (
     "DeployedModelRef",
     "DeploymentResourcePool",
     "DeploymentResourcePoolServiceClient",
+    "DeploymentStage",
     "DestinationFeatureSetting",
     "DirectPredictRequest",
     "DirectPredictResponse",

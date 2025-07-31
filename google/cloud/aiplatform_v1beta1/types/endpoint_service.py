@@ -19,6 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import (
+    deployment_stage as gca_deployment_stage,
+)
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -104,12 +107,21 @@ class CreateEndpointOperationMetadata(proto.Message):
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
+        deployment_stage (google.cloud.aiplatform_v1beta1.types.DeploymentStage):
+            Output only. The deployment stage of the
+            model. Only populated if this CreateEndpoint
+            request deploys a model at the same time.
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
+    )
+    deployment_stage: gca_deployment_stage.DeploymentStage = proto.Field(
+        proto.ENUM,
+        number=2,
+        enum=gca_deployment_stage.DeploymentStage,
     )
 
 
@@ -379,12 +391,20 @@ class DeployModelOperationMetadata(proto.Message):
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
+        deployment_stage (google.cloud.aiplatform_v1beta1.types.DeploymentStage):
+            Output only. The deployment stage of the
+            model.
     """
 
     generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
+    )
+    deployment_stage: gca_deployment_stage.DeploymentStage = proto.Field(
+        proto.ENUM,
+        number=2,
+        enum=gca_deployment_stage.DeploymentStage,
     )
 
 
@@ -525,6 +545,8 @@ class MutateDeployedModelRequest(proto.Message):
                [DedicatedResources][google.cloud.aiplatform.v1beta1.DedicatedResources]
                or
                [AutomaticResources][google.cloud.aiplatform.v1beta1.AutomaticResources]
+            -  ``required_replica_count`` in
+               [DedicatedResources][google.cloud.aiplatform.v1beta1.DedicatedResources]
             -  [autoscaling_metric_specs][google.cloud.aiplatform.v1beta1.DedicatedResources.autoscaling_metric_specs]
             -  ``disable_container_logging`` (v1 only)
             -  ``enable_container_logging`` (v1beta1 only)
