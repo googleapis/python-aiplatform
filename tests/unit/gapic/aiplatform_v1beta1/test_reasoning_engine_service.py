@@ -74,6 +74,7 @@ from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import pagers
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import transports
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine
@@ -4646,6 +4647,7 @@ def test_create_reasoning_engine_rest_call_success(request_type):
                 },
             }
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5161,6 +5163,7 @@ def test_update_reasoning_engine_rest_call_success(request_type):
                 },
             }
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6300,6 +6303,7 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
                 },
             }
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6869,6 +6873,7 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
                 },
             }
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

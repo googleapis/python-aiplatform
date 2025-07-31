@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -193,6 +194,11 @@ class ReasoningEngine(proto.Message):
         context_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec):
             Optional. Configuration for how Agent Engine
             sub-resources should manage context.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Customer-managed encryption key spec for a
+            ReasoningEngine. If set, this ReasoningEngine
+            and all sub-resources of this ReasoningEngine
+            will be secured by this key.
     """
 
     name: str = proto.Field(
@@ -230,6 +236,11 @@ class ReasoningEngine(proto.Message):
         proto.MESSAGE,
         number=9,
         message="ReasoningEngineContextSpec",
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
