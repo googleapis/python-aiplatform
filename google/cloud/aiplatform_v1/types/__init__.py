@@ -149,6 +149,9 @@ from .deployment_resource_pool_service import (
     UpdateDeploymentResourcePoolOperationMetadata,
     UpdateDeploymentResourcePoolRequest,
 )
+from .deployment_stage import (
+    DeploymentStage,
+)
 from .encryption_spec import (
     EncryptionSpec,
 )
@@ -1283,6 +1286,7 @@ __all__ = (
     "QueryDeployedModelsResponse",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
+    "DeploymentStage",
     "EncryptionSpec",
     "ClientConnectionConfig",
     "DeployedModel",
