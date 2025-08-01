@@ -64,4 +64,15 @@ class TestPromptOptimizer:
         mock_client.assert_called_once()
         mock_custom_job.assert_called_once()
 
+    @mock.patch.object(client.Client, "_get_api_client")
+    @mock.patch.object(prompt_optimizer.PromptOptimizer, "_custom_optimize_prompt")
+    def test_prompt_optimizer_optimize_prompt(
+        self, mock_custom_optimize_prompt, mock_client
+    ):
+        """Test that prompt_optimizer.optimize method creates a custom job."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_client.prompt_optimizer.optimize_prompt(prompt="test_prompt")
+        mock_client.assert_called_once()
+        mock_custom_optimize_prompt.assert_called_once()
+
     # TODO(b/415060797): add more tests for prompt_optimizer.optimize

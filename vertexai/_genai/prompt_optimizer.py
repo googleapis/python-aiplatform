@@ -39,6 +39,9 @@ def _OptimizeRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["content"]) is not None:
+        setv(to_object, ["content"], getv(from_object, ["content"]))
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -229,6 +232,8 @@ def _OptimizeResponse_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["content"]) is not None:
+        setv(to_object, ["content"], getv(from_object, ["content"]))
 
     return to_object
 
@@ -383,12 +388,16 @@ def _CustomJob_from_vertex(
 class PromptOptimizer(_api_module.BaseModule):
     """Prompt Optimizer"""
 
-    def _optimize_dummy(
-        self, *, config: Optional[types.OptimizeConfigOrDict] = None
+    def _optimize_prompt(
+        self,
+        *,
+        content: Optional[types.ContentOrDict] = None,
+        config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+        """Optimize a single prompt."""
 
         parameter_model = types._OptimizeRequestParameters(
+            content=content,
             config=config,
         )
 
@@ -399,9 +408,9 @@ class PromptOptimizer(_api_module.BaseModule):
             request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = ":optimize".format_map(request_url_dict)
+                path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
             else:
-                path = ":optimize"
+                path = "tuningJobs:optimizePrompt"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -660,16 +669,32 @@ class PromptOptimizer(_api_module.BaseModule):
             job = self._wait_for_completion(job_id)
         return job
 
+    def optimize_prompt(
+        self, *, prompt: str, config: Optional[types.OptimizeConfig] = None
+    ) -> str:
+        """Makes an API request to _optimize_prompt and yields the optimized prompt in chunks."""
+        if config is not None:
+            raise ValueError(
+                "Currently, config is not supported for a single prompt"
+                " optimization."
+            )
 
-class AsyncPromptOptimizer(_api_module.BaseModule):
-    """Prompt Optimizer"""
+        prompt = types.Content(parts=[types.Part(text=prompt)], role="user")
+        return self._custom_optimize_prompt(content=prompt)
 
-    async def _optimize_dummy(
-        self, *, config: Optional[types.OptimizeConfigOrDict] = None
-    ) -> types.OptimizeResponse:
-        """Optimize multiple prompts."""
+    def _custom_optimize_prompt(
+        self,
+        *,
+        content: Optional[types.ContentOrDict] = None,
+        config: Optional[types.OptimizeConfigOrDict] = None,
+    ) -> str:
+        """Optimize a single prompt.
+
+        Todo: b/435653980 - replace the custom method with a generated method.
+        """
 
         parameter_model = types._OptimizeRequestParameters(
+            content=content,
             config=config,
         )
 
@@ -680,9 +705,76 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = ":optimize".format_map(request_url_dict)
+                path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
             else:
-                path = ":optimize"
+                path = "tuningJobs:optimizePrompt"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_list = "" if not response.body else json.loads(response.body)
+
+        return_value = []
+
+        for response_dict in response_list:
+            if self._api_client.vertexai:
+                response_dict = _OptimizeResponse_from_vertex(response_dict)
+
+            response_value = types.OptimizeResponse._from_response(
+                response=response_dict, kwargs=parameter_model.model_dump()
+            )
+            self._api_client._verify_response(response_value)
+            if (
+                response_value.content is not None
+                and len(response_value.content.parts) > 0
+                and response_value.content.parts[0].text is not None
+            ):
+                return_value.append(response_value.content.parts[0].text)
+
+        return "".join(return_value)
+
+
+class AsyncPromptOptimizer(_api_module.BaseModule):
+    """Prompt Optimizer"""
+
+    async def _optimize_prompt(
+        self,
+        *,
+        content: Optional[types.ContentOrDict] = None,
+        config: Optional[types.OptimizeConfigOrDict] = None,
+    ) -> types.OptimizeResponse:
+        """Optimize a single prompt."""
+
+        parameter_model = types._OptimizeRequestParameters(
+            content=content,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
+            else:
+                path = "tuningJobs:optimizePrompt"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -924,3 +1016,81 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         logger.info("View the job status at: %s", dashboard_url)
 
         return job
+
+    async def _custom_optimize_prompt(
+        self,
+        *,
+        content: Optional[types.ContentOrDict] = None,
+        config: Optional[types.OptimizeConfigOrDict] = None,
+    ) -> str:
+        """Optimize a single prompt."""
+
+        parameter_model = types._OptimizeRequestParameters(
+            content=content,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
+            else:
+                path = "tuningJobs:optimizePrompt"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_list = "" if not response.body else json.loads(response.body)
+
+        return_value = []
+
+        for response_dict in response_list:
+            if self._api_client.vertexai:
+                response_dict = _OptimizeResponse_from_vertex(response_dict)
+
+            response_value = types.OptimizeResponse._from_response(
+                response=response_dict, kwargs=parameter_model.model_dump()
+            )
+            self._api_client._verify_response(response_value)
+            if (
+                response_value.content is not None
+                and len(response_value.content.parts) > 0
+                and response_value.content.parts[0].text is not None
+            ):
+                return_value.append(response_value.content.parts[0].text)
+
+        return "".join(return_value)
+
+    async def optimize_prompt(
+        self, *, prompt: str, config: Optional[types.OptimizeConfig] = None
+    ) -> str:
+        """Makes an API request to _optimize_prompt and yields the optimized prompt in chunks."""
+        if config is not None:
+            raise ValueError(
+                "Currently, config is not supported for a single prompt"
+                " optimization."
+            )
+
+        prompt = types.Content(parts=[types.Part(text=prompt)], role="user")
+        return await self._custom_optimize_prompt(content=prompt)
