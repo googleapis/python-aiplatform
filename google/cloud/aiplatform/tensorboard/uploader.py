@@ -386,7 +386,7 @@ class TensorBoardUploader(object):
 
         run_names = []
         run_tag_name_to_time_series_proto = {}
-        for (run_name, events) in run_to_events.items():
+        for run_name, events in run_to_events.items():
             run_name = (
                 run_name
                 if (run_name and run_name != ".")
@@ -415,13 +415,13 @@ class TensorBoardUploader(object):
                             tensorboard_time_series.TensorboardTimeSeries.ValueType.BLOB_SEQUENCE
                         )
 
-                    run_tag_name_to_time_series_proto[
-                        (run_name, value.tag)
-                    ] = tensorboard_time_series.TensorboardTimeSeries(
-                        display_name=value.tag,
-                        value_type=value_type,
-                        plugin_name=metadata.plugin_data.plugin_name,
-                        plugin_data=metadata.plugin_data.content,
+                    run_tag_name_to_time_series_proto[(run_name, value.tag)] = (
+                        tensorboard_time_series.TensorboardTimeSeries(
+                            display_name=value.tag,
+                            value_type=value_type,
+                            plugin_name=metadata.plugin_data.plugin_name,
+                            plugin_data=metadata.plugin_data.content,
+                        )
                     )
 
         experiment_runs = [uploader_utils.reformat_run_name(run) for run in run_names]
@@ -717,7 +717,7 @@ class _Dispatcher(object):
           run_to_events: Mapping from run name to generator of `tf.compat.v1.Event`
             values, as returned by `LogdirLoader.get_run_events`.
         """
-        for (run_name, events) in run_to_events.items():
+        for run_name, events in run_to_events.items():
             self._dispatch_additional_senders(run_name)
             if events is not None:
                 for event in events:
@@ -1402,7 +1402,7 @@ def _prune_empty_time_series(
     request: tensorboard_service.WriteTensorboardRunDataRequest,
 ):
     """Removes empty time_series from request."""
-    for (time_series_idx, time_series_data) in reversed(
+    for time_series_idx, time_series_data in reversed(
         list(enumerate(request.time_series_data))
     ):
         if not time_series_data.values:

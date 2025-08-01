@@ -25,7 +25,9 @@ from google.cloud.aiplatform_v1.types import tensorboard_data
 from google.cloud.aiplatform_v1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
-from google.cloud.aiplatform_v1.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform_v1.types import (
+    tensorboard_run as gca_tensorboard_run,
+)
 from google.cloud.aiplatform_v1.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
@@ -593,12 +595,12 @@ class BatchCreateTensorboardRunsResponse(proto.Message):
             The created TensorboardRuns.
     """
 
-    tensorboard_runs: MutableSequence[
-        gca_tensorboard_run.TensorboardRun
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_tensorboard_run.TensorboardRun,
+    tensorboard_runs: MutableSequence[gca_tensorboard_run.TensorboardRun] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_tensorboard_run.TensorboardRun,
+        )
     )
 
 
@@ -769,12 +771,12 @@ class ListTensorboardRunsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    tensorboard_runs: MutableSequence[
-        gca_tensorboard_run.TensorboardRun
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_tensorboard_run.TensorboardRun,
+    tensorboard_runs: MutableSequence[gca_tensorboard_run.TensorboardRun] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_tensorboard_run.TensorboardRun,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -852,12 +854,12 @@ class BatchCreateTensorboardTimeSeriesRequest(proto.Message):
         proto.STRING,
         number=1,
     )
-    requests: MutableSequence[
-        "CreateTensorboardTimeSeriesRequest"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message="CreateTensorboardTimeSeriesRequest",
+    requests: MutableSequence["CreateTensorboardTimeSeriesRequest"] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message="CreateTensorboardTimeSeriesRequest",
+        )
     )
 
 
@@ -1111,12 +1113,12 @@ class BatchReadTensorboardTimeSeriesDataResponse(proto.Message):
             The returned time series data.
     """
 
-    time_series_data: MutableSequence[
-        tensorboard_data.TimeSeriesData
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=tensorboard_data.TimeSeriesData,
+    time_series_data: MutableSequence[tensorboard_data.TimeSeriesData] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=tensorboard_data.TimeSeriesData,
+        )
     )
 
 
@@ -1187,12 +1189,12 @@ class WriteTensorboardExperimentDataRequest(proto.Message):
         proto.STRING,
         number=1,
     )
-    write_run_data_requests: MutableSequence[
-        "WriteTensorboardRunDataRequest"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message="WriteTensorboardRunDataRequest",
+    write_run_data_requests: MutableSequence["WriteTensorboardRunDataRequest"] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message="WriteTensorboardRunDataRequest",
+        )
     )
 
 
@@ -1226,12 +1228,12 @@ class WriteTensorboardRunDataRequest(proto.Message):
         proto.STRING,
         number=1,
     )
-    time_series_data: MutableSequence[
-        tensorboard_data.TimeSeriesData
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message=tensorboard_data.TimeSeriesData,
+    time_series_data: MutableSequence[tensorboard_data.TimeSeriesData] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message=tensorboard_data.TimeSeriesData,
+        )
     )
 
 
@@ -1313,12 +1315,12 @@ class ExportTensorboardTimeSeriesDataResponse(proto.Message):
     def raw_page(self):
         return self
 
-    time_series_data_points: MutableSequence[
-        tensorboard_data.TimeSeriesDataPoint
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=tensorboard_data.TimeSeriesDataPoint,
+    time_series_data_points: MutableSequence[tensorboard_data.TimeSeriesDataPoint] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=tensorboard_data.TimeSeriesDataPoint,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

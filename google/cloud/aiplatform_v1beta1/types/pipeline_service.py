@@ -20,7 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
+from google.cloud.aiplatform_v1beta1.types import (
+    pipeline_job as gca_pipeline_job,
+)
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
@@ -193,12 +195,12 @@ class ListTrainingPipelinesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    training_pipelines: MutableSequence[
-        gca_training_pipeline.TrainingPipeline
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_training_pipeline.TrainingPipeline,
+    training_pipelines: MutableSequence[gca_training_pipeline.TrainingPipeline] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_training_pipeline.TrainingPipeline,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

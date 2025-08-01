@@ -42,7 +42,9 @@ from google.cloud.aiplatform_v1beta1.types import execution
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import lineage_subgraph
 from google.cloud.aiplatform_v1beta1.types import metadata_schema
-from google.cloud.aiplatform_v1beta1.types import metadata_schema as gca_metadata_schema
+from google.cloud.aiplatform_v1beta1.types import (
+    metadata_schema as gca_metadata_schema,
+)
 from google.cloud.aiplatform_v1beta1.types import metadata_service
 from google.cloud.aiplatform_v1beta1.types import metadata_store
 from google.cloud.location import locations_pb2  # type: ignore
@@ -837,12 +839,12 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "add_context_artifacts_and_executions" not in self._stubs:
-            self._stubs[
-                "add_context_artifacts_and_executions"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.MetadataService/AddContextArtifactsAndExecutions",
-                request_serializer=metadata_service.AddContextArtifactsAndExecutionsRequest.serialize,
-                response_deserializer=metadata_service.AddContextArtifactsAndExecutionsResponse.deserialize,
+            self._stubs["add_context_artifacts_and_executions"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.MetadataService/AddContextArtifactsAndExecutions",
+                    request_serializer=metadata_service.AddContextArtifactsAndExecutionsRequest.serialize,
+                    response_deserializer=metadata_service.AddContextArtifactsAndExecutionsResponse.deserialize,
+                )
             )
         return self._stubs["add_context_artifacts_and_executions"]
 
@@ -934,12 +936,12 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "query_context_lineage_subgraph" not in self._stubs:
-            self._stubs[
-                "query_context_lineage_subgraph"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.MetadataService/QueryContextLineageSubgraph",
-                request_serializer=metadata_service.QueryContextLineageSubgraphRequest.serialize,
-                response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
+            self._stubs["query_context_lineage_subgraph"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.MetadataService/QueryContextLineageSubgraph",
+                    request_serializer=metadata_service.QueryContextLineageSubgraphRequest.serialize,
+                    response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
+                )
             )
         return self._stubs["query_context_lineage_subgraph"]
 
@@ -1170,12 +1172,12 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "query_execution_inputs_and_outputs" not in self._stubs:
-            self._stubs[
-                "query_execution_inputs_and_outputs"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.MetadataService/QueryExecutionInputsAndOutputs",
-                request_serializer=metadata_service.QueryExecutionInputsAndOutputsRequest.serialize,
-                response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
+            self._stubs["query_execution_inputs_and_outputs"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.MetadataService/QueryExecutionInputsAndOutputs",
+                    request_serializer=metadata_service.QueryExecutionInputsAndOutputsRequest.serialize,
+                    response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
+                )
             )
         return self._stubs["query_execution_inputs_and_outputs"]
 
@@ -1291,12 +1293,12 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "query_artifact_lineage_subgraph" not in self._stubs:
-            self._stubs[
-                "query_artifact_lineage_subgraph"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.MetadataService/QueryArtifactLineageSubgraph",
-                request_serializer=metadata_service.QueryArtifactLineageSubgraphRequest.serialize,
-                response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
+            self._stubs["query_artifact_lineage_subgraph"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.MetadataService/QueryArtifactLineageSubgraph",
+                    request_serializer=metadata_service.QueryArtifactLineageSubgraphRequest.serialize,
+                    response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
+                )
             )
         return self._stubs["query_artifact_lineage_subgraph"]
 

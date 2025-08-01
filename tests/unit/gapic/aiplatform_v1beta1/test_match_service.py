@@ -65,7 +65,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.match_service import (
     MatchServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.match_service import MatchServiceClient
+from google.cloud.aiplatform_v1beta1.services.match_service import (
+    MatchServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.services.match_service import transports
 from google.cloud.aiplatform_v1beta1.types import index
 from google.cloud.aiplatform_v1beta1.types import match_service
@@ -1434,9 +1436,9 @@ def test_read_index_datapoints_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.read_index_datapoints
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.read_index_datapoints] = (
+            mock_rpc
+        )
         request = {}
         client.read_index_datapoints(request)
 
@@ -1741,9 +1743,9 @@ def test_read_index_datapoints_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.read_index_datapoints
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.read_index_datapoints] = (
+            mock_rpc
+        )
 
         request = {}
         client.read_index_datapoints(request)
@@ -2136,9 +2138,9 @@ def test_find_neighbors_rest_call_success(request_type):
 def test_find_neighbors_rest_interceptors(null_interceptor):
     transport = transports.MatchServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MatchServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MatchServiceRestInterceptor()
+        ),
     )
     client = MatchServiceClient(transport=transport)
 
@@ -2269,9 +2271,9 @@ def test_read_index_datapoints_rest_call_success(request_type):
 def test_read_index_datapoints_rest_interceptors(null_interceptor):
     transport = transports.MatchServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MatchServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MatchServiceRestInterceptor()
+        ),
     )
     client = MatchServiceClient(transport=transport)
 
@@ -3104,9 +3106,9 @@ async def test_find_neighbors_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMatchServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMatchServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncMatchServiceRestInterceptor()
+        ),
     )
     client = MatchServiceAsyncClient(transport=transport)
 
@@ -3253,9 +3255,9 @@ async def test_read_index_datapoints_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncMatchServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMatchServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncMatchServiceRestInterceptor()
+        ),
     )
     client = MatchServiceAsyncClient(transport=transport)
 

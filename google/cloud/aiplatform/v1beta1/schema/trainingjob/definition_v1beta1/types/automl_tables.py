@@ -460,13 +460,17 @@ class AutoMlTablesInputs(proto.Message):
             oneof="transformation_detail",
             message="AutoMlTablesInputs.Transformation.TextTransformation",
         )
-        repeated_numeric: "AutoMlTablesInputs.Transformation.NumericArrayTransformation" = proto.Field(
+        repeated_numeric: (
+            "AutoMlTablesInputs.Transformation.NumericArrayTransformation"
+        ) = proto.Field(
             proto.MESSAGE,
             number=6,
             oneof="transformation_detail",
             message="AutoMlTablesInputs.Transformation.NumericArrayTransformation",
         )
-        repeated_categorical: "AutoMlTablesInputs.Transformation.CategoricalArrayTransformation" = proto.Field(
+        repeated_categorical: (
+            "AutoMlTablesInputs.Transformation.CategoricalArrayTransformation"
+        ) = proto.Field(
             proto.MESSAGE,
             number=7,
             oneof="transformation_detail",
@@ -520,7 +524,9 @@ class AutoMlTablesInputs(proto.Message):
         proto.STRING,
         number=9,
     )
-    export_evaluated_data_items_config: gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig = proto.Field(
+    export_evaluated_data_items_config: (
+        gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig
+    ) = proto.Field(
         proto.MESSAGE,
         number=10,
         message=gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig,

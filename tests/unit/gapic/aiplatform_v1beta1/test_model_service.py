@@ -69,7 +69,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     ModelServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.model_service import ModelServiceClient
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    ModelServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.services.model_service import pagers
 from google.cloud.aiplatform_v1beta1.services.model_service import transports
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
@@ -2492,9 +2494,9 @@ def test_list_model_versions_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_model_versions
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_model_versions] = (
+            mock_rpc
+        )
         request = {}
         client.list_model_versions(request)
 
@@ -4666,9 +4668,9 @@ def test_delete_model_version_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.delete_model_version
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.delete_model_version] = (
+            mock_rpc
+        )
         request = {}
         client.delete_model_version(request)
 
@@ -5056,9 +5058,9 @@ def test_merge_version_aliases_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.merge_version_aliases
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.merge_version_aliases] = (
+            mock_rpc
+        )
         request = {}
         client.merge_version_aliases(request)
 
@@ -7253,9 +7255,9 @@ def test_get_model_evaluation_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_model_evaluation
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_model_evaluation] = (
+            mock_rpc
+        )
         request = {}
         client.get_model_evaluation(request)
 
@@ -7606,9 +7608,9 @@ def test_list_model_evaluations_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_model_evaluations
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_model_evaluations] = (
+            mock_rpc
+        )
         request = {}
         client.list_model_evaluations(request)
 
@@ -9605,9 +9607,9 @@ def test_list_model_versions_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_model_versions
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_model_versions] = (
+            mock_rpc
+        )
 
         request = {}
         client.list_model_versions(request)
@@ -10689,9 +10691,9 @@ def test_delete_model_version_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.delete_model_version
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.delete_model_version] = (
+            mock_rpc
+        )
 
         request = {}
         client.delete_model_version(request)
@@ -10871,9 +10873,9 @@ def test_merge_version_aliases_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.merge_version_aliases
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.merge_version_aliases] = (
+            mock_rpc
+        )
 
         request = {}
         client.merge_version_aliases(request)
@@ -12064,9 +12066,9 @@ def test_get_model_evaluation_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_model_evaluation
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_model_evaluation] = (
+            mock_rpc
+        )
 
         request = {}
         client.get_model_evaluation(request)
@@ -12249,9 +12251,9 @@ def test_list_model_evaluations_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_model_evaluations
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_model_evaluations] = (
+            mock_rpc
+        )
 
         request = {}
         client.list_model_evaluations(request)
@@ -14159,9 +14161,9 @@ def test_upload_model_rest_call_success(request_type):
 def test_upload_model_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -14326,9 +14328,9 @@ def test_get_model_rest_call_success(request_type):
 def test_get_model_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -14449,9 +14451,9 @@ def test_list_models_rest_call_success(request_type):
 def test_list_models_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -14578,9 +14580,9 @@ def test_list_model_versions_rest_call_success(request_type):
 def test_list_model_versions_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -14712,9 +14714,9 @@ def test_list_model_version_checkpoints_rest_call_success(request_type):
 def test_list_model_version_checkpoints_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -15089,9 +15091,9 @@ def test_update_model_rest_call_success(request_type):
 def test_update_model_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -15210,9 +15212,9 @@ def test_update_explanation_dataset_rest_call_success(request_type):
 def test_update_explanation_dataset_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -15332,9 +15334,9 @@ def test_delete_model_rest_call_success(request_type):
 def test_delete_model_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -15455,9 +15457,9 @@ def test_delete_model_version_rest_call_success(request_type):
 def test_delete_model_version_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -15625,9 +15627,9 @@ def test_merge_version_aliases_rest_call_success(request_type):
 def test_merge_version_aliases_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -15745,9 +15747,9 @@ def test_export_model_rest_call_success(request_type):
 def test_export_model_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -15866,9 +15868,9 @@ def test_copy_model_rest_call_success(request_type):
 def test_copy_model_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -15999,9 +16001,9 @@ def test_import_model_evaluation_rest_call_success(request_type):
 def test_import_model_evaluation_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -16140,9 +16142,9 @@ def test_batch_import_model_evaluation_slices_rest_call_success(request_type):
 def test_batch_import_model_evaluation_slices_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -16281,9 +16283,9 @@ def test_batch_import_evaluated_annotations_rest_call_success(request_type):
 def test_batch_import_evaluated_annotations_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -16425,9 +16427,9 @@ def test_get_model_evaluation_rest_call_success(request_type):
 def test_get_model_evaluation_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -16555,9 +16557,9 @@ def test_list_model_evaluations_rest_call_success(request_type):
 def test_list_model_evaluations_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -16694,9 +16696,9 @@ def test_get_model_evaluation_slice_rest_call_success(request_type):
 def test_get_model_evaluation_slice_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -16831,9 +16833,9 @@ def test_list_model_evaluation_slices_rest_call_success(request_type):
 def test_list_model_evaluation_slices_rest_interceptors(null_interceptor):
     transport = transports.ModelServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceClient(transport=transport)
 
@@ -18038,9 +18040,9 @@ async def test_upload_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -18223,9 +18225,9 @@ async def test_get_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -18364,9 +18366,9 @@ async def test_list_models_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -18509,9 +18511,9 @@ async def test_list_model_versions_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -18662,9 +18664,9 @@ async def test_list_model_version_checkpoints_rest_asyncio_interceptors(
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -19059,9 +19061,9 @@ async def test_update_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -19196,9 +19198,9 @@ async def test_update_explanation_dataset_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -19336,9 +19338,9 @@ async def test_delete_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -19475,9 +19477,9 @@ async def test_delete_model_version_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -19661,9 +19663,9 @@ async def test_merge_version_aliases_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -19799,9 +19801,9 @@ async def test_export_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -19938,9 +19940,9 @@ async def test_copy_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -20087,9 +20089,9 @@ async def test_import_model_evaluation_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -20248,9 +20250,9 @@ async def test_batch_import_model_evaluation_slices_rest_asyncio_interceptors(
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -20409,9 +20411,9 @@ async def test_batch_import_evaluated_annotations_rest_asyncio_interceptors(
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -20570,9 +20572,9 @@ async def test_get_model_evaluation_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -20716,9 +20718,9 @@ async def test_list_model_evaluations_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -20871,9 +20873,9 @@ async def test_get_model_evaluation_slice_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 
@@ -21024,9 +21026,9 @@ async def test_list_model_evaluation_slices_rest_asyncio_interceptors(null_inter
         )
     transport = transports.AsyncModelServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncModelServiceRestInterceptor()
+        ),
     )
     client = ModelServiceAsyncClient(transport=transport)
 

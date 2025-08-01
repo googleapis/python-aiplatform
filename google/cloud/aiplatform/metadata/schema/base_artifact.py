@@ -47,7 +47,6 @@ class BaseArtifactSchema(artifact.Artifact):
         metadata: Optional[Dict] = None,
         state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
-
         """Initializes the Artifact with the given name, URI and metadata.
 
         This is the base class for defining various artifact types, which can be
@@ -112,7 +111,6 @@ class BaseArtifactSchema(artifact.Artifact):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-
         """Initializes the Artifact instance using an existing resource.
 
         Args:

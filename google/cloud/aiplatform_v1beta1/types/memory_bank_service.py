@@ -424,6 +424,7 @@ class GenerateMemoriesResponse(proto.Message):
                 DELETED (3):
                     The memory was deleted.
             """
+
             ACTION_UNSPECIFIED = 0
             CREATED = 1
             UPDATED = 2

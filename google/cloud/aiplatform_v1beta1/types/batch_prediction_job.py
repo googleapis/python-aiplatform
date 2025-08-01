@@ -22,7 +22,9 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import (
     completion_stats as gca_completion_stats,
 )
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
@@ -30,7 +32,9 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
 )
-from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import (
+    model_deployment_monitoring_job,
+)
 from google.cloud.aiplatform_v1beta1.types import model_monitoring
 from google.cloud.aiplatform_v1beta1.types import (
     unmanaged_container_model as gca_unmanaged_container_model,
@@ -629,7 +633,9 @@ class BatchPredictionJob(proto.Message):
         proto.STRING,
         number=29,
     )
-    manual_batch_tuning_parameters: gca_manual_batch_tuning_parameters.ManualBatchTuningParameters = proto.Field(
+    manual_batch_tuning_parameters: (
+        gca_manual_batch_tuning_parameters.ManualBatchTuningParameters
+    ) = proto.Field(
         proto.MESSAGE,
         number=8,
         message=gca_manual_batch_tuning_parameters.ManualBatchTuningParameters,

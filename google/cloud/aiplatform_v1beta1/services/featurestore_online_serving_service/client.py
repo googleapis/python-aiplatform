@@ -100,14 +100,14 @@ class FeaturestoreOnlineServingServiceClientMeta(type):
         OrderedDict()
     )  # type: Dict[str, Type[FeaturestoreOnlineServingServiceTransport]]
     _transport_registry["grpc"] = FeaturestoreOnlineServingServiceGrpcTransport
-    _transport_registry[
-        "grpc_asyncio"
-    ] = FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
+    _transport_registry["grpc_asyncio"] = (
+        FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
+    )
     _transport_registry["rest"] = FeaturestoreOnlineServingServiceRestTransport
     if HAS_ASYNC_REST_DEPENDENCIES:  # pragma: NO COVER
-        _transport_registry[
-            "rest_asyncio"
-        ] = AsyncFeaturestoreOnlineServingServiceRestTransport
+        _transport_registry["rest_asyncio"] = (
+            AsyncFeaturestoreOnlineServingServiceRestTransport
+        )
 
     def get_transport_class(
         cls,
@@ -763,21 +763,25 @@ class FeaturestoreOnlineServingServiceClient(
             ):  # pragma: NO COVER
                 _LOGGER.debug(
                     "Created client `google.cloud.aiplatform_v1beta1.FeaturestoreOnlineServingServiceClient`.",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService",
-                        "universeDomain": getattr(
-                            self._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService",
-                        "credentialsType": None,
-                    },
+                    extra=(
+                        {
+                            "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService",
+                            "universeDomain": getattr(
+                                self._transport._credentials, "universe_domain", ""
+                            ),
+                            "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
+                            "credentialsInfo": getattr(
+                                self.transport._credentials,
+                                "get_cred_info",
+                                lambda: None,
+                            )(),
+                        }
+                        if hasattr(self._transport, "_credentials")
+                        else {
+                            "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService",
+                            "credentialsType": None,
+                        }
+                    ),
                 )
 
     def read_feature_values(

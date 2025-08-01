@@ -1,5 +1,4 @@
-"""Test utils for Prediction Tests.
-"""
+"""Test utils for Prediction Tests."""
 
 import numpy as np
 import sklearn

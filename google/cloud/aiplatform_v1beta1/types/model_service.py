@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1beta1.types import evaluated_annotation
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import io
@@ -981,12 +983,12 @@ class BatchImportEvaluatedAnnotationsRequest(proto.Message):
         proto.STRING,
         number=1,
     )
-    evaluated_annotations: MutableSequence[
-        evaluated_annotation.EvaluatedAnnotation
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message=evaluated_annotation.EvaluatedAnnotation,
+    evaluated_annotations: MutableSequence[evaluated_annotation.EvaluatedAnnotation] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message=evaluated_annotation.EvaluatedAnnotation,
+        )
     )
 
 
@@ -1086,12 +1088,12 @@ class ListModelEvaluationsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_evaluations: MutableSequence[
-        gca_model_evaluation.ModelEvaluation
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_model_evaluation.ModelEvaluation,
+    model_evaluations: MutableSequence[gca_model_evaluation.ModelEvaluation] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_model_evaluation.ModelEvaluation,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

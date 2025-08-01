@@ -55,7 +55,9 @@ from google.cloud.aiplatform_v1beta1.types import (
     batch_prediction_job as gca_batch_prediction_job,
 )
 from google.cloud.aiplatform_v1beta1.types import custom_job
-from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
+from google.cloud.aiplatform_v1beta1.types import (
+    custom_job as gca_custom_job,
+)
 from google.cloud.aiplatform_v1beta1.types import data_labeling_job
 from google.cloud.aiplatform_v1beta1.types import (
     data_labeling_job as gca_data_labeling_job,
@@ -65,7 +67,9 @@ from google.cloud.aiplatform_v1beta1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
 from google.cloud.aiplatform_v1beta1.types import job_service
-from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import (
+    model_deployment_monitoring_job,
+)
 from google.cloud.aiplatform_v1beta1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
@@ -2187,9 +2191,9 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
         self._interceptor = interceptor or AsyncJobServiceRestInterceptor()
         self._wrap_with_kind = True
         self._prep_wrapped_messages(client_info)
-        self._operations_client: Optional[
-            operations_v1.AsyncOperationsRestClient
-        ] = None
+        self._operations_client: Optional[operations_v1.AsyncOperationsRestClient] = (
+            None
+        )
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -10460,7 +10464,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
-
             r"""Call the get location method over HTTP.
 
             Args:
@@ -10614,7 +10617,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
-
             r"""Call the list locations method over HTTP.
 
             Args:
@@ -10769,7 +10771,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
-
             r"""Call the get iam policy method over HTTP.
 
             Args:
@@ -10931,7 +10932,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
-
             r"""Call the set iam policy method over HTTP.
 
             Args:
@@ -11093,7 +11093,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
-
             r"""Call the test iam permissions method over HTTP.
 
             Args:
@@ -11250,7 +11249,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
-
             r"""Call the cancel operation method over HTTP.
 
             Args:
@@ -11374,7 +11372,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
-
             r"""Call the delete operation method over HTTP.
 
             Args:
@@ -11498,7 +11495,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
-
             r"""Call the get operation method over HTTP.
 
             Args:
@@ -11652,7 +11648,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
-
             r"""Call the list operations method over HTTP.
 
             Args:
@@ -11804,7 +11799,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
-
             r"""Call the wait operation method over HTTP.
 
             Args:
