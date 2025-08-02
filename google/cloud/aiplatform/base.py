@@ -38,6 +38,7 @@ from typing import (
     TypeVar,
     Union,
 )
+import zoneinfo
 
 from google.api_core import operation
 from google.api_core import retry
@@ -804,7 +805,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         """Returns a display name containing class name and time string."""
         if not prefix:
             prefix = cls.__name__
-        return prefix + " " + datetime.datetime.now().isoformat(sep=" ")
+        return prefix + " " + datetime.datetime.now(zoneinfo.ZoneInfo("UTC")).isoformat(sep=" ")
 
 
 def optional_sync(
