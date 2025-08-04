@@ -237,6 +237,9 @@ class IndexDatapoint(proto.Message):
             Optional. CrowdingTag of the datapoint, the
             number of neighbors to return in each crowding
             can be configured during query.
+        embedding_metadata (google.protobuf.struct_pb2.Struct):
+            Optional. The key-value map of additional
+            metadata for the datapoint.
     """
 
     class SparseEmbedding(proto.Message):
@@ -432,6 +435,11 @@ class IndexDatapoint(proto.Message):
         proto.MESSAGE,
         number=5,
         message=CrowdingTag,
+    )
+    embedding_metadata: struct_pb2.Struct = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=struct_pb2.Struct,
     )
 
 
