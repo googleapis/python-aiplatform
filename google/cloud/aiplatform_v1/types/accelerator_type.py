@@ -61,6 +61,8 @@ class AcceleratorType(proto.Enum):
             Nvidia H200 141Gb GPU.
         NVIDIA_B200 (16):
             Nvidia B200 GPU.
+        NVIDIA_GB200 (17):
+            Nvidia GB200 GPU.
         TPU_V2 (6):
             TPU v2.
         TPU_V3 (7):
@@ -83,6 +85,7 @@ class AcceleratorType(proto.Enum):
     NVIDIA_H100_MEGA_80GB = 14
     NVIDIA_H200_141GB = 15
     NVIDIA_B200 = 16
+    NVIDIA_GB200 = 17
     TPU_V2 = 6
     TPU_V3 = 7
     TPU_V4_POD = 10
