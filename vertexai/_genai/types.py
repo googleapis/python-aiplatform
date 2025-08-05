@@ -4554,6 +4554,50 @@ GenerateMemoriesRequestDirectContentsSourceOrDict = Union[
 ]
 
 
+class GenerateMemoriesRequestDirectMemorySourceDirectMemory(_common.BaseModel):
+    """A direct memory to upload to Memory Bank."""
+
+    fact: Optional[str] = Field(
+        default=None,
+        description="""Required. The fact to consolidate with existing memories.""",
+    )
+
+
+class GenerateMemoriesRequestDirectMemorySourceDirectMemoryDict(TypedDict, total=False):
+    """A direct memory to upload to Memory Bank."""
+
+    fact: Optional[str]
+    """Required. The fact to consolidate with existing memories."""
+
+
+GenerateMemoriesRequestDirectMemorySourceDirectMemoryOrDict = Union[
+    GenerateMemoriesRequestDirectMemorySourceDirectMemory,
+    GenerateMemoriesRequestDirectMemorySourceDirectMemoryDict,
+]
+
+
+class GenerateMemoriesRequestDirectMemoriesSource(_common.BaseModel):
+    """Defines a direct source of memories that should be uploaded to Memory Bank with consolidation."""
+
+    direct_memories: Optional[list[GenerateMemoriesRequestDirectMemorySourceDirectMemory]] = Field(
+        default=None,
+        description="""Required. The direct memories to upload to Memory Bank. At most 5 direct memories are allowed per request.""",
+    )
+
+
+class GenerateMemoriesRequestDirectMemoriesSourceDict(TypedDict, total=False):
+    """Defines a direct source of memories that should be uploaded to Memory Bank with consolidation."""
+
+    direct_memories: Optional[list[GenerateMemoriesRequestDirectMemorySourceDirectMemoryDict]]
+    """Required. The direct memories to upload to Memory Bank. At most 5 direct memories are allowed per request."""
+
+
+GenerateMemoriesRequestDirectMemoriesSourceOrDict = Union[
+    GenerateMemoriesRequestDirectMemoriesSource,
+    GenerateMemoriesRequestDirectMemoriesSourceDict,
+]
+
+
 class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
     """Config for generating memories."""
 
@@ -4615,6 +4659,15 @@ class _GenerateAgentEngineMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""The direct contents source of the memories that should be generated.""",
     )
+    direct_memories_source: Optional[
+        GenerateMemoriesRequestDirectMemoriesSource
+    ] = Field(
+        default=None,
+        description="""Defines a direct source of memories that should be uploaded to Memory Bank.
+
+        This is similar to `CreateMemory`, but it allows for consolidation
+        between these new memories and existing memories for the same scope.""",
+    )
     scope: Optional[dict[str, str]] = Field(
         default=None,
         description="""The scope of the memories that should be generated.
@@ -4640,6 +4693,12 @@ class _GenerateAgentEngineMemoriesRequestParametersDict(TypedDict, total=False):
 
     direct_contents_source: Optional[GenerateMemoriesRequestDirectContentsSourceDict]
     """The direct contents source of the memories that should be generated."""
+
+    direct_memories_source: Optional[GenerateMemoriesRequestDirectMemoriesSourceDict]
+    """"Defines a direct source of memories that should be uploaded to Memory Bank.
+
+    This is similar to `CreateMemory`, but it allows for consolidation between
+    these new memories and existing memories for the same scope."""
 
     scope: Optional[dict[str, str]]
     """The scope of the memories that should be generated.
