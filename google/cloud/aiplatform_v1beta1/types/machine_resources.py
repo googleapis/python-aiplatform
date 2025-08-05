@@ -446,6 +446,11 @@ class AutoscalingMetricSpec(proto.Message):
             percentage, the machine replicas change. The
             default value is 60 (representing 60%) if not
             provided.
+        monitored_resource_labels (MutableMapping[str, str]):
+            Optional. The Cloud Monitoring monitored
+            resource labels used for metrics filtering. See
+            Cloud Monitoring Labels
+            https://cloud.google.com/monitoring/api/v3/metric-model#generic-label-info
     """
 
     metric_name: str = proto.Field(
@@ -455,6 +460,11 @@ class AutoscalingMetricSpec(proto.Message):
     target: int = proto.Field(
         proto.INT32,
         number=2,
+    )
+    monitored_resource_labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=3,
     )
 
 

@@ -6119,7 +6119,11 @@ def test_update_deployment_resource_pool_rest_call_success(request_type):
             "max_replica_count": 1805,
             "required_replica_count": 2344,
             "autoscaling_metric_specs": [
-                {"metric_name": "metric_name_value", "target": 647}
+                {
+                    "metric_name": "metric_name_value",
+                    "target": 647,
+                    "monitored_resource_labels": {},
+                }
             ],
             "spot": True,
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
@@ -7923,7 +7927,11 @@ async def test_update_deployment_resource_pool_rest_asyncio_call_success(request
             "max_replica_count": 1805,
             "required_replica_count": 2344,
             "autoscaling_metric_specs": [
-                {"metric_name": "metric_name_value", "target": 647}
+                {
+                    "metric_name": "metric_name_value",
+                    "target": 647,
+                    "monitored_resource_labels": {},
+                }
             ],
             "spot": True,
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},

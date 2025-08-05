@@ -6485,7 +6485,11 @@ def test_create_index_endpoint_rest_call_success(request_type):
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
                     "autoscaling_metric_specs": [
-                        {"metric_name": "metric_name_value", "target": 647}
+                        {
+                            "metric_name": "metric_name_value",
+                            "target": 647,
+                            "monitored_resource_labels": {},
+                        }
                     ],
                     "spot": True,
                     "flex_start": {
@@ -7069,7 +7073,11 @@ def test_update_index_endpoint_rest_call_success(request_type):
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
                     "autoscaling_metric_specs": [
-                        {"metric_name": "metric_name_value", "target": 647}
+                        {
+                            "metric_name": "metric_name_value",
+                            "target": 647,
+                            "monitored_resource_labels": {},
+                        }
                     ],
                     "spot": True,
                     "flex_start": {
@@ -7762,7 +7770,11 @@ def test_mutate_deployed_index_rest_call_success(request_type):
             "max_replica_count": 1805,
             "required_replica_count": 2344,
             "autoscaling_metric_specs": [
-                {"metric_name": "metric_name_value", "target": 647}
+                {
+                    "metric_name": "metric_name_value",
+                    "target": 647,
+                    "monitored_resource_labels": {},
+                }
             ],
             "spot": True,
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
@@ -8868,7 +8880,11 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
                     "autoscaling_metric_specs": [
-                        {"metric_name": "metric_name_value", "target": 647}
+                        {
+                            "metric_name": "metric_name_value",
+                            "target": 647,
+                            "monitored_resource_labels": {},
+                        }
                     ],
                     "spot": True,
                     "flex_start": {
@@ -9501,7 +9517,11 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
                     "autoscaling_metric_specs": [
-                        {"metric_name": "metric_name_value", "target": 647}
+                        {
+                            "metric_name": "metric_name_value",
+                            "target": 647,
+                            "monitored_resource_labels": {},
+                        }
                     ],
                     "spot": True,
                     "flex_start": {
@@ -10260,7 +10280,11 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
             "max_replica_count": 1805,
             "required_replica_count": 2344,
             "autoscaling_metric_specs": [
-                {"metric_name": "metric_name_value", "target": 647}
+                {
+                    "metric_name": "metric_name_value",
+                    "target": 647,
+                    "monitored_resource_labels": {},
+                }
             ],
             "spot": True,
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
