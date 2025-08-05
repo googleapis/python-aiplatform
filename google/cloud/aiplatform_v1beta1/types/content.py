@@ -17,14 +17,14 @@ from __future__ import annotations
 
 from typing import MutableMapping, MutableSequence
 
+from google.cloud.aiplatform_v1beta1.types import openapi
+from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import openapi
-from google.cloud.aiplatform_v1beta1.types import tool
-from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.type import date_pb2  # type: ignore
+from google.type import latlng_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -56,6 +56,10 @@ __protobuf__ = proto.module(
         "SearchEntryPoint",
         "RetrievalMetadata",
         "ModalityTokenCount",
+        "FunctionCall",
+        "FunctionResponse",
+        "ExecutableCode",
+        "CodeExecutionResult",
     },
 )
 
@@ -143,7 +147,7 @@ class Content(proto.Message):
 
 
 class Part(proto.Message):
-    r"""A datatype containing media that is part of a multi-part ``Content``
+  r"""A datatype containing media that is part of a multi-part ``Content``
     message.
 
     A ``Part`` consists of data which has an associated datatype. A
@@ -212,58 +216,58 @@ class Part(proto.Message):
             be reused in subsequent requests.
     """
 
-    text: str = proto.Field(
+  text: str = proto.Field(
         proto.STRING,
         number=1,
         oneof="data",
     )
-    inline_data: "Blob" = proto.Field(
+  inline_data: "Blob" = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="data",
         message="Blob",
     )
-    file_data: "FileData" = proto.Field(
+  file_data: "FileData" = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="data",
         message="FileData",
     )
-    function_call: tool.FunctionCall = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        oneof="data",
-        message=tool.FunctionCall,
-    )
-    function_response: tool.FunctionResponse = proto.Field(
-        proto.MESSAGE,
-        number=6,
-        oneof="data",
-        message=tool.FunctionResponse,
-    )
-    executable_code: tool.ExecutableCode = proto.Field(
-        proto.MESSAGE,
-        number=8,
-        oneof="data",
-        message=tool.ExecutableCode,
-    )
-    code_execution_result: tool.CodeExecutionResult = proto.Field(
-        proto.MESSAGE,
-        number=9,
-        oneof="data",
-        message=tool.CodeExecutionResult,
-    )
-    video_metadata: "VideoMetadata" = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        oneof="metadata",
-        message="VideoMetadata",
-    )
-    thought: bool = proto.Field(
+  function_call: "FunctionCall" = proto.Field(
+      proto.MESSAGE,
+      number=5,
+      oneof="data",
+      message="FunctionCall",
+  )
+  function_response: "FunctionResponse" = proto.Field(
+      proto.MESSAGE,
+      number=6,
+      oneof="data",
+      message="FunctionResponse",
+  )
+  executable_code: "ExecutableCode" = proto.Field(
+      proto.MESSAGE,
+      number=8,
+      oneof="data",
+      message="ExecutableCode",
+  )
+  code_execution_result: "CodeExecutionResult" = proto.Field(
+      proto.MESSAGE,
+      number=9,
+      oneof="data",
+      message="CodeExecutionResult",
+  )
+  video_metadata: "VideoMetadata" = proto.Field(
+      proto.MESSAGE,
+      number=4,
+      oneof="metadata",
+      message="VideoMetadata",
+  )
+  thought: bool = proto.Field(
         proto.BOOL,
         number=10,
     )
-    thought_signature: bytes = proto.Field(
+  thought_signature: bytes = proto.Field(
         proto.BYTES,
         number=11,
     )
@@ -1626,7 +1630,7 @@ class RetrievalMetadata(proto.Message):
 
 
 class ModalityTokenCount(proto.Message):
-    r"""Represents token counting info for a single modality.
+  r"""Represents token counting info for a single modality.
 
     Attributes:
         modality (google.cloud.aiplatform_v1beta1.types.Modality):
@@ -1636,15 +1640,168 @@ class ModalityTokenCount(proto.Message):
             Number of tokens.
     """
 
-    modality: "Modality" = proto.Field(
+  modality: "Modality" = proto.Field(
         proto.ENUM,
         number=1,
         enum="Modality",
     )
-    token_count: int = proto.Field(
+  token_count: int = proto.Field(
         proto.INT32,
         number=2,
     )
+
+
+class FunctionCall(proto.Message):
+  r"""A predicted [FunctionCall] returned from the model that contains a
+
+  string representing the [FunctionDeclaration.name] and a structured
+  JSON object containing the parameters and their values.
+
+  Attributes:
+      id (str): Optional. The unique id of the function call. If populated, the
+        client to execute the ``function_call`` and return the response with the
+        matching ``id``.
+      name (str): Required. The name of the function to call. Matches
+        [FunctionDeclaration.name].
+      args (google.protobuf.struct_pb2.Struct): Optional. Required. The function
+        parameters and values in JSON object format. See
+        [FunctionDeclaration.parameters] for parameter details.
+  """
+
+  id: str = proto.Field(
+      proto.STRING,
+      number=3,
+  )
+  name: str = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  args: struct_pb2.Struct = proto.Field(
+      proto.MESSAGE,
+      number=2,
+      message=struct_pb2.Struct,
+  )
+
+
+class FunctionResponse(proto.Message):
+  r"""The result output from a [FunctionCall] that contains a string
+
+  representing the [FunctionDeclaration.name] and a structured JSON
+  object containing any output from the function is used as context to
+  the model. This should contain the result of a [FunctionCall] made
+  based on model prediction.
+
+  Attributes:
+      id (str): Optional. The id of the function call this response is for.
+        Populated by the client to match the corresponding function call ``id``.
+      name (str): Required. The name of the function to call. Matches
+        [FunctionDeclaration.name] and [FunctionCall.name].
+      response (google.protobuf.struct_pb2.Struct): Required. The function
+        response in JSON object format. Use "output" key to specify function
+        output and "error" key to specify error details (if any). If "output"
+        and "error" keys are not specified, then whole "response" is treated as
+        function output.
+  """
+
+  id: str = proto.Field(
+      proto.STRING,
+      number=3,
+  )
+  name: str = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  response: struct_pb2.Struct = proto.Field(
+      proto.MESSAGE,
+      number=2,
+      message=struct_pb2.Struct,
+  )
+
+
+class ExecutableCode(proto.Message):
+  r"""Code generated by the model that is meant to be executed, and the
+
+  result returned to the model.
+
+  Generated when using the [FunctionDeclaration] tool and
+  [FunctionCallingConfig] mode is set to [Mode.CODE].
+
+  Attributes:
+      language (google.cloud.aiplatform_v1beta1.types.ExecutableCode.Language):
+        Required. Programming language of the ``code``.
+      code (str): Required. The code to be executed.
+  """
+
+  class Language(proto.Enum):
+    r"""Supported programming languages for the generated code.
+
+    Values:
+        LANGUAGE_UNSPECIFIED (0):
+            Unspecified language. This value should not
+            be used.
+        PYTHON (1):
+            Python >= 3.10, with numpy and simpy
+            available.
+    """
+
+    LANGUAGE_UNSPECIFIED = 0
+    PYTHON = 1
+
+  language: Language = proto.Field(
+      proto.ENUM,
+      number=1,
+      enum=Language,
+  )
+  code: str = proto.Field(
+      proto.STRING,
+      number=2,
+  )
+
+
+class CodeExecutionResult(proto.Message):
+  r"""Result of executing the [ExecutableCode].
+
+  Always follows a ``part`` containing the [ExecutableCode].
+
+  Attributes: outcome
+  (google.cloud.aiplatform_v1beta1.types.CodeExecutionResult.Outcome): Required.
+  Outcome of the code execution.
+      output (str): Optional. Contains stdout when code execution is successful,
+      stderr or other description otherwise.
+  """
+
+  class Outcome(proto.Enum):
+    r"""Enumeration of possible outcomes of the code execution.
+
+    Values:
+        OUTCOME_UNSPECIFIED (0):
+            Unspecified status. This value should not be
+            used.
+        OUTCOME_OK (1):
+            Code execution completed successfully.
+        OUTCOME_FAILED (2):
+            Code execution finished but with a failure. ``stderr``
+            should contain the reason.
+        OUTCOME_DEADLINE_EXCEEDED (3):
+            Code execution ran for too long, and was
+            cancelled. There may or may not be a partial
+            output present.
+    """
+
+    OUTCOME_UNSPECIFIED = 0
+    OUTCOME_OK = 1
+    OUTCOME_FAILED = 2
+    OUTCOME_DEADLINE_EXCEEDED = 3
+
+  outcome: Outcome = proto.Field(
+      proto.ENUM,
+      number=1,
+      enum=Outcome,
+  )
+  output: str = proto.Field(
+      proto.STRING,
+      number=2,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
