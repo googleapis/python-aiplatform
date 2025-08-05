@@ -385,6 +385,40 @@ class FeatureOnlineStoreServiceGrpcTransport(FeatureOnlineStoreServiceTransport)
             )
         return self._stubs["search_nearest_entities"]
 
+    @property
+    def feature_view_direct_write(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.FeatureViewDirectWriteRequest],
+        feature_online_store_service.FeatureViewDirectWriteResponse,
+    ]:
+        r"""Return a callable for the feature view direct write method over gRPC.
+
+        Bidirectional streaming RPC to directly write to
+        feature values in a feature view. Requests may not have
+        a one-to-one mapping to responses and responses may be
+        returned out-of-order to reduce latency.
+
+        Returns:
+            Callable[[~.FeatureViewDirectWriteRequest],
+                    ~.FeatureViewDirectWriteResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "feature_view_direct_write" not in self._stubs:
+            self._stubs[
+                "feature_view_direct_write"
+            ] = self._logged_channel.stream_stream(
+                "/google.cloud.aiplatform.v1.FeatureOnlineStoreService/FeatureViewDirectWrite",
+                request_serializer=feature_online_store_service.FeatureViewDirectWriteRequest.serialize,
+                response_deserializer=feature_online_store_service.FeatureViewDirectWriteResponse.deserialize,
+            )
+        return self._stubs["feature_view_direct_write"]
+
     def close(self):
         self._logged_channel.close()
 

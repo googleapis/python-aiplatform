@@ -70,6 +70,8 @@ from google.cloud.aiplatform_v1.services.feature_online_store_service import (
 )
 from google.cloud.aiplatform_v1.services.feature_online_store_service import transports
 from google.cloud.aiplatform_v1.types import feature_online_store_service
+from google.cloud.aiplatform_v1.types import featurestore_online_service
+from google.cloud.aiplatform_v1.types import types
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -77,6 +79,8 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 import google.auth
 
 
@@ -1807,6 +1811,171 @@ async def test_search_nearest_entities_field_headers_async():
     ) in kw["metadata"]
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_online_store_service.FeatureViewDirectWriteRequest,
+        dict,
+    ],
+)
+def test_feature_view_direct_write(request_type, transport: str = "grpc"):
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.feature_view_direct_write), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iter(
+            [feature_online_store_service.FeatureViewDirectWriteResponse()]
+        )
+        response = client.feature_view_direct_write(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    for message in response:
+        assert isinstance(
+            message, feature_online_store_service.FeatureViewDirectWriteResponse
+        )
+
+
+def test_feature_view_direct_write_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureOnlineStoreServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.feature_view_direct_write
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.feature_view_direct_write
+        ] = mock_rpc
+        request = [{}]
+        client.feature_view_direct_write(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.feature_view_direct_write(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_feature_view_direct_write_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureOnlineStoreServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.feature_view_direct_write
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.feature_view_direct_write
+        ] = mock_rpc
+
+        request = [{}]
+        await client.feature_view_direct_write(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.feature_view_direct_write(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_feature_view_direct_write_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_online_store_service.FeatureViewDirectWriteRequest,
+):
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+    requests = [request]
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.feature_view_direct_write), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = mock.Mock(aio.StreamStreamCall, autospec=True)
+        call.return_value.read = mock.AsyncMock(
+            side_effect=[feature_online_store_service.FeatureViewDirectWriteResponse()]
+        )
+        response = await client.feature_view_direct_write(iter(requests))
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert next(args[0]) == request
+
+    # Establish that the response is the type that we expect.
+    message = await response.read()
+    assert isinstance(
+        message, feature_online_store_service.FeatureViewDirectWriteResponse
+    )
+
+
+@pytest.mark.asyncio
+async def test_feature_view_direct_write_async_from_dict():
+    await test_feature_view_direct_write_async(request_type=dict)
+
+
 def test_fetch_feature_values_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -2134,6 +2303,17 @@ def test_search_nearest_entities_rest_unset_required_fields():
             )
         )
     )
+
+
+def test_feature_view_direct_write_rest_unimplemented():
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = feature_online_store_service.FeatureViewDirectWriteRequest()
+    requests = [request]
+    with pytest.raises(NotImplementedError):
+        client.feature_view_direct_write(requests)
 
 
 def test_credentials_transport_error():
@@ -2639,6 +2819,19 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
+
+
+def test_feature_view_direct_write_rest_error():
+
+    client = FeatureOnlineStoreServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        client.feature_view_direct_write({})
+    assert "Method FeatureViewDirectWrite is not available over REST transport" in str(
+        not_implemented_error.value
+    )
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -3641,6 +3834,24 @@ async def test_search_nearest_entities_rest_asyncio_interceptors(null_intercepto
 
 
 @pytest.mark.asyncio
+async def test_feature_view_direct_write_rest_asyncio_error():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+
+    client = FeatureOnlineStoreServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    with pytest.raises(NotImplementedError) as not_implemented_error:
+        await client.feature_view_direct_write({})
+    assert "Method FeatureViewDirectWrite is not available over REST transport" in str(
+        not_implemented_error.value
+    )
+
+
+@pytest.mark.asyncio
 async def test_get_location_rest_asyncio_bad_request(
     request_type=locations_pb2.GetLocationRequest,
 ):
@@ -4491,6 +4702,7 @@ def test_feature_online_store_service_base_transport():
     methods = (
         "fetch_feature_values",
         "search_nearest_entities",
+        "feature_view_direct_write",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -4770,6 +4982,9 @@ def test_feature_online_store_service_client_transport_session_collision(
     assert session1 != session2
     session1 = client1.transport.search_nearest_entities._session
     session2 = client2.transport.search_nearest_entities._session
+    assert session1 != session2
+    session1 = client1.transport.feature_view_direct_write._session
+    session2 = client2.transport.feature_view_direct_write._session
     assert session1 != session2
 
 

@@ -21,6 +21,8 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import featurestore_online_service
 from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -34,6 +36,8 @@ __protobuf__ = proto.module(
         "SearchNearestEntitiesRequest",
         "NearestNeighbors",
         "SearchNearestEntitiesResponse",
+        "FeatureViewDirectWriteRequest",
+        "FeatureViewDirectWriteResponse",
     },
 )
 
@@ -571,6 +575,145 @@ class SearchNearestEntitiesResponse(proto.Message):
         proto.MESSAGE,
         number=1,
         message="NearestNeighbors",
+    )
+
+
+class FeatureViewDirectWriteRequest(proto.Message):
+    r"""Request message for
+    [FeatureOnlineStoreService.FeatureViewDirectWrite][google.cloud.aiplatform.v1.FeatureOnlineStoreService.FeatureViewDirectWrite].
+
+    Attributes:
+        feature_view (str):
+            FeatureView resource format
+            ``projects/{project}/locations/{location}/featureOnlineStores/{featureOnlineStore}/featureViews/{featureView}``
+        data_key_and_feature_values (MutableSequence[google.cloud.aiplatform_v1.types.FeatureViewDirectWriteRequest.DataKeyAndFeatureValues]):
+            Required. The data keys and associated
+            feature values.
+    """
+
+    class DataKeyAndFeatureValues(proto.Message):
+        r"""A data key and associated feature values to write to the
+        feature view.
+
+        Attributes:
+            data_key (google.cloud.aiplatform_v1.types.FeatureViewDataKey):
+                The data key.
+            features (MutableSequence[google.cloud.aiplatform_v1.types.FeatureViewDirectWriteRequest.DataKeyAndFeatureValues.Feature]):
+                List of features to write.
+        """
+
+        class Feature(proto.Message):
+            r"""Feature name & value pair.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                value (google.cloud.aiplatform_v1.types.FeatureValue):
+                    Feature value. A user provided timestamp may be set in the
+                    ``FeatureValue.metadata.generate_time`` field.
+
+                    This field is a member of `oneof`_ ``data_oneof``.
+                name (str):
+                    Feature short name.
+            """
+
+            value: featurestore_online_service.FeatureValue = proto.Field(
+                proto.MESSAGE,
+                number=3,
+                oneof="data_oneof",
+                message=featurestore_online_service.FeatureValue,
+            )
+            name: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+
+        data_key: "FeatureViewDataKey" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message="FeatureViewDataKey",
+        )
+        features: MutableSequence[
+            "FeatureViewDirectWriteRequest.DataKeyAndFeatureValues.Feature"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message="FeatureViewDirectWriteRequest.DataKeyAndFeatureValues.Feature",
+        )
+
+    feature_view: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    data_key_and_feature_values: MutableSequence[
+        DataKeyAndFeatureValues
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=DataKeyAndFeatureValues,
+    )
+
+
+class FeatureViewDirectWriteResponse(proto.Message):
+    r"""Response message for
+    [FeatureOnlineStoreService.FeatureViewDirectWrite][google.cloud.aiplatform.v1.FeatureOnlineStoreService.FeatureViewDirectWrite].
+
+    Attributes:
+        status (google.rpc.status_pb2.Status):
+            Response status for the keys listed in
+            [FeatureViewDirectWriteResponse.write_responses][google.cloud.aiplatform.v1.FeatureViewDirectWriteResponse.write_responses].
+
+            The error only applies to the listed data keys - the stream
+            will remain open for further
+            [FeatureOnlineStoreService.FeatureViewDirectWriteRequest][]
+            requests.
+
+            Partial failures (e.g. if the first 10 keys of a request
+            fail, but the rest succeed) from a single request may result
+            in multiple responses - there will be one response for the
+            successful request keys and one response for the failing
+            request keys.
+        write_responses (MutableSequence[google.cloud.aiplatform_v1.types.FeatureViewDirectWriteResponse.WriteResponse]):
+            Details about write for each key. If status is not OK,
+            [WriteResponse.data_key][google.cloud.aiplatform.v1.FeatureViewDirectWriteResponse.WriteResponse.data_key]
+            will have the key with error, but
+            [WriteResponse.online_store_write_time][google.cloud.aiplatform.v1.FeatureViewDirectWriteResponse.WriteResponse.online_store_write_time]
+            will not be present.
+    """
+
+    class WriteResponse(proto.Message):
+        r"""Details about the write for each key.
+
+        Attributes:
+            data_key (google.cloud.aiplatform_v1.types.FeatureViewDataKey):
+                What key is this write response associated
+                with.
+            online_store_write_time (google.protobuf.timestamp_pb2.Timestamp):
+                When the feature values were written to the online store. If
+                [FeatureViewDirectWriteResponse.status][google.cloud.aiplatform.v1.FeatureViewDirectWriteResponse.status]
+                is not OK, this field is not populated.
+        """
+
+        data_key: "FeatureViewDataKey" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message="FeatureViewDataKey",
+        )
+        online_store_write_time: timestamp_pb2.Timestamp = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=timestamp_pb2.Timestamp,
+        )
+
+    status: status_pb2.Status = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=status_pb2.Status,
+    )
+    write_responses: MutableSequence[WriteResponse] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=WriteResponse,
     )
 
 

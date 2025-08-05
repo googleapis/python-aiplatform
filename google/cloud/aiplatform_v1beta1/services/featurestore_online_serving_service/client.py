@@ -956,7 +956,7 @@ class FeaturestoreOnlineServingServiceClient(
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.StreamingReadFeatureValuesRequest, dict]):
                 The request object. Request message for
-                [FeaturestoreOnlineServingService.StreamingFeatureValuesRead][].
+                [FeaturestoreOnlineServingService.StreamingReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.StreamingReadFeatureValues].
             entity_type (str):
                 Required. The resource name of the entities' type. Value
                 format:

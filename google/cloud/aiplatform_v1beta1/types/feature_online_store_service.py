@@ -718,9 +718,19 @@ class FeatureViewDirectWriteRequest(proto.Message):
         class Feature(proto.Message):
             r"""Feature name & value pair.
 
+            This message has `oneof`_ fields (mutually exclusive fields).
+            For each oneof, at most one member field can be set at the same time.
+            Setting any member of the oneof automatically clears all other
+            members.
+
             .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
             Attributes:
+                value (google.cloud.aiplatform_v1beta1.types.FeatureValue):
+                    Feature value. A user provided timestamp may be set in the
+                    ``FeatureValue.metadata.generate_time`` field.
+
+                    This field is a member of `oneof`_ ``data_oneof``.
                 value_and_timestamp (google.cloud.aiplatform_v1beta1.types.FeatureViewDirectWriteRequest.DataKeyAndFeatureValues.Feature.FeatureValueAndTimestamp):
                     Feature value and timestamp.
 
@@ -753,6 +763,12 @@ class FeatureViewDirectWriteRequest(proto.Message):
                     message=timestamp_pb2.Timestamp,
                 )
 
+            value: featurestore_online_service.FeatureValue = proto.Field(
+                proto.MESSAGE,
+                number=3,
+                oneof="data_oneof",
+                message=featurestore_online_service.FeatureValue,
+            )
             value_and_timestamp: "FeatureViewDirectWriteRequest.DataKeyAndFeatureValues.Feature.FeatureValueAndTimestamp" = proto.Field(
                 proto.MESSAGE,
                 number=2,
