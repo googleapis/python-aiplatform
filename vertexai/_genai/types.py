@@ -6452,6 +6452,14 @@ class Metric(_common.BaseModel):
         default=None,
         description="""The aggregate summary function for the judge model.""",
     )
+    rubric_group_name: Optional[str] = Field(
+        default=None,
+        description="""The rubric group name for the rubric-based metric.""",
+    )
+    metric_spec_parameters: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional parameters for the predefined metric.""",
+    )
 
     # Allow extra fields to support metric-specific config fields.
     model_config = ConfigDict(extra="allow")
@@ -6666,6 +6674,12 @@ class MetricDict(TypedDict, total=False):
 
     aggregate_summary_fn: Optional[Callable]
     """The aggregate summary function for the judge model."""
+
+    rubric_group_name: Optional[str]
+    """The rubric group name for the rubric-based metric."""
+
+    metric_spec_parameters: Optional[dict[str, Any]]
+    """Optional parameters for the predefined metric."""
 
 
 MetricOrDict = Union[Metric, MetricDict]
