@@ -291,6 +291,14 @@ class BatchDedicatedResources(proto.Message):
             Immutable. The maximum number of machine
             replicas the batch operation may be scaled to.
             The default value is 10.
+        flex_start (google.cloud.aiplatform_v1beta1.types.FlexStart):
+            Optional. Immutable. If set, use DWS resource
+            to schedule the deployment workload. reference:
+
+            (https://cloud.google.com/blog/products/compute/introducing-dynamic-workload-scheduler)
+        spot (bool):
+            Optional. If true, schedule the deployment workload on `spot
+            VMs <https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms>`__.
     """
 
     machine_spec: "MachineSpec" = proto.Field(
@@ -305,6 +313,15 @@ class BatchDedicatedResources(proto.Message):
     max_replica_count: int = proto.Field(
         proto.INT32,
         number=3,
+    )
+    flex_start: "FlexStart" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message="FlexStart",
+    )
+    spot: bool = proto.Field(
+        proto.BOOL,
+        number=5,
     )
 
 
@@ -421,6 +438,7 @@ class AutoscalingMetricSpec(proto.Message):
             -  For Online Prediction:
             -  ``aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle``
             -  ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
+            -  ``aiplatform.googleapis.com/prediction/online/request_count``
         target (int):
             The target resource utilization in percentage
             (1% - 100%) for the given metric; once the real
@@ -428,6 +446,11 @@ class AutoscalingMetricSpec(proto.Message):
             percentage, the machine replicas change. The
             default value is 60 (representing 60%) if not
             provided.
+        monitored_resource_labels (MutableMapping[str, str]):
+            Optional. The Cloud Monitoring monitored
+            resource labels used for metrics filtering. See
+            Cloud Monitoring Labels
+            https://cloud.google.com/monitoring/api/v3/metric-model#generic-label-info
     """
 
     metric_name: str = proto.Field(
@@ -437,6 +460,11 @@ class AutoscalingMetricSpec(proto.Message):
     target: int = proto.Field(
         proto.INT32,
         number=2,
+    )
+    monitored_resource_labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=3,
     )
 
 

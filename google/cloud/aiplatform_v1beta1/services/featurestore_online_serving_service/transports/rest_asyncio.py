@@ -890,7 +890,7 @@ class AsyncFeaturestoreOnlineServingServiceRestTransport(
                 Args:
                     request (~.featurestore_online_service.StreamingReadFeatureValuesRequest):
                         The request object. Request message for
-                    [FeaturestoreOnlineServingService.StreamingFeatureValuesRead][].
+                    [FeaturestoreOnlineServingService.StreamingReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.StreamingReadFeatureValues].
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.

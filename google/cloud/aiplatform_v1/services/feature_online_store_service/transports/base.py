@@ -147,6 +147,11 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.feature_view_direct_write: gapic_v1.method.wrap_method(
+                self.feature_view_direct_write,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -228,6 +233,18 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
         Union[
             feature_online_store_service.SearchNearestEntitiesResponse,
             Awaitable[feature_online_store_service.SearchNearestEntitiesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def feature_view_direct_write(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.FeatureViewDirectWriteRequest],
+        Union[
+            feature_online_store_service.FeatureViewDirectWriteResponse,
+            Awaitable[feature_online_store_service.FeatureViewDirectWriteResponse],
         ],
     ]:
         raise NotImplementedError()

@@ -23,6 +23,9 @@ from typing import (
     MutableMapping,
     MutableSequence,
     Optional,
+    AsyncIterable,
+    Awaitable,
+    AsyncIterator,
     Sequence,
     Tuple,
     Type,
@@ -51,6 +54,7 @@ from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 from .transports.base import FeatureOnlineStoreServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import FeatureOnlineStoreServiceGrpcAsyncIOTransport
 from .client import FeatureOnlineStoreServiceClient
@@ -525,6 +529,102 @@ class FeatureOnlineStoreServiceAsyncClient:
         # Send the request.
         response = await rpc(
             request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def feature_view_direct_write(
+        self,
+        requests: Optional[
+            AsyncIterator[feature_online_store_service.FeatureViewDirectWriteRequest]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> Awaitable[
+        AsyncIterable[feature_online_store_service.FeatureViewDirectWriteResponse]
+    ]:
+        r"""Bidirectional streaming RPC to directly write to
+        feature values in a feature view. Requests may not have
+        a one-to-one mapping to responses and responses may be
+        returned out-of-order to reduce latency.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_feature_view_direct_write():
+                # Create a client
+                client = aiplatform_v1.FeatureOnlineStoreServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.FeatureViewDirectWriteRequest(
+                )
+
+                # This method expects an iterator which contains
+                # 'aiplatform_v1.FeatureViewDirectWriteRequest' objects
+                # Here we create a generator that yields a single `request` for
+                # demonstrative purposes.
+                requests = [request]
+
+                def request_generator():
+                    for request in requests:
+                        yield request
+
+                # Make the request
+                stream = await client.feature_view_direct_write(requests=request_generator())
+
+                # Handle the response
+                async for response in stream:
+                    print(response)
+
+        Args:
+            requests (AsyncIterator[`google.cloud.aiplatform_v1.types.FeatureViewDirectWriteRequest`]):
+                The request object AsyncIterator. Request message for
+                [FeatureOnlineStoreService.FeatureViewDirectWrite][google.cloud.aiplatform.v1.FeatureOnlineStoreService.FeatureViewDirectWrite].
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            AsyncIterable[google.cloud.aiplatform_v1.types.FeatureViewDirectWriteResponse]:
+                Response message for
+                   [FeatureOnlineStoreService.FeatureViewDirectWrite][google.cloud.aiplatform.v1.FeatureOnlineStoreService.FeatureViewDirectWrite].
+
+        """
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.feature_view_direct_write
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (gapic_v1.routing_header.to_grpc_metadata(()),)
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            requests,
             retry=retry,
             timeout=timeout,
             metadata=metadata,

@@ -50,6 +50,7 @@ from .content import (
     GroundingSupport,
     LogprobsResult,
     ModalityTokenCount,
+    ModelArmorConfig,
     Part,
     RetrievalMetadata,
     SafetyRating,
@@ -147,6 +148,9 @@ from .deployment_resource_pool_service import (
     QueryDeployedModelsResponse,
     UpdateDeploymentResourcePoolOperationMetadata,
     UpdateDeploymentResourcePoolRequest,
+)
+from .deployment_stage import (
+    DeploymentStage,
 )
 from .encryption_spec import (
     EncryptionSpec,
@@ -372,6 +376,8 @@ from .feature_online_store_admin_service import (
 )
 from .feature_online_store_service import (
     FeatureViewDataKey,
+    FeatureViewDirectWriteRequest,
+    FeatureViewDirectWriteResponse,
     FetchFeatureValuesRequest,
     FetchFeatureValuesResponse,
     NearestNeighborQuery,
@@ -1206,6 +1212,7 @@ __all__ = (
     "GroundingSupport",
     "LogprobsResult",
     "ModalityTokenCount",
+    "ModelArmorConfig",
     "Part",
     "RetrievalMetadata",
     "SafetyRating",
@@ -1281,6 +1288,7 @@ __all__ = (
     "QueryDeployedModelsResponse",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
+    "DeploymentStage",
     "EncryptionSpec",
     "ClientConnectionConfig",
     "DeployedModel",
@@ -1472,6 +1480,8 @@ __all__ = (
     "UpdateFeatureViewOperationMetadata",
     "UpdateFeatureViewRequest",
     "FeatureViewDataKey",
+    "FeatureViewDirectWriteRequest",
+    "FeatureViewDirectWriteResponse",
     "FetchFeatureValuesRequest",
     "FetchFeatureValuesResponse",
     "NearestNeighborQuery",

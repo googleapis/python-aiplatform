@@ -50,6 +50,7 @@ from .content import (
     GroundingSupport,
     LogprobsResult,
     ModalityTokenCount,
+    ModelArmorConfig,
     Part,
     PrebuiltVoiceConfig,
     RetrievalMetadata,
@@ -158,6 +159,9 @@ from .deployment_resource_pool_service import (
     QueryDeployedModelsResponse,
     UpdateDeploymentResourcePoolOperationMetadata,
     UpdateDeploymentResourcePoolRequest,
+)
+from .deployment_stage import (
+    DeploymentStage,
 )
 from .encryption_spec import (
     EncryptionSpec,
@@ -1352,6 +1356,8 @@ from .tuning_job import (
     TunedModelRef,
     TuningDataStats,
     TuningJob,
+    VeoHyperParameters,
+    VeoTuningSpec,
 )
 from .types import (
     BoolArray,
@@ -1471,6 +1477,7 @@ __all__ = (
     "GroundingSupport",
     "LogprobsResult",
     "ModalityTokenCount",
+    "ModelArmorConfig",
     "Part",
     "PrebuiltVoiceConfig",
     "RetrievalMetadata",
@@ -1557,6 +1564,7 @@ __all__ = (
     "QueryDeployedModelsResponse",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
+    "DeploymentStage",
     "EncryptionSpec",
     "ClientConnectionConfig",
     "DeployedModel",
@@ -2533,6 +2541,8 @@ __all__ = (
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",
+    "VeoHyperParameters",
+    "VeoTuningSpec",
     "BoolArray",
     "DoubleArray",
     "Int64Array",
