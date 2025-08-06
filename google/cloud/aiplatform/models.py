@@ -4396,6 +4396,9 @@ class PrivateEndpoint(Endpoint):
         spot: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
@@ -4569,6 +4572,9 @@ class PrivateEndpoint(Endpoint):
             disable_container_logging=disable_container_logging,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
+            autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
+            autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
         )
 
     def update(
@@ -5800,6 +5806,18 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 model deployment/mutation is desired, with a value greater than
                 or equal to 1 and fewer than or equal to min_replica_count. If
                 set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
+            autoscaling_target_cpu_utilization (int):
+                Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_request_count_per_minute (int):
+                Optional. The target number of requests per minute for autoscaling.
+                If set, the model will be scaled based on the number of requests it receives.
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
 

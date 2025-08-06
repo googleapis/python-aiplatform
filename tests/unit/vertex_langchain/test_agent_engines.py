@@ -588,6 +588,8 @@ _TEST_BUILD_OPTIONS_INSTALLATION = _agent_engines._BUILD_OPTIONS_INSTALLATION
 _TEST_INSTALLATION_SUBDIR = _utils._INSTALLATION_SUBDIR
 _TEST_INSTALLATION_SCRIPT_PATH = f"{_TEST_INSTALLATION_SUBDIR}/install_package.sh"
 
+_TEST_CUSTOM_SERVICE_ACCOUNT = "test-custom-service-account"
+
 
 def _create_empty_fake_package(package_name: str) -> str:
     """Creates a temporary directory structure representing an empty fake Python package.
@@ -1191,6 +1193,42 @@ class TestAgentEngine:
             retry=_TEST_RETRY,
         )
 
+    def test_create_agent_engine_with_service_account(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+            service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
     @pytest.mark.parametrize(
         "test_case_name, test_engine_instance, expected_framework",
         [
@@ -1451,6 +1489,23 @@ class TestAgentEngine:
                             "spec.class_methods",
                             "spec.agent_framework",
                         ]
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with service_account attribute",
+                {"service_account": _TEST_CUSTOM_SERVICE_ACCOUNT},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            service_account=_TEST_CUSTOM_SERVICE_ACCOUNT,
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.service_account",
+                        ],
                     ),
                 ),
             ),
@@ -3195,6 +3250,19 @@ class TestRequirements:
     def test_invalid_requirement_warning(self, caplog):
         _utils.parse_constraints(["invalid requirement line"])
         assert "Failed to parse constraint" in caplog.text
+
+    def test_requirements_with_whl_files(self):
+        whl_files = [
+            "wxPython-4.2.4-cp39-cp39-macosx_12_0_x86_64.whl",
+            "/content/wxPython-4.2.3-cp39-cp39-macosx_12_0_x86_64.whl",
+            "https://wxpython.org/Phoenix/snapshot-builds/wxPython-4.2.2-cp38-cp38-macosx_12_0_x86_64.whl",
+        ]
+        result = _utils.parse_constraints(whl_files)
+        assert result == {
+            "wxPython-4.2.2-cp38-cp38-macosx_12_0_x86_64.whl": None,
+            "wxPython-4.2.3-cp39-cp39-macosx_12_0_x86_64.whl": None,
+            "wxPython-4.2.4-cp39-cp39-macosx_12_0_x86_64.whl": None,
+        }
 
     def test_compare_requirements_with_required_packages(self):
         requirements = {"requests": "2.0.0"}

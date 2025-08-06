@@ -16,6 +16,7 @@
 import dataclasses
 import inspect
 import json
+import os
 import sys
 import types
 import typing
@@ -359,6 +360,8 @@ def parse_constraints(
     result = {}
     for constraint in constraints:
         try:
+            if constraint.endswith(".whl"):
+                constraint = os.path.basename(constraint)
             requirement = requirements.Requirement(constraint)
         except Exception as e:
             LOGGER.warning(f"Failed to parse constraint: {constraint}. Exception: {e}")

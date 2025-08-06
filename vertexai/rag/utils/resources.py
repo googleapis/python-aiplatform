@@ -71,9 +71,7 @@ class RagEmbeddingModelConfig:
     """RagEmbeddingModelConfig.
 
     Attributes:
-        vertex_prediction_endpoint: The Vertex AI Prediction Endpoint resource
-            name. Format:
-            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        vertex_prediction_endpoint: The Vertex AI Prediction Endpoint config.
     """
 
     vertex_prediction_endpoint: Optional[VertexPredictionEndpoint] = None

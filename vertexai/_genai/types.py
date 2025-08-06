@@ -3672,6 +3672,182 @@ AgentEngineMemoryOperationOrDict = Union[
 ]
 
 
+class CreateAgentEngineSessionConfig(_common.BaseModel):
+    """Config for creating a Session."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the session."""
+    )
+    session_state: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Session state which stores key conversation points.""",
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
+    """Config for creating a Session."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The display name of the session."""
+
+    session_state: Optional[dict[str, Any]]
+    """Session state which stores key conversation points."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+CreateAgentEngineSessionConfigOrDict = Union[
+    CreateAgentEngineSessionConfig, CreateAgentEngineSessionConfigDict
+]
+
+
+class _CreateAgentEngineSessionRequestParameters(_common.BaseModel):
+    """Parameters for creating Agent Engine Sessions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine to create the session under.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None, description="""The user ID of the session."""
+    )
+    config: Optional[CreateAgentEngineSessionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateAgentEngineSessionRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating Agent Engine Sessions."""
+
+    name: Optional[str]
+    """Name of the agent engine to create the session under."""
+
+    user_id: Optional[str]
+    """The user ID of the session."""
+
+    config: Optional[CreateAgentEngineSessionConfigDict]
+    """"""
+
+
+_CreateAgentEngineSessionRequestParametersOrDict = Union[
+    _CreateAgentEngineSessionRequestParameters,
+    _CreateAgentEngineSessionRequestParametersDict,
+]
+
+
+class Session(_common.BaseModel):
+    """A session."""
+
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the session was created.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The display name of the session.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.""",
+    )
+    session_state: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Session specific memory which stores key conversation points.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the session was updated.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None,
+        description="""Required. Immutable. String id provided by the user""",
+    )
+
+
+class SessionDict(TypedDict, total=False):
+    """A session."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the session was created."""
+
+    display_name: Optional[str]
+    """Optional. The display name of the session."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'."""
+
+    session_state: Optional[dict[str, Any]]
+    """Optional. Session specific memory which stores key conversation points."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the session was updated."""
+
+    user_id: Optional[str]
+    """Required. Immutable. String id provided by the user"""
+
+
+SessionOrDict = Union[Session, SessionDict]
+
+
+class AgentEngineSessionOperation(_common.BaseModel):
+    """Operation that has an agent engine session as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[Session] = Field(
+        default=None, description="""The Agent Engine Session."""
+    )
+
+
+class AgentEngineSessionOperationDict(TypedDict, total=False):
+    """Operation that has an agent engine session as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[SessionDict]
+    """The Agent Engine Session."""
+
+
+AgentEngineSessionOperationOrDict = Union[
+    AgentEngineSessionOperation, AgentEngineSessionOperationDict
+]
+
+
 class DeleteAgentEngineConfig(_common.BaseModel):
     """Config for deleting agent engine."""
 
@@ -3852,6 +4028,96 @@ class DeleteAgentEngineMemoryOperationDict(TypedDict, total=False):
 
 DeleteAgentEngineMemoryOperationOrDict = Union[
     DeleteAgentEngineMemoryOperation, DeleteAgentEngineMemoryOperationDict
+]
+
+
+class DeleteAgentEngineSessionConfig(_common.BaseModel):
+    """Config for deleting an Agent Engine Session."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteAgentEngineSessionConfigDict(TypedDict, total=False):
+    """Config for deleting an Agent Engine Session."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteAgentEngineSessionConfigOrDict = Union[
+    DeleteAgentEngineSessionConfig, DeleteAgentEngineSessionConfigDict
+]
+
+
+class _DeleteAgentEngineSessionRequestParameters(_common.BaseModel):
+    """Parameters for deleting agent engine sessions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine session to delete.""",
+    )
+    config: Optional[DeleteAgentEngineSessionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteAgentEngineSessionRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting agent engine sessions."""
+
+    name: Optional[str]
+    """Name of the agent engine session to delete."""
+
+    config: Optional[DeleteAgentEngineSessionConfigDict]
+    """"""
+
+
+_DeleteAgentEngineSessionRequestParametersOrDict = Union[
+    _DeleteAgentEngineSessionRequestParameters,
+    _DeleteAgentEngineSessionRequestParametersDict,
+]
+
+
+class DeleteAgentEngineSessionOperation(_common.BaseModel):
+    """Operation for deleting agent engine sessions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteAgentEngineSessionOperationDict(TypedDict, total=False):
+    """Operation for deleting agent engine sessions."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteAgentEngineSessionOperationOrDict = Union[
+    DeleteAgentEngineSessionOperation, DeleteAgentEngineSessionOperationDict
 ]
 
 
@@ -4578,6 +4844,53 @@ _GetAgentEngineMemoryRequestParametersOrDict = Union[
 ]
 
 
+class GetAgentEngineSessionConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Session."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineSessionConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Session."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineSessionConfigOrDict = Union[
+    GetAgentEngineSessionConfig, GetAgentEngineSessionConfigDict
+]
+
+
+class _GetAgentEngineSessionRequestParameters(_common.BaseModel):
+    """Parameters for getting an agent engine session."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[GetAgentEngineSessionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetAgentEngineSessionRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an agent engine session."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[GetAgentEngineSessionConfigDict]
+    """"""
+
+
+_GetAgentEngineSessionRequestParametersOrDict = Union[
+    _GetAgentEngineSessionRequestParameters,
+    _GetAgentEngineSessionRequestParametersDict,
+]
+
+
 class ListAgentEngineConfig(_common.BaseModel):
     """Config for listing agent engines."""
 
@@ -4631,9 +4944,38 @@ _ListAgentEngineRequestParametersOrDict = Union[
 ]
 
 
+class HttpResponse(_common.BaseModel):
+    """A wrapper class for the http response."""
+
+    headers: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Used to retain the processed HTTP headers in the response.""",
+    )
+    body: Optional[str] = Field(
+        default=None,
+        description="""The raw HTTP response body, in JSON format.""",
+    )
+
+
+class HttpResponseDict(TypedDict, total=False):
+    """A wrapper class for the http response."""
+
+    headers: Optional[dict[str, str]]
+    """Used to retain the processed HTTP headers in the response."""
+
+    body: Optional[str]
+    """The raw HTTP response body, in JSON format."""
+
+
+HttpResponseOrDict = Union[HttpResponse, HttpResponseDict]
+
+
 class ListReasoningEnginesResponse(_common.BaseModel):
     """Response for listing agent engines."""
 
+    sdk_http_response: Optional[HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
     next_page_token: Optional[str] = Field(default=None, description="""""")
     reasoning_engines: Optional[list[ReasoningEngine]] = Field(
         default=None,
@@ -4644,6 +4986,9 @@ class ListReasoningEnginesResponse(_common.BaseModel):
 
 class ListReasoningEnginesResponseDict(TypedDict, total=False):
     """Response for listing agent engines."""
+
+    sdk_http_response: Optional[HttpResponseDict]
+    """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
     """"""
@@ -4725,6 +5070,9 @@ _ListAgentEngineMemoryRequestParametersOrDict = Union[
 class ListReasoningEnginesMemoriesResponse(_common.BaseModel):
     """Response for listing agent engine memories."""
 
+    sdk_http_response: Optional[HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
     next_page_token: Optional[str] = Field(default=None, description="""""")
     memories: Optional[list[Memory]] = Field(
         default=None, description="""List of agent engine memories."""
@@ -4733,6 +5081,9 @@ class ListReasoningEnginesMemoriesResponse(_common.BaseModel):
 
 class ListReasoningEnginesMemoriesResponseDict(TypedDict, total=False):
     """Response for listing agent engine memories."""
+
+    sdk_http_response: Optional[HttpResponseDict]
+    """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
     """"""
@@ -4744,6 +5095,101 @@ class ListReasoningEnginesMemoriesResponseDict(TypedDict, total=False):
 ListReasoningEnginesMemoriesResponseOrDict = Union[
     ListReasoningEnginesMemoriesResponse,
     ListReasoningEnginesMemoriesResponseDict,
+]
+
+
+class ListAgentEngineSessionsConfig(_common.BaseModel):
+    """Config for listing agent engine sessions."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListAgentEngineSessionsConfigDict(TypedDict, total=False):
+    """Config for listing agent engine sessions."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListAgentEngineSessionsConfigOrDict = Union[
+    ListAgentEngineSessionsConfig, ListAgentEngineSessionsConfigDict
+]
+
+
+class _ListAgentEngineSessionsRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[ListAgentEngineSessionsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineSessionsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[ListAgentEngineSessionsConfigDict]
+    """"""
+
+
+_ListAgentEngineSessionsRequestParametersOrDict = Union[
+    _ListAgentEngineSessionsRequestParameters,
+    _ListAgentEngineSessionsRequestParametersDict,
+]
+
+
+class ListReasoningEnginesSessionsResponse(_common.BaseModel):
+    """Response for listing agent engine sessions."""
+
+    sdk_http_response: Optional[HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    sessions: Optional[list[Session]] = Field(
+        default=None, description="""List of agent engine sessions."""
+    )
+
+
+class ListReasoningEnginesSessionsResponseDict(TypedDict, total=False):
+    """Response for listing agent engine sessions."""
+
+    sdk_http_response: Optional[HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    sessions: Optional[list[SessionDict]]
+    """List of agent engine sessions."""
+
+
+ListReasoningEnginesSessionsResponseOrDict = Union[
+    ListReasoningEnginesSessionsResponse,
+    ListReasoningEnginesSessionsResponseDict,
 ]
 
 
@@ -4819,6 +5265,35 @@ class _GetAgentEngineMemoryOperationParametersDict(TypedDict, total=False):
 _GetAgentEngineMemoryOperationParametersOrDict = Union[
     _GetAgentEngineMemoryOperationParameters,
     _GetAgentEngineMemoryOperationParametersDict,
+]
+
+
+class _GetAgentEngineSessionOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation with a session as a response."""
+
+    operation_name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name for the operation.""",
+    )
+    config: Optional[GetAgentEngineOperationConfig] = Field(
+        default=None,
+        description="""Used to override the default configuration.""",
+    )
+
+
+class _GetAgentEngineSessionOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation with a session as a response."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetAgentEngineOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetAgentEngineSessionOperationParametersOrDict = Union[
+    _GetAgentEngineSessionOperationParameters,
+    _GetAgentEngineSessionOperationParametersDict,
 ]
 
 
@@ -5313,6 +5788,90 @@ class _UpdateAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
 _UpdateAgentEngineMemoryRequestParametersOrDict = Union[
     _UpdateAgentEngineMemoryRequestParameters,
     _UpdateAgentEngineMemoryRequestParametersDict,
+]
+
+
+class UpdateAgentEngineSessionConfig(_common.BaseModel):
+    """Config for updating agent engine session."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the session."""
+    )
+    session_state: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Session state which stores key conversation points.""",
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+    update_mask: Optional[str] = Field(
+        default=None,
+        description="""The update mask to apply. For the `FieldMask` definition, see
+      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None,
+        description="""User ID of the agent engine session to update.""",
+    )
+
+
+class UpdateAgentEngineSessionConfigDict(TypedDict, total=False):
+    """Config for updating agent engine session."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The display name of the session."""
+
+    session_state: Optional[dict[str, Any]]
+    """Session state which stores key conversation points."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+    update_mask: Optional[str]
+    """The update mask to apply. For the `FieldMask` definition, see
+      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask."""
+
+    user_id: Optional[str]
+    """User ID of the agent engine session to update."""
+
+
+UpdateAgentEngineSessionConfigOrDict = Union[
+    UpdateAgentEngineSessionConfig, UpdateAgentEngineSessionConfigDict
+]
+
+
+class _UpdateAgentEngineSessionRequestParameters(_common.BaseModel):
+    """Parameters for updating agent engine sessions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine session to update.""",
+    )
+    config: Optional[UpdateAgentEngineSessionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _UpdateAgentEngineSessionRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating agent engine sessions."""
+
+    name: Optional[str]
+    """Name of the agent engine session to update."""
+
+    config: Optional[UpdateAgentEngineSessionConfigDict]
+    """"""
+
+
+_UpdateAgentEngineSessionRequestParametersOrDict = Union[
+    _UpdateAgentEngineSessionRequestParameters,
+    _UpdateAgentEngineSessionRequestParametersDict,
 ]
 
 
@@ -5888,9 +6447,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=fields_to_exclude_callables
-            if fields_to_exclude_callables
-            else None,
+            exclude=(
+                fields_to_exclude_callables if fields_to_exclude_callables else None
+            ),
         )
 
         if version:

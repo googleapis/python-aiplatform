@@ -72,6 +72,7 @@ def create(
         Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
     ] = None,
     build_options: Optional[Dict[str, Sequence[str]]] = None,
+    service_account: Optional[str] = None,
 ) -> AgentEngine:
     """Creates a new Agent Engine.
 
@@ -145,6 +146,10 @@ def create(
         build_options (Dict[str, Sequence[str]]):
             Optional. The build options for the Agent Engine. This includes
             options such as installation scripts.
+        service_account (str):
+            Optional. The service account to be used for the Agent Engine. If
+            not specified, the default reasoning engine service agent service
+            account will be used.
 
     Returns:
         AgentEngine: The Agent Engine that was created.
@@ -168,6 +173,7 @@ def create(
         extra_packages=extra_packages,
         env_vars=env_vars,
         build_options=build_options,
+        service_account=service_account,
     )
 
 
@@ -253,6 +259,7 @@ def update(
         Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
     ] = None,
     build_options: Optional[Dict[str, Sequence[str]]] = None,
+    service_account: Optional[str] = None,
 ) -> "AgentEngine":
     """Updates an existing Agent Engine.
 
@@ -299,6 +306,10 @@ def update(
         build_options (Dict[str, Sequence[str]]):
             Optional. The build options for the Agent Engine. This includes
             options such as installation scripts.
+        service_account (str):
+            Optional. The service account to be used for the Agent Engine. If
+            not specified, the default reasoning engine service agent service
+            account will be used.
 
     Returns:
         AgentEngine: The Agent Engine that was updated.
@@ -324,6 +335,7 @@ def update(
         extra_packages=extra_packages,
         env_vars=env_vars,
         build_options=build_options,
+        service_account=service_account,
     )
 
 

@@ -36,6 +36,13 @@ def _is_ipython_env() -> bool:
         return False
 
 
+def _pydantic_serializer(obj):
+    """Custom serializer for Pydantic models."""
+    if hasattr(obj, "model_dump"):
+        return obj.model_dump(mode="json")
+    raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
+
 def _preprocess_df_for_json(df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame]:
     """Prepares a DataFrame for JSON serialization by converting complex objects to strings."""
     if df is None:
@@ -53,10 +60,16 @@ def _preprocess_df_for_json(df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame
                     return None
                 if isinstance(cell, (dict, list)):
                     try:
-                        return json.dumps(cell, ensure_ascii=False)
+                        return json.dumps(
+                            cell, ensure_ascii=False, default=_pydantic_serializer
+                        )
                     except TypeError:
                         return str(cell)
                 elif not isinstance(cell, (str, int, float, bool)):
+                    if hasattr(cell, "model_dump"):
+                        return json.dumps(
+                            cell.model_dump(mode="json"), ensure_ascii=False
+                        )
                     return str(cell)
                 return cell
 
@@ -85,13 +98,37 @@ def _get_evaluation_html(eval_result_json: str) -> str:
         th {{ background-color: #f2f2f2; font-weight: 500; }}
         details {{ border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }}
         summary {{ font-weight: 500; font-size: 1.1em; cursor: pointer; }}
-        .prompt-container {{ background-color: #e8f0fe; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; }}
-        .reference-container {{ background-color: #e6f4ea; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; }}
-        .response-container {{ background-color: #f9f9f9; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #eee; }}
+        .prompt-container {{ background-color: #e8f0fe; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
+        .reference-container {{ background-color: #e6f4ea; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
+        .response-container {{ background-color: #f9f9f9; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
         .explanation {{ color: #5f6368; font-style: italic; font-size: 0.9em; padding-top: 6px; }}
-        .raw-json-details {{ margin-top: 12px; border: 1px solid #eee; border-radius: 4px; padding: 8px; background-color: #f9f9f9; }}
         .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368;}}
         .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
+        .rubric-bubble-container {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+        .rubric-details {{ border: none; padding: 0; margin: 0; }}
+        .rubric-bubble {{
+            display: inline-flex;
+            align-items: center;
+            background-color: #e8f0fe;
+            color: #1967d2;
+            border-radius: 16px;
+            padding: 8px 12px;
+            font-size: 0.9em;
+            cursor: pointer;
+            list-style: none; /* Hide default marker in Safari */
+        }}
+        .rubric-bubble::-webkit-details-marker {{ display: none; }} /* Hide default marker in Chrome */
+        .rubric-bubble::before {{
+            content: '►';
+            margin-right: 8px;
+            font-size: 0.8em;
+            transition: transform 0.2s;
+        }}
+        .rubric-details[open] > .rubric-bubble::before {{
+            transform: rotate(90deg);
+        }}
+        .pass {{ color: green; font-weight: bold; }}
+        .fail {{ color: red; font-weight: bold; }}
     </style>
 </head>
 <body>
@@ -145,6 +182,20 @@ def _get_evaluation_html(eval_result_json: str) -> str:
                 Object.entries(candidateMetrics).forEach(([name, val]) => {{
                     metricTable += `<tr><td>${{name}}</td><td><b>${{val.score != null ? val.score.toFixed(2) : 'N/A'}}</b></td></tr>`;
                     if (val.explanation) {{ metricTable += `<tr><td colspan="2"><div class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</div></td></tr>`; }}
+                    if (val.rubric_verdicts && val.rubric_verdicts.length > 0) {{
+                        metricTable += '<tr><td colspan="2"><div class="rubric-bubble-container">';
+                        val.rubric_verdicts.forEach(verdict => {{
+                            const rubricDescription = verdict.evaluated_rubric && verdict.evaluated_rubric.content && verdict.evaluated_rubric.content.property ? verdict.evaluated_rubric.content.property.description : 'N/A';
+                            const verdictText = verdict.verdict ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+                            const verdictJson = JSON.stringify(verdict, null, 2);
+                            metricTable += `
+                                <details class="rubric-details">
+                                    <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(rubricDescription)}}</summary>
+                                    <pre class="raw-json-container">${{DOMPurify.sanitize(verdictJson)}}</pre>
+                                </details>`;
+                        }});
+                        metricTable += '</div></td></tr>';
+                    }}
                 }});
                 card += metricTable + '</tbody></table>';
                 container.innerHTML += card + '</details>';
@@ -179,14 +230,38 @@ def _get_comparison_html(eval_result_json: str) -> str:
         th {{ background-color: #f2f2f2; font-weight: 500; }}
         details {{ border: 1px solid #dadce0; border-radius: 8px; padding: 24px; margin-bottom: 24px; background: #fff; }}
         summary {{ font-weight: 500; font-size: 1.2em; cursor: pointer; }}
-        .prompt-container {{ background-color: #e8f0fe; padding: 16px; margin-bottom: 16px; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; }}
+        .prompt-container {{ background-color: #e8f0fe; padding: 16px; margin-bottom: 16px; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
         .responses-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 16px;}}
         .response-column {{ border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; background: #f9f9f9; }}
-        .response-text-container {{ background-color: #fff; padding: 12px; margin-top: 8px; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; }}
+        .response-text-container {{ background-color: #fff; padding: 12px; margin-top: 8px; border-radius: 4px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-wrap: break-word; }}
         .explanation {{ color: #5f6368; font-style: italic; font-size: 0.9em; padding-top: 8px; }}
-        .raw-json-details {{ margin-top: 12px; border: 1px solid #eee; border-radius: 4px; padding: 8px; background-color: #f9f9f9; }}
         .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368;}}
         .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
+        .rubric-bubble-container {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+        .rubric-details {{ border: none; padding: 0; margin: 0; }}
+        .rubric-bubble {{
+            display: inline-flex;
+            align-items: center;
+            background-color: #e8f0fe;
+            color: #1967d2;
+            border-radius: 16px;
+            padding: 8px 12px;
+            font-size: 0.9em;
+            cursor: pointer;
+            list-style: none; /* Hide default marker in Safari */
+        }}
+        .rubric-bubble::-webkit-details-marker {{ display: none; }} /* Hide default marker in Chrome */
+        .rubric-bubble::before {{
+            content: '►';
+            margin-right: 8px;
+            font-size: 0.8em;
+            transition: transform 0.2s;
+        }}
+        .rubric-details[open] > .rubric-bubble::before {{
+            transform: rotate(90deg);
+        }}
+        .pass {{ color: green; font-weight: bold; }}
+        .fail {{ color: red; font-weight: bold; }}
     </style>
 </head>
 <body>
@@ -225,7 +300,7 @@ def _get_comparison_html(eval_result_json: str) -> str:
                 const promptJson = original_case.prompt_raw_json;
 
                 let card = `<details open><summary>Case #${{caseResult.eval_case_index}}</summary>`;
-                card += `<div class="prompt-container">${{DOMPurify.sanitize(marked.parse(String(promptText)))}}</div>`;
+                card += `<div class="prompt-container"><strong>Prompt:</strong><br>${{DOMPurify.sanitize(marked.parse(String(promptText)))}}</div>`;
                 if (promptJson) {{
                     card += `<details class="raw-json-details"><summary>View Raw Prompt JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(promptJson)}}</pre></details>`;
                 }}
@@ -246,6 +321,20 @@ def _get_comparison_html(eval_result_json: str) -> str:
                     Object.entries(candidate.metric_results || {{}}).forEach(([name, val]) => {{
                         card += `<tr><td>${{name}}</td><td><b>${{val.score != null ? val.score.toFixed(2) : 'N/A'}}</b></td></tr>`;
                         if(val.explanation) card += `<tr class="explanation-row"><td colspan="2" class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</td></tr>`;
+                        if (val.rubric_verdicts && val.rubric_verdicts.length > 0) {{
+                            card += '<tr><td colspan="2"><div class="rubric-bubble-container">';
+                            val.rubric_verdicts.forEach(verdict => {{
+                                const rubricDescription = verdict.evaluated_rubric && verdict.evaluated_rubric.content && verdict.evaluated_rubric.content.property ? verdict.evaluated_rubric.content.property.description : 'N/A';
+                                const verdictText = verdict.verdict ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+                                const verdictJson = JSON.stringify(verdict, null, 2);
+                                card += `
+                                    <details class="rubric-details">
+                                        <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(rubricDescription)}}</summary>
+                                        <pre class="raw-json-container">${{DOMPurify.sanitize(verdictJson)}}</pre>
+                                    </details>`;
+                            }});
+                            card += '</div></td></tr>';
+                        }}
                     }});
                     card += '</tbody></table></div>';
                 }});
@@ -267,33 +356,96 @@ def _get_inference_html(dataframe_json: str) -> str:
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Inference Results</title>
+    <title>Evaluation Dataset</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <style>
         body {{ font-family: 'Roboto', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124;}}
         .container {{ max-width: 95%; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
-        h1 {{ border-bottom: 1px solid #dadce0; padding-bottom: 8px; color: #3c4043; }}
+        h1 {{ color: #3c4043; border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
         table {{ border-collapse: collapse; width: 100%; }}
         th, td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
         th {{ background-color: #f2f2f2; font-weight: 500;}}
-        td > div {{ white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; }}
-        .raw-json-details {{ margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px; }}
+        td > div {{ white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-wrap: break-word; }}
         .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368; }}
         .raw-json-container {{ white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; background-color: #f1f1f1; padding: 10px; border-radius: 4px; margin-top: 8px; }}
+        .rubric-group-title {{ font-weight: bold; margin-bottom: 10px; display: block; }}
+        .rubric-bubble-container {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+        .rubric-details {{ border: none; padding: 0; margin: 0; }}
+        .rubric-bubble {{
+            display: inline-flex;
+            align-items: center;
+            background-color: #e8f0fe;
+            color: #1967d2;
+            border-radius: 16px;
+            padding: 8px 12px;
+            font-size: 0.9em;
+            cursor: pointer;
+            list-style: none; /* Hide default marker in Safari */
+        }}
+        .rubric-bubble::-webkit-details-marker {{ display: none; }} /* Hide default marker in Chrome */
+        .rubric-bubble::before {{
+            content: '►';
+            margin-right: 8px;
+            font-size: 0.8em;
+            transition: transform 0.2s;
+        }}
+        .rubric-details[open] > .rubric-bubble::before {{
+            transform: rotate(90deg);
+        }}
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Inference Results</h1>
+        <h1>Evaluation Dataset</h1>
         <div id="results-table"></div>
     </div>
     <script>
         const vizData = {dataframe_json};
         const container = document.getElementById('results-table');
 
-        function renderCell(cellValue) {{
+        function renderRubrics(cellValue) {{
+            let content = '';
+            let rubricData = cellValue;
+            if (typeof rubricData === 'string') {{
+                try {{
+                    rubricData = JSON.parse(rubricData);
+                }} catch (e) {{
+                    console.error("Error parsing rubric_groups JSON:", e, rubricData);
+                    return `<div>Error parsing rubrics.</div>`;
+                }}
+            }}
+
+            if (typeof rubricData !== 'object' || rubricData === null) {{
+                 return `<div>Invalid rubric data.</div>`;
+            }}
+
+            for (const groupName in rubricData) {{
+                const rubrics = rubricData[groupName];
+                content += `<div class="rubric-group-title">${{groupName}}</div>`;
+                if (Array.isArray(rubrics) && rubrics.length > 0) {{
+                    content += '<div class="rubric-bubble-container">';
+                    rubrics.forEach((rubric, index) => {{
+                        const rubricJson = JSON.stringify(rubric, null, 2);
+                        const description = rubric.content && rubric.content.property ? rubric.content.property.description : 'N/A';
+                        content += `
+                            <details class="rubric-details">
+                                <summary class="rubric-bubble">${{DOMPurify.sanitize(description)}}</summary>
+                                <pre class="raw-json-container">${{DOMPurify.sanitize(rubricJson)}}</pre>
+                            </details>`;
+                    }});
+                    content += '</div>';
+                }}
+            }}
+            return `<div>${{content}}</div>`;
+        }}
+
+        function renderCell(cellValue, header) {{
             let cellContent = '';
+            if (header === 'rubric_groups') {{
+                return `<td>${{renderRubrics(cellValue)}}</td>`;
+            }}
+
             if (cellValue && typeof cellValue === 'object' && cellValue.display_text !== undefined) {{
                 cellContent += `<div>${{DOMPurify.sanitize(marked.parse(String(cellValue.display_text)))}}</div>`;
                 if (cellValue.raw_json) {{
@@ -315,7 +467,7 @@ def _get_inference_html(dataframe_json: str) -> str:
             vizData.forEach(row => {{
                 table += '<tr>';
                 headers.forEach(header => {{
-                    table += renderCell(row[header]);
+                    table += renderCell(row[header], header);
                 }});
                 table += '</tr>';
             }});
@@ -547,9 +699,25 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
         for col_name, cell_value in row.items():
             if col_name in ["prompt", "request", "response"]:
                 processed_row[col_name] = _extract_text_and_raw_json(cell_value)
+            elif col_name == "rubric_groups":
+                # Special handling for rubric_groups to keep it as a dict
+                if isinstance(cell_value, dict):
+                    processed_row[col_name] = {
+                        k: [
+                            v_item.model_dump(mode="json")
+                            if hasattr(v_item, "model_dump")
+                            else v_item
+                            for v_item in v
+                        ]
+                        for k, v in cell_value.items()
+                    }
+                else:
+                    processed_row[col_name] = cell_value
             else:
                 if isinstance(cell_value, (dict, list)):
-                    processed_row[col_name] = json.dumps(cell_value, ensure_ascii=False)
+                    processed_row[col_name] = json.dumps(
+                        cell_value, ensure_ascii=False, default=_pydantic_serializer
+                    )
                 else:
                     processed_row[col_name] = cell_value
         processed_rows.append(processed_row)
