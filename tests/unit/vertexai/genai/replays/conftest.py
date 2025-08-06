@@ -29,6 +29,49 @@ from vertexai._genai import _evals_utils
 from vertexai._genai import prompt_optimizer
 import pytest
 
+
+from typing import Any, Optional, Union
+import pydantic
+
+
+def pop_undeterministic_headers(headers: dict[str, str]) -> None:
+    """Remove headers that are not deterministic."""
+    headers.pop("Date", None)  # pytype: disable=attribute-error
+    headers.pop("Server-Timing", None)  # pytype: disable=attribute-error
+
+
+class PatchedReplayResponse(pydantic.BaseModel):
+    """Represents a single response in a replay."""
+
+    status_code: int = 200
+    headers: dict[str, str]
+    body_segments: list[Union[list[dict[str, object]], dict[str, object]]]
+    byte_segments: Optional[list[bytes]] = None
+    sdk_response_segments: list[dict[str, object]]
+
+    def model_post_init(self, __context: Any) -> None:
+        pop_undeterministic_headers(self.headers)
+
+
+class PatchedReplayInteraction(pydantic.BaseModel):
+    """Represents a single interaction, request and response in a replay."""
+
+    request: _replay_api_client.ReplayRequest
+    response: PatchedReplayResponse
+
+
+class PatchedReplayFile(pydantic.BaseModel):
+    """Represents a recorded session."""
+
+    replay_id: str
+    interactions: list[PatchedReplayInteraction]
+
+
+_replay_api_client.ReplayResponse = PatchedReplayResponse
+_replay_api_client.ReplayInteraction = PatchedReplayInteraction
+_replay_api_client.ReplayFile = PatchedReplayFile
+
+
 IS_KOKORO = os.getenv("KOKORO_BUILD_NUMBER") is not None
 
 

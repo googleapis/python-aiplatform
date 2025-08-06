@@ -14,6 +14,8 @@
 #
 """Utility functions for prompt optimizer."""
 
+import json
+from google.genai import errors
 from . import types
 
 
@@ -37,3 +39,38 @@ def _get_service_account(
         raise ValueError(
             "Either service_account or service_account_project_number " "is required."
         )
+
+
+def _clean_and_parse_optimized_prompt(output_str: str):
+    """Cleans a string response returned from the prompt optimizer endpoint.
+
+    Args:
+        output_str: The optimized prompt string containing the JSON data,
+          potentially with markdown formatting like ```json ... ```.
+
+    Returns:
+        The parsed JSON data, or None if parsing fails.
+    """
+    lines = output_str.strip().split("\n")
+    # Remove markdown delimiters
+    if lines and lines[0].strip().startswith("```"):
+        cleaned_string = "\n".join(lines[1:-1])
+    else:
+        cleaned_string = output_str
+
+    # remove any 'json' labels if they exist on the first line.
+    if cleaned_string.strip().startswith("json"):
+        cleaned_string = cleaned_string.strip()[4:].strip()
+
+    try:
+        return json.loads(cleaned_string)
+    except json.JSONDecodeError as e:
+        raise errors.ClinentError(
+            f"Failed to parse the response from prompt optimizer endpoint. {e}"
+        ) from e
+
+
+def _parse(output_str: str) -> types.OptimizeResponse:
+    """Parses the output string from the prompt optimizer endpoint."""
+    parsed_out = _clean_and_parse_optimized_prompt(output_str)
+    return types.OptimizeResponse(**parsed_out)
