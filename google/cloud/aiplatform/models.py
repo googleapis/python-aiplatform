@@ -1352,6 +1352,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        gpu_partition_size: Optional[str] = None,
         tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
@@ -1423,6 +1424,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            gpu_partition_size (str):
+                Optional. The GPU partition Size for Nvidia MIG.
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
@@ -1529,6 +1532,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            gpu_partition_size=gpu_partition_size,
             tpu_topology=tpu_topology,
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
@@ -1562,6 +1566,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        gpu_partition_size: Optional[str] = None,
         tpu_topology: Optional[str] = None,
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
@@ -1630,6 +1635,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            gpu_partition_size (str):
+                Optional. The GPU partition size for NVidia MIG.
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
@@ -1720,6 +1727,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            gpu_partition_size=gpu_partition_size,
             tpu_topology=tpu_topology,
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
@@ -1760,6 +1768,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        gpu_partition_size: Optional[str] = None,
         tpu_topology: Optional[str] = None,
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
@@ -1837,6 +1846,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            gpu_partition_size (str):
+                Optional. The GPU partition Size for Nvidia MIG.
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
@@ -2055,6 +2066,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     utils.validate_accelerator_type(accelerator_type)
                     machine_spec.accelerator_type = accelerator_type
                     machine_spec.accelerator_count = accelerator_count
+                    machine_spec.gpu_partition_size = gpu_partition_size
 
                     if autoscaling_target_accelerator_duty_cycle:
                         autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
