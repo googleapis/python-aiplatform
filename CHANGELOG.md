@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.107.0](https://github.com/googleapis/python-aiplatform/compare/v1.106.0...v1.107.0) (2025-08-06)
+
+
+### Features
+
+* A new value `NVIDIA_GB200` is added to enum `AcceleratorType` ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* A new value `NVIDIA_GB200` is added to enum `AcceleratorType` ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add `DeploymentStage` for CreateEndpointOperationMetadata and DeployModelOperationMetadata ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add `DeploymentStage` for CreateEndpointOperationMetadata and DeployModelOperationMetadata ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add a FooBar API ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add autoscaling metrics parameters for PrivateEndpoint class's model deployment API ([58880be](https://github.com/googleapis/python-aiplatform/commit/58880befdd2fdecb2e4c5711f7ffde7c39a335da))
+* Add embedding_metadata to google.cloud.aiplatform.v1.Index ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add embedding_metadata to google.cloud.aiplatform.v1.Index ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add enable_datapoint_upsert_logging to google.cloud.aiplatform.v1.DeployedIndex ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add enable_datapoint_upsert_logging to google.cloud.aiplatform.v1.DeployedIndex ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add exclude_domains for grounding with GoogleSearch and EnterpriseWebSearch ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add exclude_domains for grounding with GoogleSearch and EnterpriseWebSearch ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add FeatureViewDirectWrite API in v1 ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add field ReasoningEngineSpec.service_account ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Add ray 2.47 unit tests as required checks ([5445648](https://github.com/googleapis/python-aiplatform/commit/5445648eae51d56ab696ad670b825f47cd4d2c22))
+* Add the VeoTuningSpec ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Added the ability to use the Model Armor service for content sanitization ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Adds DWS and spot VM feature support to custom batch predictions 2.0 ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* GenAI SDK client - add zero-shot prompt optimizer: an option to quickly improve provided system instructions or a prompt, or generate new system instructions based on a prompt. ([bc2e8f4](https://github.com/googleapis/python-aiplatform/commit/bc2e8f4d5d74b425dc257cbc9403abaad1649367))
+* GenAI SDK client - Agent Engine Session SDK ([8f28c40](https://github.com/googleapis/python-aiplatform/commit/8f28c4015b9f2caa4a69f691a79524914c9c3258))
+* GenAI SDK client(evals) - add visualization support for rubric-based evaluation workflow ([299c44c](https://github.com/googleapis/python-aiplatform/commit/299c44ce70b4a8969390e6b46c6927eaae1019b0))
+* Online Prediction DeployModel API to support custom metrics based autoscaling ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+* Remove private preview label from Model Armor protos ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+
+
+### Documentation
+
+* Update comments for rpc BatchCreatePullRequestComments, ResolvePullRequestComments and UnresolvePullRequestComments ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
+
 ## [1.106.0](https://github.com/googleapis/python-aiplatform/compare/v1.105.0...v1.106.0) (2025-07-30)
 
 
