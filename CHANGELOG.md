@@ -6,16 +6,11 @@
 ### Features
 
 * A new value `NVIDIA_GB200` is added to enum `AcceleratorType` ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
-* A new value `NVIDIA_GB200` is added to enum `AcceleratorType` ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
-* Add `DeploymentStage` for CreateEndpointOperationMetadata and DeployModelOperationMetadata ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
 * Add `DeploymentStage` for CreateEndpointOperationMetadata and DeployModelOperationMetadata ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
 * Add a FooBar API ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
 * Add autoscaling metrics parameters for PrivateEndpoint class's model deployment API ([58880be](https://github.com/googleapis/python-aiplatform/commit/58880befdd2fdecb2e4c5711f7ffde7c39a335da))
 * Add embedding_metadata to google.cloud.aiplatform.v1.Index ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
-* Add embedding_metadata to google.cloud.aiplatform.v1.Index ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
 * Add enable_datapoint_upsert_logging to google.cloud.aiplatform.v1.DeployedIndex ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
-* Add enable_datapoint_upsert_logging to google.cloud.aiplatform.v1.DeployedIndex ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
-* Add exclude_domains for grounding with GoogleSearch and EnterpriseWebSearch ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
 * Add exclude_domains for grounding with GoogleSearch and EnterpriseWebSearch ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
 * Add FeatureViewDirectWrite API in v1 ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
 * Add field ReasoningEngineSpec.service_account ([d682fac](https://github.com/googleapis/python-aiplatform/commit/d682fac54b2deb57ed54e4f82eca822a026d32ef))
