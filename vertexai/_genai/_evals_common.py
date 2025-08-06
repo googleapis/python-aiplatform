@@ -672,7 +672,7 @@ def _get_dataset_source(
 def _resolve_dataset_inputs(
     dataset: list[types.EvaluationDataset],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
-    loader: _evals_utils.EvalDatasetLoader,
+    loader: "_evals_utils.EvalDatasetLoader",
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
 

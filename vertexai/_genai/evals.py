@@ -29,6 +29,7 @@ import pandas as pd
 
 from . import _evals_common
 from . import _evals_utils
+from . import _transformers as t
 from . import types
 
 
@@ -425,6 +426,85 @@ def _ToolParameterKVMatchInput_to_vertex(
     return to_object
 
 
+def _InstanceDataContents_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["contents"]) is not None:
+        setv(to_object, ["contents"], getv(from_object, ["contents"]))
+
+    return to_object
+
+
+def _InstanceData_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["text"]) is not None:
+        setv(to_object, ["text"], getv(from_object, ["text"]))
+
+    if getv(from_object, ["contents"]) is not None:
+        setv(
+            to_object,
+            ["contents"],
+            _InstanceDataContents_to_vertex(getv(from_object, ["contents"]), to_object),
+        )
+
+    return to_object
+
+
+def _MapInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["map_instance"]) is not None:
+        setv(to_object, ["mapInstance"], getv(from_object, ["map_instance"]))
+
+    return to_object
+
+
+def _EvaluationInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt"]) is not None:
+        setv(
+            to_object,
+            ["prompt"],
+            _InstanceData_to_vertex(getv(from_object, ["prompt"]), to_object),
+        )
+
+    if getv(from_object, ["response"]) is not None:
+        setv(
+            to_object,
+            ["response"],
+            _InstanceData_to_vertex(getv(from_object, ["response"]), to_object),
+        )
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(
+            to_object,
+            ["reference"],
+            _InstanceData_to_vertex(getv(from_object, ["reference"]), to_object),
+        )
+
+    if getv(from_object, ["other_data"]) is not None:
+        setv(
+            to_object,
+            ["otherData"],
+            _MapInstance_to_vertex(getv(from_object, ["other_data"]), to_object),
+        )
+
+    if getv(from_object, ["rubric_groups"]) is not None:
+        setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
+
+    return to_object
+
+
 def _EvaluateInstancesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -519,6 +599,16 @@ def _EvaluateInstancesRequestParameters_to_vertex(
             to_object,
             ["autoraterConfig"],
             getv(from_object, ["autorater_config"]),
+        )
+
+    if getv(from_object, ["metrics"]) is not None:
+        setv(to_object, ["metrics"], t.t_metrics(getv(from_object, ["metrics"])))
+
+    if getv(from_object, ["instance"]) is not None:
+        setv(
+            to_object,
+            ["instance"],
+            _EvaluationInstance_to_vertex(getv(from_object, ["instance"]), to_object),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -618,6 +708,30 @@ def _GenerateInstanceRubricsRequest_to_vertex(
     return to_object
 
 
+def _MetricResult_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["score"]) is not None:
+        setv(to_object, ["score"], getv(from_object, ["score"]))
+
+    if getv(from_object, ["rubricVerdicts"]) is not None:
+        setv(
+            to_object,
+            ["rubric_verdicts"],
+            getv(from_object, ["rubricVerdicts"]),
+        )
+
+    if getv(from_object, ["explanation"]) is not None:
+        setv(to_object, ["explanation"], getv(from_object, ["explanation"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    return to_object
+
+
 def _EvaluateInstancesResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -629,6 +743,16 @@ def _EvaluateInstancesResponse_from_vertex(
             to_object,
             ["rubric_based_metric_result"],
             getv(from_object, ["rubricBasedMetricResult"]),
+        )
+
+    if getv(from_object, ["metricResults"]) is not None:
+        setv(
+            to_object,
+            ["metric_results"],
+            [
+                _MetricResult_from_vertex(item, to_object)
+                for item in getv(from_object, ["metricResults"])
+            ],
         )
 
     if getv(from_object, ["bleuResults"]) is not None:
@@ -784,6 +908,8 @@ class Evals(_api_module.BaseModule):
         ] = None,
         rubric_based_metric_input: Optional[types.RubricBasedMetricInputOrDict] = None,
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
+        metrics: Optional[list[types.MetricOrDict]] = None,
+        instance: Optional[types.EvaluationInstanceOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """Evaluates instances based on a given metric."""
@@ -800,6 +926,8 @@ class Evals(_api_module.BaseModule):
             tool_parameter_kv_match_input=tool_parameter_kv_match_input,
             rubric_based_metric_input=rubric_based_metric_input,
             autorater_config=autorater_config,
+            metrics=metrics,
+            instance=instance,
             config=config,
         )
 
@@ -933,7 +1061,7 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         model: Union[str, Callable[[Any], Any]],
-        src: Union[str, pd.DataFrame],
+        src: Union[str, pd.DataFrame, types.EvaluationDataset],
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
     ) -> types.EvaluationDataset:
         """Runs inference on a dataset for evaluation.
@@ -947,7 +1075,9 @@ class Evals(_api_module.BaseModule):
             logic, provide a callable function that accepts a prompt and returns
             a response.
           src: The source of the dataset. Can be a string (path to a local file,
-            a GCS path, or a BigQuery table) or a Pandas DataFrame.
+            a GCS path, or a BigQuery table), a Pandas DataFrame, or an
+            EvaluationDataset object. If an EvaluationDataset is provided, it
+            must have `eval_dataset_df` populated.
           config: The optional configuration for the inference run. Must be a
             dict or `types.EvalRunInferenceConfig` type. - dest: The destination
             path for storage of the inference results. - prompt_template: The
@@ -962,6 +1092,14 @@ class Evals(_api_module.BaseModule):
             config = types.EvalRunInferenceConfig()
         if isinstance(config, dict):
             config = types.EvalRunInferenceConfig.model_validate(config)
+
+        if isinstance(src, types.EvaluationDataset):
+            if src.eval_dataset_df is None:
+                raise ValueError(
+                    "EvaluationDataset must have eval_dataset_df populated."
+                )
+            src = src.eval_dataset_df
+
         return _evals_common._execute_inference(  # type: ignore[no-any-return]
             api_client=self._api_client,
             model=model,
@@ -1100,7 +1238,7 @@ class Evals(_api_module.BaseModule):
         predefined_spec_name: Optional[Union[str, "types.PrebuiltMetric"]] = None,
         metric_spec_parameters: Optional[dict[str, Any]] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
-    ) -> "pd.DataFrame":
+    ) -> types.EvaluationDataset:
         """Generates rubrics for each prompt in the source and adds them as a new column
 
         structured as a dictionary.
@@ -1145,9 +1283,11 @@ class Evals(_api_module.BaseModule):
             config: Optional. Configuration for the rubric generation process.
 
         Returns:
-            DataFrame with an added column named `rubric_groups`. Each cell in
-            this column contains a dictionary like: {rubric_group_name:
-            [list[Rubric]]}.
+            An `EvaluationDataset` with an added column named `rubric_groups` in
+            its
+            `eval_dataset_df`. Each cell in this column contains a dictionary
+            like:
+            {rubric_group_name: [list[Rubric]]}.
         """
         if isinstance(src, types.EvaluationDataset):
             if src.eval_dataset_df is None:
@@ -1184,7 +1324,6 @@ class Evals(_api_module.BaseModule):
 
         rubric_gen_spec = None
         predefined_spec = None
-        actual_predefined_spec_name = None
 
         if predefined_spec_name:
             if prompt_template:
@@ -1291,7 +1430,7 @@ class Evals(_api_module.BaseModule):
             "Rubric generation complete. Added column 'rubric_groups' with key"
             f" '{rubric_group_name}'."
         )
-        return prompts_with_rubrics
+        return types.EvaluationDataset(eval_dataset_df=prompts_with_rubrics)
 
 
 class AsyncEvals(_api_module.BaseModule):
@@ -1313,6 +1452,8 @@ class AsyncEvals(_api_module.BaseModule):
         ] = None,
         rubric_based_metric_input: Optional[types.RubricBasedMetricInputOrDict] = None,
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
+        metrics: Optional[list[types.MetricOrDict]] = None,
+        instance: Optional[types.EvaluationInstanceOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """Evaluates instances based on a given metric."""
@@ -1329,6 +1470,8 @@ class AsyncEvals(_api_module.BaseModule):
             tool_parameter_kv_match_input=tool_parameter_kv_match_input,
             rubric_based_metric_input=rubric_based_metric_input,
             autorater_config=autorater_config,
+            metrics=metrics,
+            instance=instance,
             config=config,
         )
 
