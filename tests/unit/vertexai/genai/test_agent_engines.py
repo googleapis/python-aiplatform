@@ -1624,9 +1624,13 @@ class TestAgentEngine:
             )
 
     def test_query_agent_engine_async_stream(self):
+        async def mock_async_generator():
+            yield genai_types.HttpResponse(body=b"")
+
         with mock.patch.object(
-            self.client.agent_engines._api_client, "request_streamed"
+            self.client.agent_engines._api_client, "async_request_streamed"
         ) as request_mock:
+            request_mock.return_value = mock_async_generator()
             agent = self.client.agent_engines._register_api_methods(
                 agent=_genai_types.AgentEngine(
                     api_client=self.client.agent_engines,

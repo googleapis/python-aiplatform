@@ -19,7 +19,7 @@ import functools
 import json
 import logging
 import time
-from typing import Any, Iterator, Optional, Sequence, Tuple, Union
+from typing import Any, AsyncIterator, Iterator, Optional, Sequence, Tuple, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
@@ -3126,6 +3126,43 @@ class AgentEngines(_api_module.BaseModule):
         for response in self._api_client.request_streamed(
             "post", path, request_dict, http_options
         ):
+            yield response
+
+    async def _async_stream_query(
+        self,
+        *,
+        name: str,
+        config: Optional[types.QueryAgentEngineConfigOrDict] = None,
+    ) -> AsyncIterator[Any]:
+        """Streams the response of the agent engine asynchronously."""
+        parameter_model = types._QueryAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+        request_dict = _QueryAgentEngineRequestParameters_to_vertex(parameter_model)
+        request_url_dict = request_dict.get("_url")
+        if request_url_dict:
+            path = "{name}:streamQuery?alt=sse".format_map(request_url_dict)
+        else:
+            path = "{name}:streamQuery?alt=sse"
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+        http_options = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+        async_iterator = await self._api_client.async_request_streamed(
+            "post", path, request_dict, http_options
+        )
+        async for response in async_iterator:
             yield response
 
     def create_memory(
