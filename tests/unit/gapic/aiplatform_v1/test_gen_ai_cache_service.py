@@ -4723,6 +4723,7 @@ def test_create_cached_content_rest_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "google_maps": {},
                 "enterprise_web_search": {
                     "exclude_domains": [
                         "exclude_domains_value1",
@@ -5227,6 +5228,7 @@ def test_update_cached_content_rest_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "google_maps": {},
                 "enterprise_web_search": {
                     "exclude_domains": [
                         "exclude_domains_value1",
@@ -6593,6 +6595,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "google_maps": {},
                 "enterprise_web_search": {
                     "exclude_domains": [
                         "exclude_domains_value1",
@@ -7129,6 +7132,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "google_maps": {},
                 "enterprise_web_search": {
                     "exclude_domains": [
                         "exclude_domains_value1",
