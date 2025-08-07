@@ -6805,6 +6805,12 @@ def test_append_event_rest_call_success(request_type):
                             "title": "title_value",
                             "text": "text_value",
                         },
+                        "maps": {
+                            "uri": "uri_value",
+                            "title": "title_value",
+                            "text": "text_value",
+                            "place_id": "place_id_value",
+                        },
                     }
                 ],
                 "grounding_supports": [
@@ -6820,6 +6826,7 @@ def test_append_event_rest_call_success(request_type):
                     }
                 ],
                 "retrieval_metadata": {"google_search_dynamic_retrieval_score": 0.3902},
+                "google_maps_widget_context_token": "google_maps_widget_context_token_value",
             },
             "partial": True,
             "turn_complete": True,
@@ -8963,6 +8970,12 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                             "title": "title_value",
                             "text": "text_value",
                         },
+                        "maps": {
+                            "uri": "uri_value",
+                            "title": "title_value",
+                            "text": "text_value",
+                            "place_id": "place_id_value",
+                        },
                     }
                 ],
                 "grounding_supports": [
@@ -8978,6 +8991,7 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                     }
                 ],
                 "retrieval_metadata": {"google_search_dynamic_retrieval_score": 0.3902},
+                "google_maps_widget_context_token": "google_maps_widget_context_token_value",
             },
             "partial": True,
             "turn_complete": True,
