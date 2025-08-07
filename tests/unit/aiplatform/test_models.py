@@ -524,6 +524,9 @@ _TEST_METRIC_NAME_GPU_UTILIZATION = (
 _TEST_METRIC_NAME_REQUEST_COUNT = (
     "aiplatform.googleapis.com/prediction/online/request_count"
 )
+_TEST_METRIC_NAME_PUBSUB_NUM_UNDELIVERED_MESSAGE = (
+    "pubsub.googleapis.com/subscription/num_undelivered_messages"
+)
 
 _TEST_LABELS = {"label1": "value1", "label2": "value2"}
 
@@ -2537,6 +2540,72 @@ class TestModel:
                 gca_machine_resources_v1beta1.AutoscalingMetricSpec(
                     metric_name=_TEST_METRIC_NAME_REQUEST_COUNT,
                     target=600,
+                ),
+            ],
+        )
+        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            enable_container_logging=True,
+            faster_deployment_config=gca_endpoint_v1beta1.FasterDeploymentConfig(),
+            system_labels=_TEST_LABELS,
+        )
+        preview_deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_model_mock",
+        "create_endpoint_mock",
+        "get_endpoint_mock",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_preview_deploy_no_endpoint_dedicated_resources_autoscaling_pubsub_num_undelivered_messages(
+        self, preview_deploy_model_mock, sync
+    ):
+        test_model = preview_models.Model(_TEST_ID).preview
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+
+        test_endpoint = test_model.deploy(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            system_labels=_TEST_LABELS,
+            autoscaling_target_pubsub_num_undelivered_messages=3,
+            autoscaling_pubsub_subscription_labels={
+                "subscription_id": "test_subscription_id",
+                "project_id": "test_project_id",
+            },
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=gca_machine_resources_v1beta1.MachineSpec(
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+            ),
+            min_replica_count=1,
+            max_replica_count=1,
+            autoscaling_metric_specs=[
+                gca_machine_resources_v1beta1.AutoscalingMetricSpec(
+                    metric_name=_TEST_METRIC_NAME_PUBSUB_NUM_UNDELIVERED_MESSAGE,
+                    target=3,
+                    monitored_resource_labels={
+                        "subscription_id": "test_subscription_id",
+                        "project_id": "test_project_id",
+                    },
                 ),
             ],
         )

@@ -720,6 +720,8 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
@@ -803,6 +805,11 @@ class Endpoint(aiplatform.Endpoint):
               specified. A default value of 60 will be used if not specified.
             autoscaling_target_request_count_per_minute (int): Target request
               count per minute per instance.
+            autoscaling_target_pubsub_num_undelivered_messages (int): Target
+              number of pubsub undelivered messages per instance.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
+              Monitored resource labels as key value pairs for metric filtering
+              for pubsub_num_undelivered_messages.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -874,6 +881,8 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
+            autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
@@ -904,6 +913,8 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
@@ -981,6 +992,11 @@ class Endpoint(aiplatform.Endpoint):
               specified. A default value of 60 will be used if not specified.
             autoscaling_target_request_count_per_minute (int): Target request
               count per minute per instance.
+            autoscaling_target_pubsub_num_undelivered_messages (int): Target
+              number of pubsub undelivered messages per instance.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
+              Monitored resource labels as key value pairs for metric filtering
+              for pubsub_num_undelivered_messages.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -1041,6 +1057,8 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
+            autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
@@ -1078,6 +1096,8 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
@@ -1162,6 +1182,11 @@ class Endpoint(aiplatform.Endpoint):
               not specified.
             autoscaling_target_request_count_per_minute (int): Optional. Target
               request count per minute per instance.
+            autoscaling_target_pubsub_num_undelivered_messages (int): Optional.
+              Target number of pubsub undelivered messages per instance.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
+              Monitored resource labels as key value pairs for metric filtering
+              for pubsub_num_undelivered_messages.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -1249,6 +1274,8 @@ class Endpoint(aiplatform.Endpoint):
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_request_count_per_minute
                 or autoscaling_target_cpu_utilization
+                or autoscaling_target_pubsub_num_undelivered_messages
+                or autoscaling_pubsub_subscription_labels
             )
 
             # If the model supports both automatic and dedicated deployment resources,
@@ -1263,7 +1290,9 @@ class Endpoint(aiplatform.Endpoint):
                     "The machine_type, accelerator_type and accelerator_count, "
                     "autoscaling_target_accelerator_duty_cycle, "
                     "autoscaling_target_cpu_utilization, "
-                    "autoscaling_target_request_count_per_minute parameters "
+                    "autoscaling_target_request_count_per_minute, "
+                    "autoscaling_target_pubsub_num_undelivered_messages, "
+                    "autoscaling_pubsub_subscription_labels parameters "
                     "are ignored."
                 )
 
@@ -1324,6 +1353,19 @@ class Endpoint(aiplatform.Endpoint):
                         [autoscaling_metric_spec]
                     )
 
+                if autoscaling_target_pubsub_num_undelivered_messages:
+                    autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                        metric_name=(
+                            "pubsub.googleapis.com/subscription/"
+                            "num_undelivered_messages"
+                        ),
+                        target=autoscaling_target_pubsub_num_undelivered_messages,
+                        monitored_resource_labels=autoscaling_pubsub_subscription_labels,
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
                 dedicated_resources.machine_spec = machine_spec
 
                 # Checking if flag fast_tryout_enabled is set, only in v1beta1
@@ -1371,6 +1413,8 @@ class Endpoint(aiplatform.Endpoint):
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
                 or autoscaling_target_request_count_per_minute
+                or autoscaling_target_pubsub_num_undelivered_messages
+                or autoscaling_pubsub_subscription_labels
             )
 
             if provided_custom_machine_spec:
@@ -1379,7 +1423,9 @@ class Endpoint(aiplatform.Endpoint):
                     "The machine_type, accelerator_type and accelerator_count, "
                     "autoscaling_target_accelerator_duty_cycle, "
                     "autoscaling_target_cpu_utilization, "
-                    "autoscaling_target_request_count_per_minute parameters "
+                    "autoscaling_target_request_count_per_minute, "
+                    "autoscaling_target_pubsub_num_undelivered_messages, "
+                    "autoscaling_pubsub_subscription_labels parameters "
                     "may not be set when `deployment_resource_pool` is "
                     "specified."
                 )
@@ -1639,6 +1685,8 @@ class Model(aiplatform.Model):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
@@ -1743,6 +1791,11 @@ class Model(aiplatform.Model):
               not specified.
             autoscaling_target_request_count_per_minute (int): Optional. Target
               request count per minute per instance.
+            autoscaling_target_pubsub_num_undelivered_messages (int): Optional. Target
+              number of pubsub undelivered messages per instance.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
+              Monitored resource labels as key value pairs for metric filtering
+              for pubsub_num_undelivered_messages.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -1831,6 +1884,8 @@ class Model(aiplatform.Model):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
+            autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
@@ -1870,6 +1925,8 @@ class Model(aiplatform.Model):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
@@ -1966,6 +2023,11 @@ class Model(aiplatform.Model):
               not specified.
             autoscaling_target_request_count_per_minute (int): Optional. Target
               request count per minute per instance.
+            autoscaling_target_pubsub_num_undelivered_messages (int): Optional. Target
+              number of pubsub undelivered messages per instance.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
+              Monitored resource labels as key value pairs for metric filtering
+              for pubsub_num_undelivered_messages.
             deployment_resource_pool (DeploymentResourcePool): Optional.
               Resource pool where the model will be deployed. All models that
               are deployed to the same DeploymentResourcePool will be hosted in
@@ -2059,6 +2121,8 @@ class Model(aiplatform.Model):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
+            autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,

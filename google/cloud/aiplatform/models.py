@@ -1364,6 +1364,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         enable_access_logging=False,
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
@@ -1460,6 +1462,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
+            autoscaling_target_pubsub_num_undelivered_messages (int):
+                Optional. The target number of pubsub undelivered messages for autoscaling.
+                If set, the model will be scaled based on the pubsub queue size.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]):
+                Optional. Monitored resource labels as key value pairs for
+                metric filtering for pubsub_num_undelivered_messages.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
             disable_container_logging (bool):
@@ -1541,6 +1549,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
+            autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
@@ -1574,6 +1584,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
@@ -1673,6 +1685,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
+            autoscaling_target_pubsub_num_undelivered_messages (int):
+                Optional. The target number of pubsub undelivered messages for autoscaling.
+                If set, the model will be scaled based on the pubsub queue size.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]):
+                Optional. Monitored resource labels as key value pairs for
+                metric filtering for pubsub_num_undelivered_messages.
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
@@ -1731,6 +1749,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
+            autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
@@ -1771,6 +1791,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
@@ -1876,6 +1898,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             autoscaling_target_request_count_per_minute (int):
                 Optional. Target request count per minute per instance.
+            autoscaling_target_pubsub_num_undelivered_messages (int):
+                Optional. Target pubsub queue size per instance.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]):
+                Optional. Monitored resource labels as key value pairs for
+                metric filtering for pubsub_num_undelivered_messages.
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
@@ -1946,6 +1973,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
                 or autoscaling_target_request_count_per_minute
+                or autoscaling_target_pubsub_num_undelivered_messages
+                or autoscaling_pubsub_subscription_labels
             )
 
             if provided_custom_machine_spec:
@@ -1954,7 +1983,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "The machine_type, accelerator_type and accelerator_count, "
                     "autoscaling_target_accelerator_duty_cycle, "
                     "autoscaling_target_cpu_utilization, "
-                    "autoscaling_target_request_count_per_minute parameters "
+                    "autoscaling_target_request_count_per_minute, "
+                    "autoscaling_target_pubsub_num_undelivered_messages, "
+                    "autoscaling_pubsub_subscription_labels parameters "
                     "may not be set when `deployment_resource_pool` is "
                     "specified."
                 )
@@ -2008,6 +2039,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
                 or autoscaling_target_request_count_per_minute
+                or autoscaling_target_pubsub_num_undelivered_messages
+                or autoscaling_pubsub_subscription_labels
             )
 
             # If the model supports both automatic and dedicated deployment resources,
@@ -2022,7 +2055,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "The machine_type, accelerator_type and accelerator_count, "
                     "autoscaling_target_accelerator_duty_cycle, "
                     "autoscaling_target_cpu_utilization, "
-                    "autoscaling_target_request_count_per_minute parameters "
+                    "autoscaling_target_request_count_per_minute, "
+                    "autoscaling_target_pubsub_num_undelivered_messages, "
+                    "autoscaling_pubsub_subscription_labels parameters "
                     "are ignored."
                 )
 
@@ -2074,6 +2109,19 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                             ),
                             target=autoscaling_target_request_count_per_minute,
                         )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
+                if autoscaling_target_pubsub_num_undelivered_messages:
+                    autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                        metric_name=(
+                            "pubsub.googleapis.com/subscription/"
+                            "num_undelivered_messages"
+                        ),
+                        target=autoscaling_target_pubsub_num_undelivered_messages,
+                        monitored_resource_labels=autoscaling_pubsub_subscription_labels,
                     )
                     dedicated_resources.autoscaling_metric_specs.extend(
                         [autoscaling_metric_spec]
@@ -4399,6 +4447,8 @@ class PrivateEndpoint(Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
@@ -4575,6 +4625,8 @@ class PrivateEndpoint(Endpoint):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
+            autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
         )
 
     def update(
@@ -5647,6 +5699,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         enable_access_logging=False,
         disable_container_logging: bool = False,
         private_service_connect_config: Optional[
@@ -5765,6 +5819,12 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
+            autoscaling_target_pubsub_num_undelivered_messages (int):
+                Optional. The target number of pubsub undelivered messages for autoscaling.
+                If set, the model will be scaled based on the pubsub queue size.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]):
+                Optional. Monitored resource labels as key value pairs for
+                metric filtering for pubsub_num_undelivered_messages.
             enable_access_logging (bool):
                 Whether to enable endpoint access logging. Defaults to False.
             disable_container_logging (bool):
@@ -5818,8 +5878,12 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
-                available_replica_count reaches required_replica_count, and the
-                rest of the replicas will be retried.
+            autoscaling_target_pubsub_num_undelivered_messages (int):
+                Optional. The target number of pubsub undelivered messages for autoscaling.
+                If set, the model will be scaled based on the pubsub queue size.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]):
+                Optional. Monitored resource labels as key value pairs for
+                metric filtering for pubsub_num_undelivered_messages.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -5885,6 +5949,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
+            autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
@@ -5928,6 +5994,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
+        autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
@@ -6048,6 +6116,12 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
+            autoscaling_target_pubsub_num_undelivered_messages (int):
+                Optional. The target number of pubsub undelivered messages for autoscaling.
+                If set, the model will be scaled based on the pubsub queue size.
+            autoscaling_pubsub_subscription_labels (Dict[str, str]):
+                Optional. Monitored resource labels as key value pairs for
+                metric filtering for pubsub_num_undelivered_messages.
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
@@ -6137,6 +6211,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
+            autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             spot=spot,
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
