@@ -448,8 +448,8 @@ class AutoscalingMetricSpec(proto.Message):
             provided.
         monitored_resource_labels (MutableMapping[str, str]):
             Optional. The Cloud Monitoring monitored
-            resource labels used for metrics filtering. See
-            Cloud Monitoring Labels
+            resource labels as key value pairs used for
+            metrics filtering. See Cloud Monitoring Labels
             https://cloud.google.com/monitoring/api/v3/metric-model#generic-label-info
     """
 
