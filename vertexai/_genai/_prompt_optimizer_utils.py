@@ -15,7 +15,6 @@
 """Utility functions for prompt optimizer."""
 
 import json
-from google.genai import errors
 from . import types
 
 
@@ -65,7 +64,8 @@ def _clean_and_parse_optimized_prompt(output_str: str):
     try:
         return json.loads(cleaned_string)
     except json.JSONDecodeError as e:
-        raise errors.ClinentError(
+        # TODO(b/437144880): raise errors.ClientError here instead
+        raise ValueError(
             f"Failed to parse the response from prompt optimizer endpoint. {e}"
         ) from e
 
