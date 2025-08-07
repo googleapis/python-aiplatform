@@ -105,6 +105,7 @@ class AutoMlImageSegmentationInputs(proto.Message):
                 Expected to have low latency, but may have lower
                 prediction quality than other mobile models.
         """
+
         MODEL_TYPE_UNSPECIFIED = 0
         CLOUD_HIGH_ACCURACY_1 = 1
         CLOUD_LOW_ACCURACY_1 = 2
@@ -154,6 +155,7 @@ class AutoMlImageSegmentationMetadata(proto.Message):
                 increase its quality, since it already has
                 converged.
         """
+
         SUCCESSFUL_STOP_REASON_UNSPECIFIED = 0
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2

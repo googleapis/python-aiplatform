@@ -164,13 +164,13 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             number=1,
             message="ThresholdConfig",
         )
-        attribution_score_skew_thresholds: MutableMapping[
-            str, "ThresholdConfig"
-        ] = proto.MapField(
-            proto.STRING,
-            proto.MESSAGE,
-            number=2,
-            message="ThresholdConfig",
+        attribution_score_skew_thresholds: MutableMapping[str, "ThresholdConfig"] = (
+            proto.MapField(
+                proto.STRING,
+                proto.MESSAGE,
+                number=2,
+                message="ThresholdConfig",
+            )
         )
         default_skew_threshold: "ThresholdConfig" = proto.Field(
             proto.MESSAGE,
@@ -207,13 +207,13 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             number=1,
             message="ThresholdConfig",
         )
-        attribution_score_drift_thresholds: MutableMapping[
-            str, "ThresholdConfig"
-        ] = proto.MapField(
-            proto.STRING,
-            proto.MESSAGE,
-            number=2,
-            message="ThresholdConfig",
+        attribution_score_drift_thresholds: MutableMapping[str, "ThresholdConfig"] = (
+            proto.MapField(
+                proto.STRING,
+                proto.MESSAGE,
+                number=2,
+                message="ThresholdConfig",
+            )
         )
         default_drift_threshold: "ThresholdConfig" = proto.Field(
             proto.MESSAGE,
@@ -277,6 +277,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                     BIGQUERY (3):
                         Predictions are in BigQuery.
                 """
+
                 PREDICTION_FORMAT_UNSPECIFIED = 0
                 JSONL = 2
                 BIGQUERY = 3
@@ -303,7 +304,9 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             proto.BOOL,
             number=1,
         )
-        explanation_baseline: "ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline" = proto.Field(
+        explanation_baseline: (
+            "ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline"
+        ) = proto.Field(
             proto.MESSAGE,
             number=2,
             message="ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline",

@@ -45,7 +45,6 @@ _api_client._append_library_version_headers = _add_tracking_headers
 
 
 class AsyncClient:
-
     """Async Client for the GenAI SDK."""
 
     def __init__(self, api_client: genai_client.Client):

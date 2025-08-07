@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import accelerator_type as gca_accelerator_type
+from google.cloud.aiplatform_v1.types import (
+    accelerator_type as gca_accelerator_type,
+)
 from google.cloud.aiplatform_v1.types import (
     reservation_affinity as gca_reservation_affinity,
 )
@@ -199,12 +201,12 @@ class DedicatedResources(proto.Message):
         proto.INT32,
         number=9,
     )
-    autoscaling_metric_specs: MutableSequence[
-        "AutoscalingMetricSpec"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=4,
-        message="AutoscalingMetricSpec",
+    autoscaling_metric_specs: MutableSequence["AutoscalingMetricSpec"] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=4,
+            message="AutoscalingMetricSpec",
+        )
     )
     spot: bool = proto.Field(
         proto.BOOL,

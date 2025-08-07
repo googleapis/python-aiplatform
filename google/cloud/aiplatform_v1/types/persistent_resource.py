@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -155,6 +157,7 @@ class PersistentResource(proto.Message):
                 The UPDATING state indicates the persistent
                 resource is being updated.
         """
+
         STATE_UNSPECIFIED = 0
         PROVISIONING = 1
         RUNNING = 3

@@ -63,10 +63,14 @@ _LOGGER = std_logging.getLogger(__name__)
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1.services.specialist_pool_service import pagers
+from google.cloud.aiplatform_v1.services.specialist_pool_service import (
+    pagers,
+)
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import specialist_pool
-from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
+from google.cloud.aiplatform_v1.types import (
+    specialist_pool as gca_specialist_pool,
+)
 from google.cloud.aiplatform_v1.types import specialist_pool_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -755,21 +759,25 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
             ):  # pragma: NO COVER
                 _LOGGER.debug(
                     "Created client `google.cloud.aiplatform_v1.SpecialistPoolServiceClient`.",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
-                        "universeDomain": getattr(
-                            self._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
-                        "credentialsType": None,
-                    },
+                    extra=(
+                        {
+                            "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                            "universeDomain": getattr(
+                                self._transport._credentials, "universe_domain", ""
+                            ),
+                            "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
+                            "credentialsInfo": getattr(
+                                self.transport._credentials,
+                                "get_cred_info",
+                                lambda: None,
+                            )(),
+                        }
+                        if hasattr(self._transport, "_credentials")
+                        else {
+                            "serviceName": "google.cloud.aiplatform.v1.SpecialistPoolService",
+                            "credentialsType": None,
+                        }
+                    ),
                 )
 
     def create_specialist_pool(

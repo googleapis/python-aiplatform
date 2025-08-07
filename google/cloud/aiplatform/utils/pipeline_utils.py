@@ -261,7 +261,7 @@ class PipelineRuntimeConfigBuilder(object):
 
 
 def _parse_runtime_parameters(
-    runtime_config_spec: Mapping[str, Any]
+    runtime_config_spec: Mapping[str, Any],
 ) -> Optional[Dict[str, Any]]:
     """Extracts runtime parameters from runtime config json spec.
 

@@ -56,6 +56,7 @@ class HttpElementLocation(proto.Enum):
         HTTP_IN_COOKIE (5):
             Element is in the HTTP request cookie.
     """
+
     HTTP_IN_UNSPECIFIED = 0
     HTTP_IN_QUERY = 1
     HTTP_IN_HEADER = 2
@@ -83,6 +84,7 @@ class AuthType(proto.Enum):
         OIDC_AUTH (8):
             OpenID Connect (OIDC) Auth.
     """
+
     AUTH_TYPE_UNSPECIFIED = 0
     NO_AUTH = 1
     API_KEY_AUTH = 2

@@ -570,9 +570,9 @@ def create_custom_job_mock_with_psc_interface_config():
 
 
 _EXPERIMENT_MOCK = copy.deepcopy(_EXPERIMENT_MOCK)
-_EXPERIMENT_MOCK.metadata[
-    constants._BACKING_TENSORBOARD_RESOURCE_KEY
-] = _TEST_TENSORBOARD_NAME
+_EXPERIMENT_MOCK.metadata[constants._BACKING_TENSORBOARD_RESOURCE_KEY] = (
+    _TEST_TENSORBOARD_NAME
+)
 
 _EXPERIMENT_RUN_MOCK = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
 

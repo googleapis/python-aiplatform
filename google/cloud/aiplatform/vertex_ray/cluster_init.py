@@ -540,9 +540,9 @@ def update_ray_cluster(
             not_merged = 0
         else:
             # No duplication w/ head node, write the 2nd worker node to the 2nd resource pool.
-            current_persistent_resource.resource_pools[
-                i + not_merged
-            ].replica_count = worker_node_types[i].node_count
+            current_persistent_resource.resource_pools[i + not_merged].replica_count = (
+                worker_node_types[i].node_count
+            )
             # New worker_node_type.node_count should be >=1 unless the worker_node_type
             # and head_node_type are merged due to the same machine specs.
             if worker_node_types[i].node_count == 0:

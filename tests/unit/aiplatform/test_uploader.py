@@ -31,12 +31,16 @@ from absl.testing import parameterized
 
 from google.api_core import datetime_helpers
 from google.cloud import storage
-from google.cloud.aiplatform.compat.services import tensorboard_service_client
+from google.cloud.aiplatform.compat.services import (
+    tensorboard_service_client,
+)
 from google.cloud.aiplatform.compat.types import tensorboard_data
 from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment as tensorboard_experiment_type,
 )
-from google.cloud.aiplatform.compat.types import tensorboard_run as tensorboard_run_type
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_run as tensorboard_run_type,
+)
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as tensorboard_time_series_type,
@@ -49,7 +53,9 @@ from google.cloud.aiplatform.tensorboard import upload_tracker
 from google.cloud.aiplatform.tensorboard import uploader as uploader_lib
 from google.cloud.aiplatform.tensorboard import uploader_constants
 from google.cloud.aiplatform.tensorboard import uploader_utils
-from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
+    profile_uploader,
+)
 from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
     grpc as transports_grpc,
 )
@@ -1359,7 +1365,7 @@ class TensorboardUploaderTest(tf.test.TestCase, parameterized.TestCase):
         bytes_2 = b"\x0a\x7fbogus"
 
         logdir = self.get_temp_dir()
-        for (i, b) in enumerate([bytes_0, bytes_1, bytes_2]):
+        for i, b in enumerate([bytes_0, bytes_1, bytes_2]):
             run_dir = os.path.join(logdir, "run_%04d" % i)
             event = event_pb2.Event(step=0, wall_time=123 * i, graph_def=b)
             with FileWriter(run_dir) as writer:

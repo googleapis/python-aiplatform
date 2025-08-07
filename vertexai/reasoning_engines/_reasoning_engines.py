@@ -524,7 +524,7 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
 
 
 def _validate_reasoning_engine_or_raise(
-    reasoning_engine: Union[Queryable, OperationRegistrable, StreamQueryable]
+    reasoning_engine: Union[Queryable, OperationRegistrable, StreamQueryable],
 ) -> Union[Queryable, OperationRegistrable, StreamQueryable]:
     """Tries to validate the reasoning engine.
 

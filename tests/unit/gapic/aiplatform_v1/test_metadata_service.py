@@ -69,7 +69,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.metadata_service import (
     MetadataServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1.services.metadata_service import MetadataServiceClient
+from google.cloud.aiplatform_v1.services.metadata_service import (
+    MetadataServiceClient,
+)
 from google.cloud.aiplatform_v1.services.metadata_service import pagers
 from google.cloud.aiplatform_v1.services.metadata_service import transports
 from google.cloud.aiplatform_v1.types import artifact
@@ -82,10 +84,14 @@ from google.cloud.aiplatform_v1.types import execution
 from google.cloud.aiplatform_v1.types import execution as gca_execution
 from google.cloud.aiplatform_v1.types import lineage_subgraph
 from google.cloud.aiplatform_v1.types import metadata_schema
-from google.cloud.aiplatform_v1.types import metadata_schema as gca_metadata_schema
+from google.cloud.aiplatform_v1.types import (
+    metadata_schema as gca_metadata_schema,
+)
 from google.cloud.aiplatform_v1.types import metadata_service
 from google.cloud.aiplatform_v1.types import metadata_store
-from google.cloud.aiplatform_v1.types import metadata_store as gca_metadata_store
+from google.cloud.aiplatform_v1.types import (
+    metadata_store as gca_metadata_store,
+)
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -1265,9 +1271,9 @@ def test_create_metadata_store_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.create_metadata_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.create_metadata_store] = (
+            mock_rpc
+        )
         request = {}
         client.create_metadata_store(request)
 
@@ -1636,9 +1642,9 @@ def test_get_metadata_store_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_metadata_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_metadata_store] = (
+            mock_rpc
+        )
         request = {}
         client.get_metadata_store(request)
 
@@ -1982,9 +1988,9 @@ def test_list_metadata_stores_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_metadata_stores
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_metadata_stores] = (
+            mock_rpc
+        )
         request = {}
         client.list_metadata_stores(request)
 
@@ -2524,9 +2530,9 @@ def test_delete_metadata_store_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.delete_metadata_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.delete_metadata_store] = (
+            mock_rpc
+        )
         request = {}
         client.delete_metadata_store(request)
 
@@ -7727,9 +7733,9 @@ def test_add_context_children_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.add_context_children
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.add_context_children] = (
+            mock_rpc
+        )
         request = {}
         client.add_context_children(request)
 
@@ -8768,9 +8774,9 @@ def test_create_execution_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.create_execution
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.create_execution] = (
+            mock_rpc
+        )
         request = {}
         client.create_execution(request)
 
@@ -10000,9 +10006,9 @@ def test_update_execution_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.update_execution
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.update_execution] = (
+            mock_rpc
+        )
         request = {}
         client.update_execution(request)
 
@@ -10347,9 +10353,9 @@ def test_delete_execution_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.delete_execution
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.delete_execution] = (
+            mock_rpc
+        )
         request = {}
         client.delete_execution(request)
 
@@ -10679,9 +10685,9 @@ def test_purge_executions_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.purge_executions
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.purge_executions] = (
+            mock_rpc
+        )
         request = {}
         client.purge_executions(request)
 
@@ -11015,9 +11021,9 @@ def test_add_execution_events_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.add_execution_events
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.add_execution_events] = (
+            mock_rpc
+        )
         request = {}
         client.add_execution_events(request)
 
@@ -11715,9 +11721,9 @@ def test_create_metadata_schema_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.create_metadata_schema
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.create_metadata_schema] = (
+            mock_rpc
+        )
         request = {}
         client.create_metadata_schema(request)
 
@@ -12099,9 +12105,9 @@ def test_get_metadata_schema_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_metadata_schema
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_metadata_schema] = (
+            mock_rpc
+        )
         request = {}
         client.get_metadata_schema(request)
 
@@ -12457,9 +12463,9 @@ def test_list_metadata_schemas_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_metadata_schemas
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_metadata_schemas] = (
+            mock_rpc
+        )
         request = {}
         client.list_metadata_schemas(request)
 
@@ -13273,9 +13279,9 @@ def test_create_metadata_store_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.create_metadata_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.create_metadata_store] = (
+            mock_rpc
+        )
 
         request = {}
         client.create_metadata_store(request)
@@ -13469,9 +13475,9 @@ def test_get_metadata_store_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_metadata_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_metadata_store] = (
+            mock_rpc
+        )
 
         request = {}
         client.get_metadata_store(request)
@@ -13653,9 +13659,9 @@ def test_list_metadata_stores_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_metadata_stores
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_metadata_stores] = (
+            mock_rpc
+        )
 
         request = {}
         client.list_metadata_stores(request)
@@ -13914,9 +13920,9 @@ def test_delete_metadata_store_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.delete_metadata_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.delete_metadata_store] = (
+            mock_rpc
+        )
 
         request = {}
         client.delete_metadata_store(request)
@@ -16724,9 +16730,9 @@ def test_add_context_children_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.add_context_children
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.add_context_children] = (
+            mock_rpc
+        )
 
         request = {}
         client.add_context_children(request)
@@ -17286,9 +17292,9 @@ def test_create_execution_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.create_execution
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.create_execution] = (
+            mock_rpc
+        )
 
         request = {}
         client.create_execution(request)
@@ -17927,9 +17933,9 @@ def test_update_execution_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.update_execution
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.update_execution] = (
+            mock_rpc
+        )
 
         request = {}
         client.update_execution(request)
@@ -18124,9 +18130,9 @@ def test_delete_execution_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.delete_execution
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.delete_execution] = (
+            mock_rpc
+        )
 
         request = {}
         client.delete_execution(request)
@@ -18307,9 +18313,9 @@ def test_purge_executions_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.purge_executions
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.purge_executions] = (
+            mock_rpc
+        )
 
         request = {}
         client.purge_executions(request)
@@ -18503,9 +18509,9 @@ def test_add_execution_events_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.add_execution_events
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.add_execution_events] = (
+            mock_rpc
+        )
 
         request = {}
         client.add_execution_events(request)
@@ -18880,9 +18886,9 @@ def test_create_metadata_schema_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.create_metadata_schema
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.create_metadata_schema] = (
+            mock_rpc
+        )
 
         request = {}
         client.create_metadata_schema(request)
@@ -19079,9 +19085,9 @@ def test_get_metadata_schema_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_metadata_schema
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_metadata_schema] = (
+            mock_rpc
+        )
 
         request = {}
         client.get_metadata_schema(request)
@@ -19264,9 +19270,9 @@ def test_list_metadata_schemas_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_metadata_schemas
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_metadata_schemas] = (
+            mock_rpc
+        )
 
         request = {}
         client.list_metadata_schemas(request)
@@ -21605,9 +21611,9 @@ def test_create_metadata_store_rest_call_success(request_type):
 def test_create_metadata_store_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -21737,9 +21743,9 @@ def test_get_metadata_store_rest_call_success(request_type):
 def test_get_metadata_store_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -21867,9 +21873,9 @@ def test_list_metadata_stores_rest_call_success(request_type):
 def test_list_metadata_stores_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -21994,9 +22000,9 @@ def test_delete_metadata_store_rest_call_success(request_type):
 def test_delete_metadata_store_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -22223,9 +22229,9 @@ def test_create_artifact_rest_call_success(request_type):
 def test_create_artifact_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -22368,9 +22374,9 @@ def test_get_artifact_rest_call_success(request_type):
 def test_get_artifact_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -22499,9 +22505,9 @@ def test_list_artifacts_rest_call_success(request_type):
 def test_list_artifacts_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -22734,9 +22740,9 @@ def test_update_artifact_rest_call_success(request_type):
 def test_update_artifact_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -22859,9 +22865,9 @@ def test_delete_artifact_rest_call_success(request_type):
 def test_delete_artifact_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -22986,9 +22992,9 @@ def test_purge_artifacts_rest_call_success(request_type):
 def test_purge_artifacts_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -23211,9 +23217,9 @@ def test_create_context_rest_call_success(request_type):
 def test_create_context_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -23352,9 +23358,9 @@ def test_get_context_rest_call_success(request_type):
 def test_get_context_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -23483,9 +23489,9 @@ def test_list_contexts_rest_call_success(request_type):
 def test_list_contexts_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -23715,9 +23721,9 @@ def test_update_context_rest_call_success(request_type):
 def test_update_context_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -23840,9 +23846,9 @@ def test_delete_context_rest_call_success(request_type):
 def test_delete_context_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -23967,9 +23973,9 @@ def test_purge_contexts_rest_call_success(request_type):
 def test_purge_contexts_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -24101,9 +24107,9 @@ def test_add_context_artifacts_and_executions_rest_call_success(request_type):
 def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -24239,9 +24245,9 @@ def test_add_context_children_rest_call_success(request_type):
 def test_add_context_children_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -24373,9 +24379,9 @@ def test_remove_context_children_rest_call_success(request_type):
 def test_remove_context_children_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -24507,9 +24513,9 @@ def test_query_context_lineage_subgraph_rest_call_success(request_type):
 def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -24733,9 +24739,9 @@ def test_create_execution_rest_call_success(request_type):
 def test_create_execution_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -24876,9 +24882,9 @@ def test_get_execution_rest_call_success(request_type):
 def test_get_execution_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -25007,9 +25013,9 @@ def test_list_executions_rest_call_success(request_type):
 def test_list_executions_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -25239,9 +25245,9 @@ def test_update_execution_rest_call_success(request_type):
 def test_update_execution_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -25364,9 +25370,9 @@ def test_delete_execution_rest_call_success(request_type):
 def test_delete_execution_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -25491,9 +25497,9 @@ def test_purge_executions_rest_call_success(request_type):
 def test_purge_executions_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -25621,9 +25627,9 @@ def test_add_execution_events_rest_call_success(request_type):
 def test_add_execution_events_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -25755,9 +25761,9 @@ def test_query_execution_inputs_and_outputs_rest_call_success(request_type):
 def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -25979,9 +25985,9 @@ def test_create_metadata_schema_rest_call_success(request_type):
 def test_create_metadata_schema_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -26124,9 +26130,9 @@ def test_get_metadata_schema_rest_call_success(request_type):
 def test_get_metadata_schema_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -26258,9 +26264,9 @@ def test_list_metadata_schemas_rest_call_success(request_type):
 def test_list_metadata_schemas_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -26392,9 +26398,9 @@ def test_query_artifact_lineage_subgraph_rest_call_success(request_type):
 def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
     transport = transports.MetadataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MetadataServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceClient(transport=transport)
 
@@ -27939,9 +27945,11 @@ async def test_create_metadata_store_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -28087,9 +28095,11 @@ async def test_get_metadata_store_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -28233,9 +28243,11 @@ async def test_list_metadata_stores_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -28376,9 +28388,11 @@ async def test_delete_metadata_store_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -28621,9 +28635,11 @@ async def test_create_artifact_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -28783,9 +28799,11 @@ async def test_get_artifact_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -28931,9 +28949,11 @@ async def test_list_artifacts_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -29183,9 +29203,11 @@ async def test_update_artifact_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -29325,9 +29347,11 @@ async def test_delete_artifact_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -29469,9 +29493,11 @@ async def test_purge_artifacts_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -29711,9 +29737,11 @@ async def test_create_context_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -29871,9 +29899,11 @@ async def test_get_context_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -30018,9 +30048,11 @@ async def test_list_contexts_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -30267,9 +30299,11 @@ async def test_update_context_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -30409,9 +30443,11 @@ async def test_delete_context_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -30553,9 +30589,11 @@ async def test_purge_contexts_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -30708,9 +30746,11 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_interceptors(
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -30862,9 +30902,11 @@ async def test_add_context_children_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -31012,9 +31054,11 @@ async def test_remove_context_children_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -31164,9 +31208,11 @@ async def test_query_context_lineage_subgraph_rest_asyncio_interceptors(
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -31408,9 +31454,11 @@ async def test_create_execution_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -31568,9 +31616,11 @@ async def test_get_execution_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -31716,9 +31766,11 @@ async def test_list_executions_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -31965,9 +32017,11 @@ async def test_update_execution_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -32107,9 +32161,11 @@ async def test_delete_execution_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -32251,9 +32307,11 @@ async def test_purge_executions_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -32398,9 +32456,11 @@ async def test_add_execution_events_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -32552,9 +32612,11 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_interceptors(
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -32792,9 +32854,11 @@ async def test_create_metadata_schema_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -32953,9 +33017,11 @@ async def test_get_metadata_schema_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -33103,9 +33169,11 @@ async def test_list_metadata_schemas_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 
@@ -33255,9 +33323,11 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_interceptors(
         )
     transport = transports.AsyncMetadataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMetadataServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMetadataServiceRestInterceptor()
+        ),
     )
     client = MetadataServiceAsyncClient(transport=transport)
 

@@ -80,6 +80,7 @@ class HarmCategory(proto.Enum):
             Deprecated: Election filter is not longer
             supported. The harm category is civic integrity.
     """
+
     HARM_CATEGORY_UNSPECIFIED = 0
     HARM_CATEGORY_HATE_SPEECH = 1
     HARM_CATEGORY_DANGEROUS_CONTENT = 2
@@ -105,6 +106,7 @@ class Modality(proto.Enum):
         DOCUMENT (5):
             Document, e.g. PDF.
     """
+
     MODALITY_UNSPECIFIED = 0
     TEXT = 1
     IMAGE = 2
@@ -551,6 +553,7 @@ class GenerationConfig(proto.Message):
             AUDIO (3):
                 Audio modality.
         """
+
         MODALITY_UNSPECIFIED = 0
         TEXT = 1
         IMAGE = 2
@@ -570,6 +573,7 @@ class GenerationConfig(proto.Message):
                 Media resolution set to high (zoomed
                 reframing with 256 tokens).
         """
+
         MEDIA_RESOLUTION_UNSPECIFIED = 0
         MEDIA_RESOLUTION_LOW = 1
         MEDIA_RESOLUTION_MEDIUM = 2
@@ -625,12 +629,15 @@ class GenerationConfig(proto.Message):
                     PRIORITIZE_COST (3):
                         Prefer lower cost over higher quality.
                 """
+
                 UNKNOWN = 0
                 PRIORITIZE_QUALITY = 1
                 BALANCED = 2
                 PRIORITIZE_COST = 3
 
-            model_routing_preference: "GenerationConfig.RoutingConfig.AutoRoutingMode.ModelRoutingPreference" = proto.Field(
+            model_routing_preference: (
+                "GenerationConfig.RoutingConfig.AutoRoutingMode.ModelRoutingPreference"
+            ) = proto.Field(
                 proto.ENUM,
                 number=1,
                 optional=True,
@@ -722,12 +729,15 @@ class GenerationConfig(proto.Message):
                 PRIORITIZE_COST (3):
                     Prefer lower cost over higher quality.
             """
+
             FEATURE_SELECTION_PREFERENCE_UNSPECIFIED = 0
             PRIORITIZE_QUALITY = 1
             BALANCED = 2
             PRIORITIZE_COST = 3
 
-        feature_selection_preference: "GenerationConfig.ModelConfig.FeatureSelectionPreference" = proto.Field(
+        feature_selection_preference: (
+            "GenerationConfig.ModelConfig.FeatureSelectionPreference"
+        ) = proto.Field(
             proto.ENUM,
             number=1,
             enum="GenerationConfig.ModelConfig.FeatureSelectionPreference",
@@ -876,6 +886,7 @@ class SafetySetting(proto.Message):
             OFF (5):
                 Turn off the safety filter.
         """
+
         HARM_BLOCK_THRESHOLD_UNSPECIFIED = 0
         BLOCK_LOW_AND_ABOVE = 1
         BLOCK_MEDIUM_AND_ABOVE = 2
@@ -896,6 +907,7 @@ class SafetySetting(proto.Message):
                 The harm block method uses the probability
                 score.
         """
+
         HARM_BLOCK_METHOD_UNSPECIFIED = 0
         SEVERITY = 1
         PROBABILITY = 2
@@ -953,6 +965,7 @@ class SafetyRating(proto.Message):
             HIGH (4):
                 High level of harm.
         """
+
         HARM_PROBABILITY_UNSPECIFIED = 0
         NEGLIGIBLE = 1
         LOW = 2
@@ -974,6 +987,7 @@ class SafetyRating(proto.Message):
             HARM_SEVERITY_HIGH (4):
                 High level of harm severity.
         """
+
         HARM_SEVERITY_UNSPECIFIED = 0
         HARM_SEVERITY_NEGLIGIBLE = 1
         HARM_SEVERITY_LOW = 2
@@ -1153,6 +1167,7 @@ class Candidate(proto.Message):
                 The model response was blocked by Model
                 Armor.
         """
+
         FINISH_REASON_UNSPECIFIED = 0
         STOP = 1
         MAX_TOKENS = 2
@@ -1251,6 +1266,7 @@ class UrlMetadata(proto.Message):
             URL_RETRIEVAL_STATUS_ERROR (2):
                 Url retrieval is failed due to error.
         """
+
         URL_RETRIEVAL_STATUS_UNSPECIFIED = 0
         URL_RETRIEVAL_STATUS_SUCCESS = 1
         URL_RETRIEVAL_STATUS_ERROR = 2

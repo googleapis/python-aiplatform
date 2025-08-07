@@ -72,7 +72,9 @@ from google.cloud.aiplatform_v1.services.model_garden_service import (
 from google.cloud.aiplatform_v1.services.model_garden_service import (
     ModelGardenServiceClient,
 )
-from google.cloud.aiplatform_v1.services.model_garden_service import transports
+from google.cloud.aiplatform_v1.services.model_garden_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1.types import accelerator_type
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import machine_resources
@@ -1297,9 +1299,9 @@ def test_get_publisher_model_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_publisher_model
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_publisher_model] = (
+            mock_rpc
+        )
         request = {}
         client.get_publisher_model(request)
 
@@ -1696,9 +1698,9 @@ async def test_deploy_async_use_cached_wrapped_rpc(transport: str = "grpc_asynci
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.deploy
-        ] = mock_rpc
+        client._client._transport._wrapped_methods[client._client._transport.deploy] = (
+            mock_rpc
+        )
 
         request = {}
         await client.deploy(request)
@@ -1838,9 +1840,9 @@ def test_get_publisher_model_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_publisher_model
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_publisher_model] = (
+            mock_rpc
+        )
 
         request = {}
         client.get_publisher_model(request)
@@ -2454,9 +2456,9 @@ def test_get_publisher_model_rest_call_success(request_type):
 def test_get_publisher_model_rest_interceptors(null_interceptor):
     transport = transports.ModelGardenServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelGardenServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelGardenServiceRestInterceptor()
+        ),
     )
     client = ModelGardenServiceClient(transport=transport)
 
@@ -2576,9 +2578,9 @@ def test_deploy_rest_call_success(request_type):
 def test_deploy_rest_interceptors(null_interceptor):
     transport = transports.ModelGardenServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelGardenServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ModelGardenServiceRestInterceptor()
+        ),
     )
     client = ModelGardenServiceClient(transport=transport)
 
@@ -3443,9 +3445,11 @@ async def test_get_publisher_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelGardenServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelGardenServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelGardenServiceRestInterceptor()
+        ),
     )
     client = ModelGardenServiceAsyncClient(transport=transport)
 
@@ -3583,9 +3587,11 @@ async def test_deploy_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelGardenServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelGardenServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelGardenServiceRestInterceptor()
+        ),
     )
     client = ModelGardenServiceAsyncClient(transport=transport)
 

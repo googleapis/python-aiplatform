@@ -2011,9 +2011,9 @@ class TestExperiments:
         aiplatform.end_run()
 
         _TRUE_CONTEXT = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
-        _TRUE_CONTEXT.metadata[
-            constants._STATE_KEY
-        ] = gca_execution.Execution.State.COMPLETE.name
+        _TRUE_CONTEXT.metadata[constants._STATE_KEY] = (
+            gca_execution.Execution.State.COMPLETE.name
+        )
 
         update_context_mock.assert_called_once_with(context=_TRUE_CONTEXT)
 

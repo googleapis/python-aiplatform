@@ -31,7 +31,9 @@ import grpc  # type: ignore
 import proto  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1.types import reasoning_engine_execution_service
+from google.cloud.aiplatform_v1.types import (
+    reasoning_engine_execution_service,
+)
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -378,12 +380,12 @@ class ReasoningEngineExecutionServiceGrpcTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "stream_query_reasoning_engine" not in self._stubs:
-            self._stubs[
-                "stream_query_reasoning_engine"
-            ] = self._logged_channel.unary_stream(
-                "/google.cloud.aiplatform.v1.ReasoningEngineExecutionService/StreamQueryReasoningEngine",
-                request_serializer=reasoning_engine_execution_service.StreamQueryReasoningEngineRequest.serialize,
-                response_deserializer=httpbody_pb2.HttpBody.FromString,
+            self._stubs["stream_query_reasoning_engine"] = (
+                self._logged_channel.unary_stream(
+                    "/google.cloud.aiplatform.v1.ReasoningEngineExecutionService/StreamQueryReasoningEngine",
+                    request_serializer=reasoning_engine_execution_service.StreamQueryReasoningEngineRequest.serialize,
+                    response_deserializer=httpbody_pb2.HttpBody.FromString,
+                )
             )
         return self._stubs["stream_query_reasoning_engine"]
 

@@ -2871,9 +2871,9 @@ class AgentEngines(_api_module.BaseModule):
                 for class_method in class_methods
             ]
             update_masks.append("spec.class_methods")
-            agent_engine_spec[
-                "agent_framework"
-            ] = _agent_engines_utils._get_agent_framework(agent_engine)
+            agent_engine_spec["agent_framework"] = (
+                _agent_engines_utils._get_agent_framework(agent_engine)
+            )
             update_masks.append("spec.agent_framework")
             config["spec"] = agent_engine_spec
         if update_masks and mode == "update":

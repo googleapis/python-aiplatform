@@ -148,9 +148,11 @@ def _default_runnable_builder(
     agent_executor = AgentExecutor(
         agent=prompt | model | output_parser,
         tools=[
-            tool
-            if isinstance(tool, lc_tools.BaseTool)
-            else StructuredTool.from_function(tool)
+            (
+                tool
+                if isinstance(tool, lc_tools.BaseTool)
+                else StructuredTool.from_function(tool)
+            )
             for tool in tools
             if isinstance(tool, (Callable, lc_tools.BaseTool))
         ],

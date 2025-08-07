@@ -1,4 +1,5 @@
 """Converters for OSS Vizier's protos from/to PyVizier's classes."""
+
 import logging
 from datetime import timezone
 from typing import List, Optional, Sequence, Tuple, Union
@@ -234,13 +235,13 @@ class ParameterConfigConverter:
             )
 
             if "discrete_value_spec" in parent_proto:
-                conditional_parameter_spec.parent_discrete_values.values[
-                    :
-                ] = parent_values
+                conditional_parameter_spec.parent_discrete_values.values[:] = (
+                    parent_values
+                )
             elif "categorical_value_spec" in parent_proto:
-                conditional_parameter_spec.parent_categorical_values.values[
-                    :
-                ] = parent_values
+                conditional_parameter_spec.parent_categorical_values.values[:] = (
+                    parent_values
+                )
             elif "integer_value_spec" in parent_proto:
                 conditional_parameter_spec.parent_int_values.values[:] = parent_values
             else:

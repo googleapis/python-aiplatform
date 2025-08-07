@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.prediction.sklearn.predictor import SklearnPredictor
+from google.cloud.aiplatform.prediction.sklearn.predictor import (
+    SklearnPredictor,
+)
 
 __all__ = ("SklearnPredictor",)
