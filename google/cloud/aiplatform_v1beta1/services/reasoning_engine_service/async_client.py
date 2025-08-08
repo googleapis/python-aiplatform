@@ -90,6 +90,12 @@ class ReasoningEngineServiceAsyncClient:
 
     endpoint_path = staticmethod(ReasoningEngineServiceClient.endpoint_path)
     parse_endpoint_path = staticmethod(ReasoningEngineServiceClient.parse_endpoint_path)
+    network_attachment_path = staticmethod(
+        ReasoningEngineServiceClient.network_attachment_path
+    )
+    parse_network_attachment_path = staticmethod(
+        ReasoningEngineServiceClient.parse_network_attachment_path
+    )
     reasoning_engine_path = staticmethod(
         ReasoningEngineServiceClient.reasoning_engine_path
     )

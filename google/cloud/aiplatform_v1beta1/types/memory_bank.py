@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -33,7 +34,26 @@ __protobuf__ = proto.module(
 class Memory(proto.Message):
     r"""A memory.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
+        expire_time (google.protobuf.timestamp_pb2.Timestamp):
+            Optional. Timestamp of when this resource is considered
+            expired. This is *always* provided on output, regardless of
+            what ``expiration`` was sent on input.
+
+            This field is a member of `oneof`_ ``expiration``.
+        ttl (google.protobuf.duration_pb2.Duration):
+            Optional. Input only. The TTL for this
+            resource. The expiration time is computed: now +
+            TTL.
+
+            This field is a member of `oneof`_ ``expiration``.
         name (str):
             Identifier. The resource name of the Memory. Format:
             ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}``
@@ -57,6 +77,18 @@ class Memory(proto.Message):
             the wildcard character '*'.
     """
 
+    expire_time: timestamp_pb2.Timestamp = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        oneof="expiration",
+        message=timestamp_pb2.Timestamp,
+    )
+    ttl: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        oneof="expiration",
+        message=duration_pb2.Duration,
+    )
     name: str = proto.Field(
         proto.STRING,
         number=1,

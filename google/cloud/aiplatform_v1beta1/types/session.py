@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import content as gca_content
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -39,7 +40,25 @@ class Session(proto.Message):
     r"""A session contains a set of actions between users and Vertex
     agents.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
+        expire_time (google.protobuf.timestamp_pb2.Timestamp):
+            Optional. Timestamp of when this session is considered
+            expired. This is *always* provided on output, regardless of
+            what was sent on input.
+
+            This field is a member of `oneof`_ ``expiration``.
+        ttl (google.protobuf.duration_pb2.Duration):
+            Optional. Input only. The TTL for this
+            session.
+
+            This field is a member of `oneof`_ ``expiration``.
         name (str):
             Identifier. The resource name of the session. Format:
             'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.
@@ -59,6 +78,18 @@ class Session(proto.Message):
             the user
     """
 
+    expire_time: timestamp_pb2.Timestamp = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        oneof="expiration",
+        message=timestamp_pb2.Timestamp,
+    )
+    ttl: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        oneof="expiration",
+        message=duration_pb2.Duration,
+    )
     name: str = proto.Field(
         proto.STRING,
         number=1,
@@ -193,6 +224,8 @@ class EventMetadata(proto.Message):
             agent_2, and agent_2 is the parent of agent_3. Branch is
             used when multiple child agents shouldn't see their
             siblings' conversation history.
+        custom_metadata (google.protobuf.struct_pb2.Struct):
+            The custom metadata of the LlmResponse.
     """
 
     grounding_metadata: gca_content.GroundingMetadata = proto.Field(
@@ -219,6 +252,11 @@ class EventMetadata(proto.Message):
     branch: str = proto.Field(
         proto.STRING,
         number=6,
+    )
+    custom_metadata: struct_pb2.Struct = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=struct_pb2.Struct,
     )
 
 

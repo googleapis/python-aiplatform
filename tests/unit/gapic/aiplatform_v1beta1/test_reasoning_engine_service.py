@@ -82,12 +82,14 @@ from google.cloud.aiplatform_v1beta1.types import (
     reasoning_engine as gca_reasoning_engine,
 )
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine_service
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
@@ -4632,6 +4634,20 @@ def test_create_reasoning_engine_rest_call_success(request_type):
                         },
                     }
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value",
+                    "dns_peering_configs": [
+                        {
+                            "domain": "domain_value",
+                            "target_project": "target_project_value",
+                            "target_network": "target_network_value",
+                        }
+                    ],
+                },
+                "min_instances": 1387,
+                "max_instances": 1389,
+                "resource_limits": {},
+                "container_concurrency": 2253,
             },
             "class_methods": [{"fields": {}}],
             "agent_framework": "agent_framework_value",
@@ -4644,6 +4660,14 @@ def test_create_reasoning_engine_rest_call_success(request_type):
                 "generation_config": {"model": "model_value"},
                 "similarity_search_config": {
                     "embedding_model": "embedding_model_value"
+                },
+                "ttl_config": {
+                    "default_ttl": {"seconds": 751, "nanos": 543},
+                    "granular_ttl_config": {
+                        "create_ttl": {},
+                        "generate_created_ttl": {},
+                        "generate_updated_ttl": {},
+                    },
                 },
             }
         },
@@ -5148,6 +5172,20 @@ def test_update_reasoning_engine_rest_call_success(request_type):
                         },
                     }
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value",
+                    "dns_peering_configs": [
+                        {
+                            "domain": "domain_value",
+                            "target_project": "target_project_value",
+                            "target_network": "target_network_value",
+                        }
+                    ],
+                },
+                "min_instances": 1387,
+                "max_instances": 1389,
+                "resource_limits": {},
+                "container_concurrency": 2253,
             },
             "class_methods": [{"fields": {}}],
             "agent_framework": "agent_framework_value",
@@ -5160,6 +5198,14 @@ def test_update_reasoning_engine_rest_call_success(request_type):
                 "generation_config": {"model": "model_value"},
                 "similarity_search_config": {
                     "embedding_model": "embedding_model_value"
+                },
+                "ttl_config": {
+                    "default_ttl": {"seconds": 751, "nanos": 543},
+                    "granular_ttl_config": {
+                        "create_ttl": {},
+                        "generate_created_ttl": {},
+                        "generate_updated_ttl": {},
+                    },
                 },
             }
         },
@@ -6288,6 +6334,20 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
                         },
                     }
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value",
+                    "dns_peering_configs": [
+                        {
+                            "domain": "domain_value",
+                            "target_project": "target_project_value",
+                            "target_network": "target_network_value",
+                        }
+                    ],
+                },
+                "min_instances": 1387,
+                "max_instances": 1389,
+                "resource_limits": {},
+                "container_concurrency": 2253,
             },
             "class_methods": [{"fields": {}}],
             "agent_framework": "agent_framework_value",
@@ -6300,6 +6360,14 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
                 "generation_config": {"model": "model_value"},
                 "similarity_search_config": {
                     "embedding_model": "embedding_model_value"
+                },
+                "ttl_config": {
+                    "default_ttl": {"seconds": 751, "nanos": 543},
+                    "granular_ttl_config": {
+                        "create_ttl": {},
+                        "generate_created_ttl": {},
+                        "generate_updated_ttl": {},
+                    },
                 },
             }
         },
@@ -6858,6 +6926,20 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
                         },
                     }
                 ],
+                "psc_interface_config": {
+                    "network_attachment": "network_attachment_value",
+                    "dns_peering_configs": [
+                        {
+                            "domain": "domain_value",
+                            "target_project": "target_project_value",
+                            "target_network": "target_network_value",
+                        }
+                    ],
+                },
+                "min_instances": 1387,
+                "max_instances": 1389,
+                "resource_limits": {},
+                "container_concurrency": 2253,
             },
             "class_methods": [{"fields": {}}],
             "agent_framework": "agent_framework_value",
@@ -6870,6 +6952,14 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
                 "generation_config": {"model": "model_value"},
                 "similarity_search_config": {
                     "embedding_model": "embedding_model_value"
+                },
+                "ttl_config": {
+                    "default_ttl": {"seconds": 751, "nanos": 543},
+                    "granular_ttl_config": {
+                        "create_ttl": {},
+                        "generate_created_ttl": {},
+                        "generate_updated_ttl": {},
+                    },
                 },
             }
         },
@@ -8620,10 +8710,38 @@ def test_parse_endpoint_path():
     assert expected == actual
 
 
-def test_reasoning_engine_path():
+def test_network_attachment_path():
     project = "cuttlefish"
-    location = "mussel"
-    reasoning_engine = "winkle"
+    region = "mussel"
+    networkattachment = "winkle"
+    expected = "projects/{project}/regions/{region}/networkAttachments/{networkattachment}".format(
+        project=project,
+        region=region,
+        networkattachment=networkattachment,
+    )
+    actual = ReasoningEngineServiceClient.network_attachment_path(
+        project, region, networkattachment
+    )
+    assert expected == actual
+
+
+def test_parse_network_attachment_path():
+    expected = {
+        "project": "nautilus",
+        "region": "scallop",
+        "networkattachment": "abalone",
+    }
+    path = ReasoningEngineServiceClient.network_attachment_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ReasoningEngineServiceClient.parse_network_attachment_path(path)
+    assert expected == actual
+
+
+def test_reasoning_engine_path():
+    project = "squid"
+    location = "clam"
+    reasoning_engine = "whelk"
     expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}".format(
         project=project,
         location=location,
@@ -8637,9 +8755,9 @@ def test_reasoning_engine_path():
 
 def test_parse_reasoning_engine_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "reasoning_engine": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "reasoning_engine": "nudibranch",
     }
     path = ReasoningEngineServiceClient.reasoning_engine_path(**expected)
 
@@ -8649,7 +8767,7 @@ def test_parse_reasoning_engine_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -8659,7 +8777,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = ReasoningEngineServiceClient.common_billing_account_path(**expected)
 
@@ -8669,7 +8787,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -8679,7 +8797,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = ReasoningEngineServiceClient.common_folder_path(**expected)
 
@@ -8689,7 +8807,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -8699,7 +8817,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = ReasoningEngineServiceClient.common_organization_path(**expected)
 
@@ -8709,7 +8827,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -8719,7 +8837,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = ReasoningEngineServiceClient.common_project_path(**expected)
 
@@ -8729,8 +8847,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -8741,8 +8859,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = ReasoningEngineServiceClient.common_location_path(**expected)
 
