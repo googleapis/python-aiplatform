@@ -164,8 +164,51 @@ _TEST_DATAPOINT_3 = gca_index.IndexDatapoint(
     ],
 )
 _TEST_DATAPOINTS = (_TEST_DATAPOINT_1, _TEST_DATAPOINT_2, _TEST_DATAPOINT_3)
+_TEST_DATAPOINT_4 = gca_index.IndexDatapoint(
+    datapoint_id="3",
+    feature_vector=[0.00526886899, -0.0198396724],
+    embedding_metadata=gca_index.IndexDatapoint.EmbeddingMetadata(
+        userinfo=b"test_userinfo"
+    ),
+)
+_TEST_DATAPOINT_5 = gca_index.IndexDatapoint(
+    datapoint_id="4",
+    feature_vector=[0.00526886899, -0.0198396724],
+    restricts=[
+        gca_index.IndexDatapoint.Restriction(
+            namespace="Color", allow_list=["blue"]
+        )
+    ],
+    numeric_restricts=[
+        gca_index.IndexDatapoint.NumericRestriction(
+            namespace="cost",
+            value_int=2,
+        )
+    ],
+    embedding_metadata=gca_index.IndexDatapoint.EmbeddingMetadata(
+        userinfo=b"test_userinfo"
+    ),
+)
+_TEST_DATAPOINTS = (
+    _TEST_DATAPOINT_1,
+    _TEST_DATAPOINT_2,
+    _TEST_DATAPOINT_3,
+    _TEST_DATAPOINT_4,
+    _TEST_DATAPOINT_5,
+)
+_TEST_DATAPOINTS_RESTRICTS = (
+    _TEST_DATAPOINT_1,
+    _TEST_DATAPOINT_2,
+    _TEST_DATAPOINT_3,
+)
+_TEST_DATAPOINTS_EMBEDDING_METADATA = (_TEST_DATAPOINT_4, _TEST_DATAPOINT_5)
 _TEST_TIMEOUT = 1800.0
-_TEST_UPDATE_MASK = ["all_restricts"]
+_TEST_UPDATE_MASK_RESTRICTS = ["all_restricts"]
+_TEST_UPDATE_MASK_EMBEDDING_METADATA = ["embedding_metadata"]
+_TEST_UPDATE_MASK_RESTRICTS_AND_EMBEDDING_METADATA = [
+    "all_restricts",
+    "embedding_metadata",
+]
 
 
 def uuid_mock():
@@ -800,22 +843,64 @@ class TestMatchingEngineIndex:
         upsert_datapoints_mock.assert_called_once_with(upsert_datapoints_request)
 
     @pytest.mark.usefixtures("get_index_mock")
-    def test_upsert_datapoints_dynamic_metadata_update(self, upsert_datapoints_mock):
-        aiplatform.init(project=_TEST_PROJECT)
+    def test_upsert_datapoints_dynamic_metadata_update(
+        self, upsert_datapoints_mock
+    ):
+      aiplatform.init(project=_TEST_PROJECT)
 
-        my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
-        my_index.upsert_datapoints(
-            datapoints=_TEST_DATAPOINTS,
-            update_mask=_TEST_UPDATE_MASK,
-        )
+      my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
+      my_index.upsert_datapoints(
+          datapoints=_TEST_DATAPOINTS_RESTRICTS,
+          update_mask=_TEST_UPDATE_MASK_RESTRICTS,
+      )
 
-        upsert_datapoints_request = gca_index_service.UpsertDatapointsRequest(
-            index=_TEST_INDEX_NAME,
-            datapoints=_TEST_DATAPOINTS,
-            update_mask=field_mask_pb2.FieldMask(paths=_TEST_UPDATE_MASK),
-        )
+      upsert_datapoints_request = gca_index_service.UpsertDatapointsRequest(
+          index=_TEST_INDEX_NAME,
+          datapoints=_TEST_DATAPOINTS_RESTRICTS,
+          update_mask=field_mask_pb2.FieldMask(paths=_TEST_UPDATE_MASK_RESTRICTS),
+      )
 
-        upsert_datapoints_mock.assert_called_once_with(upsert_datapoints_request)
+      upsert_datapoints_mock.assert_called_once_with(upsert_datapoints_request)
+
+    @pytest.mark.usefixtures("get_index_mock")
+    def test_upsert_datapoints_embedding_metadata_update(
+        self, upsert_datapoints_mock
+    ):
+      aiplatform.init(project=_TEST_PROJECT)
+
+      my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
+      my_index.upsert_datapoints(
+          datapoints=_TEST_DATAPOINTS_EMBEDDING_METADATA,
+          update_mask=_TEST_UPDATE_MASK_EMBEDDING_METADATA,
+      )
+
+      upsert_datapoints_request = gca_index_service.UpsertDatapointsRequest(
+          index=_TEST_INDEX_NAME,
+          datapoints=_TEST_DATAPOINTS_EMBEDDING_METADATA,
+          update_mask=field_mask_pb2.FieldMask(paths=_TEST_UPDATE_MASK_EMBEDDING_METADATA),
+      )
+
+      upsert_datapoints_mock.assert_called_once_with(upsert_datapoints_request)
+
+    @pytest.mark.usefixtures("get_index_mock")
+    def test_upsert_datapoints_dynamic_metadata_and_embedding_metadata_update(
+        self, upsert_datapoints_mock
+    ):
+      aiplatform.init(project=_TEST_PROJECT)
+
+      my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_ID)
+      my_index.upsert_datapoints(
+          datapoints=_TEST_DATAPOINT_5,
+          update_mask=_TEST_UPDATE_MASK_RESTRICTS_AND_EMBEDDING_METADATA,
+      )
+
+      upsert_datapoints_request = gca_index_service.UpsertDatapointsRequest(
+          index=_TEST_INDEX_NAME,
+          datapoints=_TEST_DATAPOINT_5,
+          update_mask=field_mask_pb2.FieldMask(paths=_TEST_UPDATE_MASK_RESTRICTS_AND_EMBEDDING_METADATA),
+      )
+
+      upsert_datapoints_mock.assert_called_once_with(upsert_datapoints_request)
 
     @pytest.mark.usefixtures("get_index_mock")
     def test_remove_datapoints(self, remove_datapoints_mock):
