@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.108.0](https://github.com/googleapis/python-aiplatform/compare/v1.107.0...v1.108.0) (2025-08-07)
+
+
+### Features
+
+* Add autoscaling_target_pubsub_num_undelivered_messages option in Preview model deployment on Endpoint & Model classes. ([52eacce](https://github.com/googleapis/python-aiplatform/commit/52eacce2a4150721780b815764dce1fc0dd05a2a))
+
+
+### Bug Fixes
+
+* GenAI SDK client - Fix typo in error message for optimize_prompt ([63e1caa](https://github.com/googleapis/python-aiplatform/commit/63e1caa8879c237125aca93f184dfd06689fc128))
+* Set the `agent_framework` when initializing module-based agent engine ([6c15762](https://github.com/googleapis/python-aiplatform/commit/6c15762a97ac6e4cc751a50c680c82443c41adf5))
+
 ## [1.107.0](https://github.com/googleapis/python-aiplatform/compare/v1.106.0...v1.107.0) (2025-08-06)
 
 
