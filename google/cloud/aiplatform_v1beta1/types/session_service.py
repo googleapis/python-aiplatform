@@ -249,6 +249,13 @@ class ListEventsRequest(proto.Message):
             value returned from a previous list
             [SessionService.ListEvents][google.cloud.aiplatform.v1beta1.SessionService.ListEvents]
             call.
+        filter (str):
+            Optional. The standard list filter. Supported fields: \*
+            ``timestamp`` range (i.e.
+            ``timestamp>="2025-01-31T11:30:00-04:00"`` where the
+            timestamp is in RFC 3339 format)
+
+            More detail in `AIP-160 <https://google.aip.dev/160>`__.
     """
 
     parent: str = proto.Field(
@@ -262,6 +269,10 @@ class ListEventsRequest(proto.Message):
     page_token: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+    filter: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 
