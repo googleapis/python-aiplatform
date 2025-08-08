@@ -48,6 +48,7 @@ except AttributeError:  # pragma: NO COVER
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.reasoning_engine_service import pagers
+from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import reasoning_engine
 from google.cloud.aiplatform_v1.types import reasoning_engine as gca_reasoning_engine
@@ -85,6 +86,12 @@ class ReasoningEngineServiceAsyncClient:
     _DEFAULT_ENDPOINT_TEMPLATE = ReasoningEngineServiceClient._DEFAULT_ENDPOINT_TEMPLATE
     _DEFAULT_UNIVERSE = ReasoningEngineServiceClient._DEFAULT_UNIVERSE
 
+    network_attachment_path = staticmethod(
+        ReasoningEngineServiceClient.network_attachment_path
+    )
+    parse_network_attachment_path = staticmethod(
+        ReasoningEngineServiceClient.parse_network_attachment_path
+    )
     reasoning_engine_path = staticmethod(
         ReasoningEngineServiceClient.reasoning_engine_path
     )
