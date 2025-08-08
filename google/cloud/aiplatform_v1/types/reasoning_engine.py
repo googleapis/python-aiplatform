@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
+from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -65,7 +67,8 @@ class ReasoningEngineSpec(proto.Message):
         agent_framework (str):
             Optional. The OSS agent framework used to
             develop the agent. Currently supported values:
-            "langchain", "langgraph", "ag2", "custom".
+            "google-adk", "langchain", "langgraph", "ag2",
+            "llama-index", "custom".
     """
 
     class PackageSpec(proto.Message):
@@ -108,6 +111,8 @@ class ReasoningEngineSpec(proto.Message):
     class DeploymentSpec(proto.Message):
         r"""The specification of a Reasoning Engine deployment.
 
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             env (MutableSequence[google.cloud.aiplatform_v1.types.EnvVar]):
                 Optional. Environment variables to be set
@@ -121,6 +126,40 @@ class ReasoningEngineSpec(proto.Message):
                 Accessor' role
                 (roles/secretmanager.secretAccessor) to AI
                 Platform Reasoning Engine Service Agent.
+            psc_interface_config (google.cloud.aiplatform_v1.types.PscInterfaceConfig):
+                Optional. Configuration for PSC-I.
+            min_instances (int):
+                Optional. The minimum number of application instances that
+                will be kept running at all times. Defaults to 1. Range: [0,
+                10].
+
+                This field is a member of `oneof`_ ``_min_instances``.
+            max_instances (int):
+                Optional. The maximum number of application instances that
+                can be launched to handle increased traffic. Defaults to
+                100. Range: [1, 1000].
+
+                If VPC-SC or PSC-I is enabled, the acceptable range is [1,
+                100].
+
+                This field is a member of `oneof`_ ``_max_instances``.
+            resource_limits (MutableMapping[str, str]):
+                Optional. Resource limits for each container. Only 'cpu' and
+                'memory' keys are supported. Defaults to {"cpu": "4",
+                "memory": "4Gi"}.
+
+                -  The only supported values for CPU are '1', '2', '4', '6'
+                   and '8'. For more information, go to
+                   https://cloud.google.com/run/docs/configuring/cpu.
+                -  The only supported values for memory are '1Gi', '2Gi',
+                   ... '32 Gi'.
+                -  For required cpu on different memory values, go to
+                   https://cloud.google.com/run/docs/configuring/memory-limits
+            container_concurrency (int):
+                Optional. Concurrency for each container and agent server.
+                Recommended value: 2 \* cpu + 1. Defaults to 9.
+
+                This field is a member of `oneof`_ ``_container_concurrency``.
         """
 
         env: MutableSequence[env_var.EnvVar] = proto.RepeatedField(
@@ -132,6 +171,31 @@ class ReasoningEngineSpec(proto.Message):
             proto.MESSAGE,
             number=2,
             message=env_var.SecretEnvVar,
+        )
+        psc_interface_config: service_networking.PscInterfaceConfig = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            message=service_networking.PscInterfaceConfig,
+        )
+        min_instances: int = proto.Field(
+            proto.INT32,
+            number=5,
+            optional=True,
+        )
+        max_instances: int = proto.Field(
+            proto.INT32,
+            number=6,
+            optional=True,
+        )
+        resource_limits: MutableMapping[str, str] = proto.MapField(
+            proto.STRING,
+            proto.STRING,
+            number=7,
+        )
+        container_concurrency: int = proto.Field(
+            proto.INT32,
+            number=8,
+            optional=True,
         )
 
     service_account: str = proto.Field(
@@ -166,8 +230,9 @@ class ReasoningEngine(proto.Message):
 
     Attributes:
         name (str):
-            Identifier. The resource name of the
-            ReasoningEngine.
+            Identifier. The resource name of the ReasoningEngine.
+            Format:
+            ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
         display_name (str):
             Required. The display name of the
             ReasoningEngine.
@@ -187,6 +252,11 @@ class ReasoningEngine(proto.Message):
             Optional. Used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Customer-managed encryption key spec for a
+            ReasoningEngine. If set, this ReasoningEngine
+            and all sub-resources of this ReasoningEngine
+            will be secured by this key.
     """
 
     name: str = proto.Field(
@@ -219,6 +289,11 @@ class ReasoningEngine(proto.Message):
     etag: str = proto.Field(
         proto.STRING,
         number=6,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
