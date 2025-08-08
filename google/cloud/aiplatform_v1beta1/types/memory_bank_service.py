@@ -275,6 +275,13 @@ class GenerateMemoriesRequest(proto.Message):
             source content from which to generate memories.
 
             This field is a member of `oneof`_ ``source``.
+        direct_memories_source (google.cloud.aiplatform_v1beta1.types.GenerateMemoriesRequest.DirectMemoriesSource):
+            Defines a direct source of memories that should be uploaded
+            to Memory Bank. This is similar to ``CreateMemory``, but it
+            allows for consolidation between these new memories and
+            existing memories for the same scope.
+
+            This field is a member of `oneof`_ ``source``.
         parent (str):
             Required. The resource name of the ReasoningEngine to
             generate memories for. Format:
@@ -364,6 +371,39 @@ class GenerateMemoriesRequest(proto.Message):
             message="GenerateMemoriesRequest.DirectContentsSource.Event",
         )
 
+    class DirectMemoriesSource(proto.Message):
+        r"""Defines a direct source of memories that should be uploaded
+        to Memory Bank with consolidation.
+
+        Attributes:
+            direct_memories (MutableSequence[google.cloud.aiplatform_v1beta1.types.GenerateMemoriesRequest.DirectMemoriesSource.DirectMemory]):
+                Required. The direct memories to upload to
+                Memory Bank. At most 5 direct memories are
+                allowed per request.
+        """
+
+        class DirectMemory(proto.Message):
+            r"""A direct memory to upload to Memory Bank.
+
+            Attributes:
+                fact (str):
+                    Required. The fact to consolidate with
+                    existing memories.
+            """
+
+            fact: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+
+        direct_memories: MutableSequence[
+            "GenerateMemoriesRequest.DirectMemoriesSource.DirectMemory"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message="GenerateMemoriesRequest.DirectMemoriesSource.DirectMemory",
+        )
+
     vertex_session_source: VertexSessionSource = proto.Field(
         proto.MESSAGE,
         number=2,
@@ -375,6 +415,12 @@ class GenerateMemoriesRequest(proto.Message):
         number=3,
         oneof="source",
         message=DirectContentsSource,
+    )
+    direct_memories_source: DirectMemoriesSource = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        oneof="source",
+        message=DirectMemoriesSource,
     )
     parent: str = proto.Field(
         proto.STRING,

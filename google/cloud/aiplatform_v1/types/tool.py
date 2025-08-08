@@ -38,6 +38,7 @@ __protobuf__ = proto.module(
         "VertexRagStore",
         "VertexAISearch",
         "GoogleSearchRetrieval",
+        "GoogleMaps",
         "EnterpriseWebSearch",
         "DynamicRetrievalConfig",
         "ToolConfig",
@@ -84,6 +85,9 @@ class Tool(proto.Message):
             Optional. GoogleSearchRetrieval tool type.
             Specialized retrieval tool that is powered by
             Google search.
+        google_maps (google.cloud.aiplatform_v1.types.GoogleMaps):
+            Optional. GoogleMaps tool type.
+            Tool to support Google Maps in Model.
         enterprise_web_search (google.cloud.aiplatform_v1.types.EnterpriseWebSearch):
             Optional. Tool to support searching public
             web data, powered by Vertex AI Search and Sec4
@@ -173,6 +177,11 @@ class Tool(proto.Message):
         proto.MESSAGE,
         number=3,
         message="GoogleSearchRetrieval",
+    )
+    google_maps: "GoogleMaps" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message="GoogleMaps",
     )
     enterprise_web_search: "EnterpriseWebSearch" = proto.Field(
         proto.MESSAGE,
@@ -658,6 +667,13 @@ class GoogleSearchRetrieval(proto.Message):
         number=2,
         message="DynamicRetrievalConfig",
     )
+
+
+class GoogleMaps(proto.Message):
+    r"""Tool to retrieve public maps data for grounding, powered by
+    Google.
+
+    """
 
 
 class EnterpriseWebSearch(proto.Message):
