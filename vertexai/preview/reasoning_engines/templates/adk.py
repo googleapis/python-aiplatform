@@ -309,6 +309,7 @@ class AdkApp:
         artifact_service_builder: Optional[Callable[..., "BaseArtifactService"]] = None,
         memory_service_builder: Optional[Callable[..., "BaseMemoryService"]] = None,
         env_vars: Optional[Dict[str, str]] = None,
+        artifact_service_builder_kwargs: Optional[Dict[str, Any]] = None,
     ):
         """An ADK Application."""
         from google.cloud.aiplatform import initializer
@@ -331,6 +332,7 @@ class AdkApp:
             "memory_service_builder": memory_service_builder,
             "app_name": _DEFAULT_APP_NAME,
             "env_vars": env_vars or {},
+            "artifact_service_builder_kwargs": artifact_service_builder_kwargs or {},
         }
 
     async def _init_session(
@@ -439,7 +441,10 @@ class AdkApp:
             session_service_builder=self._tmpl_attrs.get("session_service_builder"),
             artifact_service_builder=self._tmpl_attrs.get("artifact_service_builder"),
             memory_service_builder=self._tmpl_attrs.get("memory_service_builder"),
-            env_vars=self._tmpl_attrs.get("env_vars"),
+            env_vars=copy.deepcopy(self._tmpl_attrs.get("env_vars")),
+            artifact_service_builder_kwargs=copy.deepcopy(
+                self._tmpl_attrs.get("artifact_service_builder_kwargs")
+            ),
         )
 
     def set_up(self):
@@ -471,9 +476,21 @@ class AdkApp:
 
         artifact_service_builder = self._tmpl_attrs.get("artifact_service_builder")
         if artifact_service_builder:
-            self._tmpl_attrs["artifact_service"] = artifact_service_builder()
+            self._tmpl_attrs["artifact_service"] = artifact_service_builder(
+                **self._tmpl_attrs.get("artifact_service_builder_kwargs"),
+            )
+        elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
+            from google.adk.artifacts.gcs_artifact_service import GcsArtifactService
+
+            self._tmpl_attrs["artifact_service"] = GcsArtifactService(
+                project=project,
+                **self._tmpl_attrs.get("artifact_service_builder_kwargs"),
+            )
+
         else:
-            self._tmpl_attrs["artifact_service"] = InMemoryArtifactService()
+            self._tmpl_attrs["artifact_service"] = InMemoryArtifactService(
+                **self._tmpl_attrs.get("artifact_service_builder_kwargs"),
+            )
 
         session_service_builder = self._tmpl_attrs.get("session_service_builder")
         if session_service_builder:
@@ -961,6 +978,149 @@ class AdkApp:
         if isinstance(outcome, RuntimeError):
             raise outcome from None
 
+    async def async_save_artifact(
+        self,
+        *,
+        user_id: str,
+        session_id: str,
+        filename: str,
+        artifact: Dict[str, Any],
+        **kwargs,
+    ) -> int:
+        """Saves an artifact to the artifact service storage.
+
+        The artifact is a file identified by the user ID, session ID, and
+        filename. After saving the artifact, a revision ID is returned to
+        identify the artifact version.
+
+        Args:
+          user_id: The user ID.
+          session_id: The session ID.
+          filename: The filename of the artifact.
+          artifact: The artifact to save.
+
+        Returns:
+          The revision ID. The first version of the artifact has a revision ID of 0.
+          This is incremented by 1 after each successful save.
+        """
+        if not self._tmpl_attrs.get("artifact_service"):
+            self.set_up()
+        return await self._tmpl_attrs.get("artifact_service").save_artifact(
+            app_name=self._tmpl_attrs.get("app_name"),
+            user_id=user_id,
+            session_id=session_id,
+            filename=filename,
+            artifact=artifact,
+            **kwargs,
+        )
+
+    async def async_load_artifact(
+        self,
+        *,
+        user_id: str,
+        session_id: str,
+        filename: str,
+        version: str,
+        **kwargs,
+    ):
+        """Gets an artifact from the artifact service storage.
+
+        Args:
+          user_id: The user ID.
+          session_id: The session ID.
+          filename: The filename of the artifact.
+          version: The version of the artifact. If None, the latest version will be
+            returned.
+
+        Returns:
+          The artifact or None if not found.
+        """
+        if not self._tmpl_attrs.get("artifact_service"):
+            self.set_up()
+        return await self._tmpl_attrs.get("artifact_service").load_artifact(
+            app_name=self._tmpl_attrs.get("app_name"),
+            user_id=user_id,
+            session_id=session_id,
+            filename=filename,
+            version=version,
+            **kwargs,
+        )
+
+    async def async_delete_artifact(
+        self,
+        *,
+        user_id: str,
+        session_id: str,
+        filename: str,
+        **kwargs,
+    ) -> None:
+        """Deletes an artifact.
+
+        Args:
+            user_id: The ID of the user.
+            session_id: The ID of the session.
+            filename: The name of the artifact file.
+        """
+        if not self._tmpl_attrs.get("artifact_service"):
+            self.set_up()
+        await self._tmpl_attrs.get("artifact_service").delete_artifact(
+            app_name=self._tmpl_attrs.get("app_name"),
+            user_id=user_id,
+            session_id=session_id,
+            filename=filename,
+            **kwargs,
+        )
+
+    async def async_list_artifact_versions(
+        self,
+        *,
+        user_id: str,
+        session_id: str,
+        filename: str,
+    ) -> List[int]:
+        """Lists all versions of an artifact.
+
+        Args:
+            app_name: The name of the application.
+            user_id: The ID of the user.
+            session_id: The ID of the session.
+            filename: The name of the artifact file.
+
+        Returns:
+            List[int]: A list of all available versions of the artifact.
+        """
+        if not self._tmpl_attrs.get("artifact_service"):
+            self.set_up()
+        return await self._tmpl_attrs.get("artifact_service").list_versions(
+            app_name=self._tmpl_attrs.get("app_name"),
+            user_id=user_id,
+            session_id=session_id,
+            filename=filename,
+        )
+
+    async def async_list_artifact_keys(
+        self,
+        *,
+        user_id: str,
+        session_id: str,
+    ) -> List[str]:
+        """Lists all the artifact filenames within a session.
+
+        Args:
+            user_id: The ID of the user.
+            session_id: The ID of the session.
+
+        Returns:
+            List[str]: A list of all artifact filenames within a session.
+        """
+        if not self._tmpl_attrs.get("artifact_service"):
+            self.set_up()
+        return await self._tmpl_attrs.get("artifact_service").list_artifact_keys(
+            app_name=self._tmpl_attrs.get("app_name"),
+            user_id=user_id,
+            session_id=session_id,
+        )
+
     def register_operations(self) -> Dict[str, List[str]]:
         """Registers the operations of the ADK application."""
         return {
@@ -971,10 +1131,15 @@ class AdkApp:
                 "delete_session",
             ],
             "async": [
-                "async_get_session",
-                "async_list_sessions",
                 "async_create_session",
+                "async_delete_artifact",
                 "async_delete_session",
+                "async_get_session",
+                "async_list_artifact_keys",
+                "async_list_artifact_versions",
+                "async_list_sessions",
+                "async_load_artifact",
+                "async_save_artifact",
             ],
             "stream": ["stream_query", "streaming_agent_run_with_events"],
             "async_stream": ["async_stream_query"],
