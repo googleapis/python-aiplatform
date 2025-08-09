@@ -14,3 +14,5 @@
 #
 
 """Transformers module for Vertex addons."""
+
+from google.genai import _transformers as genai_transformers
