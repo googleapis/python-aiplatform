@@ -544,12 +544,12 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "stream_direct_raw_predict" not in self._stubs:
-            self._stubs[
-                "stream_direct_raw_predict"
-            ] = self._logged_channel.stream_stream(
-                "/google.cloud.aiplatform.v1.PredictionService/StreamDirectRawPredict",
-                request_serializer=prediction_service.StreamDirectRawPredictRequest.serialize,
-                response_deserializer=prediction_service.StreamDirectRawPredictResponse.deserialize,
+            self._stubs["stream_direct_raw_predict"] = (
+                self._logged_channel.stream_stream(
+                    "/google.cloud.aiplatform.v1.PredictionService/StreamDirectRawPredict",
+                    request_serializer=prediction_service.StreamDirectRawPredictRequest.serialize,
+                    response_deserializer=prediction_service.StreamDirectRawPredictResponse.deserialize,
+                )
             )
         return self._stubs["stream_direct_raw_predict"]
 

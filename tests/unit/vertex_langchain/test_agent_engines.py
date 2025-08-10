@@ -496,18 +496,18 @@ _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA = _utils.to_proto(
         schema_name=_TEST_CUSTOM_METHOD_NAME,
     )
 )
-_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STANDARD_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STANDARD_API_MODE
+)
 _TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA = _utils.to_proto(
     _utils.generate_schema(
         OperationRegistrableEngine().custom_async_method,
         schema_name=_TEST_CUSTOM_ASYNC_METHOD_NAME,
     )
 )
-_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_API_MODE
+)
 _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA = _utils.to_proto(
     _utils.generate_schema(
         StreamQueryEngine().stream_query,
@@ -521,27 +521,27 @@ _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA = _utils.to_proto(
         schema_name=_TEST_CUSTOM_STREAM_METHOD_NAME,
     )
 )
-_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STREAM_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STREAM_API_MODE
+)
 _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA = _utils.to_proto(
     _utils.generate_schema(
         AsyncStreamQueryEngine().async_stream_query,
         schema_name=_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
     )
 )
-_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_STREAM_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_STREAM_API_MODE
+)
 _TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA = _utils.to_proto(
     _utils.generate_schema(
         OperationRegistrableEngine().custom_async_stream_method,
         schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
     )
 )
-_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_STREAM_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_STREAM_API_MODE
+)
 _TEST_OPERATION_REGISTRABLE_SCHEMAS = [
     _TEST_AGENT_ENGINE_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA,
@@ -568,9 +568,9 @@ _TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA = _utils.to_proto(
         schema_name=_TEST_METHOD_TO_BE_UNREGISTERED_NAME,
     )
 )
-_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STANDARD_API_MODE
+_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STANDARD_API_MODE
+)
 _TEST_ASYNC_QUERY_SCHEMAS = [_TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA]
 _TEST_STREAM_QUERY_SCHEMAS = [
     _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA,
@@ -3219,7 +3219,8 @@ class ToParsedJsonTest:
             (
                 # "unicode_data",
                 httpbody_pb2.HttpBody(
-                    content_type="application/json", data='{"a": "你好"}'.encode("utf-8")
+                    content_type="application/json",
+                    data='{"a": "你好"}'.encode("utf-8"),
                 ),
                 [{"a": "你好"}],
             ),

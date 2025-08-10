@@ -3561,7 +3561,9 @@ class PrivateEndpoint(Endpoint):
     class PrivateServiceConnectConfig:
         """Represents a Vertex AI PrivateServiceConnectConfig resource."""
 
-        _gapic_private_service_connect_config: gca_service_networking.PrivateServiceConnectConfig
+        _gapic_private_service_connect_config: (
+            gca_service_networking.PrivateServiceConnectConfig
+        )
 
         def __init__(
             self,

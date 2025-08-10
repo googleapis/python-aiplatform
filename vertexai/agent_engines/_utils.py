@@ -71,9 +71,9 @@ except AttributeError:
     _STDLIB_MODULE_NAMES: frozenset = frozenset()
 
 try:
-    _PACKAGE_DISTRIBUTIONS: Mapping[
-        str, Sequence[str]
-    ] = importlib_metadata.packages_distributions()
+    _PACKAGE_DISTRIBUTIONS: Mapping[str, Sequence[str]] = (
+        importlib_metadata.packages_distributions()
+    )
 
 except AttributeError:
     _PACKAGE_DISTRIBUTIONS: Mapping[str, Sequence[str]] = {}

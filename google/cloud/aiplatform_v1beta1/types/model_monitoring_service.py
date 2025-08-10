@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import model_monitor as gca_model_monitor
+from google.cloud.aiplatform_v1beta1.types import (
+    model_monitor as gca_model_monitor,
+)
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_alert
 from google.cloud.aiplatform_v1beta1.types import (
     model_monitoring_job as gca_model_monitoring_job,
@@ -222,12 +224,12 @@ class ListModelMonitorsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_monitors: MutableSequence[
-        gca_model_monitor.ModelMonitor
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_model_monitor.ModelMonitor,
+    model_monitors: MutableSequence[gca_model_monitor.ModelMonitor] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_model_monitor.ModelMonitor,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -460,12 +462,12 @@ class SearchModelMonitoringStatsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    monitoring_stats: MutableSequence[
-        model_monitoring_stats.ModelMonitoringStats
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=model_monitoring_stats.ModelMonitoringStats,
+    monitoring_stats: MutableSequence[model_monitoring_stats.ModelMonitoringStats] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=model_monitoring_stats.ModelMonitoringStats,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

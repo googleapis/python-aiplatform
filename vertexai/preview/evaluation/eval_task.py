@@ -611,9 +611,9 @@ class EvalTask:
         """Verifies and sets the model response column names."""
         if response_column_name:
             if response_column_name in self._dataset.columns:
-                self._metric_column_mapping[
-                    metric_column_mapping_key
-                ] = response_column_name
+                self._metric_column_mapping[metric_column_mapping_key] = (
+                    response_column_name
+                )
             else:
                 raise ValueError(
                     f"(Baseline) Model response column {response_column_name} is not"

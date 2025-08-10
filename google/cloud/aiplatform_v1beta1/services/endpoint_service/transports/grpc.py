@@ -471,12 +471,12 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_endpoint_long_running" not in self._stubs:
-            self._stubs[
-                "update_endpoint_long_running"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/UpdateEndpointLongRunning",
-                request_serializer=endpoint_service.UpdateEndpointLongRunningRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["update_endpoint_long_running"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.EndpointService/UpdateEndpointLongRunning",
+                    request_serializer=endpoint_service.UpdateEndpointLongRunningRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["update_endpoint_long_running"]
 
@@ -616,12 +616,12 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "set_publisher_model_config" not in self._stubs:
-            self._stubs[
-                "set_publisher_model_config"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/SetPublisherModelConfig",
-                request_serializer=endpoint_service.SetPublisherModelConfigRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["set_publisher_model_config"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.EndpointService/SetPublisherModelConfig",
+                    request_serializer=endpoint_service.SetPublisherModelConfigRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["set_publisher_model_config"]
 
@@ -647,12 +647,12 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "fetch_publisher_model_config" not in self._stubs:
-            self._stubs[
-                "fetch_publisher_model_config"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/FetchPublisherModelConfig",
-                request_serializer=endpoint_service.FetchPublisherModelConfigRequest.serialize,
-                response_deserializer=endpoint.PublisherModelConfig.deserialize,
+            self._stubs["fetch_publisher_model_config"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.EndpointService/FetchPublisherModelConfig",
+                    request_serializer=endpoint_service.FetchPublisherModelConfigRequest.serialize,
+                    response_deserializer=endpoint.PublisherModelConfig.deserialize,
+                )
             )
         return self._stubs["fetch_publisher_model_config"]
 

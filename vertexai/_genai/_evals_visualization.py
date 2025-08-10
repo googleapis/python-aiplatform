@@ -704,9 +704,11 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
                 if isinstance(cell_value, dict):
                     processed_row[col_name] = {
                         k: [
-                            v_item.model_dump(mode="json")
-                            if hasattr(v_item, "model_dump")
-                            else v_item
+                            (
+                                v_item.model_dump(mode="json")
+                                if hasattr(v_item, "model_dump")
+                                else v_item
+                            )
                             for v_item in v
                         ]
                         for k, v in cell_value.items()

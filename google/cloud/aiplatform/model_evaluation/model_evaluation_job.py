@@ -320,9 +320,9 @@ class _ModelEvaluationJob(pipeline_based_service._VertexAiPipelineBasedService):
         if bigquery_source_uri:
             template_params["batch_predict_predictions_format"] = "bigquery"
             template_params["batch_predict_bigquery_source_uri"] = bigquery_source_uri
-            template_params[
-                "batch_predict_bigquery_destination_output_uri"
-            ] = batch_predict_bigquery_destination_output_uri
+            template_params["batch_predict_bigquery_destination_output_uri"] = (
+                batch_predict_bigquery_destination_output_uri
+            )
         elif gcs_source_uris:
             template_params["batch_predict_gcs_source_uris"] = gcs_source_uris
 
@@ -330,14 +330,14 @@ class _ModelEvaluationJob(pipeline_based_service._VertexAiPipelineBasedService):
             template_params["evaluation_class_labels"] = class_labels
 
         if prediction_label_column:
-            template_params[
-                "evaluation_prediction_label_column"
-            ] = prediction_label_column
+            template_params["evaluation_prediction_label_column"] = (
+                prediction_label_column
+            )
 
         if prediction_score_column:
-            template_params[
-                "evaluation_prediction_score_column"
-            ] = prediction_score_column
+            template_params["evaluation_prediction_score_column"] = (
+                prediction_score_column
+            )
 
         # If the user provides a SA, use it for the Dataflow job as well
         if service_account is not None:

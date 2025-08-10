@@ -95,11 +95,13 @@ def make_training_pipeline(state, add_training_task_metadata=True):
         training_task_inputs={
             "tensorboard": test_constants.TrainingJobConstants._TEST_TENSORBOARD_RESOURCE_NAME
         },
-        training_task_metadata={
-            "backingCustomJob": test_constants.TrainingJobConstants._TEST_CUSTOM_JOB_RESOURCE_NAME
-        }
-        if add_training_task_metadata
-        else None,
+        training_task_metadata=(
+            {
+                "backingCustomJob": test_constants.TrainingJobConstants._TEST_CUSTOM_JOB_RESOURCE_NAME
+            }
+            if add_training_task_metadata
+            else None
+        ),
     )
 
 

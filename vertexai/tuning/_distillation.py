@@ -18,7 +18,9 @@
 from typing import Optional
 
 from google.cloud.aiplatform.utils import gcs_utils
-from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job_types
+from google.cloud.aiplatform_v1beta1.types import (
+    tuning_job as gca_tuning_job_types,
+)
 
 from vertexai import generative_models
 from vertexai.tuning import _tuning

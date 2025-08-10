@@ -130,7 +130,9 @@ async def predict_stream_of_tensor_lists_from_single_tensor_list_async(
         inputs=tensor_list,
         parameters=parameters_tensor,
     )
-    async for response in await prediction_service_async_client.server_streaming_predict(
+    async for (
+        response
+    ) in await prediction_service_async_client.server_streaming_predict(
         request=request
     ):
         yield response.outputs
@@ -183,7 +185,9 @@ async def predict_stream_of_dict_lists_from_single_dict_list_async(
     """
     tensor_list = [value_to_tensor(d) for d in dict_list]
     parameters_tensor = value_to_tensor(parameters) if parameters else None
-    async for tensor_list in predict_stream_of_tensor_lists_from_single_tensor_list_async(
+    async for (
+        tensor_list
+    ) in predict_stream_of_tensor_lists_from_single_tensor_list_async(
         prediction_service_async_client=prediction_service_async_client,
         endpoint_name=endpoint_name,
         tensor_list=tensor_list,

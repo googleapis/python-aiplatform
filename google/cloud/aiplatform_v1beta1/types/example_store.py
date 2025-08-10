@@ -178,7 +178,9 @@ class StoredContentsExampleParameters(proto.Message):
             number=1,
             message=content.Content,
         )
-        search_key_generation_method: example.StoredContentsExample.SearchKeyGenerationMethod = proto.Field(
+        search_key_generation_method: (
+            example.StoredContentsExample.SearchKeyGenerationMethod
+        ) = proto.Field(
             proto.MESSAGE,
             number=2,
             message=example.StoredContentsExample.SearchKeyGenerationMethod,
@@ -229,6 +231,7 @@ class ExamplesArrayFilter(proto.Message):
                 The metadata array field in the example must
                 contain all of the values.
         """
+
         ARRAY_OPERATOR_UNSPECIFIED = 0
         CONTAINS_ANY = 1
         CONTAINS_ALL = 2

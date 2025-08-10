@@ -88,6 +88,7 @@ class AutoMlVideoObjectTrackingInputs(proto.Message):
                 ModelService.ExportModel) and used on an NVIDIA
                 Jetson device.
         """
+
         MODEL_TYPE_UNSPECIFIED = 0
         CLOUD = 1
         MOBILE_VERSATILE_1 = 2

@@ -1,4 +1,5 @@
 """Regsiter Torch for Ray on Vertex AI."""
+
 # -*- coding: utf-8 -*-
 
 # Copyright 2023 Google LLC

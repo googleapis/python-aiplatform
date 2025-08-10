@@ -15,8 +15,7 @@
 # limitations under the License.
 #
 
-"""Predict Utils.
-"""
+"""Predict Utils."""
 
 
 def validate_artifact_uri(artifact_uri: str) -> None:

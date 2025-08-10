@@ -366,12 +366,12 @@ class PersistentResourceServiceGrpcTransport(PersistentResourceServiceTransport)
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_persistent_resource" not in self._stubs:
-            self._stubs[
-                "create_persistent_resource"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/CreatePersistentResource",
-                request_serializer=persistent_resource_service.CreatePersistentResourceRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["create_persistent_resource"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.PersistentResourceService/CreatePersistentResource",
+                    request_serializer=persistent_resource_service.CreatePersistentResourceRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["create_persistent_resource"]
 
@@ -455,12 +455,12 @@ class PersistentResourceServiceGrpcTransport(PersistentResourceServiceTransport)
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_persistent_resource" not in self._stubs:
-            self._stubs[
-                "delete_persistent_resource"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/DeletePersistentResource",
-                request_serializer=persistent_resource_service.DeletePersistentResourceRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["delete_persistent_resource"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.PersistentResourceService/DeletePersistentResource",
+                    request_serializer=persistent_resource_service.DeletePersistentResourceRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["delete_persistent_resource"]
 
@@ -486,12 +486,12 @@ class PersistentResourceServiceGrpcTransport(PersistentResourceServiceTransport)
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_persistent_resource" not in self._stubs:
-            self._stubs[
-                "update_persistent_resource"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/UpdatePersistentResource",
-                request_serializer=persistent_resource_service.UpdatePersistentResourceRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["update_persistent_resource"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.PersistentResourceService/UpdatePersistentResource",
+                    request_serializer=persistent_resource_service.UpdatePersistentResourceRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["update_persistent_resource"]
 
@@ -517,12 +517,12 @@ class PersistentResourceServiceGrpcTransport(PersistentResourceServiceTransport)
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "reboot_persistent_resource" not in self._stubs:
-            self._stubs[
-                "reboot_persistent_resource"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.PersistentResourceService/RebootPersistentResource",
-                request_serializer=persistent_resource_service.RebootPersistentResourceRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["reboot_persistent_resource"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.PersistentResourceService/RebootPersistentResource",
+                    request_serializer=persistent_resource_service.RebootPersistentResourceRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["reboot_persistent_resource"]
 
