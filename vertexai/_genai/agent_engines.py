@@ -63,6 +63,91 @@ def _ReasoningEngineSpec_to_vertex(
     return to_object
 
 
+def _MemoryBankGranularTtlConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["create_ttl"]) is not None:
+        setv(
+            to_object,
+            ["createTtl"],
+            getv(from_object, ["create_ttl"]),
+        )
+
+    if getv(from_object, ["generate_created_ttl"]) is not None:
+        setv(
+            to_object,
+            ["generateCreatedTtl"],
+            getv(from_object, ["generate_created_ttl"]),
+        )
+
+    if getv(from_object, ["generate_updated_ttl"]) is not None:
+        setv(
+            to_object,
+            ["generateUpdatedTtl"],
+            getv(from_object, ["generate_updated_ttl"]),
+        )
+
+    return to_object
+
+
+def _MemoryBankTtlConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["default_ttl"]) is not None:
+        setv(
+            to_object,
+            ["defaultTtl"],
+            getv(from_object, ["default_ttl"]),
+        )
+
+    if getv(from_object, ["granular_ttl_config"]) is not None:
+        # TODO: Handle case where nested dict uses underscore-seperated but
+        # parent key uses camelCase.
+        setv(
+            parent_object,
+            ["granularTtlConfig"],
+            _MemoryBankGranularTtlConfig_to_vertex(
+                    getv(from_object, ["granular_ttl_config"]),
+                    parent_object),
+        )
+    return to_object
+
+
+def _MemoryBankConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["generation_config"]) is not None:
+        setv(
+            to_object,
+            ["generationConfig"],
+            getv(from_object, ["generation_config"]),
+        )
+
+    if getv(from_object, ["similarity_search_config"]) is not None:
+        setv(
+            to_object,
+            ["similaritySearchConfig"],
+            getv(from_object, ["similarity_search_config"]),
+        )
+
+    if getv(from_object, ["ttl_config"]) is not None:
+        setv(
+            parent_object,
+            ["ttlConfig"],
+            _MemoryBankTtlConfig_to_vertex(
+                    getv(from_object, ["ttl_config"]),
+                    parent_object),
+        )
+
+    return to_object
+
+
 def _ReasoningEngineContextSpec_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -70,9 +155,11 @@ def _ReasoningEngineContextSpec_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["memory_bank_config"]) is not None:
         setv(
-            to_object,
+            parent_object,
             ["memoryBankConfig"],
-            getv(from_object, ["memory_bank_config"]),
+            _MemoryBankConfig_to_vertex(
+                    getv(from_object, ["memory_bank_config"]),
+                    to_object),
         )
 
     return to_object
@@ -137,6 +224,9 @@ def _AgentEngineMemoryConfig_to_vertex(
 
     if getv(from_object, ["description"]) is not None:
         setv(parent_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["expire_time"]) is not None:
+        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
 
     return to_object
 
@@ -765,6 +855,9 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
             ["_query", "updateMask"],
             getv(from_object, ["update_mask"]),
         )
+
+    if getv(from_object, ["expire_time"]) is not None:
+        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
 
     return to_object
 

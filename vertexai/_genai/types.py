@@ -3589,6 +3589,86 @@ ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
 ]
 
 
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(
+    _common.BaseModel
+):
+    r"""Configuration for TTL of the memories in the Memory Bank based on the action that created or updated the memory."""
+
+    create_ttl: Optional[datetime.timedelta] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories uploaded via CreateMemory.""",
+    )
+
+    generate_create_ttl: Optional[datetime.timedelta] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories newly generated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED).""",
+    )
+
+    generate_update_ttl: Optional[datetime.timedelta] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories updated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.UPDATED). In the case of an UPDATE action, the `expire_time` of the existing memory will be updated to the new value (now + TTL).""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict(
+    TypedDict, total=False
+):
+    r"""Configuration for TTL of the memories in the Memory Bank based on the action that created or updated the memory."""
+
+    create_ttl: Optional[datetime.timedelta]
+    """Optional. The TTL duration for memories uploaded via UpdateMemory."""
+
+    generate_create_ttl: Optional[datetime.timedelta]
+    """Optional. The TTL duration for memories newly generated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED)."""
+
+    generate_update_ttl: Optional[datetime.timedelta]
+    """Optional. The TTL duration for memories updated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.UPDATED). In the case of an UPDATE action, the `expire_time` of the existing memory will be updated to the new value (now + TTL)."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig,
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict,
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfig(
+    _common.BaseModel
+):
+    r"""Configuration for automatically setting the TTL ("time-to-live") of the memories in the Memory Bank."""
+
+    default_ttl: Optional[datetime.timedelta] = Field(
+        default=None,
+        description="""Optional. The default TTL duration of the memories in the Memory Bank. This applies to all operations that create or update a memory.""",
+    )
+
+    granular_ttl_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig
+    ] = Field(
+        default=None,
+        description="""Optional. The granular TTL configuration of the memories in the Memory Bank.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict(
+    TypedDict, total=False
+):
+    r"""Configuration for automatically setting the TTL ("time-to-live") of the memories in the Memory Bank."""
+
+    default_ttl: Optional[datetime.timedelta]
+    """Optional. The default TTL duration of the memories in the Memory Bank. This applies to all operations that create or update a memory."""
+
+    granular_ttl_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict
+    ]
+    """Optional. The granular TTL configuration of the memories in the Memory Bank."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfig,
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict,
+]
+
+
 class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
     """Specification for a Memory Bank."""
 
@@ -3604,6 +3684,12 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
         default=None,
         description="""Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`.""",
     )
+    ttl_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigTtlConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Configuration for automatic TTL (\"time-to-live\") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
+    )
 
 
 class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
@@ -3618,6 +3704,11 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
         ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict
     ]
     """Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`."""
+
+    ttl_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict
+    ]
+    """Optional. Configuration for automatic TTL (\"time-to-live\") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
@@ -3850,6 +3941,14 @@ class AgentEngineMemoryConfig(_common.BaseModel):
         default=True,
         description="""Waits for the operation to complete before returning.""",
     )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this resource is considered expired. If `expiration` was set on input, `expire_time` is *always* provided on output, regardless of whether `ttl` was sent on input.""",
+    )
+    ttl: Optional[datetime.timedelta] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL.""",
+    )
 
 
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -3866,6 +3965,12 @@ class AgentEngineMemoryConfigDict(TypedDict, total=False):
 
     wait_for_completion: Optional[bool]
     """Waits for the operation to complete before returning."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this resource is considered expired. If `expiration` was set on input, `expire_time` is *always* provided on output, regardless of whether `ttl` was sent on input."""
+
+    ttl: Optional[datetime.timedelta]
+    """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
 
 
 AgentEngineMemoryConfigOrDict = Union[
@@ -3954,6 +4059,10 @@ class Memory(_common.BaseModel):
         default=None,
         description="""Output only. Timestamp when this Memory was most recently updated.""",
     )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this resource is considered expired. If `expiration` was set on input, `expire_time` is *always* provided on output, regardless of whether `ttl` was sent on input.""",
+    )
 
 
 class MemoryDict(TypedDict, total=False):
@@ -3979,6 +4088,12 @@ class MemoryDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. Timestamp when this Memory was most recently updated."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this resource is considered expired. If `expiration` was set on input, `expire_time` is *always* provided on output, regardless of whether `ttl` was sent on input."""
+
+    ttl: Optional[datetime.timedelta]
+    """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
 
 
 MemoryOrDict = Union[Memory, MemoryDict]
@@ -5717,6 +5832,14 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
         description="""The update mask to apply. For the `FieldMask` definition, see
       https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask.""",
     )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this resource is considered expired. If `expiration` was set on input, `expire_time` is *always* provided on output, regardless of whether `ttl` was sent on input.""",
+    )
+    ttl: Optional[datetime.timedelta] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL.""",
+    )
 
 
 class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -5737,6 +5860,12 @@ class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
       https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this resource is considered expired. If `expiration` was set on input, `expire_time` is *always* provided on output, regardless of whether `ttl` was sent on input."""
+
+    ttl: Optional[datetime.timedelta]
+    """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
 
 
 UpdateAgentEngineMemoryConfigOrDict = Union[
