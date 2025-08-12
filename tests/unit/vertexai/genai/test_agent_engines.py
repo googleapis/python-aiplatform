@@ -484,6 +484,7 @@ _TEST_AGENT_ENGINE_ENV_VARS_INPUT = {
         "version": "TEST_SECRET_VERSION_1",
     },
 }
+_TEST_AGENT_ENGINE_SERVICE_ACCOUNT_INPUT = "test-service-account-value"
 _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
     agent_framework=_TEST_AGENT_ENGINE_FRAMEWORK,
     class_methods=[_TEST_AGENT_ENGINE_CLASS_METHOD_1],
@@ -1276,6 +1277,55 @@ class TestAgentEngine:
                 None,
             )
 
+    @mock.patch.object(agent_engines.AgentEngines, "_create_config")
+    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    def test_create_agent_engine_with_service_account_input(
+        self,
+        mock_await_operation,
+        mock_create_config,
+    ):
+        mock_create_config.return_value = {
+            "display_name": _TEST_AGENT_ENGINE_DISPLAY_NAME,
+            "spec": {
+                "service_account": _TEST_AGENT_ENGINE_SERVICE_ACCOUNT_INPUT,
+            },
+        }
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.agent_engines.create(
+                agent_engine=self.test_agent,
+                config=_genai_types.AgentEngineConfig(
+                    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    service_account=_TEST_AGENT_ENGINE_SERVICE_ACCOUNT_INPUT,
+                ),
+            )
+            mock_create_config.assert_called_with(
+                mode="create",
+                agent_engine=self.test_agent,
+                staging_bucket=_TEST_STAGING_BUCKET,
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                service_account=_TEST_AGENT_ENGINE_SERVICE_ACCOUNT_INPUT,
+            )
+            request_mock.assert_called_with(
+                "post",
+                "reasoningEngines",
+                {
+                    "displayName": _TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    "spec": {
+                        "serviceAccount": _TEST_AGENT_ENGINE_SERVICE_ACCOUNT_INPUT,
+                    },
+                },
+                None,
+            )
+
     @pytest.mark.usefixtures("caplog")
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
@@ -1439,6 +1489,49 @@ class TestAgentEngine:
                         "deploymentSpec": _TEST_AGENT_ENGINE_SPEC.get(
                             "deployment_spec"
                         ),
+                    },
+                    "_query": {"updateMask": update_mask},
+                },
+                None,
+            )
+    
+    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    def test_create_agent_engine_with_service_account_input(
+        self,
+        mock_await_operation,
+    ):
+
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.agent_engines.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                agent_engine=self.test_agent,
+                config=_genai_types.AgentEngineConfig(
+                    service_account=_TEST_AGENT_ENGINE_SERVICE_ACCOUNT_INPUT,
+                ),
+            )
+            update_mask = ",".join(
+                [
+                    "spec.service_account",
+                ]
+            )
+            query_params = {"updateMask": update_mask}
+            request_mock.assert_called_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?{urlencode(query_params)}",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "displayName": _TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    "spec": {
+                        "serviceAccount": _TEST_AGENT_ENGINE_SERVICE_ACCOUNT_INPUT,
                     },
                     "_query": {"updateMask": update_mask},
                 },
