@@ -370,6 +370,105 @@ class TestAdkApp:
         response0 = app.list_sessions(user_id="test_user_id")
         assert not response0.sessions
 
+    @pytest.mark.asyncio
+    async def test_async_add_session_to_memory(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name="test_agent", model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("memory_service") is None
+        session = app.create_session(user_id="test_user_id")
+        list(
+            app.stream_query(
+                user_id="test_user_id",
+                session_id=session.id,
+                message="My cat's name is Garfield",
+            )
+        )
+        await app.async_add_session_to_memory(
+            session=app.get_session(
+                user_id="test_user_id",
+                session_id=session.id,
+            )
+        )
+        response = await app.async_search_memory(
+            user_id="test_user_id",
+            query="What is my cat's name",
+        )
+        assert len(response.memories) >= 1
+
+    @pytest.mark.asyncio
+    async def test_async_add_session_to_memory_dict(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name="test_agent", model=_TEST_MODEL)
+        )
+        await app.async_add_session_to_memory(
+            session={
+                "id": "ca18c25a-644b-4e13-9b24-78c150ec3eb9",
+                "app_name": "default-app-name",
+                "user_id": "test_user_id",
+                "events": [
+                    {
+                        "author": "user",
+                        "content": {
+                            "parts": [{"text": "My cat's name is Garfield"}],
+                            "role": "user",
+                        },
+                    },
+                    {
+                        "author": "my_personal_agent",
+                        "content": {
+                            "parts": [{"text": "Okay, good to know!"}],
+                            "role": "model",
+                        },
+                    },
+                ],
+            },
+        )
+        response = await app.async_search_memory(
+            user_id="test_user_id",
+            query="What is my cat's name",
+        )
+        assert len(response.memories) >= 1
+
+    @pytest.mark.asyncio
+    async def test_async_search_memory(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name="test_agent", model=_TEST_MODEL)
+        )
+        response = await app.async_search_memory(
+            user_id="test_user_id",
+            query="What is my cat's name",
+        )
+        assert not response.memories
+        await app.async_add_session_to_memory(
+            session={
+                "id": "ca18c25a-644b-4e13-9b24-78c150ec3eb9",
+                "app_name": "default-app-name",
+                "user_id": "test_user_id",
+                "events": [
+                    {
+                        "author": "user",
+                        "content": {
+                            "parts": [{"text": "My cat's name is Garfield"}],
+                            "role": "user",
+                        },
+                    },
+                    {
+                        "author": "my_personal_agent",
+                        "content": {
+                            "parts": [{"text": "Okay, good to know!"}],
+                            "role": "model",
+                        },
+                    },
+                ],
+            },
+        )
+        response = await app.async_search_memory(
+            user_id="test_user_id",
+            query="What is my cat's name",
+        )
+        assert len(response.memories) >= 1
+
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing(
         self,

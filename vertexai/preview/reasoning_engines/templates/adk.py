@@ -52,6 +52,13 @@ if TYPE_CHECKING:
         BaseSessionService = Any
 
     try:
+        from google.adk.sessions.session import Session
+
+        Session = Session
+    except (ImportError, AttributeError):
+        Session = Any
+
+    try:
         from google.adk.artifacts import BaseArtifactService
 
         BaseArtifactService = BaseArtifactService
@@ -961,6 +968,53 @@ class AdkApp:
         if isinstance(outcome, RuntimeError):
             raise outcome from None
 
+    async def async_add_session_to_memory(
+        self,
+        *,
+        session: Union["Session", Dict[str, Any]],
+    ):
+        """Generates memories.
+
+        Args:
+            session (Union[Session, Dict[str, Any]]):
+                Required. The session to use for generating memories.
+        """
+        from google.adk.sessions.session import Session
+
+        if isinstance(session, Dict):
+            session = Session.model_validate(session)
+        elif not isinstance(session, Session):
+            raise TypeError("session must be a Session object.")
+        if not session.events:
+            # Get the latest version of the session in case it was updated.
+            session = await self.async_get_session(
+                user_id=session.user_id,
+                session_id=session.id,
+            )
+        if not self._tmpl_attrs.get("memory_service"):
+            self.set_up()
+        return await self._tmpl_attrs.get("memory_service").add_session_to_memory(
+            session=session,
+        )
+
+    async def async_search_memory(self, *, user_id: str, query: str):
+        """Searches memories for the given user.
+
+        Args:
+            user_id: The id of the user.
+            query: The query to match the memories on.
+
+        Returns:
+            A SearchMemoryResponse containing the matching memories.
+        """
+        if not self._tmpl_attrs.get("memory_service"):
+            self.set_up()
+        return await self._tmpl_attrs.get("memory_service").search_memory(
+            app_name=self._tmpl_attrs.get("app_name"),
+            user_id=user_id,
+            query=query,
+        )
+
     def register_operations(self) -> Dict[str, List[str]]:
         """Registers the operations of the ADK application."""
         return {
@@ -975,6 +1029,8 @@ class AdkApp:
                 "async_list_sessions",
                 "async_create_session",
                 "async_delete_session",
+                "async_add_session_to_memory",
+                "async_search_memory",
             ],
             "stream": ["stream_query", "streaming_agent_run_with_events"],
             "async_stream": ["async_stream_query"],
