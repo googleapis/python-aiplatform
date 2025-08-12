@@ -60,6 +60,13 @@ def _ReasoningEngineSpec_to_vertex(
     if getv(from_object, ["package_spec"]) is not None:
         setv(to_object, ["packageSpec"], getv(from_object, ["package_spec"]))
 
+    if getv(from_object, ["service_account"]) is not None:
+        setv(
+            to_object,
+            ["serviceAccount"],
+            getv(from_object, ["service_account"]),
+        )
+
     return to_object
 
 
@@ -137,6 +144,12 @@ def _AgentEngineMemoryConfig_to_vertex(
 
     if getv(from_object, ["description"]) is not None:
         setv(parent_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["ttl"]) is not None:
+        setv(to_object, ["ttl"], getv(from_object, ["ttl"]))
+
+    if getv(from_object, ["expire_time"]) is not None:
+        setv(to_object, ["expireTime"], getv(from_object, ["expire_time"]))
 
     return to_object
 
@@ -282,6 +295,21 @@ def _GenerateMemoriesRequestDirectContentsSource_to_vertex(
     return to_object
 
 
+def _GenerateMemoriesRequestDirectMemoriesSource_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["direct_memories"]) is not None:
+        setv(
+            to_object,
+            ["directMemories"],
+            getv(from_object, ["direct_memories"]),
+        )
+
+    return to_object
+
+
 def _GenerateAgentEngineMemoriesConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -321,6 +349,15 @@ def _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
             ["directContentsSource"],
             _GenerateMemoriesRequestDirectContentsSource_to_vertex(
                 getv(from_object, ["direct_contents_source"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["direct_memories_source"]) is not None:
+        setv(
+            to_object,
+            ["directMemoriesSource"],
+            _GenerateMemoriesRequestDirectMemoriesSource_to_vertex(
+                getv(from_object, ["direct_memories_source"]), to_object
             ),
         )
 
@@ -759,6 +796,12 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
     if getv(from_object, ["description"]) is not None:
         setv(parent_object, ["description"], getv(from_object, ["description"]))
 
+    if getv(from_object, ["ttl"]) is not None:
+        setv(to_object, ["ttl"], getv(from_object, ["ttl"]))
+
+    if getv(from_object, ["expire_time"]) is not None:
+        setv(to_object, ["expireTime"], getv(from_object, ["expire_time"]))
+
     if getv(from_object, ["update_mask"]) is not None:
         setv(
             parent_object,
@@ -861,6 +904,13 @@ def _ReasoningEngine_from_vertex(
     if getv(from_object, ["displayName"]) is not None:
         setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
 
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(
+            to_object,
+            ["encryption_spec"],
+            getv(from_object, ["encryptionSpec"]),
+        )
+
     if getv(from_object, ["etag"]) is not None:
         setv(to_object, ["etag"], getv(from_object, ["etag"]))
 
@@ -908,6 +958,12 @@ def _Memory_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["expireTime"]) is not None:
+        setv(to_object, ["expire_time"], getv(from_object, ["expireTime"]))
+
+    if getv(from_object, ["ttl"]) is not None:
+        setv(to_object, ["ttl"], getv(from_object, ["ttl"]))
+
     if getv(from_object, ["createTime"]) is not None:
         setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
 
@@ -970,11 +1026,17 @@ def _Session_from_vertex(
     if getv(from_object, ["displayName"]) is not None:
         setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
 
+    if getv(from_object, ["expireTime"]) is not None:
+        setv(to_object, ["expire_time"], getv(from_object, ["expireTime"]))
+
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["sessionState"]) is not None:
         setv(to_object, ["session_state"], getv(from_object, ["sessionState"]))
+
+    if getv(from_object, ["ttl"]) is not None:
+        setv(to_object, ["ttl"], getv(from_object, ["ttl"]))
 
     if getv(from_object, ["updateTime"]) is not None:
         setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
@@ -1251,6 +1313,7 @@ def _RetrieveMemoriesResponse_from_vertex(
 
 
 class AgentEngines(_api_module.BaseModule):
+
     def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
@@ -1649,6 +1712,9 @@ class AgentEngines(_api_module.BaseModule):
         direct_contents_source: Optional[
             types.GenerateMemoriesRequestDirectContentsSourceOrDict
         ] = None,
+        direct_memories_source: Optional[
+            types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
+        ] = None,
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEngineGenerateMemoriesOperation:
@@ -1658,6 +1724,7 @@ class AgentEngines(_api_module.BaseModule):
             name=name,
             vertex_session_source=vertex_session_source,
             direct_contents_source=direct_contents_source,
+            direct_memories_source=direct_memories_source,
             scope=scope,
             config=config,
         )
@@ -2871,9 +2938,9 @@ class AgentEngines(_api_module.BaseModule):
                 for class_method in class_methods
             ]
             update_masks.append("spec.class_methods")
-            agent_engine_spec[
-                "agent_framework"
-            ] = _agent_engines_utils._get_agent_framework(agent_engine)
+            agent_engine_spec["agent_framework"] = (
+                _agent_engines_utils._get_agent_framework(agent_engine)
+            )
             update_masks.append("spec.agent_framework")
             config["spec"] = agent_engine_spec
         if update_masks and mode == "update":
@@ -3128,6 +3195,8 @@ class AgentEngines(_api_module.BaseModule):
         ):
             yield response
 
+    # TODO: b/436704146 - Replace with generated methods
+    # TODO: b/437129724 - Add replay test for async stream query
     async def _async_stream_query(
         self,
         *,
@@ -3408,6 +3477,7 @@ class AgentEngines(_api_module.BaseModule):
 
 
 class AsyncAgentEngines(_api_module.BaseModule):
+
     async def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
@@ -3818,6 +3888,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
         direct_contents_source: Optional[
             types.GenerateMemoriesRequestDirectContentsSourceOrDict
         ] = None,
+        direct_memories_source: Optional[
+            types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
+        ] = None,
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEngineGenerateMemoriesOperation:
@@ -3827,6 +3900,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             name=name,
             vertex_session_source=vertex_session_source,
             direct_contents_source=direct_contents_source,
+            direct_memories_source=direct_memories_source,
             scope=scope,
             config=config,
         )

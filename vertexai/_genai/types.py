@@ -170,6 +170,8 @@ class AcceleratorType(_common.CaseInSensitiveEnum):
     """Nvidia H200 141Gb GPU."""
     NVIDIA_B200 = "NVIDIA_B200"
     """Nvidia B200 GPU."""
+    NVIDIA_GB200 = "NVIDIA_GB200"
+    """Nvidia GB200 GPU."""
     TPU_V2 = "TPU_V2"
     """TPU v2."""
     TPU_V3 = "TPU_V3"
@@ -2406,6 +2408,10 @@ class VideoMetadata(_common.BaseModel):
     end_offset: Optional[str] = Field(
         default=None, description="""Optional. The end offset of the video."""
     )
+    fps: Optional[float] = Field(
+        default=None,
+        description="""Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0].""",
+    )
     start_offset: Optional[str] = Field(
         default=None, description="""Optional. The start offset of the video."""
     )
@@ -2416,6 +2422,9 @@ class VideoMetadataDict(TypedDict, total=False):
 
     end_offset: Optional[str]
     """Optional. The end offset of the video."""
+
+    fps: Optional[float]
+    """Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0]."""
 
     start_offset: Optional[str]
     """Optional. The start offset of the video."""
@@ -3518,6 +3527,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes.""",
     )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used.""",
+    )
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
@@ -3535,6 +3548,9 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
     package_spec: Optional[ReasoningEngineSpecPackageSpecDict]
     """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes."""
 
+    service_account: Optional[str]
+    """Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used."""
+
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
@@ -3544,7 +3560,7 @@ class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseMod
 
     model: Optional[str] = Field(
         default=None,
-        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}` or `projects/{project}/locations/{location}/endpoints/{endpoint}`.""",
+        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
     )
 
 
@@ -3554,7 +3570,7 @@ class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
     """Configuration for how to generate memories."""
 
     model: Optional[str]
-    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}` or `projects/{project}/locations/{location}/endpoints/{endpoint}`."""
+    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
@@ -3570,7 +3586,7 @@ class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(
 
     embedding_model: Optional[str] = Field(
         default=None,
-        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}` or `projects/{project}/locations/{location}/endpoints/{endpoint}`.""",
+        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
     )
 
 
@@ -3580,12 +3596,85 @@ class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict(
     """Configuration for how to perform similarity search on memories."""
 
     embedding_model: Optional[str]
-    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}` or `projects/{project}/locations/{location}/endpoints/{endpoint}`."""
+    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
     ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig,
     ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict,
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(
+    _common.BaseModel
+):
+    """Configuration for TTL of the memories in the Memory Bank based on the action that created or updated the memory."""
+
+    create_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories uploaded via CreateMemory.""",
+    )
+    generate_created_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories newly generated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED).""",
+    )
+    generate_updated_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories updated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED). In the case of an UPDATE action, the `expire_time` of the existing memory will be updated to the new value (now + TTL).""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for TTL of the memories in the Memory Bank based on the action that created or updated the memory."""
+
+    create_ttl: Optional[str]
+    """Optional. The TTL duration for memories uploaded via CreateMemory."""
+
+    generate_created_ttl: Optional[str]
+    """Optional. The TTL duration for memories newly generated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED)."""
+
+    generate_updated_ttl: Optional[str]
+    """Optional. The TTL duration for memories updated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED). In the case of an UPDATE action, the `expire_time` of the existing memory will be updated to the new value (now + TTL)."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig,
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict,
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfig(_common.BaseModel):
+    """Configuration for automatically setting the TTL ("time-to-live") of the memories in the Memory Bank."""
+
+    default_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The default TTL duration of the memories in the Memory Bank. This applies to all operations that create or update a memory.""",
+    )
+    granular_ttl_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig
+    ] = Field(
+        default=None,
+        description="""Optional. The granular TTL configuration of the memories in the Memory Bank.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict(TypedDict, total=False):
+    """Configuration for automatically setting the TTL ("time-to-live") of the memories in the Memory Bank."""
+
+    default_ttl: Optional[str]
+    """Optional. The default TTL duration of the memories in the Memory Bank. This applies to all operations that create or update a memory."""
+
+    granular_ttl_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict
+    ]
+    """Optional. The granular TTL configuration of the memories in the Memory Bank."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfig,
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict,
 ]
 
 
@@ -3604,6 +3693,10 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
         default=None,
         description="""Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`.""",
     )
+    ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfig] = Field(
+        default=None,
+        description="""Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
+    )
 
 
 class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
@@ -3618,6 +3711,9 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
         ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict
     ]
     """Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`."""
+
+    ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
+    """Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
@@ -3739,6 +3835,10 @@ class ReasoningEngine(_common.BaseModel):
         default=None,
         description="""Required. The display name of the ReasoningEngine.""",
     )
+    encryption_spec: Optional[EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.""",
+    )
     etag: Optional[str] = Field(
         default=None,
         description="""Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
@@ -3771,6 +3871,9 @@ class ReasoningEngineDict(TypedDict, total=False):
 
     display_name: Optional[str]
     """Required. The display name of the ReasoningEngine."""
+
+    encryption_spec: Optional[EncryptionSpecDict]
+    """Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key."""
 
     etag: Optional[str]
     """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
@@ -3850,6 +3953,16 @@ class AgentEngineMemoryConfig(_common.BaseModel):
         default=True,
         description="""Waits for the operation to complete before returning.""",
     )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this resource.
+
+      The expiration time is computed: now + TTL.""",
+    )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
+    )
 
 
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -3866,6 +3979,14 @@ class AgentEngineMemoryConfigDict(TypedDict, total=False):
 
     wait_for_completion: Optional[bool]
     """Waits for the operation to complete before returning."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for this resource.
+
+      The expiration time is computed: now + TTL."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
 
 
 AgentEngineMemoryConfigOrDict = Union[
@@ -3928,6 +4049,14 @@ _CreateAgentEngineMemoryRequestParametersOrDict = Union[
 class Memory(_common.BaseModel):
     """A memory."""
 
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL.""",
+    )
     create_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Timestamp when this Memory was created.""",
@@ -3958,6 +4087,12 @@ class Memory(_common.BaseModel):
 
 class MemoryDict(TypedDict, total=False):
     """A memory."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
 
     create_time: Optional[datetime.datetime]
     """Output only. Timestamp when this Memory was created."""
@@ -4117,6 +4252,10 @@ class Session(_common.BaseModel):
         default=None,
         description="""Optional. The display name of the session.""",
     )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input.""",
+    )
     name: Optional[str] = Field(
         default=None,
         description="""Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.""",
@@ -4124,6 +4263,10 @@ class Session(_common.BaseModel):
     session_state: Optional[dict[str, Any]] = Field(
         default=None,
         description="""Optional. Session specific memory which stores key conversation points.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this session.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
@@ -4144,11 +4287,17 @@ class SessionDict(TypedDict, total=False):
     display_name: Optional[str]
     """Optional. The display name of the session."""
 
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input."""
+
     name: Optional[str]
     """Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'."""
 
     session_state: Optional[dict[str, Any]]
     """Optional. Session specific memory which stores key conversation points."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for this session."""
 
     update_time: Optional[datetime.datetime]
     """Output only. Timestamp when the session was updated."""
@@ -4561,6 +4710,56 @@ GenerateMemoriesRequestDirectContentsSourceOrDict = Union[
 ]
 
 
+class GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(_common.BaseModel):
+    """A direct memory to upload to Memory Bank."""
+
+    fact: Optional[str] = Field(
+        default=None,
+        description="""Required. The fact to consolidate with existing memories.""",
+    )
+
+
+class GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict(
+    TypedDict, total=False
+):
+    """A direct memory to upload to Memory Bank."""
+
+    fact: Optional[str]
+    """Required. The fact to consolidate with existing memories."""
+
+
+GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryOrDict = Union[
+    GenerateMemoriesRequestDirectMemoriesSourceDirectMemory,
+    GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict,
+]
+
+
+class GenerateMemoriesRequestDirectMemoriesSource(_common.BaseModel):
+    """The direct memories source for generating memories."""
+
+    direct_memories: Optional[
+        list[GenerateMemoriesRequestDirectMemoriesSourceDirectMemory]
+    ] = Field(
+        default=None,
+        description="""Required. The direct memories to upload to Memory Bank. At most 5 direct memories are allowed per request.""",
+    )
+
+
+class GenerateMemoriesRequestDirectMemoriesSourceDict(TypedDict, total=False):
+    """The direct memories source for generating memories."""
+
+    direct_memories: Optional[
+        list[GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict]
+    ]
+    """Required. The direct memories to upload to Memory Bank. At most 5 direct memories are allowed per request."""
+
+
+GenerateMemoriesRequestDirectMemoriesSourceOrDict = Union[
+    GenerateMemoriesRequestDirectMemoriesSource,
+    GenerateMemoriesRequestDirectMemoriesSourceDict,
+]
+
+
 class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
     """Config for generating memories."""
 
@@ -4616,11 +4815,17 @@ class _GenerateAgentEngineMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""The vertex session source of the memories that should be generated.""",
     )
-    direct_contents_source: Optional[
-        GenerateMemoriesRequestDirectContentsSource
-    ] = Field(
-        default=None,
-        description="""The direct contents source of the memories that should be generated.""",
+    direct_contents_source: Optional[GenerateMemoriesRequestDirectContentsSource] = (
+        Field(
+            default=None,
+            description="""The direct contents source of the memories that should be generated.""",
+        )
+    )
+    direct_memories_source: Optional[GenerateMemoriesRequestDirectMemoriesSource] = (
+        Field(
+            default=None,
+            description="""The direct memories source of the memories that should be generated.""",
+        )
     )
     scope: Optional[dict[str, str]] = Field(
         default=None,
@@ -4647,6 +4852,9 @@ class _GenerateAgentEngineMemoriesRequestParametersDict(TypedDict, total=False):
 
     direct_contents_source: Optional[GenerateMemoriesRequestDirectContentsSourceDict]
     """The direct contents source of the memories that should be generated."""
+
+    direct_memories_source: Optional[GenerateMemoriesRequestDirectMemoriesSourceDict]
+    """The direct memories source of the memories that should be generated."""
 
     scope: Optional[dict[str, str]]
     """The scope of the memories that should be generated.
@@ -5511,11 +5719,11 @@ class _RetrieveAgentEngineMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""Parameters for semantic similarity search based retrieval.""",
     )
-    simple_retrieval_params: Optional[
-        RetrieveMemoriesRequestSimpleRetrievalParams
-    ] = Field(
-        default=None,
-        description="""Parameters for simple (non-similarity search) retrieval.""",
+    simple_retrieval_params: Optional[RetrieveMemoriesRequestSimpleRetrievalParams] = (
+        Field(
+            default=None,
+            description="""Parameters for simple (non-similarity search) retrieval.""",
+        )
     )
     config: Optional[RetrieveAgentEngineMemoriesConfig] = Field(
         default=None, description=""""""
@@ -5712,6 +5920,16 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
         default=True,
         description="""Waits for the operation to complete before returning.""",
     )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this resource.
+
+      The expiration time is computed: now + TTL.""",
+    )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -5733,6 +5951,14 @@ class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
 
     wait_for_completion: Optional[bool]
     """Waits for the operation to complete before returning."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for this resource.
+
+      The expiration time is computed: now + TTL."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -6512,9 +6738,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=fields_to_exclude_callables
-            if fields_to_exclude_callables
-            else None,
+            exclude=(
+                fields_to_exclude_callables if fields_to_exclude_callables else None
+            ),
         )
 
         if version:
