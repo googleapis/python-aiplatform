@@ -3518,6 +3518,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes.""",
     )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""Optional. The service account that the Agent Engine will run on. If none provided, the default service account will be used."""
+    )
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
@@ -3534,7 +3538,9 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
     package_spec: Optional[ReasoningEngineSpecPackageSpecDict]
     """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes."""
-
+    
+    service_account: Optional[str]
+    """Optional. The service account that the Agent Engine will run on. If none provided, the default service account will be used."""
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
@@ -7525,7 +7531,9 @@ class AgentEngineConfig(_common.BaseModel):
     )
     service_account: Optional[str] = Field(
         default=None,
-        description="""The service account that the Agent Engine will run on."""
+        description="""The service account that the Agent Engine will run on. 
+
+        If none provided, the default service account will be used.""",
     )
     context_spec: Optional[ReasoningEngineContextSpec] = Field(
         default=None,
@@ -7575,7 +7583,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
       the values are the corresponding values."""
     
     service_account: Optional[str]
-    """The service account that the Agent Engine will run on."""
+    """The service account that the Agent Engine will run on. 
+        
+      If none provided, the default service account will be used."""
 
     context_spec: Optional[ReasoningEngineContextSpecDict]
     """The context spec to be used for the Agent Engine."""
