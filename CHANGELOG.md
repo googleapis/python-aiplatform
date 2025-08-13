@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.109.0](https://github.com/googleapis/python-aiplatform/compare/v1.108.0...v1.109.0) (2025-08-13)
+
+
+### Features
+
+* Add `gpu_partition_size` to `MachineSpec` ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add API for Gen AI Evaluation in Tuning ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add direct_memories_source ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add expiration for TTL for Memory and Sessions ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add force_delete field to DeleteRagFile 'preview' API request for Vertex RAG ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add Grounding with Google Maps tool ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add memory related methods to AdkApp ([1368f6a](https://github.com/googleapis/python-aiplatform/commit/1368f6ae084ac33ed4302b708256c15340b6b684))
+* Add option EndpointUserId and ModelUserId fields ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add support for CMEK, runtime controls, and PSC-I to Reasoning Engine protos ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add update_mask "embedding_metadata" to MatchingEngineIndex upsert_datapoints() to support embedding metadata update. ([0870512](https://github.com/googleapis/python-aiplatform/commit/087051296d9a13e0a014a39df908d58ae36a4d3e))
+* Added document_name for vertex ai search as part of retrieved context from grounding chunk ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Expose RecommendSpecs api to vertex python SDK for Custom Weights Model deployment ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Migrate dedicated endpoint to be enabled by default ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Support for runtime controls and PSC-I ([77f7b8e](https://github.com/googleapis/python-aiplatform/commit/77f7b8e950eaaa7ac8beb85d6c5511d0b6be728d))
+
+
+### Documentation
+
+* A comment for field `dedicated_endpoint_enabled` in message `.google.cloud.aiplatform.v1.DeployRequest` is changed ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* A comment for field `monitored_resource_labels` in message `.google.cloud.aiplatform.v1beta1.AutoscalingMetricSpec` is changed ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add encryption_spec to ReasoningEngine ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Add psc_interface_config, min/max_instances, resource_limits, container_concurrency to ReasoningEngineSpec ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+* Update comment for allowed values for config models ([b753565](https://github.com/googleapis/python-aiplatform/commit/b753565ac41f9f932f1f11800ff4b4bf5914b523))
+
 ## [1.108.0](https://github.com/googleapis/python-aiplatform/compare/v1.107.0...v1.108.0) (2025-08-07)
 
 
