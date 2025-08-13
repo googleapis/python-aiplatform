@@ -909,6 +909,34 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             )
         return self._stubs["list_model_evaluation_slices"]
 
+    @property
+    def recommend_spec(
+        self,
+    ) -> Callable[
+        [model_service.RecommendSpecRequest], model_service.RecommendSpecResponse
+    ]:
+        r"""Return a callable for the recommend spec method over gRPC.
+
+        Gets a Model's spec recommendations.
+
+        Returns:
+            Callable[[~.RecommendSpecRequest],
+                    ~.RecommendSpecResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "recommend_spec" not in self._stubs:
+            self._stubs["recommend_spec"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/RecommendSpec",
+                request_serializer=model_service.RecommendSpecRequest.serialize,
+                response_deserializer=model_service.RecommendSpecResponse.deserialize,
+            )
+        return self._stubs["recommend_spec"]
+
     def close(self):
         self._logged_channel.close()
 

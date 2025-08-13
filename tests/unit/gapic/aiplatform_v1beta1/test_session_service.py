@@ -1403,7 +1403,9 @@ def test_create_session_flattened():
         # using the keyword arguments to the method.
         client.create_session(
             parent="parent_value",
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
         )
 
         # Establish that the underlying call was made with the expected
@@ -1414,7 +1416,7 @@ def test_create_session_flattened():
         mock_val = "parent_value"
         assert arg == mock_val
         arg = args[0].session
-        mock_val = gca_session.Session(name="name_value")
+        mock_val = gca_session.Session(expire_time=timestamp_pb2.Timestamp(seconds=751))
         assert arg == mock_val
 
 
@@ -1429,7 +1431,9 @@ def test_create_session_flattened_error():
         client.create_session(
             session_service.CreateSessionRequest(),
             parent="parent_value",
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
         )
 
 
@@ -1451,7 +1455,9 @@ async def test_create_session_flattened_async():
         # using the keyword arguments to the method.
         response = await client.create_session(
             parent="parent_value",
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
         )
 
         # Establish that the underlying call was made with the expected
@@ -1462,7 +1468,7 @@ async def test_create_session_flattened_async():
         mock_val = "parent_value"
         assert arg == mock_val
         arg = args[0].session
-        mock_val = gca_session.Session(name="name_value")
+        mock_val = gca_session.Session(expire_time=timestamp_pb2.Timestamp(seconds=751))
         assert arg == mock_val
 
 
@@ -1478,7 +1484,9 @@ async def test_create_session_flattened_error_async():
         await client.create_session(
             session_service.CreateSessionRequest(),
             parent="parent_value",
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
         )
 
 
@@ -2587,7 +2595,9 @@ def test_update_session_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.update_session(
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -2596,7 +2606,7 @@ def test_update_session_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].session
-        mock_val = gca_session.Session(name="name_value")
+        mock_val = gca_session.Session(expire_time=timestamp_pb2.Timestamp(seconds=751))
         assert arg == mock_val
         arg = args[0].update_mask
         mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
@@ -2613,7 +2623,9 @@ def test_update_session_flattened_error():
     with pytest.raises(ValueError):
         client.update_session(
             session_service.UpdateSessionRequest(),
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -2633,7 +2645,9 @@ async def test_update_session_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.update_session(
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -2642,7 +2656,7 @@ async def test_update_session_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].session
-        mock_val = gca_session.Session(name="name_value")
+        mock_val = gca_session.Session(expire_time=timestamp_pb2.Timestamp(seconds=751))
         assert arg == mock_val
         arg = args[0].update_mask
         mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
@@ -2660,7 +2674,9 @@ async def test_update_session_flattened_error_async():
     with pytest.raises(ValueError):
         await client.update_session(
             session_service.UpdateSessionRequest(),
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -3042,6 +3058,7 @@ def test_list_events_non_empty_request_with_auto_populated_field():
     request = session_service.ListEventsRequest(
         parent="parent_value",
         page_token="page_token_value",
+        filter="filter_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3055,6 +3072,7 @@ def test_list_events_non_empty_request_with_auto_populated_field():
         assert args[0] == session_service.ListEventsRequest(
             parent="parent_value",
             page_token="page_token_value",
+            filter="filter_value",
         )
 
 
@@ -3987,7 +4005,9 @@ def test_create_session_rest_flattened():
         # get truthy value for each flattened field
         mock_args = dict(
             parent="parent_value",
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
         )
         mock_args.update(sample_request)
 
@@ -4024,7 +4044,9 @@ def test_create_session_rest_flattened_error(transport: str = "rest"):
         client.create_session(
             session_service.CreateSessionRequest(),
             parent="parent_value",
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
         )
 
 
@@ -4610,7 +4632,9 @@ def test_update_session_rest_flattened():
 
         # get truthy value for each flattened field
         mock_args = dict(
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
         mock_args.update(sample_request)
@@ -4649,7 +4673,9 @@ def test_update_session_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.update_session(
             session_service.UpdateSessionRequest(),
-            session=gca_session.Session(name="name_value"),
+            session=gca_session.Session(
+                expire_time=timestamp_pb2.Timestamp(seconds=751)
+            ),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -4899,6 +4925,7 @@ def test_list_events_rest_required_fields(
     # Check that path parameters and body parameters are not mixing in.
     assert not set(unset_fields) - set(
         (
+            "filter",
             "page_size",
             "page_token",
         )
@@ -4960,6 +4987,7 @@ def test_list_events_rest_unset_required_fields():
     assert set(unset_fields) == (
         set(
             (
+                "filter",
                 "pageSize",
                 "pageToken",
             )
@@ -5789,8 +5817,10 @@ def test_create_session_rest_call_success(request_type):
         "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
     }
     request_init["session"] = {
+        "expire_time": {"seconds": 751, "nanos": 543},
+        "ttl": {"seconds": 751, "nanos": 543},
         "name": "name_value",
-        "create_time": {"seconds": 751, "nanos": 543},
+        "create_time": {},
         "update_time": {},
         "display_name": "display_name_value",
         "session_state": {"fields": {}},
@@ -6264,8 +6294,10 @@ def test_update_session_rest_call_success(request_type):
         }
     }
     request_init["session"] = {
+        "expire_time": {"seconds": 751, "nanos": 543},
+        "ttl": {"seconds": 751, "nanos": 543},
         "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4",
-        "create_time": {"seconds": 751, "nanos": 543},
+        "create_time": {},
         "update_time": {},
         "display_name": "display_name_value",
         "session_state": {"fields": {}},
@@ -6804,6 +6836,13 @@ def test_append_event_rest_call_success(request_type):
                             "uri": "uri_value",
                             "title": "title_value",
                             "text": "text_value",
+                            "document_name": "document_name_value",
+                        },
+                        "maps": {
+                            "uri": "uri_value",
+                            "title": "title_value",
+                            "text": "text_value",
+                            "place_id": "place_id_value",
                         },
                     }
                 ],
@@ -6820,6 +6859,7 @@ def test_append_event_rest_call_success(request_type):
                     }
                 ],
                 "retrieval_metadata": {"google_search_dynamic_retrieval_score": 0.3902},
+                "google_maps_widget_context_token": "google_maps_widget_context_token_value",
             },
             "partial": True,
             "turn_complete": True,
@@ -6829,6 +6869,7 @@ def test_append_event_rest_call_success(request_type):
                 "long_running_tool_ids_value2",
             ],
             "branch": "branch_value",
+            "custom_metadata": {},
         },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
@@ -7841,8 +7882,10 @@ async def test_create_session_rest_asyncio_call_success(request_type):
         "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
     }
     request_init["session"] = {
+        "expire_time": {"seconds": 751, "nanos": 543},
+        "ttl": {"seconds": 751, "nanos": 543},
         "name": "name_value",
-        "create_time": {"seconds": 751, "nanos": 543},
+        "create_time": {},
         "update_time": {},
         "display_name": "display_name_value",
         "session_state": {"fields": {}},
@@ -8368,8 +8411,10 @@ async def test_update_session_rest_asyncio_call_success(request_type):
         }
     }
     request_init["session"] = {
+        "expire_time": {"seconds": 751, "nanos": 543},
+        "ttl": {"seconds": 751, "nanos": 543},
         "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4",
-        "create_time": {"seconds": 751, "nanos": 543},
+        "create_time": {},
         "update_time": {},
         "display_name": "display_name_value",
         "session_state": {"fields": {}},
@@ -8962,6 +9007,13 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                             "uri": "uri_value",
                             "title": "title_value",
                             "text": "text_value",
+                            "document_name": "document_name_value",
+                        },
+                        "maps": {
+                            "uri": "uri_value",
+                            "title": "title_value",
+                            "text": "text_value",
+                            "place_id": "place_id_value",
                         },
                     }
                 ],
@@ -8978,6 +9030,7 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                     }
                 ],
                 "retrieval_metadata": {"google_search_dynamic_retrieval_score": 0.3902},
+                "google_maps_widget_context_token": "google_maps_widget_context_token_value",
             },
             "partial": True,
             "turn_complete": True,
@@ -8987,6 +9040,7 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                 "long_running_tool_ids_value2",
             ],
             "branch": "branch_value",
+            "custom_metadata": {},
         },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.

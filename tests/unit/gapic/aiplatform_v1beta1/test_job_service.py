@@ -24411,6 +24411,7 @@ def test_create_custom_job_rest_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
@@ -26084,6 +26085,7 @@ def test_create_hyperparameter_tuning_job_rest_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
@@ -26971,6 +26973,7 @@ def test_create_nas_job_rest_call_success(request_type):
                                     "machine_type": "machine_type_value",
                                     "accelerator_type": 1,
                                     "accelerator_count": 1805,
+                                    "gpu_partition_size": "gpu_partition_size_value",
                                     "tpu_topology": "tpu_topology_value",
                                     "multihost_gpu_node_count": 2593,
                                     "reservation_affinity": {
@@ -28113,6 +28116,7 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
                 "machine_type": "machine_type_value",
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
+                "gpu_partition_size": "gpu_partition_size_value",
                 "tpu_topology": "tpu_topology_value",
                 "multihost_gpu_node_count": 2593,
                 "reservation_affinity": {
@@ -31936,6 +31940,7 @@ async def test_create_custom_job_rest_asyncio_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
@@ -33774,6 +33779,7 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_call_success(reques
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
@@ -34759,6 +34765,7 @@ async def test_create_nas_job_rest_asyncio_call_success(request_type):
                                     "machine_type": "machine_type_value",
                                     "accelerator_type": 1,
                                     "accelerator_count": 1805,
+                                    "gpu_partition_size": "gpu_partition_size_value",
                                     "tpu_topology": "tpu_topology_value",
                                     "multihost_gpu_node_count": 2593,
                                     "reservation_affinity": {
@@ -36022,6 +36029,7 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
                 "machine_type": "machine_type_value",
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
+                "gpu_partition_size": "gpu_partition_size_value",
                 "tpu_topology": "tpu_topology_value",
                 "multihost_gpu_node_count": 2593,
                 "reservation_affinity": {

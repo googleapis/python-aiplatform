@@ -928,6 +928,8 @@ from .types.model_service import ListModelVersionsRequest
 from .types.model_service import ListModelVersionsResponse
 from .types.model_service import MergeVersionAliasesRequest
 from .types.model_service import ModelVersionCheckpoint
+from .types.model_service import RecommendSpecRequest
+from .types.model_service import RecommendSpecResponse
 from .types.model_service import UpdateExplanationDatasetOperationMetadata
 from .types.model_service import UpdateExplanationDatasetRequest
 from .types.model_service import UpdateExplanationDatasetResponse
@@ -1179,6 +1181,7 @@ from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
+from .types.tool import GoogleMaps
 from .types.tool import GoogleSearchRetrieval
 from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
@@ -1201,6 +1204,8 @@ from .types.tuning_job import DatasetStats
 from .types.tuning_job import DistillationDataStats
 from .types.tuning_job import DistillationHyperParameters
 from .types.tuning_job import DistillationSpec
+from .types.tuning_job import EvaluateDatasetRun
+from .types.tuning_job import EvaluationConfig
 from .types.tuning_job import PartnerModelTuningSpec
 from .types.tuning_job import SupervisedHyperParameters
 from .types.tuning_job import SupervisedTuningDatasetDistribution
@@ -1640,10 +1645,12 @@ __all__ = (
     "EvaluateDatasetOperationMetadata",
     "EvaluateDatasetRequest",
     "EvaluateDatasetResponse",
+    "EvaluateDatasetRun",
     "EvaluateInstancesRequest",
     "EvaluateInstancesResponse",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
+    "EvaluationConfig",
     "EvaluationDataset",
     "EvaluationServiceClient",
     "Event",
@@ -1825,6 +1832,7 @@ __all__ = (
     "GetTrialRequest",
     "GetTuningJobRequest",
     "GoogleDriveSource",
+    "GoogleMaps",
     "GoogleSearchRetrieval",
     "GroundednessInput",
     "GroundednessInstance",
@@ -2214,6 +2222,8 @@ __all__ = (
     "RebaseTunedModelRequest",
     "RebootPersistentResourceOperationMetadata",
     "RebootPersistentResourceRequest",
+    "RecommendSpecRequest",
+    "RecommendSpecResponse",
     "RemoveContextChildrenRequest",
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",

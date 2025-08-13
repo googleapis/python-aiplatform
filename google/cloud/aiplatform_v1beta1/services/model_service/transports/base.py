@@ -240,6 +240,11 @@ class ModelServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.recommend_spec: gapic_v1.method.wrap_method(
+                self.recommend_spec,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -502,6 +507,18 @@ class ModelServiceTransport(abc.ABC):
         Union[
             model_service.ListModelEvaluationSlicesResponse,
             Awaitable[model_service.ListModelEvaluationSlicesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def recommend_spec(
+        self,
+    ) -> Callable[
+        [model_service.RecommendSpecRequest],
+        Union[
+            model_service.RecommendSpecResponse,
+            Awaitable[model_service.RecommendSpecResponse],
         ],
     ]:
         raise NotImplementedError()

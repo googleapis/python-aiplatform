@@ -218,6 +218,14 @@ class ModelServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_recommend_spec(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_recommend_spec(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_update_explanation_dataset(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -1035,6 +1043,56 @@ class ModelServiceRestInterceptor:
         `post_merge_version_aliases` interceptor. The (possibly modified) response returned by
         `post_merge_version_aliases` will be passed to
         `post_merge_version_aliases_with_metadata`.
+        """
+        return response, metadata
+
+    def pre_recommend_spec(
+        self,
+        request: model_service.RecommendSpecRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.RecommendSpecRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Pre-rpc interceptor for recommend_spec
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ModelService server.
+        """
+        return request, metadata
+
+    def post_recommend_spec(
+        self, response: model_service.RecommendSpecResponse
+    ) -> model_service.RecommendSpecResponse:
+        """Post-rpc interceptor for recommend_spec
+
+        DEPRECATED. Please use the `post_recommend_spec_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the ModelService server but before
+        it is returned to user code. This `post_recommend_spec` interceptor runs
+        before the `post_recommend_spec_with_metadata` interceptor.
+        """
+        return response
+
+    def post_recommend_spec_with_metadata(
+        self,
+        response: model_service.RecommendSpecResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.RecommendSpecResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for recommend_spec
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_recommend_spec_with_metadata`
+        interceptor in new development instead of the `post_recommend_spec` interceptor.
+        When both interceptors are used, this `post_recommend_spec_with_metadata` interceptor runs after the
+        `post_recommend_spec` interceptor. The (possibly modified) response returned by
+        `post_recommend_spec` will be passed to
+        `post_recommend_spec_with_metadata`.
         """
         return response, metadata
 
@@ -6179,6 +6237,162 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 )
             return resp
 
+    class _RecommendSpec(
+        _BaseModelServiceRestTransport._BaseRecommendSpec, ModelServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("ModelServiceRestTransport.RecommendSpec")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: model_service.RecommendSpecRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> model_service.RecommendSpecResponse:
+            r"""Call the recommend spec method over HTTP.
+
+            Args:
+                request (~.model_service.RecommendSpecRequest):
+                    The request object. Request message for
+                [ModelService.RecommendSpec][google.cloud.aiplatform.v1beta1.ModelService.RecommendSpec].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.model_service.RecommendSpecResponse:
+                    Response message for
+                [ModelService.RecommendSpec][google.cloud.aiplatform.v1beta1.ModelService.RecommendSpec].
+
+            """
+
+            http_options = (
+                _BaseModelServiceRestTransport._BaseRecommendSpec._get_http_options()
+            )
+
+            request, metadata = self._interceptor.pre_recommend_spec(request, metadata)
+            transcoded_request = _BaseModelServiceRestTransport._BaseRecommendSpec._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseModelServiceRestTransport._BaseRecommendSpec._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseModelServiceRestTransport._BaseRecommendSpec._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.RecommendSpec",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "RecommendSpec",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = ModelServiceRestTransport._RecommendSpec._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = model_service.RecommendSpecResponse()
+            pb_resp = model_service.RecommendSpecResponse.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
+            resp = self._interceptor.post_recommend_spec(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_recommend_spec_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model_service.RecommendSpecResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.recommend_spec",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "RecommendSpec",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+            return resp
+
     class _UpdateExplanationDataset(
         _BaseModelServiceRestTransport._BaseUpdateExplanationDataset,
         ModelServiceRestStub,
@@ -6806,6 +7020,16 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._MergeVersionAliases(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def recommend_spec(
+        self,
+    ) -> Callable[
+        [model_service.RecommendSpecRequest], model_service.RecommendSpecResponse
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._RecommendSpec(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def update_explanation_dataset(
