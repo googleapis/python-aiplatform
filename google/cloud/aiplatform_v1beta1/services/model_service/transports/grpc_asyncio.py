@@ -933,6 +933,35 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
             )
         return self._stubs["list_model_evaluation_slices"]
 
+    @property
+    def recommend_spec(
+        self,
+    ) -> Callable[
+        [model_service.RecommendSpecRequest],
+        Awaitable[model_service.RecommendSpecResponse],
+    ]:
+        r"""Return a callable for the recommend spec method over gRPC.
+
+        Gets a Model's spec recommendations.
+
+        Returns:
+            Callable[[~.RecommendSpecRequest],
+                    Awaitable[~.RecommendSpecResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "recommend_spec" not in self._stubs:
+            self._stubs["recommend_spec"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/RecommendSpec",
+                request_serializer=model_service.RecommendSpecRequest.serialize,
+                response_deserializer=model_service.RecommendSpecResponse.deserialize,
+            )
+        return self._stubs["recommend_spec"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -1029,6 +1058,11 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
             self.list_model_evaluation_slices: self._wrap_method(
                 self.list_model_evaluation_slices,
                 default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.recommend_spec: self._wrap_method(
+                self.recommend_spec,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.get_location: self._wrap_method(

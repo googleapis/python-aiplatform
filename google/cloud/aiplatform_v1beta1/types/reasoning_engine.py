@@ -21,6 +21,8 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
+from google.cloud.aiplatform_v1beta1.types import service_networking
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -111,6 +113,8 @@ class ReasoningEngineSpec(proto.Message):
     class DeploymentSpec(proto.Message):
         r"""The specification of a Reasoning Engine deployment.
 
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
         Attributes:
             env (MutableSequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
                 Optional. Environment variables to be set
@@ -124,6 +128,35 @@ class ReasoningEngineSpec(proto.Message):
                 Accessor' role
                 (roles/secretmanager.secretAccessor) to AI
                 Platform Reasoning Engine Service Agent.
+            psc_interface_config (google.cloud.aiplatform_v1beta1.types.PscInterfaceConfig):
+                Optional. Configuration for PSC-I.
+            min_instances (int):
+                Optional. The minimum number of application
+                instances that will be kept running at all
+                times. Defaults to 1.
+
+                This field is a member of `oneof`_ ``_min_instances``.
+            max_instances (int):
+                Optional. The maximum number of application
+                instances that can be launched to handle
+                increased traffic. Defaults to 100.
+
+                This field is a member of `oneof`_ ``_max_instances``.
+            resource_limits (MutableMapping[str, str]):
+                Optional. Resource limits for each container. Only 'cpu' and
+                'memory' keys are supported. Defaults to {"cpu": "4",
+                "memory": "4Gi"}.
+
+                -  The only supported values for CPU are '1', '2', '4', and
+                   '8'. For more information, go to
+                   https://cloud.google.com/run/docs/configuring/cpu.
+                -  For supported 'memory' values and syntax, go to
+                   https://cloud.google.com/run/docs/configuring/memory-limits
+            container_concurrency (int):
+                Optional. Concurrency for each container and agent server.
+                Recommended value: 2 \* cpu + 1. Defaults to 9.
+
+                This field is a member of `oneof`_ ``_container_concurrency``.
         """
 
         env: MutableSequence[env_var.EnvVar] = proto.RepeatedField(
@@ -135,6 +168,31 @@ class ReasoningEngineSpec(proto.Message):
             proto.MESSAGE,
             number=2,
             message=env_var.SecretEnvVar,
+        )
+        psc_interface_config: service_networking.PscInterfaceConfig = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            message=service_networking.PscInterfaceConfig,
+        )
+        min_instances: int = proto.Field(
+            proto.INT32,
+            number=5,
+            optional=True,
+        )
+        max_instances: int = proto.Field(
+            proto.INT32,
+            number=6,
+            optional=True,
+        )
+        resource_limits: MutableMapping[str, str] = proto.MapField(
+            proto.STRING,
+            proto.STRING,
+            number=7,
+        )
+        container_concurrency: int = proto.Field(
+            proto.INT32,
+            number=8,
+            optional=True,
         )
 
     service_account: str = proto.Field(
@@ -265,7 +323,87 @@ class ReasoningEngineContextSpec(proto.Message):
                 Optional. Configuration for how to perform similarity search
                 on memories. If not set, the Memory Bank will use the
                 default embedding model ``text-embedding-005``.
+            ttl_config (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec.MemoryBankConfig.TtlConfig):
+                Optional. Configuration for automatic TTL ("time-to-live")
+                of the memories in the Memory Bank. If not set, TTL will not
+                be applied automatically. The TTL can be explicitly set by
+                modifying the ``expire_time`` of each Memory resource.
         """
+
+        class TtlConfig(proto.Message):
+            r"""Configuration for automatically setting the TTL
+            ("time-to-live") of the memories in the Memory Bank.
+
+            This message has `oneof`_ fields (mutually exclusive fields).
+            For each oneof, at most one member field can be set at the same time.
+            Setting any member of the oneof automatically clears all other
+            members.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                default_ttl (google.protobuf.duration_pb2.Duration):
+                    Optional. The default TTL duration of the
+                    memories in the Memory Bank. This applies to all
+                    operations that create or update a memory.
+
+                    This field is a member of `oneof`_ ``ttl``.
+                granular_ttl_config (google.cloud.aiplatform_v1beta1.types.ReasoningEngineContextSpec.MemoryBankConfig.TtlConfig.GranularTtlConfig):
+                    Optional. The granular TTL configuration of
+                    the memories in the Memory Bank.
+
+                    This field is a member of `oneof`_ ``ttl``.
+            """
+
+            class GranularTtlConfig(proto.Message):
+                r"""Configuration for TTL of the memories in the Memory Bank
+                based on the action that created or updated the memory.
+
+                Attributes:
+                    create_ttl (google.protobuf.duration_pb2.Duration):
+                        Optional. The TTL duration for memories
+                        uploaded via CreateMemory.
+                    generate_created_ttl (google.protobuf.duration_pb2.Duration):
+                        Optional. The TTL duration for memories newly generated via
+                        GenerateMemories
+                        ([GenerateMemoriesResponse.GeneratedMemory.Action.CREATED][google.cloud.aiplatform.v1beta1.GenerateMemoriesResponse.GeneratedMemory.Action.CREATED]).
+                    generate_updated_ttl (google.protobuf.duration_pb2.Duration):
+                        Optional. The TTL duration for memories updated via
+                        GenerateMemories
+                        ([GenerateMemoriesResponse.GeneratedMemory.Action.CREATED][google.cloud.aiplatform.v1beta1.GenerateMemoriesResponse.GeneratedMemory.Action.CREATED]).
+                        In the case of an UPDATE action, the ``expire_time`` of the
+                        existing memory will be updated to the new value (now +
+                        TTL).
+                """
+
+                create_ttl: duration_pb2.Duration = proto.Field(
+                    proto.MESSAGE,
+                    number=1,
+                    message=duration_pb2.Duration,
+                )
+                generate_created_ttl: duration_pb2.Duration = proto.Field(
+                    proto.MESSAGE,
+                    number=2,
+                    message=duration_pb2.Duration,
+                )
+                generate_updated_ttl: duration_pb2.Duration = proto.Field(
+                    proto.MESSAGE,
+                    number=3,
+                    message=duration_pb2.Duration,
+                )
+
+            default_ttl: duration_pb2.Duration = proto.Field(
+                proto.MESSAGE,
+                number=1,
+                oneof="ttl",
+                message=duration_pb2.Duration,
+            )
+            granular_ttl_config: "ReasoningEngineContextSpec.MemoryBankConfig.TtlConfig.GranularTtlConfig" = proto.Field(
+                proto.MESSAGE,
+                number=2,
+                oneof="ttl",
+                message="ReasoningEngineContextSpec.MemoryBankConfig.TtlConfig.GranularTtlConfig",
+            )
 
         class GenerationConfig(proto.Message):
             r"""Configuration for how to generate memories.
@@ -273,9 +411,7 @@ class ReasoningEngineContextSpec(proto.Message):
             Attributes:
                 model (str):
                     Required. The model used to generate memories. Format:
-                    ``projects/{project}/locations/{location}/publishers/google/models/{model}``
-                    or
-                    ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+                    ``projects/{project}/locations/{location}/publishers/google/models/{model}``.
             """
 
             model: str = proto.Field(
@@ -291,9 +427,7 @@ class ReasoningEngineContextSpec(proto.Message):
                 embedding_model (str):
                     Required. The model used to generate embeddings to lookup
                     similar memories. Format:
-                    ``projects/{project}/locations/{location}/publishers/google/models/{model}``
-                    or
-                    ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+                    ``projects/{project}/locations/{location}/publishers/google/models/{model}``.
             """
 
             embedding_model: str = proto.Field(
@@ -310,6 +444,13 @@ class ReasoningEngineContextSpec(proto.Message):
             proto.MESSAGE,
             number=2,
             message="ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig",
+        )
+        ttl_config: "ReasoningEngineContextSpec.MemoryBankConfig.TtlConfig" = (
+            proto.Field(
+                proto.MESSAGE,
+                number=5,
+                message="ReasoningEngineContextSpec.MemoryBankConfig.TtlConfig",
+            )
         )
 
     memory_bank_config: MemoryBankConfig = proto.Field(

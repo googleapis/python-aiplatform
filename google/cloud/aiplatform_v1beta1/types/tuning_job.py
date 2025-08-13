@@ -21,6 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import evaluation_service
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -46,6 +47,8 @@ __protobuf__ = proto.module(
         "TunedModelRef",
         "VeoHyperParameters",
         "VeoTuningSpec",
+        "EvaluationConfig",
+        "EvaluateDatasetRun",
         "TunedModelCheckpoint",
     },
 )
@@ -174,6 +177,9 @@ class TuningJob(proto.Message):
             where tuning job outputs are written to. This
             field is only available and required for open
             source models.
+        evaluate_dataset_runs (MutableSequence[google.cloud.aiplatform_v1beta1.types.EvaluateDatasetRun]):
+            Output only. Evaluation runs for the Tuning
+            Job.
     """
 
     base_model: str = proto.Field(
@@ -286,6 +292,11 @@ class TuningJob(proto.Message):
     output_uri: str = proto.Field(
         proto.STRING,
         number=25,
+    )
+    evaluate_dataset_runs: MutableSequence["EvaluateDatasetRun"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=32,
+        message="EvaluateDatasetRun",
     )
 
 
@@ -838,6 +849,8 @@ class SupervisedTuningSpec(proto.Message):
             last checkpoint will be exported. Otherwise,
             enable intermediate checkpoints for SFT. Default
             is false.
+        evaluation_config (google.cloud.aiplatform_v1beta1.types.EvaluationConfig):
+            Optional. Evaluation Config for Tuning Job.
         tuning_mode (google.cloud.aiplatform_v1beta1.types.SupervisedTuningSpec.TuningMode):
             Tuning mode.
     """
@@ -873,6 +886,11 @@ class SupervisedTuningSpec(proto.Message):
     export_last_checkpoint_only: bool = proto.Field(
         proto.BOOL,
         number=6,
+    )
+    evaluation_config: "EvaluationConfig" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message="EvaluationConfig",
     )
     tuning_mode: TuningMode = proto.Field(
         proto.ENUM,
@@ -1151,6 +1169,66 @@ class VeoTuningSpec(proto.Message):
         proto.MESSAGE,
         number=3,
         message="VeoHyperParameters",
+    )
+
+
+class EvaluationConfig(proto.Message):
+    r"""Evaluation Config for Tuning Job.
+
+    Attributes:
+        metrics (MutableSequence[google.cloud.aiplatform_v1beta1.types.Metric]):
+            Required. The metrics used for evaluation.
+        output_config (google.cloud.aiplatform_v1beta1.types.OutputConfig):
+            Required. Config for evaluation output.
+        autorater_config (google.cloud.aiplatform_v1beta1.types.AutoraterConfig):
+            Optional. Autorater config for evaluation.
+    """
+
+    metrics: MutableSequence[evaluation_service.Metric] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=evaluation_service.Metric,
+    )
+    output_config: evaluation_service.OutputConfig = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=evaluation_service.OutputConfig,
+    )
+    autorater_config: evaluation_service.AutoraterConfig = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=evaluation_service.AutoraterConfig,
+    )
+
+
+class EvaluateDatasetRun(proto.Message):
+    r"""Evaluate Dataset Run Result for Tuning Job.
+
+    Attributes:
+        operation_name (str):
+            Output only. The operation ID of the evaluation run. Format:
+            ``projects/{project}/locations/{location}/operations/{operation_id}``.
+        checkpoint_id (str):
+            Output only. The checkpoint id used in the
+            evaluation run. Only populated when evaluating
+            checkpoints.
+        error (google.rpc.status_pb2.Status):
+            Output only. The error of the evaluation run
+            if any.
+    """
+
+    operation_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    error: status_pb2.Status = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=status_pb2.Status,
     )
 
 

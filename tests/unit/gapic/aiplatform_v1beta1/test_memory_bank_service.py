@@ -2009,7 +2009,7 @@ def test_update_memory_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.update_memory(
-            memory=memory_bank.Memory(name="name_value"),
+            memory=memory_bank.Memory(expire_time=timestamp_pb2.Timestamp(seconds=751)),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -2018,7 +2018,7 @@ def test_update_memory_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].memory
-        mock_val = memory_bank.Memory(name="name_value")
+        mock_val = memory_bank.Memory(expire_time=timestamp_pb2.Timestamp(seconds=751))
         assert arg == mock_val
         arg = args[0].update_mask
         mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
@@ -2035,7 +2035,7 @@ def test_update_memory_flattened_error():
     with pytest.raises(ValueError):
         client.update_memory(
             memory_bank_service.UpdateMemoryRequest(),
-            memory=memory_bank.Memory(name="name_value"),
+            memory=memory_bank.Memory(expire_time=timestamp_pb2.Timestamp(seconds=751)),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -2057,7 +2057,7 @@ async def test_update_memory_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.update_memory(
-            memory=memory_bank.Memory(name="name_value"),
+            memory=memory_bank.Memory(expire_time=timestamp_pb2.Timestamp(seconds=751)),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -2066,7 +2066,7 @@ async def test_update_memory_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].memory
-        mock_val = memory_bank.Memory(name="name_value")
+        mock_val = memory_bank.Memory(expire_time=timestamp_pb2.Timestamp(seconds=751))
         assert arg == mock_val
         arg = args[0].update_mask
         mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
@@ -2084,7 +2084,7 @@ async def test_update_memory_flattened_error_async():
     with pytest.raises(ValueError):
         await client.update_memory(
             memory_bank_service.UpdateMemoryRequest(),
-            memory=memory_bank.Memory(name="name_value"),
+            memory=memory_bank.Memory(expire_time=timestamp_pb2.Timestamp(seconds=751)),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -4073,7 +4073,7 @@ def test_update_memory_rest_flattened():
 
         # get truthy value for each flattened field
         mock_args = dict(
-            memory=memory_bank.Memory(name="name_value"),
+            memory=memory_bank.Memory(expire_time=timestamp_pb2.Timestamp(seconds=751)),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
         mock_args.update(sample_request)
@@ -4110,7 +4110,7 @@ def test_update_memory_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.update_memory(
             memory_bank_service.UpdateMemoryRequest(),
-            memory=memory_bank.Memory(name="name_value"),
+            memory=memory_bank.Memory(expire_time=timestamp_pb2.Timestamp(seconds=751)),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
@@ -5439,10 +5439,12 @@ def test_create_memory_rest_call_success(request_type):
         "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
     }
     request_init["memory"] = {
+        "expire_time": {"seconds": 751, "nanos": 543},
+        "ttl": {"seconds": 751, "nanos": 543},
         "name": "name_value",
         "display_name": "display_name_value",
         "description": "description_value",
-        "create_time": {"seconds": 751, "nanos": 543},
+        "create_time": {},
         "update_time": {},
         "fact": "fact_value",
         "scope": {},
@@ -5781,10 +5783,12 @@ def test_update_memory_rest_call_success(request_type):
         }
     }
     request_init["memory"] = {
+        "expire_time": {"seconds": 751, "nanos": 543},
+        "ttl": {"seconds": 751, "nanos": 543},
         "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/memories/sample4",
         "display_name": "display_name_value",
         "description": "description_value",
-        "create_time": {"seconds": 751, "nanos": 543},
+        "create_time": {},
         "update_time": {},
         "fact": "fact_value",
         "scope": {},
@@ -7327,10 +7331,12 @@ async def test_create_memory_rest_asyncio_call_success(request_type):
         "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
     }
     request_init["memory"] = {
+        "expire_time": {"seconds": 751, "nanos": 543},
+        "ttl": {"seconds": 751, "nanos": 543},
         "name": "name_value",
         "display_name": "display_name_value",
         "description": "description_value",
-        "create_time": {"seconds": 751, "nanos": 543},
+        "create_time": {},
         "update_time": {},
         "fact": "fact_value",
         "scope": {},
@@ -7705,10 +7711,12 @@ async def test_update_memory_rest_asyncio_call_success(request_type):
         }
     }
     request_init["memory"] = {
+        "expire_time": {"seconds": 751, "nanos": 543},
+        "ttl": {"seconds": 751, "nanos": 543},
         "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/memories/sample4",
         "display_name": "display_name_value",
         "description": "description_value",
-        "create_time": {"seconds": 751, "nanos": 543},
+        "create_time": {},
         "update_time": {},
         "fact": "fact_value",
         "scope": {},

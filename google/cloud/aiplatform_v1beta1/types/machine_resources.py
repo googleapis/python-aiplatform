@@ -74,6 +74,21 @@ class MachineSpec(proto.Message):
         accelerator_count (int):
             The number of accelerators to attach to the
             machine.
+        gpu_partition_size (str):
+            Optional. Immutable. The Nvidia GPU partition size.
+
+            When specified, the requested accelerators will be
+            partitioned into smaller GPU partitions. For example, if the
+            request is for 8 units of NVIDIA A100 GPUs, and
+            gpu_partition_size="1g.10gb", the service will create 8 \* 7
+            = 56 partitioned MIG instances.
+
+            The partition size must be a value supported by the
+            requested accelerator. Refer to `Nvidia GPU
+            Partitioning <https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions>`__
+            for the available partition sizes.
+
+            If set, the accelerator_count should be set to 1.
         tpu_topology (str):
             Immutable. The topology of the TPUs. Corresponds to the TPU
             topologies available from GKE. (Example: tpu_topology:
@@ -99,6 +114,10 @@ class MachineSpec(proto.Message):
     accelerator_count: int = proto.Field(
         proto.INT32,
         number=3,
+    )
+    gpu_partition_size: str = proto.Field(
+        proto.STRING,
+        number=7,
     )
     tpu_topology: str = proto.Field(
         proto.STRING,
@@ -448,8 +467,8 @@ class AutoscalingMetricSpec(proto.Message):
             provided.
         monitored_resource_labels (MutableMapping[str, str]):
             Optional. The Cloud Monitoring monitored
-            resource labels used for metrics filtering. See
-            Cloud Monitoring Labels
+            resource labels as key value pairs used for
+            metrics filtering. See Cloud Monitoring Labels
             https://cloud.google.com/monitoring/api/v3/metric-model#generic-label-info
     """
 

@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encrypt
 from google.cloud.aiplatform_v1beta1.types import evaluated_annotation
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import io
+from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import (
     model_evaluation as gca_model_evaluation,
@@ -70,6 +71,8 @@ __protobuf__ = proto.module(
         "GetModelEvaluationSliceRequest",
         "ListModelEvaluationSlicesRequest",
         "ListModelEvaluationSlicesResponse",
+        "RecommendSpecRequest",
+        "RecommendSpecResponse",
     },
 )
 
@@ -1192,6 +1195,156 @@ class ListModelEvaluationSlicesResponse(proto.Message):
     next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class RecommendSpecRequest(proto.Message):
+    r"""Request message for
+    [ModelService.RecommendSpec][google.cloud.aiplatform.v1beta1.ModelService.RecommendSpec].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location from which to
+            recommend specs. The users must have permission to make a
+            call in the project. Format:
+            ``projects/{project}/locations/{location}``.
+        gcs_uri (str):
+            Required. The Google Cloud Storage URI of the
+            custom model, storing weights and config files
+            (which can be used to infer the base model).
+        check_machine_availability (bool):
+            Optional. If true, check machine availability
+            for the recommended regions. Only return the
+            machine spec in regions where the machine is
+            available.
+        check_user_quota (bool):
+            Optional. If true, check user quota for the
+            recommended regions. Returns all the machine
+            spec in regions they are available, and also the
+            user quota state for each machine type in each
+            region.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    gcs_uri: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    check_machine_availability: bool = proto.Field(
+        proto.BOOL,
+        number=3,
+    )
+    check_user_quota: bool = proto.Field(
+        proto.BOOL,
+        number=4,
+    )
+
+
+class RecommendSpecResponse(proto.Message):
+    r"""Response message for
+    [ModelService.RecommendSpec][google.cloud.aiplatform.v1beta1.ModelService.RecommendSpec].
+
+    Attributes:
+        base_model (str):
+            Output only. The base model used to finetune
+            the custom model.
+        recommendations (MutableSequence[google.cloud.aiplatform_v1beta1.types.RecommendSpecResponse.Recommendation]):
+            Output only. Recommendations of deployment
+            options for the given custom weights model.
+        specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.RecommendSpecResponse.MachineAndModelContainerSpec]):
+            Output only. The machine and model container
+            specs.
+    """
+
+    class MachineAndModelContainerSpec(proto.Message):
+        r"""A machine and model container spec.
+
+        Attributes:
+            machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
+                Output only. The machine spec.
+            container_spec (google.cloud.aiplatform_v1beta1.types.ModelContainerSpec):
+                Output only. The model container spec.
+        """
+
+        machine_spec: machine_resources.MachineSpec = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=machine_resources.MachineSpec,
+        )
+        container_spec: gca_model.ModelContainerSpec = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_model.ModelContainerSpec,
+        )
+
+    class Recommendation(proto.Message):
+        r"""Recommendation of one deployment option for the given custom
+        weights model in one region.
+        Contains the machine and container spec, and user accelerator
+        quota state.
+
+        Attributes:
+            region (str):
+                The region for the deployment spec (machine).
+            spec (google.cloud.aiplatform_v1beta1.types.RecommendSpecResponse.MachineAndModelContainerSpec):
+                Output only. The machine and model container
+                specs.
+            user_quota_state (google.cloud.aiplatform_v1beta1.types.RecommendSpecResponse.Recommendation.QuotaState):
+                Output only. The user accelerator quota
+                state.
+        """
+
+        class QuotaState(proto.Enum):
+            r"""The user accelerator quota state.
+
+            Values:
+                QUOTA_STATE_UNSPECIFIED (0):
+                    Unspecified quota state. Quota information
+                    not available.
+                QUOTA_STATE_USER_HAS_QUOTA (1):
+                    User has enough accelerator quota for the
+                    machine type.
+                QUOTA_STATE_NO_USER_QUOTA (2):
+                    User does not have enough accelerator quota
+                    for the machine type.
+            """
+            QUOTA_STATE_UNSPECIFIED = 0
+            QUOTA_STATE_USER_HAS_QUOTA = 1
+            QUOTA_STATE_NO_USER_QUOTA = 2
+
+        region: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        spec: "RecommendSpecResponse.MachineAndModelContainerSpec" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message="RecommendSpecResponse.MachineAndModelContainerSpec",
+        )
+        user_quota_state: "RecommendSpecResponse.Recommendation.QuotaState" = (
+            proto.Field(
+                proto.ENUM,
+                number=3,
+                enum="RecommendSpecResponse.Recommendation.QuotaState",
+            )
+        )
+
+    base_model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    recommendations: MutableSequence[Recommendation] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=Recommendation,
+    )
+    specs: MutableSequence[MachineAndModelContainerSpec] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=MachineAndModelContainerSpec,
     )
 
 

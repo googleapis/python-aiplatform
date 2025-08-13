@@ -76,6 +76,7 @@ from google.cloud.aiplatform_v1beta1.services.gen_ai_tuning_service import pager
 from google.cloud.aiplatform_v1beta1.services.gen_ai_tuning_service import transports
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
+from google.cloud.aiplatform_v1beta1.types import evaluation_service
 from google.cloud.aiplatform_v1beta1.types import genai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
@@ -4578,6 +4579,40 @@ def test_create_tuning_job_rest_call_success(request_type):
                 "batch_size": 1052,
             },
             "export_last_checkpoint_only": True,
+            "evaluation_config": {
+                "metrics": [
+                    {
+                        "pointwise_metric_spec": {
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "custom_output_format_config": {"return_raw_output": True},
+                        },
+                        "pairwise_metric_spec": {
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "candidate_response_field_name": "candidate_response_field_name_value",
+                            "baseline_response_field_name": "baseline_response_field_name_value",
+                            "system_instruction": "system_instruction_value",
+                            "custom_output_format_config": {},
+                        },
+                        "exact_match_spec": {},
+                        "bleu_spec": {"use_effective_order": True},
+                        "rouge_spec": {
+                            "rouge_type": "rouge_type_value",
+                            "use_stemmer": True,
+                            "split_summaries": True,
+                        },
+                        "aggregation_metrics": [1],
+                    }
+                ],
+                "output_config": {
+                    "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
+                },
+                "autorater_config": {
+                    "sampling_count": 1507,
+                    "flip_enabled": True,
+                    "autorater_model": "autorater_model_value",
+                },
+            },
             "tuning_mode": 1,
         },
         "distillation_spec": {
@@ -4735,6 +4770,13 @@ def test_create_tuning_job_rest_call_success(request_type):
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",
         "output_uri": "output_uri_value",
+        "evaluate_dataset_runs": [
+            {
+                "operation_name": "operation_name_value",
+                "checkpoint_id": "checkpoint_id_value",
+                "error": {},
+            }
+        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6247,6 +6289,40 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                 "batch_size": 1052,
             },
             "export_last_checkpoint_only": True,
+            "evaluation_config": {
+                "metrics": [
+                    {
+                        "pointwise_metric_spec": {
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "custom_output_format_config": {"return_raw_output": True},
+                        },
+                        "pairwise_metric_spec": {
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "candidate_response_field_name": "candidate_response_field_name_value",
+                            "baseline_response_field_name": "baseline_response_field_name_value",
+                            "system_instruction": "system_instruction_value",
+                            "custom_output_format_config": {},
+                        },
+                        "exact_match_spec": {},
+                        "bleu_spec": {"use_effective_order": True},
+                        "rouge_spec": {
+                            "rouge_type": "rouge_type_value",
+                            "use_stemmer": True,
+                            "split_summaries": True,
+                        },
+                        "aggregation_metrics": [1],
+                    }
+                ],
+                "output_config": {
+                    "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
+                },
+                "autorater_config": {
+                    "sampling_count": 1507,
+                    "flip_enabled": True,
+                    "autorater_model": "autorater_model_value",
+                },
+            },
             "tuning_mode": 1,
         },
         "distillation_spec": {
@@ -6404,6 +6480,13 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",
         "output_uri": "output_uri_value",
+        "evaluate_dataset_runs": [
+            {
+                "operation_name": "operation_name_value",
+                "checkpoint_id": "checkpoint_id_value",
+                "error": {},
+            }
+        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
