@@ -1445,3 +1445,74 @@ def _yield_parsed_json(http_response: google_genai_types.HttpResponse) -> Iterat
             except Exception as e:
                 logger.warning(f"failed to parse json: {line}. Exception: {e}")
             yield line
+
+
+def _validate_resource_limits_or_raise(resource_limits: dict[str, str]) -> None:
+    """Validates the resource limits.
+
+    Checks that the resource limits are a dict with 'cpu' and 'memory' keys.
+    Checks that the 'cpu' value is one of 1, 2, 4, 6, 8.
+    Checks that the 'memory' value is a string ending with 'Gi'.
+    Checks that the memory size is smaller than 32Gi.
+    Checks that the memory size requires at least the specified number of CPUs.
+
+    Args:
+        resource_limits: The resource limits to be validated.
+
+    Raises:
+        TypeError: If the resource limits are not a dict.
+        KeyError: If the resource limits do not contain 'cpu' and 'memory' keys.
+        ValueError: If the 'cpu' value is not one of 1, 2, 4, 6, 8.
+        ValueError: If the 'memory' value is not a string ending with 'Gi'.
+        ValueError: If the memory size is too large.
+        ValueError: If the memory size requires more CPUs than the specified
+        'cpu' value.
+    """
+    if not isinstance(resource_limits, dict):
+        raise TypeError(f"resource_limits must be a dict. Got {type(resource_limits)}")
+    if "cpu" not in resource_limits or "memory" not in resource_limits:
+        raise KeyError("resource_limits must contain 'cpu' and 'memory' keys.")
+
+    cpu = int(resource_limits["cpu"])
+    memory_str = resource_limits["memory"]
+
+    if cpu not in [1, 2, 4, 6, 8]:
+        raise ValueError(
+            "resource_limits['cpu'] must be one of 1, 2, 4, 6, 8. Got" f" {cpu}"
+        )
+
+    if not isinstance(memory_str, str) or not memory_str.endswith("Gi"):
+        raise ValueError(
+            "resource_limits['memory'] must be a string ending with 'Gi'."
+            f" Got {memory_str}"
+        )
+
+    try:
+        memory_gb = int(memory_str[:-2])
+    except ValueError:
+        raise ValueError(
+            f"Invalid memory value: {memory_str}. Must be an integer"
+            " followed by 'Gi'."
+        )
+
+    # https://cloud.google.com/run/docs/configuring/memory-limits
+    if memory_gb > 32:
+        raise ValueError(
+            f"Memory size of {memory_str} is too large. Must be smaller than 32Gi."
+        )
+    if memory_gb > 24:
+        min_cpu = 8
+    elif memory_gb > 16:
+        min_cpu = 6
+    elif memory_gb > 8:
+        min_cpu = 4
+    elif memory_gb > 4:
+        min_cpu = 2
+    else:
+        min_cpu = 1
+
+    if cpu < min_cpu:
+        raise ValueError(
+            f"Memory size of {memory_str} requires at least {min_cpu} CPUs."
+            f" Got {cpu}"
+        )

@@ -60,6 +60,13 @@ def _ReasoningEngineSpec_to_vertex(
     if getv(from_object, ["package_spec"]) is not None:
         setv(to_object, ["packageSpec"], getv(from_object, ["package_spec"]))
 
+    if getv(from_object, ["service_account"]) is not None:
+        setv(
+            to_object,
+            ["serviceAccount"],
+            getv(from_object, ["service_account"]),
+        )
+
     return to_object
 
 
@@ -73,6 +80,28 @@ def _ReasoningEngineContextSpec_to_vertex(
             to_object,
             ["memoryBankConfig"],
             getv(from_object, ["memory_bank_config"]),
+        )
+
+    return to_object
+
+
+def _PscInterfaceConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["dns_peering_configs"]) is not None:
+        setv(
+            to_object,
+            ["dnsPeeringConfigs"],
+            getv(from_object, ["dns_peering_configs"]),
+        )
+
+    if getv(from_object, ["network_attachment"]) is not None:
+        setv(
+            to_object,
+            ["networkAttachment"],
+            getv(from_object, ["network_attachment"]),
         )
 
     return to_object
@@ -103,6 +132,15 @@ def _CreateAgentEngineConfig_to_vertex(
             ["contextSpec"],
             _ReasoningEngineContextSpec_to_vertex(
                 getv(from_object, ["context_spec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["psc_interface_config"]) is not None:
+        setv(
+            parent_object,
+            ["pscInterfaceConfig"],
+            _PscInterfaceConfig_to_vertex(
+                getv(from_object, ["psc_interface_config"]), to_object
             ),
         )
 
@@ -717,6 +755,15 @@ def _UpdateAgentEngineConfig_to_vertex(
             ),
         )
 
+    if getv(from_object, ["psc_interface_config"]) is not None:
+        setv(
+            parent_object,
+            ["pscInterfaceConfig"],
+            _PscInterfaceConfig_to_vertex(
+                getv(from_object, ["psc_interface_config"]), to_object
+            ),
+        )
+
     if getv(from_object, ["update_mask"]) is not None:
         setv(
             parent_object,
@@ -861,6 +908,13 @@ def _ReasoningEngine_from_vertex(
     if getv(from_object, ["displayName"]) is not None:
         setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
 
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(
+            to_object,
+            ["encryption_spec"],
+            getv(from_object, ["encryptionSpec"]),
+        )
+
     if getv(from_object, ["etag"]) is not None:
         setv(to_object, ["etag"], getv(from_object, ["etag"]))
 
@@ -970,11 +1024,17 @@ def _Session_from_vertex(
     if getv(from_object, ["displayName"]) is not None:
         setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
 
+    if getv(from_object, ["expireTime"]) is not None:
+        setv(to_object, ["expire_time"], getv(from_object, ["expireTime"]))
+
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["sessionState"]) is not None:
         setv(to_object, ["session_state"], getv(from_object, ["sessionState"]))
+
+    if getv(from_object, ["ttl"]) is not None:
+        setv(to_object, ["ttl"], getv(from_object, ["ttl"]))
 
     if getv(from_object, ["updateTime"]) is not None:
         setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
@@ -2722,6 +2782,11 @@ class AgentEngines(_api_module.BaseModule):
             extra_packages=config.extra_packages,
             env_vars=config.env_vars,
             context_spec=context_spec,
+            psc_interface_config=config.psc_interface_config,
+            min_instances=config.min_instances,
+            max_instances=config.max_instances,
+            resource_limits=config.resource_limits,
+            container_concurrency=config.container_concurrency,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -2769,6 +2834,11 @@ class AgentEngines(_api_module.BaseModule):
         extra_packages: Optional[Sequence[str]] = None,
         env_vars: Optional[dict[str, Union[str, Any]]] = None,
         context_spec: Optional[types.ReasoningEngineContextSpecDict] = None,
+        psc_interface_config: Optional[types.PscInterfaceConfigDict] = None,
+        min_instances: Optional[int] = None,
+        max_instances: Optional[int] = None,
+        resource_limits: Optional[dict[str, str]] = None,
+        container_concurrency: Optional[int] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -2853,11 +2923,25 @@ class AgentEngines(_api_module.BaseModule):
             agent_engine_spec: types.ReasoningEngineSpecDict = {
                 "package_spec": package_spec,
             }
-            if env_vars is not None:
+            if (
+                env_vars is not None
+                or psc_interface_config is not None
+                or min_instances is not None
+                or max_instances is not None
+                or resource_limits is not None
+                or container_concurrency is not None
+            ):
                 (
                     deployment_spec,
                     deployment_update_masks,
-                ) = self._generate_deployment_spec_or_raise(env_vars=env_vars)
+                ) = self._generate_deployment_spec_or_raise(
+                    env_vars=env_vars,
+                    psc_interface_config=psc_interface_config,
+                    min_instances=min_instances,
+                    max_instances=max_instances,
+                    resource_limits=resource_limits,
+                    container_concurrency=container_concurrency,
+                )
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
             class_methods = _agent_engines_utils._generate_class_methods_spec_or_raise(
@@ -2884,6 +2968,11 @@ class AgentEngines(_api_module.BaseModule):
         self,
         *,
         env_vars: Optional[dict[str, Union[str, Any]]] = None,
+        psc_interface_config: Optional[types.PscInterfaceConfigDict] = None,
+        min_instances: Optional[int] = None,
+        max_instances: Optional[int] = None,
+        resource_limits: Optional[dict[str, str]] = None,
+        container_concurrency: Optional[int] = None,
     ) -> Tuple[dict[str, Any], Sequence[str]]:
         deployment_spec: dict[str, Any] = {}
         update_masks = []
@@ -2901,6 +2990,37 @@ class AgentEngines(_api_module.BaseModule):
                 update_masks.append("spec.deployment_spec.env")
             if deployment_spec.get("secret_env"):
                 update_masks.append("spec.deployment_spec.secret_env")
+        if psc_interface_config:
+            deployment_spec["psc_interface_config"] = psc_interface_config
+            update_masks.append("spec.deployment_spec.psc_interface_config")
+        if min_instances is not None:
+            if not 0 <= min_instances <= 10:
+                raise ValueError(
+                    "min_instances must be between 0 and 10. Got" f" {min_instances}"
+                )
+            deployment_spec["min_instances"] = min_instances
+            update_masks.append("spec.deployment_spec.min_instances")
+        if max_instances is not None:
+            if psc_interface_config and not 1 <= max_instances <= 100:
+                raise ValueError(
+                    "max_instances must be between 1 and 100 when PSC-I is"
+                    f" enabled. Got {max_instances}"
+                )
+            elif not psc_interface_config and not 1 <= max_instances <= 1000:
+                raise ValueError(
+                    "max_instances must be between 1 and 1000. Got" f" {max_instances}"
+                )
+            deployment_spec["max_instances"] = max_instances
+            update_masks.append("spec.deployment_spec.max_instances")
+        if resource_limits:
+            _agent_engines_utils._validate_resource_limits_or_raise(
+                resource_limits=resource_limits
+            )
+            deployment_spec["resource_limits"] = resource_limits
+            update_masks.append("spec.deployment_spec.resource_limits")
+        if container_concurrency:
+            deployment_spec["container_concurrency"] = container_concurrency
+            update_masks.append("spec.deployment_spec.container_concurrency")
         return deployment_spec, update_masks
 
     def _update_deployment_spec_with_env_vars_dict_or_raise(
@@ -3073,6 +3193,11 @@ class AgentEngines(_api_module.BaseModule):
             extra_packages=config.extra_packages,
             env_vars=config.env_vars,
             context_spec=context_spec,
+            psc_interface_config=config.psc_interface_config,
+            min_instances=config.min_instances,
+            max_instances=config.max_instances,
+            resource_limits=config.resource_limits,
+            container_concurrency=config.container_concurrency,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(
@@ -3128,6 +3253,8 @@ class AgentEngines(_api_module.BaseModule):
         ):
             yield response
 
+    # TODO: b/436704146 - Replace with generated methods
+    # TODO: b/437129724 - Add replay test for async stream query
     async def _async_stream_query(
         self,
         *,

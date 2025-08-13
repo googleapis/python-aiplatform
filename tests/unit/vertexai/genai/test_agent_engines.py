@@ -484,6 +484,23 @@ _TEST_AGENT_ENGINE_ENV_VARS_INPUT = {
         "version": "TEST_SECRET_VERSION_1",
     },
 }
+_TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG = {
+    "network_attachment": "test-network-attachment",
+    "dns_peering_configs": [
+        {
+            "domain": "test-domain",
+            "target_project": "test-target-project",
+            "target_network": "test-target-network",
+        }
+    ],
+}
+_TEST_AGENT_ENGINE_MIN_INSTANCES = 2
+_TEST_AGENT_ENGINE_MAX_INSTANCES = 4
+_TEST_AGENT_ENGINE_RESOURCE_LIMITS = {
+    "cpu": "2",
+    "memory": "4Gi",
+}
+_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY = 4
 _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
     agent_framework=_TEST_AGENT_ENGINE_FRAMEWORK,
     class_methods=[_TEST_AGENT_ENGINE_CLASS_METHOD_1],
@@ -781,6 +798,11 @@ class TestAgentEngineHelpers:
             gcs_dir_name=_TEST_GCS_DIR_NAME,
             extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
             env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
+            psc_interface_config=_TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
+            min_instances=_TEST_AGENT_ENGINE_MIN_INSTANCES,
+            max_instances=_TEST_AGENT_ENGINE_MAX_INSTANCES,
+            resource_limits=_TEST_AGENT_ENGINE_RESOURCE_LIMITS,
+            container_concurrency=_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -805,6 +827,11 @@ class TestAgentEngineHelpers:
                     },
                 },
             ],
+            "psc_interface_config": _TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
+            "min_instances": _TEST_AGENT_ENGINE_MIN_INSTANCES,
+            "max_instances": _TEST_AGENT_ENGINE_MAX_INSTANCES,
+            "resource_limits": _TEST_AGENT_ENGINE_RESOURCE_LIMITS,
+            "container_concurrency": _TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
         }
         assert config["spec"]["class_methods"] == [_TEST_AGENT_ENGINE_CLASS_METHOD_1]
 
@@ -1256,6 +1283,11 @@ class TestAgentEngine:
                 extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
                 env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
                 context_spec=None,
+                psc_interface_config=None,
+                min_instances=None,
+                max_instances=None,
+                resource_limits=None,
+                container_concurrency=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1861,6 +1893,73 @@ class TestAgentEngineErrors:
         mock_operation_schemas.return_value = test_operation_schemas
         self.client.agent_engines.get(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
         assert want_log_output in caplog.text
+
+    @pytest.mark.parametrize(
+        "resource_limits, expected_exception, expected_message",
+        [
+            (
+                "Not a dict",
+                TypeError,
+                "resource_limits must be a dict",
+            ),
+            (
+                {"cpu": "1"},
+                KeyError,
+                "resource_limits must contain 'cpu' and 'memory' keys.",
+            ),
+            (
+                {"memory": "1Gi"},
+                KeyError,
+                "resource_limits must contain 'cpu' and 'memory' keys.",
+            ),
+            (
+                {"cpu": "3", "memory": "1Gi"},
+                ValueError,
+                "resource_limits['cpu'] must be one of 1, 2, 4, 6, 8.",
+            ),
+            (
+                {"cpu": "1", "memory": "1G"},
+                ValueError,
+                "resource_limits['memory'] must be a string ending with 'Gi'.",
+            ),
+            (
+                {"cpu": "1", "memory": "XGi"},
+                ValueError,
+                "Invalid memory value: XGi.",
+            ),
+            (
+                {"cpu": "1", "memory": "33Gi"},
+                ValueError,
+                "Memory size of 33Gi is too large. Must be smaller than 32Gi.",
+            ),
+            (
+                {"cpu": "1", "memory": "8Gi"},
+                ValueError,
+                "Memory size of 8Gi requires at least 2 CPUs.",
+            ),
+            (
+                {"cpu": "2", "memory": "16Gi"},
+                ValueError,
+                "Memory size of 16Gi requires at least 4 CPUs.",
+            ),
+            (
+                {"cpu": "4", "memory": "24Gi"},
+                ValueError,
+                "Memory size of 24Gi requires at least 6 CPUs.",
+            ),
+            (
+                {"cpu": "6", "memory": "32Gi"},
+                ValueError,
+                "Memory size of 32Gi requires at least 8 CPUs.",
+            ),
+        ],
+    )
+    def test_validate_resource_limits_or_raise(
+        self, resource_limits, expected_exception, expected_message
+    ):
+        with pytest.raises(expected_exception) as excinfo:
+            _agent_engines_utils._validate_resource_limits_or_raise(resource_limits)
+        assert expected_message in str(excinfo.value)
 
 
 @pytest.mark.usefixtures("google_auth_mock")

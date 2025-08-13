@@ -170,6 +170,8 @@ class AcceleratorType(_common.CaseInSensitiveEnum):
     """Nvidia H200 141Gb GPU."""
     NVIDIA_B200 = "NVIDIA_B200"
     """Nvidia B200 GPU."""
+    NVIDIA_GB200 = "NVIDIA_GB200"
+    """Nvidia GB200 GPU."""
     TPU_V2 = "TPU_V2"
     """TPU v2."""
     TPU_V3 = "TPU_V3"
@@ -2406,6 +2408,10 @@ class VideoMetadata(_common.BaseModel):
     end_offset: Optional[str] = Field(
         default=None, description="""Optional. The end offset of the video."""
     )
+    fps: Optional[float] = Field(
+        default=None,
+        description="""Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0].""",
+    )
     start_offset: Optional[str] = Field(
         default=None, description="""Optional. The start offset of the video."""
     )
@@ -2416,6 +2422,9 @@ class VideoMetadataDict(TypedDict, total=False):
 
     end_offset: Optional[str]
     """Optional. The end offset of the video."""
+
+    fps: Optional[float]
+    """Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0]."""
 
     start_offset: Optional[str]
     """Optional. The start offset of the video."""
@@ -2654,7 +2663,7 @@ DnsPeeringConfigOrDict = Union[DnsPeeringConfig, DnsPeeringConfigDict]
 
 
 class PscInterfaceConfig(_common.BaseModel):
-    """Configuration for PSC-I."""
+    """The PSC interface config."""
 
     dns_peering_configs: Optional[list[DnsPeeringConfig]] = Field(
         default=None,
@@ -2667,7 +2676,7 @@ class PscInterfaceConfig(_common.BaseModel):
 
 
 class PscInterfaceConfigDict(TypedDict, total=False):
-    """Configuration for PSC-I."""
+    """The PSC interface config."""
 
     dns_peering_configs: Optional[list[DnsPeeringConfigDict]]
     """Optional. DNS peering configurations. When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the target network's Cloud DNS. The user must grant the dns.peer role to the Vertex AI Service Agent on the target project."""
@@ -3440,6 +3449,25 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
         default=None,
         description="""Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent.""",
     )
+    psc_interface_config: Optional[PscInterfaceConfig] = Field(
+        default=None, description="""Optional. Configuration for PSC-I."""
+    )
+    min_instances: Optional[int] = Field(
+        default=None,
+        description="""Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 10].""",
+    )
+    max_instances: Optional[int] = Field(
+        default=None,
+        description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].""",
+    )
+    resource_limits: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', '6' and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * The only supported values for memory are '1Gi', '2Gi', ... '32 Gi'. * For required cpu on different memory values, go to https://cloud.google.com/run/docs/configuring/memory-limits""",
+    )
+    container_concurrency: Optional[int] = Field(
+        default=None,
+        description="""Optional. Concurrency for each container and agent server. Recommended value: 2 * cpu + 1. Defaults to 9.""",
+    )
 
 
 class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
@@ -3450,6 +3478,21 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
 
     secret_env: Optional[list[SecretEnvVarDict]]
     """Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent."""
+
+    psc_interface_config: Optional[PscInterfaceConfigDict]
+    """Optional. Configuration for PSC-I."""
+
+    min_instances: Optional[int]
+    """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 10]."""
+
+    max_instances: Optional[int]
+    """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100]."""
+
+    resource_limits: Optional[dict[str, str]]
+    """Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', '6' and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * The only supported values for memory are '1Gi', '2Gi', ... '32 Gi'. * For required cpu on different memory values, go to https://cloud.google.com/run/docs/configuring/memory-limits"""
+
+    container_concurrency: Optional[int]
+    """Optional. Concurrency for each container and agent server. Recommended value: 2 * cpu + 1. Defaults to 9."""
 
 
 ReasoningEngineSpecDeploymentSpecOrDict = Union[
@@ -3518,6 +3561,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes.""",
     )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used.""",
+    )
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
@@ -3535,6 +3582,9 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
     package_spec: Optional[ReasoningEngineSpecPackageSpecDict]
     """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes."""
 
+    service_account: Optional[str]
+    """Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used."""
+
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
@@ -3544,7 +3594,7 @@ class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseMod
 
     model: Optional[str] = Field(
         default=None,
-        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}` or `projects/{project}/locations/{location}/endpoints/{endpoint}`.""",
+        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
     )
 
 
@@ -3554,7 +3604,7 @@ class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
     """Configuration for how to generate memories."""
 
     model: Optional[str]
-    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}` or `projects/{project}/locations/{location}/endpoints/{endpoint}`."""
+    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
@@ -3570,7 +3620,7 @@ class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(
 
     embedding_model: Optional[str] = Field(
         default=None,
-        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}` or `projects/{project}/locations/{location}/endpoints/{endpoint}`.""",
+        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
     )
 
 
@@ -3580,7 +3630,7 @@ class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict(
     """Configuration for how to perform similarity search on memories."""
 
     embedding_model: Optional[str]
-    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}` or `projects/{project}/locations/{location}/endpoints/{endpoint}`."""
+    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
@@ -3672,6 +3722,38 @@ class CreateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""Optional. The context spec to be used for the Agent Engine.""",
     )
+    psc_interface_config: Optional[PscInterfaceConfig] = Field(
+        default=None,
+        description="""Optional. The PSC interface config for PSC-I to be used for the
+      Agent Engine.""",
+    )
+    min_instances: Optional[int] = Field(
+        default=None,
+        description="""The minimum number of instances to run for the Agent Engine.
+      Defaults to 1. Range: [0, 10].
+      """,
+    )
+    max_instances: Optional[int] = Field(
+        default=None,
+        description="""The maximum number of instances to run for the Agent Engine.
+      Defaults to 100. Range: [1, 1000].
+      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+      """,
+    )
+    resource_limits: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The resource limits to be applied to the Agent Engine.
+      Required keys: 'cpu' and 'memory'.
+      Supported values for 'cpu': '1', '2', '4', '6', '8'.
+      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
+      """,
+    )
+    container_concurrency: Optional[int] = Field(
+        default=None,
+        description="""The container concurrency to be used for the Agent Engine.
+      Recommended value: 2 * cpu + 1. Defaults to 9.
+      """,
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -3695,6 +3777,33 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
 
     context_spec: Optional[ReasoningEngineContextSpecDict]
     """Optional. The context spec to be used for the Agent Engine."""
+
+    psc_interface_config: Optional[PscInterfaceConfigDict]
+    """Optional. The PSC interface config for PSC-I to be used for the
+      Agent Engine."""
+
+    min_instances: Optional[int]
+    """The minimum number of instances to run for the Agent Engine.
+      Defaults to 1. Range: [0, 10].
+      """
+
+    max_instances: Optional[int]
+    """The maximum number of instances to run for the Agent Engine.
+      Defaults to 100. Range: [1, 1000].
+      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+      """
+
+    resource_limits: Optional[dict[str, str]]
+    """The resource limits to be applied to the Agent Engine.
+      Required keys: 'cpu' and 'memory'.
+      Supported values for 'cpu': '1', '2', '4', '6', '8'.
+      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
+      """
+
+    container_concurrency: Optional[int]
+    """The container concurrency to be used for the Agent Engine.
+      Recommended value: 2 * cpu + 1. Defaults to 9.
+      """
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -3739,6 +3848,10 @@ class ReasoningEngine(_common.BaseModel):
         default=None,
         description="""Required. The display name of the ReasoningEngine.""",
     )
+    encryption_spec: Optional[EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.""",
+    )
     etag: Optional[str] = Field(
         default=None,
         description="""Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
@@ -3771,6 +3884,9 @@ class ReasoningEngineDict(TypedDict, total=False):
 
     display_name: Optional[str]
     """Required. The display name of the ReasoningEngine."""
+
+    encryption_spec: Optional[EncryptionSpecDict]
+    """Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key."""
 
     etag: Optional[str]
     """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
@@ -4117,6 +4233,10 @@ class Session(_common.BaseModel):
         default=None,
         description="""Optional. The display name of the session.""",
     )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input.""",
+    )
     name: Optional[str] = Field(
         default=None,
         description="""Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.""",
@@ -4124,6 +4244,10 @@ class Session(_common.BaseModel):
     session_state: Optional[dict[str, Any]] = Field(
         default=None,
         description="""Optional. Session specific memory which stores key conversation points.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this session.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
@@ -4144,11 +4268,17 @@ class SessionDict(TypedDict, total=False):
     display_name: Optional[str]
     """Optional. The display name of the session."""
 
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input."""
+
     name: Optional[str]
     """Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'."""
 
     session_state: Optional[dict[str, Any]]
     """Optional. Session specific memory which stores key conversation points."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for this session."""
 
     update_time: Optional[datetime.datetime]
     """Output only. Timestamp when the session was updated."""
@@ -5633,6 +5763,38 @@ class UpdateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""Optional. The context spec to be used for the Agent Engine.""",
     )
+    psc_interface_config: Optional[PscInterfaceConfig] = Field(
+        default=None,
+        description="""Optional. The PSC interface config for PSC-I to be used for the
+      Agent Engine.""",
+    )
+    min_instances: Optional[int] = Field(
+        default=None,
+        description="""The minimum number of instances to run for the Agent Engine.
+      Defaults to 1. Range: [0, 10].
+      """,
+    )
+    max_instances: Optional[int] = Field(
+        default=None,
+        description="""The maximum number of instances to run for the Agent Engine.
+      Defaults to 100. Range: [1, 1000].
+      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+      """,
+    )
+    resource_limits: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The resource limits to be applied to the Agent Engine.
+      Required keys: 'cpu' and 'memory'.
+      Supported values for 'cpu': '1', '2', '4', '6', '8'.
+      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
+      """,
+    )
+    container_concurrency: Optional[int] = Field(
+        default=None,
+        description="""The container concurrency to be used for the Agent Engine.
+      Recommended value: 2 * cpu + 1. Defaults to 9.
+      """,
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -5661,6 +5823,33 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
 
     context_spec: Optional[ReasoningEngineContextSpecDict]
     """Optional. The context spec to be used for the Agent Engine."""
+
+    psc_interface_config: Optional[PscInterfaceConfigDict]
+    """Optional. The PSC interface config for PSC-I to be used for the
+      Agent Engine."""
+
+    min_instances: Optional[int]
+    """The minimum number of instances to run for the Agent Engine.
+      Defaults to 1. Range: [0, 10].
+      """
+
+    max_instances: Optional[int]
+    """The maximum number of instances to run for the Agent Engine.
+      Defaults to 100. Range: [1, 1000].
+      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+      """
+
+    resource_limits: Optional[dict[str, str]]
+    """The resource limits to be applied to the Agent Engine.
+      Required keys: 'cpu' and 'memory'.
+      Supported values for 'cpu': '1', '2', '4', '6', '8'.
+      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
+      """
+
+    container_concurrency: Optional[int]
+    """The container concurrency to be used for the Agent Engine.
+      Recommended value: 2 * cpu + 1. Defaults to 9.
+      """
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -7527,6 +7716,37 @@ class AgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The context spec to be used for the Agent Engine.""",
     )
+    psc_interface_config: Optional[PscInterfaceConfig] = Field(
+        default=None,
+        description="""The PSC interface config for PSC-I to be used for the Agent Engine.""",
+    )
+    min_instances: Optional[int] = Field(
+        default=None,
+        description="""The minimum number of instances to run for the Agent Engine.
+      Defaults to 1. Range: [0, 10].
+      """,
+    )
+    max_instances: Optional[int] = Field(
+        default=None,
+        description="""The maximum number of instances to run for the Agent Engine.
+      Defaults to 100. Range: [1, 1000].
+      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+      """,
+    )
+    resource_limits: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The resource limits to be applied to the Agent Engine.
+      Required keys: 'cpu' and 'memory'.
+      Supported values for 'cpu': '1', '2', '4', '6', '8'.
+      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
+      """,
+    )
+    container_concurrency: Optional[int] = Field(
+        default=None,
+        description="""The container concurrency to be used for the Agent Engine.
+      Recommended value: 2 * cpu + 1. Defaults to 9.
+      """,
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -7572,6 +7792,32 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     context_spec: Optional[ReasoningEngineContextSpecDict]
     """The context spec to be used for the Agent Engine."""
+
+    psc_interface_config: Optional[PscInterfaceConfigDict]
+    """The PSC interface config for PSC-I to be used for the Agent Engine."""
+
+    min_instances: Optional[int]
+    """The minimum number of instances to run for the Agent Engine.
+      Defaults to 1. Range: [0, 10].
+      """
+
+    max_instances: Optional[int]
+    """The maximum number of instances to run for the Agent Engine.
+      Defaults to 100. Range: [1, 1000].
+      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+      """
+
+    resource_limits: Optional[dict[str, str]]
+    """The resource limits to be applied to the Agent Engine.
+      Required keys: 'cpu' and 'memory'.
+      Supported values for 'cpu': '1', '2', '4', '6', '8'.
+      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
+      """
+
+    container_concurrency: Optional[int]
+    """The container concurrency to be used for the Agent Engine.
+      Recommended value: 2 * cpu + 1. Defaults to 9.
+      """
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
