@@ -18,11 +18,13 @@
 import uuid
 
 from google.cloud import aiplatform
+from google.cloud import aiplatform_v1
 from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
     Namespace,
 )
-from google.cloud import aiplatform_v1
 from tests.system.aiplatform import e2e_base
+
+from google.protobuf import struct_pb2
 
 # project
 _TEST_INDEX_DISPLAY_NAME = "index_display_name"
@@ -218,6 +220,13 @@ _TEST_DATAPOINT_3 = aiplatform_v1.types.index.IndexDatapoint(
             value_float=1.1,
         )
     ],
+)
+_TEST_DATAPOINT_4 = aiplatform_v1.types.index.IndexDatapoint(
+    datapoint_id="upsert_4",
+    feature_vector=_TEST_MATCH_QUERY,
+    embedding_metadata=struct_pb2.Struct(
+        fields={"userinfo": struct_pb2.Value(string_value="test_userinfo")}
+    ),
 )
 _TEST_STREAM_INDEX_DATAPOINTS = [
     _TEST_DATAPOINT_1,
@@ -631,6 +640,10 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
 
         # Upsert datapoint to stream index
         stream_index.upsert_datapoints(datapoints=_TEST_STREAM_INDEX_DATAPOINTS)
+        stream_index.upsert_datapoints(
+            datapoints=_TEST_DATAPOINT_4,
+            update_mask=["embedding_metadata"],
+        )
 
         # Remove datapoint upserted to stream index
         stream_index.remove_datapoints(datapoint_ids="upsert_0")

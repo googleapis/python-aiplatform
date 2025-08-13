@@ -790,6 +790,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 Updatable fields:
                     Use `all_restricts` to update both `restricts` and
                     `numeric_restricts`.
+                    Use `embedding_metadata` to update `embedding_metadata`.
 
         Returns:
             MatchingEngineIndex - Index resource object
