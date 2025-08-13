@@ -1398,6 +1398,10 @@ class GroundingChunk(proto.Message):
             retrieval tools.
 
             This field is a member of `oneof`_ ``chunk_type``.
+        maps (google.cloud.aiplatform_v1beta1.types.GroundingChunk.Maps):
+            Grounding chunk from Google Maps.
+
+            This field is a member of `oneof`_ ``chunk_type``.
     """
 
     class Web(proto.Message):
@@ -1451,6 +1455,11 @@ class GroundingChunk(proto.Message):
                 Text of the attribution.
 
                 This field is a member of `oneof`_ ``_text``.
+            document_name (str):
+                Output only. The full document name for the
+                referenced Vertex AI Search document.
+
+                This field is a member of `oneof`_ ``_document_name``.
         """
 
         rag_chunk: vertex_rag_data.RagChunk = proto.Field(
@@ -1474,6 +1483,57 @@ class GroundingChunk(proto.Message):
             number=3,
             optional=True,
         )
+        document_name: str = proto.Field(
+            proto.STRING,
+            number=6,
+            optional=True,
+        )
+
+    class Maps(proto.Message):
+        r"""Chunk from Google Maps.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            uri (str):
+                URI reference of the chunk.
+
+                This field is a member of `oneof`_ ``_uri``.
+            title (str):
+                Title of the chunk.
+
+                This field is a member of `oneof`_ ``_title``.
+            text (str):
+                Text of the chunk.
+
+                This field is a member of `oneof`_ ``_text``.
+            place_id (str):
+                This Place's resource name, in ``places/{place_id}`` format.
+                Can be used to look up the Place.
+
+                This field is a member of `oneof`_ ``_place_id``.
+        """
+
+        uri: str = proto.Field(
+            proto.STRING,
+            number=1,
+            optional=True,
+        )
+        title: str = proto.Field(
+            proto.STRING,
+            number=2,
+            optional=True,
+        )
+        text: str = proto.Field(
+            proto.STRING,
+            number=3,
+            optional=True,
+        )
+        place_id: str = proto.Field(
+            proto.STRING,
+            number=4,
+            optional=True,
+        )
 
     web: Web = proto.Field(
         proto.MESSAGE,
@@ -1486,6 +1546,12 @@ class GroundingChunk(proto.Message):
         number=2,
         oneof="chunk_type",
         message=RetrievedContext,
+    )
+    maps: Maps = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="chunk_type",
+        message=Maps,
     )
 
 
@@ -1554,6 +1620,14 @@ class GroundingMetadata(proto.Message):
             Optional. Output only. Retrieval metadata.
 
             This field is a member of `oneof`_ ``_retrieval_metadata``.
+        google_maps_widget_context_token (str):
+            Optional. Output only. Resource name of the
+            Google Maps widget context token to be used with
+            the PlacesContextElement widget to render
+            contextual data. This is populated only for
+            Google Maps grounding.
+
+            This field is a member of `oneof`_ ``_google_maps_widget_context_token``.
     """
 
     web_search_queries: MutableSequence[str] = proto.RepeatedField(
@@ -1585,6 +1659,11 @@ class GroundingMetadata(proto.Message):
         number=7,
         optional=True,
         message="RetrievalMetadata",
+    )
+    google_maps_widget_context_token: str = proto.Field(
+        proto.STRING,
+        number=8,
+        optional=True,
     )
 
 

@@ -8962,6 +8962,249 @@ async def test_list_model_evaluation_slices_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_service.RecommendSpecRequest,
+        dict,
+    ],
+)
+def test_recommend_spec(request_type, transport: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.recommend_spec), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = model_service.RecommendSpecResponse(
+            base_model="base_model_value",
+        )
+        response = client.recommend_spec(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = model_service.RecommendSpecRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, model_service.RecommendSpecResponse)
+    assert response.base_model == "base_model_value"
+
+
+def test_recommend_spec_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = model_service.RecommendSpecRequest(
+        parent="parent_value",
+        gcs_uri="gcs_uri_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.recommend_spec), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.recommend_spec(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.RecommendSpecRequest(
+            parent="parent_value",
+            gcs_uri="gcs_uri_value",
+        )
+
+
+def test_recommend_spec_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.recommend_spec in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.recommend_spec] = mock_rpc
+        request = {}
+        client.recommend_spec(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.recommend_spec(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_recommend_spec_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = ModelServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.recommend_spec
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.recommend_spec
+        ] = mock_rpc
+
+        request = {}
+        await client.recommend_spec(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.recommend_spec(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_recommend_spec_async(
+    transport: str = "grpc_asyncio", request_type=model_service.RecommendSpecRequest
+):
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.recommend_spec), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.RecommendSpecResponse(
+                base_model="base_model_value",
+            )
+        )
+        response = await client.recommend_spec(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = model_service.RecommendSpecRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, model_service.RecommendSpecResponse)
+    assert response.base_model == "base_model_value"
+
+
+@pytest.mark.asyncio
+async def test_recommend_spec_async_from_dict():
+    await test_recommend_spec_async(request_type=dict)
+
+
+def test_recommend_spec_field_headers():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.RecommendSpecRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.recommend_spec), "__call__") as call:
+        call.return_value = model_service.RecommendSpecResponse()
+        client.recommend_spec(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_recommend_spec_field_headers_async():
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.RecommendSpecRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.recommend_spec), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.RecommendSpecResponse()
+        )
+        await client.recommend_spec(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
 def test_upload_model_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -12948,6 +13191,139 @@ def test_list_model_evaluation_slices_rest_pager(transport: str = "rest"):
             assert page_.raw_page.next_page_token == token
 
 
+def test_recommend_spec_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.recommend_spec in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.recommend_spec] = mock_rpc
+
+        request = {}
+        client.recommend_spec(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.recommend_spec(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_recommend_spec_rest_required_fields(
+    request_type=model_service.RecommendSpecRequest,
+):
+    transport_class = transports.ModelServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request_init["gcs_uri"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).recommend_spec._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+    jsonified_request["gcsUri"] = "gcs_uri_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).recommend_spec._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+    assert "gcsUri" in jsonified_request
+    assert jsonified_request["gcsUri"] == "gcs_uri_value"
+
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = model_service.RecommendSpecResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = model_service.RecommendSpecResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+
+            response = client.recommend_spec(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_recommend_spec_rest_unset_required_fields():
+    transport = transports.ModelServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.recommend_spec._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "gcsUri",
+            )
+        )
+    )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.ModelServiceGrpcTransport(
@@ -13473,6 +13849,27 @@ def test_list_model_evaluation_slices_empty_call_grpc():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = model_service.ListModelEvaluationSlicesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_recommend_spec_empty_call_grpc():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.recommend_spec), "__call__") as call:
+        call.return_value = model_service.RecommendSpecResponse()
+        client.recommend_spec(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_service.RecommendSpecRequest()
 
         assert args[0] == request_msg
 
@@ -14087,6 +14484,33 @@ async def test_list_model_evaluation_slices_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = model_service.ListModelEvaluationSlicesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_recommend_spec_empty_call_grpc_asyncio():
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.recommend_spec), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_service.RecommendSpecResponse(
+                base_model="base_model_value",
+            )
+        )
+        await client.recommend_spec(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_service.RecommendSpecRequest()
 
         assert args[0] == request_msg
 
@@ -16895,6 +17319,138 @@ def test_list_model_evaluation_slices_rest_interceptors(null_interceptor):
         post_with_metadata.assert_called_once()
 
 
+def test_recommend_spec_rest_bad_request(
+    request_type=model_service.RecommendSpecRequest,
+):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        client.recommend_spec(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_service.RecommendSpecRequest,
+        dict,
+    ],
+)
+def test_recommend_spec_rest_call_success(request_type):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_service.RecommendSpecResponse(
+            base_model="base_model_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = model_service.RecommendSpecResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = client.recommend_spec(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, model_service.RecommendSpecResponse)
+    assert response.base_model == "base_model_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_recommend_spec_rest_interceptors(null_interceptor):
+    transport = transports.ModelServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelServiceRestInterceptor(),
+    )
+    client = ModelServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_recommend_spec"
+    ) as post, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "post_recommend_spec_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
+        transports.ModelServiceRestInterceptor, "pre_recommend_spec"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = model_service.RecommendSpecRequest.pb(
+            model_service.RecommendSpecRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = model_service.RecommendSpecResponse.to_json(
+            model_service.RecommendSpecResponse()
+        )
+        req.return_value.content = return_value
+
+        request = model_service.RecommendSpecRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = model_service.RecommendSpecResponse()
+        post_with_metadata.return_value = (
+            model_service.RecommendSpecResponse(),
+            metadata,
+        )
+
+        client.recommend_spec(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
     client = ModelServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -17927,6 +18483,26 @@ def test_list_model_evaluation_slices_empty_call_rest():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = model_service.ListModelEvaluationSlicesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_recommend_spec_empty_call_rest():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.recommend_spec), "__call__") as call:
+        client.recommend_spec(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_service.RecommendSpecRequest()
 
         assert args[0] == request_msg
 
@@ -21089,6 +21665,154 @@ async def test_list_model_evaluation_slices_rest_asyncio_interceptors(null_inter
 
 
 @pytest.mark.asyncio
+async def test_recommend_spec_rest_asyncio_bad_request(
+    request_type=model_service.RecommendSpecRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        await client.recommend_spec(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        model_service.RecommendSpecRequest,
+        dict,
+    ],
+)
+async def test_recommend_spec_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_service.RecommendSpecResponse(
+            base_model="base_model_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = model_service.RecommendSpecResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        response = await client.recommend_spec(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, model_service.RecommendSpecResponse)
+    assert response.base_model == "base_model_value"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_recommend_spec_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncModelServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelServiceRestInterceptor(),
+    )
+    client = ModelServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "post_recommend_spec"
+    ) as post, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "post_recommend_spec_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelServiceRestInterceptor, "pre_recommend_spec"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        post_with_metadata.assert_not_called()
+        pb_message = model_service.RecommendSpecRequest.pb(
+            model_service.RecommendSpecRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
+        return_value = model_service.RecommendSpecResponse.to_json(
+            model_service.RecommendSpecResponse()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = model_service.RecommendSpecRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = model_service.RecommendSpecResponse()
+        post_with_metadata.return_value = (
+            model_service.RecommendSpecResponse(),
+            metadata,
+        )
+
+        await client.recommend_spec(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+        post_with_metadata.assert_called_once()
+
+
+@pytest.mark.asyncio
 async def test_get_location_rest_asyncio_bad_request(
     request_type=locations_pb2.GetLocationRequest,
 ):
@@ -22335,6 +23059,31 @@ async def test_list_model_evaluation_slices_empty_call_rest_asyncio():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_recommend_spec_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = ModelServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.recommend_spec), "__call__") as call:
+        await client.recommend_spec(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_service.RecommendSpecRequest()
+
+        assert args[0] == request_msg
+
+
 def test_model_service_rest_asyncio_lro_client():
     if not HAS_ASYNC_REST_EXTRA:
         pytest.skip(
@@ -22422,6 +23171,7 @@ def test_model_service_base_transport():
         "list_model_evaluations",
         "get_model_evaluation_slice",
         "list_model_evaluation_slices",
+        "recommend_spec",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -22749,6 +23499,9 @@ def test_model_service_client_transport_session_collision(transport_name):
     session1 = client1.transport.list_model_evaluation_slices._session
     session2 = client2.transport.list_model_evaluation_slices._session
     assert session1 != session2
+    session1 = client1.transport.recommend_spec._session
+    session2 = client2.transport.recommend_spec._session
+    assert session1 != session2
 
 
 def test_model_service_grpc_transport_channel():
@@ -23020,10 +23773,38 @@ def test_parse_model_evaluation_slice_path():
     assert expected == actual
 
 
+def test_reservation_path():
+    project_id_or_number = "cuttlefish"
+    zone = "mussel"
+    reservation_name = "winkle"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
+        project_id_or_number=project_id_or_number,
+        zone=zone,
+        reservation_name=reservation_name,
+    )
+    actual = ModelServiceClient.reservation_path(
+        project_id_or_number, zone, reservation_name
+    )
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "nautilus",
+        "zone": "scallop",
+        "reservation_name": "abalone",
+    }
+    path = ModelServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ModelServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
+
 def test_training_pipeline_path():
-    project = "cuttlefish"
-    location = "mussel"
-    training_pipeline = "winkle"
+    project = "squid"
+    location = "clam"
+    training_pipeline = "whelk"
     expected = "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
         project=project,
         location=location,
@@ -23037,9 +23818,9 @@ def test_training_pipeline_path():
 
 def test_parse_training_pipeline_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "training_pipeline": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "training_pipeline": "nudibranch",
     }
     path = ModelServiceClient.training_pipeline_path(**expected)
 
@@ -23049,7 +23830,7 @@ def test_parse_training_pipeline_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -23059,7 +23840,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = ModelServiceClient.common_billing_account_path(**expected)
 
@@ -23069,7 +23850,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -23079,7 +23860,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = ModelServiceClient.common_folder_path(**expected)
 
@@ -23089,7 +23870,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -23099,7 +23880,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = ModelServiceClient.common_organization_path(**expected)
 
@@ -23109,7 +23890,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -23119,7 +23900,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = ModelServiceClient.common_project_path(**expected)
 
@@ -23129,8 +23910,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -23141,8 +23922,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = ModelServiceClient.common_location_path(**expected)
 

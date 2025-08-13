@@ -4131,6 +4131,11 @@
                 "merge_version_aliases"
               ]
             },
+            "RecommendSpec": {
+              "methods": [
+                "recommend_spec"
+              ]
+            },
             "UpdateExplanationDataset": {
               "methods": [
                 "update_explanation_dataset"
@@ -4231,6 +4236,11 @@
                 "merge_version_aliases"
               ]
             },
+            "RecommendSpec": {
+              "methods": [
+                "recommend_spec"
+              ]
+            },
             "UpdateExplanationDataset": {
               "methods": [
                 "update_explanation_dataset"
@@ -4329,6 +4339,11 @@
             "MergeVersionAliases": {
               "methods": [
                 "merge_version_aliases"
+              ]
+            },
+            "RecommendSpec": {
+              "methods": [
+                "recommend_spec"
               ]
             },
             "UpdateExplanationDataset": {

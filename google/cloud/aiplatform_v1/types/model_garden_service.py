@@ -171,6 +171,16 @@ class DeployRequest(proto.Message):
                 Optional. The specification of the container
                 that is to be used when deploying. If not set,
                 the default container spec will be used.
+            model_user_id (str):
+                Optional. The ID to use for the uploaded Model, which will
+                become the final component of the model resource name. When
+                not provided, Vertex AI will generate a value for this ID.
+                When Model Registry model is provided, this field will be
+                ignored.
+
+                This value may be up to 63 characters, and valid characters
+                are ``[a-z0-9_-]``. The first character cannot be a number
+                or hyphen.
         """
 
         accept_eula: bool = proto.Field(
@@ -194,6 +204,10 @@ class DeployRequest(proto.Message):
             number=5,
             message=gca_model.ModelContainerSpec,
         )
+        model_user_id: str = proto.Field(
+            proto.STRING,
+            number=6,
+        )
 
     class EndpointConfig(proto.Message):
         r"""The endpoint config to use for the deployment.
@@ -204,7 +218,8 @@ class DeployRequest(proto.Message):
                 the endpoint. If not set, a default name will be
                 used.
             dedicated_endpoint_enabled (bool):
-                Optional. If true, the endpoint will be exposed through a
+                Optional. Deprecated. Use dedicated_endpoint_disabled
+                instead. If true, the endpoint will be exposed through a
                 dedicated DNS [Endpoint.dedicated_endpoint_dns]. Your
                 request to the dedicated DNS will be isolated from other
                 users' traffic and will have better performance and
@@ -212,6 +227,37 @@ class DeployRequest(proto.Message):
                 won't be able to send request to the shared DNS
                 {region}-aiplatform.googleapis.com. The limitations will be
                 removed soon.
+            dedicated_endpoint_disabled (bool):
+                Optional. By default, if dedicated endpoint is enabled, the
+                endpoint will be exposed through a dedicated DNS
+                [Endpoint.dedicated_endpoint_dns]. Your request to the
+                dedicated DNS will be isolated from other users' traffic and
+                will have better performance and reliability. Note: Once you
+                enabled dedicated endpoint, you won't be able to send
+                request to the shared DNS
+                {region}-aiplatform.googleapis.com. The limitations will be
+                removed soon.
+
+                If this field is set to true, the dedicated endpoint will be
+                disabled and the deployed model will be exposed through the
+                shared DNS {region}-aiplatform.googleapis.com.
+            endpoint_user_id (str):
+                Optional. Immutable. The ID to use for endpoint, which will
+                become the final component of the endpoint resource name. If
+                not provided, Vertex AI will generate a value for this ID.
+
+                If the first character is a letter, this value may be up to
+                63 characters, and valid characters are ``[a-z0-9-]``. The
+                last character must be a letter or number.
+
+                If the first character is a number, this value may be up to
+                9 characters, and valid characters are ``[0-9]`` with no
+                leading zeros.
+
+                When using HTTP/JSON, this field is populated based on a
+                query string argument, such as ``?endpoint_id=12345``. This
+                is the fallback for fields that are not included in either
+                the URI or the body.
         """
 
         endpoint_display_name: str = proto.Field(
@@ -221,6 +267,14 @@ class DeployRequest(proto.Message):
         dedicated_endpoint_enabled: bool = proto.Field(
             proto.BOOL,
             number=2,
+        )
+        dedicated_endpoint_disabled: bool = proto.Field(
+            proto.BOOL,
+            number=4,
+        )
+        endpoint_user_id: str = proto.Field(
+            proto.STRING,
+            number=3,
         )
 
     class DeployConfig(proto.Message):
