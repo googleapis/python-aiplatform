@@ -2200,6 +2200,99 @@ class OptimizeConfigDict(TypedDict, total=False):
 OptimizeConfigOrDict = Union[OptimizeConfig, OptimizeConfigDict]
 
 
+class VideoMetadata(_common.BaseModel):
+    """Describes how the video in the Part should be used by the model."""
+
+    fps: Optional[float] = Field(
+        default=None,
+        description="""The frame rate of the video sent to the model. If not specified, the
+        default value will be 1.0. The fps range is (0.0, 24.0].""",
+    )
+    end_offset: Optional[str] = Field(
+        default=None, description="""Optional. The end offset of the video."""
+    )
+    start_offset: Optional[str] = Field(
+        default=None, description="""Optional. The start offset of the video."""
+    )
+
+
+class VideoMetadataDict(TypedDict, total=False):
+    """Describes how the video in the Part should be used by the model."""
+
+    fps: Optional[float]
+    """The frame rate of the video sent to the model. If not specified, the
+        default value will be 1.0. The fps range is (0.0, 24.0]."""
+
+    end_offset: Optional[str]
+    """Optional. The end offset of the video."""
+
+    start_offset: Optional[str]
+    """Optional. The start offset of the video."""
+
+
+VideoMetadataOrDict = Union[VideoMetadata, VideoMetadataDict]
+
+
+class Blob(_common.BaseModel):
+    """Content blob."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. Display name of the blob. Used to provide a label or filename to distinguish blobs. This field is not currently used in the Gemini GenerateContent calls.""",
+    )
+    data: Optional[bytes] = Field(default=None, description="""Required. Raw bytes.""")
+    mime_type: Optional[str] = Field(
+        default=None,
+        description="""Required. The IANA standard MIME type of the source data.""",
+    )
+
+
+class BlobDict(TypedDict, total=False):
+    """Content blob."""
+
+    display_name: Optional[str]
+    """Optional. Display name of the blob. Used to provide a label or filename to distinguish blobs. This field is not currently used in the Gemini GenerateContent calls."""
+
+    data: Optional[bytes]
+    """Required. Raw bytes."""
+
+    mime_type: Optional[str]
+    """Required. The IANA standard MIME type of the source data."""
+
+
+BlobOrDict = Union[Blob, BlobDict]
+
+
+class FileData(_common.BaseModel):
+    """URI based data."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. It is not currently used in the Gemini GenerateContent calls.""",
+    )
+    file_uri: Optional[str] = Field(default=None, description="""Required. URI.""")
+    mime_type: Optional[str] = Field(
+        default=None,
+        description="""Required. The IANA standard MIME type of the source data.""",
+    )
+
+
+class FileDataDict(TypedDict, total=False):
+    """URI based data."""
+
+    display_name: Optional[str]
+    """Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. It is not currently used in the Gemini GenerateContent calls."""
+
+    file_uri: Optional[str]
+    """Required. URI."""
+
+    mime_type: Optional[str]
+    """Required. The IANA standard MIME type of the source data."""
+
+
+FileDataOrDict = Union[FileData, FileDataDict]
+
+
 class CodeExecutionResult(_common.BaseModel):
     """Result of executing the [ExecutableCode].
 
@@ -2266,36 +2359,6 @@ class ExecutableCodeDict(TypedDict, total=False):
 
 
 ExecutableCodeOrDict = Union[ExecutableCode, ExecutableCodeDict]
-
-
-class FileData(_common.BaseModel):
-    """URI based data."""
-
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled.""",
-    )
-    file_uri: Optional[str] = Field(default=None, description="""Required. URI.""")
-    mime_type: Optional[str] = Field(
-        default=None,
-        description="""Required. The IANA standard MIME type of the source data.""",
-    )
-
-
-class FileDataDict(TypedDict, total=False):
-    """URI based data."""
-
-    display_name: Optional[str]
-    """Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled."""
-
-    file_uri: Optional[str]
-    """Required. URI."""
-
-    mime_type: Optional[str]
-    """Required. The IANA standard MIME type of the source data."""
-
-
-FileDataOrDict = Union[FileData, FileDataDict]
 
 
 class FunctionCall(_common.BaseModel):
@@ -2372,76 +2435,32 @@ class FunctionResponseDict(TypedDict, total=False):
 FunctionResponseOrDict = Union[FunctionResponse, FunctionResponseDict]
 
 
-class Blob(_common.BaseModel):
-    """Content blob."""
-
-    data: Optional[bytes] = Field(default=None, description="""Required. Raw bytes.""")
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Optional. Display name of the blob. Used to provide a label or filename to distinguish blobs. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled.""",
-    )
-    mime_type: Optional[str] = Field(
-        default=None,
-        description="""Required. The IANA standard MIME type of the source data.""",
-    )
-
-
-class BlobDict(TypedDict, total=False):
-    """Content blob."""
-
-    data: Optional[bytes]
-    """Required. Raw bytes."""
-
-    display_name: Optional[str]
-    """Optional. Display name of the blob. Used to provide a label or filename to distinguish blobs. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled."""
-
-    mime_type: Optional[str]
-    """Required. The IANA standard MIME type of the source data."""
-
-
-BlobOrDict = Union[Blob, BlobDict]
-
-
-class VideoMetadata(_common.BaseModel):
-    """Metadata describes the input video content."""
-
-    end_offset: Optional[str] = Field(
-        default=None, description="""Optional. The end offset of the video."""
-    )
-    fps: Optional[float] = Field(
-        default=None,
-        description="""Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0].""",
-    )
-    start_offset: Optional[str] = Field(
-        default=None, description="""Optional. The start offset of the video."""
-    )
-
-
-class VideoMetadataDict(TypedDict, total=False):
-    """Metadata describes the input video content."""
-
-    end_offset: Optional[str]
-    """Optional. The end offset of the video."""
-
-    fps: Optional[float]
-    """Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0]."""
-
-    start_offset: Optional[str]
-    """Optional. The start offset of the video."""
-
-
-VideoMetadataOrDict = Union[VideoMetadata, VideoMetadataDict]
-
-
 class Part(_common.BaseModel):
-    """A datatype containing media that is part of a multi-part `Content` message.
+    """A datatype containing media content.
 
-    A `Part` consists of data which has an associated datatype. A `Part` can
-    only contain one of the accepted types in `Part.data`. A `Part` must have a
-    fixed IANA MIME type identifying the type and subtype of the media if
-    `inline_data` or `file_data` field is filled with raw bytes.
+    Exactly one field within a Part should be set, representing the specific
+    type
+    of content being conveyed. Using multiple fields within the same `Part`
+    instance is considered invalid.
     """
 
+    video_metadata: Optional[VideoMetadata] = Field(
+        default=None, description="""Metadata for a given video."""
+    )
+    thought: Optional[bool] = Field(
+        default=None,
+        description="""Indicates if the part is thought from the model.""",
+    )
+    inline_data: Optional[Blob] = Field(
+        default=None, description="""Optional. Inlined bytes data."""
+    )
+    file_data: Optional[FileData] = Field(
+        default=None, description="""Optional. URI based data."""
+    )
+    thought_signature: Optional[bytes] = Field(
+        default=None,
+        description="""An opaque signature for the thought so it can be reused in subsequent requests.""",
+    )
     code_execution_result: Optional[CodeExecutionResult] = Field(
         default=None,
         description="""Optional. Result of executing the [ExecutableCode].""",
@@ -2449,9 +2468,6 @@ class Part(_common.BaseModel):
     executable_code: Optional[ExecutableCode] = Field(
         default=None,
         description="""Optional. Code generated by the model that is meant to be executed.""",
-    )
-    file_data: Optional[FileData] = Field(
-        default=None, description="""Optional. URI based data."""
     )
     function_call: Optional[FunctionCall] = Field(
         default=None,
@@ -2461,34 +2477,34 @@ class Part(_common.BaseModel):
         default=None,
         description="""Optional. The result output of a [FunctionCall] that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing any output from the function call. It is used as context to the model.""",
     )
-    inline_data: Optional[Blob] = Field(
-        default=None, description="""Optional. Inlined bytes data."""
-    )
     text: Optional[str] = Field(
         default=None, description="""Optional. Text part (can be code)."""
-    )
-    thought: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Indicates if the part is thought from the model.""",
-    )
-    thought_signature: Optional[bytes] = Field(
-        default=None,
-        description="""Optional. An opaque signature for the thought so it can be reused in subsequent requests.""",
-    )
-    video_metadata: Optional[VideoMetadata] = Field(
-        default=None,
-        description="""Optional. Video metadata. The metadata should only be specified while the video data is presented in inline_data or file_data.""",
     )
 
 
 class PartDict(TypedDict, total=False):
-    """A datatype containing media that is part of a multi-part `Content` message.
+    """A datatype containing media content.
 
-    A `Part` consists of data which has an associated datatype. A `Part` can
-    only contain one of the accepted types in `Part.data`. A `Part` must have a
-    fixed IANA MIME type identifying the type and subtype of the media if
-    `inline_data` or `file_data` field is filled with raw bytes.
+    Exactly one field within a Part should be set, representing the specific
+    type
+    of content being conveyed. Using multiple fields within the same `Part`
+    instance is considered invalid.
     """
+
+    video_metadata: Optional[VideoMetadataDict]
+    """Metadata for a given video."""
+
+    thought: Optional[bool]
+    """Indicates if the part is thought from the model."""
+
+    inline_data: Optional[BlobDict]
+    """Optional. Inlined bytes data."""
+
+    file_data: Optional[FileDataDict]
+    """Optional. URI based data."""
+
+    thought_signature: Optional[bytes]
+    """An opaque signature for the thought so it can be reused in subsequent requests."""
 
     code_execution_result: Optional[CodeExecutionResultDict]
     """Optional. Result of executing the [ExecutableCode]."""
@@ -2496,65 +2512,46 @@ class PartDict(TypedDict, total=False):
     executable_code: Optional[ExecutableCodeDict]
     """Optional. Code generated by the model that is meant to be executed."""
 
-    file_data: Optional[FileDataDict]
-    """Optional. URI based data."""
-
     function_call: Optional[FunctionCallDict]
     """Optional. A predicted [FunctionCall] returned from the model that contains a string representing the [FunctionDeclaration.name] with the parameters and their values."""
 
     function_response: Optional[FunctionResponseDict]
     """Optional. The result output of a [FunctionCall] that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing any output from the function call. It is used as context to the model."""
 
-    inline_data: Optional[BlobDict]
-    """Optional. Inlined bytes data."""
-
     text: Optional[str]
     """Optional. Text part (can be code)."""
-
-    thought: Optional[bool]
-    """Optional. Indicates if the part is thought from the model."""
-
-    thought_signature: Optional[bytes]
-    """Optional. An opaque signature for the thought so it can be reused in subsequent requests."""
-
-    video_metadata: Optional[VideoMetadataDict]
-    """Optional. Video metadata. The metadata should only be specified while the video data is presented in inline_data or file_data."""
 
 
 PartOrDict = Union[Part, PartDict]
 
 
 class Content(_common.BaseModel):
-    """The base structured datatype containing multi-part content of a message.
-
-    A `Content` includes a `role` field designating the producer of the
-    `Content` and a `parts` field containing multi-part data that contains the
-    content of the message turn.
-    """
+    """Contains the multi-part content of a message."""
 
     parts: Optional[list[Part]] = Field(
         default=None,
-        description="""Required. Ordered `Parts` that constitute a single message. Parts may have different IANA MIME types.""",
+        description="""List of parts that constitute a single message. Each part may have
+      a different IANA MIME type.""",
     )
     role: Optional[str] = Field(
         default=None,
-        description="""Optional. The producer of the content. Must be either 'user' or 'model'. Useful to set for multi-turn conversations, otherwise can be left blank or unset.""",
+        description="""Optional. The producer of the content. Must be either 'user' or
+      'model'. Useful to set for multi-turn conversations, otherwise can be
+      empty. If role is not specified, SDK will determine the role.""",
     )
 
 
 class ContentDict(TypedDict, total=False):
-    """The base structured datatype containing multi-part content of a message.
-
-    A `Content` includes a `role` field designating the producer of the
-    `Content` and a `parts` field containing multi-part data that contains the
-    content of the message turn.
-    """
+    """Contains the multi-part content of a message."""
 
     parts: Optional[list[PartDict]]
-    """Required. Ordered `Parts` that constitute a single message. Parts may have different IANA MIME types."""
+    """List of parts that constitute a single message. Each part may have
+      a different IANA MIME type."""
 
     role: Optional[str]
-    """Optional. The producer of the content. Must be either 'user' or 'model'. Useful to set for multi-turn conversations, otherwise can be left blank or unset."""
+    """Optional. The producer of the content. Must be either 'user' or
+      'model'. Useful to set for multi-turn conversations, otherwise can be
+      empty. If role is not specified, SDK will determine the role."""
 
 
 ContentOrDict = Union[Content, ContentDict]
@@ -3383,6 +3380,737 @@ class _GetCustomJobParametersDict(TypedDict, total=False):
 
 _GetCustomJobParametersOrDict = Union[
     _GetCustomJobParameters, _GetCustomJobParametersDict
+]
+
+
+class EventActions(_common.BaseModel):
+    """Actions are parts of events that are executed by the agent."""
+
+    artifact_delta: Optional[dict[str, int]] = Field(
+        default=None,
+        description="""Optional. Indicates that the event is updating an artifact. key is the filename, value is the version.""",
+    )
+    escalate: Optional[bool] = Field(
+        default=None,
+        description="""Optional. The agent is escalating to a higher level agent.""",
+    )
+    requested_auth_configs: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct.""",
+    )
+    skip_summarization: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, it won't call model to summarize function response. Only used for function_response event.""",
+    )
+    state_delta: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Indicates that the event is updating the state with the given delta.""",
+    )
+    transfer_agent: Optional[str] = Field(
+        default=None,
+        description="""Optional. If set, the event transfers to the specified agent.""",
+    )
+    transfer_to_agent: Optional[bool] = Field(
+        default=None,
+        description="""Deprecated. If set, the event transfers to the specified agent.""",
+    )
+
+
+class EventActionsDict(TypedDict, total=False):
+    """Actions are parts of events that are executed by the agent."""
+
+    artifact_delta: Optional[dict[str, int]]
+    """Optional. Indicates that the event is updating an artifact. key is the filename, value is the version."""
+
+    escalate: Optional[bool]
+    """Optional. The agent is escalating to a higher level agent."""
+
+    requested_auth_configs: Optional[dict[str, Any]]
+    """Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct."""
+
+    skip_summarization: Optional[bool]
+    """Optional. If true, it won't call model to summarize function response. Only used for function_response event."""
+
+    state_delta: Optional[dict[str, Any]]
+    """Optional. Indicates that the event is updating the state with the given delta."""
+
+    transfer_agent: Optional[str]
+    """Optional. If set, the event transfers to the specified agent."""
+
+    transfer_to_agent: Optional[bool]
+    """Deprecated. If set, the event transfers to the specified agent."""
+
+
+EventActionsOrDict = Union[EventActions, EventActionsDict]
+
+
+class GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution(_common.BaseModel):
+    """Author attribution for a photo or review."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the author of the Photo or Review.""",
+    )
+    photo_uri: Optional[str] = Field(
+        default=None,
+        description="""Profile photo URI of the author of the Photo or Review.""",
+    )
+    uri: Optional[str] = Field(
+        default=None,
+        description="""URI of the author of the Photo or Review.""",
+    )
+
+
+class GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict(TypedDict, total=False):
+    """Author attribution for a photo or review."""
+
+    display_name: Optional[str]
+    """Name of the author of the Photo or Review."""
+
+    photo_uri: Optional[str]
+    """Profile photo URI of the author of the Photo or Review."""
+
+    uri: Optional[str]
+    """URI of the author of the Photo or Review."""
+
+
+GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionOrDict = Union[
+    GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution,
+    GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict,
+]
+
+
+class GroundingChunkMapsPlaceAnswerSourcesReviewSnippet(_common.BaseModel):
+    """Encapsulates a review snippet."""
+
+    author_attribution: Optional[
+        GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution
+    ] = Field(default=None, description="""This review's author.""")
+    flag_content_uri: Optional[str] = Field(
+        default=None,
+        description="""A link where users can flag a problem with the review.""",
+    )
+    google_maps_uri: Optional[str] = Field(
+        default=None,
+        description="""A link to show the review on Google Maps.""",
+    )
+    relative_publish_time_description: Optional[str] = Field(
+        default=None,
+        description="""A string of formatted recent time, expressing the review time relative to the current time in a form appropriate for the language and country.""",
+    )
+    review: Optional[str] = Field(
+        default=None,
+        description="""A reference representing this place review which may be used to look up this place review again.""",
+    )
+
+
+class GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict(TypedDict, total=False):
+    """Encapsulates a review snippet."""
+
+    author_attribution: Optional[
+        GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict
+    ]
+    """This review's author."""
+
+    flag_content_uri: Optional[str]
+    """A link where users can flag a problem with the review."""
+
+    google_maps_uri: Optional[str]
+    """A link to show the review on Google Maps."""
+
+    relative_publish_time_description: Optional[str]
+    """A string of formatted recent time, expressing the review time relative to the current time in a form appropriate for the language and country."""
+
+    review: Optional[str]
+    """A reference representing this place review which may be used to look up this place review again."""
+
+
+GroundingChunkMapsPlaceAnswerSourcesReviewSnippetOrDict = Union[
+    GroundingChunkMapsPlaceAnswerSourcesReviewSnippet,
+    GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict,
+]
+
+
+class GroundingChunkMapsPlaceAnswerSources(_common.BaseModel):
+    """Sources used to generate the place answer."""
+
+    flag_content_uri: Optional[str] = Field(
+        default=None,
+        description="""A link where users can flag a problem with the generated answer.""",
+    )
+    review_snippets: Optional[
+        list[GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]
+    ] = Field(
+        default=None,
+        description="""Snippets of reviews that are used to generate the answer.""",
+    )
+
+
+class GroundingChunkMapsPlaceAnswerSourcesDict(TypedDict, total=False):
+    """Sources used to generate the place answer."""
+
+    flag_content_uri: Optional[str]
+    """A link where users can flag a problem with the generated answer."""
+
+    review_snippets: Optional[
+        list[GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict]
+    ]
+    """Snippets of reviews that are used to generate the answer."""
+
+
+GroundingChunkMapsPlaceAnswerSourcesOrDict = Union[
+    GroundingChunkMapsPlaceAnswerSources,
+    GroundingChunkMapsPlaceAnswerSourcesDict,
+]
+
+
+class GroundingChunkMaps(_common.BaseModel):
+    """Chunk from Google Maps."""
+
+    place_answer_sources: Optional[GroundingChunkMapsPlaceAnswerSources] = Field(
+        default=None,
+        description="""Sources used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as uris to flag content.""",
+    )
+    place_id: Optional[str] = Field(
+        default=None,
+        description="""This Place's resource name, in `places/{place_id}` format. Can be used to look up the Place.""",
+    )
+    text: Optional[str] = Field(default=None, description="""Text of the chunk.""")
+    title: Optional[str] = Field(default=None, description="""Title of the chunk.""")
+    uri: Optional[str] = Field(
+        default=None, description="""URI reference of the chunk."""
+    )
+
+
+class GroundingChunkMapsDict(TypedDict, total=False):
+    """Chunk from Google Maps."""
+
+    place_answer_sources: Optional[GroundingChunkMapsPlaceAnswerSourcesDict]
+    """Sources used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as uris to flag content."""
+
+    place_id: Optional[str]
+    """This Place's resource name, in `places/{place_id}` format. Can be used to look up the Place."""
+
+    text: Optional[str]
+    """Text of the chunk."""
+
+    title: Optional[str]
+    """Title of the chunk."""
+
+    uri: Optional[str]
+    """URI reference of the chunk."""
+
+
+GroundingChunkMapsOrDict = Union[GroundingChunkMaps, GroundingChunkMapsDict]
+
+
+class RagChunkPageSpan(_common.BaseModel):
+    """Represents where the chunk starts and ends in the document."""
+
+    first_page: Optional[int] = Field(
+        default=None,
+        description="""Page where chunk starts in the document. Inclusive. 1-indexed.""",
+    )
+    last_page: Optional[int] = Field(
+        default=None,
+        description="""Page where chunk ends in the document. Inclusive. 1-indexed.""",
+    )
+
+
+class RagChunkPageSpanDict(TypedDict, total=False):
+    """Represents where the chunk starts and ends in the document."""
+
+    first_page: Optional[int]
+    """Page where chunk starts in the document. Inclusive. 1-indexed."""
+
+    last_page: Optional[int]
+    """Page where chunk ends in the document. Inclusive. 1-indexed."""
+
+
+RagChunkPageSpanOrDict = Union[RagChunkPageSpan, RagChunkPageSpanDict]
+
+
+class RagChunk(_common.BaseModel):
+    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
+
+    page_span: Optional[RagChunkPageSpan] = Field(
+        default=None,
+        description="""If populated, represents where the chunk starts and ends in the document.""",
+    )
+    text: Optional[str] = Field(
+        default=None, description="""The content of the chunk."""
+    )
+
+
+class RagChunkDict(TypedDict, total=False):
+    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
+
+    page_span: Optional[RagChunkPageSpanDict]
+    """If populated, represents where the chunk starts and ends in the document."""
+
+    text: Optional[str]
+    """The content of the chunk."""
+
+
+RagChunkOrDict = Union[RagChunk, RagChunkDict]
+
+
+class GroundingChunkRetrievedContext(_common.BaseModel):
+    """Chunk from context retrieved by the retrieval tools."""
+
+    document_name: Optional[str] = Field(
+        default=None,
+        description="""Output only. The full document name for the referenced Vertex AI Search document.""",
+    )
+    rag_chunk: Optional[RagChunk] = Field(
+        default=None,
+        description="""Additional context for the RAG retrieval result. This is only populated when using the RAG retrieval tool.""",
+    )
+    text: Optional[str] = Field(
+        default=None, description="""Text of the attribution."""
+    )
+    title: Optional[str] = Field(
+        default=None, description="""Title of the attribution."""
+    )
+    uri: Optional[str] = Field(
+        default=None, description="""URI reference of the attribution."""
+    )
+
+
+class GroundingChunkRetrievedContextDict(TypedDict, total=False):
+    """Chunk from context retrieved by the retrieval tools."""
+
+    document_name: Optional[str]
+    """Output only. The full document name for the referenced Vertex AI Search document."""
+
+    rag_chunk: Optional[RagChunkDict]
+    """Additional context for the RAG retrieval result. This is only populated when using the RAG retrieval tool."""
+
+    text: Optional[str]
+    """Text of the attribution."""
+
+    title: Optional[str]
+    """Title of the attribution."""
+
+    uri: Optional[str]
+    """URI reference of the attribution."""
+
+
+GroundingChunkRetrievedContextOrDict = Union[
+    GroundingChunkRetrievedContext, GroundingChunkRetrievedContextDict
+]
+
+
+class GroundingChunkWeb(_common.BaseModel):
+    """Chunk from the web."""
+
+    domain: Optional[str] = Field(
+        default=None, description="""Domain of the (original) URI."""
+    )
+    title: Optional[str] = Field(default=None, description="""Title of the chunk.""")
+    uri: Optional[str] = Field(
+        default=None, description="""URI reference of the chunk."""
+    )
+
+
+class GroundingChunkWebDict(TypedDict, total=False):
+    """Chunk from the web."""
+
+    domain: Optional[str]
+    """Domain of the (original) URI."""
+
+    title: Optional[str]
+    """Title of the chunk."""
+
+    uri: Optional[str]
+    """URI reference of the chunk."""
+
+
+GroundingChunkWebOrDict = Union[GroundingChunkWeb, GroundingChunkWebDict]
+
+
+class GroundingChunk(_common.BaseModel):
+    """Grounding chunk."""
+
+    maps: Optional[GroundingChunkMaps] = Field(
+        default=None, description="""Grounding chunk from Google Maps."""
+    )
+    retrieved_context: Optional[GroundingChunkRetrievedContext] = Field(
+        default=None,
+        description="""Grounding chunk from context retrieved by the retrieval tools.""",
+    )
+    web: Optional[GroundingChunkWeb] = Field(
+        default=None, description="""Grounding chunk from the web."""
+    )
+
+
+class GroundingChunkDict(TypedDict, total=False):
+    """Grounding chunk."""
+
+    maps: Optional[GroundingChunkMapsDict]
+    """Grounding chunk from Google Maps."""
+
+    retrieved_context: Optional[GroundingChunkRetrievedContextDict]
+    """Grounding chunk from context retrieved by the retrieval tools."""
+
+    web: Optional[GroundingChunkWebDict]
+    """Grounding chunk from the web."""
+
+
+GroundingChunkOrDict = Union[GroundingChunk, GroundingChunkDict]
+
+
+class Segment(_common.BaseModel):
+    """Segment of the content."""
+
+    end_index: Optional[int] = Field(
+        default=None,
+        description="""Output only. End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero.""",
+    )
+    part_index: Optional[int] = Field(
+        default=None,
+        description="""Output only. The index of a Part object within its parent Content object.""",
+    )
+    start_index: Optional[int] = Field(
+        default=None,
+        description="""Output only. Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero.""",
+    )
+    text: Optional[str] = Field(
+        default=None,
+        description="""Output only. The text corresponding to the segment from the response.""",
+    )
+
+
+class SegmentDict(TypedDict, total=False):
+    """Segment of the content."""
+
+    end_index: Optional[int]
+    """Output only. End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero."""
+
+    part_index: Optional[int]
+    """Output only. The index of a Part object within its parent Content object."""
+
+    start_index: Optional[int]
+    """Output only. Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero."""
+
+    text: Optional[str]
+    """Output only. The text corresponding to the segment from the response."""
+
+
+SegmentOrDict = Union[Segment, SegmentDict]
+
+
+class GroundingSupport(_common.BaseModel):
+    """Grounding support."""
+
+    confidence_scores: Optional[list[float]] = Field(
+        default=None,
+        description="""Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. For Gemini 2.0 and before, this list must have the same size as the grounding_chunk_indices. For Gemini 2.5 and after, this list will be empty and should be ignored.""",
+    )
+    grounding_chunk_indices: Optional[list[int]] = Field(
+        default=None,
+        description="""A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim.""",
+    )
+    segment: Optional[Segment] = Field(
+        default=None,
+        description="""Segment of the content this support belongs to.""",
+    )
+
+
+class GroundingSupportDict(TypedDict, total=False):
+    """Grounding support."""
+
+    confidence_scores: Optional[list[float]]
+    """Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. For Gemini 2.0 and before, this list must have the same size as the grounding_chunk_indices. For Gemini 2.5 and after, this list will be empty and should be ignored."""
+
+    grounding_chunk_indices: Optional[list[int]]
+    """A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim."""
+
+    segment: Optional[SegmentDict]
+    """Segment of the content this support belongs to."""
+
+
+GroundingSupportOrDict = Union[GroundingSupport, GroundingSupportDict]
+
+
+class RetrievalMetadata(_common.BaseModel):
+    """Metadata related to retrieval in the grounding flow."""
+
+    google_search_dynamic_retrieval_score: Optional[float] = Field(
+        default=None,
+        description="""Optional. Score indicating how likely information from Google Search could help answer the prompt. The score is in the range `[0, 1]`, where 0 is the least likely and 1 is the most likely. This score is only populated when Google Search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger Google Search.""",
+    )
+
+
+class RetrievalMetadataDict(TypedDict, total=False):
+    """Metadata related to retrieval in the grounding flow."""
+
+    google_search_dynamic_retrieval_score: Optional[float]
+    """Optional. Score indicating how likely information from Google Search could help answer the prompt. The score is in the range `[0, 1]`, where 0 is the least likely and 1 is the most likely. This score is only populated when Google Search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger Google Search."""
+
+
+RetrievalMetadataOrDict = Union[RetrievalMetadata, RetrievalMetadataDict]
+
+
+class SearchEntryPoint(_common.BaseModel):
+    """Google search entry point."""
+
+    rendered_content: Optional[str] = Field(
+        default=None,
+        description="""Optional. Web content snippet that can be embedded in a web page or an app webview.""",
+    )
+    sdk_blob: Optional[bytes] = Field(
+        default=None,
+        description="""Optional. Base64 encoded JSON representing array of tuple.""",
+    )
+
+
+class SearchEntryPointDict(TypedDict, total=False):
+    """Google search entry point."""
+
+    rendered_content: Optional[str]
+    """Optional. Web content snippet that can be embedded in a web page or an app webview."""
+
+    sdk_blob: Optional[bytes]
+    """Optional. Base64 encoded JSON representing array of tuple."""
+
+
+SearchEntryPointOrDict = Union[SearchEntryPoint, SearchEntryPointDict]
+
+
+class GroundingMetadata(_common.BaseModel):
+    """Metadata returned to client when grounding is enabled."""
+
+    google_maps_widget_context_token: Optional[str] = Field(
+        default=None,
+        description="""Optional. Output only. Resource name of the Google Maps widget context token to be used with the PlacesContextElement widget to render contextual data. This is populated only for Google Maps grounding.""",
+    )
+    grounding_chunks: Optional[list[GroundingChunk]] = Field(
+        default=None,
+        description="""List of supporting references retrieved from specified grounding source.""",
+    )
+    grounding_supports: Optional[list[GroundingSupport]] = Field(
+        default=None, description="""Optional. List of grounding support."""
+    )
+    retrieval_metadata: Optional[RetrievalMetadata] = Field(
+        default=None,
+        description="""Optional. Output only. Retrieval metadata.""",
+    )
+    retrieval_queries: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Queries executed by the retrieval tools.""",
+    )
+    search_entry_point: Optional[SearchEntryPoint] = Field(
+        default=None,
+        description="""Optional. Google search entry for the following-up web searches.""",
+    )
+    web_search_queries: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Web search queries for the following-up web search.""",
+    )
+
+
+class GroundingMetadataDict(TypedDict, total=False):
+    """Metadata returned to client when grounding is enabled."""
+
+    google_maps_widget_context_token: Optional[str]
+    """Optional. Output only. Resource name of the Google Maps widget context token to be used with the PlacesContextElement widget to render contextual data. This is populated only for Google Maps grounding."""
+
+    grounding_chunks: Optional[list[GroundingChunkDict]]
+    """List of supporting references retrieved from specified grounding source."""
+
+    grounding_supports: Optional[list[GroundingSupportDict]]
+    """Optional. List of grounding support."""
+
+    retrieval_metadata: Optional[RetrievalMetadataDict]
+    """Optional. Output only. Retrieval metadata."""
+
+    retrieval_queries: Optional[list[str]]
+    """Optional. Queries executed by the retrieval tools."""
+
+    search_entry_point: Optional[SearchEntryPointDict]
+    """Optional. Google search entry for the following-up web searches."""
+
+    web_search_queries: Optional[list[str]]
+    """Optional. Web search queries for the following-up web search."""
+
+
+GroundingMetadataOrDict = Union[GroundingMetadata, GroundingMetadataDict]
+
+
+class EventMetadata(_common.BaseModel):
+    """Metadata relating to a LLM response event."""
+
+    branch: Optional[str] = Field(
+        default=None,
+        description="""Optional. The branch of the event. The format is like agent_1.agent_2.agent_3, where agent_1 is the parent of agent_2, and agent_2 is the parent of agent_3. Branch is used when multiple child agents shouldn't see their siblings' conversation history.""",
+    )
+    custom_metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""The custom metadata of the LlmResponse."""
+    )
+    grounding_metadata: Optional[GroundingMetadata] = Field(
+        default=None,
+        description="""Optional. Metadata returned to client when grounding is enabled.""",
+    )
+    interrupted: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Flag indicating that LLM was interrupted when generating the content. Usually it's due to user interruption during a bidi streaming.""",
+    )
+    long_running_tool_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Set of ids of the long running function calls. Agent client will know from this field about which function call is long running. Only valid for function call event.""",
+    )
+    partial: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Indicates whether the text content is part of a unfinished text stream. Only used for streaming mode and when the content is plain text.""",
+    )
+    turn_complete: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Indicates whether the response from the model is complete. Only used for streaming mode.""",
+    )
+
+
+class EventMetadataDict(TypedDict, total=False):
+    """Metadata relating to a LLM response event."""
+
+    branch: Optional[str]
+    """Optional. The branch of the event. The format is like agent_1.agent_2.agent_3, where agent_1 is the parent of agent_2, and agent_2 is the parent of agent_3. Branch is used when multiple child agents shouldn't see their siblings' conversation history."""
+
+    custom_metadata: Optional[dict[str, Any]]
+    """The custom metadata of the LlmResponse."""
+
+    grounding_metadata: Optional[GroundingMetadataDict]
+    """Optional. Metadata returned to client when grounding is enabled."""
+
+    interrupted: Optional[bool]
+    """Optional. Flag indicating that LLM was interrupted when generating the content. Usually it's due to user interruption during a bidi streaming."""
+
+    long_running_tool_ids: Optional[list[str]]
+    """Optional. Set of ids of the long running function calls. Agent client will know from this field about which function call is long running. Only valid for function call event."""
+
+    partial: Optional[bool]
+    """Optional. Indicates whether the text content is part of a unfinished text stream. Only used for streaming mode and when the content is plain text."""
+
+    turn_complete: Optional[bool]
+    """Optional. Indicates whether the response from the model is complete. Only used for streaming mode."""
+
+
+EventMetadataOrDict = Union[EventMetadata, EventMetadataDict]
+
+
+class AppendAgentEngineSessionEventConfig(_common.BaseModel):
+    """Config for appending agent engine session event."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    content: Optional[Content] = Field(
+        default=None, description="""The content of the session event."""
+    )
+    actions: Optional[EventActions] = Field(
+        default=None,
+        description="""Actions are parts of events that are related to the session event.""",
+    )
+    error_code: Optional[str] = Field(
+        default=None, description="""The error code of the session event."""
+    )
+    error_message: Optional[str] = Field(
+        default=None, description="""The error message of the session event."""
+    )
+    event_metadata: Optional[EventMetadata] = Field(
+        default=None, description="""Metadata relating to the session event."""
+    )
+
+
+class AppendAgentEngineSessionEventConfigDict(TypedDict, total=False):
+    """Config for appending agent engine session event."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    content: Optional[ContentDict]
+    """The content of the session event."""
+
+    actions: Optional[EventActionsDict]
+    """Actions are parts of events that are related to the session event."""
+
+    error_code: Optional[str]
+    """The error code of the session event."""
+
+    error_message: Optional[str]
+    """The error message of the session event."""
+
+    event_metadata: Optional[EventMetadataDict]
+    """Metadata relating to the session event."""
+
+
+AppendAgentEngineSessionEventConfigOrDict = Union[
+    AppendAgentEngineSessionEventConfig, AppendAgentEngineSessionEventConfigDict
+]
+
+
+class _AppendAgentEngineSessionEventRequestParameters(_common.BaseModel):
+    """Parameters for appending agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine session."""
+    )
+    author: Optional[str] = Field(
+        default=None,
+        description="""Author of the agent engine session event.""",
+    )
+    invocation_id: Optional[str] = Field(
+        default=None, description="""Invocation ID of the agent engine."""
+    )
+    timestamp: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Timestamp indicating when the event was created.""",
+    )
+    config: Optional[AppendAgentEngineSessionEventConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _AppendAgentEngineSessionEventRequestParametersDict(TypedDict, total=False):
+    """Parameters for appending agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine session."""
+
+    author: Optional[str]
+    """Author of the agent engine session event."""
+
+    invocation_id: Optional[str]
+    """Invocation ID of the agent engine."""
+
+    timestamp: Optional[datetime.datetime]
+    """Timestamp indicating when the event was created."""
+
+    config: Optional[AppendAgentEngineSessionEventConfigDict]
+    """"""
+
+
+_AppendAgentEngineSessionEventRequestParametersOrDict = Union[
+    _AppendAgentEngineSessionEventRequestParameters,
+    _AppendAgentEngineSessionEventRequestParametersDict,
+]
+
+
+class AppendAgentEngineSessionEventResponse(_common.BaseModel):
+    """Response for appending agent engine session event."""
+
+    pass
+
+
+class AppendAgentEngineSessionEventResponseDict(TypedDict, total=False):
+    """Response for appending agent engine session event."""
+
+    pass
+
+
+AppendAgentEngineSessionEventResponseOrDict = Union[
+    AppendAgentEngineSessionEventResponse,
+    AppendAgentEngineSessionEventResponseDict,
 ]
 
 
@@ -5232,6 +5960,175 @@ class ListReasoningEnginesMemoriesResponseDict(TypedDict, total=False):
 ListReasoningEnginesMemoriesResponseOrDict = Union[
     ListReasoningEnginesMemoriesResponse,
     ListReasoningEnginesMemoriesResponseDict,
+]
+
+
+class ListAgentEngineSessionEventsConfig(_common.BaseModel):
+    """Config for listing agent engine session events."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListAgentEngineSessionEventsConfigDict(TypedDict, total=False):
+    """Config for listing agent engine session events."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListAgentEngineSessionEventsConfigOrDict = Union[
+    ListAgentEngineSessionEventsConfig, ListAgentEngineSessionEventsConfigDict
+]
+
+
+class _ListAgentEngineSessionEventsRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine session."""
+    )
+    config: Optional[ListAgentEngineSessionEventsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineSessionEventsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine session."""
+
+    config: Optional[ListAgentEngineSessionEventsConfigDict]
+    """"""
+
+
+_ListAgentEngineSessionEventsRequestParametersOrDict = Union[
+    _ListAgentEngineSessionEventsRequestParameters,
+    _ListAgentEngineSessionEventsRequestParametersDict,
+]
+
+
+class SessionEvent(_common.BaseModel):
+    """A session event."""
+
+    actions: Optional[EventActions] = Field(
+        default=None, description="""Optional. Actions executed by the agent."""
+    )
+    author: Optional[str] = Field(
+        default=None,
+        description="""Required. The name of the agent that sent the event, or user.""",
+    )
+    content: Optional[Content] = Field(
+        default=None,
+        description="""Optional. Content of the event provided by the author.""",
+    )
+    error_code: Optional[str] = Field(
+        default=None,
+        description="""Optional. Error code if the response is an error. Code varies by model.""",
+    )
+    error_message: Optional[str] = Field(
+        default=None,
+        description="""Optional. Error message if the response is an error.""",
+    )
+    event_metadata: Optional[EventMetadata] = Field(
+        default=None,
+        description="""Optional. Metadata relating to this event.""",
+    )
+    invocation_id: Optional[str] = Field(
+        default=None,
+        description="""Required. The invocation id of the event, multiple events can have the same invocation id.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the event. Format:`projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}`.""",
+    )
+    timestamp: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Required. Timestamp when the event was created on client side.""",
+    )
+
+
+class SessionEventDict(TypedDict, total=False):
+    """A session event."""
+
+    actions: Optional[EventActionsDict]
+    """Optional. Actions executed by the agent."""
+
+    author: Optional[str]
+    """Required. The name of the agent that sent the event, or user."""
+
+    content: Optional[ContentDict]
+    """Optional. Content of the event provided by the author."""
+
+    error_code: Optional[str]
+    """Optional. Error code if the response is an error. Code varies by model."""
+
+    error_message: Optional[str]
+    """Optional. Error message if the response is an error."""
+
+    event_metadata: Optional[EventMetadataDict]
+    """Optional. Metadata relating to this event."""
+
+    invocation_id: Optional[str]
+    """Required. The invocation id of the event, multiple events can have the same invocation id."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the event. Format:`projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}`."""
+
+    timestamp: Optional[datetime.datetime]
+    """Required. Timestamp when the event was created on client side."""
+
+
+SessionEventOrDict = Union[SessionEvent, SessionEventDict]
+
+
+class ListAgentEngineSessionEventsResponse(_common.BaseModel):
+    """Response for listing agent engine session events."""
+
+    sdk_http_response: Optional[HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    session_events: Optional[list[SessionEvent]] = Field(
+        default=None, description="""List of session events."""
+    )
+
+
+class ListAgentEngineSessionEventsResponseDict(TypedDict, total=False):
+    """Response for listing agent engine session events."""
+
+    sdk_http_response: Optional[HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    session_events: Optional[list[SessionEventDict]]
+    """List of session events."""
+
+
+ListAgentEngineSessionEventsResponseOrDict = Union[
+    ListAgentEngineSessionEventsResponse,
+    ListAgentEngineSessionEventsResponseDict,
 ]
 
 
