@@ -302,6 +302,17 @@ def _override_active_span_processor(
     tracer_provider._active_span_processor = active_span_processor
 
 
+def _validate_run_config(run_config: Optional[Dict[str, Any]]):
+    """Validates the run config."""
+    from google.adk.agents.run_config import RunConfig
+
+    if run_config is None:
+        return None
+    elif isinstance(run_config, Dict):
+        return RunConfig.model_validate(run_config)
+    raise TypeError("run_config must be a dictionary representing a RunConfig object.")
+
+
 class AdkApp:
     """An ADK Application."""
 
@@ -546,6 +557,7 @@ class AdkApp:
         message: Union[str, Dict[str, Any]],
         user_id: str,
         session_id: Optional[str] = None,
+        run_config: Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
         """Streams responses from the ADK application in response to a message.
@@ -558,6 +570,10 @@ class AdkApp:
             session_id (str):
                 Optional. The ID of the session. If not provided, a new
                 session will be created for the user.
+            run_config (Optional[Dict[str, Any]]):
+                Optional. The run config to use for the query. If you want to
+                pass in a `run_config` pydantic object, you can pass in a dict
+                representing it as `run_config.model_dump(mode="json")`.
             **kwargs (dict[str, Any]):
                 Optional. Additional keyword arguments to pass to the
                 runner.
@@ -583,10 +599,24 @@ class AdkApp:
         if not session_id:
             session = self.create_session(user_id=user_id)
             session_id = session.id
-        for event in self._tmpl_attrs.get("runner").run(
-            user_id=user_id, session_id=session_id, new_message=content, **kwargs
-        ):
-            yield _utils.dump_event_for_json(event)
+        run_config = _validate_run_config(run_config)
+        if run_config:
+            for event in self._tmpl_attrs.get("runner").run(
+                user_id=user_id,
+                session_id=session_id,
+                new_message=content,
+                run_config=run_config,
+                **kwargs,
+            ):
+                yield _utils.dump_event_for_json(event)
+        else:
+            for event in self._tmpl_attrs.get("runner").run(
+                user_id=user_id,
+                session_id=session_id,
+                new_message=content,
+                **kwargs,
+            ):
+                yield _utils.dump_event_for_json(event)
 
     async def async_stream_query(
         self,
@@ -594,6 +624,7 @@ class AdkApp:
         message: Union[str, Dict[str, Any]],
         user_id: str,
         session_id: Optional[str] = None,
+        run_config: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> AsyncIterable[Dict[str, Any]]:
         """Streams responses asynchronously from the ADK application.
@@ -606,6 +637,10 @@ class AdkApp:
             session_id (str):
                 Optional. The ID of the session. If not provided, a new
                 session will be created for the user.
+            run_config (Optional[Dict[str, Any]]):
+                Optional. The run config to use for the query. If you want to
+                pass in a `run_config` pydantic object, you can pass in a dict
+                representing it as `run_config.model_dump(mode="json")`.
             **kwargs (dict[str, Any]):
                 Optional. Additional keyword arguments to pass to the
                 runner.
@@ -632,9 +667,22 @@ class AdkApp:
             session = await self.async_create_session(user_id=user_id)
             session_id = session.id
 
-        events_async = self._tmpl_attrs.get("runner").run_async(
-            user_id=user_id, session_id=session_id, new_message=content, **kwargs
-        )
+        run_config = _validate_run_config(run_config)
+        if run_config:
+            events_async = self._tmpl_attrs.get("runner").run_async(
+                user_id=user_id,
+                session_id=session_id,
+                new_message=content,
+                run_config=run_config,
+                **kwargs,
+            )
+        else:
+            events_async = self._tmpl_attrs.get("runner").run_async(
+                user_id=user_id,
+                session_id=session_id,
+                new_message=content,
+                **kwargs,
+            )
 
         async for event in events_async:
             # Yield the event data as a dictionary

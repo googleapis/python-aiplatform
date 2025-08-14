@@ -40,7 +40,37 @@ except ImportError:
 
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
-_TEST_MODEL = "gemini-1.0-pro"
+_TEST_MODEL = "gemini-2.0-flash"
+_TEST_USER_ID = "test_user_id"
+_TEST_AGENT_NAME = "test_agent"
+_TEST_SESSION = {
+    "id": "ca18c25a-644b-4e13-9b24-78c150ec3eb9",
+    "app_name": "default-app-name",
+    "user_id": _TEST_USER_ID,
+    "events": [
+        {
+            "author": "user",
+            "content": {
+                "parts": [{"text": "My cat's name is Garfield"}],
+                "role": "user",
+            },
+        },
+        {
+            "author": "my_personal_agent",
+            "content": {
+                "parts": [{"text": "Okay, good to know!"}],
+                "role": "model",
+            },
+        },
+    ],
+}
+_TEST_SEARCH_MEMORY_QUERY = "What is my cat's name"
+_TEST_RUN_CONFIG = {
+    "save_input_blobs_as_artifacts": False,
+    "support_cfc": False,
+    "streaming_mode": "sse",
+    "max_llm_calls": 500,
+}
 
 
 @pytest.fixture(scope="module")
@@ -166,7 +196,7 @@ class TestAdkApp:
                 ),
             ):
                 reasoning_engines.AdkApp(
-                    agent=Agent(name="test_agent", model=_TEST_MODEL)
+                    agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
                 )
 
     def setup_method(self):
@@ -179,7 +209,7 @@ class TestAdkApp:
 
     def test_initialization(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL),
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
         )
         assert app._tmpl_attrs.get("project") == _TEST_PROJECT
         assert app._tmpl_attrs.get("location") == _TEST_LOCATION
@@ -187,7 +217,7 @@ class TestAdkApp:
 
     def test_set_up(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL),
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
         )
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
@@ -195,7 +225,7 @@ class TestAdkApp:
 
     def test_clone(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL),
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
         )
         app.set_up()
         assert app._tmpl_attrs.get("runner") is not None
@@ -207,7 +237,7 @@ class TestAdkApp:
 
     def test_register_operations(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL),
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
         )
         for operations in app.register_operations().values():
             for operation in operations:
@@ -215,14 +245,14 @@ class TestAdkApp:
 
     def test_stream_query(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
         app._tmpl_attrs["runner"] = _MockRunner()
         events = list(
             app.stream_query(
-                user_id="test_user_id",
+                user_id=_TEST_USER_ID,
                 message="test message",
             )
         )
@@ -230,14 +260,14 @@ class TestAdkApp:
 
     def test_stream_query_with_content(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
         app._tmpl_attrs["runner"] = _MockRunner()
         events = list(
             app.stream_query(
-                user_id="test_user_id",
+                user_id=_TEST_USER_ID,
                 message=types.Content(
                     role="user",
                     parts=[
@@ -253,14 +283,14 @@ class TestAdkApp:
     @pytest.mark.asyncio
     async def test_async_stream_query(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
         app._tmpl_attrs["runner"] = _MockRunner()
         events = []
         async for event in app.async_stream_query(
-            user_id="test_user_id",
+            user_id=_TEST_USER_ID,
             message="test message",
         ):
             events.append(event)
@@ -269,14 +299,14 @@ class TestAdkApp:
     @pytest.mark.asyncio
     async def test_async_stream_query_with_content(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
         app._tmpl_attrs["runner"] = _MockRunner()
         events = []
         async for event in app.async_stream_query(
-            user_id="test_user_id",
+            user_id=_TEST_USER_ID,
             message=types.Content(
                 role="user",
                 parts=[
@@ -291,7 +321,7 @@ class TestAdkApp:
 
     def test_streaming_agent_run_with_events(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         app.set_up()
         app._tmpl_attrs["in_memory_runner"] = _MockRunner()
@@ -307,7 +337,7 @@ class TestAdkApp:
                     "test_user_id1": {"access_token": "test_access_token"},
                     "test_user_id2": {"accessToken": "test-access-token"},
                 },
-                "user_id": "test_user_id",
+                "user_id": _TEST_USER_ID,
                 "message": {
                     "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
                     "role": "user",
@@ -319,153 +349,114 @@ class TestAdkApp:
 
     def test_create_session(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
-        session1 = app.create_session(user_id="test_user_id")
-        assert session1.user_id == "test_user_id"
+        session1 = app.create_session(user_id=_TEST_USER_ID)
+        assert session1.user_id == _TEST_USER_ID
         session2 = app.create_session(
-            user_id="test_user_id", session_id="test_session_id"
+            user_id=_TEST_USER_ID, session_id="test_session_id"
         )
-        assert session2.user_id == "test_user_id"
+        assert session2.user_id == _TEST_USER_ID
         assert session2.id == "test_session_id"
 
     def test_get_session(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
-        session1 = app.create_session(user_id="test_user_id")
+        session1 = app.create_session(user_id=_TEST_USER_ID)
         session2 = app.get_session(
-            user_id="test_user_id",
+            user_id=_TEST_USER_ID,
             session_id=session1.id,
         )
-        assert session2.user_id == "test_user_id"
+        assert session2.user_id == _TEST_USER_ID
         assert session1.id == session2.id
 
     def test_list_sessions(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
-        response0 = app.list_sessions(user_id="test_user_id")
+        response0 = app.list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
-        session = app.create_session(user_id="test_user_id")
-        response1 = app.list_sessions(user_id="test_user_id")
+        session = app.create_session(user_id=_TEST_USER_ID)
+        response1 = app.list_sessions(user_id=_TEST_USER_ID)
         assert len(response1.sessions) == 1
         assert response1.sessions[0].id == session.id
-        session2 = app.create_session(user_id="test_user_id")
-        response2 = app.list_sessions(user_id="test_user_id")
+        session2 = app.create_session(user_id=_TEST_USER_ID)
+        response2 = app.list_sessions(user_id=_TEST_USER_ID)
         assert len(response2.sessions) == 2
         assert response2.sessions[0].id == session.id
         assert response2.sessions[1].id == session2.id
 
     def test_delete_session(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
-        response = app.delete_session(user_id="test_user_id", session_id="")
+        response = app.delete_session(user_id=_TEST_USER_ID, session_id="")
         assert not response
-        session = app.create_session(user_id="test_user_id")
-        response1 = app.list_sessions(user_id="test_user_id")
+        session = app.create_session(user_id=_TEST_USER_ID)
+        response1 = app.list_sessions(user_id=_TEST_USER_ID)
         assert len(response1.sessions) == 1
-        app.delete_session(user_id="test_user_id", session_id=session.id)
-        response0 = app.list_sessions(user_id="test_user_id")
+        app.delete_session(user_id=_TEST_USER_ID, session_id=session.id)
+        response0 = app.list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
 
     @pytest.mark.asyncio
     async def test_async_add_session_to_memory(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         assert app._tmpl_attrs.get("memory_service") is None
-        session = app.create_session(user_id="test_user_id")
+        session = app.create_session(user_id=_TEST_USER_ID)
         list(
             app.stream_query(
-                user_id="test_user_id",
+                user_id=_TEST_USER_ID,
                 session_id=session.id,
                 message="My cat's name is Garfield",
             )
         )
         await app.async_add_session_to_memory(
             session=app.get_session(
-                user_id="test_user_id",
+                user_id=_TEST_USER_ID,
                 session_id=session.id,
             )
         )
         response = await app.async_search_memory(
-            user_id="test_user_id",
-            query="What is my cat's name",
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
         )
         assert len(response.memories) >= 1
 
     @pytest.mark.asyncio
     async def test_async_add_session_to_memory_dict(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
-        )
-        await app.async_add_session_to_memory(
-            session={
-                "id": "ca18c25a-644b-4e13-9b24-78c150ec3eb9",
-                "app_name": "default-app-name",
-                "user_id": "test_user_id",
-                "events": [
-                    {
-                        "author": "user",
-                        "content": {
-                            "parts": [{"text": "My cat's name is Garfield"}],
-                            "role": "user",
-                        },
-                    },
-                    {
-                        "author": "my_personal_agent",
-                        "content": {
-                            "parts": [{"text": "Okay, good to know!"}],
-                            "role": "model",
-                        },
-                    },
-                ],
-            },
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         response = await app.async_search_memory(
-            user_id="test_user_id",
-            query="What is my cat's name",
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
+        )
+        assert not response.memories
+        await app.async_add_session_to_memory(session=_TEST_SESSION)
+        response = await app.async_search_memory(
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
         )
         assert len(response.memories) >= 1
 
     @pytest.mark.asyncio
     async def test_async_search_memory(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         response = await app.async_search_memory(
-            user_id="test_user_id",
-            query="What is my cat's name",
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
         )
         assert not response.memories
-        await app.async_add_session_to_memory(
-            session={
-                "id": "ca18c25a-644b-4e13-9b24-78c150ec3eb9",
-                "app_name": "default-app-name",
-                "user_id": "test_user_id",
-                "events": [
-                    {
-                        "author": "user",
-                        "content": {
-                            "parts": [{"text": "My cat's name is Garfield"}],
-                            "role": "user",
-                        },
-                    },
-                    {
-                        "author": "my_personal_agent",
-                        "content": {
-                            "parts": [{"text": "Okay, good to know!"}],
-                            "role": "model",
-                        },
-                    },
-                ],
-            },
-        )
+        await app.async_add_session_to_memory(session=_TEST_SESSION)
         response = await app.async_search_memory(
-            user_id="test_user_id",
-            query="What is my cat's name",
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
         )
         assert len(response.memories) >= 1
 
@@ -478,7 +469,7 @@ class TestAdkApp:
         simple_span_processor_mock,
     ):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL),
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
             enable_tracing=True,
         )
         assert app._tmpl_attrs.get("instrumentor") is None
@@ -493,7 +484,7 @@ class TestAdkApp:
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing_warning(self, caplog):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL),
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
             enable_tracing=True,
         )
         assert app._tmpl_attrs.get("instrumentor") is None
@@ -509,7 +500,7 @@ def test_dump_event_for_json():
     # Create an event with both a ThoughtPart and a FunctionCallPart
     test_event = event.Event(
         **{
-            "author": "test_agent",
+            "author": _TEST_AGENT_NAME,
             "content": {
                 "parts": [
                     {
@@ -541,7 +532,7 @@ class TestAdkAppErrors:
             match=r"Session not found. Please create it using .create_session()",
         ):
             app = reasoning_engines.AdkApp(
-                agent=Agent(name="test_agent", model=_TEST_MODEL),
+                agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
             )
             app.get_session(
                 user_id="non_existent_user",
@@ -550,22 +541,22 @@ class TestAdkAppErrors:
 
     def test_stream_query_invalid_message_type(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         with pytest.raises(
             TypeError,
             match="message must be a string or a dictionary representing a Content object.",
         ):
-            list(app.stream_query(user_id="test_user_id", message=123))
+            list(app.stream_query(user_id=_TEST_USER_ID, message=123))
 
     @pytest.mark.asyncio
     async def test_async_stream_query_invalid_message_type(self):
         app = reasoning_engines.AdkApp(
-            agent=Agent(name="test_agent", model=_TEST_MODEL)
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         with pytest.raises(
             TypeError,
             match="message must be a string or a dictionary representing a Content object.",
         ):
-            async for _ in app.async_stream_query(user_id="test_user_id", message=123):
+            async for _ in app.async_stream_query(user_id=_TEST_USER_ID, message=123):
                 pass
