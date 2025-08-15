@@ -3931,9 +3931,6 @@ class AgentEngines(_api_module.BaseModule):
         direct_contents_source: Optional[
             types.GenerateMemoriesRequestDirectContentsSourceOrDict
         ] = None,
-        direct_memories_source: Optional[
-            types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
-        ] = None,
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEngineGenerateMemoriesOperation:
@@ -3944,19 +3941,12 @@ class AgentEngines(_api_module.BaseModule):
               memories for.
             vertex_session_source (GenerateMemoriesRequestVertexSessionSource):
               Optional. The vertex session source to use for generating
-              memories. Only one of vertex_session_source,
-              direct_contents_source, or direct_memories_source can be
-              specified.
-            direct_contents_source(GenerateMemoriesRequestDirectContentsSource):
-              Optional. The direct contents source to use for generating
-              memories. Only one of vertex_session_source,
-              direct_contents_source, or direct_memories_source can be
-              specified.
-            direct_memories_source (GenerateMemoriesRequestDirectMemoriesSource):
-              Optional. The direct memories source to use for generating
-              memories. Only one of vertex_session_source,
-              direct_contents_source, or direct_memories_source can be
-              specified.
+              memories. Either vertex_session_source or direct_contents_source
+              must be specified, but not both. direct_contents_source
+              (GenerateMemoriesRequestDirectContentsSource): Optional. The
+              direct contents source to use for generating memories. Either
+              vertex_session_source or direct_contents_source must be specified,
+              but not both.
             scope (dict[str, str]): Optional. The scope of the memories to
               generate. This is optional if vertex_session_source is used,
               otherwise it must be specified.
@@ -3971,7 +3961,6 @@ class AgentEngines(_api_module.BaseModule):
             name=name,
             vertex_session_source=vertex_session_source,
             direct_contents_source=direct_contents_source,
-            direct_memories_source=direct_memories_source,
             scope=scope,
             config=config,
         )
