@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.110.0](https://github.com/googleapis/python-aiplatform/compare/v1.109.0...v1.110.0) (2025-08-15)
+
+
+### Features
+
+* Add `run_config` parameter to AdkApp query methods ([e3b9a76](https://github.com/googleapis/python-aiplatform/commit/e3b9a761eed1816363f9b441fd854d89e1d2aefe))
+* Add DirectMemoriesSource to SDK ([cebad9a](https://github.com/googleapis/python-aiplatform/commit/cebad9a4fde16fcb13f670848b3a333c330069f5))
+* GenAI SDK client - Agent Engine Session Events SDK ([69d87e2](https://github.com/googleapis/python-aiplatform/commit/69d87e29f2935e69dab8c9d1820c35c4193225d5))
+* RAG - Add support for timeout in upload_file request ([bc7e2e9](https://github.com/googleapis/python-aiplatform/commit/bc7e2e9038a8e16981eaa69a9bbb65e30f09a77c))
+* Support for runtime controls and PSC-I in Agent Engine. ([ec11bd3](https://github.com/googleapis/python-aiplatform/commit/ec11bd3ce9e8625320e79d5df4b7d4681608650f))
+
 ## [1.109.0](https://github.com/googleapis/python-aiplatform/compare/v1.108.0...v1.109.0) (2025-08-13)
 
 
