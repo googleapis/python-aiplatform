@@ -167,6 +167,7 @@ class Client:
         self._evals = None
         self._prompt_optimizer = None
         self._agent_engines = None
+        self._prompt_management = None
 
     @property
     def evals(self) -> Any:
@@ -247,3 +248,17 @@ class Client:
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
         return self._agent_engines.AgentEngines(self._api_client)
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI prompt management module is experimental, "
+        "and may change in future versions."
+    )
+    def prompt_management(self):
+        if self._prompt_management is None:
+            # Lazy loading the prompt_management module
+            self._prompt_management = importlib.import_module(
+                ".prompt_management",
+                __package__,
+            )
+        return self._prompt_management.PromptManagement(self._api_client)
