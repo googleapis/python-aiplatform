@@ -589,6 +589,23 @@ _TEST_INSTALLATION_SUBDIR = _utils._INSTALLATION_SUBDIR
 _TEST_INSTALLATION_SCRIPT_PATH = f"{_TEST_INSTALLATION_SUBDIR}/install_package.sh"
 
 _TEST_CUSTOM_SERVICE_ACCOUNT = "test-custom-service-account"
+_TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG = {
+    "network_attachment": "test-network-attachment",
+    "dns_peering_configs": [
+        {
+            "domain": "test-domain",
+            "target_project": "test-target-project",
+            "target_network": "test-target-network",
+        }
+    ],
+}
+_TEST_AGENT_ENGINE_MIN_INSTANCES = 2
+_TEST_AGENT_ENGINE_MAX_INSTANCES = 4
+_TEST_AGENT_ENGINE_RESOURCE_LIMITS = {
+    "cpu": "2",
+    "memory": "4Gi",
+}
+_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY = 4
 
 
 def _create_empty_fake_package(package_name: str) -> str:
@@ -1229,6 +1246,196 @@ class TestAgentEngine:
             retry=_TEST_RETRY,
         )
 
+    def test_create_agent_engine_with_psc_interface_config(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            psc_interface_config=_TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                psc_interface_config=_TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
+            ),
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
+    def test_create_agent_engine_with_resource_limits(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            resource_limits=_TEST_AGENT_ENGINE_RESOURCE_LIMITS,
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                resource_limits=_TEST_AGENT_ENGINE_RESOURCE_LIMITS,
+            ),
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
+    def test_create_agent_engine_with_min_instances(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            min_instances=_TEST_AGENT_ENGINE_MIN_INSTANCES,
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                min_instances=_TEST_AGENT_ENGINE_MIN_INSTANCES,
+            ),
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
+    def test_create_agent_engine_with_max_instances(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            max_instances=_TEST_AGENT_ENGINE_MAX_INSTANCES,
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                max_instances=_TEST_AGENT_ENGINE_MAX_INSTANCES,
+            ),
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
+    def test_create_agent_engine_with_container_concurrency(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            container_concurrency=_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                container_concurrency=_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
+            ),
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
     @pytest.mark.parametrize(
         "test_case_name, test_engine_instance, expected_framework",
         [
@@ -1505,6 +1712,101 @@ class TestAgentEngine:
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.service_account",
+                        ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with psc_interface_config attribute",
+                {"psc_interface_config": _TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                                psc_interface_config=_TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
+                            ),
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.deployment_spec.psc_interface_config",
+                        ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with min_instances attribute",
+                {"min_instances": _TEST_AGENT_ENGINE_MIN_INSTANCES},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                                min_instances=_TEST_AGENT_ENGINE_MIN_INSTANCES,
+                            ),
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.deployment_spec.min_instances",
+                        ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with max_instances attribute",
+                {"max_instances": _TEST_AGENT_ENGINE_MAX_INSTANCES},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                                max_instances=_TEST_AGENT_ENGINE_MAX_INSTANCES,
+                            ),
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.deployment_spec.max_instances",
+                        ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with resource_limits attribute",
+                {"resource_limits": _TEST_AGENT_ENGINE_RESOURCE_LIMITS},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                                resource_limits=_TEST_AGENT_ENGINE_RESOURCE_LIMITS,
+                            ),
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.deployment_spec.resource_limits",
+                        ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with container_concurrency attribute",
+                {"container_concurrency": _TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                                container_concurrency=_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
+                            ),
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.deployment_spec.container_concurrency",
                         ],
                     ),
                 ),
@@ -2889,7 +3191,10 @@ class TestAgentEngineErrors:
             match=(
                 "At least one of `agent_engine`, `requirements`, "
                 "`extra_packages`, `display_name`, `description`, "
-                "`env_vars`, or `build_options` must be specified."
+                "`env_vars`, `build_options`, `service_account`, "
+                "`psc_interface_config`, `min_instances`, `max_instances`, "
+                "`resource_limits`, or `container_concurrency` "
+                "must be specified."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()

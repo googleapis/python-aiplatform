@@ -73,6 +73,11 @@ def create(
     ] = None,
     build_options: Optional[Dict[str, Sequence[str]]] = None,
     service_account: Optional[str] = None,
+    psc_interface_config: Optional[aip_types.PscInterfaceConfig] = None,
+    min_instances: Optional[int] = None,
+    max_instances: Optional[int] = None,
+    resource_limits: Optional[Dict[str, str]] = None,
+    container_concurrency: Optional[int] = None,
 ) -> AgentEngine:
     """Creates a new Agent Engine.
 
@@ -150,6 +155,21 @@ def create(
             Optional. The service account to be used for the Agent Engine. If
             not specified, the default reasoning engine service agent service
             account will be used.
+        psc_interface_config (PscInterfaceConfig):
+            Optional. The PSC interface config for the Agent Engine. If not
+            specified, the default PSC interface config will be used.
+        min_instances (int):
+            Optional. The minimum number of instances to run the Agent Engine.
+            If not specified, the default value will be used.
+        max_instances (int):
+            Optional. The maximum number of instances to run the Agent Engine.
+            If not specified, the default value will be used.
+        resource_limits (Dict[str, str]):
+            Optional. The resource limits for the Agent Engine. If not
+            specified, the default value will be used.
+        container_concurrency (int):
+            Optional. The container concurrency for the Agent Engine. If not
+            specified, the default value will be used.
 
     Returns:
         AgentEngine: The Agent Engine that was created.
@@ -174,6 +194,11 @@ def create(
         env_vars=env_vars,
         build_options=build_options,
         service_account=service_account,
+        psc_interface_config=psc_interface_config,
+        min_instances=min_instances,
+        max_instances=max_instances,
+        resource_limits=resource_limits,
+        container_concurrency=container_concurrency,
     )
 
 
@@ -260,6 +285,11 @@ def update(
     ] = None,
     build_options: Optional[Dict[str, Sequence[str]]] = None,
     service_account: Optional[str] = None,
+    psc_interface_config: Optional[aip_types.PscInterfaceConfig] = None,
+    min_instances: Optional[int] = None,
+    max_instances: Optional[int] = None,
+    resource_limits: Optional[Dict[str, str]] = None,
+    container_concurrency: Optional[int] = None,
 ) -> "AgentEngine":
     """Updates an existing Agent Engine.
 
@@ -310,6 +340,18 @@ def update(
             Optional. The service account to be used for the Agent Engine. If
             not specified, the default reasoning engine service agent service
             account will be used.
+        min_instances (int):
+            Optional. The minimum number of instances to run the Agent Engine.
+            If not specified, the default value will be used.
+        max_instances (int):
+            Optional. The maximum number of instances to run the Agent Engine.
+            If not specified, the default value will be used.
+        resource_limits (Dict[str, str]):
+            Optional. The resource limits for the Agent Engine. If not
+            specified, the default value will be used.
+        container_concurrency (int):
+            Optional. The container concurrency for the Agent Engine. If not
+            specified, the default value will be used.
 
     Returns:
         AgentEngine: The Agent Engine that was updated.
@@ -336,6 +378,11 @@ def update(
         env_vars=env_vars,
         build_options=build_options,
         service_account=service_account,
+        psc_interface_config=psc_interface_config,
+        min_instances=min_instances,
+        max_instances=max_instances,
+        resource_limits=resource_limits,
+        container_concurrency=container_concurrency,
     )
 
 
