@@ -342,6 +342,7 @@ def upload_file(
     display_name: Optional[str] = None,
     description: Optional[str] = None,
     transformation_config: Optional[TransformationConfig] = None,
+    timeout: int = 600,
 ) -> RagFile:
     """
     Synchronous file upload to an existing RagCorpus.
@@ -379,6 +380,7 @@ def upload_file(
         display_name: The display name of the data file.
         description: The description of the RagFile.
         transformation_config: The config for transforming the RagFile, like chunking.
+        timeout: Default is 600 seconds.
 
     Returns:
         RagFile.
@@ -433,6 +435,7 @@ def upload_file(
             url=upload_request_uri,
             files=files,
             headers=headers,
+            timeout=timeout,
         )
     except Exception as e:
         raise RuntimeError("Failed in uploading the RagFile due to: ", e) from e
