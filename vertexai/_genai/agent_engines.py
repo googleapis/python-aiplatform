@@ -607,6 +607,21 @@ def _GenerateMemoriesRequestDirectContentsSource_to_vertex(
     return to_object
 
 
+def _GenerateMemoriesRequestDirectMemoriesSource_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["direct_memories"]) is not None:
+        setv(
+            to_object,
+            ["directMemories"],
+            getv(from_object, ["direct_memories"]),
+        )
+
+    return to_object
+
+
 def _GenerateAgentEngineMemoriesConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -646,6 +661,15 @@ def _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
             ["directContentsSource"],
             _GenerateMemoriesRequestDirectContentsSource_to_vertex(
                 getv(from_object, ["direct_contents_source"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["direct_memories_source"]) is not None:
+        setv(
+            to_object,
+            ["directMemoriesSource"],
+            _GenerateMemoriesRequestDirectMemoriesSource_to_vertex(
+                getv(from_object, ["direct_memories_source"]), to_object
             ),
         )
 
@@ -2196,6 +2220,9 @@ class AgentEngines(_api_module.BaseModule):
         direct_contents_source: Optional[
             types.GenerateMemoriesRequestDirectContentsSourceOrDict
         ] = None,
+        direct_memories_source: Optional[
+            types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
+        ] = None,
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEngineGenerateMemoriesOperation:
@@ -2205,6 +2232,7 @@ class AgentEngines(_api_module.BaseModule):
             name=name,
             vertex_session_source=vertex_session_source,
             direct_contents_source=direct_contents_source,
+            direct_memories_source=direct_memories_source,
             scope=scope,
             config=config,
         )
@@ -3903,6 +3931,9 @@ class AgentEngines(_api_module.BaseModule):
         direct_contents_source: Optional[
             types.GenerateMemoriesRequestDirectContentsSourceOrDict
         ] = None,
+        direct_memories_source: Optional[
+            types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
+        ] = None,
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEngineGenerateMemoriesOperation:
@@ -3913,12 +3944,19 @@ class AgentEngines(_api_module.BaseModule):
               memories for.
             vertex_session_source (GenerateMemoriesRequestVertexSessionSource):
               Optional. The vertex session source to use for generating
-              memories. Either vertex_session_source or direct_contents_source
-              must be specified, but not both. direct_contents_source
-              (GenerateMemoriesRequestDirectContentsSource): Optional. The
-              direct contents source to use for generating memories. Either
-              vertex_session_source or direct_contents_source must be specified,
-              but not both.
+              memories. Only one of vertex_session_source,
+              direct_contents_source, or direct_memories_source can be
+              specified.
+            direct_contents_source(GenerateMemoriesRequestDirectContentsSource):
+              Optional. The direct contents source to use for generating
+              memories. Only one of vertex_session_source,
+              direct_contents_source, or direct_memories_source can be
+              specified.
+            direct_memories_source (GenerateMemoriesRequestDirectMemoriesSource):
+              Optional. The direct memories source to use for generating
+              memories. Only one of vertex_session_source,
+              direct_contents_source, or direct_memories_source can be
+              specified.
             scope (dict[str, str]): Optional. The scope of the memories to
               generate. This is optional if vertex_session_source is used,
               otherwise it must be specified.
@@ -3933,6 +3971,7 @@ class AgentEngines(_api_module.BaseModule):
             name=name,
             vertex_session_source=vertex_session_source,
             direct_contents_source=direct_contents_source,
+            direct_memories_source=direct_memories_source,
             scope=scope,
             config=config,
         )
@@ -4615,6 +4654,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
         direct_contents_source: Optional[
             types.GenerateMemoriesRequestDirectContentsSourceOrDict
         ] = None,
+        direct_memories_source: Optional[
+            types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
+        ] = None,
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEngineGenerateMemoriesOperation:
@@ -4624,6 +4666,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             name=name,
             vertex_session_source=vertex_session_source,
             direct_contents_source=direct_contents_source,
+            direct_memories_source=direct_memories_source,
             scope=scope,
             config=config,
         )

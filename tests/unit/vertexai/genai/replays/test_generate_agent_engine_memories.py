@@ -53,6 +53,37 @@ def test_generate_memories(client):
         )
         >= 1
     )
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+
+
+def test_generate_memories_direct_memories_source(client):
+    agent_engine = client.agent_engines.create()
+    client.agent_engines.generate_memories(
+        name=agent_engine.api_resource.name,
+        scope={"user_id": "test-user-id"},
+        direct_memories_source=types.GenerateMemoriesRequestDirectMemoriesSource(
+            direct_memories=[
+                types.GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(
+                    fact="I am a software engineer."
+                ),
+                types.GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(
+                    fact="I like to write replay tests."
+                ),
+            ]
+        ),
+        config=types.GenerateAgentEngineMemoriesConfig(wait_for_completion=True),
+    )
+    assert (
+        len(
+            list(
+                client.agent_engines.list_memories(
+                    name=agent_engine.api_resource.name,
+                )
+            )
+        )
+        >= 1
+    )
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
