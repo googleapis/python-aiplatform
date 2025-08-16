@@ -16,28 +16,14 @@
 import abc
 import inspect
 import io
+import json
 import logging
 import os
 import sys
 import tarfile
 import types
 import typing
-from typing import (
-    Any,
-    AsyncIterable,
-    Callable,
-    Coroutine,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Protocol,
-    Sequence,
-    Tuple,
-    Union,
-)
-
-import proto
+from typing import Any, AsyncIterable, Callable, Coroutine, Dict, Iterable, List, Optional, Protocol, Sequence, Tuple, Union
 
 from google.api_core import exceptions
 from google.cloud import storage
@@ -47,6 +33,9 @@ from google.cloud.aiplatform import utils as aip_utils
 from google.cloud.aiplatform_v1 import types as aip_types
 from google.cloud.aiplatform_v1.types import reasoning_engine_service
 from vertexai.agent_engines import _utils
+import httpx
+import proto
+
 from google.protobuf import field_mask_pb2
 
 
@@ -60,6 +49,8 @@ _STANDARD_API_MODE = ""
 _ASYNC_API_MODE = "async"
 _STREAM_API_MODE = "stream"
 _ASYNC_STREAM_API_MODE = "async_stream"
+_A2A_EXTENSION_MODE = "a2a_extension"
+_A2A_AGENT_CARD = "a2a_agent_card"
 _MODE_KEY_IN_SCHEMA = "api_mode"
 _METHOD_NAME_KEY_IN_SCHEMA = "name"
 _DEFAULT_METHOD_NAME = "query"
@@ -110,6 +101,27 @@ try:
     ADKAgent = BaseAgent
 except (ImportError, AttributeError):
     ADKAgent = None
+
+try:
+    from a2a.types import (
+        AgentCard,
+        TransportProtocol,
+        Message,
+        TaskIdParams,
+    )
+    from a2a.client import ClientConfig, ClientFactory
+
+    AgentCard = AgentCard
+    TransportProtocol = TransportProtocol
+    ClientConfig = ClientConfig
+    ClientFactory = ClientFactory
+    TaskIdParams = TaskIdParams
+except (ImportError, AttributeError):
+    AgentCard = None
+    TransportProtocol = None
+    ClientConfig = None
+    ClientFactory = None
+    TaskIdParams = None
 
 
 @typing.runtime_checkable
@@ -1498,6 +1510,58 @@ def _wrap_async_stream_query_operation(
     return _method
 
 
+def _wrap_a2a_operation(
+    method_name: str, agent_card: str
+) -> Callable[..., list]:
+    async def _method(self, **kwargs) -> list:
+        """Wraps an Agent Engine method, creating a callable for A2A API."""
+        a2a_agent_card = AgentCard(**json.loads(agent_card))
+        a2a_agent_card.preferred_transport = TransportProtocol.http_json
+        # AE cannot support streaming yet. Turn off streaming for now.
+        a2a_agent_card.capabilities.streaming = False
+        # agent_card is set on the class_methods before set_up is invoked.
+        # Ensure that the agent_card url is set correctly before the client is created.
+        a2a_agent_card.url = f"https://{initializer.global_config.api_endpoint}/v1/{self.resource_name}/a2a"
+
+        # Using a2a client, inject the auth token from the global config.
+        config = ClientConfig(
+            supported_transports=[
+                TransportProtocol.http_json,
+            ],
+            use_client_preference=True,
+            httpx_client=httpx.AsyncClient(
+                headers={
+                    "Authorization": (
+                        f"Bearer {initializer.global_config.credentials.token}"
+                    )
+                }
+            ),
+        )
+        factory = ClientFactory(config)
+        client = factory.create(a2a_agent_card)
+
+        match method_name:
+            case "on_message_send":
+                response = client.send_message(Message(**kwargs))
+            case "on_get_task":
+                response = client.get_task(TaskIdParams(**kwargs))
+            case "on_cancel_task":
+                response = client.cancel_task(TaskIdParams(**kwargs))
+            case "handle_authenticated_agent_card":
+                response = await client.get_card()
+
+        if inspect.isasyncgen(response):
+            # Response is an async generator, collect the chunks.
+            chunks = []
+            async for chunk in response:
+                chunks.append(chunk)
+            return chunks
+        else:
+            return response
+
+    return _method
+
+
 def _unregister_api_methods(
     obj: "AgentEngine", operation_schemas: Sequence[_utils.JsonDict]
 ):
@@ -1573,6 +1637,7 @@ def _register_api_methods_or_raise(
             _ASYNC_API_MODE: _wrap_async_query_operation,
             _STREAM_API_MODE: _wrap_stream_query_operation,
             _ASYNC_STREAM_API_MODE: _wrap_async_stream_query_operation,
+            _A2A_EXTENSION_MODE: _wrap_a2a_operation,
         }
         if isinstance(wrap_operation_fn, dict) and api_mode in wrap_operation_fn:
             # Override the default function with user-specified function if it exists.
@@ -1589,7 +1654,13 @@ def _register_api_methods_or_raise(
             )
 
         # Bind the method to the object.
-        method = _wrap_operation(method_name=method_name)
+        if api_mode == _A2A_EXTENSION_MODE:
+            agent_card = operation_schema.get(_A2A_AGENT_CARD)
+            method = _wrap_operation(
+                method_name=method_name, agent_card=agent_card
+            )
+        else:
+            method = _wrap_operation(method_name=method_name)
         method.__name__ = method_name
         method.__doc__ = method_description
         setattr(obj, method_name, types.MethodType(method, obj))
@@ -1661,6 +1732,11 @@ def _generate_class_methods_spec_or_raise(
 
             class_method = _utils.to_proto(schema_dict)
             class_method[_MODE_KEY_IN_SCHEMA] = mode
+            # A2A agent card is a special case, when running in A2A mode,
+            if hasattr(agent_engine, "agent_card"):
+                class_method[_A2A_AGENT_CARD] = getattr(
+                    agent_engine, "agent_card"
+                ).model_dump_json()
             class_methods_spec.append(class_method)
 
     return class_methods_spec
