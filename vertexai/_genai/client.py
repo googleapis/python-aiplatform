@@ -41,7 +41,7 @@ def _add_tracking_headers(headers: dict[str, str]) -> None:
         headers["x-goog-api-client"] = f"{api_client} {tracking_label}".strip()
 
 
-_api_client._append_library_version_headers = _add_tracking_headers
+_api_client.append_library_version_headers = _add_tracking_headers
 
 
 class AsyncClient:
