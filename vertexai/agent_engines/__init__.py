@@ -78,6 +78,7 @@ def create(
     max_instances: Optional[int] = None,
     resource_limits: Optional[Dict[str, str]] = None,
     container_concurrency: Optional[int] = None,
+    encryption_spec: Optional[aip_types.EncryptionSpec] = None,
 ) -> AgentEngine:
     """Creates a new Agent Engine.
 
@@ -170,6 +171,9 @@ def create(
         container_concurrency (int):
             Optional. The container concurrency for the Agent Engine. If not
             specified, the default value will be used.
+        encryption_spec (EncryptionSpec):
+            Optional. The encryption spec for the Agent Engine. If not
+            specified, the default encryption spec will be used.
 
     Returns:
         AgentEngine: The Agent Engine that was created.
@@ -199,6 +203,7 @@ def create(
         max_instances=max_instances,
         resource_limits=resource_limits,
         container_concurrency=container_concurrency,
+        encryption_spec=encryption_spec,
     )
 
 
@@ -290,6 +295,7 @@ def update(
     max_instances: Optional[int] = None,
     resource_limits: Optional[Dict[str, str]] = None,
     container_concurrency: Optional[int] = None,
+    encryption_spec: Optional[aip_types.EncryptionSpec] = None,
 ) -> "AgentEngine":
     """Updates an existing Agent Engine.
 
@@ -352,6 +358,9 @@ def update(
         container_concurrency (int):
             Optional. The container concurrency for the Agent Engine. If not
             specified, the default value will be used.
+        encryption_spec (EncryptionSpec):
+            Optional. The encryption spec for the Agent Engine. If not
+            specified, the default encryption spec will be used.
 
     Returns:
         AgentEngine: The Agent Engine that was updated.
@@ -383,6 +392,7 @@ def update(
         max_instances=max_instances,
         resource_limits=resource_limits,
         container_concurrency=container_concurrency,
+        encryption_spec=encryption_spec,
     )
 
 

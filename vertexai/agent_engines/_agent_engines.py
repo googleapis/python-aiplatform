@@ -344,13 +344,14 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         max_instances: Optional[int] = None,
         resource_limits: Optional[Dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
+        encryption_spec: Optional[aip_types.EncryptionSpec] = None,
     ) -> "AgentEngine":
         """Creates a new Agent Engine.
 
         The Agent Engine will be an instance of the `agent_engine` that
         was passed in, running remotely on Vertex AI.
 
-        Sample ``src_dir`` contents (e.g. ``./user_src_dir``):
+        Sample `src_dir` contents (e.g. `./user_src_dir`):
 
         .. code-block:: python
 
@@ -439,6 +440,12 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 Optional. The resource limits for the Agent Engine.
             container_concurrency (int):
                 Optional. The container concurrency for the Agent Engine.
+            encryption_spec (aip_types.EncryptionSpec):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
+                The key needs to be in the same region as the model.
 
         Returns:
             AgentEngine: The Agent Engine that was created.
@@ -500,6 +507,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         reasoning_engine = aip_types.ReasoningEngine(
             display_name=display_name,
             description=description,
+            encryption_spec=encryption_spec,
         )
         if agent_engine is not None:
             # Update the package spec.
@@ -610,6 +618,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         max_instances: Optional[int] = None,
         resource_limits: Optional[Dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
+        encryption_spec: Optional[aip_types.EncryptionSpec] = None,
     ) -> "AgentEngine":
         """Updates an existing Agent Engine.
 
@@ -676,6 +685,12 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 Optional. The resource limits for the Agent Engine.
             container_concurrency (int):
                 Optional. The container concurrency for the Agent Engine.
+            encryption_spec (aip_types.EncryptionSpec):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
+                The key needs to be in the same region as the model.
 
         Returns:
             AgentEngine: The Agent Engine that was updated.
@@ -717,6 +732,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 max_instances is not None,
                 resource_limits,
                 container_concurrency is not None,
+                encryption_spec,
             ]
         ):
             raise ValueError(
@@ -724,7 +740,8 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 "`extra_packages`, `display_name`, `description`, "
                 "`env_vars`, `build_options`, `service_account`, "
                 "`psc_interface_config`, `min_instances`, `max_instances`, "
-                "`resource_limits`, or `container_concurrency` must be specified."
+                "`resource_limits`, `container_concurrency`, or "
+                "`encryption_spec` must be specified."
             )
         if requirements is not None:
             requirements = _validate_requirements_or_raise(
@@ -767,6 +784,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             max_instances=max_instances,
             resource_limits=resource_limits,
             container_concurrency=container_concurrency,
+            encryption_spec=encryption_spec,
         )
         operation_future = self.api_client.update_reasoning_engine(
             request=update_request
@@ -1288,6 +1306,7 @@ def _generate_update_request_or_raise(
     max_instances: Optional[int] = None,
     resource_limits: Optional[Dict[str, str]] = None,
     container_concurrency: Optional[int] = None,
+    encryption_spec: Optional[str] = None,
 ) -> reasoning_engine_service.UpdateReasoningEngineRequest:
     """Tries to generate the update request for the agent engine."""
     is_spec_update = False
@@ -1361,10 +1380,14 @@ def _generate_update_request_or_raise(
     if description:
         agent_engine_message.description = description
         update_masks.append("description")
+    if encryption_spec:
+        agent_engine_message.encryption_spec = encryption_spec
+        update_masks.append("encryption_spec")
     if not update_masks:
         raise ValueError(
             "At least one of `agent_engine`, `requirements`, `extra_packages`, "
-            "`display_name`, `description`, or `env_vars` must be specified."
+            "`display_name`, `description`, `env_vars`, or "
+            "`encryption_spec` must be specified."
         )
     return reasoning_engine_service.UpdateReasoningEngineRequest(
         reasoning_engine=agent_engine_message,

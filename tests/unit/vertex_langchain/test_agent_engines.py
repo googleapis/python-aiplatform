@@ -606,6 +606,9 @@ _TEST_AGENT_ENGINE_RESOURCE_LIMITS = {
     "memory": "4Gi",
 }
 _TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY = 4
+_TEST_ENCRYPTION_SPEC = types.EncryptionSpec(
+    kms_key_name="projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key"
+)
 
 
 def _create_empty_fake_package(package_name: str) -> str:
@@ -1436,6 +1439,44 @@ class TestAgentEngine:
             retry=_TEST_RETRY,
         )
 
+    def test_create_agent_engine_with_encryption_spec(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        test_input_agent_engine_obj = types.ReasoningEngine(
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            spec=types.ReasoningEngineSpec(
+                package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+                agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+            ),
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        test_input_agent_engine_obj.spec.class_methods.append(
+            _TEST_AGENT_ENGINE_QUERY_SCHEMA
+        )
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=test_input_agent_engine_obj,
+        )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
     @pytest.mark.parametrize(
         "test_case_name, test_engine_instance, expected_framework",
         [
@@ -1807,6 +1848,21 @@ class TestAgentEngine:
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.deployment_spec.container_concurrency",
+                        ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with encryption_spec attribute",
+                {"encryption_spec": _TEST_ENCRYPTION_SPEC},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        encryption_spec=_TEST_ENCRYPTION_SPEC,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "encryption_spec",
                         ],
                     ),
                 ),
@@ -3193,8 +3249,8 @@ class TestAgentEngineErrors:
                 "`extra_packages`, `display_name`, `description`, "
                 "`env_vars`, `build_options`, `service_account`, "
                 "`psc_interface_config`, `min_instances`, `max_instances`, "
-                "`resource_limits`, or `container_concurrency` "
-                "must be specified."
+                "`resource_limits`, `container_concurrency`, or "
+                "`encryption_spec` must be specified."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
