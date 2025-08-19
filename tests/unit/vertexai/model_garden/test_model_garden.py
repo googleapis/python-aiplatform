@@ -947,13 +947,13 @@ class TestModelGardenOpenModel:
             location=_TEST_LOCATION,
         )
         model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
-        model.deploy(use_dedicated_endpoint=True)
+        model.deploy(dedicated_endpoint_disabled=True)
         deploy_mock.assert_called_once_with(
             types.DeployRequest(
                 publisher_model_name=_TEST_MODEL_FULL_RESOURCE_NAME,
                 destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
                 endpoint_config=types.DeployRequest.EndpointConfig(
-                    dedicated_endpoint_enabled=True
+                    dedicated_endpoint_disabled=True
                 ),
             )
         )

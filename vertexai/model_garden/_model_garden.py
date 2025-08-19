@@ -393,6 +393,7 @@ class OpenModel:
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         use_dedicated_endpoint: Optional[bool] = False,
+        dedicated_endpoint_disabled: Optional[bool] = False,
         fast_tryout_enabled: Optional[bool] = False,
         system_labels: Optional[Dict[str, str]] = None,
         endpoint_display_name: Optional[str] = None,
@@ -464,6 +465,10 @@ class OpenModel:
             use_dedicated_endpoint (bool): Optional. Default value is False. If set
               to True, the underlying prediction call will be made using the
               dedicated endpoint dns.
+            dedicated_endpoint_disabled (bool): Optional. Default value is False. If set
+              to False, the underlying prediction call will be made using the
+              dedicated endpoint dns. Otherwise, the prediction call will be made
+              using the shared endpoint dns.
             fast_tryout_enabled (bool): Optional. Defaults to False. If True, model
               will be deployed using faster deployment path. Useful for quick
               experiments. Not for production workloads. Only available for most
@@ -604,8 +609,14 @@ class OpenModel:
                 reservation_affinity_values
             )
 
+        # TODO(b/417560875): Remove this once notebooks are migrated to use dedicated_endpoint_disabled.
         if use_dedicated_endpoint:
             request.endpoint_config.dedicated_endpoint_enabled = use_dedicated_endpoint
+
+        if dedicated_endpoint_disabled:
+            request.endpoint_config.dedicated_endpoint_disabled = (
+                dedicated_endpoint_disabled
+            )
 
         if fast_tryout_enabled:
             request.deploy_config.fast_tryout_enabled = fast_tryout_enabled
