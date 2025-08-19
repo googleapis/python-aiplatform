@@ -790,7 +790,7 @@ class TestAgentEngineHelpers:
     def test_create_agent_engine_config_full(self, mock_prepare):
         config = self.client.agent_engines._create_config(
             mode="create",
-            agent_engine=self.test_agent,
+            agent=self.test_agent,
             staging_bucket=_TEST_STAGING_BUCKET,
             requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
             display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
@@ -839,7 +839,7 @@ class TestAgentEngineHelpers:
     def test_update_agent_engine_config_full(self, mock_prepare):
         config = self.client.agent_engines._create_config(
             mode="update",
-            agent_engine=self.test_agent,
+            agent=self.test_agent,
             staging_bucket=_TEST_STAGING_BUCKET,
             requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
             display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
@@ -939,7 +939,7 @@ class TestAgentEngineHelpers:
 
     def test_register_api_methods(self):
         agent = self.client.agent_engines._register_api_methods(
-            agent=_genai_types.AgentEngine(
+            agent_engine=_genai_types.AgentEngine(
                 api_client=self.client.agent_engines._api_client,
                 api_resource=_genai_types.ReasoningEngine(
                     spec=_genai_types.ReasoningEngineSpec(
@@ -956,7 +956,9 @@ class TestAgentEngineHelpers:
 
     @pytest.mark.usefixtures("caplog")
     def test_invalid_requirement_warning(self, caplog):
-        _agent_engines_utils._parse_constraints(["invalid requirement line"])
+        _agent_engines_utils._parse_constraints(
+            constraints=["invalid requirement line"],
+        )
         assert "Failed to parse constraint" in caplog.text
 
     def test_requirements_with_whl_files(self):
@@ -965,7 +967,9 @@ class TestAgentEngineHelpers:
             "/content/wxPython-4.2.3-cp39-cp39-macosx_12_0_x86_64.whl",
             "https://wxpython.org/Phoenix/snapshot-builds/wxPython-4.2.2-cp38-cp38-macosx_12_0_x86_64.whl",
         ]
-        result = _agent_engines_utils._parse_constraints(whl_files)
+        result = _agent_engines_utils._parse_constraints(
+            constraints=whl_files,
+        )
         assert result == {
             "wxPython-4.2.2-cp38-cp38-macosx_12_0_x86_64.whl": None,
             "wxPython-4.2.3-cp39-cp39-macosx_12_0_x86_64.whl": None,
@@ -975,7 +979,10 @@ class TestAgentEngineHelpers:
     def test_compare_requirements_with_required_packages(self):
         requirements = {"requests": "2.0.0"}
         constraints = ["requests==1.0.0"]
-        result = _agent_engines_utils._compare_requirements(requirements, constraints)
+        result = _agent_engines_utils._compare_requirements(
+            requirements=requirements,
+            constraints=constraints,
+        )
         assert result == {
             "actions": {"append": set()},
             "warnings": {
@@ -989,7 +996,7 @@ class TestAgentEngineHelpers:
         """Test scanning an object importing a known third-party package."""
         fake_obj = _create_fake_object_with_module("requests")
         requirements = _agent_engines_utils._scan_requirements(
-            fake_obj,
+            obj=fake_obj,
             package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
         )
         assert requirements == {
@@ -1003,7 +1010,7 @@ class TestAgentEngineHelpers:
         """Test that stdlib modules are ignored by default."""
         fake_obj_stdlib = _create_fake_object_with_module("json")
         requirements = _agent_engines_utils._scan_requirements(
-            fake_obj_stdlib,
+            obj=fake_obj_stdlib,
             package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
         )
         # Requirements should not contain 'json',
@@ -1024,7 +1031,7 @@ class TestAgentEngineHelpers:
             set(original_base) | {"requests"},
         )
         requirements = _agent_engines_utils._scan_requirements(
-            fake_obj,
+            obj=fake_obj,
             package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
         )
         # Requirements should not contain 'requests',
@@ -1039,7 +1046,7 @@ class TestAgentEngineHelpers:
         """Test explicitly ignoring a module."""
         fake_obj = _create_fake_object_with_module("requests")
         requirements = _agent_engines_utils._scan_requirements(
-            fake_obj,
+            obj=fake_obj,
             ignore_modules=["requests"],
             package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
         )
@@ -1152,7 +1159,7 @@ class TestAgentEngine:
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
             self.client.agent_engines.create(
-                agent_engine=self.test_agent,
+                agent=self.test_agent,
                 config=_genai_types.AgentEngineConfig(
                     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
                     description=_TEST_AGENT_ENGINE_DESCRIPTION,
@@ -1263,7 +1270,7 @@ class TestAgentEngine:
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
             self.client.agent_engines.create(
-                agent_engine=self.test_agent,
+                agent=self.test_agent,
                 config=_genai_types.AgentEngineConfig(
                     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
                     requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
@@ -1274,7 +1281,7 @@ class TestAgentEngine:
             )
             mock_create_config.assert_called_with(
                 mode="create",
-                agent_engine=self.test_agent,
+                agent=self.test_agent,
                 staging_bucket=_TEST_STAGING_BUCKET,
                 requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
                 display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
@@ -1327,7 +1334,7 @@ class TestAgentEngine:
             request_mock.return_value = genai_types.HttpResponse(body="")
             self.client.agent_engines.update(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
-                agent_engine=self.test_agent,
+                agent=self.test_agent,
                 config=_genai_types.AgentEngineConfig(
                     staging_bucket=_TEST_STAGING_BUCKET,
                     requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
@@ -1383,7 +1390,7 @@ class TestAgentEngine:
             request_mock.return_value = genai_types.HttpResponse(body="")
             self.client.agent_engines.update(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
-                agent_engine=self.test_agent,
+                agent=self.test_agent,
                 config=_genai_types.AgentEngineConfig(
                     staging_bucket=_TEST_STAGING_BUCKET,
                     requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
@@ -1437,7 +1444,7 @@ class TestAgentEngine:
             request_mock.return_value = genai_types.HttpResponse(body="")
             self.client.agent_engines.update(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
-                agent_engine=self.test_agent,
+                agent=self.test_agent,
                 config=_genai_types.AgentEngineConfig(
                     staging_bucket=_TEST_STAGING_BUCKET,
                     requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
@@ -1570,7 +1577,7 @@ class TestAgentEngine:
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
             agent = self.client.agent_engines._register_api_methods(
-                agent=_genai_types.AgentEngine(
+                agent_engine=_genai_types.AgentEngine(
                     api_client=self.client.agent_engines,
                     api_resource=_genai_types.ReasoningEngine(
                         name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
@@ -1596,7 +1603,7 @@ class TestAgentEngine:
 
     def test_query_agent_engine_async(self):
         agent = self.client.agent_engines._register_api_methods(
-            agent=_genai_types.AgentEngine(
+            agent_engine=_genai_types.AgentEngine(
                 api_async_client=agent_engines.AsyncAgentEngines(
                     api_client_=self.client.agent_engines._api_client
                 ),
@@ -1631,7 +1638,7 @@ class TestAgentEngine:
             self.client.agent_engines._api_client, "request_streamed"
         ) as request_mock:
             agent = self.client.agent_engines._register_api_methods(
-                agent=_genai_types.AgentEngine(
+                agent_engine=_genai_types.AgentEngine(
                     api_client=self.client.agent_engines,
                     api_resource=_genai_types.ReasoningEngine(
                         name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
@@ -1664,7 +1671,7 @@ class TestAgentEngine:
         ) as request_mock:
             request_mock.return_value = mock_async_generator()
             agent = self.client.agent_engines._register_api_methods(
-                agent=_genai_types.AgentEngine(
+                agent_engine=_genai_types.AgentEngine(
                     api_client=self.client.agent_engines,
                     api_resource=_genai_types.ReasoningEngine(
                         name=_TEST_AGENT_ENGINE_RESOURCE_NAME,

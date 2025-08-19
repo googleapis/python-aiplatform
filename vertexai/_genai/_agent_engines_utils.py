@@ -332,7 +332,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
             agent.set_up()
         for operations in self.register_operations().values():
             for operation in operations:
-                op = _wrap_agent_operation(agent, operation)
+                op = _wrap_agent_operation(agent=agent, operation=operation)
                 setattr(self, operation, types.MethodType(op, self))
 
 
@@ -351,9 +351,9 @@ class _RequirementsValidationResult(TypedDict):
 
 
 def _compare_requirements(
+    *,
     requirements: Mapping[str, str],
     constraints: Union[Sequence[str], Mapping[str, "_SpecifierSet"]],
-    *,
     required_packages: Optional[Iterator[str]] = None,
 ) -> _RequirementsValidationResult:
     """Compares the requirements with the constraints.
@@ -388,7 +388,7 @@ def _compare_requirements(
         actions=_RequirementsValidationActions(append=set()),
     )
     if isinstance(constraints, list):
-        constraints = _parse_constraints(constraints)
+        constraints = _parse_constraints(constraints=constraints)
     for package, package_version in requirements.items():
         if package not in constraints:
             result[_WARNINGS_KEY][_WARNING_MISSING].add(package)  # type: ignore[literal-required]
@@ -410,13 +410,13 @@ def _compare_requirements(
 
 def _generate_class_methods_spec_or_raise(
     *,
-    agent_engine: _AgentEngineInterface,
+    agent: _AgentEngineInterface,
     operations: Dict[str, List[str]],
 ) -> List[proto.Message]:
     """Generates a ReasoningEngineSpec based on the registered operations.
 
     Args:
-        agent_engine: The AgentEngine instance.
+        agent: The AgentEngine instance.
         operations: A dictionary of API modes and method names.
 
     Returns:
@@ -426,26 +426,24 @@ def _generate_class_methods_spec_or_raise(
         ValueError: If a method defined in `register_operations` is not found on
         the AgentEngine.
     """
-    if isinstance(agent_engine, ModuleAgent):
+    if isinstance(agent, ModuleAgent):
         # We do a dry-run of setting up the agent engine to have the operations
         # needed for registration.
-        agent_engine: ModuleAgent = agent_engine.clone()
+        agent: ModuleAgent = agent.clone()
         try:
-            agent_engine.set_up()
+            agent.set_up()
         except Exception as e:
-            raise ValueError(
-                f"Failed to set up agent engine {agent_engine}: {e}"
-            ) from e
+            raise ValueError(f"Failed to set up agent {agent}: {e}") from e
     class_methods_spec = []
     for mode, method_names in operations.items():
         for method_name in method_names:
-            if not hasattr(agent_engine, method_name):
+            if not hasattr(agent, method_name):
                 raise ValueError(
                     f"Method `{method_name}` defined in `register_operations`"
-                    " not found on AgentEngine."
+                    " not found on agent."
                 )
 
-            method = getattr(agent_engine, method_name)
+            method = getattr(agent, method_name)
             try:
                 schema_dict = _generate_schema(method, schema_name=method_name)
             except Exception as e:
@@ -570,15 +568,13 @@ def _generate_schema(
     return schema
 
 
-def _get_agent_framework(
-    agent_engine: _AgentEngineInterface,
-) -> str:
+def _get_agent_framework(*, agent: _AgentEngineInterface) -> str:
     if (
-        hasattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
-        and getattr(agent_engine, _AGENT_FRAMEWORK_ATTR) is not None
-        and isinstance(getattr(agent_engine, _AGENT_FRAMEWORK_ATTR), str)
+        hasattr(agent, _AGENT_FRAMEWORK_ATTR)
+        and getattr(agent, _AGENT_FRAMEWORK_ATTR) is not None
+        and isinstance(getattr(agent, _AGENT_FRAMEWORK_ATTR), str)
     ):
-        return getattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
+        return getattr(agent, _AGENT_FRAMEWORK_ATTR)
     return _DEFAULT_AGENT_FRAMEWORK
 
 
@@ -603,20 +599,21 @@ def _get_gcs_bucket(
 
 
 def _get_registered_operations(
-    agent_engine: _AgentEngineInterface,
+    *,
+    agent: _AgentEngineInterface,
 ) -> Dict[str, List[str]]:
     """Retrieves registered operations for a AgentEngine."""
-    if isinstance(agent_engine, OperationRegistrable):
-        return agent_engine.register_operations()
+    if isinstance(agent, OperationRegistrable):
+        return agent.register_operations()
 
     operations = {}
-    if isinstance(agent_engine, Queryable):
+    if isinstance(agent, Queryable):
         operations[_STANDARD_API_MODE] = [_DEFAULT_METHOD_NAME]
-    if isinstance(agent_engine, AsyncQueryable):
+    if isinstance(agent, AsyncQueryable):
         operations[_ASYNC_API_MODE] = [_DEFAULT_ASYNC_METHOD_NAME]
-    if isinstance(agent_engine, StreamQueryable):
+    if isinstance(agent, StreamQueryable):
         operations[_STREAM_API_MODE] = [_DEFAULT_STREAM_METHOD_NAME]
-    if isinstance(agent_engine, AsyncStreamQueryable):
+    if isinstance(agent, AsyncStreamQueryable):
         operations[_ASYNC_STREAM_API_MODE] = [_DEFAULT_ASYNC_STREAM_METHOD_NAME]
     return operations
 
@@ -686,6 +683,7 @@ def _import_pydantic_or_raise() -> types.ModuleType:
 
 
 def _parse_constraints(
+    *,
     constraints: Sequence[str],
 ) -> Mapping[str, Optional["_SpecifierSet"]]:
     """Parses a list of constraints into a dict of requirements.
@@ -713,7 +711,8 @@ def _parse_constraints(
 
 
 def _prepare(
-    agent_engine: Optional[_AgentEngineInterface],
+    *,
+    agent: Optional[_AgentEngineInterface],
     requirements: Optional[Sequence[str]],
     extra_packages: Optional[Sequence[str]],
     project: str,
@@ -730,7 +729,7 @@ def _prepare(
     extra_packages is non-empty.
 
     Args:
-        agent_engine: The agent engine to be prepared.
+        agent: The agent engine to be prepared.
         requirements (Sequence[str]): The set of PyPI dependencies needed.
         extra_packages (Sequence[str]): The set of extra user-provided packages.
         project (str): The project for the staging bucket.
@@ -739,7 +738,7 @@ def _prepare(
         gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to
             use for staging the artifacts needed.
     """
-    if agent_engine is None:
+    if agent is None:
         return
     gcs_bucket = _get_gcs_bucket(
         project=project,
@@ -747,7 +746,7 @@ def _prepare(
         staging_bucket=staging_bucket,
     )
     _upload_agent_engine(
-        agent_engine=agent_engine,
+        agent=agent,
         gcs_bucket=gcs_bucket,
         gcs_dir_name=gcs_dir_name,
     )
@@ -766,7 +765,8 @@ def _prepare(
 
 
 def _register_api_methods_or_raise(
-    obj: genai_types.AgentEngine,
+    *,
+    agent_engine: genai_types.AgentEngine,
     wrap_operation_fn: Optional[
         dict[str, Callable[[str, str], Callable[..., Any]]]
     ] = None,
@@ -774,13 +774,13 @@ def _register_api_methods_or_raise(
     """Registers Agent Engine API methods based on operation schemas.
 
     This function iterates through operation schemas provided by the
-    AgentEngine object.  Each schema defines an API mode and method name.
-    It dynamically creates and registers methods on the AgentEngine object
+    `agent_engine`.  Each schema defines an API mode and method name.
+    It dynamically creates and registers methods on the `agent_engine`
     to handle API calls based on the specified API mode.
     Currently, only standard API mode `` is supported.
 
     Args:
-        obj: The AgentEngine object to augment with API methods.
+        agent_engine: The AgentEngine to augment with API methods.
         wrap_operation_fn: A dictionary of API modes and method wrapping
             functions.
 
@@ -788,7 +788,7 @@ def _register_api_methods_or_raise(
         ValueError: If the API mode is not supported or if the operation schema
         is missing any required fields (e.g. `api_mode` or `name`).
     """
-    operation_schemas = obj.operation_schemas()
+    operation_schemas = agent_engine.operation_schemas()
     if not operation_schemas:
         return
     for operation_schema in operation_schemas:
@@ -847,10 +847,11 @@ def _register_api_methods_or_raise(
         method.__name__ = method_name
         if method_description and isinstance(method_description, str):
             method.__doc__ = method_description
-        setattr(obj, method_name, types.MethodType(method, obj))
+        setattr(agent_engine, method_name, types.MethodType(method, agent_engine))
 
 
 def _scan_requirements(
+    *,
     obj: Any,
     ignore_modules: Optional[Sequence[str]] = None,
     package_distributions: Optional[Mapping[str, Sequence[str]]] = None,
@@ -955,7 +956,7 @@ def _to_proto(
 
 def _upload_agent_engine(
     *,
-    agent_engine: _AgentEngineInterface,
+    agent: _AgentEngineInterface,
     gcs_bucket: _StorageBucket,
     gcs_dir_name: str,
 ) -> None:
@@ -964,7 +965,7 @@ def _upload_agent_engine(
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_BLOB_FILENAME}")  # type: ignore[attr-defined]
     with blob.open("wb") as f:
         try:
-            cloudpickle.dump(agent_engine, f)
+            cloudpickle.dump(agent, f)
         except Exception as e:
             url = "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#deployment-considerations"
             raise TypeError(
@@ -1012,6 +1013,7 @@ def _upload_extra_packages(
 
 
 def _validate_extra_packages_or_raise(
+    *,
     extra_packages: Sequence[str],
     build_options: Optional[Dict[str, Sequence[str]]] = None,
 ) -> Sequence[str]:
@@ -1031,6 +1033,7 @@ def _validate_extra_packages_or_raise(
 
 
 def _validate_installation_scripts_or_raise(
+    *,
     script_paths: Sequence[str],
     extra_packages: Sequence[str],
 ) -> None:
@@ -1091,7 +1094,7 @@ def _validate_installation_scripts_or_raise(
     return
 
 
-def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
+def _validate_staging_bucket_or_raise(*, staging_bucket: str) -> str:
     """Tries to validate the staging bucket."""
     if not staging_bucket:
         raise ValueError(
@@ -1103,16 +1106,20 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
 
 
 def _validate_requirements_or_warn(
+    *,
     obj: Any,
     requirements: List[str],
 ) -> Mapping[str, str]:
     """Compiles the requirements into a list of requirements."""
     requirements = requirements.copy()
     try:
-        current_requirements = _scan_requirements(obj)
+        current_requirements = _scan_requirements(obj=obj)
         logger.info(f"Identified the following requirements: {current_requirements}")
-        constraints = _parse_constraints(requirements)
-        missing_requirements = _compare_requirements(current_requirements, constraints)
+        constraints = _parse_constraints(constraints=requirements)
+        missing_requirements = _compare_requirements(
+            requirements=current_requirements,
+            constraints=constraints,
+        )
         for warning_type, warnings in missing_requirements.get(
             _WARNINGS_KEY, {}
         ).items():
@@ -1132,7 +1139,7 @@ def _validate_requirements_or_warn(
 
 def _validate_requirements_or_raise(
     *,
-    agent_engine: Any,
+    agent: Any,
     requirements: Optional[Sequence[str]] = None,
 ) -> Sequence[str]:
     """Tries to validate the requirements."""
@@ -1147,15 +1154,16 @@ def _validate_requirements_or_raise(
         except IOError as err:
             raise IOError(f"Failed to read requirements from {requirements=}") from err
     requirements = _validate_requirements_or_warn(  # type: ignore[assignment]
-        obj=agent_engine,
+        obj=agent,
         requirements=requirements,
     )
     logger.info(f"The final list of requirements: {requirements}")
     return requirements
 
 
-def _validate_agent_engine_or_raise(
-    agent_engine: _AgentEngineInterface,
+def _validate_agent_or_raise(
+    *,
+    agent: _AgentEngineInterface,
 ) -> _AgentEngineInterface:
     """Tries to validate the agent engine.
 
@@ -1166,7 +1174,7 @@ def _validate_agent_engine_or_raise(
     * a callable method named `register_operations`
 
     Args:
-        agent_engine: The agent engine to be validated.
+        agent: The agent to be validated.
 
     Returns:
         The validated agent engine.
@@ -1180,26 +1188,26 @@ def _validate_agent_engine_or_raise(
     try:
         from google.adk.agents import BaseAgent
 
-        if isinstance(agent_engine, BaseAgent):
+        if isinstance(agent, BaseAgent):
             logger.info("Deploying google.adk.agents.Agent as an application.")
             from vertexai.preview import reasoning_engines
 
-            agent_engine = reasoning_engines.AdkApp(agent=agent_engine)
+            agent = reasoning_engines.AdkApp(agent=agent)
     except Exception:
         pass
-    is_queryable = isinstance(agent_engine, Queryable) and callable(agent_engine.query)
-    is_async_queryable = isinstance(agent_engine, AsyncQueryable) and callable(
-        agent_engine.async_query
+    is_queryable = isinstance(agent, Queryable) and callable(agent.query)
+    is_async_queryable = isinstance(agent, AsyncQueryable) and callable(
+        agent.async_query
     )
-    is_stream_queryable = isinstance(agent_engine, StreamQueryable) and callable(
-        agent_engine.stream_query
+    is_stream_queryable = isinstance(agent, StreamQueryable) and callable(
+        agent.stream_query
     )
-    is_async_stream_queryable = isinstance(
-        agent_engine, AsyncStreamQueryable
-    ) and callable(agent_engine.async_stream_query)
-    is_operation_registrable = isinstance(
-        agent_engine, OperationRegistrable
-    ) and callable(agent_engine.register_operations)
+    is_async_stream_queryable = isinstance(agent, AsyncStreamQueryable) and callable(
+        agent.async_stream_query
+    )
+    is_operation_registrable = isinstance(agent, OperationRegistrable) and callable(
+        agent.register_operations
+    )
 
     if not (
         is_queryable
@@ -1216,58 +1224,56 @@ def _validate_agent_engine_or_raise(
 
     if is_queryable:
         try:
-            inspect.signature(getattr(agent_engine, "query"))
+            inspect.signature(getattr(agent, "query"))
         except ValueError as err:
             raise ValueError(
                 "Invalid query signature. This might be due to a missing "
-                "`self` argument in the agent_engine.query method."
+                "`self` argument in the agent.query method."
             ) from err
 
     if is_async_queryable:
         try:
-            inspect.signature(getattr(agent_engine, "async_query"))
+            inspect.signature(getattr(agent, "async_query"))
         except ValueError as err:
             raise ValueError(
                 "Invalid async_query signature. This might be due to a missing "
-                "`self` argument in the agent_engine.async_query method."
+                "`self` argument in the agent.async_query method."
             ) from err
 
     if is_stream_queryable:
         try:
-            inspect.signature(getattr(agent_engine, "stream_query"))
+            inspect.signature(getattr(agent, "stream_query"))
         except ValueError as err:
             raise ValueError(
                 "Invalid stream_query signature. This might be due to a missing"
-                " `self` argument in the agent_engine.stream_query method."
+                " `self` argument in the agent.stream_query method."
             ) from err
 
     if is_async_stream_queryable:
         try:
-            inspect.signature(getattr(agent_engine, "async_stream_query"))
+            inspect.signature(getattr(agent, "async_stream_query"))
         except ValueError as err:
             raise ValueError(
                 "Invalid async_stream_query signature. This might be due to a "
-                " missing `self` argument in the "
-                "agent_engine.async_stream_query method."
+                " missing `self` argument in the agent.async_stream_query method."
             ) from err
 
     if is_operation_registrable:
         try:
-            inspect.signature(getattr(agent_engine, "register_operations"))
+            inspect.signature(getattr(agent, "register_operations"))
         except ValueError as err:
             raise ValueError(
                 "Invalid register_operations signature. This might be due to a "
-                "missing `self` argument in the "
-                "agent_engine.register_operations method."
+                "missing `self` argument in the agent.register_operations method."
             ) from err
 
-    if isinstance(agent_engine, Cloneable):
+    if isinstance(agent, Cloneable):
         # Avoid undeployable states.
-        agent_engine = agent_engine.clone()
-    return agent_engine
+        agent = agent.clone()
+    return agent
 
 
-def _wrap_agent_operation(agent: Any, operation: str) -> Callable[..., Any]:
+def _wrap_agent_operation(*, agent: Any, operation: str) -> Callable[..., Any]:
     """Wraps an agent operation into a method (works for all API modes)."""
 
     def _method(self, **kwargs) -> Any:  # type: ignore[no-untyped-def]

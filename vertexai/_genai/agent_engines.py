@@ -3256,17 +3256,18 @@ class AgentEngines(_api_module.BaseModule):
               "projects/123/locations/us-central1/reasoningEngines/456" or a
               shortened name such as "reasoningEngines/456".
         """
-        agent = types.AgentEngine(
+        agent_engine = types.AgentEngine(
             api_client=self,
             api_async_client=AsyncAgentEngines(api_client_=self._api_client),
             api_resource=self._get(name=name, config=config),
         )
-        return self._register_api_methods(agent=agent)
+        return self._register_api_methods(agent_engine=agent_engine)
 
     def create(
         self,
         *,
         agent_engine: Any = None,
+        agent: Any = None,
         config: Optional[types.AgentEngineConfigOrDict] = None,
     ) -> types.AgentEngine:
         """Creates an agent engine.
@@ -3295,7 +3296,7 @@ class AgentEngines(_api_module.BaseModule):
                 location="us-central1",
             )
             remote_agent = client.agent_engines.create(
-                agent_engine=local_agent,
+                agent=local_agent,
                 config=dict(
                     requirements=[
                         # I.e. the PyPI dependencies listed in requirements.txt
@@ -3311,10 +3312,12 @@ class AgentEngines(_api_module.BaseModule):
             )
 
         Args:
-            agent_engine (Any): Optional. The Agent Engine to be created. If not
-              specified, this will correspond to a lightweight instance that
-              cannot be queried (but can be updated to future instances that can
-              be queried).
+            agent (Any): Optional. The Agent to be created. If not specified,
+              this will correspond to a lightweight instance that cannot be
+              queried (but can be updated to future instances that can be
+              queried).
+            agent_engine (Any): Optional. This is deprecated. Please use `agent`
+              instead.
             config (AgentEngineConfig): Optional. The configurations to use for
               creating the Agent Engine.
 
@@ -3324,15 +3327,12 @@ class AgentEngines(_api_module.BaseModule):
         Raises:
             ValueError: If the `project` was not set using `client.Client`.
             ValueError: If the `location` was not set using `client.Client`.
-            ValueError: If `config.staging_bucket` was not set when
-            `agent_engine`
+            ValueError: If `config.staging_bucket` was not set when `agent`
             is specified.
             ValueError: If `config.staging_bucket` does not start with "gs://".
-            ValueError: If `config.extra_packages` is specified but
-            `agent_engine`
+            ValueError: If `config.extra_packages` is specified but `agent`
             is None.
-            ValueError: If `config.requirements` is specified but `agent_engine`
-            is
+            ValueError: If `config.requirements` is specified but `agent` is
             None.
             ValueError: If `config.env_vars` has a dictionary entry that does
             not
@@ -3356,9 +3356,17 @@ class AgentEngines(_api_module.BaseModule):
         if context_spec is not None:
             # Conversion to a dict for _create_config
             context_spec = context_spec.model_dump()
+        if agent and agent_engine:
+            raise ValueError("Please specify only one of `agent` or `agent_engine`.")
+        elif agent_engine:
+            raise DeprecationWarning(
+                "The `agent_engine` argument is deprecated. Please use `agent`"
+                " instead."
+            )
+        agent = agent or agent_engine
         api_config = self._create_config(
             mode="create",
-            agent_engine=agent_engine,
+            agent=agent,
             staging_bucket=config.staging_bucket,
             requirements=config.requirements,
             display_name=config.display_name,
@@ -3379,7 +3387,7 @@ class AgentEngines(_api_module.BaseModule):
             "View progress and logs at"
             f" https://console.cloud.google.com/logs/query?project={self._api_client.project}."
         )
-        if agent_engine is None:
+        if agent is None:
             poll_interval_seconds = 1  # Lightweight agent engine resource creation.
         else:
             poll_interval_seconds = 10
@@ -3388,29 +3396,29 @@ class AgentEngines(_api_module.BaseModule):
             poll_interval_seconds=poll_interval_seconds,
         )
 
-        agent = types.AgentEngine(
+        agent_engine = types.AgentEngine(
             api_client=self,
             api_async_client=AsyncAgentEngines(api_client_=self._api_client),
             api_resource=operation.response,
         )
-        if agent.api_resource:
+        if agent_engine.api_resource:
             logger.info("Agent Engine created. To use it in another session:")
             logger.info(
-                f"agent_engine=client.agent_engines.get('{agent.api_resource.name}')"
+                f"agent_engine=client.agent_engines.get('{agent_engine.api_resource.name}')"
             )
         else:
             logger.warning("The operation returned an empty response.")
-        if agent_engine is not None:
+        if agent is not None:
             # If the user did not provide an agent_engine (e.g. lightweight
             # provisioning), it will not have any API methods registered.
-            agent = self._register_api_methods(agent=agent)
-        return agent
+            agent_engine = self._register_api_methods(agent_engine=agent_engine)
+        return agent_engine
 
     def _create_config(
         self,
         *,
         mode: str,
-        agent_engine: Any = None,
+        agent: Any = None,
         staging_bucket: Optional[str] = None,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
@@ -3431,11 +3439,11 @@ class AgentEngines(_api_module.BaseModule):
         update_masks = []
         if mode not in ["create", "update"]:
             raise ValueError(f"Unsupported mode: {mode}")
-        if agent_engine is None:
+        if agent is None:
             if requirements is not None:
-                raise ValueError("requirements must be None if agent_engine is None.")
+                raise ValueError("requirements must be None if agent is None.")
             if extra_packages is not None:
-                raise ValueError("extra_packages must be None if agent_engine is None.")
+                raise ValueError("extra_packages must be None if agent is None.")
         if display_name is not None:
             update_masks.append("display_name")
             config["display_name"] = display_name
@@ -3444,7 +3452,7 @@ class AgentEngines(_api_module.BaseModule):
             config["description"] = description
         if context_spec is not None:
             config["context_spec"] = context_spec
-        if agent_engine is not None:
+        if agent is not None:
             project = self._api_client.project
             if project is None:
                 raise ValueError("project must be set using `vertexai.Client`.")
@@ -3453,14 +3461,12 @@ class AgentEngines(_api_module.BaseModule):
                 raise ValueError("location must be set using `vertexai.Client`.")
             sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
             gcs_dir_name = gcs_dir_name or _agent_engines_utils._DEFAULT_GCS_DIR_NAME
-            agent_engine = _agent_engines_utils._validate_agent_engine_or_raise(
-                agent_engine=agent_engine,
-            )
+            agent = _agent_engines_utils._validate_agent_or_raise(agent=agent)
             staging_bucket = _agent_engines_utils._validate_staging_bucket_or_raise(
                 staging_bucket=staging_bucket,
             )
             requirements = _agent_engines_utils._validate_requirements_or_raise(
-                agent_engine=agent_engine,
+                agent=agent,
                 requirements=requirements,
             )
             extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
@@ -3473,7 +3479,7 @@ class AgentEngines(_api_module.BaseModule):
             # involves packaging and uploading the artifacts for agent_engine,
             # requirements and extra_packages to `staging_bucket/gcs_dir_name`.
             _agent_engines_utils._prepare(
-                agent_engine=agent_engine,
+                agent=agent,
                 requirements=requirements,
                 project=project,
                 location=location,
@@ -3530,10 +3536,8 @@ class AgentEngines(_api_module.BaseModule):
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
             class_methods = _agent_engines_utils._generate_class_methods_spec_or_raise(
-                agent_engine=agent_engine,
-                operations=_agent_engines_utils._get_registered_operations(
-                    agent_engine
-                ),
+                agent=agent,
+                operations=_agent_engines_utils._get_registered_operations(agent=agent),
             )
             agent_engine_spec["class_methods"] = [
                 _agent_engines_utils._to_dict(class_method)
@@ -3542,7 +3546,7 @@ class AgentEngines(_api_module.BaseModule):
             update_masks.append("spec.class_methods")
             agent_engine_spec[
                 "agent_framework"
-            ] = _agent_engines_utils._get_agent_framework(agent_engine)
+            ] = _agent_engines_utils._get_agent_framework(agent=agent)
             update_masks.append("spec.agent_framework")
             config["spec"] = agent_engine_spec
         if update_masks and mode == "update":
@@ -3659,11 +3663,15 @@ class AgentEngines(_api_module.BaseModule):
 
         return operation
 
-    def _register_api_methods(self, *, agent: types.AgentEngine) -> types.AgentEngine:
+    def _register_api_methods(
+        self,
+        *,
+        agent_engine: types.AgentEngine,
+    ) -> types.AgentEngine:
         """Registers the API methods for the agent engine."""
         try:
             _agent_engines_utils._register_api_methods_or_raise(
-                agent,
+                agent_engine=agent_engine,
                 wrap_operation_fn={
                     "": _agent_engines_utils._wrap_query_operation,
                     "async": _agent_engines_utils._wrap_async_query_operation,
@@ -3676,7 +3684,7 @@ class AgentEngines(_api_module.BaseModule):
                 _agent_engines_utils._FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE,
                 e,
             )
-        return agent
+        return agent_engine
 
     def list(
         self, *, config: Optional[types.ListAgentEngineConfigOrDict] = None
@@ -3715,6 +3723,7 @@ class AgentEngines(_api_module.BaseModule):
         self,
         *,
         name: str,
+        agent: Any = None,
         agent_engine: Any = None,
         config: types.AgentEngineConfigOrDict,
     ) -> types.AgentEngine:
@@ -3728,9 +3737,11 @@ class AgentEngines(_api_module.BaseModule):
             name (str): Required. A fully-qualified resource name or ID such as
               "projects/123/locations/us-central1/reasoningEngines/456" or a
               shortened name such as "reasoningEngines/456".
-            agent_engine (Any): Optional. The instance to be used as the updated
-              Agent Engine. If it is not specified, the existing instance will
-              be used.
+            agent (Any): Optional. The instance to be used as the updated Agent
+              Engine. If it is not specified, the existing instance will be
+              used.
+            agent_engine (Any): Optional. This is deprecated. Please use `agent`
+              instead.
             config (AgentEngineConfig): Optional. The configurations to use for
               updating the Agent Engine.
 
@@ -3767,9 +3778,17 @@ class AgentEngines(_api_module.BaseModule):
         if context_spec is not None:
             # Conversion to a dict for _create_config
             context_spec = context_spec.model_dump()
+        if agent and agent_engine:
+            raise ValueError("Please specify only one of `agent` or `agent_engine`.")
+        elif agent_engine:
+            raise DeprecationWarning(
+                "The `agent_engine` argument is deprecated. Please use `agent`"
+                " instead."
+            )
+        agent = agent or agent_engine
         api_config = self._create_config(
             mode="update",
-            agent_engine=agent_engine,
+            agent=agent,
             staging_bucket=config.staging_bucket,
             requirements=config.requirements,
             display_name=config.display_name,
@@ -3790,17 +3809,17 @@ class AgentEngines(_api_module.BaseModule):
             f" https://console.cloud.google.com/logs/query?project={self._api_client.project}."
         )
         operation = self._await_operation(operation_name=operation.name)
-        agent = types.AgentEngine(
+        agent_engine = types.AgentEngine(
             api_client=self,
             api_async_client=AsyncAgentEngines(api_client_=self._api_client),
             api_resource=operation.response,
         )
-        if agent.api_resource:
+        if agent_engine.api_resource:
             logger.info("Agent Engine updated. To use it in another session:")
             logger.info(
-                f"agent_engine=client.agent_engines.get('{agent.api_resource.name}')"
+                f"agent_engine=client.agent_engines.get('{agent_engine.api_resource.name}')"
             )
-        return self._register_api_methods(agent=agent)
+        return self._register_api_methods(agent_engine=agent_engine)
 
     def _stream_query(
         self,
@@ -3947,16 +3966,15 @@ class AgentEngines(_api_module.BaseModule):
               memories. Only one of vertex_session_source,
               direct_contents_source, or direct_memories_source can be
               specified.
-            direct_contents_source(GenerateMemoriesRequestDirectContentsSource):
+              direct_contents_source(GenerateMemoriesRequestDirectContentsSource):
               Optional. The direct contents source to use for generating
               memories. Only one of vertex_session_source,
               direct_contents_source, or direct_memories_source can be
-              specified.
-            direct_memories_source (GenerateMemoriesRequestDirectMemoriesSource):
-              Optional. The direct memories source to use for generating
-              memories. Only one of vertex_session_source,
-              direct_contents_source, or direct_memories_source can be
-              specified.
+              specified. direct_memories_source
+              (GenerateMemoriesRequestDirectMemoriesSource): Optional. The
+              direct memories source to use for generating memories. Only one of
+              vertex_session_source, direct_contents_source, or
+              direct_memories_source can be specified.
             scope (dict[str, str]): Optional. The scope of the memories to
               generate. This is optional if vertex_session_source is used,
               otherwise it must be specified.

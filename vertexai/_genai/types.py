@@ -4182,15 +4182,15 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
     )
     min_instances: Optional[int] = Field(
         default=None,
-        description="""Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 10].""",
+        description="""Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1.""",
     )
     max_instances: Optional[int] = Field(
         default=None,
-        description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].""",
+        description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100.""",
     )
     resource_limits: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', '6' and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * The only supported values for memory are '1Gi', '2Gi', ... '32 Gi'. * For required cpu on different memory values, go to https://cloud.google.com/run/docs/configuring/memory-limits""",
+        description="""Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * For supported 'memory' values and syntax, go to https://cloud.google.com/run/docs/configuring/memory-limits""",
     )
     container_concurrency: Optional[int] = Field(
         default=None,
@@ -4211,13 +4211,13 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
     """Optional. Configuration for PSC-I."""
 
     min_instances: Optional[int]
-    """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 10]."""
+    """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1."""
 
     max_instances: Optional[int]
-    """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100]."""
+    """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100."""
 
     resource_limits: Optional[dict[str, str]]
-    """Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', '6' and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * The only supported values for memory are '1Gi', '2Gi', ... '32 Gi'. * For required cpu on different memory values, go to https://cloud.google.com/run/docs/configuring/memory-limits"""
+    """Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * For supported 'memory' values and syntax, go to https://cloud.google.com/run/docs/configuring/memory-limits"""
 
     container_concurrency: Optional[int]
     """Optional. Concurrency for each container and agent server. Recommended value: 2 * cpu + 1. Defaults to 9."""
@@ -7657,9 +7657,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=(
-                fields_to_exclude_callables if fields_to_exclude_callables else None
-            ),
+            exclude=fields_to_exclude_callables
+            if fields_to_exclude_callables
+            else None,
         )
 
         if version:
