@@ -3,6 +3,7 @@ Services for Google Cloud Aiplatform v1 API
 .. toctree::
     :maxdepth: 2
 
+    data_foundry_service
     dataset_service
     deployment_resource_pool_service
     endpoint_service
