@@ -74,6 +74,14 @@ from .custom_job import (
     Scheduling,
     WorkerPoolSpec,
 )
+from .data_foundry_service import (
+    GenerateSyntheticDataRequest,
+    GenerateSyntheticDataResponse,
+    OutputFieldSpec,
+    SyntheticExample,
+    SyntheticField,
+    TaskDescriptionStrategy,
+)
 from .data_item import (
     DataItem,
 )
@@ -1232,6 +1240,12 @@ __all__ = (
     "PythonPackageSpec",
     "Scheduling",
     "WorkerPoolSpec",
+    "GenerateSyntheticDataRequest",
+    "GenerateSyntheticDataResponse",
+    "OutputFieldSpec",
+    "SyntheticExample",
+    "SyntheticField",
+    "TaskDescriptionStrategy",
     "DataItem",
     "ActiveLearningConfig",
     "DataLabelingJob",
