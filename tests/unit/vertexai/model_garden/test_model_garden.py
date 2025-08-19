@@ -1476,6 +1476,171 @@ class TestModelGardenCustomModel:
             )
         )
 
+    def test_list_deploy_options_with_recommendations(self):
+        """Tests list_deploy_options when recommend_spec returns recommendations."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        mock_model_service_client = mock.Mock()
+        with mock.patch.object(
+            aiplatform.initializer.global_config,
+            "create_client",
+            return_value=mock_model_service_client,
+        ):
+            quota_state = types.RecommendSpecResponse.Recommendation.QuotaState
+            mock_response = types.RecommendSpecResponse(
+                recommendations=[
+                    types.RecommendSpecResponse.Recommendation(
+                        spec=types.RecommendSpecResponse.MachineAndModelContainerSpec(
+                            machine_spec=types.MachineSpec(
+                                machine_type="n1-standard-4",
+                                accelerator_type=types.AcceleratorType.NVIDIA_TESLA_T4,
+                                accelerator_count=1,
+                            )
+                        ),
+                        region="us-central1",
+                        user_quota_state=quota_state.QUOTA_STATE_USER_HAS_QUOTA,
+                    ),
+                    types.RecommendSpecResponse.Recommendation(
+                        spec=types.RecommendSpecResponse.MachineAndModelContainerSpec(
+                            machine_spec=types.MachineSpec(
+                                machine_type="n1-standard-8",
+                                accelerator_type=types.AcceleratorType.NVIDIA_TESLA_V100,
+                                accelerator_count=2,
+                            )
+                        ),
+                        region="us-east1",
+                        user_quota_state=quota_state.QUOTA_STATE_NO_USER_QUOTA,
+                    ),
+                    types.RecommendSpecResponse.Recommendation(
+                        spec=types.RecommendSpecResponse.MachineAndModelContainerSpec(
+                            machine_spec=types.MachineSpec(
+                                machine_type="g2-standard-24",
+                                accelerator_type=types.AcceleratorType.NVIDIA_L4,
+                                accelerator_count=2,
+                            )
+                        ),
+                        region="us-central1",
+                        user_quota_state=quota_state.QUOTA_STATE_UNSPECIFIED,
+                    ),
+                ]
+            )
+            mock_model_service_client.recommend_spec.return_value = mock_response
+
+            custom_model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+            result = custom_model.list_deploy_options()
+
+            expected_output = textwrap.dedent(
+                """\
+            [Option 1]
+                machine_type="n1-standard-4",
+                accelerator_type="NVIDIA_TESLA_T4",
+                accelerator_count=1,
+                region="us-central1",
+                user_quota_state="QUOTA_STATE_USER_HAS_QUOTA"
+
+            [Option 2]
+                machine_type="n1-standard-8",
+                accelerator_type="NVIDIA_TESLA_V100",
+                accelerator_count=2,
+                region="us-east1",
+                user_quota_state="QUOTA_STATE_NO_USER_QUOTA"
+
+            [Option 3]
+                machine_type="g2-standard-24",
+                accelerator_type="NVIDIA_L4",
+                accelerator_count=2,
+                region="us-central1\""""
+            )
+            assert result == expected_output
+            mock_model_service_client.recommend_spec.assert_called_once_with(
+                types.RecommendSpecRequest(
+                    gcs_uri=_TEST_GCS_URI,
+                    parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                    check_machine_availability=True,
+                ),
+                timeout=60,
+            )
+
+    def test_list_deploy_options_with_specs(self):
+        """Tests list_deploy_options when recommend_spec returns specs."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        mock_model_service_client = mock.Mock()
+        with mock.patch.object(
+            aiplatform.initializer.global_config,
+            "create_client",
+            return_value=mock_model_service_client,
+        ):
+            mock_response = types.RecommendSpecResponse(
+                specs=[
+                    types.RecommendSpecResponse.MachineAndModelContainerSpec(
+                        machine_spec=types.MachineSpec(
+                            machine_type="n1-standard-4",
+                            accelerator_type=types.AcceleratorType.NVIDIA_TESLA_T4,
+                            accelerator_count=1,
+                        )
+                    ),
+                    types.RecommendSpecResponse.MachineAndModelContainerSpec(
+                        machine_spec=types.MachineSpec(
+                            machine_type="n1-standard-8",
+                            accelerator_type=types.AcceleratorType.NVIDIA_TESLA_V100,
+                            accelerator_count=2,
+                        )
+                    ),
+                ]
+            )
+            mock_model_service_client.recommend_spec.return_value = mock_response
+
+            custom_model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+            result = custom_model.list_deploy_options(available_machines=False)
+
+            expected_output = textwrap.dedent(
+                """\
+            [Option 1]
+                machine_type="n1-standard-4",
+                accelerator_type="NVIDIA_TESLA_T4",
+                accelerator_count=1
+
+            [Option 2]
+                machine_type="n1-standard-8",
+                accelerator_type="NVIDIA_TESLA_V100",
+                accelerator_count=2"""
+            )
+            assert result == expected_output
+            mock_model_service_client.recommend_spec.assert_called_once_with(
+                types.RecommendSpecRequest(
+                    gcs_uri=_TEST_GCS_URI,
+                    parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                    check_machine_availability=False,
+                ),
+                timeout=60,
+            )
+
+    def test_list_deploy_options_exception(self):
+        """Tests list_deploy_options when recommend_spec raises an exception."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        mock_model_service_client = mock.Mock()
+        with mock.patch.object(
+            aiplatform.initializer.global_config,
+            "create_client",
+            return_value=mock_model_service_client,
+        ):
+            mock_model_service_client.recommend_spec.side_effect = ValueError(
+                "Test Error"
+            )
+            custom_model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+            with pytest.raises(ValueError) as exception:
+                custom_model.list_deploy_options()
+            assert str(exception.value) == "Test Error"
+            mock_model_service_client.recommend_spec.assert_called_once()
+
 
 class TestModelGardenModel:
     """Test cases for Model Garden Model class."""
