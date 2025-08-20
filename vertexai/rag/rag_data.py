@@ -343,9 +343,9 @@ def upload_file(
     description: Optional[str] = None,
     transformation_config: Optional[TransformationConfig] = None,
     timeout: int = 600,
+    max_embedding_requests_per_min: int = 1000,
 ) -> RagFile:
-    """
-    Synchronous file upload to an existing RagCorpus.
+    """Synchronous file upload to an existing RagCorpus.
 
     Example usage:
 
@@ -375,12 +375,17 @@ def upload_file(
         corpus_name: The name of the RagCorpus resource into which to upload the file.
             Format: ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
             or ``{rag_corpus}``.
-        path: A local file path. For example,
-            "usr/home/my_file.txt".
+        path: A local file path. For example, "usr/home/my_file.txt".
         display_name: The display name of the data file.
         description: The description of the RagFile.
         transformation_config: The config for transforming the RagFile, like chunking.
         timeout: Default is 600 seconds.
+        max_embedding_requests_per_min: Optional. The max number of queries per
+            minute that this job is allowed to make to the embedding model specified
+            on the corpus. This value is specific to this job and not shared across
+            other import jobs. Consult the Quotas page on the project to set an
+            appropriate value here. If unspecified, a default value of 1,000 QPM
+            would be used.
 
     Returns:
         RagFile.
@@ -421,7 +426,8 @@ def upload_file(
                         "chunk_overlap": chunk_overlap,
                     }
                 }
-            }
+            },
+            "max_embedding_requests_per_min": max_embedding_requests_per_min,
         }
 
     files = {
