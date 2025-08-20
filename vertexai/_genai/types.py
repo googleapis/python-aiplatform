@@ -224,6 +224,21 @@ class JobState(_common.CaseInSensitiveEnum):
     """The job is partially succeeded, some results may be missing due to errors."""
 
 
+class ManagedTopicEnum(_common.CaseInSensitiveEnum):
+    """Required. The managed topic."""
+
+    MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
+    """Unspecified topic. This value should not be used."""
+    USER_PERSONAL_INFO = "USER_PERSONAL_INFO"
+    """Significant personal information about the User like first names, relationships, hobbies, important dates."""
+    USER_PREFERENCES = "USER_PREFERENCES"
+    """Stated or implied likes, dislikes, preferred styles, or patterns."""
+    KEY_CONVERSATION_DETAILS = "KEY_CONVERSATION_DETAILS"
+    """Important milestones or conclusions within the dialogue."""
+    EXPLICIT_INSTRUCTIONS = "EXPLICIT_INSTRUCTIONS"
+    """Information that the user explicitly requested to remember or forget."""
+
+
 class RubricContentType(_common.CaseInSensitiveEnum):
     """Specifies the type of rubric content to generate."""
 
@@ -4367,6 +4382,262 @@ ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
 ]
 
 
+class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseModel):
+    """A custom memory topic defined by the developer."""
+
+    label: Optional[str] = Field(
+        default=None, description="""Required. The label of the topic."""
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""Required. Description of the memory topic. This should explain what information should be extracted for this topic.""",
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict(
+    TypedDict, total=False
+):
+    """A custom memory topic defined by the developer."""
+
+    label: Optional[str]
+    """Required. The label of the topic."""
+
+    description: Optional[str]
+    """Required. Description of the memory topic. This should explain what information should be extracted for this topic."""
+
+
+MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_common.BaseModel):
+    """A managed memory topic defined by the system."""
+
+    managed_topic_enum: Optional[ManagedTopicEnum] = Field(
+        default=None, description="""Required. The managed topic."""
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict(
+    TypedDict, total=False
+):
+    """A managed memory topic defined by the system."""
+
+    managed_topic_enum: Optional[ManagedTopicEnum]
+    """Required. The managed topic."""
+
+
+MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfigMemoryTopic(_common.BaseModel):
+    """A topic of information that should be extracted from conversations and stored as memories."""
+
+    custom_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic
+    ] = Field(
+        default=None,
+        description="""A custom memory topic defined by the developer.""",
+    )
+    managed_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic
+    ] = Field(
+        default=None,
+        description="""A managed memory topic defined by Memory Bank.""",
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicDict(TypedDict, total=False):
+    """A topic of information that should be extracted from conversations and stored as memories."""
+
+    custom_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict
+    ]
+    """A custom memory topic defined by the developer."""
+
+    managed_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict
+    ]
+    """A managed memory topic defined by Memory Bank."""
+
+
+MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent(
+    _common.BaseModel
+):
+    """A single conversation event."""
+
+    content: Optional[Content] = Field(
+        default=None, description="""Required. The content of the event."""
+    )
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict(
+    TypedDict, total=False
+):
+    """A single conversation event."""
+
+    content: Optional[ContentDict]
+    """Required. The content of the event."""
+
+
+MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventOrDict = (
+    Union[
+        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent,
+        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict,
+    ]
+)
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource(
+    _common.BaseModel
+):
+    """A conversation source for the example.
+
+    This is similar to `DirectContentsSource`.
+    """
+
+    events: Optional[
+        list[
+            MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent
+        ]
+    ] = Field(
+        default=None,
+        description="""Optional. The input conversation events for the example.""",
+    )
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict(
+    TypedDict, total=False
+):
+    """A conversation source for the example.
+
+    This is similar to `DirectContentsSource`.
+    """
+
+    events: Optional[
+        list[
+            MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict
+        ]
+    ]
+    """Optional. The input conversation events for the example."""
+
+
+MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceOrDict = Union[
+    MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource,
+    MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict,
+]
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(
+    _common.BaseModel
+):
+    """A memory generated by the operation."""
+
+    fact: Optional[str] = Field(
+        default=None,
+        description="""Required. The fact to generate a memory from.""",
+    )
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict(
+    TypedDict, total=False
+):
+    """A memory generated by the operation."""
+
+    fact: Optional[str]
+    """Required. The fact to generate a memory from."""
+
+
+MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryOrDict = Union[
+    MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory,
+    MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict,
+]
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExample(_common.BaseModel):
+    """An example of how to generate memories for a particular scope."""
+
+    conversation_source: Optional[
+        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource
+    ] = Field(default=None, description="""A conversation source for the example.""")
+    generated_memories: Optional[
+        list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory]
+    ] = Field(
+        default=None,
+        description="""Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation.""",
+    )
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleDict(TypedDict, total=False):
+    """An example of how to generate memories for a particular scope."""
+
+    conversation_source: Optional[
+        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict
+    ]
+    """A conversation source for the example."""
+
+    generated_memories: Optional[
+        list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict]
+    ]
+    """Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation."""
+
+
+MemoryBankCustomizationConfigGenerateMemoriesExampleOrDict = Union[
+    MemoryBankCustomizationConfigGenerateMemoriesExample,
+    MemoryBankCustomizationConfigGenerateMemoriesExampleDict,
+]
+
+
+class MemoryBankCustomizationConfig(_common.BaseModel):
+    """Configuration for organizing memories for a particular scope."""
+
+    scope_keys: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+    )
+    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopic]] = Field(
+        default=None,
+        description="""Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
+    )
+    generate_memories_examples: Optional[
+        list[MemoryBankCustomizationConfigGenerateMemoriesExample]
+    ] = Field(
+        default=None,
+        description="""Optional. Examples of how to generate memories for a particular scope.""",
+    )
+
+
+class MemoryBankCustomizationConfigDict(TypedDict, total=False):
+    """Configuration for organizing memories for a particular scope."""
+
+    scope_keys: Optional[list[str]]
+    """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+
+    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopicDict]]
+    """Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
+
+    generate_memories_examples: Optional[
+        list[MemoryBankCustomizationConfigGenerateMemoriesExampleDict]
+    ]
+    """Optional. Examples of how to generate memories for a particular scope."""
+
+
+MemoryBankCustomizationConfigOrDict = Union[
+    MemoryBankCustomizationConfig, MemoryBankCustomizationConfigDict
+]
+
+
 class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
     """Specification for a Memory Bank."""
 
@@ -4382,6 +4653,10 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
         default=None,
         description="""Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`.""",
     )
+    customization_configs: Optional[list[MemoryBankCustomizationConfig]] = Field(
+        default=None,
+        description="""Optional. Configuration for how to customize Memory Bank behavior for a particular scope.""",
+    )
 
 
 class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
@@ -4396,6 +4671,9 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
         ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict
     ]
     """Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`."""
+
+    customization_configs: Optional[list[MemoryBankCustomizationConfigDict]]
+    """Optional. Configuration for how to customize Memory Bank behavior for a particular scope."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
