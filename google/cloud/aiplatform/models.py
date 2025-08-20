@@ -62,9 +62,11 @@ from google.cloud.aiplatform.compat.types import (
     deployment_resource_pool as gca_deployment_resource_pool_compat,
     deployed_model_ref as gca_deployed_model_ref_compat,
     encryption_spec as gca_encryption_spec,
+    endpoint_v1beta1 as gca_endpoint_v1beta1_compat,
     endpoint as gca_endpoint_compat,
     explanation as gca_explanation_compat,
     io as gca_io_compat,
+    machine_resources_v1beta1 as gca_machine_resources_v1beta1_compat,
     machine_resources as gca_machine_resources_compat,
     model as gca_model_compat,
     model_service as gca_model_service_compat,
@@ -1352,6 +1354,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        gpu_partition_size: Optional[str] = None,
         tpu_topology: Optional[str] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
@@ -1425,6 +1428,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            gpu_partition_size (str):
+                Optional. The GPU partition Size for Nvidia MIG.
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
@@ -1537,6 +1542,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            gpu_partition_size=gpu_partition_size,
             tpu_topology=tpu_topology,
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
@@ -1572,6 +1578,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        gpu_partition_size: Optional[str] = None,
         tpu_topology: Optional[str] = None,
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
@@ -1642,6 +1649,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            gpu_partition_size (str):
+                Optional. The GPU partition size for NVidia MIG.
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
@@ -1738,6 +1747,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            gpu_partition_size=gpu_partition_size,
             tpu_topology=tpu_topology,
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
@@ -1780,6 +1790,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        gpu_partition_size: Optional[str] = None,
         tpu_topology: Optional[str] = None,
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
@@ -1859,6 +1870,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            gpu_partition_size (str):
+                Optional. The GPU partition Size for Nvidia MIG.
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
@@ -1942,15 +1955,35 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             ValueError: If both `explanation_spec` and `deployment_resource_pool`
                 are present.
         """
+        # The two features are incompatible due to API versioning issue.
+        # TODO(b/436626409) after adding the disable_container_logging to v1 proto
+        # remove the incomaptiblity check.
+        if gpu_partition_size and disable_container_logging:
+            _LOGGER.warning(
+                "Cannot set both gpu_partition_size and disable_container_logging. disable_container_logging will be ignored."
+            )
+
+        gca_endpoint = gca_endpoint_compat
+        gca_machine_resources = gca_machine_resources_compat
+        if gpu_partition_size:
+            gca_machine_resources = gca_machine_resources_v1beta1_compat
+            gca_endpoint = gca_endpoint_v1beta1_compat
+            api_client = api_client.select_version("v1beta1")
         service_account = service_account or initializer.global_config.service_account
 
         if deployment_resource_pool:
-            deployed_model = gca_endpoint_compat.DeployedModel(
+            deployed_model = gca_endpoint.DeployedModel(
                 model=model.versioned_resource_name,
                 display_name=deployed_model_display_name,
                 service_account=service_account,
-                disable_container_logging=disable_container_logging,
             )
+            if not gpu_partition_size:
+                deployed_model = gca_endpoint.DeployedModel(
+                    model=model.versioned_resource_name,
+                    display_name=deployed_model_display_name,
+                    service_account=service_account,
+                    disable_container_logging=disable_container_logging,
+                )
 
             if system_labels:
                 deployed_model.system_labels = system_labels
@@ -2012,14 +2045,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "Both `accelerator_type` and `accelerator_count` should be set "
                     "when specifying autoscaling_target_accelerator_duty_cycle`"
                 )
-
-            deployed_model = gca_endpoint_compat.DeployedModel(
+            deployed_model = gca_endpoint.DeployedModel(
                 model=model.versioned_resource_name,
                 display_name=deployed_model_display_name,
                 service_account=service_account,
                 enable_access_logging=enable_access_logging,
-                disable_container_logging=disable_container_logging,
             )
+            if not gpu_partition_size:
+                deployed_model = gca_endpoint.DeployedModel(
+                    model=model.versioned_resource_name,
+                    display_name=deployed_model_display_name,
+                    service_account=service_account,
+                    enable_access_logging=enable_access_logging,
+                    disable_container_logging=disable_container_logging,
+                )
 
             if system_labels:
                 deployed_model.system_labels = system_labels
@@ -2066,19 +2105,19 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 _LOGGER.info(f"Using default machine_type: {machine_type}")
 
             if use_dedicated_resources:
-                dedicated_resources = gca_machine_resources_compat.DedicatedResources(
+                dedicated_resources = gca_machine_resources.DedicatedResources(
                     min_replica_count=min_replica_count,
                     max_replica_count=max_replica_count,
                     spot=spot,
                     required_replica_count=required_replica_count,
                 )
 
-                machine_spec = gca_machine_resources_compat.MachineSpec(
+                machine_spec = gca_machine_resources.MachineSpec(
                     machine_type=machine_type
                 )
 
                 if autoscaling_target_cpu_utilization:
-                    autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                    autoscaling_metric_spec = gca_machine_resources.AutoscalingMetricSpec(
                         metric_name="aiplatform.googleapis.com/prediction/online/cpu/utilization",
                         target=autoscaling_target_cpu_utilization,
                     )
@@ -2092,7 +2131,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     machine_spec.accelerator_count = accelerator_count
 
                     if autoscaling_target_accelerator_duty_cycle:
-                        autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                        autoscaling_metric_spec = gca_machine_resources.AutoscalingMetricSpec(
                             metric_name="aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle",
                             target=autoscaling_target_accelerator_duty_cycle,
                         )
@@ -2100,9 +2139,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                             [autoscaling_metric_spec]
                         )
 
+                if gpu_partition_size:
+                    machine_spec.gpu_partition_size = gpu_partition_size
+
                 if autoscaling_target_request_count_per_minute:
                     autoscaling_metric_spec = (
-                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                        gca_machine_resources.AutoscalingMetricSpec(
                             metric_name=(
                                 "aiplatform.googleapis.com/prediction/online/"
                                 "request_count"
@@ -2115,7 +2157,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     )
 
                 if autoscaling_target_pubsub_num_undelivered_messages:
-                    autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                    autoscaling_metric_spec = gca_machine_resources.AutoscalingMetricSpec(
                         metric_name=(
                             "pubsub.googleapis.com/subscription/"
                             "num_undelivered_messages"
@@ -2141,14 +2183,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 deployed_model.dedicated_resources = dedicated_resources
                 if fast_tryout_enabled:
                     deployed_model.faster_deployment_config = (
-                        gca_endpoint_compat.FasterDeploymentConfig(
+                        gca_endpoint.FasterDeploymentConfig(
                             fast_tryout_enabled=fast_tryout_enabled
                         )
                     )
 
             elif supports_automatic_resources:
                 deployed_model.automatic_resources = (
-                    gca_machine_resources_compat.AutomaticResources(
+                    gca_machine_resources.AutomaticResources(
                         min_replica_count=min_replica_count,
                         max_replica_count=max_replica_count,
                     )

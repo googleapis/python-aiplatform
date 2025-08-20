@@ -47,6 +47,7 @@ from google.cloud.aiplatform.compat.types import (
     deployment_resource_pool_v1 as gca_deployment_resource_pool_v1,
     deployment_resource_pool_v1beta1 as gca_deployment_resource_pool_v1beta1,
     encryption_spec as gca_encryption_spec,
+    encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
     endpoint_service_v1beta1 as gca_endpoint_service_v1beta1,
     endpoint_service as gca_endpoint_service,
     endpoint_v1beta1 as gca_endpoint_v1beta1,
@@ -134,6 +135,7 @@ _TEST_LONG_DEPLOYED_MODELS = [
 _TEST_MACHINE_TYPE = "n1-standard-32"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
+_TEST_GPU_PARTITION_SIZE = "1g.10gb"
 
 _TEST_METRIC_NAME_CPU_UTILIZATION = (
     "aiplatform.googleapis.com/prediction/online/cpu/utilization"
@@ -214,6 +216,9 @@ _TEST_CONCURRENT_EXPLANATION_SPEC_OVERRIDE = {
 # CMEK encryption
 _TEST_ENCRYPTION_KEY_NAME = "key_1234"
 _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+)
+_TEST_ENCRYPTION_SPEC_V1BETA1 = gca_encryption_spec_v1beta1.EncryptionSpec(
     kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
 
@@ -300,6 +305,19 @@ def get_endpoint_mock():
             display_name=_TEST_DISPLAY_NAME,
             name=_TEST_ENDPOINT_NAME,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        yield get_endpoint_mock
+
+
+@pytest.fixture
+def get_endpoint_v1beta1_mock():
+    with mock.patch.object(
+        endpoint_service_client_v1beta1.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_mock:
+        get_endpoint_mock.return_value = gca_endpoint_v1beta1.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC_V1BETA1,
         )
         yield get_endpoint_mock
 
@@ -451,6 +469,25 @@ def deploy_model_mock():
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
         deploy_model_lro_mock.result.return_value = (
             gca_endpoint_service.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
+        )
+        deploy_model_mock.return_value = deploy_model_lro_mock
+        yield deploy_model_mock
+
+
+@pytest.fixture
+def deploy_model_mock_v1beta1():
+    with mock.patch.object(
+        endpoint_service_client_v1beta1.EndpointServiceClient, "deploy_model"
+    ) as deploy_model_mock:
+        deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            model=_TEST_MODEL_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+        )
+        deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
+        deploy_model_lro_mock.result.return_value = (
+            gca_endpoint_service_v1beta1.DeployModelResponse(
                 deployed_model=deployed_model,
             )
         )
@@ -1918,6 +1955,57 @@ class TestEndpoint:
             service_account=_TEST_SERVICE_ACCOUNT,
         )
         deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_endpoint_v1beta1_mock", "get_model_mock"
+    )
+    @pytest.mark.parametrize("sync", [True])
+    def test_deploy_with_dedicated_resources_and_gpu_partition_size(
+        self, deploy_model_mock_v1beta1, sync
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint.deploy(
+            model=test_model,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            gpu_partition_size=_TEST_GPU_PARTITION_SIZE,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            gpu_partition_size=_TEST_GPU_PARTITION_SIZE,
+        )
+        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+        deploy_model_mock_v1beta1.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
             deployed_model=expected_deployed_model,
             traffic_split={"0": 100},
