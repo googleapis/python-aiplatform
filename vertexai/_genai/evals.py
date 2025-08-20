@@ -49,21 +49,6 @@ def _BleuInstance_to_vertex(
     return to_object
 
 
-def _BleuSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["use_effective_order"]) is not None:
-        setv(
-            to_object,
-            ["useEffectiveOrder"],
-            getv(from_object, ["use_effective_order"]),
-        )
-
-    return to_object
-
-
 def _BleuInput_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -80,11 +65,7 @@ def _BleuInput_to_vertex(
         )
 
     if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _BleuSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
-        )
+        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
 
     return to_object
 
@@ -99,15 +80,6 @@ def _ExactMatchInstance_to_vertex(
 
     if getv(from_object, ["reference"]) is not None:
         setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _ExactMatchSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
 
     return to_object
 
@@ -128,11 +100,7 @@ def _ExactMatchInput_to_vertex(
         )
 
     if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ExactMatchSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
-        )
+        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
 
     return to_object
 
@@ -147,27 +115,6 @@ def _RougeInstance_to_vertex(
 
     if getv(from_object, ["reference"]) is not None:
         setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _RougeSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["rouge_type"]) is not None:
-        setv(to_object, ["rougeType"], getv(from_object, ["rouge_type"]))
-
-    if getv(from_object, ["split_summaries"]) is not None:
-        setv(
-            to_object,
-            ["splitSummaries"],
-            getv(from_object, ["split_summaries"]),
-        )
-
-    if getv(from_object, ["use_stemmer"]) is not None:
-        setv(to_object, ["useStemmer"], getv(from_object, ["use_stemmer"]))
 
     return to_object
 
@@ -188,11 +135,7 @@ def _RougeInput_to_vertex(
         )
 
     if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _RougeSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
-        )
+        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
 
     return to_object
 
@@ -215,35 +158,6 @@ def _PointwiseMetricInstance_to_vertex(
     return to_object
 
 
-def _PointwiseMetricSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric_prompt_template"]) is not None:
-        setv(
-            to_object,
-            ["metricPromptTemplate"],
-            getv(from_object, ["metric_prompt_template"]),
-        )
-
-    if getv(from_object, ["custom_output_format_config"]) is not None:
-        setv(
-            to_object,
-            ["customOutputFormatConfig"],
-            getv(from_object, ["custom_output_format_config"]),
-        )
-
-    if getv(from_object, ["system_instruction"]) is not None:
-        setv(
-            to_object,
-            ["systemInstruction"],
-            getv(from_object, ["system_instruction"]),
-        )
-
-    return to_object
-
-
 def _PointwiseMetricInput_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -259,13 +173,7 @@ def _PointwiseMetricInput_to_vertex(
         )
 
     if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _PointwiseMetricSpec_to_vertex(
-                getv(from_object, ["metric_spec"]), to_object
-            ),
-        )
+        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
 
     return to_object
 
@@ -278,49 +186,6 @@ def _PairwiseMetricInstance_to_vertex(
 
     if getv(from_object, ["json_instance"]) is not None:
         setv(to_object, ["jsonInstance"], getv(from_object, ["json_instance"]))
-
-    return to_object
-
-
-def _PairwiseMetricSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric_prompt_template"]) is not None:
-        setv(
-            to_object,
-            ["metricPromptTemplate"],
-            getv(from_object, ["metric_prompt_template"]),
-        )
-
-    if getv(from_object, ["baseline_response_field_name"]) is not None:
-        setv(
-            to_object,
-            ["baselineResponseFieldName"],
-            getv(from_object, ["baseline_response_field_name"]),
-        )
-
-    if getv(from_object, ["candidate_response_field_name"]) is not None:
-        setv(
-            to_object,
-            ["candidateResponseFieldName"],
-            getv(from_object, ["candidate_response_field_name"]),
-        )
-
-    if getv(from_object, ["custom_output_format_config"]) is not None:
-        setv(
-            to_object,
-            ["customOutputFormatConfig"],
-            getv(from_object, ["custom_output_format_config"]),
-        )
-
-    if getv(from_object, ["system_instruction"]) is not None:
-        setv(
-            to_object,
-            ["systemInstruction"],
-            getv(from_object, ["system_instruction"]),
-        )
 
     return to_object
 
@@ -340,13 +205,7 @@ def _PairwiseMetricInput_to_vertex(
         )
 
     if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _PairwiseMetricSpec_to_vertex(
-                getv(from_object, ["metric_spec"]), to_object
-            ),
-        )
+        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
 
     return to_object
 
@@ -553,27 +412,6 @@ def _ToolParameterKVMatchInput_to_vertex(
     return to_object
 
 
-def _AutoraterConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sampling_count"]) is not None:
-        setv(to_object, ["samplingCount"], getv(from_object, ["sampling_count"]))
-
-    if getv(from_object, ["flip_enabled"]) is not None:
-        setv(to_object, ["flipEnabled"], getv(from_object, ["flip_enabled"]))
-
-    if getv(from_object, ["autorater_model"]) is not None:
-        setv(
-            to_object,
-            ["autoraterModel"],
-            getv(from_object, ["autorater_model"]),
-        )
-
-    return to_object
-
-
 def _EvaluateInstancesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -667,9 +505,7 @@ def _EvaluateInstancesRequestParameters_to_vertex(
         setv(
             to_object,
             ["autoraterConfig"],
-            _AutoraterConfig_to_vertex(
-                getv(from_object, ["autorater_config"]), to_object
-            ),
+            getv(from_object, ["autorater_config"]),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -902,7 +738,7 @@ class Evals(_api_module.BaseModule):
             types.ToolParameterKVMatchInputOrDict
         ] = None,
         rubric_based_metric_input: Optional[types.RubricBasedMetricInputOrDict] = None,
-        autorater_config: Optional[types.AutoraterConfigOrDict] = None,
+        autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """Evaluates instances based on a given metric."""
@@ -1329,7 +1165,7 @@ class AsyncEvals(_api_module.BaseModule):
             types.ToolParameterKVMatchInputOrDict
         ] = None,
         rubric_based_metric_input: Optional[types.RubricBasedMetricInputOrDict] = None,
-        autorater_config: Optional[types.AutoraterConfigOrDict] = None,
+        autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """Evaluates instances based on a given metric."""
