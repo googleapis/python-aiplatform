@@ -47,16 +47,22 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.featurestore_service import pagers
+from google.cloud.aiplatform_v1beta1.services.featurestore_service import (
+    pagers,
+)
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import entity_type
-from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
+from google.cloud.aiplatform_v1beta1.types import (
+    entity_type as gca_entity_type,
+)
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import feature_monitor
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import featurestore
-from google.cloud.aiplatform_v1beta1.types import featurestore as gca_featurestore
+from google.cloud.aiplatform_v1beta1.types import (
+    featurestore as gca_featurestore,
+)
 from google.cloud.aiplatform_v1beta1.types import featurestore_monitoring
 from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -304,21 +310,23 @@ class FeaturestoreServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient`.",
-                extra={
-                    "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                    "universeDomain": getattr(
-                        self._client._transport._credentials, "universe_domain", ""
-                    ),
-                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                    "credentialsInfo": getattr(
-                        self.transport._credentials, "get_cred_info", lambda: None
-                    )(),
-                }
-                if hasattr(self._client._transport, "_credentials")
-                else {
-                    "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                    "credentialsType": None,
-                },
+                extra=(
+                    {
+                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
+                        "universeDomain": getattr(
+                            self._client._transport._credentials, "universe_domain", ""
+                        ),
+                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                        "credentialsInfo": getattr(
+                            self.transport._credentials, "get_cred_info", lambda: None
+                        )(),
+                    }
+                    if hasattr(self._client._transport, "_credentials")
+                    else {
+                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
+                        "credentialsType": None,
+                    }
+                ),
             )
 
     async def create_featurestore(

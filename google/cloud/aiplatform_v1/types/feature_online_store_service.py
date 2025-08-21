@@ -54,6 +54,7 @@ class FeatureViewDataFormat(proto.Enum):
         PROTO_STRUCT (2):
             Return response data in proto Struct format.
     """
+
     FEATURE_VIEW_DATA_FORMAT_UNSPECIFIED = 0
     KEY_VALUE = 1
     PROTO_STRUCT = 2
@@ -385,6 +386,7 @@ class NearestNeighborQuery(proto.Message):
                     Entities are eligible if their value is !=
                     the query's.
             """
+
             OPERATOR_UNSPECIFIED = 0
             LESS = 1
             LESS_EQUAL = 2
@@ -645,12 +647,12 @@ class FeatureViewDirectWriteRequest(proto.Message):
         proto.STRING,
         number=1,
     )
-    data_key_and_feature_values: MutableSequence[
-        DataKeyAndFeatureValues
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message=DataKeyAndFeatureValues,
+    data_key_and_feature_values: MutableSequence[DataKeyAndFeatureValues] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message=DataKeyAndFeatureValues,
+        )
     )
 
 

@@ -774,6 +774,7 @@ class Examples(proto.Message):
                 JSONL (1):
                     Examples are stored in JSONL files.
             """
+
             DATA_FORMAT_UNSPECIFIED = 0
             JSONL = 1
 
@@ -845,6 +846,7 @@ class Presets(proto.Message):
                 Faster response as a trade-off against less
                 precise neighbors.
         """
+
         PRECISE = 0
         FAST = 1
 
@@ -862,6 +864,7 @@ class Presets(proto.Message):
             TABULAR (3):
                 TABULAR modality
         """
+
         MODALITY_UNSPECIFIED = 0
         IMAGE = 1
         TEXT = 2
@@ -995,6 +998,7 @@ class ExamplesOverride(proto.Message):
             EMBEDDINGS (2):
                 Provided data is a set of embeddings.
         """
+
         DATA_FORMAT_UNSPECIFIED = 0
         INSTANCES = 1
         EMBEDDINGS = 2
@@ -1007,12 +1011,12 @@ class ExamplesOverride(proto.Message):
         proto.INT32,
         number=2,
     )
-    restrictions: MutableSequence[
-        "ExamplesRestrictionsNamespace"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=3,
-        message="ExamplesRestrictionsNamespace",
+    restrictions: MutableSequence["ExamplesRestrictionsNamespace"] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=3,
+            message="ExamplesRestrictionsNamespace",
+        )
     )
     return_embeddings: bool = proto.Field(
         proto.BOOL,

@@ -711,13 +711,13 @@ class ExplainResponse(proto.Message):
         number=1,
         message=explanation.Explanation,
     )
-    concurrent_explanations: MutableMapping[
-        str, ConcurrentExplanation
-    ] = proto.MapField(
-        proto.STRING,
-        proto.MESSAGE,
-        number=4,
-        message=ConcurrentExplanation,
+    concurrent_explanations: MutableMapping[str, ConcurrentExplanation] = (
+        proto.MapField(
+            proto.STRING,
+            proto.MESSAGE,
+            number=4,
+            message=ConcurrentExplanation,
+        )
     )
     deployed_model_id: str = proto.Field(
         proto.STRING,
@@ -834,12 +834,12 @@ class CountTokensResponse(proto.Message):
         proto.INT32,
         number=2,
     )
-    prompt_tokens_details: MutableSequence[
-        content.ModalityTokenCount
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=3,
-        message=content.ModalityTokenCount,
+    prompt_tokens_details: MutableSequence[content.ModalityTokenCount] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=3,
+            message=content.ModalityTokenCount,
+        )
     )
 
 
@@ -1017,6 +1017,7 @@ class GenerateContentResponse(proto.Message):
                 MODEL_ARMOR (5):
                     The user prompt was blocked by Model Armor.
             """
+
             BLOCKED_REASON_UNSPECIFIED = 0
             SAFETY = 1
             OTHER = 2
@@ -1091,26 +1092,26 @@ class GenerateContentResponse(proto.Message):
             proto.INT32,
             number=5,
         )
-        prompt_tokens_details: MutableSequence[
-            content.ModalityTokenCount
-        ] = proto.RepeatedField(
-            proto.MESSAGE,
-            number=9,
-            message=content.ModalityTokenCount,
+        prompt_tokens_details: MutableSequence[content.ModalityTokenCount] = (
+            proto.RepeatedField(
+                proto.MESSAGE,
+                number=9,
+                message=content.ModalityTokenCount,
+            )
         )
-        cache_tokens_details: MutableSequence[
-            content.ModalityTokenCount
-        ] = proto.RepeatedField(
-            proto.MESSAGE,
-            number=10,
-            message=content.ModalityTokenCount,
+        cache_tokens_details: MutableSequence[content.ModalityTokenCount] = (
+            proto.RepeatedField(
+                proto.MESSAGE,
+                number=10,
+                message=content.ModalityTokenCount,
+            )
         )
-        candidates_tokens_details: MutableSequence[
-            content.ModalityTokenCount
-        ] = proto.RepeatedField(
-            proto.MESSAGE,
-            number=11,
-            message=content.ModalityTokenCount,
+        candidates_tokens_details: MutableSequence[content.ModalityTokenCount] = (
+            proto.RepeatedField(
+                proto.MESSAGE,
+                number=11,
+                message=content.ModalityTokenCount,
+            )
         )
 
     candidates: MutableSequence[content.Candidate] = proto.RepeatedField(

@@ -27,7 +27,9 @@ except ImportError:
         'Please install the SDK using `pip install "google-cloud-aiplatform[prediction]>=1.16.0"`.'
     )
 
-from google.cloud.aiplatform.constants import prediction as prediction_constants
+from google.cloud.aiplatform.constants import (
+    prediction as prediction_constants,
+)
 from google.cloud.aiplatform.prediction import handler_utils
 
 

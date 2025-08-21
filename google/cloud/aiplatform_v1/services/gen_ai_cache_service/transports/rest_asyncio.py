@@ -49,7 +49,9 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
 from google.cloud.aiplatform_v1.types import cached_content
-from google.cloud.aiplatform_v1.types import cached_content as gca_cached_content
+from google.cloud.aiplatform_v1.types import (
+    cached_content as gca_cached_content,
+)
 from google.cloud.aiplatform_v1.types import gen_ai_cache_service
 from google.protobuf import empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
@@ -1606,7 +1608,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
-
             r"""Call the get location method over HTTP.
 
             Args:
@@ -1759,7 +1760,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
-
             r"""Call the list locations method over HTTP.
 
             Args:
@@ -1912,7 +1912,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
-
             r"""Call the get iam policy method over HTTP.
 
             Args:
@@ -2066,7 +2065,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
-
             r"""Call the set iam policy method over HTTP.
 
             Args:
@@ -2224,7 +2222,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
-
             r"""Call the test iam permissions method over HTTP.
 
             Args:
@@ -2375,7 +2372,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
-
             r"""Call the cancel operation method over HTTP.
 
             Args:
@@ -2498,7 +2494,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
-
             r"""Call the delete operation method over HTTP.
 
             Args:
@@ -2621,7 +2616,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
-
             r"""Call the get operation method over HTTP.
 
             Args:
@@ -2774,7 +2768,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
-
             r"""Call the list operations method over HTTP.
 
             Args:
@@ -2927,7 +2920,6 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
-
             r"""Call the wait operation method over HTTP.
 
             Args:

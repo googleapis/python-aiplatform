@@ -649,8 +649,7 @@ class _GenerativeModel:
         tool_config: Optional["ToolConfig"] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[False] = False,
-    ) -> "GenerationResponse":
-        ...
+    ) -> "GenerationResponse": ...
 
     @overload
     def generate_content(
@@ -663,8 +662,7 @@ class _GenerativeModel:
         tool_config: Optional["ToolConfig"] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[True],
-    ) -> Iterable["GenerationResponse"]:
-        ...
+    ) -> Iterable["GenerationResponse"]: ...
 
     def generate_content(
         self,
@@ -729,8 +727,7 @@ class _GenerativeModel:
         tool_config: Optional["ToolConfig"] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[False] = False,
-    ) -> "GenerationResponse":
-        ...
+    ) -> "GenerationResponse": ...
 
     @overload
     async def generate_content_async(
@@ -743,8 +740,7 @@ class _GenerativeModel:
         tool_config: Optional["ToolConfig"] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[True] = True,
-    ) -> AsyncIterable["GenerationResponse"]:
-        ...
+    ) -> AsyncIterable["GenerationResponse"]: ...
 
     async def generate_content_async(
         self,
@@ -1295,8 +1291,7 @@ class ChatSession:
         tools: Optional[List["Tool"]] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[False] = False,
-    ) -> "GenerationResponse":
-        ...
+    ) -> "GenerationResponse": ...
 
     @overload
     def send_message(
@@ -1308,8 +1303,7 @@ class ChatSession:
         tools: Optional[List["Tool"]] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[True] = True,
-    ) -> Iterable["GenerationResponse"]:
-        ...
+    ) -> Iterable["GenerationResponse"]: ...
 
     def send_message(
         self,
@@ -1369,8 +1363,7 @@ class ChatSession:
         tools: Optional[List["Tool"]] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[False] = False,
-    ) -> Awaitable["GenerationResponse"]:
-        ...
+    ) -> Awaitable["GenerationResponse"]: ...
 
     @overload
     def send_message_async(
@@ -1382,8 +1375,7 @@ class ChatSession:
         tools: Optional[List["Tool"]] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[True] = True,
-    ) -> Awaitable[AsyncIterable["GenerationResponse"]]:
-        ...
+    ) -> Awaitable[AsyncIterable["GenerationResponse"]]: ...
 
     def send_message_async(
         self,
@@ -2974,9 +2966,11 @@ class grounding:  # pylint: disable=invalid-name
         ):
             """Initializes a Google Search Retrieval tool."""
             self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval(
-                dynamic_retrieval_config=dynamic_retrieval_config._raw_dynamic_retrieval_config
-                if dynamic_retrieval_config
-                else None
+                dynamic_retrieval_config=(
+                    dynamic_retrieval_config._raw_dynamic_retrieval_config
+                    if dynamic_retrieval_config
+                    else None
+                )
             )
 
     class Retrieval:

@@ -20,7 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import operation
-from google.cloud.aiplatform_v1.types import reasoning_engine as gca_reasoning_engine
+from google.cloud.aiplatform_v1.types import (
+    reasoning_engine as gca_reasoning_engine,
+)
 from google.protobuf import field_mask_pb2  # type: ignore
 
 
@@ -192,12 +194,12 @@ class ListReasoningEnginesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    reasoning_engines: MutableSequence[
-        gca_reasoning_engine.ReasoningEngine
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_reasoning_engine.ReasoningEngine,
+    reasoning_engines: MutableSequence[gca_reasoning_engine.ReasoningEngine] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_reasoning_engine.ReasoningEngine,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

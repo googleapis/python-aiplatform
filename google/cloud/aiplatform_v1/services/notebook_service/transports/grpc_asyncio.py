@@ -376,12 +376,12 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_notebook_runtime_template" not in self._stubs:
-            self._stubs[
-                "create_notebook_runtime_template"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.NotebookService/CreateNotebookRuntimeTemplate",
-                request_serializer=notebook_service.CreateNotebookRuntimeTemplateRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["create_notebook_runtime_template"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.NotebookService/CreateNotebookRuntimeTemplate",
+                    request_serializer=notebook_service.CreateNotebookRuntimeTemplateRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["create_notebook_runtime_template"]
 
@@ -407,12 +407,12 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_notebook_runtime_template" not in self._stubs:
-            self._stubs[
-                "get_notebook_runtime_template"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.NotebookService/GetNotebookRuntimeTemplate",
-                request_serializer=notebook_service.GetNotebookRuntimeTemplateRequest.serialize,
-                response_deserializer=notebook_runtime.NotebookRuntimeTemplate.deserialize,
+            self._stubs["get_notebook_runtime_template"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.NotebookService/GetNotebookRuntimeTemplate",
+                    request_serializer=notebook_service.GetNotebookRuntimeTemplateRequest.serialize,
+                    response_deserializer=notebook_runtime.NotebookRuntimeTemplate.deserialize,
+                )
             )
         return self._stubs["get_notebook_runtime_template"]
 
@@ -439,12 +439,12 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_notebook_runtime_templates" not in self._stubs:
-            self._stubs[
-                "list_notebook_runtime_templates"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.NotebookService/ListNotebookRuntimeTemplates",
-                request_serializer=notebook_service.ListNotebookRuntimeTemplatesRequest.serialize,
-                response_deserializer=notebook_service.ListNotebookRuntimeTemplatesResponse.deserialize,
+            self._stubs["list_notebook_runtime_templates"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.NotebookService/ListNotebookRuntimeTemplates",
+                    request_serializer=notebook_service.ListNotebookRuntimeTemplatesRequest.serialize,
+                    response_deserializer=notebook_service.ListNotebookRuntimeTemplatesResponse.deserialize,
+                )
             )
         return self._stubs["list_notebook_runtime_templates"]
 
@@ -471,12 +471,12 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_notebook_runtime_template" not in self._stubs:
-            self._stubs[
-                "delete_notebook_runtime_template"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.NotebookService/DeleteNotebookRuntimeTemplate",
-                request_serializer=notebook_service.DeleteNotebookRuntimeTemplateRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["delete_notebook_runtime_template"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.NotebookService/DeleteNotebookRuntimeTemplate",
+                    request_serializer=notebook_service.DeleteNotebookRuntimeTemplateRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["delete_notebook_runtime_template"]
 
@@ -503,12 +503,12 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_notebook_runtime_template" not in self._stubs:
-            self._stubs[
-                "update_notebook_runtime_template"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.NotebookService/UpdateNotebookRuntimeTemplate",
-                request_serializer=notebook_service.UpdateNotebookRuntimeTemplateRequest.serialize,
-                response_deserializer=notebook_runtime.NotebookRuntimeTemplate.deserialize,
+            self._stubs["update_notebook_runtime_template"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.NotebookService/UpdateNotebookRuntimeTemplate",
+                    request_serializer=notebook_service.UpdateNotebookRuntimeTemplateRequest.serialize,
+                    response_deserializer=notebook_runtime.NotebookRuntimeTemplate.deserialize,
+                )
             )
         return self._stubs["update_notebook_runtime_template"]
 
@@ -739,12 +739,12 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_notebook_execution_job" not in self._stubs:
-            self._stubs[
-                "create_notebook_execution_job"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.NotebookService/CreateNotebookExecutionJob",
-                request_serializer=notebook_service.CreateNotebookExecutionJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["create_notebook_execution_job"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.NotebookService/CreateNotebookExecutionJob",
+                    request_serializer=notebook_service.CreateNotebookExecutionJobRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["create_notebook_execution_job"]
 
@@ -770,12 +770,12 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_notebook_execution_job" not in self._stubs:
-            self._stubs[
-                "get_notebook_execution_job"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.NotebookService/GetNotebookExecutionJob",
-                request_serializer=notebook_service.GetNotebookExecutionJobRequest.serialize,
-                response_deserializer=notebook_execution_job.NotebookExecutionJob.deserialize,
+            self._stubs["get_notebook_execution_job"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.NotebookService/GetNotebookExecutionJob",
+                    request_serializer=notebook_service.GetNotebookExecutionJobRequest.serialize,
+                    response_deserializer=notebook_execution_job.NotebookExecutionJob.deserialize,
+                )
             )
         return self._stubs["get_notebook_execution_job"]
 
@@ -801,12 +801,12 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_notebook_execution_jobs" not in self._stubs:
-            self._stubs[
-                "list_notebook_execution_jobs"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.NotebookService/ListNotebookExecutionJobs",
-                request_serializer=notebook_service.ListNotebookExecutionJobsRequest.serialize,
-                response_deserializer=notebook_service.ListNotebookExecutionJobsResponse.deserialize,
+            self._stubs["list_notebook_execution_jobs"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.NotebookService/ListNotebookExecutionJobs",
+                    request_serializer=notebook_service.ListNotebookExecutionJobsRequest.serialize,
+                    response_deserializer=notebook_service.ListNotebookExecutionJobsResponse.deserialize,
+                )
             )
         return self._stubs["list_notebook_execution_jobs"]
 
@@ -832,12 +832,12 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_notebook_execution_job" not in self._stubs:
-            self._stubs[
-                "delete_notebook_execution_job"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.NotebookService/DeleteNotebookExecutionJob",
-                request_serializer=notebook_service.DeleteNotebookExecutionJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["delete_notebook_execution_job"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.NotebookService/DeleteNotebookExecutionJob",
+                    request_serializer=notebook_service.DeleteNotebookExecutionJobRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["delete_notebook_execution_job"]
 

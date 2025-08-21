@@ -310,12 +310,12 @@ class QueryDeployedModelsResponse(proto.Message):
         proto.STRING,
         number=2,
     )
-    deployed_model_refs: MutableSequence[
-        deployed_model_ref.DeployedModelRef
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=3,
-        message=deployed_model_ref.DeployedModelRef,
+    deployed_model_refs: MutableSequence[deployed_model_ref.DeployedModelRef] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=3,
+            message=deployed_model_ref.DeployedModelRef,
+        )
     )
     total_deployed_model_count: int = proto.Field(
         proto.INT32,

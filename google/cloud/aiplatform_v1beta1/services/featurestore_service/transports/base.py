@@ -29,7 +29,9 @@ from google.oauth2 import service_account  # type: ignore
 import google.protobuf
 
 from google.cloud.aiplatform_v1beta1.types import entity_type
-from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
+from google.cloud.aiplatform_v1beta1.types import (
+    entity_type as gca_entity_type,
+)
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import featurestore
@@ -539,13 +541,19 @@ class FeaturestoreServiceTransport(abc.ABC):
     @property
     def cancel_operation(
         self,
-    ) -> Callable[[operations_pb2.CancelOperationRequest], None,]:
+    ) -> Callable[
+        [operations_pb2.CancelOperationRequest],
+        None,
+    ]:
         raise NotImplementedError()
 
     @property
     def delete_operation(
         self,
-    ) -> Callable[[operations_pb2.DeleteOperationRequest], None,]:
+    ) -> Callable[
+        [operations_pb2.DeleteOperationRequest],
+        None,
+    ]:
         raise NotImplementedError()
 
     @property

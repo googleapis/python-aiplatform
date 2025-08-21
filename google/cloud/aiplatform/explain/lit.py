@@ -311,7 +311,9 @@ class _TensorFlowLitModel(lit_model.Model):
         """
         try:
             import explainable_ai_sdk
-            from explainable_ai_sdk.metadata.tf.v2 import SavedModelMetadataBuilder
+            from google3.third_party.explainable_ai_sdk.sdk.metadata.tf.v2.saved_model_metadata_builder import (
+                SavedModelMetadataBuilder,
+            )
         except ImportError:
             logging.info(
                 "Skipping explanations because the Explainable AI SDK is not installed."
