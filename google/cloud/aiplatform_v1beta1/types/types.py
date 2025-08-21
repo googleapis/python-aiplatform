@@ -164,6 +164,7 @@ class Tensor(proto.Message):
             UINT64 (12):
                 No description available.
         """
+
         DATA_TYPE_UNSPECIFIED = 0
         BOOL = 1
         STRING = 2

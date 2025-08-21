@@ -92,7 +92,9 @@ class _SkewDetectionConfig:
 
     def as_proto(
         self,
-    ) -> gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig:
+    ) -> (
+        gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig
+    ):
         """Converts _SkewDetectionConfig to a proto message.
 
         Returns:
@@ -117,9 +119,9 @@ class _SkewDetectionConfig:
                 attribution_score_skew_threshold = gca_model_monitoring.ThresholdConfig(
                     value=self.attribute_skew_thresholds[key]
                 )
-                attribution_score_skew_thresholds_mapping[
-                    key
-                ] = attribution_score_skew_threshold
+                attribution_score_skew_thresholds_mapping[key] = (
+                    attribution_score_skew_threshold
+                )
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
             skew_thresholds=skew_thresholds_mapping,
             attribution_score_skew_thresholds=attribution_score_skew_thresholds_mapping,
@@ -153,7 +155,9 @@ class _DriftDetectionConfig:
 
     def as_proto(
         self,
-    ) -> gca_model_monitoring.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig:
+    ) -> (
+        gca_model_monitoring.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig
+    ):
         """Converts _DriftDetectionConfig to a proto message.
 
         Returns:
@@ -174,9 +178,9 @@ class _DriftDetectionConfig:
                         value=self.attribute_drift_thresholds[key]
                     )
                 )
-                attribution_score_drift_thresholds_mapping[
-                    key
-                ] = attribution_score_drift_threshold
+                attribution_score_drift_thresholds_mapping[key] = (
+                    attribution_score_drift_threshold
+                )
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
             drift_thresholds=drift_thresholds_mapping,
             attribution_score_drift_thresholds=attribution_score_drift_thresholds_mapping,
@@ -264,15 +268,21 @@ class _ObjectiveConfig:
         # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
         gapic_config = gca_model_monitoring.ModelMonitoringObjectiveConfig(
             training_dataset=training_dataset,
-            training_prediction_skew_detection_config=self.skew_detection_config.as_proto()
-            if self.skew_detection_config is not None
-            else None,
-            prediction_drift_detection_config=self.drift_detection_config.as_proto()
-            if self.drift_detection_config is not None
-            else None,
-            explanation_config=self.explanation_config.as_proto()
-            if self.explanation_config is not None
-            else None,
+            training_prediction_skew_detection_config=(
+                self.skew_detection_config.as_proto()
+                if self.skew_detection_config is not None
+                else None
+            ),
+            prediction_drift_detection_config=(
+                self.drift_detection_config.as_proto()
+                if self.drift_detection_config is not None
+                else None
+            ),
+            explanation_config=(
+                self.explanation_config.as_proto()
+                if self.explanation_config is not None
+                else None
+            ),
         )
         if self._config_for_bp:
             return (

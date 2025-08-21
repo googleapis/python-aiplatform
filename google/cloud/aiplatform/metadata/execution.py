@@ -324,9 +324,9 @@ class Execution(resource._Resource):
         events = [
             gca_event.Event(
                 artifact=artifact_resource_name,
-                type_=gca_event.Event.Type.INPUT
-                if input
-                else gca_event.Event.Type.OUTPUT,
+                type_=(
+                    gca_event.Event.Type.INPUT if input else gca_event.Event.Type.OUTPUT
+                ),
             )
             for artifact_resource_name in artifact_resource_names
         ]

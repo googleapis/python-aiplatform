@@ -19,7 +19,9 @@ from unittest import mock
 from google import auth
 import vertexai
 from google.cloud.aiplatform import initializer
-from vertexai.preview.reasoning_engines.templates import llama_index
+from vertexai.preview.reasoning_engines.templates import (
+    llama_index,
+)
 from vertexai.reasoning_engines import _utils
 
 from llama_index.core import prompts

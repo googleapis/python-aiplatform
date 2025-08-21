@@ -18,12 +18,20 @@ from google.cloud.aiplatform.utils.enhanced_library import _decorators
 from google.cloud.aiplatform.v1.schema import predict
 from google.cloud.aiplatform.v1.schema import trainingjob
 from google.cloud.aiplatform.v1beta1.schema import predict as predict_v1beta1
-from google.cloud.aiplatform.v1beta1.schema import predict as trainingjob_v1beta1
+from google.cloud.aiplatform.v1beta1.schema import (
+    predict as trainingjob_v1beta1,
+)
 
 # import the v1 submodules for enhancement
-from google.cloud.aiplatform.v1.schema.predict.instance_v1 import types as instance
-from google.cloud.aiplatform.v1.schema.predict.params_v1 import types as params
-from google.cloud.aiplatform.v1.schema.predict.prediction_v1 import types as prediction
+from google.cloud.aiplatform.v1.schema.predict.instance_v1 import (
+    types as instance,
+)
+from google.cloud.aiplatform.v1.schema.predict.params_v1 import (
+    types as params,
+)
+from google.cloud.aiplatform.v1.schema.predict.prediction_v1 import (
+    types as prediction,
+)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1 import (
     types as definition,
 )

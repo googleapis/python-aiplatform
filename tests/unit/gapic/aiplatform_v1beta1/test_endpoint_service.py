@@ -73,7 +73,9 @@ from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     EndpointServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import pagers
-from google.cloud.aiplatform_v1beta1.services.endpoint_service import transports
+from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint
@@ -4275,9 +4277,9 @@ def test_mutate_deployed_model_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.mutate_deployed_model
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.mutate_deployed_model] = (
+            mock_rpc
+        )
         request = {}
         client.mutate_deployed_model(request)
 
@@ -6906,9 +6908,9 @@ def test_mutate_deployed_model_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.mutate_deployed_model
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.mutate_deployed_model] = (
+            mock_rpc
+        )
 
         request = {}
         client.mutate_deployed_model(request)
@@ -8453,9 +8455,9 @@ def test_create_endpoint_rest_call_success(request_type):
 def test_create_endpoint_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -8605,9 +8607,9 @@ def test_get_endpoint_rest_call_success(request_type):
 def test_get_endpoint_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -8732,9 +8734,9 @@ def test_list_endpoints_rest_call_success(request_type):
 def test_list_endpoints_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -9126,9 +9128,9 @@ def test_update_endpoint_rest_call_success(request_type):
 def test_update_endpoint_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -9251,9 +9253,9 @@ def test_update_endpoint_long_running_rest_call_success(request_type):
 def test_update_endpoint_long_running_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -9375,9 +9377,9 @@ def test_delete_endpoint_rest_call_success(request_type):
 def test_delete_endpoint_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -9498,9 +9500,9 @@ def test_deploy_model_rest_call_success(request_type):
 def test_deploy_model_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -9621,9 +9623,9 @@ def test_undeploy_model_rest_call_success(request_type):
 def test_undeploy_model_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -9744,9 +9746,9 @@ def test_mutate_deployed_model_rest_call_success(request_type):
 def test_mutate_deployed_model_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -9872,9 +9874,9 @@ def test_set_publisher_model_config_rest_call_success(request_type):
 def test_set_publisher_model_config_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -10003,9 +10005,9 @@ def test_fetch_publisher_model_config_rest_call_success(request_type):
 def test_fetch_publisher_model_config_rest_interceptors(null_interceptor):
     transport = transports.EndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EndpointServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceClient(transport=transport)
 
@@ -11266,9 +11268,11 @@ async def test_create_endpoint_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -11435,9 +11439,11 @@ async def test_get_endpoint_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -11579,9 +11585,11 @@ async def test_list_endpoints_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -11990,9 +11998,11 @@ async def test_update_endpoint_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -12132,9 +12142,11 @@ async def test_update_endpoint_long_running_rest_asyncio_interceptors(null_inter
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -12274,9 +12286,11 @@ async def test_delete_endpoint_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -12414,9 +12428,11 @@ async def test_deploy_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -12554,9 +12570,11 @@ async def test_undeploy_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -12694,9 +12712,11 @@ async def test_mutate_deployed_model_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -12838,9 +12858,11 @@ async def test_set_publisher_model_config_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 
@@ -12986,9 +13008,11 @@ async def test_fetch_publisher_model_config_rest_asyncio_interceptors(null_inter
         )
     transport = transports.AsyncEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEndpointServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEndpointServiceRestInterceptor()
+        ),
     )
     client = EndpointServiceAsyncClient(transport=transport)
 

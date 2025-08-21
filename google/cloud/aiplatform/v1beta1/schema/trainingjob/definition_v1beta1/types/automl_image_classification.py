@@ -131,6 +131,7 @@ class AutoMlImageClassificationInputs(proto.Message):
                 but should also have a higher prediction quality
                 than other mobile models.
         """
+
         MODEL_TYPE_UNSPECIFIED = 0
         CLOUD = 1
         MOBILE_TF_LOW_LATENCY_1 = 2
@@ -189,6 +190,7 @@ class AutoMlImageClassificationMetadata(proto.Message):
                 increase its quality, since it already has
                 converged.
         """
+
         SUCCESSFUL_STOP_REASON_UNSPECIFIED = 0
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2

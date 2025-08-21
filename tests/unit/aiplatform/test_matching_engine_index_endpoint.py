@@ -1490,11 +1490,13 @@ class TestMatchingEngineIndexEndpoint:
                                     i
                                 ].sparse_embedding_dimensions,
                             ),
-                            rrf=match_service_pb2.MatchRequest.RRF(
-                                alpha=_TEST_HYBRID_QUERIES[i].rrf_ranking_alpha,
-                            )
-                            if _TEST_HYBRID_QUERIES[i].rrf_ranking_alpha
-                            else None,
+                            rrf=(
+                                match_service_pb2.MatchRequest.RRF(
+                                    alpha=_TEST_HYBRID_QUERIES[i].rrf_ranking_alpha,
+                                )
+                                if _TEST_HYBRID_QUERIES[i].rrf_ranking_alpha
+                                else None
+                            ),
                         )
                         for i in range(len(_TEST_HYBRID_QUERIES))
                     ],

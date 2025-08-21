@@ -62,9 +62,7 @@ def _create_placeholder_response_candidate(
 class _GeminiEvalDataConverter(_EvalDataConverter):
     """Converter for dataset in the Gemini format."""
 
-    def _parse_request(
-        self, request_data: dict[str, Any]
-    ) -> tuple[
+    def _parse_request(self, request_data: dict[str, Any]) -> tuple[
         genai_types.Content,
         genai_types.Content,
         list[types.Message],
@@ -305,9 +303,7 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
 class _OpenAIDataConverter(_EvalDataConverter):
     """Converter for dataset in OpenAI's Chat Completion format."""
 
-    def _parse_messages(
-        self, messages: list[dict[str, Any]]
-    ) -> tuple[
+    def _parse_messages(self, messages: list[dict[str, Any]]) -> tuple[
         Optional[genai_types.Content],
         list[types.Message],
         Optional[genai_types.Content],

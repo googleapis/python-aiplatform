@@ -90,6 +90,7 @@ class TensorboardTimeSeries(proto.Message):
                 of blob sequences. E.g. set of sample images
                 with labels over epochs/time.
         """
+
         VALUE_TYPE_UNSPECIFIED = 0
         SCALAR = 1
         TENSOR = 2

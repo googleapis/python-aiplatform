@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import struct_pb2  # type: ignore

@@ -72,12 +72,18 @@ from google.cloud.aiplatform_v1beta1.services.example_store_service import (
 from google.cloud.aiplatform_v1beta1.services.example_store_service import (
     ExampleStoreServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.example_store_service import pagers
-from google.cloud.aiplatform_v1beta1.services.example_store_service import transports
+from google.cloud.aiplatform_v1beta1.services.example_store_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1beta1.services.example_store_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import example
 from google.cloud.aiplatform_v1beta1.types import example_store
-from google.cloud.aiplatform_v1beta1.types import example_store as gca_example_store
+from google.cloud.aiplatform_v1beta1.types import (
+    example_store as gca_example_store,
+)
 from google.cloud.aiplatform_v1beta1.types import example_store_service
 from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.location import locations_pb2
@@ -1292,9 +1298,9 @@ def test_create_example_store_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.create_example_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.create_example_store] = (
+            mock_rpc
+        )
         request = {}
         client.create_example_store(request)
 
@@ -1653,9 +1659,9 @@ def test_get_example_store_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_example_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_example_store] = (
+            mock_rpc
+        )
         request = {}
         client.get_example_store(request)
 
@@ -1992,9 +1998,9 @@ def test_update_example_store_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.update_example_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.update_example_store] = (
+            mock_rpc
+        )
         request = {}
         client.update_example_store(request)
 
@@ -2348,9 +2354,9 @@ def test_delete_example_store_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.delete_example_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.delete_example_store] = (
+            mock_rpc
+        )
         request = {}
         client.delete_example_store(request)
 
@@ -2701,9 +2707,9 @@ def test_list_example_stores_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_example_stores
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_example_stores] = (
+            mock_rpc
+        )
         request = {}
         client.list_example_stores(request)
 
@@ -4329,9 +4335,9 @@ def test_create_example_store_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.create_example_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.create_example_store] = (
+            mock_rpc
+        )
 
         request = {}
         client.create_example_store(request)
@@ -4519,9 +4525,9 @@ def test_get_example_store_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_example_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_example_store] = (
+            mock_rpc
+        )
 
         request = {}
         client.get_example_store(request)
@@ -4703,9 +4709,9 @@ def test_update_example_store_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.update_example_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.update_example_store] = (
+            mock_rpc
+        )
 
         request = {}
         client.update_example_store(request)
@@ -4888,9 +4894,9 @@ def test_delete_example_store_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.delete_example_store
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.delete_example_store] = (
+            mock_rpc
+        )
 
         request = {}
         client.delete_example_store(request)
@@ -5071,9 +5077,9 @@ def test_list_example_stores_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_example_stores
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_example_stores] = (
+            mock_rpc
+        )
 
         request = {}
         client.list_example_stores(request)
@@ -6582,9 +6588,11 @@ def test_create_example_store_rest_call_success(request_type):
 def test_create_example_store_rest_interceptors(null_interceptor):
     transport = transports.ExampleStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceClient(transport=transport)
 
@@ -6716,9 +6724,11 @@ def test_get_example_store_rest_call_success(request_type):
 def test_get_example_store_rest_interceptors(null_interceptor):
     transport = transports.ExampleStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceClient(transport=transport)
 
@@ -6925,9 +6935,11 @@ def test_update_example_store_rest_call_success(request_type):
 def test_update_example_store_rest_interceptors(null_interceptor):
     transport = transports.ExampleStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceClient(transport=transport)
 
@@ -7049,9 +7061,11 @@ def test_delete_example_store_rest_call_success(request_type):
 def test_delete_example_store_rest_interceptors(null_interceptor):
     transport = transports.ExampleStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceClient(transport=transport)
 
@@ -7179,9 +7193,11 @@ def test_list_example_stores_rest_call_success(request_type):
 def test_list_example_stores_rest_interceptors(null_interceptor):
     transport = transports.ExampleStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceClient(transport=transport)
 
@@ -7313,9 +7329,11 @@ def test_upsert_examples_rest_call_success(request_type):
 def test_upsert_examples_rest_interceptors(null_interceptor):
     transport = transports.ExampleStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceClient(transport=transport)
 
@@ -7450,9 +7468,11 @@ def test_remove_examples_rest_call_success(request_type):
 def test_remove_examples_rest_interceptors(null_interceptor):
     transport = transports.ExampleStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceClient(transport=transport)
 
@@ -7584,9 +7604,11 @@ def test_search_examples_rest_call_success(request_type):
 def test_search_examples_rest_interceptors(null_interceptor):
     transport = transports.ExampleStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceClient(transport=transport)
 
@@ -7721,9 +7743,11 @@ def test_fetch_examples_rest_call_success(request_type):
 def test_fetch_examples_rest_interceptors(null_interceptor):
     transport = transports.ExampleStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceClient(transport=transport)
 
@@ -8793,9 +8817,11 @@ async def test_create_example_store_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExampleStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceAsyncClient(transport=transport)
 
@@ -8943,9 +8969,11 @@ async def test_get_example_store_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExampleStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceAsyncClient(transport=transport)
 
@@ -9168,9 +9196,11 @@ async def test_update_example_store_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExampleStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceAsyncClient(transport=transport)
 
@@ -9308,9 +9338,11 @@ async def test_delete_example_store_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExampleStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceAsyncClient(transport=transport)
 
@@ -9454,9 +9486,11 @@ async def test_list_example_stores_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExampleStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceAsyncClient(transport=transport)
 
@@ -9604,9 +9638,11 @@ async def test_upsert_examples_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExampleStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceAsyncClient(transport=transport)
 
@@ -9757,9 +9793,11 @@ async def test_remove_examples_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExampleStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceAsyncClient(transport=transport)
 
@@ -9907,9 +9945,11 @@ async def test_search_examples_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExampleStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceAsyncClient(transport=transport)
 
@@ -10060,9 +10100,11 @@ async def test_fetch_examples_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExampleStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncExampleStoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncExampleStoreServiceRestInterceptor()
+        ),
     )
     client = ExampleStoreServiceAsyncClient(transport=transport)
 

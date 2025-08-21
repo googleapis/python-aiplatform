@@ -68,7 +68,9 @@ from google.cloud.aiplatform_v1.services.llm_utility_service import (
 from google.cloud.aiplatform_v1.services.llm_utility_service import (
     LlmUtilityServiceClient,
 )
-from google.cloud.aiplatform_v1.services.llm_utility_service import transports
+from google.cloud.aiplatform_v1.services.llm_utility_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import llm_utility_service
 from google.cloud.aiplatform_v1.types import openapi
@@ -2501,9 +2503,9 @@ def test_count_tokens_rest_call_success(request_type):
 def test_count_tokens_rest_interceptors(null_interceptor):
     transport = transports.LlmUtilityServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.LlmUtilityServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.LlmUtilityServiceRestInterceptor()
+        ),
     )
     client = LlmUtilityServiceClient(transport=transport)
 
@@ -2630,9 +2632,9 @@ def test_compute_tokens_rest_call_success(request_type):
 def test_compute_tokens_rest_interceptors(null_interceptor):
     transport = transports.LlmUtilityServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.LlmUtilityServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.LlmUtilityServiceRestInterceptor()
+        ),
     )
     client = LlmUtilityServiceClient(transport=transport)
 
@@ -3463,9 +3465,11 @@ async def test_count_tokens_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncLlmUtilityServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncLlmUtilityServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncLlmUtilityServiceRestInterceptor()
+        ),
     )
     client = LlmUtilityServiceAsyncClient(transport=transport)
 
@@ -3609,9 +3613,11 @@ async def test_compute_tokens_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncLlmUtilityServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncLlmUtilityServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncLlmUtilityServiceRestInterceptor()
+        ),
     )
     client = LlmUtilityServiceAsyncClient(transport=transport)
 

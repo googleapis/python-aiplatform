@@ -21,7 +21,9 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import artifact
 from google.cloud.aiplatform_v1.types import context
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1.types import execution as gca_execution
 from google.cloud.aiplatform_v1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1.types import pipeline_state
@@ -489,6 +491,7 @@ class PipelineTaskDetail(proto.Message):
                 specified in the ``condition`` field of
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec].
         """
+
         STATE_UNSPECIFIED = 0
         PENDING = 1
         RUNNING = 2

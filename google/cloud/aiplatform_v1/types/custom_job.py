@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
@@ -601,6 +603,7 @@ class Scheduling(proto.Message):
                 Flex Start strategy uses DWS to queue for
                 resources.
         """
+
         STRATEGY_UNSPECIFIED = 0
         ON_DEMAND = 1
         LOW_COST = 2

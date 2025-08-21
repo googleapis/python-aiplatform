@@ -473,9 +473,11 @@ class LLMMetricHandler(MetricHandler):
 
         rubric_enhanced_contents = {
             "prompt": [
-                eval_case.prompt.model_dump(mode="json", exclude_none=True)
-                if eval_case.prompt
-                else None
+                (
+                    eval_case.prompt.model_dump(mode="json", exclude_none=True)
+                    if eval_case.prompt
+                    else None
+                )
             ],
             "response": [response_content.model_dump(mode="json", exclude_none=True)],
             "rubric_groups": {
@@ -568,9 +570,9 @@ class LLMMetricHandler(MetricHandler):
                 "return_raw_output": self.metric.return_raw_output
             }
         if self.metric.judge_model_system_instruction:
-            metric_spec_payload[
-                "system_instruction"
-            ] = self.metric.judge_model_system_instruction
+            metric_spec_payload["system_instruction"] = (
+                self.metric.judge_model_system_instruction
+            )
 
         return {
             "pointwise_metric_input": {

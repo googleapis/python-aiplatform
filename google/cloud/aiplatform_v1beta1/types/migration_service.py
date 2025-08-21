@@ -147,12 +147,12 @@ class BatchMigrateResourcesRequest(proto.Message):
         proto.STRING,
         number=1,
     )
-    migrate_resource_requests: MutableSequence[
-        "MigrateResourceRequest"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message="MigrateResourceRequest",
+    migrate_resource_requests: MutableSequence["MigrateResourceRequest"] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message="MigrateResourceRequest",
+        )
     )
 
 
@@ -367,12 +367,12 @@ class BatchMigrateResourcesResponse(proto.Message):
             Successfully migrated resources.
     """
 
-    migrate_resource_responses: MutableSequence[
-        "MigrateResourceResponse"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message="MigrateResourceResponse",
+    migrate_resource_responses: MutableSequence["MigrateResourceResponse"] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message="MigrateResourceResponse",
+        )
     )
 
 

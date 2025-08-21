@@ -114,12 +114,14 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(
             resource_name=feature_name,
-            parent_resource_name_fields={
-                featurestore.Featurestore._resource_noun: featurestore_id,
-                featurestore.EntityType._resource_noun: entity_type_id,
-            }
-            if featurestore_id
-            else featurestore_id,
+            parent_resource_name_fields=(
+                {
+                    featurestore.Featurestore._resource_noun: featurestore_id,
+                    featurestore.EntityType._resource_noun: entity_type_id,
+                }
+                if featurestore_id
+                else featurestore_id
+            ),
         )
 
     def _get_featurestore_name(self) -> str:
@@ -338,11 +340,11 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
                 resource_noun=featurestore.EntityType._resource_noun,
                 parse_resource_name_method=featurestore.EntityType._parse_resource_name,
                 format_resource_name_method=featurestore.EntityType._format_resource_name,
-                parent_resource_name_fields={
-                    featurestore.Featurestore._resource_noun: featurestore_id
-                }
-                if featurestore_id
-                else featurestore_id,
+                parent_resource_name_fields=(
+                    {featurestore.Featurestore._resource_noun: featurestore_id}
+                    if featurestore_id
+                    else featurestore_id
+                ),
                 project=project,
                 location=location,
                 resource_id_validator=featurestore.EntityType._resource_id_validator,
@@ -585,11 +587,11 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             resource_noun=featurestore.EntityType._resource_noun,
             parse_resource_name_method=featurestore.EntityType._parse_resource_name,
             format_resource_name_method=featurestore.EntityType._format_resource_name,
-            parent_resource_name_fields={
-                featurestore.Featurestore._resource_noun: featurestore_id
-            }
-            if featurestore_id
-            else featurestore_id,
+            parent_resource_name_fields=(
+                {featurestore.Featurestore._resource_noun: featurestore_id}
+                if featurestore_id
+                else featurestore_id
+            ),
             project=project,
             location=location,
             resource_id_validator=featurestore.EntityType._resource_id_validator,

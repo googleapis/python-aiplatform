@@ -517,6 +517,7 @@ def _QueryReasoningEngineResponse_from_vertex(
 
 
 class AgentEngines(_api_module.BaseModule):
+
     def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
@@ -1268,9 +1269,9 @@ class AgentEngines(_api_module.BaseModule):
                 for class_method in class_methods
             ]
             update_masks.append("spec.class_methods")
-            agent_engine_spec[
-                "agent_framework"
-            ] = _agent_engines_utils._get_agent_framework(agent=agent)
+            agent_engine_spec["agent_framework"] = (
+                _agent_engines_utils._get_agent_framework(agent=agent)
+            )
             update_masks.append("spec.agent_framework")
             config["spec"] = agent_engine_spec
         if update_masks and mode == "update":
@@ -1848,6 +1849,7 @@ class AgentEngines(_api_module.BaseModule):
 
 
 class AsyncAgentEngines(_api_module.BaseModule):
+
     async def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:

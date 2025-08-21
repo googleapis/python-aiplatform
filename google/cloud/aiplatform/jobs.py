@@ -1325,12 +1325,16 @@ class BatchPredictionJob(_Job):
                 model_monitoring_alert_config._config_for_bp = True
             gapic_mm_config = gca_model_monitoring_v1beta1.ModelMonitoringConfig(
                 objective_configs=[model_monitoring_objective_config.as_proto()],
-                alert_config=model_monitoring_alert_config.as_proto()
-                if model_monitoring_alert_config is not None
-                else None,
-                analysis_instance_schema_uri=analysis_instance_schema_uri
-                if analysis_instance_schema_uri is not None
-                else None,
+                alert_config=(
+                    model_monitoring_alert_config.as_proto()
+                    if model_monitoring_alert_config is not None
+                    else None
+                ),
+                analysis_instance_schema_uri=(
+                    analysis_instance_schema_uri
+                    if analysis_instance_schema_uri is not None
+                    else None
+                ),
             )
             gapic_batch_prediction_job.model_monitoring_config = gapic_mm_config
 
@@ -3297,7 +3301,7 @@ class ModelDeploymentMonitoringJob(_Job):
                     + "]. Note that deployed model IDs are different from the uploaded model's ID"
                 )
                 raise ValueError(error_string)
-            for (deployed_model, objective_config) in objective_configs.items():
+            for deployed_model, objective_config in objective_configs.items():
                 if (
                     deployed_model not in xai_enabled
                     and objective_config.explanation_config is not None

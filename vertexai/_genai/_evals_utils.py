@@ -310,9 +310,9 @@ class LazyLoadedPrebuiltMetric:
 
         blobs = gcs_utils.storage_client.list_blobs(bucket_name, prefix=prefix)
 
-        version_files: list[
-            dict[str, Union[list[int], str]]
-        ] = []  # {'version_parts': [1,0,0], 'filename': 'v1.0.0.yaml'}
+        version_files: list[dict[str, Union[list[int], str]]] = (
+            []
+        )  # {'version_parts': [1,0,0], 'filename': 'v1.0.0.yaml'}
 
         # Regex to capture versions like v1, v1.0, v1.0.0 (supports .yaml and .json)
         # It prioritizes more specific versions (e.g., v1.2.3 over v1.2)

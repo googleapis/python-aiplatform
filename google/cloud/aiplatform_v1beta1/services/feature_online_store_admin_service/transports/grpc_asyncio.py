@@ -35,7 +35,9 @@ import proto  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import feature_online_store
-from google.cloud.aiplatform_v1beta1.types import feature_online_store_admin_service
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_online_store_admin_service,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view_sync
 from google.cloud.location import locations_pb2  # type: ignore
@@ -379,12 +381,12 @@ class FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_feature_online_store" not in self._stubs:
-            self._stubs[
-                "create_feature_online_store"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService/CreateFeatureOnlineStore",
-                request_serializer=feature_online_store_admin_service.CreateFeatureOnlineStoreRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["create_feature_online_store"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService/CreateFeatureOnlineStore",
+                    request_serializer=feature_online_store_admin_service.CreateFeatureOnlineStoreRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["create_feature_online_store"]
 
@@ -440,12 +442,12 @@ class FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_feature_online_stores" not in self._stubs:
-            self._stubs[
-                "list_feature_online_stores"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService/ListFeatureOnlineStores",
-                request_serializer=feature_online_store_admin_service.ListFeatureOnlineStoresRequest.serialize,
-                response_deserializer=feature_online_store_admin_service.ListFeatureOnlineStoresResponse.deserialize,
+            self._stubs["list_feature_online_stores"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService/ListFeatureOnlineStores",
+                    request_serializer=feature_online_store_admin_service.ListFeatureOnlineStoresRequest.serialize,
+                    response_deserializer=feature_online_store_admin_service.ListFeatureOnlineStoresResponse.deserialize,
+                )
             )
         return self._stubs["list_feature_online_stores"]
 
@@ -472,12 +474,12 @@ class FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_feature_online_store" not in self._stubs:
-            self._stubs[
-                "update_feature_online_store"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService/UpdateFeatureOnlineStore",
-                request_serializer=feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["update_feature_online_store"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService/UpdateFeatureOnlineStore",
+                    request_serializer=feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["update_feature_online_store"]
 
@@ -504,12 +506,12 @@ class FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_feature_online_store" not in self._stubs:
-            self._stubs[
-                "delete_feature_online_store"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService/DeleteFeatureOnlineStore",
-                request_serializer=feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["delete_feature_online_store"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreAdminService/DeleteFeatureOnlineStore",
+                    request_serializer=feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["delete_feature_online_store"]
 

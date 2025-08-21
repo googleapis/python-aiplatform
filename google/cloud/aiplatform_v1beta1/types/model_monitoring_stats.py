@@ -131,7 +131,9 @@ class ModelMonitoringStatsDataPoint(proto.Message):
             number=1,
             oneof="value",
         )
-        distribution_value: "ModelMonitoringStatsDataPoint.TypedValue.DistributionDataValue" = proto.Field(
+        distribution_value: (
+            "ModelMonitoringStatsDataPoint.TypedValue.DistributionDataValue"
+        ) = proto.Field(
             proto.MESSAGE,
             number=2,
             oneof="value",

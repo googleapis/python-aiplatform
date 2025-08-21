@@ -269,9 +269,9 @@ _TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
 _TEST_LABELS = {"my_key": "my_value"}
 
 _TEST_REQUEST_RESPONSE_LOGGING_SAMPLING_RATE = 0.1
-_TEST_REQUEST_RESPONSE_LOGGING_BQ_DEST = (
-    output_uri
-) = f"bq://{_TEST_PROJECT}/test_dataset/test_table"
+_TEST_REQUEST_RESPONSE_LOGGING_BQ_DEST = output_uri = (
+    f"bq://{_TEST_PROJECT}/test_dataset/test_table"
+)
 _TEST_REQUEST_RESPONSE_LOGGING_CONFIG = (
     gca_endpoint.PredictRequestResponseLoggingConfig(
         enabled=True,
