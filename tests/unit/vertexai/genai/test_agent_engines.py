@@ -926,8 +926,9 @@ class TestAgentEngineHelpers:
                     }
                 ),
             )
-            agent_engine = self.client.agent_engines._await_operation(
+            operation = _agent_engines_utils._await_operation(
                 operation_name=_TEST_AGENT_ENGINE_OPERATION_NAME,
+                get_operation_fn=self.client.agent_engines._get_agent_operation,
             )
             request_mock.assert_called_with(
                 "get",
@@ -935,7 +936,7 @@ class TestAgentEngineHelpers:
                 {"_url": {"operationName": _TEST_AGENT_ENGINE_OPERATION_NAME}},
                 None,
             )
-            assert isinstance(agent_engine, _genai_types.AgentEngineOperation)
+            assert isinstance(operation, _genai_types.AgentEngineOperation)
 
     def test_register_api_methods(self):
         agent = self.client.agent_engines._register_api_methods(
@@ -1145,7 +1146,7 @@ class TestAgentEngine:
 
     @pytest.mark.usefixtures("caplog")
     @mock.patch.object(_agent_engines_utils, "_prepare")
-    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_create_agent_engine(self, mock_await_operation, mock_prepare, caplog):
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
             response=_genai_types.ReasoningEngine(
@@ -1169,10 +1170,6 @@ class TestAgentEngine:
                     gcs_dir_name=_TEST_GCS_DIR_NAME,
                     env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
                 ),
-            )
-            mock_await_operation.assert_called_once_with(
-                operation_name=None,
-                poll_interval_seconds=10,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1199,7 +1196,7 @@ class TestAgentEngine:
             )
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
-    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_create_agent_engine_lightweight(
         self,
         mock_await_operation,
@@ -1225,10 +1222,6 @@ class TestAgentEngine:
                     description=_TEST_AGENT_ENGINE_DESCRIPTION,
                 )
             )
-            mock_await_operation.assert_called_once_with(
-                operation_name=None,
-                poll_interval_seconds=1,
-            )
             request_mock.assert_called_with(
                 "post",
                 "reasoningEngines",
@@ -1240,7 +1233,7 @@ class TestAgentEngine:
             )
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
-    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_create_agent_engine_with_env_vars_dict(
         self,
         mock_await_operation,
@@ -1317,7 +1310,7 @@ class TestAgentEngine:
 
     @pytest.mark.usefixtures("caplog")
     @mock.patch.object(_agent_engines_utils, "_prepare")
-    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_update_agent_engine_requirements(
         self, mock_await_operation, mock_prepare, caplog
     ):
@@ -1374,7 +1367,7 @@ class TestAgentEngine:
             )
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
-    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_update_agent_engine_extra_packages(
         self, mock_await_operation, mock_prepare
     ):
@@ -1428,7 +1421,7 @@ class TestAgentEngine:
             )
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
-    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_update_agent_engine_env_vars(
         self, mock_await_operation, mock_prepare, caplog
     ):
@@ -1484,7 +1477,7 @@ class TestAgentEngine:
                 None,
             )
 
-    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_update_agent_engine_display_name(self, mock_await_operation):
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
             response=_genai_types.ReasoningEngine(
@@ -1513,7 +1506,7 @@ class TestAgentEngine:
                 None,
             )
 
-    @mock.patch.object(agent_engines.AgentEngines, "_await_operation")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_update_agent_engine_description(self, mock_await_operation):
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
             response=_genai_types.ReasoningEngine(

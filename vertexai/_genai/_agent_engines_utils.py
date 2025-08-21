@@ -23,6 +23,7 @@ import logging
 import os
 import sys
 import tarfile
+import time
 import types
 import typing
 from typing import (
@@ -348,6 +349,46 @@ class _RequirementsValidationWarnings(TypedDict):
 class _RequirementsValidationResult(TypedDict):
     warnings: _RequirementsValidationWarnings
     actions: _RequirementsValidationActions
+
+
+AgentEngineOperationUnion = Union[
+    genai_types.AgentEngineOperation,
+    genai_types.AgentEngineMemoryOperation,
+    genai_types.AgentEngineGenerateMemoriesOperation,
+]
+
+
+class GetOperationFunction(Protocol):
+    def __call__(self, *, operation_name: str, **kwargs) -> AgentEngineOperationUnion:
+        pass
+
+
+def _await_operation(
+    *,
+    operation_name: str,
+    get_operation_fn: GetOperationFunction,
+    poll_interval_seconds: int = 10,
+) -> Any:
+    """Waits for the operation for creating an agent engine to complete.
+
+    Args:
+        operation_name (str):
+            Required. The name of the operation for creating the Agent Engine.
+        poll_interval_seconds (int):
+            The number of seconds to wait between each poll.
+        get_operation_fn (Callable[[str], Any]):
+            Optional. The function to use for getting the operation. If not
+            provided, `self._get_agent_operation` will be used.
+
+    Returns:
+        The operation that has completed (i.e. `operation.done==True`).
+    """
+    operation = get_operation_fn(operation_name=operation_name)
+    while not operation.done:
+        time.sleep(poll_interval_seconds)
+        operation = get_operation_fn(operation_name=operation.name)
+
+    return operation
 
 
 def _compare_requirements(
@@ -1284,18 +1325,6 @@ def _wrap_agent_operation(*, agent: Any, operation: str) -> Callable[..., Any]:
     _method.__name__ = operation
     _method.__doc__ = getattr(agent, operation).__doc__
     return _method
-
-
-AgentEngineOperationUnion = Union[
-    genai_types.AgentEngineOperation,
-    genai_types.AgentEngineMemoryOperation,
-    genai_types.AgentEngineGenerateMemoriesOperation,
-]
-
-
-class GetOperationFunction(Protocol):
-    def __call__(self, *, operation_name: str, **kwargs) -> AgentEngineOperationUnion:
-        ...
 
 
 def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:

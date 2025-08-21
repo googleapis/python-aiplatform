@@ -3398,737 +3398,6 @@ _GetCustomJobParametersOrDict = Union[
 ]
 
 
-class EventActions(_common.BaseModel):
-    """Actions are parts of events that are executed by the agent."""
-
-    artifact_delta: Optional[dict[str, int]] = Field(
-        default=None,
-        description="""Optional. Indicates that the event is updating an artifact. key is the filename, value is the version.""",
-    )
-    escalate: Optional[bool] = Field(
-        default=None,
-        description="""Optional. The agent is escalating to a higher level agent.""",
-    )
-    requested_auth_configs: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct.""",
-    )
-    skip_summarization: Optional[bool] = Field(
-        default=None,
-        description="""Optional. If true, it won't call model to summarize function response. Only used for function_response event.""",
-    )
-    state_delta: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Optional. Indicates that the event is updating the state with the given delta.""",
-    )
-    transfer_agent: Optional[str] = Field(
-        default=None,
-        description="""Optional. If set, the event transfers to the specified agent.""",
-    )
-    transfer_to_agent: Optional[bool] = Field(
-        default=None,
-        description="""Deprecated. If set, the event transfers to the specified agent.""",
-    )
-
-
-class EventActionsDict(TypedDict, total=False):
-    """Actions are parts of events that are executed by the agent."""
-
-    artifact_delta: Optional[dict[str, int]]
-    """Optional. Indicates that the event is updating an artifact. key is the filename, value is the version."""
-
-    escalate: Optional[bool]
-    """Optional. The agent is escalating to a higher level agent."""
-
-    requested_auth_configs: Optional[dict[str, Any]]
-    """Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct."""
-
-    skip_summarization: Optional[bool]
-    """Optional. If true, it won't call model to summarize function response. Only used for function_response event."""
-
-    state_delta: Optional[dict[str, Any]]
-    """Optional. Indicates that the event is updating the state with the given delta."""
-
-    transfer_agent: Optional[str]
-    """Optional. If set, the event transfers to the specified agent."""
-
-    transfer_to_agent: Optional[bool]
-    """Deprecated. If set, the event transfers to the specified agent."""
-
-
-EventActionsOrDict = Union[EventActions, EventActionsDict]
-
-
-class GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution(_common.BaseModel):
-    """Author attribution for a photo or review."""
-
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Name of the author of the Photo or Review.""",
-    )
-    photo_uri: Optional[str] = Field(
-        default=None,
-        description="""Profile photo URI of the author of the Photo or Review.""",
-    )
-    uri: Optional[str] = Field(
-        default=None,
-        description="""URI of the author of the Photo or Review.""",
-    )
-
-
-class GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict(TypedDict, total=False):
-    """Author attribution for a photo or review."""
-
-    display_name: Optional[str]
-    """Name of the author of the Photo or Review."""
-
-    photo_uri: Optional[str]
-    """Profile photo URI of the author of the Photo or Review."""
-
-    uri: Optional[str]
-    """URI of the author of the Photo or Review."""
-
-
-GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionOrDict = Union[
-    GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution,
-    GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict,
-]
-
-
-class GroundingChunkMapsPlaceAnswerSourcesReviewSnippet(_common.BaseModel):
-    """Encapsulates a review snippet."""
-
-    author_attribution: Optional[
-        GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution
-    ] = Field(default=None, description="""This review's author.""")
-    flag_content_uri: Optional[str] = Field(
-        default=None,
-        description="""A link where users can flag a problem with the review.""",
-    )
-    google_maps_uri: Optional[str] = Field(
-        default=None,
-        description="""A link to show the review on Google Maps.""",
-    )
-    relative_publish_time_description: Optional[str] = Field(
-        default=None,
-        description="""A string of formatted recent time, expressing the review time relative to the current time in a form appropriate for the language and country.""",
-    )
-    review: Optional[str] = Field(
-        default=None,
-        description="""A reference representing this place review which may be used to look up this place review again.""",
-    )
-
-
-class GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict(TypedDict, total=False):
-    """Encapsulates a review snippet."""
-
-    author_attribution: Optional[
-        GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict
-    ]
-    """This review's author."""
-
-    flag_content_uri: Optional[str]
-    """A link where users can flag a problem with the review."""
-
-    google_maps_uri: Optional[str]
-    """A link to show the review on Google Maps."""
-
-    relative_publish_time_description: Optional[str]
-    """A string of formatted recent time, expressing the review time relative to the current time in a form appropriate for the language and country."""
-
-    review: Optional[str]
-    """A reference representing this place review which may be used to look up this place review again."""
-
-
-GroundingChunkMapsPlaceAnswerSourcesReviewSnippetOrDict = Union[
-    GroundingChunkMapsPlaceAnswerSourcesReviewSnippet,
-    GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict,
-]
-
-
-class GroundingChunkMapsPlaceAnswerSources(_common.BaseModel):
-    """Sources used to generate the place answer."""
-
-    flag_content_uri: Optional[str] = Field(
-        default=None,
-        description="""A link where users can flag a problem with the generated answer.""",
-    )
-    review_snippets: Optional[
-        list[GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]
-    ] = Field(
-        default=None,
-        description="""Snippets of reviews that are used to generate the answer.""",
-    )
-
-
-class GroundingChunkMapsPlaceAnswerSourcesDict(TypedDict, total=False):
-    """Sources used to generate the place answer."""
-
-    flag_content_uri: Optional[str]
-    """A link where users can flag a problem with the generated answer."""
-
-    review_snippets: Optional[
-        list[GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict]
-    ]
-    """Snippets of reviews that are used to generate the answer."""
-
-
-GroundingChunkMapsPlaceAnswerSourcesOrDict = Union[
-    GroundingChunkMapsPlaceAnswerSources,
-    GroundingChunkMapsPlaceAnswerSourcesDict,
-]
-
-
-class GroundingChunkMaps(_common.BaseModel):
-    """Chunk from Google Maps."""
-
-    place_answer_sources: Optional[GroundingChunkMapsPlaceAnswerSources] = Field(
-        default=None,
-        description="""Sources used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as uris to flag content.""",
-    )
-    place_id: Optional[str] = Field(
-        default=None,
-        description="""This Place's resource name, in `places/{place_id}` format. Can be used to look up the Place.""",
-    )
-    text: Optional[str] = Field(default=None, description="""Text of the chunk.""")
-    title: Optional[str] = Field(default=None, description="""Title of the chunk.""")
-    uri: Optional[str] = Field(
-        default=None, description="""URI reference of the chunk."""
-    )
-
-
-class GroundingChunkMapsDict(TypedDict, total=False):
-    """Chunk from Google Maps."""
-
-    place_answer_sources: Optional[GroundingChunkMapsPlaceAnswerSourcesDict]
-    """Sources used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as uris to flag content."""
-
-    place_id: Optional[str]
-    """This Place's resource name, in `places/{place_id}` format. Can be used to look up the Place."""
-
-    text: Optional[str]
-    """Text of the chunk."""
-
-    title: Optional[str]
-    """Title of the chunk."""
-
-    uri: Optional[str]
-    """URI reference of the chunk."""
-
-
-GroundingChunkMapsOrDict = Union[GroundingChunkMaps, GroundingChunkMapsDict]
-
-
-class RagChunkPageSpan(_common.BaseModel):
-    """Represents where the chunk starts and ends in the document."""
-
-    first_page: Optional[int] = Field(
-        default=None,
-        description="""Page where chunk starts in the document. Inclusive. 1-indexed.""",
-    )
-    last_page: Optional[int] = Field(
-        default=None,
-        description="""Page where chunk ends in the document. Inclusive. 1-indexed.""",
-    )
-
-
-class RagChunkPageSpanDict(TypedDict, total=False):
-    """Represents where the chunk starts and ends in the document."""
-
-    first_page: Optional[int]
-    """Page where chunk starts in the document. Inclusive. 1-indexed."""
-
-    last_page: Optional[int]
-    """Page where chunk ends in the document. Inclusive. 1-indexed."""
-
-
-RagChunkPageSpanOrDict = Union[RagChunkPageSpan, RagChunkPageSpanDict]
-
-
-class RagChunk(_common.BaseModel):
-    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
-
-    page_span: Optional[RagChunkPageSpan] = Field(
-        default=None,
-        description="""If populated, represents where the chunk starts and ends in the document.""",
-    )
-    text: Optional[str] = Field(
-        default=None, description="""The content of the chunk."""
-    )
-
-
-class RagChunkDict(TypedDict, total=False):
-    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
-
-    page_span: Optional[RagChunkPageSpanDict]
-    """If populated, represents where the chunk starts and ends in the document."""
-
-    text: Optional[str]
-    """The content of the chunk."""
-
-
-RagChunkOrDict = Union[RagChunk, RagChunkDict]
-
-
-class GroundingChunkRetrievedContext(_common.BaseModel):
-    """Chunk from context retrieved by the retrieval tools."""
-
-    document_name: Optional[str] = Field(
-        default=None,
-        description="""Output only. The full document name for the referenced Vertex AI Search document.""",
-    )
-    rag_chunk: Optional[RagChunk] = Field(
-        default=None,
-        description="""Additional context for the RAG retrieval result. This is only populated when using the RAG retrieval tool.""",
-    )
-    text: Optional[str] = Field(
-        default=None, description="""Text of the attribution."""
-    )
-    title: Optional[str] = Field(
-        default=None, description="""Title of the attribution."""
-    )
-    uri: Optional[str] = Field(
-        default=None, description="""URI reference of the attribution."""
-    )
-
-
-class GroundingChunkRetrievedContextDict(TypedDict, total=False):
-    """Chunk from context retrieved by the retrieval tools."""
-
-    document_name: Optional[str]
-    """Output only. The full document name for the referenced Vertex AI Search document."""
-
-    rag_chunk: Optional[RagChunkDict]
-    """Additional context for the RAG retrieval result. This is only populated when using the RAG retrieval tool."""
-
-    text: Optional[str]
-    """Text of the attribution."""
-
-    title: Optional[str]
-    """Title of the attribution."""
-
-    uri: Optional[str]
-    """URI reference of the attribution."""
-
-
-GroundingChunkRetrievedContextOrDict = Union[
-    GroundingChunkRetrievedContext, GroundingChunkRetrievedContextDict
-]
-
-
-class GroundingChunkWeb(_common.BaseModel):
-    """Chunk from the web."""
-
-    domain: Optional[str] = Field(
-        default=None, description="""Domain of the (original) URI."""
-    )
-    title: Optional[str] = Field(default=None, description="""Title of the chunk.""")
-    uri: Optional[str] = Field(
-        default=None, description="""URI reference of the chunk."""
-    )
-
-
-class GroundingChunkWebDict(TypedDict, total=False):
-    """Chunk from the web."""
-
-    domain: Optional[str]
-    """Domain of the (original) URI."""
-
-    title: Optional[str]
-    """Title of the chunk."""
-
-    uri: Optional[str]
-    """URI reference of the chunk."""
-
-
-GroundingChunkWebOrDict = Union[GroundingChunkWeb, GroundingChunkWebDict]
-
-
-class GroundingChunk(_common.BaseModel):
-    """Grounding chunk."""
-
-    maps: Optional[GroundingChunkMaps] = Field(
-        default=None, description="""Grounding chunk from Google Maps."""
-    )
-    retrieved_context: Optional[GroundingChunkRetrievedContext] = Field(
-        default=None,
-        description="""Grounding chunk from context retrieved by the retrieval tools.""",
-    )
-    web: Optional[GroundingChunkWeb] = Field(
-        default=None, description="""Grounding chunk from the web."""
-    )
-
-
-class GroundingChunkDict(TypedDict, total=False):
-    """Grounding chunk."""
-
-    maps: Optional[GroundingChunkMapsDict]
-    """Grounding chunk from Google Maps."""
-
-    retrieved_context: Optional[GroundingChunkRetrievedContextDict]
-    """Grounding chunk from context retrieved by the retrieval tools."""
-
-    web: Optional[GroundingChunkWebDict]
-    """Grounding chunk from the web."""
-
-
-GroundingChunkOrDict = Union[GroundingChunk, GroundingChunkDict]
-
-
-class Segment(_common.BaseModel):
-    """Segment of the content."""
-
-    end_index: Optional[int] = Field(
-        default=None,
-        description="""Output only. End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero.""",
-    )
-    part_index: Optional[int] = Field(
-        default=None,
-        description="""Output only. The index of a Part object within its parent Content object.""",
-    )
-    start_index: Optional[int] = Field(
-        default=None,
-        description="""Output only. Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero.""",
-    )
-    text: Optional[str] = Field(
-        default=None,
-        description="""Output only. The text corresponding to the segment from the response.""",
-    )
-
-
-class SegmentDict(TypedDict, total=False):
-    """Segment of the content."""
-
-    end_index: Optional[int]
-    """Output only. End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero."""
-
-    part_index: Optional[int]
-    """Output only. The index of a Part object within its parent Content object."""
-
-    start_index: Optional[int]
-    """Output only. Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero."""
-
-    text: Optional[str]
-    """Output only. The text corresponding to the segment from the response."""
-
-
-SegmentOrDict = Union[Segment, SegmentDict]
-
-
-class GroundingSupport(_common.BaseModel):
-    """Grounding support."""
-
-    confidence_scores: Optional[list[float]] = Field(
-        default=None,
-        description="""Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. For Gemini 2.0 and before, this list must have the same size as the grounding_chunk_indices. For Gemini 2.5 and after, this list will be empty and should be ignored.""",
-    )
-    grounding_chunk_indices: Optional[list[int]] = Field(
-        default=None,
-        description="""A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim.""",
-    )
-    segment: Optional[Segment] = Field(
-        default=None,
-        description="""Segment of the content this support belongs to.""",
-    )
-
-
-class GroundingSupportDict(TypedDict, total=False):
-    """Grounding support."""
-
-    confidence_scores: Optional[list[float]]
-    """Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. For Gemini 2.0 and before, this list must have the same size as the grounding_chunk_indices. For Gemini 2.5 and after, this list will be empty and should be ignored."""
-
-    grounding_chunk_indices: Optional[list[int]]
-    """A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim."""
-
-    segment: Optional[SegmentDict]
-    """Segment of the content this support belongs to."""
-
-
-GroundingSupportOrDict = Union[GroundingSupport, GroundingSupportDict]
-
-
-class RetrievalMetadata(_common.BaseModel):
-    """Metadata related to retrieval in the grounding flow."""
-
-    google_search_dynamic_retrieval_score: Optional[float] = Field(
-        default=None,
-        description="""Optional. Score indicating how likely information from Google Search could help answer the prompt. The score is in the range `[0, 1]`, where 0 is the least likely and 1 is the most likely. This score is only populated when Google Search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger Google Search.""",
-    )
-
-
-class RetrievalMetadataDict(TypedDict, total=False):
-    """Metadata related to retrieval in the grounding flow."""
-
-    google_search_dynamic_retrieval_score: Optional[float]
-    """Optional. Score indicating how likely information from Google Search could help answer the prompt. The score is in the range `[0, 1]`, where 0 is the least likely and 1 is the most likely. This score is only populated when Google Search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger Google Search."""
-
-
-RetrievalMetadataOrDict = Union[RetrievalMetadata, RetrievalMetadataDict]
-
-
-class SearchEntryPoint(_common.BaseModel):
-    """Google search entry point."""
-
-    rendered_content: Optional[str] = Field(
-        default=None,
-        description="""Optional. Web content snippet that can be embedded in a web page or an app webview.""",
-    )
-    sdk_blob: Optional[bytes] = Field(
-        default=None,
-        description="""Optional. Base64 encoded JSON representing array of tuple.""",
-    )
-
-
-class SearchEntryPointDict(TypedDict, total=False):
-    """Google search entry point."""
-
-    rendered_content: Optional[str]
-    """Optional. Web content snippet that can be embedded in a web page or an app webview."""
-
-    sdk_blob: Optional[bytes]
-    """Optional. Base64 encoded JSON representing array of tuple."""
-
-
-SearchEntryPointOrDict = Union[SearchEntryPoint, SearchEntryPointDict]
-
-
-class GroundingMetadata(_common.BaseModel):
-    """Metadata returned to client when grounding is enabled."""
-
-    google_maps_widget_context_token: Optional[str] = Field(
-        default=None,
-        description="""Optional. Output only. Resource name of the Google Maps widget context token to be used with the PlacesContextElement widget to render contextual data. This is populated only for Google Maps grounding.""",
-    )
-    grounding_chunks: Optional[list[GroundingChunk]] = Field(
-        default=None,
-        description="""List of supporting references retrieved from specified grounding source.""",
-    )
-    grounding_supports: Optional[list[GroundingSupport]] = Field(
-        default=None, description="""Optional. List of grounding support."""
-    )
-    retrieval_metadata: Optional[RetrievalMetadata] = Field(
-        default=None,
-        description="""Optional. Output only. Retrieval metadata.""",
-    )
-    retrieval_queries: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. Queries executed by the retrieval tools.""",
-    )
-    search_entry_point: Optional[SearchEntryPoint] = Field(
-        default=None,
-        description="""Optional. Google search entry for the following-up web searches.""",
-    )
-    web_search_queries: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. Web search queries for the following-up web search.""",
-    )
-
-
-class GroundingMetadataDict(TypedDict, total=False):
-    """Metadata returned to client when grounding is enabled."""
-
-    google_maps_widget_context_token: Optional[str]
-    """Optional. Output only. Resource name of the Google Maps widget context token to be used with the PlacesContextElement widget to render contextual data. This is populated only for Google Maps grounding."""
-
-    grounding_chunks: Optional[list[GroundingChunkDict]]
-    """List of supporting references retrieved from specified grounding source."""
-
-    grounding_supports: Optional[list[GroundingSupportDict]]
-    """Optional. List of grounding support."""
-
-    retrieval_metadata: Optional[RetrievalMetadataDict]
-    """Optional. Output only. Retrieval metadata."""
-
-    retrieval_queries: Optional[list[str]]
-    """Optional. Queries executed by the retrieval tools."""
-
-    search_entry_point: Optional[SearchEntryPointDict]
-    """Optional. Google search entry for the following-up web searches."""
-
-    web_search_queries: Optional[list[str]]
-    """Optional. Web search queries for the following-up web search."""
-
-
-GroundingMetadataOrDict = Union[GroundingMetadata, GroundingMetadataDict]
-
-
-class EventMetadata(_common.BaseModel):
-    """Metadata relating to a LLM response event."""
-
-    branch: Optional[str] = Field(
-        default=None,
-        description="""Optional. The branch of the event. The format is like agent_1.agent_2.agent_3, where agent_1 is the parent of agent_2, and agent_2 is the parent of agent_3. Branch is used when multiple child agents shouldn't see their siblings' conversation history.""",
-    )
-    custom_metadata: Optional[dict[str, Any]] = Field(
-        default=None, description="""The custom metadata of the LlmResponse."""
-    )
-    grounding_metadata: Optional[GroundingMetadata] = Field(
-        default=None,
-        description="""Optional. Metadata returned to client when grounding is enabled.""",
-    )
-    interrupted: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Flag indicating that LLM was interrupted when generating the content. Usually it's due to user interruption during a bidi streaming.""",
-    )
-    long_running_tool_ids: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. Set of ids of the long running function calls. Agent client will know from this field about which function call is long running. Only valid for function call event.""",
-    )
-    partial: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Indicates whether the text content is part of a unfinished text stream. Only used for streaming mode and when the content is plain text.""",
-    )
-    turn_complete: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Indicates whether the response from the model is complete. Only used for streaming mode.""",
-    )
-
-
-class EventMetadataDict(TypedDict, total=False):
-    """Metadata relating to a LLM response event."""
-
-    branch: Optional[str]
-    """Optional. The branch of the event. The format is like agent_1.agent_2.agent_3, where agent_1 is the parent of agent_2, and agent_2 is the parent of agent_3. Branch is used when multiple child agents shouldn't see their siblings' conversation history."""
-
-    custom_metadata: Optional[dict[str, Any]]
-    """The custom metadata of the LlmResponse."""
-
-    grounding_metadata: Optional[GroundingMetadataDict]
-    """Optional. Metadata returned to client when grounding is enabled."""
-
-    interrupted: Optional[bool]
-    """Optional. Flag indicating that LLM was interrupted when generating the content. Usually it's due to user interruption during a bidi streaming."""
-
-    long_running_tool_ids: Optional[list[str]]
-    """Optional. Set of ids of the long running function calls. Agent client will know from this field about which function call is long running. Only valid for function call event."""
-
-    partial: Optional[bool]
-    """Optional. Indicates whether the text content is part of a unfinished text stream. Only used for streaming mode and when the content is plain text."""
-
-    turn_complete: Optional[bool]
-    """Optional. Indicates whether the response from the model is complete. Only used for streaming mode."""
-
-
-EventMetadataOrDict = Union[EventMetadata, EventMetadataDict]
-
-
-class AppendAgentEngineSessionEventConfig(_common.BaseModel):
-    """Config for appending agent engine session event."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    content: Optional[Content] = Field(
-        default=None, description="""The content of the session event."""
-    )
-    actions: Optional[EventActions] = Field(
-        default=None,
-        description="""Actions are parts of events that are related to the session event.""",
-    )
-    error_code: Optional[str] = Field(
-        default=None, description="""The error code of the session event."""
-    )
-    error_message: Optional[str] = Field(
-        default=None, description="""The error message of the session event."""
-    )
-    event_metadata: Optional[EventMetadata] = Field(
-        default=None, description="""Metadata relating to the session event."""
-    )
-
-
-class AppendAgentEngineSessionEventConfigDict(TypedDict, total=False):
-    """Config for appending agent engine session event."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    content: Optional[ContentDict]
-    """The content of the session event."""
-
-    actions: Optional[EventActionsDict]
-    """Actions are parts of events that are related to the session event."""
-
-    error_code: Optional[str]
-    """The error code of the session event."""
-
-    error_message: Optional[str]
-    """The error message of the session event."""
-
-    event_metadata: Optional[EventMetadataDict]
-    """Metadata relating to the session event."""
-
-
-AppendAgentEngineSessionEventConfigOrDict = Union[
-    AppendAgentEngineSessionEventConfig, AppendAgentEngineSessionEventConfigDict
-]
-
-
-class _AppendAgentEngineSessionEventRequestParameters(_common.BaseModel):
-    """Parameters for appending agent engines."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine session."""
-    )
-    author: Optional[str] = Field(
-        default=None,
-        description="""Author of the agent engine session event.""",
-    )
-    invocation_id: Optional[str] = Field(
-        default=None, description="""Invocation ID of the agent engine."""
-    )
-    timestamp: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Timestamp indicating when the event was created.""",
-    )
-    config: Optional[AppendAgentEngineSessionEventConfig] = Field(
-        default=None, description=""""""
-    )
-
-
-class _AppendAgentEngineSessionEventRequestParametersDict(TypedDict, total=False):
-    """Parameters for appending agent engines."""
-
-    name: Optional[str]
-    """Name of the agent engine session."""
-
-    author: Optional[str]
-    """Author of the agent engine session event."""
-
-    invocation_id: Optional[str]
-    """Invocation ID of the agent engine."""
-
-    timestamp: Optional[datetime.datetime]
-    """Timestamp indicating when the event was created."""
-
-    config: Optional[AppendAgentEngineSessionEventConfigDict]
-    """"""
-
-
-_AppendAgentEngineSessionEventRequestParametersOrDict = Union[
-    _AppendAgentEngineSessionEventRequestParameters,
-    _AppendAgentEngineSessionEventRequestParametersDict,
-]
-
-
-class AppendAgentEngineSessionEventResponse(_common.BaseModel):
-    """Response for appending agent engine session event."""
-
-    pass
-
-
-class AppendAgentEngineSessionEventResponseDict(TypedDict, total=False):
-    """Response for appending agent engine session event."""
-
-    pass
-
-
-AppendAgentEngineSessionEventResponseOrDict = Union[
-    AppendAgentEngineSessionEventResponse,
-    AppendAgentEngineSessionEventResponseDict,
-]
-
-
 class SecretRef(_common.BaseModel):
     """Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable."""
 
@@ -4956,6 +4225,525 @@ class AgentEngineOperationDict(TypedDict, total=False):
 AgentEngineOperationOrDict = Union[AgentEngineOperation, AgentEngineOperationDict]
 
 
+class DeleteAgentEngineConfig(_common.BaseModel):
+    """Config for deleting agent engine."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteAgentEngineConfigDict(TypedDict, total=False):
+    """Config for deleting agent engine."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteAgentEngineConfigOrDict = Union[
+    DeleteAgentEngineConfig, DeleteAgentEngineConfigDict
+]
+
+
+class _DeleteAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for deleting agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    force: Optional[bool] = Field(
+        default=False,
+        description="""If set to true, any child resources will also be deleted.""",
+    )
+    config: Optional[DeleteAgentEngineConfig] = Field(default=None, description="""""")
+
+
+class _DeleteAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    force: Optional[bool]
+    """If set to true, any child resources will also be deleted."""
+
+    config: Optional[DeleteAgentEngineConfigDict]
+    """"""
+
+
+_DeleteAgentEngineRequestParametersOrDict = Union[
+    _DeleteAgentEngineRequestParameters, _DeleteAgentEngineRequestParametersDict
+]
+
+
+class DeleteAgentEngineOperation(_common.BaseModel):
+    """Operation for deleting agent engines."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteAgentEngineOperationDict(TypedDict, total=False):
+    """Operation for deleting agent engines."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteAgentEngineOperationOrDict = Union[
+    DeleteAgentEngineOperation, DeleteAgentEngineOperationDict
+]
+
+
+class GetAgentEngineConfig(_common.BaseModel):
+    """Config for create agent engine."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineConfigDict(TypedDict, total=False):
+    """Config for create agent engine."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineConfigOrDict = Union[GetAgentEngineConfig, GetAgentEngineConfigDict]
+
+
+class _GetAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for getting agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[GetAgentEngineConfig] = Field(default=None, description="""""")
+
+
+class _GetAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[GetAgentEngineConfigDict]
+    """"""
+
+
+_GetAgentEngineRequestParametersOrDict = Union[
+    _GetAgentEngineRequestParameters, _GetAgentEngineRequestParametersDict
+]
+
+
+class ListAgentEngineConfig(_common.BaseModel):
+    """Config for listing agent engines."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListAgentEngineConfigDict(TypedDict, total=False):
+    """Config for listing agent engines."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListAgentEngineConfigOrDict = Union[ListAgentEngineConfig, ListAgentEngineConfigDict]
+
+
+class _ListAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    config: Optional[ListAgentEngineConfig] = Field(default=None, description="""""")
+
+
+class _ListAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    config: Optional[ListAgentEngineConfigDict]
+    """"""
+
+
+_ListAgentEngineRequestParametersOrDict = Union[
+    _ListAgentEngineRequestParameters, _ListAgentEngineRequestParametersDict
+]
+
+
+class HttpResponse(_common.BaseModel):
+    """A wrapper class for the http response."""
+
+    headers: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Used to retain the processed HTTP headers in the response.""",
+    )
+    body: Optional[str] = Field(
+        default=None,
+        description="""The raw HTTP response body, in JSON format.""",
+    )
+
+
+class HttpResponseDict(TypedDict, total=False):
+    """A wrapper class for the http response."""
+
+    headers: Optional[dict[str, str]]
+    """Used to retain the processed HTTP headers in the response."""
+
+    body: Optional[str]
+    """The raw HTTP response body, in JSON format."""
+
+
+HttpResponseOrDict = Union[HttpResponse, HttpResponseDict]
+
+
+class ListReasoningEnginesResponse(_common.BaseModel):
+    """Response for listing agent engines."""
+
+    sdk_http_response: Optional[HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    reasoning_engines: Optional[list[ReasoningEngine]] = Field(
+        default=None,
+        description="""List of agent engines.
+      """,
+    )
+
+
+class ListReasoningEnginesResponseDict(TypedDict, total=False):
+    """Response for listing agent engines."""
+
+    sdk_http_response: Optional[HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    reasoning_engines: Optional[list[ReasoningEngineDict]]
+    """List of agent engines.
+      """
+
+
+ListReasoningEnginesResponseOrDict = Union[
+    ListReasoningEnginesResponse, ListReasoningEnginesResponseDict
+]
+
+
+class GetAgentEngineOperationConfig(_common.BaseModel):
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineOperationConfigDict(TypedDict, total=False):
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineOperationConfigOrDict = Union[
+    GetAgentEngineOperationConfig, GetAgentEngineOperationConfigDict
+]
+
+
+class _GetAgentEngineOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation with an agent engine as a response."""
+
+    operation_name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name for the operation.""",
+    )
+    config: Optional[GetAgentEngineOperationConfig] = Field(
+        default=None,
+        description="""Used to override the default configuration.""",
+    )
+
+
+class _GetAgentEngineOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation with an agent engine as a response."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetAgentEngineOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetAgentEngineOperationParametersOrDict = Union[
+    _GetAgentEngineOperationParameters, _GetAgentEngineOperationParametersDict
+]
+
+
+class QueryAgentEngineConfig(_common.BaseModel):
+    """Config for querying agent engines."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    class_method: Optional[str] = Field(
+        default=None, description="""The class method to call."""
+    )
+    input: Optional[dict[str, Any]] = Field(
+        default=None, description="""The input to the class method."""
+    )
+    include_all_fields: Optional[bool] = Field(default=False, description="""""")
+
+
+class QueryAgentEngineConfigDict(TypedDict, total=False):
+    """Config for querying agent engines."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    class_method: Optional[str]
+    """The class method to call."""
+
+    input: Optional[dict[str, Any]]
+    """The input to the class method."""
+
+    include_all_fields: Optional[bool]
+    """"""
+
+
+QueryAgentEngineConfigOrDict = Union[QueryAgentEngineConfig, QueryAgentEngineConfigDict]
+
+
+class _QueryAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for querying agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[QueryAgentEngineConfig] = Field(default=None, description="""""")
+
+
+class _QueryAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for querying agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[QueryAgentEngineConfigDict]
+    """"""
+
+
+_QueryAgentEngineRequestParametersOrDict = Union[
+    _QueryAgentEngineRequestParameters, _QueryAgentEngineRequestParametersDict
+]
+
+
+class QueryReasoningEngineResponse(_common.BaseModel):
+    """The response for querying an agent engine."""
+
+    output: Optional[Any] = Field(
+        default=None,
+        description="""Response provided by users in JSON object format.""",
+    )
+
+
+class QueryReasoningEngineResponseDict(TypedDict, total=False):
+    """The response for querying an agent engine."""
+
+    output: Optional[Any]
+    """Response provided by users in JSON object format."""
+
+
+QueryReasoningEngineResponseOrDict = Union[
+    QueryReasoningEngineResponse, QueryReasoningEngineResponseDict
+]
+
+
+class UpdateAgentEngineConfig(_common.BaseModel):
+    """Config for updating agent engine."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the Agent Engine.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """,
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the Agent Engine."""
+    )
+    spec: Optional[ReasoningEngineSpec] = Field(
+        default=None,
+        description="""Optional. Configurations of the Agent Engine.""",
+    )
+    context_spec: Optional[ReasoningEngineContextSpec] = Field(
+        default=None,
+        description="""Optional. The context spec to be used for the Agent Engine.""",
+    )
+    psc_interface_config: Optional[PscInterfaceConfig] = Field(
+        default=None,
+        description="""Optional. The PSC interface config for PSC-I to be used for the
+      Agent Engine.""",
+    )
+    min_instances: Optional[int] = Field(
+        default=None,
+        description="""The minimum number of instances to run for the Agent Engine.
+      Defaults to 1. Range: [0, 10].
+      """,
+    )
+    max_instances: Optional[int] = Field(
+        default=None,
+        description="""The maximum number of instances to run for the Agent Engine.
+      Defaults to 100. Range: [1, 1000].
+      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+      """,
+    )
+    resource_limits: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The resource limits to be applied to the Agent Engine.
+      Required keys: 'cpu' and 'memory'.
+      Supported values for 'cpu': '1', '2', '4', '6', '8'.
+      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
+      """,
+    )
+    container_concurrency: Optional[int] = Field(
+        default=None,
+        description="""The container concurrency to be used for the Agent Engine.
+      Recommended value: 2 * cpu + 1. Defaults to 9.
+      """,
+    )
+    update_mask: Optional[str] = Field(
+        default=None,
+        description="""The update mask to apply. For the `FieldMask` definition, see
+      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask.""",
+    )
+
+
+class UpdateAgentEngineConfigDict(TypedDict, total=False):
+    """Config for updating agent engine."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The user-defined name of the Agent Engine.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """
+
+    description: Optional[str]
+    """The description of the Agent Engine."""
+
+    spec: Optional[ReasoningEngineSpecDict]
+    """Optional. Configurations of the Agent Engine."""
+
+    context_spec: Optional[ReasoningEngineContextSpecDict]
+    """Optional. The context spec to be used for the Agent Engine."""
+
+    psc_interface_config: Optional[PscInterfaceConfigDict]
+    """Optional. The PSC interface config for PSC-I to be used for the
+      Agent Engine."""
+
+    min_instances: Optional[int]
+    """The minimum number of instances to run for the Agent Engine.
+      Defaults to 1. Range: [0, 10].
+      """
+
+    max_instances: Optional[int]
+    """The maximum number of instances to run for the Agent Engine.
+      Defaults to 100. Range: [1, 1000].
+      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+      """
+
+    resource_limits: Optional[dict[str, str]]
+    """The resource limits to be applied to the Agent Engine.
+      Required keys: 'cpu' and 'memory'.
+      Supported values for 'cpu': '1', '2', '4', '6', '8'.
+      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
+      """
+
+    container_concurrency: Optional[int]
+    """The container concurrency to be used for the Agent Engine.
+      Recommended value: 2 * cpu + 1. Defaults to 9.
+      """
+
+    update_mask: Optional[str]
+    """The update mask to apply. For the `FieldMask` definition, see
+      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask."""
+
+
+UpdateAgentEngineConfigOrDict = Union[
+    UpdateAgentEngineConfig, UpdateAgentEngineConfigDict
+]
+
+
+class _UpdateAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for updating agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[UpdateAgentEngineConfig] = Field(default=None, description="""""")
+
+
+class _UpdateAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[UpdateAgentEngineConfigDict]
+    """"""
+
+
+_UpdateAgentEngineRequestParametersOrDict = Union[
+    _UpdateAgentEngineRequestParameters, _UpdateAgentEngineRequestParametersDict
+]
+
+
 class AgentEngineMemoryConfig(_common.BaseModel):
     """Config for creating a Memory."""
 
@@ -5154,289 +4942,6 @@ AgentEngineMemoryOperationOrDict = Union[
 ]
 
 
-class CreateAgentEngineSessionConfig(_common.BaseModel):
-    """Config for creating a Session."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    display_name: Optional[str] = Field(
-        default=None, description="""The display name of the session."""
-    )
-    session_state: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Session state which stores key conversation points.""",
-    )
-    wait_for_completion: Optional[bool] = Field(
-        default=True,
-        description="""Waits for the operation to complete before returning.""",
-    )
-
-
-class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
-    """Config for creating a Session."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    display_name: Optional[str]
-    """The display name of the session."""
-
-    session_state: Optional[dict[str, Any]]
-    """Session state which stores key conversation points."""
-
-    wait_for_completion: Optional[bool]
-    """Waits for the operation to complete before returning."""
-
-
-CreateAgentEngineSessionConfigOrDict = Union[
-    CreateAgentEngineSessionConfig, CreateAgentEngineSessionConfigDict
-]
-
-
-class _CreateAgentEngineSessionRequestParameters(_common.BaseModel):
-    """Parameters for creating Agent Engine Sessions."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""Name of the agent engine to create the session under.""",
-    )
-    user_id: Optional[str] = Field(
-        default=None, description="""The user ID of the session."""
-    )
-    config: Optional[CreateAgentEngineSessionConfig] = Field(
-        default=None, description=""""""
-    )
-
-
-class _CreateAgentEngineSessionRequestParametersDict(TypedDict, total=False):
-    """Parameters for creating Agent Engine Sessions."""
-
-    name: Optional[str]
-    """Name of the agent engine to create the session under."""
-
-    user_id: Optional[str]
-    """The user ID of the session."""
-
-    config: Optional[CreateAgentEngineSessionConfigDict]
-    """"""
-
-
-_CreateAgentEngineSessionRequestParametersOrDict = Union[
-    _CreateAgentEngineSessionRequestParameters,
-    _CreateAgentEngineSessionRequestParametersDict,
-]
-
-
-class Session(_common.BaseModel):
-    """A session."""
-
-    create_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when the session was created.""",
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Optional. The display name of the session.""",
-    )
-    expire_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input.""",
-    )
-    name: Optional[str] = Field(
-        default=None,
-        description="""Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.""",
-    )
-    session_state: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Optional. Session specific memory which stores key conversation points.""",
-    )
-    ttl: Optional[str] = Field(
-        default=None,
-        description="""Optional. Input only. The TTL for this session.""",
-    )
-    update_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when the session was updated.""",
-    )
-    user_id: Optional[str] = Field(
-        default=None,
-        description="""Required. Immutable. String id provided by the user""",
-    )
-
-
-class SessionDict(TypedDict, total=False):
-    """A session."""
-
-    create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the session was created."""
-
-    display_name: Optional[str]
-    """Optional. The display name of the session."""
-
-    expire_time: Optional[datetime.datetime]
-    """Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input."""
-
-    name: Optional[str]
-    """Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'."""
-
-    session_state: Optional[dict[str, Any]]
-    """Optional. Session specific memory which stores key conversation points."""
-
-    ttl: Optional[str]
-    """Optional. Input only. The TTL for this session."""
-
-    update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the session was updated."""
-
-    user_id: Optional[str]
-    """Required. Immutable. String id provided by the user"""
-
-
-SessionOrDict = Union[Session, SessionDict]
-
-
-class AgentEngineSessionOperation(_common.BaseModel):
-    """Operation that has an agent engine session as a response."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-    response: Optional[Session] = Field(
-        default=None, description="""The Agent Engine Session."""
-    )
-
-
-class AgentEngineSessionOperationDict(TypedDict, total=False):
-    """Operation that has an agent engine session as a response."""
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-    response: Optional[SessionDict]
-    """The Agent Engine Session."""
-
-
-AgentEngineSessionOperationOrDict = Union[
-    AgentEngineSessionOperation, AgentEngineSessionOperationDict
-]
-
-
-class DeleteAgentEngineConfig(_common.BaseModel):
-    """Config for deleting agent engine."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class DeleteAgentEngineConfigDict(TypedDict, total=False):
-    """Config for deleting agent engine."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-
-DeleteAgentEngineConfigOrDict = Union[
-    DeleteAgentEngineConfig, DeleteAgentEngineConfigDict
-]
-
-
-class _DeleteAgentEngineRequestParameters(_common.BaseModel):
-    """Parameters for deleting agent engines."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine."""
-    )
-    force: Optional[bool] = Field(
-        default=False,
-        description="""If set to true, any child resources will also be deleted.""",
-    )
-    config: Optional[DeleteAgentEngineConfig] = Field(default=None, description="""""")
-
-
-class _DeleteAgentEngineRequestParametersDict(TypedDict, total=False):
-    """Parameters for deleting agent engines."""
-
-    name: Optional[str]
-    """Name of the agent engine."""
-
-    force: Optional[bool]
-    """If set to true, any child resources will also be deleted."""
-
-    config: Optional[DeleteAgentEngineConfigDict]
-    """"""
-
-
-_DeleteAgentEngineRequestParametersOrDict = Union[
-    _DeleteAgentEngineRequestParameters, _DeleteAgentEngineRequestParametersDict
-]
-
-
-class DeleteAgentEngineOperation(_common.BaseModel):
-    """Operation for deleting agent engines."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-
-
-class DeleteAgentEngineOperationDict(TypedDict, total=False):
-    """Operation for deleting agent engines."""
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-
-DeleteAgentEngineOperationOrDict = Union[
-    DeleteAgentEngineOperation, DeleteAgentEngineOperationDict
-]
-
-
 class DeleteAgentEngineMemoryConfig(_common.BaseModel):
     """Config for deleting an Agent Engine Memory."""
 
@@ -5524,96 +5029,6 @@ class DeleteAgentEngineMemoryOperationDict(TypedDict, total=False):
 
 DeleteAgentEngineMemoryOperationOrDict = Union[
     DeleteAgentEngineMemoryOperation, DeleteAgentEngineMemoryOperationDict
-]
-
-
-class DeleteAgentEngineSessionConfig(_common.BaseModel):
-    """Config for deleting an Agent Engine Session."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class DeleteAgentEngineSessionConfigDict(TypedDict, total=False):
-    """Config for deleting an Agent Engine Session."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-
-DeleteAgentEngineSessionConfigOrDict = Union[
-    DeleteAgentEngineSessionConfig, DeleteAgentEngineSessionConfigDict
-]
-
-
-class _DeleteAgentEngineSessionRequestParameters(_common.BaseModel):
-    """Parameters for deleting agent engine sessions."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""Name of the agent engine session to delete.""",
-    )
-    config: Optional[DeleteAgentEngineSessionConfig] = Field(
-        default=None, description=""""""
-    )
-
-
-class _DeleteAgentEngineSessionRequestParametersDict(TypedDict, total=False):
-    """Parameters for deleting agent engine sessions."""
-
-    name: Optional[str]
-    """Name of the agent engine session to delete."""
-
-    config: Optional[DeleteAgentEngineSessionConfigDict]
-    """"""
-
-
-_DeleteAgentEngineSessionRequestParametersOrDict = Union[
-    _DeleteAgentEngineSessionRequestParameters,
-    _DeleteAgentEngineSessionRequestParametersDict,
-]
-
-
-class DeleteAgentEngineSessionOperation(_common.BaseModel):
-    """Operation for deleting agent engine sessions."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-
-
-class DeleteAgentEngineSessionOperationDict(TypedDict, total=False):
-    """Operation for deleting agent engine sessions."""
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-
-DeleteAgentEngineSessionOperationOrDict = Union[
-    DeleteAgentEngineSessionOperation, DeleteAgentEngineSessionOperationDict
 ]
 
 
@@ -5957,48 +5372,6 @@ AgentEngineGenerateMemoriesOperationOrDict = Union[
 ]
 
 
-class GetAgentEngineConfig(_common.BaseModel):
-    """Config for create agent engine."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class GetAgentEngineConfigDict(TypedDict, total=False):
-    """Config for create agent engine."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-
-GetAgentEngineConfigOrDict = Union[GetAgentEngineConfig, GetAgentEngineConfigDict]
-
-
-class _GetAgentEngineRequestParameters(_common.BaseModel):
-    """Parameters for getting agent engines."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine."""
-    )
-    config: Optional[GetAgentEngineConfig] = Field(default=None, description="""""")
-
-
-class _GetAgentEngineRequestParametersDict(TypedDict, total=False):
-    """Parameters for getting agent engines."""
-
-    name: Optional[str]
-    """Name of the agent engine."""
-
-    config: Optional[GetAgentEngineConfigDict]
-    """"""
-
-
-_GetAgentEngineRequestParametersOrDict = Union[
-    _GetAgentEngineRequestParameters, _GetAgentEngineRequestParametersDict
-]
-
-
 class GetAgentEngineMemoryConfig(_common.BaseModel):
     """Config for getting an Agent Engine Memory."""
 
@@ -6043,165 +5416,6 @@ class _GetAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
 _GetAgentEngineMemoryRequestParametersOrDict = Union[
     _GetAgentEngineMemoryRequestParameters,
     _GetAgentEngineMemoryRequestParametersDict,
-]
-
-
-class GetAgentEngineSessionConfig(_common.BaseModel):
-    """Config for getting an Agent Engine Session."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class GetAgentEngineSessionConfigDict(TypedDict, total=False):
-    """Config for getting an Agent Engine Session."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-
-GetAgentEngineSessionConfigOrDict = Union[
-    GetAgentEngineSessionConfig, GetAgentEngineSessionConfigDict
-]
-
-
-class _GetAgentEngineSessionRequestParameters(_common.BaseModel):
-    """Parameters for getting an agent engine session."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine."""
-    )
-    config: Optional[GetAgentEngineSessionConfig] = Field(
-        default=None, description=""""""
-    )
-
-
-class _GetAgentEngineSessionRequestParametersDict(TypedDict, total=False):
-    """Parameters for getting an agent engine session."""
-
-    name: Optional[str]
-    """Name of the agent engine."""
-
-    config: Optional[GetAgentEngineSessionConfigDict]
-    """"""
-
-
-_GetAgentEngineSessionRequestParametersOrDict = Union[
-    _GetAgentEngineSessionRequestParameters,
-    _GetAgentEngineSessionRequestParametersDict,
-]
-
-
-class ListAgentEngineConfig(_common.BaseModel):
-    """Config for listing agent engines."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    page_size: Optional[int] = Field(default=None, description="""""")
-    page_token: Optional[str] = Field(default=None, description="""""")
-    filter: Optional[str] = Field(
-        default=None,
-        description="""An expression for filtering the results of the request.
-      For field names both snake_case and camelCase are supported.""",
-    )
-
-
-class ListAgentEngineConfigDict(TypedDict, total=False):
-    """Config for listing agent engines."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    page_size: Optional[int]
-    """"""
-
-    page_token: Optional[str]
-    """"""
-
-    filter: Optional[str]
-    """An expression for filtering the results of the request.
-      For field names both snake_case and camelCase are supported."""
-
-
-ListAgentEngineConfigOrDict = Union[ListAgentEngineConfig, ListAgentEngineConfigDict]
-
-
-class _ListAgentEngineRequestParameters(_common.BaseModel):
-    """Parameters for listing agent engines."""
-
-    config: Optional[ListAgentEngineConfig] = Field(default=None, description="""""")
-
-
-class _ListAgentEngineRequestParametersDict(TypedDict, total=False):
-    """Parameters for listing agent engines."""
-
-    config: Optional[ListAgentEngineConfigDict]
-    """"""
-
-
-_ListAgentEngineRequestParametersOrDict = Union[
-    _ListAgentEngineRequestParameters, _ListAgentEngineRequestParametersDict
-]
-
-
-class HttpResponse(_common.BaseModel):
-    """A wrapper class for the http response."""
-
-    headers: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""Used to retain the processed HTTP headers in the response.""",
-    )
-    body: Optional[str] = Field(
-        default=None,
-        description="""The raw HTTP response body, in JSON format.""",
-    )
-
-
-class HttpResponseDict(TypedDict, total=False):
-    """A wrapper class for the http response."""
-
-    headers: Optional[dict[str, str]]
-    """Used to retain the processed HTTP headers in the response."""
-
-    body: Optional[str]
-    """The raw HTTP response body, in JSON format."""
-
-
-HttpResponseOrDict = Union[HttpResponse, HttpResponseDict]
-
-
-class ListReasoningEnginesResponse(_common.BaseModel):
-    """Response for listing agent engines."""
-
-    sdk_http_response: Optional[HttpResponse] = Field(
-        default=None, description="""Used to retain the full HTTP response."""
-    )
-    next_page_token: Optional[str] = Field(default=None, description="""""")
-    reasoning_engines: Optional[list[ReasoningEngine]] = Field(
-        default=None,
-        description="""List of agent engines.
-      """,
-    )
-
-
-class ListReasoningEnginesResponseDict(TypedDict, total=False):
-    """Response for listing agent engines."""
-
-    sdk_http_response: Optional[HttpResponseDict]
-    """Used to retain the full HTTP response."""
-
-    next_page_token: Optional[str]
-    """"""
-
-    reasoning_engines: Optional[list[ReasoningEngineDict]]
-    """List of agent engines.
-      """
-
-
-ListReasoningEnginesResponseOrDict = Union[
-    ListReasoningEnginesResponse, ListReasoningEnginesResponseDict
 ]
 
 
@@ -6300,316 +5514,6 @@ ListReasoningEnginesMemoriesResponseOrDict = Union[
 ]
 
 
-class ListAgentEngineSessionEventsConfig(_common.BaseModel):
-    """Config for listing agent engine session events."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    page_size: Optional[int] = Field(default=None, description="""""")
-    page_token: Optional[str] = Field(default=None, description="""""")
-    filter: Optional[str] = Field(
-        default=None,
-        description="""An expression for filtering the results of the request.
-      For field names both snake_case and camelCase are supported.""",
-    )
-
-
-class ListAgentEngineSessionEventsConfigDict(TypedDict, total=False):
-    """Config for listing agent engine session events."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    page_size: Optional[int]
-    """"""
-
-    page_token: Optional[str]
-    """"""
-
-    filter: Optional[str]
-    """An expression for filtering the results of the request.
-      For field names both snake_case and camelCase are supported."""
-
-
-ListAgentEngineSessionEventsConfigOrDict = Union[
-    ListAgentEngineSessionEventsConfig, ListAgentEngineSessionEventsConfigDict
-]
-
-
-class _ListAgentEngineSessionEventsRequestParameters(_common.BaseModel):
-    """Parameters for listing agent engines."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine session."""
-    )
-    config: Optional[ListAgentEngineSessionEventsConfig] = Field(
-        default=None, description=""""""
-    )
-
-
-class _ListAgentEngineSessionEventsRequestParametersDict(TypedDict, total=False):
-    """Parameters for listing agent engines."""
-
-    name: Optional[str]
-    """Name of the agent engine session."""
-
-    config: Optional[ListAgentEngineSessionEventsConfigDict]
-    """"""
-
-
-_ListAgentEngineSessionEventsRequestParametersOrDict = Union[
-    _ListAgentEngineSessionEventsRequestParameters,
-    _ListAgentEngineSessionEventsRequestParametersDict,
-]
-
-
-class SessionEvent(_common.BaseModel):
-    """A session event."""
-
-    actions: Optional[EventActions] = Field(
-        default=None, description="""Optional. Actions executed by the agent."""
-    )
-    author: Optional[str] = Field(
-        default=None,
-        description="""Required. The name of the agent that sent the event, or user.""",
-    )
-    content: Optional[Content] = Field(
-        default=None,
-        description="""Optional. Content of the event provided by the author.""",
-    )
-    error_code: Optional[str] = Field(
-        default=None,
-        description="""Optional. Error code if the response is an error. Code varies by model.""",
-    )
-    error_message: Optional[str] = Field(
-        default=None,
-        description="""Optional. Error message if the response is an error.""",
-    )
-    event_metadata: Optional[EventMetadata] = Field(
-        default=None,
-        description="""Optional. Metadata relating to this event.""",
-    )
-    invocation_id: Optional[str] = Field(
-        default=None,
-        description="""Required. The invocation id of the event, multiple events can have the same invocation id.""",
-    )
-    name: Optional[str] = Field(
-        default=None,
-        description="""Identifier. The resource name of the event. Format:`projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}`.""",
-    )
-    timestamp: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Required. Timestamp when the event was created on client side.""",
-    )
-
-
-class SessionEventDict(TypedDict, total=False):
-    """A session event."""
-
-    actions: Optional[EventActionsDict]
-    """Optional. Actions executed by the agent."""
-
-    author: Optional[str]
-    """Required. The name of the agent that sent the event, or user."""
-
-    content: Optional[ContentDict]
-    """Optional. Content of the event provided by the author."""
-
-    error_code: Optional[str]
-    """Optional. Error code if the response is an error. Code varies by model."""
-
-    error_message: Optional[str]
-    """Optional. Error message if the response is an error."""
-
-    event_metadata: Optional[EventMetadataDict]
-    """Optional. Metadata relating to this event."""
-
-    invocation_id: Optional[str]
-    """Required. The invocation id of the event, multiple events can have the same invocation id."""
-
-    name: Optional[str]
-    """Identifier. The resource name of the event. Format:`projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}`."""
-
-    timestamp: Optional[datetime.datetime]
-    """Required. Timestamp when the event was created on client side."""
-
-
-SessionEventOrDict = Union[SessionEvent, SessionEventDict]
-
-
-class ListAgentEngineSessionEventsResponse(_common.BaseModel):
-    """Response for listing agent engine session events."""
-
-    sdk_http_response: Optional[HttpResponse] = Field(
-        default=None, description="""Used to retain the full HTTP response."""
-    )
-    next_page_token: Optional[str] = Field(default=None, description="""""")
-    session_events: Optional[list[SessionEvent]] = Field(
-        default=None, description="""List of session events."""
-    )
-
-
-class ListAgentEngineSessionEventsResponseDict(TypedDict, total=False):
-    """Response for listing agent engine session events."""
-
-    sdk_http_response: Optional[HttpResponseDict]
-    """Used to retain the full HTTP response."""
-
-    next_page_token: Optional[str]
-    """"""
-
-    session_events: Optional[list[SessionEventDict]]
-    """List of session events."""
-
-
-ListAgentEngineSessionEventsResponseOrDict = Union[
-    ListAgentEngineSessionEventsResponse,
-    ListAgentEngineSessionEventsResponseDict,
-]
-
-
-class ListAgentEngineSessionsConfig(_common.BaseModel):
-    """Config for listing agent engine sessions."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    page_size: Optional[int] = Field(default=None, description="""""")
-    page_token: Optional[str] = Field(default=None, description="""""")
-    filter: Optional[str] = Field(
-        default=None,
-        description="""An expression for filtering the results of the request.
-      For field names both snake_case and camelCase are supported.""",
-    )
-
-
-class ListAgentEngineSessionsConfigDict(TypedDict, total=False):
-    """Config for listing agent engine sessions."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    page_size: Optional[int]
-    """"""
-
-    page_token: Optional[str]
-    """"""
-
-    filter: Optional[str]
-    """An expression for filtering the results of the request.
-      For field names both snake_case and camelCase are supported."""
-
-
-ListAgentEngineSessionsConfigOrDict = Union[
-    ListAgentEngineSessionsConfig, ListAgentEngineSessionsConfigDict
-]
-
-
-class _ListAgentEngineSessionsRequestParameters(_common.BaseModel):
-    """Parameters for listing agent engines."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine."""
-    )
-    config: Optional[ListAgentEngineSessionsConfig] = Field(
-        default=None, description=""""""
-    )
-
-
-class _ListAgentEngineSessionsRequestParametersDict(TypedDict, total=False):
-    """Parameters for listing agent engines."""
-
-    name: Optional[str]
-    """Name of the agent engine."""
-
-    config: Optional[ListAgentEngineSessionsConfigDict]
-    """"""
-
-
-_ListAgentEngineSessionsRequestParametersOrDict = Union[
-    _ListAgentEngineSessionsRequestParameters,
-    _ListAgentEngineSessionsRequestParametersDict,
-]
-
-
-class ListReasoningEnginesSessionsResponse(_common.BaseModel):
-    """Response for listing agent engine sessions."""
-
-    sdk_http_response: Optional[HttpResponse] = Field(
-        default=None, description="""Used to retain the full HTTP response."""
-    )
-    next_page_token: Optional[str] = Field(default=None, description="""""")
-    sessions: Optional[list[Session]] = Field(
-        default=None, description="""List of agent engine sessions."""
-    )
-
-
-class ListReasoningEnginesSessionsResponseDict(TypedDict, total=False):
-    """Response for listing agent engine sessions."""
-
-    sdk_http_response: Optional[HttpResponseDict]
-    """Used to retain the full HTTP response."""
-
-    next_page_token: Optional[str]
-    """"""
-
-    sessions: Optional[list[SessionDict]]
-    """List of agent engine sessions."""
-
-
-ListReasoningEnginesSessionsResponseOrDict = Union[
-    ListReasoningEnginesSessionsResponse,
-    ListReasoningEnginesSessionsResponseDict,
-]
-
-
-class GetAgentEngineOperationConfig(_common.BaseModel):
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class GetAgentEngineOperationConfigDict(TypedDict, total=False):
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-
-GetAgentEngineOperationConfigOrDict = Union[
-    GetAgentEngineOperationConfig, GetAgentEngineOperationConfigDict
-]
-
-
-class _GetAgentEngineOperationParameters(_common.BaseModel):
-    """Parameters for getting an operation with an agent engine as a response."""
-
-    operation_name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name for the operation.""",
-    )
-    config: Optional[GetAgentEngineOperationConfig] = Field(
-        default=None,
-        description="""Used to override the default configuration.""",
-    )
-
-
-class _GetAgentEngineOperationParametersDict(TypedDict, total=False):
-    """Parameters for getting an operation with an agent engine as a response."""
-
-    operation_name: Optional[str]
-    """The server-assigned name for the operation."""
-
-    config: Optional[GetAgentEngineOperationConfigDict]
-    """Used to override the default configuration."""
-
-
-_GetAgentEngineOperationParametersOrDict = Union[
-    _GetAgentEngineOperationParameters, _GetAgentEngineOperationParametersDict
-]
-
-
 class _GetAgentEngineMemoryOperationParameters(_common.BaseModel):
     """Parameters for getting an operation with a memory as a response."""
 
@@ -6639,35 +5543,6 @@ _GetAgentEngineMemoryOperationParametersOrDict = Union[
 ]
 
 
-class _GetAgentEngineSessionOperationParameters(_common.BaseModel):
-    """Parameters for getting an operation with a session as a response."""
-
-    operation_name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name for the operation.""",
-    )
-    config: Optional[GetAgentEngineOperationConfig] = Field(
-        default=None,
-        description="""Used to override the default configuration.""",
-    )
-
-
-class _GetAgentEngineSessionOperationParametersDict(TypedDict, total=False):
-    """Parameters for getting an operation with a session as a response."""
-
-    operation_name: Optional[str]
-    """The server-assigned name for the operation."""
-
-    config: Optional[GetAgentEngineOperationConfigDict]
-    """Used to override the default configuration."""
-
-
-_GetAgentEngineSessionOperationParametersOrDict = Union[
-    _GetAgentEngineSessionOperationParameters,
-    _GetAgentEngineSessionOperationParametersDict,
-]
-
-
 class _GetAgentEngineGenerateMemoriesOperationParameters(_common.BaseModel):
     """Parameters for getting an operation with generated memories as a response."""
 
@@ -6694,85 +5569,6 @@ class _GetAgentEngineGenerateMemoriesOperationParametersDict(TypedDict, total=Fa
 _GetAgentEngineGenerateMemoriesOperationParametersOrDict = Union[
     _GetAgentEngineGenerateMemoriesOperationParameters,
     _GetAgentEngineGenerateMemoriesOperationParametersDict,
-]
-
-
-class QueryAgentEngineConfig(_common.BaseModel):
-    """Config for querying agent engines."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    class_method: Optional[str] = Field(
-        default=None, description="""The class method to call."""
-    )
-    input: Optional[dict[str, Any]] = Field(
-        default=None, description="""The input to the class method."""
-    )
-    include_all_fields: Optional[bool] = Field(default=False, description="""""")
-
-
-class QueryAgentEngineConfigDict(TypedDict, total=False):
-    """Config for querying agent engines."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    class_method: Optional[str]
-    """The class method to call."""
-
-    input: Optional[dict[str, Any]]
-    """The input to the class method."""
-
-    include_all_fields: Optional[bool]
-    """"""
-
-
-QueryAgentEngineConfigOrDict = Union[QueryAgentEngineConfig, QueryAgentEngineConfigDict]
-
-
-class _QueryAgentEngineRequestParameters(_common.BaseModel):
-    """Parameters for querying agent engines."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine."""
-    )
-    config: Optional[QueryAgentEngineConfig] = Field(default=None, description="""""")
-
-
-class _QueryAgentEngineRequestParametersDict(TypedDict, total=False):
-    """Parameters for querying agent engines."""
-
-    name: Optional[str]
-    """Name of the agent engine."""
-
-    config: Optional[QueryAgentEngineConfigDict]
-    """"""
-
-
-_QueryAgentEngineRequestParametersOrDict = Union[
-    _QueryAgentEngineRequestParameters, _QueryAgentEngineRequestParametersDict
-]
-
-
-class QueryReasoningEngineResponse(_common.BaseModel):
-    """The response for querying an agent engine."""
-
-    output: Optional[Any] = Field(
-        default=None,
-        description="""Response provided by users in JSON object format.""",
-    )
-
-
-class QueryReasoningEngineResponseDict(TypedDict, total=False):
-    """The response for querying an agent engine."""
-
-    output: Optional[Any]
-    """Response provided by users in JSON object format."""
-
-
-QueryReasoningEngineResponseOrDict = Union[
-    QueryReasoningEngineResponse, QueryReasoningEngineResponseDict
 ]
 
 
@@ -6972,153 +5768,6 @@ RetrieveMemoriesResponseOrDict = Union[
 ]
 
 
-class UpdateAgentEngineConfig(_common.BaseModel):
-    """Config for updating agent engine."""
-
-    http_options: Optional[HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""The user-defined name of the Agent Engine.
-
-      The display name can be up to 128 characters long and can comprise any
-      UTF-8 characters.
-      """,
-    )
-    description: Optional[str] = Field(
-        default=None, description="""The description of the Agent Engine."""
-    )
-    spec: Optional[ReasoningEngineSpec] = Field(
-        default=None,
-        description="""Optional. Configurations of the Agent Engine.""",
-    )
-    context_spec: Optional[ReasoningEngineContextSpec] = Field(
-        default=None,
-        description="""Optional. The context spec to be used for the Agent Engine.""",
-    )
-    psc_interface_config: Optional[PscInterfaceConfig] = Field(
-        default=None,
-        description="""Optional. The PSC interface config for PSC-I to be used for the
-      Agent Engine.""",
-    )
-    min_instances: Optional[int] = Field(
-        default=None,
-        description="""The minimum number of instances to run for the Agent Engine.
-      Defaults to 1. Range: [0, 10].
-      """,
-    )
-    max_instances: Optional[int] = Field(
-        default=None,
-        description="""The maximum number of instances to run for the Agent Engine.
-      Defaults to 100. Range: [1, 1000].
-      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
-      """,
-    )
-    resource_limits: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""The resource limits to be applied to the Agent Engine.
-      Required keys: 'cpu' and 'memory'.
-      Supported values for 'cpu': '1', '2', '4', '6', '8'.
-      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
-      """,
-    )
-    container_concurrency: Optional[int] = Field(
-        default=None,
-        description="""The container concurrency to be used for the Agent Engine.
-      Recommended value: 2 * cpu + 1. Defaults to 9.
-      """,
-    )
-    update_mask: Optional[str] = Field(
-        default=None,
-        description="""The update mask to apply. For the `FieldMask` definition, see
-      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask.""",
-    )
-
-
-class UpdateAgentEngineConfigDict(TypedDict, total=False):
-    """Config for updating agent engine."""
-
-    http_options: Optional[HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    display_name: Optional[str]
-    """The user-defined name of the Agent Engine.
-
-      The display name can be up to 128 characters long and can comprise any
-      UTF-8 characters.
-      """
-
-    description: Optional[str]
-    """The description of the Agent Engine."""
-
-    spec: Optional[ReasoningEngineSpecDict]
-    """Optional. Configurations of the Agent Engine."""
-
-    context_spec: Optional[ReasoningEngineContextSpecDict]
-    """Optional. The context spec to be used for the Agent Engine."""
-
-    psc_interface_config: Optional[PscInterfaceConfigDict]
-    """Optional. The PSC interface config for PSC-I to be used for the
-      Agent Engine."""
-
-    min_instances: Optional[int]
-    """The minimum number of instances to run for the Agent Engine.
-      Defaults to 1. Range: [0, 10].
-      """
-
-    max_instances: Optional[int]
-    """The maximum number of instances to run for the Agent Engine.
-      Defaults to 100. Range: [1, 1000].
-      If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
-      """
-
-    resource_limits: Optional[dict[str, str]]
-    """The resource limits to be applied to the Agent Engine.
-      Required keys: 'cpu' and 'memory'.
-      Supported values for 'cpu': '1', '2', '4', '6', '8'.
-      Supported values for 'memory': '1Gi', '2Gi', ..., '32Gi'.
-      """
-
-    container_concurrency: Optional[int]
-    """The container concurrency to be used for the Agent Engine.
-      Recommended value: 2 * cpu + 1. Defaults to 9.
-      """
-
-    update_mask: Optional[str]
-    """The update mask to apply. For the `FieldMask` definition, see
-      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask."""
-
-
-UpdateAgentEngineConfigOrDict = Union[
-    UpdateAgentEngineConfig, UpdateAgentEngineConfigDict
-]
-
-
-class _UpdateAgentEngineRequestParameters(_common.BaseModel):
-    """Parameters for updating agent engines."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine."""
-    )
-    config: Optional[UpdateAgentEngineConfig] = Field(default=None, description="""""")
-
-
-class _UpdateAgentEngineRequestParametersDict(TypedDict, total=False):
-    """Parameters for updating agent engines."""
-
-    name: Optional[str]
-    """Name of the agent engine."""
-
-    config: Optional[UpdateAgentEngineConfigDict]
-    """"""
-
-
-_UpdateAgentEngineRequestParametersOrDict = Union[
-    _UpdateAgentEngineRequestParameters, _UpdateAgentEngineRequestParametersDict
-]
-
-
 class UpdateAgentEngineMemoryConfig(_common.BaseModel):
     """Config for updating agent engine memory."""
 
@@ -7221,6 +5870,457 @@ _UpdateAgentEngineMemoryRequestParametersOrDict = Union[
 ]
 
 
+class CreateAgentEngineSessionConfig(_common.BaseModel):
+    """Config for creating a Session."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the session."""
+    )
+    session_state: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Session state which stores key conversation points.""",
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
+    """Config for creating a Session."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The display name of the session."""
+
+    session_state: Optional[dict[str, Any]]
+    """Session state which stores key conversation points."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+CreateAgentEngineSessionConfigOrDict = Union[
+    CreateAgentEngineSessionConfig, CreateAgentEngineSessionConfigDict
+]
+
+
+class _CreateAgentEngineSessionRequestParameters(_common.BaseModel):
+    """Parameters for creating Agent Engine Sessions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine to create the session under.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None, description="""The user ID of the session."""
+    )
+    config: Optional[CreateAgentEngineSessionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateAgentEngineSessionRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating Agent Engine Sessions."""
+
+    name: Optional[str]
+    """Name of the agent engine to create the session under."""
+
+    user_id: Optional[str]
+    """The user ID of the session."""
+
+    config: Optional[CreateAgentEngineSessionConfigDict]
+    """"""
+
+
+_CreateAgentEngineSessionRequestParametersOrDict = Union[
+    _CreateAgentEngineSessionRequestParameters,
+    _CreateAgentEngineSessionRequestParametersDict,
+]
+
+
+class Session(_common.BaseModel):
+    """A session."""
+
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the session was created.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The display name of the session.""",
+    )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.""",
+    )
+    session_state: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Session specific memory which stores key conversation points.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this session.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the session was updated.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None,
+        description="""Required. Immutable. String id provided by the user""",
+    )
+
+
+class SessionDict(TypedDict, total=False):
+    """A session."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the session was created."""
+
+    display_name: Optional[str]
+    """Optional. The display name of the session."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'."""
+
+    session_state: Optional[dict[str, Any]]
+    """Optional. Session specific memory which stores key conversation points."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for this session."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the session was updated."""
+
+    user_id: Optional[str]
+    """Required. Immutable. String id provided by the user"""
+
+
+SessionOrDict = Union[Session, SessionDict]
+
+
+class AgentEngineSessionOperation(_common.BaseModel):
+    """Operation that has an agent engine session as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[Session] = Field(
+        default=None, description="""The Agent Engine Session."""
+    )
+
+
+class AgentEngineSessionOperationDict(TypedDict, total=False):
+    """Operation that has an agent engine session as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[SessionDict]
+    """The Agent Engine Session."""
+
+
+AgentEngineSessionOperationOrDict = Union[
+    AgentEngineSessionOperation, AgentEngineSessionOperationDict
+]
+
+
+class DeleteAgentEngineSessionConfig(_common.BaseModel):
+    """Config for deleting an Agent Engine Session."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteAgentEngineSessionConfigDict(TypedDict, total=False):
+    """Config for deleting an Agent Engine Session."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteAgentEngineSessionConfigOrDict = Union[
+    DeleteAgentEngineSessionConfig, DeleteAgentEngineSessionConfigDict
+]
+
+
+class _DeleteAgentEngineSessionRequestParameters(_common.BaseModel):
+    """Parameters for deleting agent engine sessions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine session to delete.""",
+    )
+    config: Optional[DeleteAgentEngineSessionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteAgentEngineSessionRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting agent engine sessions."""
+
+    name: Optional[str]
+    """Name of the agent engine session to delete."""
+
+    config: Optional[DeleteAgentEngineSessionConfigDict]
+    """"""
+
+
+_DeleteAgentEngineSessionRequestParametersOrDict = Union[
+    _DeleteAgentEngineSessionRequestParameters,
+    _DeleteAgentEngineSessionRequestParametersDict,
+]
+
+
+class DeleteAgentEngineSessionOperation(_common.BaseModel):
+    """Operation for deleting agent engine sessions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteAgentEngineSessionOperationDict(TypedDict, total=False):
+    """Operation for deleting agent engine sessions."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteAgentEngineSessionOperationOrDict = Union[
+    DeleteAgentEngineSessionOperation, DeleteAgentEngineSessionOperationDict
+]
+
+
+class GetAgentEngineSessionConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Session."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineSessionConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Session."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineSessionConfigOrDict = Union[
+    GetAgentEngineSessionConfig, GetAgentEngineSessionConfigDict
+]
+
+
+class _GetAgentEngineSessionRequestParameters(_common.BaseModel):
+    """Parameters for getting an agent engine session."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[GetAgentEngineSessionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetAgentEngineSessionRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an agent engine session."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[GetAgentEngineSessionConfigDict]
+    """"""
+
+
+_GetAgentEngineSessionRequestParametersOrDict = Union[
+    _GetAgentEngineSessionRequestParameters,
+    _GetAgentEngineSessionRequestParametersDict,
+]
+
+
+class ListAgentEngineSessionsConfig(_common.BaseModel):
+    """Config for listing agent engine sessions."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListAgentEngineSessionsConfigDict(TypedDict, total=False):
+    """Config for listing agent engine sessions."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListAgentEngineSessionsConfigOrDict = Union[
+    ListAgentEngineSessionsConfig, ListAgentEngineSessionsConfigDict
+]
+
+
+class _ListAgentEngineSessionsRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[ListAgentEngineSessionsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineSessionsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[ListAgentEngineSessionsConfigDict]
+    """"""
+
+
+_ListAgentEngineSessionsRequestParametersOrDict = Union[
+    _ListAgentEngineSessionsRequestParameters,
+    _ListAgentEngineSessionsRequestParametersDict,
+]
+
+
+class ListReasoningEnginesSessionsResponse(_common.BaseModel):
+    """Response for listing agent engine sessions."""
+
+    sdk_http_response: Optional[HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    sessions: Optional[list[Session]] = Field(
+        default=None, description="""List of agent engine sessions."""
+    )
+
+
+class ListReasoningEnginesSessionsResponseDict(TypedDict, total=False):
+    """Response for listing agent engine sessions."""
+
+    sdk_http_response: Optional[HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    sessions: Optional[list[SessionDict]]
+    """List of agent engine sessions."""
+
+
+ListReasoningEnginesSessionsResponseOrDict = Union[
+    ListReasoningEnginesSessionsResponse,
+    ListReasoningEnginesSessionsResponseDict,
+]
+
+
+class _GetAgentEngineSessionOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation with a session as a response."""
+
+    operation_name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name for the operation.""",
+    )
+    config: Optional[GetAgentEngineOperationConfig] = Field(
+        default=None,
+        description="""Used to override the default configuration.""",
+    )
+
+
+class _GetAgentEngineSessionOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation with a session as a response."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetAgentEngineOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetAgentEngineSessionOperationParametersOrDict = Union[
+    _GetAgentEngineSessionOperationParameters,
+    _GetAgentEngineSessionOperationParametersDict,
+]
+
+
 class UpdateAgentEngineSessionConfig(_common.BaseModel):
     """Config for updating agent engine session."""
 
@@ -7302,6 +6402,906 @@ class _UpdateAgentEngineSessionRequestParametersDict(TypedDict, total=False):
 _UpdateAgentEngineSessionRequestParametersOrDict = Union[
     _UpdateAgentEngineSessionRequestParameters,
     _UpdateAgentEngineSessionRequestParametersDict,
+]
+
+
+class EventActions(_common.BaseModel):
+    """Actions are parts of events that are executed by the agent."""
+
+    artifact_delta: Optional[dict[str, int]] = Field(
+        default=None,
+        description="""Optional. Indicates that the event is updating an artifact. key is the filename, value is the version.""",
+    )
+    escalate: Optional[bool] = Field(
+        default=None,
+        description="""Optional. The agent is escalating to a higher level agent.""",
+    )
+    requested_auth_configs: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct.""",
+    )
+    skip_summarization: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, it won't call model to summarize function response. Only used for function_response event.""",
+    )
+    state_delta: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Indicates that the event is updating the state with the given delta.""",
+    )
+    transfer_agent: Optional[str] = Field(
+        default=None,
+        description="""Optional. If set, the event transfers to the specified agent.""",
+    )
+    transfer_to_agent: Optional[bool] = Field(
+        default=None,
+        description="""Deprecated. If set, the event transfers to the specified agent.""",
+    )
+
+
+class EventActionsDict(TypedDict, total=False):
+    """Actions are parts of events that are executed by the agent."""
+
+    artifact_delta: Optional[dict[str, int]]
+    """Optional. Indicates that the event is updating an artifact. key is the filename, value is the version."""
+
+    escalate: Optional[bool]
+    """Optional. The agent is escalating to a higher level agent."""
+
+    requested_auth_configs: Optional[dict[str, Any]]
+    """Optional. Will only be set by a tool response indicating tool request euc. Struct key is the function call id since one function call response (from model) could correspond to multiple function calls. Struct value is the required auth config, which can be another struct."""
+
+    skip_summarization: Optional[bool]
+    """Optional. If true, it won't call model to summarize function response. Only used for function_response event."""
+
+    state_delta: Optional[dict[str, Any]]
+    """Optional. Indicates that the event is updating the state with the given delta."""
+
+    transfer_agent: Optional[str]
+    """Optional. If set, the event transfers to the specified agent."""
+
+    transfer_to_agent: Optional[bool]
+    """Deprecated. If set, the event transfers to the specified agent."""
+
+
+EventActionsOrDict = Union[EventActions, EventActionsDict]
+
+
+class GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution(_common.BaseModel):
+    """Author attribution for a photo or review."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the author of the Photo or Review.""",
+    )
+    photo_uri: Optional[str] = Field(
+        default=None,
+        description="""Profile photo URI of the author of the Photo or Review.""",
+    )
+    uri: Optional[str] = Field(
+        default=None,
+        description="""URI of the author of the Photo or Review.""",
+    )
+
+
+class GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict(TypedDict, total=False):
+    """Author attribution for a photo or review."""
+
+    display_name: Optional[str]
+    """Name of the author of the Photo or Review."""
+
+    photo_uri: Optional[str]
+    """Profile photo URI of the author of the Photo or Review."""
+
+    uri: Optional[str]
+    """URI of the author of the Photo or Review."""
+
+
+GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionOrDict = Union[
+    GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution,
+    GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict,
+]
+
+
+class GroundingChunkMapsPlaceAnswerSourcesReviewSnippet(_common.BaseModel):
+    """Encapsulates a review snippet."""
+
+    author_attribution: Optional[
+        GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution
+    ] = Field(default=None, description="""This review's author.""")
+    flag_content_uri: Optional[str] = Field(
+        default=None,
+        description="""A link where users can flag a problem with the review.""",
+    )
+    google_maps_uri: Optional[str] = Field(
+        default=None,
+        description="""A link to show the review on Google Maps.""",
+    )
+    relative_publish_time_description: Optional[str] = Field(
+        default=None,
+        description="""A string of formatted recent time, expressing the review time relative to the current time in a form appropriate for the language and country.""",
+    )
+    review: Optional[str] = Field(
+        default=None,
+        description="""A reference representing this place review which may be used to look up this place review again.""",
+    )
+
+
+class GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict(TypedDict, total=False):
+    """Encapsulates a review snippet."""
+
+    author_attribution: Optional[
+        GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict
+    ]
+    """This review's author."""
+
+    flag_content_uri: Optional[str]
+    """A link where users can flag a problem with the review."""
+
+    google_maps_uri: Optional[str]
+    """A link to show the review on Google Maps."""
+
+    relative_publish_time_description: Optional[str]
+    """A string of formatted recent time, expressing the review time relative to the current time in a form appropriate for the language and country."""
+
+    review: Optional[str]
+    """A reference representing this place review which may be used to look up this place review again."""
+
+
+GroundingChunkMapsPlaceAnswerSourcesReviewSnippetOrDict = Union[
+    GroundingChunkMapsPlaceAnswerSourcesReviewSnippet,
+    GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict,
+]
+
+
+class GroundingChunkMapsPlaceAnswerSources(_common.BaseModel):
+    """Sources used to generate the place answer."""
+
+    flag_content_uri: Optional[str] = Field(
+        default=None,
+        description="""A link where users can flag a problem with the generated answer.""",
+    )
+    review_snippets: Optional[
+        list[GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]
+    ] = Field(
+        default=None,
+        description="""Snippets of reviews that are used to generate the answer.""",
+    )
+
+
+class GroundingChunkMapsPlaceAnswerSourcesDict(TypedDict, total=False):
+    """Sources used to generate the place answer."""
+
+    flag_content_uri: Optional[str]
+    """A link where users can flag a problem with the generated answer."""
+
+    review_snippets: Optional[
+        list[GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict]
+    ]
+    """Snippets of reviews that are used to generate the answer."""
+
+
+GroundingChunkMapsPlaceAnswerSourcesOrDict = Union[
+    GroundingChunkMapsPlaceAnswerSources,
+    GroundingChunkMapsPlaceAnswerSourcesDict,
+]
+
+
+class GroundingChunkMaps(_common.BaseModel):
+    """Chunk from Google Maps."""
+
+    place_answer_sources: Optional[GroundingChunkMapsPlaceAnswerSources] = Field(
+        default=None,
+        description="""Sources used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as uris to flag content.""",
+    )
+    place_id: Optional[str] = Field(
+        default=None,
+        description="""This Place's resource name, in `places/{place_id}` format. Can be used to look up the Place.""",
+    )
+    text: Optional[str] = Field(default=None, description="""Text of the chunk.""")
+    title: Optional[str] = Field(default=None, description="""Title of the chunk.""")
+    uri: Optional[str] = Field(
+        default=None, description="""URI reference of the chunk."""
+    )
+
+
+class GroundingChunkMapsDict(TypedDict, total=False):
+    """Chunk from Google Maps."""
+
+    place_answer_sources: Optional[GroundingChunkMapsPlaceAnswerSourcesDict]
+    """Sources used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as uris to flag content."""
+
+    place_id: Optional[str]
+    """This Place's resource name, in `places/{place_id}` format. Can be used to look up the Place."""
+
+    text: Optional[str]
+    """Text of the chunk."""
+
+    title: Optional[str]
+    """Title of the chunk."""
+
+    uri: Optional[str]
+    """URI reference of the chunk."""
+
+
+GroundingChunkMapsOrDict = Union[GroundingChunkMaps, GroundingChunkMapsDict]
+
+
+class RagChunkPageSpan(_common.BaseModel):
+    """Represents where the chunk starts and ends in the document."""
+
+    first_page: Optional[int] = Field(
+        default=None,
+        description="""Page where chunk starts in the document. Inclusive. 1-indexed.""",
+    )
+    last_page: Optional[int] = Field(
+        default=None,
+        description="""Page where chunk ends in the document. Inclusive. 1-indexed.""",
+    )
+
+
+class RagChunkPageSpanDict(TypedDict, total=False):
+    """Represents where the chunk starts and ends in the document."""
+
+    first_page: Optional[int]
+    """Page where chunk starts in the document. Inclusive. 1-indexed."""
+
+    last_page: Optional[int]
+    """Page where chunk ends in the document. Inclusive. 1-indexed."""
+
+
+RagChunkPageSpanOrDict = Union[RagChunkPageSpan, RagChunkPageSpanDict]
+
+
+class RagChunk(_common.BaseModel):
+    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
+
+    page_span: Optional[RagChunkPageSpan] = Field(
+        default=None,
+        description="""If populated, represents where the chunk starts and ends in the document.""",
+    )
+    text: Optional[str] = Field(
+        default=None, description="""The content of the chunk."""
+    )
+
+
+class RagChunkDict(TypedDict, total=False):
+    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
+
+    page_span: Optional[RagChunkPageSpanDict]
+    """If populated, represents where the chunk starts and ends in the document."""
+
+    text: Optional[str]
+    """The content of the chunk."""
+
+
+RagChunkOrDict = Union[RagChunk, RagChunkDict]
+
+
+class GroundingChunkRetrievedContext(_common.BaseModel):
+    """Chunk from context retrieved by the retrieval tools."""
+
+    document_name: Optional[str] = Field(
+        default=None,
+        description="""Output only. The full document name for the referenced Vertex AI Search document.""",
+    )
+    rag_chunk: Optional[RagChunk] = Field(
+        default=None,
+        description="""Additional context for the RAG retrieval result. This is only populated when using the RAG retrieval tool.""",
+    )
+    text: Optional[str] = Field(
+        default=None, description="""Text of the attribution."""
+    )
+    title: Optional[str] = Field(
+        default=None, description="""Title of the attribution."""
+    )
+    uri: Optional[str] = Field(
+        default=None, description="""URI reference of the attribution."""
+    )
+
+
+class GroundingChunkRetrievedContextDict(TypedDict, total=False):
+    """Chunk from context retrieved by the retrieval tools."""
+
+    document_name: Optional[str]
+    """Output only. The full document name for the referenced Vertex AI Search document."""
+
+    rag_chunk: Optional[RagChunkDict]
+    """Additional context for the RAG retrieval result. This is only populated when using the RAG retrieval tool."""
+
+    text: Optional[str]
+    """Text of the attribution."""
+
+    title: Optional[str]
+    """Title of the attribution."""
+
+    uri: Optional[str]
+    """URI reference of the attribution."""
+
+
+GroundingChunkRetrievedContextOrDict = Union[
+    GroundingChunkRetrievedContext, GroundingChunkRetrievedContextDict
+]
+
+
+class GroundingChunkWeb(_common.BaseModel):
+    """Chunk from the web."""
+
+    domain: Optional[str] = Field(
+        default=None, description="""Domain of the (original) URI."""
+    )
+    title: Optional[str] = Field(default=None, description="""Title of the chunk.""")
+    uri: Optional[str] = Field(
+        default=None, description="""URI reference of the chunk."""
+    )
+
+
+class GroundingChunkWebDict(TypedDict, total=False):
+    """Chunk from the web."""
+
+    domain: Optional[str]
+    """Domain of the (original) URI."""
+
+    title: Optional[str]
+    """Title of the chunk."""
+
+    uri: Optional[str]
+    """URI reference of the chunk."""
+
+
+GroundingChunkWebOrDict = Union[GroundingChunkWeb, GroundingChunkWebDict]
+
+
+class GroundingChunk(_common.BaseModel):
+    """Grounding chunk."""
+
+    maps: Optional[GroundingChunkMaps] = Field(
+        default=None, description="""Grounding chunk from Google Maps."""
+    )
+    retrieved_context: Optional[GroundingChunkRetrievedContext] = Field(
+        default=None,
+        description="""Grounding chunk from context retrieved by the retrieval tools.""",
+    )
+    web: Optional[GroundingChunkWeb] = Field(
+        default=None, description="""Grounding chunk from the web."""
+    )
+
+
+class GroundingChunkDict(TypedDict, total=False):
+    """Grounding chunk."""
+
+    maps: Optional[GroundingChunkMapsDict]
+    """Grounding chunk from Google Maps."""
+
+    retrieved_context: Optional[GroundingChunkRetrievedContextDict]
+    """Grounding chunk from context retrieved by the retrieval tools."""
+
+    web: Optional[GroundingChunkWebDict]
+    """Grounding chunk from the web."""
+
+
+GroundingChunkOrDict = Union[GroundingChunk, GroundingChunkDict]
+
+
+class Segment(_common.BaseModel):
+    """Segment of the content."""
+
+    end_index: Optional[int] = Field(
+        default=None,
+        description="""Output only. End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero.""",
+    )
+    part_index: Optional[int] = Field(
+        default=None,
+        description="""Output only. The index of a Part object within its parent Content object.""",
+    )
+    start_index: Optional[int] = Field(
+        default=None,
+        description="""Output only. Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero.""",
+    )
+    text: Optional[str] = Field(
+        default=None,
+        description="""Output only. The text corresponding to the segment from the response.""",
+    )
+
+
+class SegmentDict(TypedDict, total=False):
+    """Segment of the content."""
+
+    end_index: Optional[int]
+    """Output only. End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero."""
+
+    part_index: Optional[int]
+    """Output only. The index of a Part object within its parent Content object."""
+
+    start_index: Optional[int]
+    """Output only. Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero."""
+
+    text: Optional[str]
+    """Output only. The text corresponding to the segment from the response."""
+
+
+SegmentOrDict = Union[Segment, SegmentDict]
+
+
+class GroundingSupport(_common.BaseModel):
+    """Grounding support."""
+
+    confidence_scores: Optional[list[float]] = Field(
+        default=None,
+        description="""Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. For Gemini 2.0 and before, this list must have the same size as the grounding_chunk_indices. For Gemini 2.5 and after, this list will be empty and should be ignored.""",
+    )
+    grounding_chunk_indices: Optional[list[int]] = Field(
+        default=None,
+        description="""A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim.""",
+    )
+    segment: Optional[Segment] = Field(
+        default=None,
+        description="""Segment of the content this support belongs to.""",
+    )
+
+
+class GroundingSupportDict(TypedDict, total=False):
+    """Grounding support."""
+
+    confidence_scores: Optional[list[float]]
+    """Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. For Gemini 2.0 and before, this list must have the same size as the grounding_chunk_indices. For Gemini 2.5 and after, this list will be empty and should be ignored."""
+
+    grounding_chunk_indices: Optional[list[int]]
+    """A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim."""
+
+    segment: Optional[SegmentDict]
+    """Segment of the content this support belongs to."""
+
+
+GroundingSupportOrDict = Union[GroundingSupport, GroundingSupportDict]
+
+
+class RetrievalMetadata(_common.BaseModel):
+    """Metadata related to retrieval in the grounding flow."""
+
+    google_search_dynamic_retrieval_score: Optional[float] = Field(
+        default=None,
+        description="""Optional. Score indicating how likely information from Google Search could help answer the prompt. The score is in the range `[0, 1]`, where 0 is the least likely and 1 is the most likely. This score is only populated when Google Search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger Google Search.""",
+    )
+
+
+class RetrievalMetadataDict(TypedDict, total=False):
+    """Metadata related to retrieval in the grounding flow."""
+
+    google_search_dynamic_retrieval_score: Optional[float]
+    """Optional. Score indicating how likely information from Google Search could help answer the prompt. The score is in the range `[0, 1]`, where 0 is the least likely and 1 is the most likely. This score is only populated when Google Search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger Google Search."""
+
+
+RetrievalMetadataOrDict = Union[RetrievalMetadata, RetrievalMetadataDict]
+
+
+class SearchEntryPoint(_common.BaseModel):
+    """Google search entry point."""
+
+    rendered_content: Optional[str] = Field(
+        default=None,
+        description="""Optional. Web content snippet that can be embedded in a web page or an app webview.""",
+    )
+    sdk_blob: Optional[bytes] = Field(
+        default=None,
+        description="""Optional. Base64 encoded JSON representing array of tuple.""",
+    )
+
+
+class SearchEntryPointDict(TypedDict, total=False):
+    """Google search entry point."""
+
+    rendered_content: Optional[str]
+    """Optional. Web content snippet that can be embedded in a web page or an app webview."""
+
+    sdk_blob: Optional[bytes]
+    """Optional. Base64 encoded JSON representing array of tuple."""
+
+
+SearchEntryPointOrDict = Union[SearchEntryPoint, SearchEntryPointDict]
+
+
+class GroundingMetadata(_common.BaseModel):
+    """Metadata returned to client when grounding is enabled."""
+
+    google_maps_widget_context_token: Optional[str] = Field(
+        default=None,
+        description="""Optional. Output only. Resource name of the Google Maps widget context token to be used with the PlacesContextElement widget to render contextual data. This is populated only for Google Maps grounding.""",
+    )
+    grounding_chunks: Optional[list[GroundingChunk]] = Field(
+        default=None,
+        description="""List of supporting references retrieved from specified grounding source.""",
+    )
+    grounding_supports: Optional[list[GroundingSupport]] = Field(
+        default=None, description="""Optional. List of grounding support."""
+    )
+    retrieval_metadata: Optional[RetrievalMetadata] = Field(
+        default=None,
+        description="""Optional. Output only. Retrieval metadata.""",
+    )
+    retrieval_queries: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Queries executed by the retrieval tools.""",
+    )
+    search_entry_point: Optional[SearchEntryPoint] = Field(
+        default=None,
+        description="""Optional. Google search entry for the following-up web searches.""",
+    )
+    web_search_queries: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Web search queries for the following-up web search.""",
+    )
+
+
+class GroundingMetadataDict(TypedDict, total=False):
+    """Metadata returned to client when grounding is enabled."""
+
+    google_maps_widget_context_token: Optional[str]
+    """Optional. Output only. Resource name of the Google Maps widget context token to be used with the PlacesContextElement widget to render contextual data. This is populated only for Google Maps grounding."""
+
+    grounding_chunks: Optional[list[GroundingChunkDict]]
+    """List of supporting references retrieved from specified grounding source."""
+
+    grounding_supports: Optional[list[GroundingSupportDict]]
+    """Optional. List of grounding support."""
+
+    retrieval_metadata: Optional[RetrievalMetadataDict]
+    """Optional. Output only. Retrieval metadata."""
+
+    retrieval_queries: Optional[list[str]]
+    """Optional. Queries executed by the retrieval tools."""
+
+    search_entry_point: Optional[SearchEntryPointDict]
+    """Optional. Google search entry for the following-up web searches."""
+
+    web_search_queries: Optional[list[str]]
+    """Optional. Web search queries for the following-up web search."""
+
+
+GroundingMetadataOrDict = Union[GroundingMetadata, GroundingMetadataDict]
+
+
+class EventMetadata(_common.BaseModel):
+    """Metadata relating to a LLM response event."""
+
+    branch: Optional[str] = Field(
+        default=None,
+        description="""Optional. The branch of the event. The format is like agent_1.agent_2.agent_3, where agent_1 is the parent of agent_2, and agent_2 is the parent of agent_3. Branch is used when multiple child agents shouldn't see their siblings' conversation history.""",
+    )
+    custom_metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""The custom metadata of the LlmResponse."""
+    )
+    grounding_metadata: Optional[GroundingMetadata] = Field(
+        default=None,
+        description="""Optional. Metadata returned to client when grounding is enabled.""",
+    )
+    interrupted: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Flag indicating that LLM was interrupted when generating the content. Usually it's due to user interruption during a bidi streaming.""",
+    )
+    long_running_tool_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Set of ids of the long running function calls. Agent client will know from this field about which function call is long running. Only valid for function call event.""",
+    )
+    partial: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Indicates whether the text content is part of a unfinished text stream. Only used for streaming mode and when the content is plain text.""",
+    )
+    turn_complete: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Indicates whether the response from the model is complete. Only used for streaming mode.""",
+    )
+
+
+class EventMetadataDict(TypedDict, total=False):
+    """Metadata relating to a LLM response event."""
+
+    branch: Optional[str]
+    """Optional. The branch of the event. The format is like agent_1.agent_2.agent_3, where agent_1 is the parent of agent_2, and agent_2 is the parent of agent_3. Branch is used when multiple child agents shouldn't see their siblings' conversation history."""
+
+    custom_metadata: Optional[dict[str, Any]]
+    """The custom metadata of the LlmResponse."""
+
+    grounding_metadata: Optional[GroundingMetadataDict]
+    """Optional. Metadata returned to client when grounding is enabled."""
+
+    interrupted: Optional[bool]
+    """Optional. Flag indicating that LLM was interrupted when generating the content. Usually it's due to user interruption during a bidi streaming."""
+
+    long_running_tool_ids: Optional[list[str]]
+    """Optional. Set of ids of the long running function calls. Agent client will know from this field about which function call is long running. Only valid for function call event."""
+
+    partial: Optional[bool]
+    """Optional. Indicates whether the text content is part of a unfinished text stream. Only used for streaming mode and when the content is plain text."""
+
+    turn_complete: Optional[bool]
+    """Optional. Indicates whether the response from the model is complete. Only used for streaming mode."""
+
+
+EventMetadataOrDict = Union[EventMetadata, EventMetadataDict]
+
+
+class AppendAgentEngineSessionEventConfig(_common.BaseModel):
+    """Config for appending agent engine session event."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    content: Optional[Content] = Field(
+        default=None, description="""The content of the session event."""
+    )
+    actions: Optional[EventActions] = Field(
+        default=None,
+        description="""Actions are parts of events that are related to the session event.""",
+    )
+    error_code: Optional[str] = Field(
+        default=None, description="""The error code of the session event."""
+    )
+    error_message: Optional[str] = Field(
+        default=None, description="""The error message of the session event."""
+    )
+    event_metadata: Optional[EventMetadata] = Field(
+        default=None, description="""Metadata relating to the session event."""
+    )
+
+
+class AppendAgentEngineSessionEventConfigDict(TypedDict, total=False):
+    """Config for appending agent engine session event."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    content: Optional[ContentDict]
+    """The content of the session event."""
+
+    actions: Optional[EventActionsDict]
+    """Actions are parts of events that are related to the session event."""
+
+    error_code: Optional[str]
+    """The error code of the session event."""
+
+    error_message: Optional[str]
+    """The error message of the session event."""
+
+    event_metadata: Optional[EventMetadataDict]
+    """Metadata relating to the session event."""
+
+
+AppendAgentEngineSessionEventConfigOrDict = Union[
+    AppendAgentEngineSessionEventConfig, AppendAgentEngineSessionEventConfigDict
+]
+
+
+class _AppendAgentEngineSessionEventRequestParameters(_common.BaseModel):
+    """Parameters for appending agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine session."""
+    )
+    author: Optional[str] = Field(
+        default=None,
+        description="""Author of the agent engine session event.""",
+    )
+    invocation_id: Optional[str] = Field(
+        default=None, description="""Invocation ID of the agent engine."""
+    )
+    timestamp: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Timestamp indicating when the event was created.""",
+    )
+    config: Optional[AppendAgentEngineSessionEventConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _AppendAgentEngineSessionEventRequestParametersDict(TypedDict, total=False):
+    """Parameters for appending agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine session."""
+
+    author: Optional[str]
+    """Author of the agent engine session event."""
+
+    invocation_id: Optional[str]
+    """Invocation ID of the agent engine."""
+
+    timestamp: Optional[datetime.datetime]
+    """Timestamp indicating when the event was created."""
+
+    config: Optional[AppendAgentEngineSessionEventConfigDict]
+    """"""
+
+
+_AppendAgentEngineSessionEventRequestParametersOrDict = Union[
+    _AppendAgentEngineSessionEventRequestParameters,
+    _AppendAgentEngineSessionEventRequestParametersDict,
+]
+
+
+class AppendAgentEngineSessionEventResponse(_common.BaseModel):
+    """Response for appending agent engine session event."""
+
+    pass
+
+
+class AppendAgentEngineSessionEventResponseDict(TypedDict, total=False):
+    """Response for appending agent engine session event."""
+
+    pass
+
+
+AppendAgentEngineSessionEventResponseOrDict = Union[
+    AppendAgentEngineSessionEventResponse,
+    AppendAgentEngineSessionEventResponseDict,
+]
+
+
+class ListAgentEngineSessionEventsConfig(_common.BaseModel):
+    """Config for listing agent engine session events."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListAgentEngineSessionEventsConfigDict(TypedDict, total=False):
+    """Config for listing agent engine session events."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListAgentEngineSessionEventsConfigOrDict = Union[
+    ListAgentEngineSessionEventsConfig, ListAgentEngineSessionEventsConfigDict
+]
+
+
+class _ListAgentEngineSessionEventsRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine session."""
+    )
+    config: Optional[ListAgentEngineSessionEventsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineSessionEventsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine session."""
+
+    config: Optional[ListAgentEngineSessionEventsConfigDict]
+    """"""
+
+
+_ListAgentEngineSessionEventsRequestParametersOrDict = Union[
+    _ListAgentEngineSessionEventsRequestParameters,
+    _ListAgentEngineSessionEventsRequestParametersDict,
+]
+
+
+class SessionEvent(_common.BaseModel):
+    """A session event."""
+
+    actions: Optional[EventActions] = Field(
+        default=None, description="""Optional. Actions executed by the agent."""
+    )
+    author: Optional[str] = Field(
+        default=None,
+        description="""Required. The name of the agent that sent the event, or user.""",
+    )
+    content: Optional[Content] = Field(
+        default=None,
+        description="""Optional. Content of the event provided by the author.""",
+    )
+    error_code: Optional[str] = Field(
+        default=None,
+        description="""Optional. Error code if the response is an error. Code varies by model.""",
+    )
+    error_message: Optional[str] = Field(
+        default=None,
+        description="""Optional. Error message if the response is an error.""",
+    )
+    event_metadata: Optional[EventMetadata] = Field(
+        default=None,
+        description="""Optional. Metadata relating to this event.""",
+    )
+    invocation_id: Optional[str] = Field(
+        default=None,
+        description="""Required. The invocation id of the event, multiple events can have the same invocation id.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the event. Format:`projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}`.""",
+    )
+    timestamp: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Required. Timestamp when the event was created on client side.""",
+    )
+
+
+class SessionEventDict(TypedDict, total=False):
+    """A session event."""
+
+    actions: Optional[EventActionsDict]
+    """Optional. Actions executed by the agent."""
+
+    author: Optional[str]
+    """Required. The name of the agent that sent the event, or user."""
+
+    content: Optional[ContentDict]
+    """Optional. Content of the event provided by the author."""
+
+    error_code: Optional[str]
+    """Optional. Error code if the response is an error. Code varies by model."""
+
+    error_message: Optional[str]
+    """Optional. Error message if the response is an error."""
+
+    event_metadata: Optional[EventMetadataDict]
+    """Optional. Metadata relating to this event."""
+
+    invocation_id: Optional[str]
+    """Required. The invocation id of the event, multiple events can have the same invocation id."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the event. Format:`projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}`."""
+
+    timestamp: Optional[datetime.datetime]
+    """Required. Timestamp when the event was created on client side."""
+
+
+SessionEventOrDict = Union[SessionEvent, SessionEventDict]
+
+
+class ListAgentEngineSessionEventsResponse(_common.BaseModel):
+    """Response for listing agent engine session events."""
+
+    sdk_http_response: Optional[HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    session_events: Optional[list[SessionEvent]] = Field(
+        default=None, description="""List of session events."""
+    )
+
+
+class ListAgentEngineSessionEventsResponseDict(TypedDict, total=False):
+    """Response for listing agent engine session events."""
+
+    sdk_http_response: Optional[HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    session_events: Optional[list[SessionEventDict]]
+    """List of session events."""
+
+
+ListAgentEngineSessionEventsResponseOrDict = Union[
+    ListAgentEngineSessionEventsResponse,
+    ListAgentEngineSessionEventsResponseDict,
 ]
 
 
@@ -7935,9 +7935,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=fields_to_exclude_callables
-            if fields_to_exclude_callables
-            else None,
+            exclude=(
+                fields_to_exclude_callables if fields_to_exclude_callables else None
+            ),
         )
 
         if version:
