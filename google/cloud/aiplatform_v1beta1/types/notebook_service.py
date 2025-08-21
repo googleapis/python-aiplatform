@@ -78,6 +78,7 @@ class NotebookExecutionJobView(proto.Enum):
         NOTEBOOK_EXECUTION_JOB_VIEW_FULL (2):
             Includes all fields.
     """
+
     NOTEBOOK_EXECUTION_JOB_VIEW_UNSPECIFIED = 0
     NOTEBOOK_EXECUTION_JOB_VIEW_BASIC = 1
     NOTEBOOK_EXECUTION_JOB_VIEW_FULL = 2

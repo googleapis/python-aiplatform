@@ -21,7 +21,9 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
@@ -287,6 +289,7 @@ class PipelineJob(proto.Message):
                         Fall back to on-demand execution if the
                         timeout is reached.
                 """
+
                 TASK_RESOURCE_UNAVAILABLE_TIMEOUT_BEHAVIOR_UNSPECIFIED = 0
                 FAIL = 1
                 FALL_BACK_TO_ON_DEMAND = 2
@@ -317,7 +320,9 @@ class PipelineJob(proto.Message):
                     This field is a member of `oneof`_ ``runtime_detail``.
             """
 
-            persistent_resource_runtime_detail: "PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail" = proto.Field(
+            persistent_resource_runtime_detail: (
+                "PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail"
+            ) = proto.Field(
                 proto.MESSAGE,
                 number=1,
                 oneof="runtime_detail",
@@ -613,6 +618,7 @@ class PipelineTaskDetail(proto.Message):
                 specified in the ``condition`` field of
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec].
         """
+
         STATE_UNSPECIFIED = 0
         PENDING = 1
         RUNNING = 2

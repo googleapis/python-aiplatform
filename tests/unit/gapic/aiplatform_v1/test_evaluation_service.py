@@ -1785,9 +1785,9 @@ def test_evaluate_instances_rest_call_success(request_type):
 def test_evaluate_instances_rest_interceptors(null_interceptor):
     transport = transports.EvaluationServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.EvaluationServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.EvaluationServiceRestInterceptor()
+        ),
     )
     client = EvaluationServiceClient(transport=transport)
 
@@ -2596,9 +2596,11 @@ async def test_evaluate_instances_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEvaluationServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncEvaluationServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncEvaluationServiceRestInterceptor()
+        ),
     )
     client = EvaluationServiceAsyncClient(transport=transport)
 

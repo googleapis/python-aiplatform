@@ -83,9 +83,13 @@ from google.cloud.aiplatform_v1beta1.types import feature_online_store
 from google.cloud.aiplatform_v1beta1.types import (
     feature_online_store as gca_feature_online_store,
 )
-from google.cloud.aiplatform_v1beta1.types import feature_online_store_admin_service
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_online_store_admin_service,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_view
-from google.cloud.aiplatform_v1beta1.types import feature_view as gca_feature_view
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_view as gca_feature_view,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_view_sync
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -10398,9 +10402,11 @@ def test_create_feature_online_store_rest_call_success(request_type):
 def test_create_feature_online_store_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -10544,9 +10550,11 @@ def test_get_feature_online_store_rest_call_success(request_type):
 def test_get_feature_online_store_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -10685,9 +10693,11 @@ def test_list_feature_online_stores_rest_call_success(request_type):
 def test_list_feature_online_stores_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -10944,9 +10954,11 @@ def test_update_feature_online_store_rest_call_success(request_type):
 def test_update_feature_online_store_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -11076,9 +11088,11 @@ def test_delete_feature_online_store_rest_call_success(request_type):
 def test_delete_feature_online_store_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -11332,9 +11346,11 @@ def test_create_feature_view_rest_call_success(request_type):
 def test_create_feature_view_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -11481,9 +11497,11 @@ def test_get_feature_view_rest_call_success(request_type):
 def test_get_feature_view_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -11616,9 +11634,11 @@ def test_list_feature_views_rest_call_success(request_type):
 def test_list_feature_views_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -11881,9 +11901,11 @@ def test_update_feature_view_rest_call_success(request_type):
 def test_update_feature_view_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -12011,9 +12033,11 @@ def test_delete_feature_view_rest_call_success(request_type):
 def test_delete_feature_view_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -12151,9 +12175,11 @@ def test_sync_feature_view_rest_call_success(request_type):
 def test_sync_feature_view_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -12296,9 +12322,11 @@ def test_get_feature_view_sync_rest_call_success(request_type):
 def test_get_feature_view_sync_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -12436,9 +12464,11 @@ def test_list_feature_view_syncs_rest_call_success(request_type):
 def test_list_feature_view_syncs_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreAdminServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceClient(transport=transport)
 
@@ -13653,9 +13683,11 @@ async def test_create_feature_online_store_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -13815,9 +13847,11 @@ async def test_get_feature_online_store_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -13972,9 +14006,11 @@ async def test_list_feature_online_stores_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -14247,9 +14283,11 @@ async def test_update_feature_online_store_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -14395,9 +14433,11 @@ async def test_delete_feature_online_store_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -14667,9 +14707,11 @@ async def test_create_feature_view_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -14832,9 +14874,11 @@ async def test_get_feature_view_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -14984,9 +15028,11 @@ async def test_list_feature_views_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -15265,9 +15311,11 @@ async def test_update_feature_view_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -15411,9 +15459,11 @@ async def test_delete_feature_view_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -15567,9 +15617,11 @@ async def test_sync_feature_view_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -15728,9 +15780,11 @@ async def test_get_feature_view_sync_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 
@@ -15884,9 +15938,11 @@ async def test_list_feature_view_syncs_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncFeatureOnlineStoreAdminServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor()
+        ),
     )
     client = FeatureOnlineStoreAdminServiceAsyncClient(transport=transport)
 

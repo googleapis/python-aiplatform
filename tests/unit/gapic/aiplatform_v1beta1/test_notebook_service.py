@@ -73,7 +73,9 @@ from google.cloud.aiplatform_v1beta1.services.notebook_service import (
     NotebookServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.notebook_service import pagers
-from google.cloud.aiplatform_v1beta1.services.notebook_service import transports
+from google.cloud.aiplatform_v1beta1.services.notebook_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
@@ -85,12 +87,16 @@ from google.cloud.aiplatform_v1beta1.types import notebook_execution_job
 from google.cloud.aiplatform_v1beta1.types import (
     notebook_execution_job as gca_notebook_execution_job,
 )
-from google.cloud.aiplatform_v1beta1.types import notebook_idle_shutdown_config
+from google.cloud.aiplatform_v1beta1.types import (
+    notebook_idle_shutdown_config,
+)
 from google.cloud.aiplatform_v1beta1.types import notebook_runtime
 from google.cloud.aiplatform_v1beta1.types import (
     notebook_runtime as gca_notebook_runtime,
 )
-from google.cloud.aiplatform_v1beta1.types import notebook_runtime_template_ref
+from google.cloud.aiplatform_v1beta1.types import (
+    notebook_runtime_template_ref,
+)
 from google.cloud.aiplatform_v1beta1.types import notebook_service
 from google.cloud.aiplatform_v1beta1.types import notebook_software_config
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -12085,9 +12091,9 @@ def test_create_notebook_runtime_template_rest_call_success(request_type):
 def test_create_notebook_runtime_template_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -12238,9 +12244,9 @@ def test_get_notebook_runtime_template_rest_call_success(request_type):
 def test_get_notebook_runtime_template_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -12373,9 +12379,9 @@ def test_list_notebook_runtime_templates_rest_call_success(request_type):
 def test_list_notebook_runtime_templates_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -12505,9 +12511,9 @@ def test_delete_notebook_runtime_template_rest_call_success(request_type):
 def test_delete_notebook_runtime_template_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -12789,9 +12795,9 @@ def test_update_notebook_runtime_template_rest_call_success(request_type):
 def test_update_notebook_runtime_template_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -12918,9 +12924,9 @@ def test_assign_notebook_runtime_rest_call_success(request_type):
 def test_assign_notebook_runtime_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -13083,9 +13089,9 @@ def test_get_notebook_runtime_rest_call_success(request_type):
 def test_get_notebook_runtime_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -13213,9 +13219,9 @@ def test_list_notebook_runtimes_rest_call_success(request_type):
 def test_list_notebook_runtimes_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -13344,9 +13350,9 @@ def test_delete_notebook_runtime_rest_call_success(request_type):
 def test_delete_notebook_runtime_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -13472,9 +13478,9 @@ def test_upgrade_notebook_runtime_rest_call_success(request_type):
 def test_upgrade_notebook_runtime_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -13600,9 +13606,9 @@ def test_start_notebook_runtime_rest_call_success(request_type):
 def test_start_notebook_runtime_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -13728,9 +13734,9 @@ def test_stop_notebook_runtime_rest_call_success(request_type):
 def test_stop_notebook_runtime_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -13980,9 +13986,9 @@ def test_create_notebook_execution_job_rest_call_success(request_type):
 def test_create_notebook_execution_job_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -14125,9 +14131,9 @@ def test_get_notebook_execution_job_rest_call_success(request_type):
 def test_get_notebook_execution_job_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -14260,9 +14266,9 @@ def test_list_notebook_execution_jobs_rest_call_success(request_type):
 def test_list_notebook_execution_jobs_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -14391,9 +14397,9 @@ def test_delete_notebook_execution_job_rest_call_success(request_type):
 def test_delete_notebook_execution_job_rest_interceptors(null_interceptor):
     transport = transports.NotebookServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.NotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceClient(transport=transport)
 
@@ -15672,9 +15678,11 @@ async def test_create_notebook_runtime_template_rest_asyncio_interceptors(
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -15843,9 +15851,11 @@ async def test_get_notebook_runtime_template_rest_asyncio_interceptors(
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -15998,9 +16008,11 @@ async def test_list_notebook_runtime_templates_rest_asyncio_interceptors(
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -16149,9 +16161,11 @@ async def test_delete_notebook_runtime_template_rest_asyncio_interceptors(
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -16451,9 +16465,11 @@ async def test_update_notebook_runtime_template_rest_asyncio_interceptors(
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -16596,9 +16612,11 @@ async def test_assign_notebook_runtime_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -16777,9 +16795,11 @@ async def test_get_notebook_runtime_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -16923,9 +16943,11 @@ async def test_list_notebook_runtimes_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -17070,9 +17092,11 @@ async def test_delete_notebook_runtime_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -17214,9 +17238,11 @@ async def test_upgrade_notebook_runtime_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -17358,9 +17384,11 @@ async def test_start_notebook_runtime_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -17502,9 +17530,11 @@ async def test_stop_notebook_runtime_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -17772,9 +17802,11 @@ async def test_create_notebook_execution_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -17935,9 +17967,11 @@ async def test_get_notebook_execution_job_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -18087,9 +18121,11 @@ async def test_list_notebook_execution_jobs_rest_asyncio_interceptors(null_inter
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 
@@ -18238,9 +18274,11 @@ async def test_delete_notebook_execution_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncNotebookServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncNotebookServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncNotebookServiceRestInterceptor()
+        ),
     )
     client = NotebookServiceAsyncClient(transport=transport)
 

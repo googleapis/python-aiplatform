@@ -19,8 +19,12 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import feature_group as gca_feature_group
-from google.cloud.aiplatform_v1beta1.types import feature_monitor as gca_feature_monitor
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_group as gca_feature_group,
+)
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_monitor as gca_feature_monitor,
+)
 from google.cloud.aiplatform_v1beta1.types import (
     feature_monitor_job as gca_feature_monitor_job,
 )

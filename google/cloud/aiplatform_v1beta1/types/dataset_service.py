@@ -23,9 +23,13 @@ from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import data_item as gca_data_item
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
-from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset_version
+from google.cloud.aiplatform_v1beta1.types import (
+    dataset_version as gca_dataset_version,
+)
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.cloud.aiplatform_v1beta1.types import saved_query as gca_saved_query
+from google.cloud.aiplatform_v1beta1.types import (
+    saved_query as gca_saved_query,
+)
 from google.cloud.aiplatform_v1beta1.types import tool
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -1196,6 +1200,7 @@ class AssessDataRequest(proto.Message):
                 SFT_VALIDATION (2):
                     Supervised fine-tuning validation dataset.
             """
+
             DATASET_USAGE_UNSPECIFIED = 0
             SFT_TRAINING = 1
             SFT_VALIDATION = 2
@@ -1204,7 +1209,9 @@ class AssessDataRequest(proto.Message):
             proto.STRING,
             number=1,
         )
-        dataset_usage: "AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage" = proto.Field(
+        dataset_usage: (
+            "AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage"
+        ) = proto.Field(
             proto.ENUM,
             number=2,
             enum="AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage",
@@ -1267,13 +1274,17 @@ class AssessDataRequest(proto.Message):
             message=TuningResourceUsageAssessmentConfig,
         )
     )
-    batch_prediction_validation_assessment_config: BatchPredictionValidationAssessmentConfig = proto.Field(
+    batch_prediction_validation_assessment_config: (
+        BatchPredictionValidationAssessmentConfig
+    ) = proto.Field(
         proto.MESSAGE,
         number=6,
         oneof="assessment_config",
         message=BatchPredictionValidationAssessmentConfig,
     )
-    batch_prediction_resource_usage_assessment_config: BatchPredictionResourceUsageAssessmentConfig = proto.Field(
+    batch_prediction_resource_usage_assessment_config: (
+        BatchPredictionResourceUsageAssessmentConfig
+    ) = proto.Field(
         proto.MESSAGE,
         number=7,
         oneof="assessment_config",
@@ -1396,13 +1407,17 @@ class AssessDataResponse(proto.Message):
             message=TuningResourceUsageAssessmentResult,
         )
     )
-    batch_prediction_validation_assessment_result: BatchPredictionValidationAssessmentResult = proto.Field(
+    batch_prediction_validation_assessment_result: (
+        BatchPredictionValidationAssessmentResult
+    ) = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="assessment_result",
         message=BatchPredictionValidationAssessmentResult,
     )
-    batch_prediction_resource_usage_assessment_result: BatchPredictionResourceUsageAssessmentResult = proto.Field(
+    batch_prediction_resource_usage_assessment_result: (
+        BatchPredictionResourceUsageAssessmentResult
+    ) = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="assessment_result",

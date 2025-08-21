@@ -32,7 +32,9 @@ import grpc  # type: ignore
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import feature_online_store
-from google.cloud.aiplatform_v1.types import feature_online_store_admin_service
+from google.cloud.aiplatform_v1.types import (
+    feature_online_store_admin_service,
+)
 from google.cloud.aiplatform_v1.types import feature_view
 from google.cloud.aiplatform_v1.types import feature_view_sync
 from google.cloud.location import locations_pb2  # type: ignore

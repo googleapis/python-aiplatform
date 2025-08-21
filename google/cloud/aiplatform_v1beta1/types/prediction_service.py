@@ -1017,6 +1017,7 @@ class GenerateContentResponse(proto.Message):
                 MODEL_ARMOR (5):
                     The user prompt was blocked by Model Armor.
             """
+
             BLOCKED_REASON_UNSPECIFIED = 0
             SAFETY = 1
             OTHER = 2

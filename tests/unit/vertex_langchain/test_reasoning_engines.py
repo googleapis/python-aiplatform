@@ -2334,7 +2334,8 @@ class ToParsedJsonTest:
             (
                 # "unicode_data",
                 httpbody_pb2.HttpBody(
-                    content_type="application/json", data='{"a": "你好"}'.encode("utf-8")
+                    content_type="application/json",
+                    data='{"a": "你好"}'.encode("utf-8"),
                 ),
                 [{"a": "你好"}],
             ),

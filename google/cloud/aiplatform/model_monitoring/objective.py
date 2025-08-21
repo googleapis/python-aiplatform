@@ -92,7 +92,9 @@ class _SkewDetectionConfig:
 
     def as_proto(
         self,
-    ) -> gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig:
+    ) -> (
+        gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig
+    ):
         """Converts _SkewDetectionConfig to a proto message.
 
         Returns:
@@ -153,7 +155,9 @@ class _DriftDetectionConfig:
 
     def as_proto(
         self,
-    ) -> gca_model_monitoring.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig:
+    ) -> (
+        gca_model_monitoring.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig
+    ):
         """Converts _DriftDetectionConfig to a proto message.
 
         Returns:
@@ -264,15 +268,21 @@ class _ObjectiveConfig:
         # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
         gapic_config = gca_model_monitoring.ModelMonitoringObjectiveConfig(
             training_dataset=training_dataset,
-            training_prediction_skew_detection_config=self.skew_detection_config.as_proto()
-            if self.skew_detection_config is not None
-            else None,
-            prediction_drift_detection_config=self.drift_detection_config.as_proto()
-            if self.drift_detection_config is not None
-            else None,
-            explanation_config=self.explanation_config.as_proto()
-            if self.explanation_config is not None
-            else None,
+            training_prediction_skew_detection_config=(
+                self.skew_detection_config.as_proto()
+                if self.skew_detection_config is not None
+                else None
+            ),
+            prediction_drift_detection_config=(
+                self.drift_detection_config.as_proto()
+                if self.drift_detection_config is not None
+                else None
+            ),
+            explanation_config=(
+                self.explanation_config.as_proto()
+                if self.explanation_config is not None
+                else None
+            ),
         )
         if self._config_for_bp:
             return (

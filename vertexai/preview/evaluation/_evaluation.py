@@ -1007,7 +1007,7 @@ def _convert_metric_prompt_template_example(metrics):
 
 
 def _get_rubric_metric_with_idx(
-    metrics: List[Union[str, metrics_base._Metric]]
+    metrics: List[Union[str, metrics_base._Metric]],
 ) -> Optional[Tuple[rubric_based_metric.RubricBasedMetric, int]]:
     """Gets the rubric metric with its index in the metrics list."""
     for i, metric in enumerate(metrics):

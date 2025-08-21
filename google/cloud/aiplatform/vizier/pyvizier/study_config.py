@@ -12,6 +12,7 @@ protos:
   * `SearchSpace` and `SearchSpaceSelector` classes deals with Vizier search
     spaces. Both flat spaces and conditional parameters are supported.
 """
+
 import collections
 import copy
 import enum

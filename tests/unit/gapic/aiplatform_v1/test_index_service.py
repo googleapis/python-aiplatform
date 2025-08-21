@@ -66,8 +66,12 @@ from google.api_core import path_template
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1.services.index_service import IndexServiceAsyncClient
-from google.cloud.aiplatform_v1.services.index_service import IndexServiceClient
+from google.cloud.aiplatform_v1.services.index_service import (
+    IndexServiceAsyncClient,
+)
+from google.cloud.aiplatform_v1.services.index_service import (
+    IndexServiceClient,
+)
 from google.cloud.aiplatform_v1.services.index_service import pagers
 from google.cloud.aiplatform_v1.services.index_service import transports
 from google.cloud.aiplatform_v1.types import deployed_index_ref
@@ -5323,9 +5327,9 @@ def test_create_index_rest_call_success(request_type):
 def test_create_index_rest_interceptors(null_interceptor):
     transport = transports.IndexServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.IndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.IndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceClient(transport=transport)
 
@@ -5464,9 +5468,9 @@ def test_get_index_rest_call_success(request_type):
 def test_get_index_rest_interceptors(null_interceptor):
     transport = transports.IndexServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.IndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.IndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceClient(transport=transport)
 
@@ -5587,9 +5591,9 @@ def test_list_indexes_rest_call_success(request_type):
 def test_list_indexes_rest_interceptors(null_interceptor):
     transport = transports.IndexServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.IndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.IndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceClient(transport=transport)
 
@@ -5813,9 +5817,9 @@ def test_update_index_rest_call_success(request_type):
 def test_update_index_rest_interceptors(null_interceptor):
     transport = transports.IndexServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.IndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.IndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceClient(transport=transport)
 
@@ -5934,9 +5938,9 @@ def test_delete_index_rest_call_success(request_type):
 def test_delete_index_rest_interceptors(null_interceptor):
     transport = transports.IndexServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.IndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.IndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceClient(transport=transport)
 
@@ -6060,9 +6064,9 @@ def test_upsert_datapoints_rest_call_success(request_type):
 def test_upsert_datapoints_rest_interceptors(null_interceptor):
     transport = transports.IndexServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.IndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.IndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceClient(transport=transport)
 
@@ -6189,9 +6193,9 @@ def test_remove_datapoints_rest_call_success(request_type):
 def test_remove_datapoints_rest_interceptors(null_interceptor):
     transport = transports.IndexServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.IndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.IndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceClient(transport=transport)
 
@@ -7236,9 +7240,9 @@ async def test_create_index_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncIndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncIndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceAsyncClient(transport=transport)
 
@@ -7395,9 +7399,9 @@ async def test_get_index_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncIndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncIndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceAsyncClient(transport=transport)
 
@@ -7536,9 +7540,9 @@ async def test_list_indexes_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncIndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncIndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceAsyncClient(transport=transport)
 
@@ -7780,9 +7784,9 @@ async def test_update_index_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncIndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncIndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceAsyncClient(transport=transport)
 
@@ -7919,9 +7923,9 @@ async def test_delete_index_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncIndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncIndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceAsyncClient(transport=transport)
 
@@ -8061,9 +8065,9 @@ async def test_upsert_datapoints_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncIndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncIndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceAsyncClient(transport=transport)
 
@@ -8207,9 +8211,9 @@ async def test_remove_datapoints_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncIndexServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.AsyncIndexServiceRestInterceptor()
+        ),
     )
     client = IndexServiceAsyncClient(transport=transport)
 

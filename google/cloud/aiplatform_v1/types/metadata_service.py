@@ -23,8 +23,12 @@ from google.cloud.aiplatform_v1.types import artifact as gca_artifact
 from google.cloud.aiplatform_v1.types import context as gca_context
 from google.cloud.aiplatform_v1.types import event
 from google.cloud.aiplatform_v1.types import execution as gca_execution
-from google.cloud.aiplatform_v1.types import metadata_schema as gca_metadata_schema
-from google.cloud.aiplatform_v1.types import metadata_store as gca_metadata_store
+from google.cloud.aiplatform_v1.types import (
+    metadata_schema as gca_metadata_schema,
+)
+from google.cloud.aiplatform_v1.types import (
+    metadata_store as gca_metadata_store,
+)
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 

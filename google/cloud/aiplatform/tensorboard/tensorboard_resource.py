@@ -388,9 +388,11 @@ class TensorboardExperiment(_TensorboardServiceResource):
         )
         self._gca_resource = self._get_gca_resource(
             resource_name=tensorboard_experiment_name,
-            parent_resource_name_fields={Tensorboard._resource_noun: tensorboard_id}
-            if tensorboard_id
-            else tensorboard_id,
+            parent_resource_name_fields=(
+                {Tensorboard._resource_noun: tensorboard_id}
+                if tensorboard_id
+                else tensorboard_id
+            ),
         )
 
     @classmethod
@@ -646,12 +648,14 @@ class TensorboardRun(_TensorboardServiceResource):
         )
         self._gca_resource = self._get_gca_resource(
             resource_name=tensorboard_run_name,
-            parent_resource_name_fields={
-                Tensorboard._resource_noun: tensorboard_id,
-                TensorboardExperiment._resource_noun: tensorboard_experiment_id,
-            }
-            if tensorboard_id
-            else tensorboard_id,
+            parent_resource_name_fields=(
+                {
+                    Tensorboard._resource_noun: tensorboard_id,
+                    TensorboardExperiment._resource_noun: tensorboard_experiment_id,
+                }
+                if tensorboard_id
+                else tensorboard_id
+            ),
         )
 
         self._time_series_display_name_to_id_mapping = (
@@ -1128,13 +1132,15 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         )
         self._gca_resource = self._get_gca_resource(
             resource_name=tensorboard_time_series_name,
-            parent_resource_name_fields={
-                Tensorboard._resource_noun: tensorboard_id,
-                TensorboardExperiment._resource_noun: tensorboard_experiment_id,
-                TensorboardRun._resource_noun: tensorboard_run_id,
-            }
-            if tensorboard_id
-            else tensorboard_id,
+            parent_resource_name_fields=(
+                {
+                    Tensorboard._resource_noun: tensorboard_id,
+                    TensorboardExperiment._resource_noun: tensorboard_experiment_id,
+                    TensorboardRun._resource_noun: tensorboard_run_id,
+                }
+                if tensorboard_id
+                else tensorboard_id
+            ),
         )
 
     @classmethod

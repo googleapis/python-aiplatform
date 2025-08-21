@@ -69,7 +69,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.dataset_service import (
     DatasetServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1.services.dataset_service import DatasetServiceClient
+from google.cloud.aiplatform_v1.services.dataset_service import (
+    DatasetServiceClient,
+)
 from google.cloud.aiplatform_v1.services.dataset_service import pagers
 from google.cloud.aiplatform_v1.services.dataset_service import transports
 from google.cloud.aiplatform_v1.types import annotation
@@ -79,7 +81,9 @@ from google.cloud.aiplatform_v1.types import dataset
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_service
 from google.cloud.aiplatform_v1.types import dataset_version
-from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_version
+from google.cloud.aiplatform_v1.types import (
+    dataset_version as gca_dataset_version,
+)
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -14116,9 +14120,9 @@ def test_create_dataset_rest_call_success(request_type):
 def test_create_dataset_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -14261,9 +14265,9 @@ def test_get_dataset_rest_call_success(request_type):
 def test_get_dataset_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -14515,9 +14519,9 @@ def test_update_dataset_rest_call_success(request_type):
 def test_update_dataset_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -14642,9 +14646,9 @@ def test_list_datasets_rest_call_success(request_type):
 def test_list_datasets_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -14768,9 +14772,9 @@ def test_delete_dataset_rest_call_success(request_type):
 def test_delete_dataset_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -14889,9 +14893,9 @@ def test_import_data_rest_call_success(request_type):
 def test_import_data_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -15010,9 +15014,9 @@ def test_export_data_rest_call_success(request_type):
 def test_export_data_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -15221,9 +15225,9 @@ def test_create_dataset_version_rest_call_success(request_type):
 def test_create_dataset_version_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -15459,9 +15463,9 @@ def test_update_dataset_version_rest_call_success(request_type):
 def test_update_dataset_version_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -15587,9 +15591,9 @@ def test_delete_dataset_version_rest_call_success(request_type):
 def test_delete_dataset_version_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -15733,9 +15737,9 @@ def test_get_dataset_version_rest_call_success(request_type):
 def test_get_dataset_version_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -15863,9 +15867,9 @@ def test_list_dataset_versions_rest_call_success(request_type):
 def test_list_dataset_versions_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -15994,9 +15998,9 @@ def test_restore_dataset_version_rest_call_success(request_type):
 def test_restore_dataset_version_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -16124,9 +16128,9 @@ def test_list_data_items_rest_call_success(request_type):
 def test_list_data_items_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -16256,9 +16260,9 @@ def test_search_data_items_rest_call_success(request_type):
 def test_search_data_items_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -16388,9 +16392,9 @@ def test_list_saved_queries_rest_call_success(request_type):
 def test_list_saved_queries_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -16519,9 +16523,9 @@ def test_delete_saved_query_rest_call_success(request_type):
 def test_delete_saved_query_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -16657,9 +16661,9 @@ def test_get_annotation_spec_rest_call_success(request_type):
 def test_get_annotation_spec_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -16791,9 +16795,9 @@ def test_list_annotations_rest_call_success(request_type):
 def test_list_annotations_rest_interceptors(null_interceptor):
     transport = transports.DatasetServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceClient(transport=transport)
 
@@ -18098,9 +18102,11 @@ async def test_create_dataset_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -18262,9 +18268,11 @@ async def test_get_dataset_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -18532,9 +18540,11 @@ async def test_update_dataset_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -18676,9 +18686,11 @@ async def test_list_datasets_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -18819,9 +18831,11 @@ async def test_delete_dataset_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -18959,9 +18973,11 @@ async def test_import_data_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -19098,9 +19114,11 @@ async def test_export_data_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -19325,9 +19343,11 @@ async def test_create_dataset_version_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -19579,9 +19599,11 @@ async def test_update_dataset_version_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -19723,9 +19745,11 @@ async def test_delete_dataset_version_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -19885,9 +19909,11 @@ async def test_get_dataset_version_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -20031,9 +20057,11 @@ async def test_list_dataset_versions_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -20178,9 +20206,11 @@ async def test_restore_dataset_version_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -20324,9 +20354,11 @@ async def test_list_data_items_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -20473,9 +20505,11 @@ async def test_search_data_items_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -20622,9 +20656,11 @@ async def test_list_saved_queries_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -20769,9 +20805,11 @@ async def test_delete_saved_query_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -20923,9 +20961,11 @@ async def test_get_annotation_spec_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 
@@ -21073,9 +21113,11 @@ async def test_list_annotations_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncDatasetServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDatasetServiceRestInterceptor()
+        ),
     )
     client = DatasetServiceAsyncClient(transport=transport)
 

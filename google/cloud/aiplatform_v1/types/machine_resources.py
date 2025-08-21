@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import accelerator_type as gca_accelerator_type
+from google.cloud.aiplatform_v1.types import (
+    accelerator_type as gca_accelerator_type,
+)
 from google.cloud.aiplatform_v1.types import (
     reservation_affinity as gca_reservation_affinity,
 )

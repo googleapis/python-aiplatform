@@ -20,7 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import deployed_model_ref
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import explanation
 from google.protobuf import duration_pb2  # type: ignore
@@ -349,6 +351,7 @@ class Model(proto.Message):
                 [DeploymentResourcePool][google.cloud.aiplatform.v1.DeploymentResourcePool]
                 is required.
         """
+
         DEPLOYMENT_RESOURCES_TYPE_UNSPECIFIED = 0
         DEDICATED_RESOURCES = 1
         AUTOMATIC_RESOURCES = 2
@@ -404,6 +407,7 @@ class Model(proto.Message):
                     [ExportModelRequest.output_config][google.cloud.aiplatform.v1.ExportModelRequest.output_config]
                     object.
             """
+
             EXPORTABLE_CONTENT_UNSPECIFIED = 0
             ARTIFACT = 1
             IMAGE = 2
@@ -1223,6 +1227,7 @@ class ModelSourceInfo(proto.Message):
             MARKETPLACE (7):
                 The Model is saved or tuned from Marketplace.
         """
+
         MODEL_SOURCE_TYPE_UNSPECIFIED = 0
         AUTOML = 1
         CUSTOM = 2

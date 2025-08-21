@@ -140,7 +140,7 @@ class _ParameterSpec(metaclass=abc.ABCMeta):
         """Converts this parameter to ParameterSpec."""
         conditions = []
         if self.conditional_parameter_spec is not None:
-            for (conditional_param_id, spec) in self.conditional_parameter_spec.items():
+            for conditional_param_id, spec in self.conditional_parameter_spec.items():
                 condition = (
                     gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec()
                 )
@@ -178,7 +178,7 @@ class _ParameterSpec(metaclass=abc.ABCMeta):
         """Converts this parameter to ParameterSpec."""
         conditions = []
         if self.conditional_parameter_spec is not None:
-            for (conditional_param_id, spec) in self.conditional_parameter_spec.items():
+            for conditional_param_id, spec in self.conditional_parameter_spec.items():
                 condition = (
                     gca_study_compat_v1beta1.StudySpec.ParameterSpec.ConditionalParameterSpec()
                 )

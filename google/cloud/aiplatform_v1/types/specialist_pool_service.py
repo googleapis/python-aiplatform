@@ -20,7 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import operation
-from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
+from google.cloud.aiplatform_v1.types import (
+    specialist_pool as gca_specialist_pool,
+)
 from google.protobuf import field_mask_pb2  # type: ignore
 
 

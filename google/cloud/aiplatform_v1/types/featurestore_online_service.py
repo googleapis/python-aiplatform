@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import feature_selector as gca_feature_selector
+from google.cloud.aiplatform_v1.types import (
+    feature_selector as gca_feature_selector,
+)
 from google.cloud.aiplatform_v1.types import types
 from google.protobuf import timestamp_pb2  # type: ignore
 

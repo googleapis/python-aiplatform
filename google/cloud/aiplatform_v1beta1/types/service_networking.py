@@ -44,6 +44,7 @@ class PSCAutomationState(proto.Enum):
         PSC_AUTOMATION_STATE_FAILED (2):
             The PSC service automation has failed.
     """
+
     PSC_AUTOMATION_STATE_UNSPECIFIED = 0
     PSC_AUTOMATION_STATE_SUCCESSFUL = 1
     PSC_AUTOMATION_STATE_FAILED = 2

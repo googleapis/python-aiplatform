@@ -72,8 +72,12 @@ from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import (
 from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import (
     ModelMonitoringServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import pagers
-from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import transports
+from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
@@ -82,7 +86,9 @@ from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model_monitor
-from google.cloud.aiplatform_v1beta1.types import model_monitor as gca_model_monitor
+from google.cloud.aiplatform_v1beta1.types import (
+    model_monitor as gca_model_monitor,
+)
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_alert
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_job
 from google.cloud.aiplatform_v1beta1.types import (
@@ -9412,9 +9418,11 @@ def test_create_model_monitor_rest_call_success(request_type):
 def test_create_model_monitor_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -9752,9 +9760,11 @@ def test_update_model_monitor_rest_call_success(request_type):
 def test_update_model_monitor_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -9888,9 +9898,11 @@ def test_get_model_monitor_rest_call_success(request_type):
 def test_get_model_monitor_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -10018,9 +10030,11 @@ def test_list_model_monitors_rest_call_success(request_type):
 def test_list_model_monitors_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -10145,9 +10159,11 @@ def test_delete_model_monitor_rest_call_success(request_type):
 def test_delete_model_monitor_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -10504,9 +10520,11 @@ def test_create_model_monitoring_job_rest_call_success(request_type):
 def test_create_model_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -10649,9 +10667,11 @@ def test_get_model_monitoring_job_rest_call_success(request_type):
 def test_get_model_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -10789,9 +10809,11 @@ def test_list_model_monitoring_jobs_rest_call_success(request_type):
 def test_list_model_monitoring_jobs_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -10922,9 +10944,11 @@ def test_delete_model_monitoring_job_rest_call_success(request_type):
 def test_delete_model_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -11060,9 +11084,11 @@ def test_search_model_monitoring_stats_rest_call_success(request_type):
 def test_search_model_monitoring_stats_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -11207,9 +11233,11 @@ def test_search_model_monitoring_alerts_rest_call_success(request_type):
 def test_search_model_monitoring_alerts_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceClient(transport=transport)
 
@@ -12466,9 +12494,11 @@ async def test_create_model_monitor_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -12824,9 +12854,11 @@ async def test_update_model_monitor_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -12978,9 +13010,11 @@ async def test_get_model_monitor_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -13124,9 +13158,11 @@ async def test_list_model_monitors_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -13268,9 +13304,11 @@ async def test_delete_model_monitor_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -13645,9 +13683,11 @@ async def test_create_model_monitoring_job_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -13806,9 +13846,11 @@ async def test_get_model_monitoring_job_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -13963,9 +14005,11 @@ async def test_list_model_monitoring_jobs_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -14112,9 +14156,11 @@ async def test_delete_model_monitoring_job_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -14268,9 +14314,11 @@ async def test_search_model_monitoring_stats_rest_asyncio_interceptors(
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
@@ -14433,9 +14481,11 @@ async def test_search_model_monitoring_alerts_rest_asyncio_interceptors(
         )
     transport = transports.AsyncModelMonitoringServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncModelMonitoringServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncModelMonitoringServiceRestInterceptor()
+        ),
     )
     client = ModelMonitoringServiceAsyncClient(transport=transport)
 
