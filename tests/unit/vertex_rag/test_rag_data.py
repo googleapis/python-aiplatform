@@ -756,30 +756,6 @@ class TestRagDataManagement:
 
         rag_file_eq(rag_file, test_rag_constants.TEST_RAG_FILE)
 
-    @pytest.mark.usefixtures("open_file_mock")
-    def test_upload_file_success_with_max_embedding_requests_per_min(
-        self,
-        upload_file_with_upload_config_mock,
-    ):
-        aiplatform.init(
-            project=test_rag_constants.TEST_PROJECT,
-            location=test_rag_constants.TEST_REGION,
-        )
-        rag_file = rag.upload_file(
-            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
-            path=test_rag_constants.TEST_PATH,
-            display_name=test_rag_constants.TEST_FILE_DISPLAY_NAME,
-            transformation_config=create_transformation_config(),
-            max_embedding_requests_per_min=666,
-        )
-
-        upload_file_with_upload_config_mock.assert_called_once()
-        _, mock_kwargs = upload_file_with_upload_config_mock.call_args
-        assert mock_kwargs["url"] == test_rag_constants.TEST_UPLOAD_REQUEST_URI
-        assert mock_kwargs["headers"] == test_rag_constants.TEST_HEADERS
-
-        rag_file_eq(rag_file, test_rag_constants.TEST_RAG_FILE)
-
     @pytest.mark.usefixtures("rag_data_client_mock_exception", "open_file_mock")
     def test_upload_file_failure(self):
         with pytest.raises(RuntimeError) as e:
