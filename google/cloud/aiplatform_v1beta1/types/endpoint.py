@@ -376,6 +376,16 @@ class DeployedModel(proto.Message):
 
             Only supported for custom-trained Models and AutoML Tabular
             Models.
+        disable_container_logging (bool):
+            For custom-trained Models and AutoML Tabular Models, the
+            container of the DeployedModel instances will send
+            ``stderr`` and ``stdout`` streams to Cloud Logging by
+            default. Please note that the logs incur cost, which are
+            subject to `Cloud Logging
+            pricing <https://cloud.google.com/logging/pricing>`__.
+
+            User can disable container logging by setting this flag to
+            true.
         enable_access_logging (bool):
             If true, online prediction access logs are
             sent to Cloud Logging.
@@ -495,6 +505,10 @@ class DeployedModel(proto.Message):
     enable_container_logging: bool = proto.Field(
         proto.BOOL,
         number=12,
+    )
+    disable_container_logging: bool = proto.Field(
+        proto.BOOL,
+        number=15,
     )
     enable_access_logging: bool = proto.Field(
         proto.BOOL,
