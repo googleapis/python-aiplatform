@@ -34,141 +34,6 @@ from . import types
 logger = logging.getLogger("vertexai_genai.sessionevents")
 
 
-def _VideoMetadata_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["fps"]) is not None:
-        setv(to_object, ["fps"], getv(from_object, ["fps"]))
-
-    if getv(from_object, ["end_offset"]) is not None:
-        setv(to_object, ["endOffset"], getv(from_object, ["end_offset"]))
-
-    if getv(from_object, ["start_offset"]) is not None:
-        setv(to_object, ["startOffset"], getv(from_object, ["start_offset"]))
-
-    return to_object
-
-
-def _Blob_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["data"]) is not None:
-        setv(to_object, ["data"], getv(from_object, ["data"]))
-
-    if getv(from_object, ["mime_type"]) is not None:
-        setv(to_object, ["mimeType"], getv(from_object, ["mime_type"]))
-
-    return to_object
-
-
-def _FileData_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["file_uri"]) is not None:
-        setv(to_object, ["fileUri"], getv(from_object, ["file_uri"]))
-
-    if getv(from_object, ["mime_type"]) is not None:
-        setv(to_object, ["mimeType"], getv(from_object, ["mime_type"]))
-
-    return to_object
-
-
-def _Part_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["video_metadata"]) is not None:
-        setv(
-            to_object,
-            ["videoMetadata"],
-            _VideoMetadata_to_vertex(getv(from_object, ["video_metadata"]), to_object),
-        )
-
-    if getv(from_object, ["thought"]) is not None:
-        setv(to_object, ["thought"], getv(from_object, ["thought"]))
-
-    if getv(from_object, ["inline_data"]) is not None:
-        setv(
-            to_object,
-            ["inlineData"],
-            _Blob_to_vertex(getv(from_object, ["inline_data"]), to_object),
-        )
-
-    if getv(from_object, ["file_data"]) is not None:
-        setv(
-            to_object,
-            ["fileData"],
-            _FileData_to_vertex(getv(from_object, ["file_data"]), to_object),
-        )
-
-    if getv(from_object, ["thought_signature"]) is not None:
-        setv(
-            to_object,
-            ["thoughtSignature"],
-            getv(from_object, ["thought_signature"]),
-        )
-
-    if getv(from_object, ["code_execution_result"]) is not None:
-        setv(
-            to_object,
-            ["codeExecutionResult"],
-            getv(from_object, ["code_execution_result"]),
-        )
-
-    if getv(from_object, ["executable_code"]) is not None:
-        setv(
-            to_object,
-            ["executableCode"],
-            getv(from_object, ["executable_code"]),
-        )
-
-    if getv(from_object, ["function_call"]) is not None:
-        setv(to_object, ["functionCall"], getv(from_object, ["function_call"]))
-
-    if getv(from_object, ["function_response"]) is not None:
-        setv(
-            to_object,
-            ["functionResponse"],
-            getv(from_object, ["function_response"]),
-        )
-
-    if getv(from_object, ["text"]) is not None:
-        setv(to_object, ["text"], getv(from_object, ["text"]))
-
-    return to_object
-
-
-def _Content_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["parts"]) is not None:
-        setv(
-            to_object,
-            ["parts"],
-            [_Part_to_vertex(item, to_object) for item in getv(from_object, ["parts"])],
-        )
-
-    if getv(from_object, ["role"]) is not None:
-        setv(to_object, ["role"], getv(from_object, ["role"]))
-
-    return to_object
-
-
 def _EventActions_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -258,11 +123,7 @@ def _AppendAgentEngineSessionEventConfig_to_vertex(
     to_object: dict[str, Any] = {}
 
     if getv(from_object, ["content"]) is not None:
-        setv(
-            parent_object,
-            ["content"],
-            _Content_to_vertex(getv(from_object, ["content"]), to_object),
-        )
+        setv(parent_object, ["content"], getv(from_object, ["content"]))
 
     if getv(from_object, ["actions"]) is not None:
         setv(
@@ -380,14 +241,14 @@ def _SessionEvent_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["content"]) is not None:
+        setv(to_object, ["content"], getv(from_object, ["content"]))
+
     if getv(from_object, ["actions"]) is not None:
         setv(to_object, ["actions"], getv(from_object, ["actions"]))
 
     if getv(from_object, ["author"]) is not None:
         setv(to_object, ["author"], getv(from_object, ["author"]))
-
-    if getv(from_object, ["content"]) is not None:
-        setv(to_object, ["content"], getv(from_object, ["content"]))
 
     if getv(from_object, ["errorCode"]) is not None:
         setv(to_object, ["error_code"], getv(from_object, ["errorCode"]))

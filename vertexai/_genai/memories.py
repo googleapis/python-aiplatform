@@ -106,13 +106,33 @@ def _GenerateMemoriesRequestVertexSessionSource_to_vertex(
     return to_object
 
 
+def _GenerateMemoriesRequestDirectContentsSourceEvent_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["content"]) is not None:
+        setv(to_object, ["content"], getv(from_object, ["content"]))
+
+    return to_object
+
+
 def _GenerateMemoriesRequestDirectContentsSource_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["events"]) is not None:
-        setv(to_object, ["events"], getv(from_object, ["events"]))
+        setv(
+            to_object,
+            ["events"],
+            [
+                _GenerateMemoriesRequestDirectContentsSourceEvent_to_vertex(
+                    item, to_object
+                )
+                for item in getv(from_object, ["events"])
+            ],
+        )
 
     return to_object
 

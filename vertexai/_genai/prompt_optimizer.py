@@ -24,6 +24,7 @@ from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
+from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
@@ -391,7 +392,7 @@ class PromptOptimizer(_api_module.BaseModule):
     def _optimize_prompt(
         self,
         *,
-        content: Optional[types.ContentOrDict] = None,
+        content: Optional[genai_types.ContentOrDict] = None,
         config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponseEndpoint:
         """Optimize a single prompt."""
@@ -694,14 +695,14 @@ class PromptOptimizer(_api_module.BaseModule):
                 " optimization."
             )
 
-        prompt = types.Content(parts=[types.Part(text=prompt)], role="user")
+        prompt = genai_types.Content(parts=[genai_types.Part(text=prompt)], role="user")
         # TODO: b/435653980 - replace the custom method with a generated method.
         return self._custom_optimize_prompt(content=prompt)
 
     def _custom_optimize_prompt(
         self,
         *,
-        content: Optional[types.ContentOrDict] = None,
+        content: Optional[genai_types.ContentOrDict] = None,
         config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponse:
         """Optimize a single prompt.
@@ -774,7 +775,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
     async def _optimize_prompt(
         self,
         *,
-        content: Optional[types.ContentOrDict] = None,
+        content: Optional[genai_types.ContentOrDict] = None,
         config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponseEndpoint:
         """Optimize a single prompt."""
@@ -1039,7 +1040,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
     async def _custom_optimize_prompt(
         self,
         *,
-        content: Optional[types.ContentOrDict] = None,
+        content: Optional[genai_types.ContentOrDict] = None,
         config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponse:
         """Optimize a single prompt."""
@@ -1127,6 +1128,6 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
                 " optimization."
             )
 
-        prompt = types.Content(parts=[types.Part(text=prompt)], role="user")
+        prompt = genai_types.Content(parts=[genai_types.Part(text=prompt)], role="user")
         # TODO: b/435653980 - replace the custom method with a generated method.
         return await self._custom_optimize_prompt(content=prompt)

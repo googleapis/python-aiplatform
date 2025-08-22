@@ -16,6 +16,7 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+from google.genai import types as genai_types
 
 
 def test_generate_memories(client):
@@ -31,10 +32,10 @@ def test_generate_memories(client):
         direct_contents_source=types.GenerateMemoriesRequestDirectContentsSource(
             events=[
                 types.GenerateMemoriesRequestDirectContentsSourceEvent(
-                    content=types.Content(
+                    content=genai_types.Content(
                         role="model",
                         parts=[
-                            types.Part(
+                            genai_types.Part(
                                 text="I am a software engineer focusing in security"
                             )
                         ],

@@ -18,6 +18,7 @@ import json
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+from google.genai import types as genai_types
 import pandas as pd
 import pytest
 
@@ -30,7 +31,7 @@ def test_bleu_metric(client):
                 prediction="A fast brown fox leaps over a lazy dog.",
             )
         ],
-        metric_spec=types.BleuSpec(),
+        metric_spec=genai_types.BleuSpec(),
     )
     response = client.evals.evaluate_instances(
         metric_config=types._EvaluateInstancesRequestParameters(
@@ -68,7 +69,7 @@ def test_rouge_metric(client):
                 reference="The quick brown fox jumps over the lazy dog.",
             )
         ],
-        metric_spec=types.RougeSpec(rouge_type="rougeL"),
+        metric_spec=genai_types.RougeSpec(rouge_type="rougeL"),
     )
     response = client.evals.evaluate_instances(
         metric_config=types._EvaluateInstancesRequestParameters(
@@ -85,7 +86,7 @@ def test_pointwise_metric(client):
 
     test_input = types.PointwiseMetricInput(
         instance=types.PointwiseMetricInstance(json_instance=json_instance),
-        metric_spec=types.PointwiseMetricSpec(
+        metric_spec=genai_types.PointwiseMetricSpec(
             metric_prompt_template="Evaluate if the response '{response}' correctly answers the prompt '{prompt}'."
         ),
     )
@@ -109,11 +110,11 @@ def test_pairwise_metric_with_autorater(client):
 
     test_input = types.PairwiseMetricInput(
         instance=types.PairwiseMetricInstance(json_instance=json_instance),
-        metric_spec=types.PairwiseMetricSpec(
+        metric_spec=genai_types.PairwiseMetricSpec(
             metric_prompt_template="Which response is a better summary? Baseline: '{baseline_response}' or Candidate: '{candidate_response}'"
         ),
     )
-    autorater_config = types.AutoraterConfig(sampling_count=2)
+    autorater_config = genai_types.AutoraterConfig(sampling_count=2)
 
     response = client.evals.evaluate_instances(
         metric_config=types._EvaluateInstancesRequestParameters(
@@ -178,7 +179,7 @@ async def test_bleu_metric_async(client):
                 prediction="A fast brown fox leaps over a lazy dog.",
             )
         ],
-        metric_spec=types.BleuSpec(),
+        metric_spec=genai_types.BleuSpec(),
     )
     response = await client.aio.evals.evaluate_instances(
         metric_config=types._EvaluateInstancesRequestParameters(

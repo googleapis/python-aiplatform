@@ -529,19 +529,25 @@ class LLMMetricHandler(MetricHandler):
                             role = msg_obj.content.role or msg_obj.author or "user"
                             history_texts.append(f"{role}: {msg_text}")
                     content_list_to_serialize = [
-                        types.Content(parts=[types.Part(text="\n".join(history_texts))])
+                        genai_types.Content(
+                            parts=[genai_types.Part(text="\n".join(history_texts))]
+                        )
                     ]
                 else:
                     content_list_to_serialize = [
-                        types.Content(parts=[types.Part(text=json.dumps(value))])
+                        genai_types.Content(
+                            parts=[genai_types.Part(text=json.dumps(value))]
+                        )
                     ]
             elif isinstance(value, dict):
                 content_list_to_serialize = [
-                    types.Content(parts=[types.Part(text=json.dumps(value))])
+                    genai_types.Content(
+                        parts=[genai_types.Part(text=json.dumps(value))]
+                    )
                 ]
             else:
                 content_list_to_serialize = [
-                    types.Content(parts=[types.Part(text=str(value))])
+                    genai_types.Content(parts=[genai_types.Part(text=str(value))])
                 ]
 
             content_map_values[key] = types.ContentMapContents(

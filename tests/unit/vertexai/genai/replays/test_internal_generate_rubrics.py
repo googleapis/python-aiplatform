@@ -17,6 +17,7 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+from google.genai import types as genai_types
 
 _TEST_RUBRIC_GENERATION_PROMPT = """SPECIAL INSTRUCTION: think silently. Silent thinking token budget: 16384.
 
@@ -146,9 +147,9 @@ User prompt:
 def test_internal_method_generate_rubrics(client):
     """Tests the internal _generate_rubrics method."""
     test_contents = [
-        types.Content(
+        genai_types.Content(
             parts=[
-                types.Part(
+                genai_types.Part(
                     text="Generate a short story about a friendly dragon.",
                 ),
             ],
