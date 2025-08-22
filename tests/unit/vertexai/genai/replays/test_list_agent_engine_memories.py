@@ -35,6 +35,8 @@ def test_list_memories(client):
     )
     assert len(memory_list) == 1
     assert isinstance(memory_list[0], types.Memory)
+    # Clean up resources.
+    agent_engine.delete(force=True)
 
 
 pytestmark = pytest_helper.setup(

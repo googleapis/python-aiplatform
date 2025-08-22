@@ -1122,6 +1122,8 @@ class AgentEngines(_api_module.BaseModule):
             logger.info(
                 f"agent_engine=client.agent_engines.get('{agent_engine.api_resource.name}')"
             )
+        elif operation.error:
+            raise RuntimeError(f"Failed to create Agent Engine: {operation.error}")
         else:
             logger.warning("The operation returned an empty response.")
         if agent is not None:
@@ -1513,6 +1515,8 @@ class AgentEngines(_api_module.BaseModule):
             logger.info(
                 f"agent_engine=client.agent_engines.get('{agent_engine.api_resource.name}')"
             )
+        elif operation.error:
+            raise RuntimeError(f"Failed to update Agent Engine: {operation.error}")
         return self._register_api_methods(agent_engine=agent_engine)
 
     def _stream_query(

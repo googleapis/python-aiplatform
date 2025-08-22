@@ -68,6 +68,8 @@ def test_retrieve_memories_with_similarity_search_params(client):
         )
         == 2
     )
+    # Clean up resources.
+    agent_engine.delete(force=True)
 
 
 def test_retrieve_memories_with_simple_retrieval_params(client):
@@ -87,6 +89,8 @@ def test_retrieve_memories_with_simple_retrieval_params(client):
     assert isinstance(memories, pagers.Pager)
     assert isinstance(memories.page[0], types.RetrieveMemoriesResponseRetrievedMemory)
     assert memories.page_size == 1
+    # Clean up resources.
+    agent_engine.delete(force=True)
 
 
 pytestmark = pytest_helper.setup(
