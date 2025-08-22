@@ -639,7 +639,6 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         project: Optional[str] = None,
         location: Optional[str] = None,
     ) -> Tuple[str, str]:
-
         """Validate the project and location for the resource.
 
         Args:

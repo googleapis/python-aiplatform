@@ -195,12 +195,12 @@ class ModelEvaluation(proto.Message):
         number=8,
         message=explanation.ModelExplanation,
     )
-    explanation_specs: MutableSequence[
-        ModelEvaluationExplanationSpec
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=9,
-        message=ModelEvaluationExplanationSpec,
+    explanation_specs: MutableSequence[ModelEvaluationExplanationSpec] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=9,
+            message=ModelEvaluationExplanationSpec,
+        )
     )
     metadata: struct_pb2.Value = proto.Field(
         proto.MESSAGE,

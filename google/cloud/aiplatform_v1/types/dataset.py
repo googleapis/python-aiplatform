@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import saved_query
 from google.protobuf import struct_pb2  # type: ignore
@@ -372,6 +374,7 @@ class ExportDataConfig(proto.Message):
             CUSTOM_CODE_TRAINING (6):
                 Export for custom code training.
         """
+
         EXPORT_USE_UNSPECIFIED = 0
         CUSTOM_CODE_TRAINING = 6
 

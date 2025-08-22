@@ -550,7 +550,10 @@ class Prompt:
         tool_config: Optional["ToolConfig"] = None,
         stream: bool = False,
         system_instruction: Optional[PartsType] = None,
-    ) -> Union["GenerationResponse", Iterable["GenerationResponse"],]:
+    ) -> Union[
+        "GenerationResponse",
+        Iterable["GenerationResponse"],
+    ]:
         """Generates content using the saved Prompt configs.
 
         Args:

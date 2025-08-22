@@ -870,21 +870,25 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             ):  # pragma: NO COVER
                 _LOGGER.debug(
                     "Created client `google.cloud.aiplatform_v1.MigrationServiceClient`.",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.MigrationService",
-                        "universeDomain": getattr(
-                            self._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1.MigrationService",
-                        "credentialsType": None,
-                    },
+                    extra=(
+                        {
+                            "serviceName": "google.cloud.aiplatform.v1.MigrationService",
+                            "universeDomain": getattr(
+                                self._transport._credentials, "universe_domain", ""
+                            ),
+                            "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
+                            "credentialsInfo": getattr(
+                                self.transport._credentials,
+                                "get_cred_info",
+                                lambda: None,
+                            )(),
+                        }
+                        if hasattr(self._transport, "_credentials")
+                        else {
+                            "serviceName": "google.cloud.aiplatform.v1.MigrationService",
+                            "credentialsType": None,
+                        }
+                    ),
                 )
 
     def search_migratable_resources(

@@ -306,9 +306,9 @@ class MetricsSearchResponse:
 
     next_page_token: str
     _search_metrics_response: Any
-    monitoring_stats: List[
-        model_monitoring_stats.ModelMonitoringStats
-    ] = dataclasses.field(default_factory=list)
+    monitoring_stats: List[model_monitoring_stats.ModelMonitoringStats] = (
+        dataclasses.field(default_factory=list)
+    )
 
     @property
     def raw_search_metrics_response(
@@ -335,9 +335,9 @@ class AlertsSearchResponse:
     next_page_token: str
     _search_alerts_response: Any
     total_alerts: int
-    model_monitoring_alerts: List[
-        model_monitoring_alert.ModelMonitoringAlert
-    ] = dataclasses.field(default_factory=list)
+    model_monitoring_alerts: List[model_monitoring_alert.ModelMonitoringAlert] = (
+        dataclasses.field(default_factory=list)
+    )
 
     @property
     def raw_search_alerts_response(
@@ -360,9 +360,9 @@ class ListJobsResponse:
 
     next_page_token: str
     _list_jobs_response: Any
-    list_jobs: List[
-        gca_model_monitoring_job_compat.ModelMonitoringJob
-    ] = dataclasses.field(default_factory=list)
+    list_jobs: List[gca_model_monitoring_job_compat.ModelMonitoringJob] = (
+        dataclasses.field(default_factory=list)
+    )
 
     @property
     def raw_list_jobs_response(
@@ -1622,9 +1622,11 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
         )
         self._gca_resource = self._get_gca_resource(
             resource_name=model_monitoring_job_name,
-            parent_resource_name_fields={ModelMonitor._resource_noun: model_monitor_id}
-            if model_monitor_id
-            else model_monitor_id,
+            parent_resource_name_fields=(
+                {ModelMonitor._resource_noun: model_monitor_id}
+                if model_monitor_id
+                else model_monitor_id
+            ),
         )
 
     @property

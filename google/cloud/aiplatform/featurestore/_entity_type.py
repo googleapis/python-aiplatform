@@ -116,11 +116,11 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
         )
         self._gca_resource = self._get_gca_resource(
             resource_name=entity_type_name,
-            parent_resource_name_fields={
-                featurestore.Featurestore._resource_noun: featurestore_id
-            }
-            if featurestore_id
-            else featurestore_id,
+            parent_resource_name_fields=(
+                {featurestore.Featurestore._resource_noun: featurestore_id}
+                if featurestore_id
+                else featurestore_id
+            ),
         )
 
         self._featurestore_online_client = self._instantiate_featurestore_online_client(
@@ -1842,7 +1842,7 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
 
     @staticmethod
     def _is_timestamp(
-        timestamp: Union[datetime.datetime, timestamp_pb2.Timestamp]
+        timestamp: Union[datetime.datetime, timestamp_pb2.Timestamp],
     ) -> bool:
         return isinstance(timestamp, datetime.datetime) or isinstance(
             timestamp, timestamp_pb2.Timestamp

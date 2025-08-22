@@ -131,7 +131,7 @@ def _check_tf() -> bool:
         return False
 
     # Check for the tf profiler plugin
-    if importlib.util.find_spec("tensorboard_plugin_profile") is None:
+    if importlib.util.find_spec("tensorboard_plugin_profile") is None:  # fmt: skip
         logger.warning(
             "Could not import tensorboard_plugin_profile, will not run tf profiling service"
         )

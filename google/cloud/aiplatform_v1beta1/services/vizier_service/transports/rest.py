@@ -5752,7 +5752,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
-
             r"""Call the get location method over HTTP.
 
             Args:
@@ -5896,7 +5895,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
-
             r"""Call the list locations method over HTTP.
 
             Args:
@@ -6039,7 +6037,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
-
             r"""Call the get iam policy method over HTTP.
 
             Args:
@@ -6187,7 +6184,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
-
             r"""Call the set iam policy method over HTTP.
 
             Args:
@@ -6335,7 +6331,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
-
             r"""Call the test iam permissions method over HTTP.
 
             Args:
@@ -6484,7 +6479,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
-
             r"""Call the cancel operation method over HTTP.
 
             Args:
@@ -6600,7 +6594,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
-
             r"""Call the delete operation method over HTTP.
 
             Args:
@@ -6716,7 +6709,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
-
             r"""Call the get operation method over HTTP.
 
             Args:
@@ -6858,7 +6850,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
-
             r"""Call the list operations method over HTTP.
 
             Args:
@@ -7000,7 +6991,6 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
             timeout: Optional[float] = None,
             metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
-
             r"""Call the wait operation method over HTTP.
 
             Args:

@@ -4702,17 +4702,17 @@ class _GenerateAgentEngineMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""The vertex session source of the memories that should be generated.""",
     )
-    direct_contents_source: Optional[
-        GenerateMemoriesRequestDirectContentsSource
-    ] = Field(
-        default=None,
-        description="""The direct contents source of the memories that should be generated.""",
+    direct_contents_source: Optional[GenerateMemoriesRequestDirectContentsSource] = (
+        Field(
+            default=None,
+            description="""The direct contents source of the memories that should be generated.""",
+        )
     )
-    direct_memories_source: Optional[
-        GenerateMemoriesRequestDirectMemoriesSource
-    ] = Field(
-        default=None,
-        description="""The direct memories source of the memories that should be generated.""",
+    direct_memories_source: Optional[GenerateMemoriesRequestDirectMemoriesSource] = (
+        Field(
+            default=None,
+            description="""The direct memories source of the memories that should be generated.""",
+        )
     )
     scope: Optional[dict[str, str]] = Field(
         default=None,
@@ -5156,11 +5156,11 @@ class _RetrieveAgentEngineMemoriesRequestParameters(_common.BaseModel):
         default=None,
         description="""Parameters for semantic similarity search based retrieval.""",
     )
-    simple_retrieval_params: Optional[
-        RetrieveMemoriesRequestSimpleRetrievalParams
-    ] = Field(
-        default=None,
-        description="""Parameters for simple (non-similarity search) retrieval.""",
+    simple_retrieval_params: Optional[RetrieveMemoriesRequestSimpleRetrievalParams] = (
+        Field(
+            default=None,
+            description="""Parameters for simple (non-similarity search) retrieval.""",
+        )
     )
     config: Optional[RetrieveAgentEngineMemoriesConfig] = Field(
         default=None, description=""""""
@@ -7420,9 +7420,9 @@ class Metric(_common.BaseModel):
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=fields_to_exclude_callables
-            if fields_to_exclude_callables
-            else None,
+            exclude=(
+                fields_to_exclude_callables if fields_to_exclude_callables else None
+            ),
         )
 
         if version:

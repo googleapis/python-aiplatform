@@ -141,12 +141,16 @@ class ModelMonitoringObjectiveSpec(proto.Message):
             proto.STRING,
             number=3,
         )
-        default_categorical_alert_condition: model_monitoring_alert.ModelMonitoringAlertCondition = proto.Field(
+        default_categorical_alert_condition: (
+            model_monitoring_alert.ModelMonitoringAlertCondition
+        ) = proto.Field(
             proto.MESSAGE,
             number=4,
             message=model_monitoring_alert.ModelMonitoringAlertCondition,
         )
-        default_numeric_alert_condition: model_monitoring_alert.ModelMonitoringAlertCondition = proto.Field(
+        default_numeric_alert_condition: (
+            model_monitoring_alert.ModelMonitoringAlertCondition
+        ) = proto.Field(
             proto.MESSAGE,
             number=5,
             message=model_monitoring_alert.ModelMonitoringAlertCondition,
@@ -185,7 +189,9 @@ class ModelMonitoringObjectiveSpec(proto.Message):
             proto.STRING,
             number=1,
         )
-        default_alert_condition: model_monitoring_alert.ModelMonitoringAlertCondition = proto.Field(
+        default_alert_condition: (
+            model_monitoring_alert.ModelMonitoringAlertCondition
+        ) = proto.Field(
             proto.MESSAGE,
             number=2,
             message=model_monitoring_alert.ModelMonitoringAlertCondition,
@@ -198,7 +204,9 @@ class ModelMonitoringObjectiveSpec(proto.Message):
             number=3,
             message=model_monitoring_alert.ModelMonitoringAlertCondition,
         )
-        batch_explanation_dedicated_resources: machine_resources.BatchDedicatedResources = proto.Field(
+        batch_explanation_dedicated_resources: (
+            machine_resources.BatchDedicatedResources
+        ) = proto.Field(
             proto.MESSAGE,
             number=4,
             message=machine_resources.BatchDedicatedResources,
@@ -230,7 +238,9 @@ class ModelMonitoringObjectiveSpec(proto.Message):
                 message="ModelMonitoringObjectiveSpec.DataDriftSpec",
             )
         )
-        feature_attribution_spec: "ModelMonitoringObjectiveSpec.FeatureAttributionSpec" = proto.Field(
+        feature_attribution_spec: (
+            "ModelMonitoringObjectiveSpec.FeatureAttributionSpec"
+        ) = proto.Field(
             proto.MESSAGE,
             number=12,
             message="ModelMonitoringObjectiveSpec.FeatureAttributionSpec",
@@ -368,6 +378,7 @@ class ModelMonitoringInput(proto.Message):
                     JSONL (3):
                         JsonL files.
                 """
+
                 DATA_FORMAT_UNSPECIFIED = 0
                 CSV = 1
                 TF_RECORD = 2
@@ -424,13 +435,17 @@ class ModelMonitoringInput(proto.Message):
             number=1,
             oneof="data_location",
         )
-        gcs_source: "ModelMonitoringInput.ModelMonitoringDataset.ModelMonitoringGcsSource" = proto.Field(
+        gcs_source: (
+            "ModelMonitoringInput.ModelMonitoringDataset.ModelMonitoringGcsSource"
+        ) = proto.Field(
             proto.MESSAGE,
             number=2,
             oneof="data_location",
             message="ModelMonitoringInput.ModelMonitoringDataset.ModelMonitoringGcsSource",
         )
-        bigquery_source: "ModelMonitoringInput.ModelMonitoringDataset.ModelMonitoringBigQuerySource" = proto.Field(
+        bigquery_source: (
+            "ModelMonitoringInput.ModelMonitoringDataset.ModelMonitoringBigQuerySource"
+        ) = proto.Field(
             proto.MESSAGE,
             number=6,
             oneof="data_location",
@@ -588,12 +603,12 @@ class ModelMonitoringNotificationSpec(proto.Message):
         proto.BOOL,
         number=2,
     )
-    notification_channel_configs: MutableSequence[
-        NotificationChannelConfig
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=3,
-        message=NotificationChannelConfig,
+    notification_channel_configs: MutableSequence[NotificationChannelConfig] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=3,
+            message=NotificationChannelConfig,
+        )
     )
 
 

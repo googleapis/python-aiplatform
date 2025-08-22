@@ -512,12 +512,12 @@ class ModelMonitoringServiceGrpcTransport(ModelMonitoringServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_model_monitoring_job" not in self._stubs:
-            self._stubs[
-                "create_model_monitoring_job"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/CreateModelMonitoringJob",
-                request_serializer=model_monitoring_service.CreateModelMonitoringJobRequest.serialize,
-                response_deserializer=gca_model_monitoring_job.ModelMonitoringJob.deserialize,
+            self._stubs["create_model_monitoring_job"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/CreateModelMonitoringJob",
+                    request_serializer=model_monitoring_service.CreateModelMonitoringJobRequest.serialize,
+                    response_deserializer=gca_model_monitoring_job.ModelMonitoringJob.deserialize,
+                )
             )
         return self._stubs["create_model_monitoring_job"]
 
@@ -577,12 +577,12 @@ class ModelMonitoringServiceGrpcTransport(ModelMonitoringServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_model_monitoring_jobs" not in self._stubs:
-            self._stubs[
-                "list_model_monitoring_jobs"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/ListModelMonitoringJobs",
-                request_serializer=model_monitoring_service.ListModelMonitoringJobsRequest.serialize,
-                response_deserializer=model_monitoring_service.ListModelMonitoringJobsResponse.deserialize,
+            self._stubs["list_model_monitoring_jobs"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/ListModelMonitoringJobs",
+                    request_serializer=model_monitoring_service.ListModelMonitoringJobsRequest.serialize,
+                    response_deserializer=model_monitoring_service.ListModelMonitoringJobsResponse.deserialize,
+                )
             )
         return self._stubs["list_model_monitoring_jobs"]
 
@@ -608,12 +608,12 @@ class ModelMonitoringServiceGrpcTransport(ModelMonitoringServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_model_monitoring_job" not in self._stubs:
-            self._stubs[
-                "delete_model_monitoring_job"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/DeleteModelMonitoringJob",
-                request_serializer=model_monitoring_service.DeleteModelMonitoringJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["delete_model_monitoring_job"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/DeleteModelMonitoringJob",
+                    request_serializer=model_monitoring_service.DeleteModelMonitoringJobRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["delete_model_monitoring_job"]
 
@@ -640,12 +640,12 @@ class ModelMonitoringServiceGrpcTransport(ModelMonitoringServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "search_model_monitoring_stats" not in self._stubs:
-            self._stubs[
-                "search_model_monitoring_stats"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/SearchModelMonitoringStats",
-                request_serializer=model_monitoring_service.SearchModelMonitoringStatsRequest.serialize,
-                response_deserializer=model_monitoring_service.SearchModelMonitoringStatsResponse.deserialize,
+            self._stubs["search_model_monitoring_stats"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/SearchModelMonitoringStats",
+                    request_serializer=model_monitoring_service.SearchModelMonitoringStatsRequest.serialize,
+                    response_deserializer=model_monitoring_service.SearchModelMonitoringStatsResponse.deserialize,
+                )
             )
         return self._stubs["search_model_monitoring_stats"]
 
@@ -671,12 +671,12 @@ class ModelMonitoringServiceGrpcTransport(ModelMonitoringServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "search_model_monitoring_alerts" not in self._stubs:
-            self._stubs[
-                "search_model_monitoring_alerts"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/SearchModelMonitoringAlerts",
-                request_serializer=model_monitoring_service.SearchModelMonitoringAlertsRequest.serialize,
-                response_deserializer=model_monitoring_service.SearchModelMonitoringAlertsResponse.deserialize,
+            self._stubs["search_model_monitoring_alerts"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.ModelMonitoringService/SearchModelMonitoringAlerts",
+                    request_serializer=model_monitoring_service.SearchModelMonitoringAlertsRequest.serialize,
+                    response_deserializer=model_monitoring_service.SearchModelMonitoringAlertsResponse.deserialize,
+                )
             )
         return self._stubs["search_model_monitoring_alerts"]
 

@@ -1,4 +1,5 @@
 """Convenience classes for configuring Vizier Early-Stopping Configs."""
+
 import copy
 from typing import Union
 

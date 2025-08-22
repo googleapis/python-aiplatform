@@ -35,7 +35,9 @@ from google.cloud.aiplatform_v1.types import pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import training_pipeline
-from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
+from google.cloud.aiplatform_v1.types import (
+    training_pipeline as gca_training_pipeline,
+)
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -640,12 +642,12 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "batch_delete_pipeline_jobs" not in self._stubs:
-            self._stubs[
-                "batch_delete_pipeline_jobs"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.PipelineService/BatchDeletePipelineJobs",
-                request_serializer=pipeline_service.BatchDeletePipelineJobsRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["batch_delete_pipeline_jobs"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.PipelineService/BatchDeletePipelineJobs",
+                    request_serializer=pipeline_service.BatchDeletePipelineJobsRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["batch_delete_pipeline_jobs"]
 
@@ -716,12 +718,12 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "batch_cancel_pipeline_jobs" not in self._stubs:
-            self._stubs[
-                "batch_cancel_pipeline_jobs"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.PipelineService/BatchCancelPipelineJobs",
-                request_serializer=pipeline_service.BatchCancelPipelineJobsRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+            self._stubs["batch_cancel_pipeline_jobs"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.PipelineService/BatchCancelPipelineJobs",
+                    request_serializer=pipeline_service.BatchCancelPipelineJobsRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
             )
         return self._stubs["batch_cancel_pipeline_jobs"]
 
