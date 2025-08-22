@@ -501,6 +501,7 @@ _TEST_AGENT_ENGINE_RESOURCE_LIMITS = {
     "memory": "4Gi",
 }
 _TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY = 4
+_TEST_AGENT_ENGINE_ENCRYPTION_SPEC = {"kms_key_name": "test-kms-key"}
 _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
     agent_framework=_TEST_AGENT_ENGINE_FRAMEWORK,
     class_methods=[_TEST_AGENT_ENGINE_CLASS_METHOD_1],
@@ -803,6 +804,7 @@ class TestAgentEngineHelpers:
             max_instances=_TEST_AGENT_ENGINE_MAX_INSTANCES,
             resource_limits=_TEST_AGENT_ENGINE_RESOURCE_LIMITS,
             container_concurrency=_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
+            encryption_spec=_TEST_AGENT_ENGINE_ENCRYPTION_SPEC,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -833,6 +835,7 @@ class TestAgentEngineHelpers:
             "resource_limits": _TEST_AGENT_ENGINE_RESOURCE_LIMITS,
             "container_concurrency": _TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
         }
+        assert config["encryption_spec"] == _TEST_AGENT_ENGINE_ENCRYPTION_SPEC
         assert config["spec"]["class_methods"] == [_TEST_AGENT_ENGINE_CLASS_METHOD_1]
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
@@ -1288,6 +1291,7 @@ class TestAgentEngine:
                 max_instances=None,
                 resource_limits=None,
                 container_concurrency=None,
+                encryption_spec=None,
             )
             request_mock.assert_called_with(
                 "post",

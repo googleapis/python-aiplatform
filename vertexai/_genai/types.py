@@ -3170,7 +3170,7 @@ CustomJobSpecOrDict = Union[CustomJobSpec, CustomJobSpecDict]
 
 
 class EncryptionSpec(_common.BaseModel):
-    """Represents a customer-managed encryption key spec that can be applied to a top-level resource."""
+    """The encryption spec."""
 
     kms_key_name: Optional[str] = Field(
         default=None,
@@ -3179,7 +3179,7 @@ class EncryptionSpec(_common.BaseModel):
 
 
 class EncryptionSpecDict(TypedDict, total=False):
-    """Represents a customer-managed encryption key spec that can be applied to a top-level resource."""
+    """The encryption spec."""
 
     kms_key_name: Optional[str]
     """Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`. The key needs to be in the same region as where the compute resource is created."""
@@ -4029,6 +4029,10 @@ class CreateAgentEngineConfig(_common.BaseModel):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """,
     )
+    encryption_spec: Optional[EncryptionSpec] = Field(
+        default=None,
+        description="""The encryption spec to be used for the Agent Engine.""",
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -4079,6 +4083,9 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
     """The container concurrency to be used for the Agent Engine.
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """
+
+    encryption_spec: Optional[EncryptionSpecDict]
+    """The encryption spec to be used for the Agent Engine."""
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -4654,6 +4661,10 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """,
     )
+    encryption_spec: Optional[EncryptionSpec] = Field(
+        default=None,
+        description="""The encryption spec to be used for the Agent Engine.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -4709,6 +4720,9 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
     """The container concurrency to be used for the Agent Engine.
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """
+
+    encryption_spec: Optional[EncryptionSpecDict]
+    """The encryption spec to be used for the Agent Engine."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -8981,6 +8995,10 @@ class AgentEngineConfig(_common.BaseModel):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """,
     )
+    encryption_spec: Optional[EncryptionSpec] = Field(
+        default=None,
+        description="""The encryption spec to be used for the Agent Engine.""",
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -9052,6 +9070,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
     """The container concurrency to be used for the Agent Engine.
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """
+
+    encryption_spec: Optional[EncryptionSpecDict]
+    """The encryption spec to be used for the Agent Engine."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]

@@ -108,6 +108,17 @@ def _PscInterfaceConfig_to_vertex(
     return to_object
 
 
+def _EncryptionSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["kms_key_name"]) is not None:
+        setv(to_object, ["kmsKeyName"], getv(from_object, ["kms_key_name"]))
+
+    return to_object
+
+
 def _CreateAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -142,6 +153,15 @@ def _CreateAgentEngineConfig_to_vertex(
             ["pscInterfaceConfig"],
             _PscInterfaceConfig_to_vertex(
                 getv(from_object, ["psc_interface_config"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(
+            parent_object,
+            ["encryptionSpec"],
+            _EncryptionSpec_to_vertex(
+                getv(from_object, ["encryption_spec"]), to_object
             ),
         )
 
@@ -329,6 +349,15 @@ def _UpdateAgentEngineConfig_to_vertex(
             ["pscInterfaceConfig"],
             _PscInterfaceConfig_to_vertex(
                 getv(from_object, ["psc_interface_config"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(
+            parent_object,
+            ["encryptionSpec"],
+            _EncryptionSpec_to_vertex(
+                getv(from_object, ["encryption_spec"]), to_object
             ),
         )
 
@@ -1065,6 +1094,7 @@ class AgentEngines(_api_module.BaseModule):
             max_instances=config.max_instances,
             resource_limits=config.resource_limits,
             container_concurrency=config.container_concurrency,
+            encryption_spec=config.encryption_spec,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -1118,6 +1148,7 @@ class AgentEngines(_api_module.BaseModule):
         max_instances: Optional[int] = None,
         resource_limits: Optional[dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
+        encryption_spec: Optional[types.EncryptionSpecDict] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1137,7 +1168,11 @@ class AgentEngines(_api_module.BaseModule):
             update_masks.append("description")
             config["description"] = description
         if context_spec is not None:
+            update_masks.append("context_spec")
             config["context_spec"] = context_spec
+        if encryption_spec is not None:
+            update_masks.append("encryption_spec")
+            config["encryption_spec"] = encryption_spec
         if agent is not None:
             project = self._api_client.project
             if project is None:
