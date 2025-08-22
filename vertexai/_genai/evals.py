@@ -527,6 +527,28 @@ def _EvaluateInstancesRequestParameters_to_vertex(
     return to_object
 
 
+def _PredefinedMetricSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric_spec_name"]) is not None:
+        setv(
+            to_object,
+            ["metricSpecName"],
+            getv(from_object, ["metric_spec_name"]),
+        )
+
+    if getv(from_object, ["metric_spec_parameters"]) is not None:
+        setv(
+            to_object,
+            ["metricSpecParameters"],
+            getv(from_object, ["metric_spec_parameters"]),
+        )
+
+    return to_object
+
+
 def _RubricGenerationSpec_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -570,6 +592,16 @@ def _GenerateInstanceRubricsRequest_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["contents"]) is not None:
         setv(to_object, ["contents"], getv(from_object, ["contents"]))
+
+    if getv(from_object, ["predefined_rubric_generation_spec"]) is not None:
+        setv(
+            to_object,
+            ["predefinedRubricGenerationSpec"],
+            _PredefinedMetricSpec_to_vertex(
+                getv(from_object, ["predefined_rubric_generation_spec"]),
+                to_object,
+            ),
+        )
 
     if getv(from_object, ["rubric_generation_spec"]) is not None:
         setv(
@@ -818,13 +850,17 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         contents: list[genai_types.ContentOrDict],
-        rubric_generation_spec: types.RubricGenerationSpecOrDict,
+        predefined_rubric_generation_spec: Optional[
+            types.PredefinedMetricSpecOrDict
+        ] = None,
+        rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """Generates rubrics for a given prompt."""
 
         parameter_model = types._GenerateInstanceRubricsRequest(
             contents=contents,
+            predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
             config=config,
         )
@@ -1055,47 +1091,81 @@ class Evals(_api_module.BaseModule):
     def generate_rubrics(
         self,
         *,
-        src: Union[str, "pd.DataFrame"],
-        prompt_template: str,
+        src: Union[str, "pd.DataFrame", types.EvaluationDataset],
         rubric_group_name: str,
+        prompt_template: Optional[str] = None,
         generator_model_config: Optional["genai_types.AutoraterConfigOrDict"] = None,
         rubric_content_type: Optional["types.RubricContentType"] = None,
         rubric_type_ontology: Optional[list[str]] = None,
+        predefined_spec_name: Optional[Union[str, "types.PrebuiltMetric"]] = None,
+        metric_spec_parameters: Optional[dict[str, Any]] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> "pd.DataFrame":
         """Generates rubrics for each prompt in the source and adds them as a new column
 
         structured as a dictionary.
 
+        You can generate rubrics by providing either:
+          1. A `predefined_spec_name` to use a Vertex AI backend recipe.
+          2. A `prompt_template` along with other configuration parameters
+             (`generator_model_config`, `rubric_content_type`,
+             `rubric_type_ontology`)
+             for custom rubric generation.
+
+        These two modes are mutually exclusive.
+
         Args:
             src: The source of the prompts. Can be a string (path to a local
-              file, a GCS path, or a BigQuery table) or a Pandas DataFrame. The
-              loaded data must contain either a 'prompt' column (for text) or a
-              'request' column (for text or multimodal Gemini Content).
-            prompt_template: Template for the rubric generation prompt. If using
-              a 'prompt' column, use {prompt} as the placeholder. If using a
-              'request' column, this template is passed to the service along
-              with the content.
+              file, a GCS path, or a BigQuery table), a Pandas DataFrame, or an
+              EvaluationDataset object. The loaded data must contain either a
+              'prompt' column (for text) or a 'request' column (for text or
+              multimodal Gemini Content).
             rubric_group_name: Name for the key within the dictionary in the new
               column.
+            prompt_template: Optional. Template for the rubric generation
+              prompt. Used for custom rubric generation. Mutually exclusive with
+              `predefined_spec_name`. If using a 'prompt' column, use {prompt}
+              as the placeholder. If using a 'request' column, this template is
+              passed to the service along with the content.
             generator_model_config: Optional. Configuration for the model used
-              in rubric generation, including the model name (e.g.,
-              "gemini-1.5-flash") within the 'autorater_model' field.
+              in custom rubric generation. Only used if `prompt_template` is
+              provided. e.g., {"autorater_model": "gemini-2.5-flash"}.
             rubric_content_type: Optional. The type of rubric content to be
-              generated.
+              generated. Only used if `prompt_template` is provided.
             rubric_type_ontology: Optional. A pre-defined list of allowed types
-              for generated rubrics.
+              for generated rubrics. Only used if `prompt_template` is provided.
+            predefined_spec_name: Optional. The name of a Predefined Metric to
+              use for rubric generation (e.g., "general_quality_v1") or a
+              types.PrebuiltMetric object. Mutually exclusive with
+              `prompt_template` and its related parameters.
+            metric_spec_parameters: Optional. Parameters for the Predefined
+              Metric, used to customize rubric generation. Only used if
+              `predefined_spec_name` is set.
+                Example: {"requirements": ["The response must be in Japanese."]}
+            config: Optional. Configuration for the rubric generation process.
 
         Returns:
             DataFrame with an added column named `rubric_groups`. Each cell in
             this column contains a dictionary like: {rubric_group_name:
             [list[Rubric]]}.
         """
-        try:
-            prompts_df = _evals_common._load_dataframe(self._api_client, src)
-        except Exception as e:
-            raise ValueError(
-                f"Failed to load prompt dataset from source: {src}. Error: {e}"
+        if isinstance(src, types.EvaluationDataset):
+            if src.eval_dataset_df is None:
+                raise ValueError(
+                    "EvaluationDataset must have eval_dataset_df populated."
+                )
+            prompts_df = src.eval_dataset_df
+        elif isinstance(src, (str, pd.DataFrame)):
+            try:
+                prompts_df = _evals_common._load_dataframe(self._api_client, src)
+            except Exception as e:
+                raise ValueError(
+                    f"Failed to load prompt dataset from source: {src}." f" Error: {e}"
+                )
+        else:
+            raise TypeError(
+                "Unsupported type for src. Must be str, pd.DataFrame, or"
+                " types.EvaluationDataset."
             )
 
         if "prompt" not in prompts_df.columns and "request" not in prompts_df.columns:
@@ -1105,19 +1175,81 @@ class Evals(_api_module.BaseModule):
 
         input_column = "request" if "request" in prompts_df.columns else "prompt"
         logger.info(
-            f"Generating rubrics for {len(prompts_df)} prompts from column"
-            f" '{input_column}', group: '{rubric_group_name}'..."
+            "Generating rubrics for %d prompts from column '%s', group:" " '%s'...",
+            len(prompts_df),
+            input_column,
+            rubric_group_name,
         )
         all_rubric_groups = []
 
-        spec_dict = {
-            "prompt_template": prompt_template,
-            "rubric_content_type": rubric_content_type,
-            "rubric_type_ontology": rubric_type_ontology,
-            "generator_model_config": generator_model_config,
-        }
-        spec_dict = {k: v for k, v in spec_dict.items() if v is not None}
-        spec = types.RubricGenerationSpec.model_validate(spec_dict)
+        rubric_gen_spec = None
+        predefined_spec = None
+        actual_predefined_spec_name = None
+
+        if predefined_spec_name:
+            if prompt_template:
+                logger.warning(
+                    "prompt_template is ignored when predefined_spec_name is"
+                    " provided."
+                )
+            if generator_model_config:
+                logger.warning(
+                    "generator_model_config is ignored when"
+                    " predefined_spec_name is provided."
+                )
+            if rubric_content_type:
+                logger.warning(
+                    "rubric_content_type is ignored when predefined_spec_name"
+                    " is provided."
+                )
+            if rubric_type_ontology:
+                logger.warning(
+                    "rubric_type_ontology is ignored when predefined_spec_name"
+                    " is provided."
+                )
+
+            if isinstance(predefined_spec_name, str):
+                actual_predefined_spec_name = predefined_spec_name
+            elif hasattr(
+                predefined_spec_name, "resolve"
+            ):  # Check if it's LazyLoadedPrebuiltMetric
+                try:
+                    resolved_metric = predefined_spec_name.resolve(self._api_client)
+                    actual_predefined_spec_name = resolved_metric.name
+                except Exception as e:
+                    raise ValueError(f"Failed to resolve PrebuiltMetric: {e}")
+            else:
+                raise TypeError(
+                    "predefined_spec_name must be a string or" " types.PrebuiltMetric"
+                )
+
+            if not actual_predefined_spec_name:
+                raise ValueError(
+                    "Could not determine metric_spec_name from" " predefined_spec_name"
+                )
+
+            predefined_spec = types.PredefinedMetricSpec(
+                metric_spec_name=actual_predefined_spec_name,
+                metric_spec_parameters=metric_spec_parameters,
+            )
+        elif prompt_template:
+            if metric_spec_parameters:
+                logger.warning(
+                    "metric_spec_parameters is ignored when prompt_template is"
+                    " provided."
+                )
+            spec_dict = {
+                "prompt_template": prompt_template,
+                "rubric_content_type": rubric_content_type,
+                "rubric_type_ontology": rubric_type_ontology,
+                "generator_model_config": generator_model_config,
+            }
+            spec_dict = {k: v for k, v in spec_dict.items() if v is not None}
+            rubric_gen_spec = types.RubricGenerationSpec.model_validate(spec_dict)
+        else:
+            raise ValueError(
+                "Either predefined_spec_name or prompt_template must be" " provided."
+            )
 
         for _, row in prompts_df.iterrows():
             input_data = row[input_column]
@@ -1135,12 +1267,11 @@ class Evals(_api_module.BaseModule):
                 all_rubric_groups.append({rubric_group_name: []})
                 continue
 
-            current_spec = spec.model_copy(deep=True)
-
             try:
                 response = self._generate_rubrics(
                     contents=contents,
-                    rubric_generation_spec=current_spec,
+                    rubric_generation_spec=rubric_gen_spec,
+                    predefined_rubric_generation_spec=predefined_spec,
                     config=config,
                 )
                 rubric_group = {rubric_group_name: response.generated_rubrics}
@@ -1150,6 +1281,7 @@ class Evals(_api_module.BaseModule):
                     "Rubric generation failed for input: %s... Error: %s",
                     str(input_data)[:50],
                     e,
+                    exc_info=True,
                 )
                 all_rubric_groups.append({rubric_group_name: []})
 
@@ -1249,13 +1381,17 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         contents: list[genai_types.ContentOrDict],
-        rubric_generation_spec: types.RubricGenerationSpecOrDict,
+        predefined_rubric_generation_spec: Optional[
+            types.PredefinedMetricSpecOrDict
+        ] = None,
+        rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """Generates rubrics for a given prompt."""
 
         parameter_model = types._GenerateInstanceRubricsRequest(
             contents=contents,
+            predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
             config=config,
         )

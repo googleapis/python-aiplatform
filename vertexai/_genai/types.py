@@ -1920,6 +1920,26 @@ EvaluateInstancesResponseOrDict = Union[
 ]
 
 
+class PredefinedMetricSpec(_common.BaseModel):
+    """Spec for predefined metric."""
+
+    metric_spec_name: Optional[str] = Field(default=None, description="""""")
+    metric_spec_parameters: Optional[dict] = Field(default=None, description="""""")
+
+
+class PredefinedMetricSpecDict(TypedDict, total=False):
+    """Spec for predefined metric."""
+
+    metric_spec_name: Optional[str]
+    """"""
+
+    metric_spec_parameters: Optional[dict]
+    """"""
+
+
+PredefinedMetricSpecOrDict = Union[PredefinedMetricSpec, PredefinedMetricSpecDict]
+
+
 class RubricGenerationConfig(_common.BaseModel):
     """Config for generating rubrics."""
 
@@ -1945,6 +1965,15 @@ class _GenerateInstanceRubricsRequest(_common.BaseModel):
         default=None,
         description="""The prompt to generate rubrics from. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.""",
     )
+    predefined_rubric_generation_spec: Optional[PredefinedMetricSpec] = Field(
+        default=None,
+        description="""Specification for using the rubric generation configs of a pre-defined
+          metric, e.g. "generic_quality_v1" and "instruction_following_v1".
+          Some of the configs may be only used in rubric generation and not
+          supporting evaluation, e.g. "fully_customized_generic_quality_v1".
+          If this field is set, the `rubric_generation_spec` field will be ignored.
+          """,
+    )
     rubric_generation_spec: Optional[RubricGenerationSpec] = Field(
         default=None,
         description="""Specification for how the rubrics should be generated.""",
@@ -1957,6 +1986,14 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
 
     contents: Optional[list[genai_types.ContentDict]]
     """The prompt to generate rubrics from. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request."""
+
+    predefined_rubric_generation_spec: Optional[PredefinedMetricSpecDict]
+    """Specification for using the rubric generation configs of a pre-defined
+          metric, e.g. "generic_quality_v1" and "instruction_following_v1".
+          Some of the configs may be only used in rubric generation and not
+          supporting evaluation, e.g. "fully_customized_generic_quality_v1".
+          If this field is set, the `rubric_generation_spec` field will be ignored.
+          """
 
     rubric_generation_spec: Optional[RubricGenerationSpecDict]
     """Specification for how the rubrics should be generated."""
