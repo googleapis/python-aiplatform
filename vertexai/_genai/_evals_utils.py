@@ -23,7 +23,7 @@ import time
 from typing import Any, Optional, Union
 
 from google.cloud import bigquery
-from google.cloud import storage
+from google.cloud import storage  # type: ignore[attr-defined]
 from google.genai._api_client import BaseApiClient
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
@@ -45,7 +45,7 @@ class GcsUtils:
 
     def __init__(self, api_client: BaseApiClient):
         self.api_client = api_client
-        self.storage_client = storage.Client(  # type: ignore[attr-defined]
+        self.storage_client = storage.Client(
             project=self.api_client.project,
             credentials=self.api_client._credentials,
         )
@@ -65,7 +65,7 @@ class GcsUtils:
     def upload_file_to_gcs(self, upload_gcs_path: str, filename: str) -> None:
         """Uploads the provided file to a Google Cloud Storage location."""
 
-        storage.Blob.from_string(  # type: ignore[attr-defined]
+        storage.Blob.from_string(
             uri=upload_gcs_path, client=self.storage_client
         ).upload_from_filename(filename)
 
@@ -770,19 +770,19 @@ class BatchEvaluateRequestPreparer:
             metric_name = getv(metric, ["name"]).lower()
 
             if metric_name == "exact_match":
-                metric_payload_item["exact_match_spec"] = {}
+                metric_payload_item["exact_match_spec"] = {}  # type: ignore[assignment]
             elif metric_name == "bleu":
-                metric_payload_item["bleu_spec"] = {}
+                metric_payload_item["bleu_spec"] = {}  # type: ignore[assignment]
             elif metric_name.startswith("rouge"):
                 rouge_type = metric_name.replace("_", "")
-                metric_payload_item["rouge_spec"] = {"rouge_type": rouge_type}
+                metric_payload_item["rouge_spec"] = {"rouge_type": rouge_type}  # type: ignore[assignment]
 
             elif hasattr(metric, "prompt_template") and metric.prompt_template:
                 pointwise_spec = {"metric_prompt_template": metric.prompt_template}
                 system_instruction = getv(metric, ["judge_model_system_instruction"])
                 if system_instruction:
                     pointwise_spec["system_instruction"] = system_instruction
-                metric_payload_item["pointwise_metric_spec"] = pointwise_spec
+                metric_payload_item["pointwise_metric_spec"] = pointwise_spec  # type: ignore[assignment]
             else:
                 raise ValueError(
                     "Unsupported metric type or invalid metric name:" f" {metric_name}"

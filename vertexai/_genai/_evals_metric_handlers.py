@@ -472,7 +472,11 @@ class LLMMetricHandler(MetricHandler):
             rubrics_list = []
 
         rubric_enhanced_contents = {
-            "prompt": [eval_case.prompt.model_dump(mode="json", exclude_none=True)],
+            "prompt": [
+                eval_case.prompt.model_dump(mode="json", exclude_none=True)
+                if eval_case.prompt
+                else None
+            ],
             "response": [response_content.model_dump(mode="json", exclude_none=True)],
             "rubric_groups": {
                 self.metric.rubric_group_name: {
@@ -560,7 +564,7 @@ class LLMMetricHandler(MetricHandler):
 
         metric_spec_payload = {"metric_prompt_template": self.metric.prompt_template}
         if self.metric.return_raw_output is not None:
-            metric_spec_payload["custom_output_format_config"] = {
+            metric_spec_payload["custom_output_format_config"] = {  # type: ignore[assignment]
                 "return_raw_output": self.metric.return_raw_output
             }
         if self.metric.judge_model_system_instruction:
@@ -575,13 +579,13 @@ class LLMMetricHandler(MetricHandler):
             }
         }
 
-    def _add_autorater_config(self, payload: dict[str, Any]):
+    def _add_autorater_config(self, payload: dict[str, Any]) -> None:
         """Adds autorater config to the request payload if specified."""
         autorater_config = {}
         if self.metric.judge_model:
             autorater_config["autorater_model"] = self.metric.judge_model
         if self.metric.judge_model_sampling_count:
-            autorater_config["sampling_count"] = self.metric.judge_model_sampling_count
+            autorater_config["sampling_count"] = self.metric.judge_model_sampling_count  # type: ignore[assignment]
 
         if not autorater_config:
             return
@@ -633,11 +637,11 @@ class LLMMetricHandler(MetricHandler):
                     rubric_verdicts=result_data.rubric_verdicts if result_data else [],
                 )
             else:
-                result_data = response.pointwise_metric_result
+                result_data = response.pointwise_metric_result  # type: ignore[assignment]
                 return types.EvalCaseMetricResult(
                     metric_name=metric_name,
                     score=result_data.score if result_data else None,
-                    explanation=result_data.explanation if result_data else None,
+                    explanation=result_data.explanation if result_data else None,  # type: ignore[attr-defined]
                 )
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error(
@@ -859,7 +863,7 @@ def calculate_win_rates(eval_result: types.EvaluationResult) -> dict[str, Any]:
     )
     if max_models == 0:
         return {}
-    stats = collections.defaultdict(
+    stats: collections.defaultdict[str, dict[str, Any]] = collections.defaultdict(
         lambda: {"wins": [0] * max_models, "ties": 0, "valid_comparisons": 0}
     )
     for case in eval_result.eval_case_results:

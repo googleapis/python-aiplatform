@@ -46,6 +46,8 @@ from pydantic import (
 )
 from typing_extensions import TypedDict
 
+# mypy: disable-error-code="attr-defined, comparison-overlap, valid-type"
+
 logger = logging.getLogger("vertexai_genai.types")
 
 __all__ = ["PrebuiltMetric"]  # noqa: F822
@@ -7331,7 +7333,7 @@ class Metric(_common.BaseModel):
     """The metric used for evaluation."""
 
     name: Optional[str] = Field(default=None, description="""The name of the metric.""")
-    custom_function: Optional[Callable] = Field(
+    custom_function: Optional[Callable[..., Any]] = Field(
         default=None,
         description="""The custom function that defines the end-to-end logic for metric computation.""",
     )
@@ -7352,11 +7354,11 @@ class Metric(_common.BaseModel):
         default=None,
         description="""Whether to return the raw output from the judge model.""",
     )
-    parse_and_reduce_fn: Optional[Callable] = Field(
+    parse_and_reduce_fn: Optional[Callable[..., Any]] = Field(
         default=None,
         description="""The parse and reduce function for the judge model.""",
     )
-    aggregate_summary_fn: Optional[Callable] = Field(
+    aggregate_summary_fn: Optional[Callable[..., Any]] = Field(
         default=None,
         description="""The aggregate summary function for the judge model.""",
     )
@@ -7397,32 +7399,18 @@ class Metric(_common.BaseModel):
                 " it using 'pip install google-cloud-aiplatform[evaluation]'."
             )
 
-        fields_to_exclude_callables = set()
-        for field_name, field_info in self.model_fields.items():
-            annotation = field_info.annotation
-            origin = typing.get_origin(annotation)
-
-            is_field_callable_type = False
-            if annotation is Callable or origin is Callable:
-                is_field_callable_type = True
-            elif origin is Union:
-                args = typing.get_args(annotation)
-                if any(
-                    arg is Callable or typing.get_origin(arg) is Callable
-                    for arg in args
-                ):
-                    is_field_callable_type = True
-
-            if is_field_callable_type:
-                fields_to_exclude_callables.add(field_name)
+        fields_to_exclude = {
+            field_name
+            for field_name, field_info in self.model_fields.items()
+            if self.__getattribute__(field_name) is not None
+            and isinstance(self.__getattribute__(field_name), Callable)
+        }
 
         data_to_dump = self.model_dump(
             exclude_unset=True,
             exclude_none=True,
             mode="json",
-            exclude=fields_to_exclude_callables
-            if fields_to_exclude_callables
-            else None,
+            exclude=fields_to_exclude if fields_to_exclude else None,
         )
 
         if version:
@@ -7551,7 +7539,7 @@ class MetricDict(TypedDict, total=False):
     name: Optional[str]
     """The name of the metric."""
 
-    custom_function: Optional[Callable]
+    custom_function: Optional[Callable[..., Any]]
     """The custom function that defines the end-to-end logic for metric computation."""
 
     prompt_template: Optional[str]
@@ -7569,10 +7557,10 @@ class MetricDict(TypedDict, total=False):
     return_raw_output: Optional[bool]
     """Whether to return the raw output from the judge model."""
 
-    parse_and_reduce_fn: Optional[Callable]
+    parse_and_reduce_fn: Optional[Callable[..., Any]]
     """The parse and reduce function for the judge model."""
 
-    aggregate_summary_fn: Optional[Callable]
+    aggregate_summary_fn: Optional[Callable[..., Any]]
     """The aggregate summary function for the judge model."""
 
 

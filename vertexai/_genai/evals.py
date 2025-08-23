@@ -921,7 +921,7 @@ class Evals(_api_module.BaseModule):
         """Evaluates an instance of a model."""
 
         if isinstance(metric_config, types._EvaluateInstancesRequestParameters):
-            metric_config = metric_config.model_dump()
+            metric_config = metric_config.model_dump()  # type: ignore[assignment]
         else:
             metric_config = dict(metric_config)
 
@@ -1062,7 +1062,7 @@ class Evals(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1180,7 +1180,7 @@ class Evals(_api_module.BaseModule):
             input_column,
             rubric_group_name,
         )
-        all_rubric_groups = []
+        all_rubric_groups: list[dict[str, list[types.Rubric]]] = []
 
         rubric_gen_spec = None
         predefined_spec = None
@@ -1482,7 +1482,7 @@ class AsyncEvals(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[genai_types.HttpOptions] = None
+        http_options: Optional[types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -1518,7 +1518,7 @@ class AsyncEvals(_api_module.BaseModule):
         """Evaluates an instance of a model."""
 
         if isinstance(metric_config, types._EvaluateInstancesRequestParameters):
-            metric_config = metric_config.model_dump()
+            metric_config = metric_config.model_dump()  # type: ignore[assignment]
         else:
             metric_config = dict(metric_config)
 

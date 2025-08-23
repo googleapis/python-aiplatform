@@ -38,7 +38,7 @@ from . import types
 try:
     import litellm
 except ImportError:
-    litellm = None
+    litellm = None  # type: ignore[assignment]
 
 
 logger = logging.getLogger(__name__)
@@ -288,12 +288,12 @@ def _run_custom_inference(
 
 def _convert_prompt_row_to_litellm_messages(row: pd.Series) -> list[dict[str, Any]]:
     """Converts a DataFrame row into LiteLLM's messages format by detecting the input schema."""
-    messages = []
+    messages: list[dict[str, Any]] = []
     row_dict = row.to_dict()
 
     # Case 1: The row is an OpenAI request body itself.
     if "messages" in row_dict and isinstance(row_dict.get("messages"), list):
-        return row_dict["messages"]
+        return row_dict["messages"]  # type: ignore[no-any-return]
 
     # Case 2: The row contains a 'request' key with an OpenAI request body.
     elif "request" in row_dict and isinstance(row_dict.get("request"), dict):
@@ -301,7 +301,7 @@ def _convert_prompt_row_to_litellm_messages(row: pd.Series) -> list[dict[str, An
         if "messages" in request_body and isinstance(
             request_body.get("messages"), list
         ):
-            return request_body["messages"]
+            return request_body["messages"]  # type: ignore[no-any-return]
 
         # Case 3: The 'request' key is in Gemini 'contents' format.
         elif "contents" in request_body and isinstance(
@@ -325,11 +325,13 @@ def _convert_prompt_row_to_litellm_messages(row: pd.Series) -> list[dict[str, An
     )
 
 
-def _call_litellm_completion(model: str, messages: list[dict[str, Any]]) -> dict:
+def _call_litellm_completion(
+    model: str, messages: list[dict[str, Any]]
+) -> dict[str, Any]:
     """Wrapper for a single litellm.completion call."""
     try:
         response = litellm.completion(model=model, messages=messages)
-        return response.model_dump()
+        return response.model_dump()  # type: ignore[no-any-return]
     except Exception as e:
         logger.error("LiteLLM completion failed for model %s: %s", model, e)
         return {"error": str(e)}
@@ -438,7 +440,7 @@ def _run_inference_internal(
             )
         if _is_litellm_model(model):
             logger.info("Running inference with LiteLLM for model: %s", model)
-            raw_responses = _run_litellm_inference(
+            raw_responses = _run_litellm_inference(  # type: ignore[assignment]
                 model=model, prompt_dataset=prompt_dataset
             )
             responses = [json.dumps(resp) for resp in raw_responses]
@@ -716,7 +718,7 @@ def _resolve_dataset_inputs(
         if dataset_schema:
             current_schema = _evals_data_converters.EvalDatasetSchema(dataset_schema)
         else:
-            current_schema = _evals_data_converters.auto_detect_dataset_schema(
+            current_schema = _evals_data_converters.auto_detect_dataset_schema(  # type: ignore[assignment]
                 current_loaded_data
             )
         schemas_for_merge.append(current_schema)

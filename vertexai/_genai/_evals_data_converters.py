@@ -497,7 +497,7 @@ def get_dataset_converter(
 ) -> _EvalDataConverter:
     """Returns the appropriate dataset converter for the given schema."""
     if dataset_schema in _CONVERTER_REGISTRY:
-        return _CONVERTER_REGISTRY[dataset_schema]()
+        return _CONVERTER_REGISTRY[dataset_schema]()  # type: ignore[abstract]
     else:
         raise ValueError(f"Unsupported dataset schema: {dataset_schema}")
 

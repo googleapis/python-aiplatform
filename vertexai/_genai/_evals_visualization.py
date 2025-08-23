@@ -36,7 +36,7 @@ def _is_ipython_env() -> bool:
         return False
 
 
-def _pydantic_serializer(obj):
+def _pydantic_serializer(obj: Any) -> Any:
     """Custom serializer for Pydantic models."""
     if hasattr(obj, "model_dump"):
         return obj.model_dump(mode="json")
@@ -55,7 +55,7 @@ def _preprocess_df_for_json(df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame
             or df_copy[col].apply(lambda x: isinstance(x, (dict, list))).any()
         ):
 
-            def stringify_cell(cell):
+            def stringify_cell(cell: Any) -> Optional[str]:
                 if pd.isna(cell):
                     return None
                 if isinstance(cell, (dict, list)):
@@ -71,7 +71,7 @@ def _preprocess_df_for_json(df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame
                             cell.model_dump(mode="json"), ensure_ascii=False
                         )
                     return str(cell)
-                return cell
+                return str(cell)
 
             df_copy[col] = df_copy[col].apply(stringify_cell)
     return df_copy
@@ -586,7 +586,7 @@ def display_evaluation_result(
             and input_dataset_list[0].eval_dataset_df is not None
         ):
             base_df = _preprocess_df_for_json(input_dataset_list[0].eval_dataset_df)
-            processed_rows = []
+            processed_rows: list[dict[str, Any]] = []
             if base_df is not None:
                 for _, row in base_df.iterrows():
                     prompt_key = "request" if "request" in row else "prompt"
