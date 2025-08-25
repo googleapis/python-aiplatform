@@ -126,7 +126,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
 
 
 def _create_input_metadata_from_signature(
-    signature_inputs: Dict[str, "tf.Tensor"]  # noqa: F821
+    signature_inputs: Dict[str, "tf.Tensor"],  # noqa: F821
 ) -> Dict[str, explanation_metadata.ExplanationMetadata.InputMetadata]:
     """Creates InputMetadata from signature inputs.
 

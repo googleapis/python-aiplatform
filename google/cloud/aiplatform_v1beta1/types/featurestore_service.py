@@ -19,13 +19,17 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
+from google.cloud.aiplatform_v1beta1.types import (
+    entity_type as gca_entity_type,
+)
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import feature_monitor
 from google.cloud.aiplatform_v1beta1.types import (
     feature_selector as gca_feature_selector,
 )
-from google.cloud.aiplatform_v1beta1.types import featurestore as gca_featurestore
+from google.cloud.aiplatform_v1beta1.types import (
+    featurestore as gca_featurestore,
+)
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore

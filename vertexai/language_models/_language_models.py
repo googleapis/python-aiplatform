@@ -1671,7 +1671,9 @@ class _TextGenerationModel(_LanguageModel):
         )
 
         prediction_service_async_client = self._endpoint._prediction_async_client
-        async for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
+        async for (
+            prediction_dict
+        ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
             prediction_service_async_client=prediction_service_async_client,
             endpoint_name=self._endpoint_name,
             instance=prediction_request.instance,
@@ -2056,9 +2058,11 @@ class _ChatSession:
 
         response_obj = self._model.predict(
             prompt=new_history_text,
-            max_output_tokens=max_output_tokens
-            if max_output_tokens is not None
-            else self._max_output_tokens,
+            max_output_tokens=(
+                max_output_tokens
+                if max_output_tokens is not None
+                else self._max_output_tokens
+            ),
             temperature=temperature if temperature is not None else self._temperature,
             top_k=top_k if top_k is not None else self._top_k,
             top_p=top_p if top_p is not None else self._top_p,
@@ -3169,7 +3173,9 @@ class _ChatSessionBase:
 
         full_response_text = ""
 
-        async for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
+        async for (
+            prediction_dict
+        ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
             prediction_service_async_client=prediction_service_async_client,
             endpoint_name=self._model._endpoint_name,
             instance=prediction_request.instance,
@@ -3672,7 +3678,9 @@ class _CodeGenerationModel(_LanguageModel):
         )
 
         prediction_service_async_client = self._endpoint._prediction_async_client
-        async for prediction_dict in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
+        async for (
+            prediction_dict
+        ) in _streaming_prediction.predict_stream_of_dicts_from_single_dict_async(
             prediction_service_async_client=prediction_service_async_client,
             endpoint_name=self._endpoint_name,
             instance=prediction_request.instance,

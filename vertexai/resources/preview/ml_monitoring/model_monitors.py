@@ -1622,9 +1622,11 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
         )
         self._gca_resource = self._get_gca_resource(
             resource_name=model_monitoring_job_name,
-            parent_resource_name_fields={ModelMonitor._resource_noun: model_monitor_id}
-            if model_monitor_id
-            else model_monitor_id,
+            parent_resource_name_fields=(
+                {ModelMonitor._resource_noun: model_monitor_id}
+                if model_monitor_id
+                else model_monitor_id
+            ),
         )
 
     @property

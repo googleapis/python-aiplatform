@@ -58,10 +58,14 @@ from google.cloud.aiplatform_v1beta1.types import execution
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import lineage_subgraph
 from google.cloud.aiplatform_v1beta1.types import metadata_schema
-from google.cloud.aiplatform_v1beta1.types import metadata_schema as gca_metadata_schema
+from google.cloud.aiplatform_v1beta1.types import (
+    metadata_schema as gca_metadata_schema,
+)
 from google.cloud.aiplatform_v1beta1.types import metadata_service
 from google.cloud.aiplatform_v1beta1.types import metadata_store
-from google.cloud.aiplatform_v1beta1.types import metadata_store as gca_metadata_store
+from google.cloud.aiplatform_v1beta1.types import (
+    metadata_store as gca_metadata_store,
+)
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -308,21 +312,23 @@ class MetadataServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1beta1.MetadataServiceAsyncClient`.",
-                extra={
-                    "serviceName": "google.cloud.aiplatform.v1beta1.MetadataService",
-                    "universeDomain": getattr(
-                        self._client._transport._credentials, "universe_domain", ""
-                    ),
-                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                    "credentialsInfo": getattr(
-                        self.transport._credentials, "get_cred_info", lambda: None
-                    )(),
-                }
-                if hasattr(self._client._transport, "_credentials")
-                else {
-                    "serviceName": "google.cloud.aiplatform.v1beta1.MetadataService",
-                    "credentialsType": None,
-                },
+                extra=(
+                    {
+                        "serviceName": "google.cloud.aiplatform.v1beta1.MetadataService",
+                        "universeDomain": getattr(
+                            self._client._transport._credentials, "universe_domain", ""
+                        ),
+                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                        "credentialsInfo": getattr(
+                            self.transport._credentials, "get_cred_info", lambda: None
+                        )(),
+                    }
+                    if hasattr(self._client._transport, "_credentials")
+                    else {
+                        "serviceName": "google.cloud.aiplatform.v1beta1.MetadataService",
+                        "credentialsType": None,
+                    }
+                ),
             )
 
     async def create_metadata_store(

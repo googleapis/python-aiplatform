@@ -22,7 +22,9 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import (
     feature_online_store as gca_feature_online_store,
 )
-from google.cloud.aiplatform_v1beta1.types import feature_view as gca_feature_view
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_view as gca_feature_view,
+)
 from google.cloud.aiplatform_v1beta1.types import (
     feature_view_sync as gca_feature_view_sync,
 )

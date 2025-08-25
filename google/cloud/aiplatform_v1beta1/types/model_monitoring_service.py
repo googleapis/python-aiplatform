@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import model_monitor as gca_model_monitor
+from google.cloud.aiplatform_v1beta1.types import (
+    model_monitor as gca_model_monitor,
+)
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_alert
 from google.cloud.aiplatform_v1beta1.types import (
     model_monitoring_job as gca_model_monitoring_job,

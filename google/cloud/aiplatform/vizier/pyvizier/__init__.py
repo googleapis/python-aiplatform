@@ -36,7 +36,9 @@ except ImportError:
         'Please install the SDK using "pip install google-vizier"'
     )
 
-from google.cloud.aiplatform.vizier.pyvizier.proto_converters import TrialConverter
+from google.cloud.aiplatform.vizier.pyvizier.proto_converters import (
+    TrialConverter,
+)
 from google.cloud.aiplatform.vizier.pyvizier.proto_converters import (
     ParameterConfigConverter,
 )

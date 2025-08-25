@@ -19,12 +19,16 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1.types import evaluated_annotation
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model as gca_model
-from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
+from google.cloud.aiplatform_v1.types import (
+    model_evaluation as gca_model_evaluation,
+)
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore

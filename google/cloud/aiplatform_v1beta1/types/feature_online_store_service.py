@@ -56,6 +56,7 @@ class FeatureViewDataFormat(proto.Enum):
         PROTO_STRUCT (2):
             Return response data in proto Struct format.
     """
+
     FEATURE_VIEW_DATA_FORMAT_UNSPECIFIED = 0
     KEY_VALUE = 1
     PROTO_STRUCT = 2
@@ -155,6 +156,7 @@ class FetchFeatureValuesRequest(proto.Message):
             PROTO_STRUCT (2):
                 Return response data in proto Struct format.
         """
+
         _pb_options = {"deprecated": True}
         FORMAT_UNSPECIFIED = 0
         KEY_VALUE = 1
@@ -498,6 +500,7 @@ class NearestNeighborQuery(proto.Message):
                     Entities are eligible if their value is !=
                     the query's.
             """
+
             OPERATOR_UNSPECIFIED = 0
             LESS = 1
             LESS_EQUAL = 2

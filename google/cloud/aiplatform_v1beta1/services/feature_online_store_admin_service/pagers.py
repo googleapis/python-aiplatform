@@ -38,7 +38,9 @@ except AttributeError:  # pragma: NO COVER
     OptionalAsyncRetry = Union[retries_async.AsyncRetry, object, None]  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import feature_online_store
-from google.cloud.aiplatform_v1beta1.types import feature_online_store_admin_service
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_online_store_admin_service,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view_sync
 

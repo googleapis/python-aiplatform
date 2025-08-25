@@ -2974,9 +2974,11 @@ class grounding:  # pylint: disable=invalid-name
         ):
             """Initializes a Google Search Retrieval tool."""
             self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval(
-                dynamic_retrieval_config=dynamic_retrieval_config._raw_dynamic_retrieval_config
-                if dynamic_retrieval_config
-                else None
+                dynamic_retrieval_config=(
+                    dynamic_retrieval_config._raw_dynamic_retrieval_config
+                    if dynamic_retrieval_config
+                    else None
+                )
             )
 
     class Retrieval:

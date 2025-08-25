@@ -1863,9 +1863,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 MatchNeighbor(
                     id=neighbor.datapoint.datapoint_id,
                     distance=neighbor.distance,
-                    sparse_distance=neighbor.sparse_distance
-                    if neighbor.sparse_distance
-                    else None,
+                    sparse_distance=(
+                        neighbor.sparse_distance if neighbor.sparse_distance else None
+                    ),
                 ).from_index_datapoint(index_datapoint=neighbor.datapoint)
                 for neighbor in embedding_neighbors.neighbors
             ]
@@ -2163,17 +2163,21 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                     approx_num_neighbors=approx_num_neighbors,
                     fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
                     numeric_restricts=numeric_restricts,
-                    sparse_embedding=match_service_pb2.SparseEmbedding(
-                        float_val=query.sparse_embedding_values,
-                        dimension=query.sparse_embedding_dimensions,
-                    )
-                    if query_is_hybrid
-                    else None,
-                    rrf=match_service_pb2.MatchRequest.RRF(
-                        alpha=query.rrf_ranking_alpha,
-                    )
-                    if query_is_hybrid and query.rrf_ranking_alpha
-                    else None,
+                    sparse_embedding=(
+                        match_service_pb2.SparseEmbedding(
+                            float_val=query.sparse_embedding_values,
+                            dimension=query.sparse_embedding_dimensions,
+                        )
+                        if query_is_hybrid
+                        else None
+                    ),
+                    rrf=(
+                        match_service_pb2.MatchRequest.RRF(
+                            alpha=query.rrf_ranking_alpha,
+                        )
+                        if query_is_hybrid and query.rrf_ranking_alpha
+                        else None
+                    ),
                 )
                 requests.append(request)
         else:
@@ -2199,9 +2203,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 match_neighbors_id_map[neighbor.id] = MatchNeighbor(
                     id=neighbor.id,
                     distance=neighbor.distance,
-                    sparse_distance=neighbor.sparse_distance
-                    if neighbor.sparse_distance
-                    else None,
+                    sparse_distance=(
+                        neighbor.sparse_distance if neighbor.sparse_distance else None
+                    ),
                 )
             for embedding in resp.embeddings:
                 if embedding.id in match_neighbors_id_map:

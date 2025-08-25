@@ -238,6 +238,7 @@ class GoogleDriveSource(proto.Message):
                 RESOURCE_TYPE_FOLDER (2):
                     Folder resource type.
             """
+
             RESOURCE_TYPE_UNSPECIFIED = 0
             RESOURCE_TYPE_FILE = 1
             RESOURCE_TYPE_FOLDER = 2

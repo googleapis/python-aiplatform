@@ -22,7 +22,9 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1.types import (
     notebook_execution_job as gca_notebook_execution_job,
 )
-from google.cloud.aiplatform_v1.types import notebook_runtime as gca_notebook_runtime
+from google.cloud.aiplatform_v1.types import (
+    notebook_runtime as gca_notebook_runtime,
+)
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -76,6 +78,7 @@ class NotebookExecutionJobView(proto.Enum):
         NOTEBOOK_EXECUTION_JOB_VIEW_FULL (2):
             Includes all fields.
     """
+
     NOTEBOOK_EXECUTION_JOB_VIEW_UNSPECIFIED = 0
     NOTEBOOK_EXECUTION_JOB_VIEW_BASIC = 1
     NOTEBOOK_EXECUTION_JOB_VIEW_FULL = 2

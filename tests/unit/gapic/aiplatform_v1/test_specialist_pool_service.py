@@ -72,11 +72,17 @@ from google.cloud.aiplatform_v1.services.specialist_pool_service import (
 from google.cloud.aiplatform_v1.services.specialist_pool_service import (
     SpecialistPoolServiceClient,
 )
-from google.cloud.aiplatform_v1.services.specialist_pool_service import pagers
-from google.cloud.aiplatform_v1.services.specialist_pool_service import transports
+from google.cloud.aiplatform_v1.services.specialist_pool_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1.services.specialist_pool_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import specialist_pool
-from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
+from google.cloud.aiplatform_v1.types import (
+    specialist_pool as gca_specialist_pool,
+)
 from google.cloud.aiplatform_v1.types import specialist_pool_service
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -4727,9 +4733,11 @@ def test_create_specialist_pool_rest_call_success(request_type):
 def test_create_specialist_pool_rest_interceptors(null_interceptor):
     transport = transports.SpecialistPoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.SpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceClient(transport=transport)
 
@@ -4871,9 +4879,11 @@ def test_get_specialist_pool_rest_call_success(request_type):
 def test_get_specialist_pool_rest_interceptors(null_interceptor):
     transport = transports.SpecialistPoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.SpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceClient(transport=transport)
 
@@ -5003,9 +5013,11 @@ def test_list_specialist_pools_rest_call_success(request_type):
 def test_list_specialist_pools_rest_interceptors(null_interceptor):
     transport = transports.SpecialistPoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.SpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceClient(transport=transport)
 
@@ -5134,9 +5146,11 @@ def test_delete_specialist_pool_rest_call_success(request_type):
 def test_delete_specialist_pool_rest_interceptors(null_interceptor):
     transport = transports.SpecialistPoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.SpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceClient(transport=transport)
 
@@ -5352,9 +5366,11 @@ def test_update_specialist_pool_rest_call_success(request_type):
 def test_update_specialist_pool_rest_interceptors(null_interceptor):
     transport = transports.SpecialistPoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.SpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceClient(transport=transport)
 
@@ -6348,9 +6364,11 @@ async def test_create_specialist_pool_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncSpecialistPoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceAsyncClient(transport=transport)
 
@@ -6510,9 +6528,11 @@ async def test_get_specialist_pool_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncSpecialistPoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceAsyncClient(transport=transport)
 
@@ -6658,9 +6678,11 @@ async def test_list_specialist_pools_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncSpecialistPoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceAsyncClient(transport=transport)
 
@@ -6807,9 +6829,11 @@ async def test_delete_specialist_pool_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncSpecialistPoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceAsyncClient(transport=transport)
 
@@ -7043,9 +7067,11 @@ async def test_update_specialist_pool_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncSpecialistPoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSpecialistPoolServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSpecialistPoolServiceRestInterceptor()
+        ),
     )
     client = SpecialistPoolServiceAsyncClient(transport=transport)
 

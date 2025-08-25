@@ -304,7 +304,7 @@ def _coerce_to_dict(
         _ExampleLikeOrDict,
         ExpectedContent,
         _ContentOrDict,
-    ]
+    ],
 ):
     if isinstance(obj, generative_models.Content):
         return obj.to_dict()
@@ -388,7 +388,7 @@ def _coerce_to_dict(
 
 
 def _coerce_to_example(
-    example: Union[_ExampleLike, _ExampleLikeOrDict]
+    example: Union[_ExampleLike, _ExampleLikeOrDict],
 ) -> types.Example:
     if isinstance(example, types.ContentsExample):
         return types.Example(

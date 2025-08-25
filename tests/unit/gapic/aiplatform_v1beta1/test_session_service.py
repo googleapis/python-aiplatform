@@ -73,7 +73,9 @@ from google.cloud.aiplatform_v1beta1.services.session_service import (
     SessionServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.session_service import pagers
-from google.cloud.aiplatform_v1beta1.services.session_service import transports
+from google.cloud.aiplatform_v1beta1.services.session_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import session
@@ -5917,9 +5919,9 @@ def test_create_session_rest_call_success(request_type):
 def test_create_session_rest_interceptors(null_interceptor):
     transport = transports.SessionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SessionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.SessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceClient(transport=transport)
 
@@ -6052,9 +6054,9 @@ def test_get_session_rest_call_success(request_type):
 def test_get_session_rest_interceptors(null_interceptor):
     transport = transports.SessionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SessionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.SessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceClient(transport=transport)
 
@@ -6183,9 +6185,9 @@ def test_list_sessions_rest_call_success(request_type):
 def test_list_sessions_rest_interceptors(null_interceptor):
     transport = transports.SessionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SessionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.SessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceClient(transport=transport)
 
@@ -6404,9 +6406,9 @@ def test_update_session_rest_call_success(request_type):
 def test_update_session_rest_interceptors(null_interceptor):
     transport = transports.SessionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SessionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.SessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceClient(transport=transport)
 
@@ -6529,9 +6531,9 @@ def test_delete_session_rest_call_success(request_type):
 def test_delete_session_rest_interceptors(null_interceptor):
     transport = transports.SessionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SessionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.SessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceClient(transport=transport)
 
@@ -6660,9 +6662,9 @@ def test_list_events_rest_call_success(request_type):
 def test_list_events_rest_interceptors(null_interceptor):
     transport = transports.SessionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SessionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.SessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceClient(transport=transport)
 
@@ -6966,9 +6968,9 @@ def test_append_event_rest_call_success(request_type):
 def test_append_event_rest_interceptors(null_interceptor):
     transport = transports.SessionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.SessionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.SessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceClient(transport=transport)
 
@@ -7989,9 +7991,11 @@ async def test_create_session_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncSessionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSessionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceAsyncClient(transport=transport)
 
@@ -8143,9 +8147,11 @@ async def test_get_session_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncSessionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSessionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceAsyncClient(transport=transport)
 
@@ -8290,9 +8296,11 @@ async def test_list_sessions_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncSessionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSessionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceAsyncClient(transport=transport)
 
@@ -8528,9 +8536,11 @@ async def test_update_session_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncSessionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSessionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceAsyncClient(transport=transport)
 
@@ -8670,9 +8680,11 @@ async def test_delete_session_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncSessionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSessionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceAsyncClient(transport=transport)
 
@@ -8820,9 +8832,11 @@ async def test_list_events_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncSessionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSessionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceAsyncClient(transport=transport)
 
@@ -9144,9 +9158,11 @@ async def test_append_event_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncSessionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncSessionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncSessionServiceRestInterceptor()
+        ),
     )
     client = SessionServiceAsyncClient(transport=transport)
 

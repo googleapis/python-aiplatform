@@ -22,7 +22,9 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import (
     batch_prediction_job as gca_batch_prediction_job,
 )
-from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
+from google.cloud.aiplatform_v1beta1.types import (
+    custom_job as gca_custom_job,
+)
 from google.cloud.aiplatform_v1beta1.types import (
     data_labeling_job as gca_data_labeling_job,
 )
@@ -1049,7 +1051,9 @@ class CreateModelDeploymentMonitoringJobRequest(proto.Message):
         proto.STRING,
         number=1,
     )
-    model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = proto.Field(
+    model_deployment_monitoring_job: (
+        gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+    ) = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
@@ -1109,7 +1113,9 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
                 latest monitoring run.
         """
 
-        type_: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType = proto.Field(
+        type_: (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType
+        ) = proto.Field(
             proto.ENUM,
             number=1,
             enum=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType,
@@ -1334,7 +1340,9 @@ class UpdateModelDeploymentMonitoringJobRequest(proto.Message):
             -  ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
     """
 
-    model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = proto.Field(
+    model_deployment_monitoring_job: (
+        gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+    ) = proto.Field(
         proto.MESSAGE,
         number=1,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,

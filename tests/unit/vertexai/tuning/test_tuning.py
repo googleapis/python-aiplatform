@@ -34,7 +34,9 @@ from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform_v1beta1.services import gen_ai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import job_state
-from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
+from google.cloud.aiplatform_v1beta1.types import (
+    tuning_job as gca_tuning_job,
+)
 from vertexai.preview import tuning
 from vertexai.preview.tuning import (
     sft as preview_supervised_tuning,
@@ -43,7 +45,9 @@ from vertexai.preview.tuning._tuning import SourceModel
 from vertexai.tuning import _distillation
 from vertexai.tuning import sft as supervised_tuning
 from google.cloud import storage
-from vertexai.preview.tuning._tuning import TuningJob as PreviewTuningJob
+from vertexai.preview.tuning._tuning import (
+    TuningJob as PreviewTuningJob,
+)
 
 
 import pytest

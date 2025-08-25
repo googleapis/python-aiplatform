@@ -356,7 +356,9 @@ class AutoMlForecastingInputs(proto.Message):
                 message="AutoMlForecastingInputs.Transformation.NumericTransformation",
             )
         )
-        categorical: "AutoMlForecastingInputs.Transformation.CategoricalTransformation" = proto.Field(
+        categorical: (
+            "AutoMlForecastingInputs.Transformation.CategoricalTransformation"
+        ) = proto.Field(
             proto.MESSAGE,
             number=3,
             oneof="transformation_detail",
@@ -464,7 +466,9 @@ class AutoMlForecastingInputs(proto.Message):
         proto.INT64,
         number=24,
     )
-    export_evaluated_data_items_config: gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig = proto.Field(
+    export_evaluated_data_items_config: (
+        gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig
+    ) = proto.Field(
         proto.MESSAGE,
         number=15,
         message=gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig,

@@ -24,7 +24,9 @@ import re
 from typing import DefaultDict, Dict, Generator, List, Optional, Set, Tuple
 
 from google.cloud import storage
-from google.cloud.aiplatform.compat.services import tensorboard_service_client
+from google.cloud.aiplatform.compat.services import (
+    tensorboard_service_client,
+)
 from google.cloud.aiplatform.compat.types import tensorboard_data
 from google.cloud.aiplatform.compat.types import tensorboard_service
 from google.cloud.aiplatform.compat.types import tensorboard_time_series

@@ -20,7 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import api_auth as gca_api_auth
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1beta1.types import io
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -189,7 +191,9 @@ class RagEmbeddingModelConfig(proto.Message):
                 message="RagEmbeddingModelConfig.SparseEmbeddingConfig",
             )
         )
-        dense_embedding_model_prediction_endpoint: "RagEmbeddingModelConfig.VertexPredictionEndpoint" = proto.Field(
+        dense_embedding_model_prediction_endpoint: (
+            "RagEmbeddingModelConfig.VertexPredictionEndpoint"
+        ) = proto.Field(
             proto.MESSAGE,
             number=2,
             message="RagEmbeddingModelConfig.VertexPredictionEndpoint",
@@ -463,6 +467,7 @@ class FileStatus(proto.Message):
                 RagFile resource is in a problematic state. See
                 ``error_message`` field for details.
         """
+
         STATE_UNSPECIFIED = 0
         ACTIVE = 1
         ERROR = 2
@@ -522,6 +527,7 @@ class CorpusStatus(proto.Message):
                 RagCorpus is in a problematic situation. See
                 ``error_message`` field for details.
         """
+
         UNKNOWN = 0
         INITIALIZED = 1
         ACTIVE = 2
@@ -793,6 +799,7 @@ class RagFile(proto.Message):
             RAG_FILE_TYPE_PDF (2):
                 RagFile type is PDF.
         """
+
         RAG_FILE_TYPE_UNSPECIFIED = 0
         RAG_FILE_TYPE_TXT = 1
         RAG_FILE_TYPE_PDF = 2

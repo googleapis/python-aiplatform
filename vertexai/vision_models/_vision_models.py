@@ -345,9 +345,11 @@ class MaskReferenceImage(ReferenceImage):
             segmentation_classes: List of class IDs for segmentation. Max of 5 IDs
         """
         self.config = MaskImageConfig(
-            mask_mode=self.mask_mode_enum_map[mask_mode]
-            if mask_mode in self.mask_mode_enum_map
-            else "MASK_MODE_DEFAULT",
+            mask_mode=(
+                self.mask_mode_enum_map[mask_mode]
+                if mask_mode in self.mask_mode_enum_map
+                else "MASK_MODE_DEFAULT"
+            ),
             dilation=dilation,
             segmentation_classes=segmentation_classes,
         )
@@ -394,9 +396,11 @@ class ControlReferenceImage(ReferenceImage):
         """
         super().__init__(reference_id, image)
         self.config = ControlImageConfig(
-            control_type=self.control_type_enum_map[control_type]
-            if control_type in self.control_type_enum_map
-            else "CONTROL_TYPE_DEFAULT",
+            control_type=(
+                self.control_type_enum_map[control_type]
+                if control_type in self.control_type_enum_map
+                else "CONTROL_TYPE_DEFAULT"
+            ),
             enable_control_image_computation=enable_control_image_computation,
         )
 
@@ -463,9 +467,11 @@ class SubjectReferenceImage(ReferenceImage):
         super().__init__(reference_id, image)
         self.config = SubjectImageConfig(
             subject_description=subject_description,
-            subject_type=self.subject_type_enum_map[subject_type]
-            if subject_type in self.subject_type_enum_map
-            else "SUBJECT_TYPE_DEFAULT",
+            subject_type=(
+                self.subject_type_enum_map[subject_type]
+                if subject_type in self.subject_type_enum_map
+                else "SUBJECT_TYPE_DEFAULT"
+            ),
         )
 
 

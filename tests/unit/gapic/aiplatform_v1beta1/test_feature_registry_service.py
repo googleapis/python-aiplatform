@@ -72,14 +72,22 @@ from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
 from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
     FeatureRegistryServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.feature_registry_service import pagers
-from google.cloud.aiplatform_v1beta1.services.feature_registry_service import transports
+from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import feature_group
-from google.cloud.aiplatform_v1beta1.types import feature_group as gca_feature_group
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_group as gca_feature_group,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_monitor
-from google.cloud.aiplatform_v1beta1.types import feature_monitor as gca_feature_monitor
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_monitor as gca_feature_monitor,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_monitor_job
 from google.cloud.aiplatform_v1beta1.types import (
     feature_monitor_job as gca_feature_monitor_job,
@@ -13983,9 +13991,11 @@ def test_create_feature_group_rest_call_success(request_type):
 def test_create_feature_group_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -14124,9 +14134,11 @@ def test_get_feature_group_rest_call_success(request_type):
 def test_get_feature_group_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -14254,9 +14266,11 @@ def test_list_feature_groups_rest_call_success(request_type):
 def test_list_feature_groups_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -14478,9 +14492,11 @@ def test_update_feature_group_rest_call_success(request_type):
 def test_update_feature_group_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -14602,9 +14618,11 @@ def test_delete_feature_group_rest_call_success(request_type):
 def test_delete_feature_group_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -14851,9 +14869,11 @@ def test_create_feature_rest_call_success(request_type):
 def test_create_feature_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -14979,9 +14999,11 @@ def test_batch_create_features_rest_call_success(request_type):
 def test_batch_create_features_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -15125,9 +15147,11 @@ def test_get_feature_rest_call_success(request_type):
 def test_get_feature_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -15257,9 +15281,11 @@ def test_list_features_rest_call_success(request_type):
 def test_list_features_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -15513,9 +15539,11 @@ def test_update_feature_rest_call_success(request_type):
 def test_update_feature_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -15641,9 +15669,11 @@ def test_delete_feature_rest_call_success(request_type):
 def test_delete_feature_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -15852,9 +15882,11 @@ def test_create_feature_monitor_rest_call_success(request_type):
 def test_create_feature_monitor_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -15990,9 +16022,11 @@ def test_get_feature_monitor_rest_call_success(request_type):
 def test_get_feature_monitor_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -16126,9 +16160,11 @@ def test_list_feature_monitors_rest_call_success(request_type):
 def test_list_feature_monitors_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -16344,9 +16380,11 @@ def test_update_feature_monitor_rest_call_success(request_type):
 def test_update_feature_monitor_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -16472,9 +16510,11 @@ def test_delete_feature_monitor_rest_call_success(request_type):
 def test_delete_feature_monitor_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -16730,9 +16770,11 @@ def test_create_feature_monitor_job_rest_call_success(request_type):
 def test_create_feature_monitor_job_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -16878,9 +16920,11 @@ def test_get_feature_monitor_job_rest_call_success(request_type):
 def test_get_feature_monitor_job_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -17017,9 +17061,11 @@ def test_list_feature_monitor_jobs_rest_call_success(request_type):
 def test_list_feature_monitor_jobs_rest_interceptors(null_interceptor):
     transport = transports.FeatureRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceClient(transport=transport)
 
@@ -18319,9 +18365,11 @@ async def test_create_feature_group_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -18478,9 +18526,11 @@ async def test_get_feature_group_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -18624,9 +18674,11 @@ async def test_list_feature_groups_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -18865,9 +18917,11 @@ async def test_update_feature_group_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -19007,9 +19061,11 @@ async def test_delete_feature_group_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -19274,9 +19330,11 @@ async def test_create_feature_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -19418,9 +19476,11 @@ async def test_batch_create_features_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -19582,9 +19642,11 @@ async def test_get_feature_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -19730,9 +19792,11 @@ async def test_list_features_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -20002,9 +20066,11 @@ async def test_update_feature_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -20146,9 +20212,11 @@ async def test_delete_feature_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -20373,9 +20441,11 @@ async def test_create_feature_monitor_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -20529,9 +20599,11 @@ async def test_get_feature_monitor_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -20682,9 +20754,11 @@ async def test_list_feature_monitors_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -20918,9 +20992,11 @@ async def test_update_feature_monitor_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -21064,9 +21140,11 @@ async def test_delete_feature_monitor_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -21340,9 +21418,11 @@ async def test_create_feature_monitor_job_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -21504,9 +21584,11 @@ async def test_get_feature_monitor_job_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 
@@ -21661,9 +21743,11 @@ async def test_list_feature_monitor_jobs_rest_asyncio_interceptors(null_intercep
         )
     transport = transports.AsyncFeatureRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeatureRegistryServiceRestInterceptor()
+        ),
     )
     client = FeatureRegistryServiceAsyncClient(transport=transport)
 

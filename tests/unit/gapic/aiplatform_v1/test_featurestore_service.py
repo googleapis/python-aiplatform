@@ -73,7 +73,9 @@ from google.cloud.aiplatform_v1.services.featurestore_service import (
     FeaturestoreServiceClient,
 )
 from google.cloud.aiplatform_v1.services.featurestore_service import pagers
-from google.cloud.aiplatform_v1.services.featurestore_service import transports
+from google.cloud.aiplatform_v1.services.featurestore_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import entity_type
 from google.cloud.aiplatform_v1.types import entity_type as gca_entity_type
@@ -14986,9 +14988,11 @@ def test_create_featurestore_rest_call_success(request_type):
 def test_create_featurestore_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -15126,9 +15130,11 @@ def test_get_featurestore_rest_call_success(request_type):
 def test_get_featurestore_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -15254,9 +15260,11 @@ def test_list_featurestores_rest_call_success(request_type):
 def test_list_featurestores_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -15478,9 +15486,11 @@ def test_update_featurestore_rest_call_success(request_type):
 def test_update_featurestore_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -15602,9 +15612,11 @@ def test_delete_featurestore_rest_call_success(request_type):
 def test_delete_featurestore_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -15818,9 +15830,11 @@ def test_create_entity_type_rest_call_success(request_type):
 def test_create_entity_type_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -15962,9 +15976,11 @@ def test_get_entity_type_rest_call_success(request_type):
 def test_get_entity_type_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -16094,9 +16110,11 @@ def test_list_entity_types_rest_call_success(request_type):
 def test_list_entity_types_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -16333,9 +16351,11 @@ def test_update_entity_type_rest_call_success(request_type):
 def test_update_entity_type_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -16459,9 +16479,11 @@ def test_delete_entity_type_rest_call_success(request_type):
 def test_delete_entity_type_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -16680,9 +16702,11 @@ def test_create_feature_rest_call_success(request_type):
 def test_create_feature_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -16808,9 +16832,11 @@ def test_batch_create_features_rest_call_success(request_type):
 def test_batch_create_features_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -16954,9 +16980,11 @@ def test_get_feature_rest_call_success(request_type):
 def test_get_feature_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -17085,9 +17113,11 @@ def test_list_features_rest_call_success(request_type):
 def test_list_features_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -17331,9 +17361,11 @@ def test_update_feature_rest_call_success(request_type):
 def test_update_feature_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -17457,9 +17489,11 @@ def test_delete_feature_rest_call_success(request_type):
 def test_delete_feature_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -17585,9 +17619,11 @@ def test_import_feature_values_rest_call_success(request_type):
 def test_import_feature_values_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -17713,9 +17749,11 @@ def test_batch_read_feature_values_rest_call_success(request_type):
 def test_batch_read_feature_values_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -17841,9 +17879,11 @@ def test_export_feature_values_rest_call_success(request_type):
 def test_export_feature_values_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -17969,9 +18009,11 @@ def test_delete_feature_values_rest_call_success(request_type):
 def test_delete_feature_values_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -18099,9 +18141,11 @@ def test_search_features_rest_call_success(request_type):
 def test_search_features_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.FeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.FeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceClient(transport=transport)
 
@@ -19437,9 +19481,11 @@ async def test_create_featurestore_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -19593,9 +19639,11 @@ async def test_get_featurestore_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -19737,9 +19785,11 @@ async def test_list_featurestores_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -19977,9 +20027,11 @@ async def test_update_featurestore_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -20117,9 +20169,11 @@ async def test_delete_featurestore_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -20349,9 +20403,11 @@ async def test_create_entity_type_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -20509,9 +20565,11 @@ async def test_get_entity_type_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -20657,9 +20715,11 @@ async def test_list_entity_types_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -20912,9 +20972,11 @@ async def test_update_entity_type_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -21054,9 +21116,11 @@ async def test_delete_entity_type_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -21291,9 +21355,11 @@ async def test_create_feature_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -21435,9 +21501,11 @@ async def test_batch_create_features_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -21597,9 +21665,11 @@ async def test_get_feature_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -21745,9 +21815,11 @@ async def test_list_features_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -22007,9 +22079,11 @@ async def test_update_feature_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -22149,9 +22223,11 @@ async def test_delete_feature_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -22293,9 +22369,11 @@ async def test_import_feature_values_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -22437,9 +22515,11 @@ async def test_batch_read_feature_values_rest_asyncio_interceptors(null_intercep
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -22583,9 +22663,11 @@ async def test_export_feature_values_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -22727,9 +22809,11 @@ async def test_delete_feature_values_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 
@@ -22873,9 +22957,11 @@ async def test_search_features_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncFeaturestoreServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncFeaturestoreServiceRestInterceptor()
+        ),
     )
     client = FeaturestoreServiceAsyncClient(transport=transport)
 

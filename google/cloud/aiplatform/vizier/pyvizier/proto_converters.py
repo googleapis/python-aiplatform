@@ -1,4 +1,5 @@
 """Converters for OSS Vizier's protos from/to PyVizier's classes."""
+
 import logging
 from datetime import timezone
 from typing import List, Optional, Sequence, Tuple, Union

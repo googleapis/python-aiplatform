@@ -85,7 +85,9 @@ class CreateIndexOperationMetadata(proto.Message):
         number=1,
         message=operation.GenericOperationMetadata,
     )
-    nearest_neighbor_search_operation_metadata: "NearestNeighborSearchOperationMetadata" = proto.Field(
+    nearest_neighbor_search_operation_metadata: (
+        "NearestNeighborSearchOperationMetadata"
+    ) = proto.Field(
         proto.MESSAGE,
         number=2,
         message="NearestNeighborSearchOperationMetadata",
@@ -225,7 +227,9 @@ class UpdateIndexOperationMetadata(proto.Message):
         number=1,
         message=operation.GenericOperationMetadata,
     )
-    nearest_neighbor_search_operation_metadata: "NearestNeighborSearchOperationMetadata" = proto.Field(
+    nearest_neighbor_search_operation_metadata: (
+        "NearestNeighborSearchOperationMetadata"
+    ) = proto.Field(
         proto.MESSAGE,
         number=2,
         message="NearestNeighborSearchOperationMetadata",
@@ -410,6 +414,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 INVALID_EMBEDDING (17):
                     Invalid dense embedding.
             """
+
             ERROR_TYPE_UNSPECIFIED = 0
             EMPTY_LINE = 1
             INVALID_JSON_SYNTAX = 2
@@ -429,7 +434,9 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             INVALID_SPARSE_EMBEDDING = 16
             INVALID_EMBEDDING = 17
 
-        error_type: "NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType" = proto.Field(
+        error_type: (
+            "NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType"
+        ) = proto.Field(
             proto.ENUM,
             number=1,
             enum="NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType",

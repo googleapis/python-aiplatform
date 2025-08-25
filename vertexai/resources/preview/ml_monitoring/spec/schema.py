@@ -146,12 +146,12 @@ class ModelMonitoringSchema:
                 user_ground_truth_fields.append(field._as_proto())
         return model_monitor.ModelMonitoringSchema(
             feature_fields=user_feature_fields,
-            prediction_fields=user_prediction_fields
-            if self.prediction_fields
-            else None,
-            ground_truth_fields=user_ground_truth_fields
-            if self.ground_truth_fields
-            else None,
+            prediction_fields=(
+                user_prediction_fields if self.prediction_fields else None
+            ),
+            ground_truth_fields=(
+                user_ground_truth_fields if self.ground_truth_fields else None
+            ),
         )
 
     def to_json(self, output_dir: Optional[str] = None) -> str:

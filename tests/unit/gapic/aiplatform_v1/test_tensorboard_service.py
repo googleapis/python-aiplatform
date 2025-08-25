@@ -73,7 +73,9 @@ from google.cloud.aiplatform_v1.services.tensorboard_service import (
     TensorboardServiceClient,
 )
 from google.cloud.aiplatform_v1.services.tensorboard_service import pagers
-from google.cloud.aiplatform_v1.services.tensorboard_service import transports
+from google.cloud.aiplatform_v1.services.tensorboard_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import tensorboard
@@ -84,7 +86,9 @@ from google.cloud.aiplatform_v1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
 from google.cloud.aiplatform_v1.types import tensorboard_run
-from google.cloud.aiplatform_v1.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform_v1.types import (
+    tensorboard_run as gca_tensorboard_run,
+)
 from google.cloud.aiplatform_v1.types import tensorboard_service
 from google.cloud.aiplatform_v1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1.types import (
@@ -21171,9 +21175,9 @@ def test_create_tensorboard_rest_call_success(request_type):
 def test_create_tensorboard_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -21317,9 +21321,9 @@ def test_get_tensorboard_rest_call_success(request_type):
 def test_get_tensorboard_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -21529,9 +21533,9 @@ def test_update_tensorboard_rest_call_success(request_type):
 def test_update_tensorboard_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -21659,9 +21663,9 @@ def test_list_tensorboards_rest_call_success(request_type):
 def test_list_tensorboards_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -21786,9 +21790,9 @@ def test_delete_tensorboard_rest_call_success(request_type):
 def test_delete_tensorboard_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -21917,9 +21921,9 @@ def test_read_tensorboard_usage_rest_call_success(request_type):
 def test_read_tensorboard_usage_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -22054,9 +22058,9 @@ def test_read_tensorboard_size_rest_call_success(request_type):
 def test_read_tensorboard_size_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -22276,9 +22280,9 @@ def test_create_tensorboard_experiment_rest_call_success(request_type):
 def test_create_tensorboard_experiment_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -22423,9 +22427,9 @@ def test_get_tensorboard_experiment_rest_call_success(request_type):
 def test_get_tensorboard_experiment_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -22653,9 +22657,9 @@ def test_update_tensorboard_experiment_rest_call_success(request_type):
 def test_update_tensorboard_experiment_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -22790,9 +22794,9 @@ def test_list_tensorboard_experiments_rest_call_success(request_type):
 def test_list_tensorboard_experiments_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -22922,9 +22926,9 @@ def test_delete_tensorboard_experiment_rest_call_success(request_type):
 def test_delete_tensorboard_experiment_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -23142,9 +23146,9 @@ def test_create_tensorboard_run_rest_call_success(request_type):
 def test_create_tensorboard_run_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -23275,9 +23279,9 @@ def test_batch_create_tensorboard_runs_rest_call_success(request_type):
 def test_batch_create_tensorboard_runs_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -23420,9 +23424,9 @@ def test_get_tensorboard_run_rest_call_success(request_type):
 def test_get_tensorboard_run_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -23642,9 +23646,9 @@ def test_update_tensorboard_run_rest_call_success(request_type):
 def test_update_tensorboard_run_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -23776,9 +23780,9 @@ def test_list_tensorboard_runs_rest_call_success(request_type):
 def test_list_tensorboard_runs_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -23907,9 +23911,9 @@ def test_delete_tensorboard_run_rest_call_success(request_type):
 def test_delete_tensorboard_run_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -24042,9 +24046,9 @@ def test_batch_create_tensorboard_time_series_rest_call_success(request_type):
 def test_batch_create_tensorboard_time_series_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -24289,9 +24293,9 @@ def test_create_tensorboard_time_series_rest_call_success(request_type):
 def test_create_tensorboard_time_series_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -24443,9 +24447,9 @@ def test_get_tensorboard_time_series_rest_call_success(request_type):
 def test_get_tensorboard_time_series_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -24688,9 +24692,9 @@ def test_update_tensorboard_time_series_rest_call_success(request_type):
 def test_update_tensorboard_time_series_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -24829,9 +24833,9 @@ def test_list_tensorboard_time_series_rest_call_success(request_type):
 def test_list_tensorboard_time_series_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -24961,9 +24965,9 @@ def test_delete_tensorboard_time_series_rest_call_success(request_type):
 def test_delete_tensorboard_time_series_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -25100,9 +25104,9 @@ def test_batch_read_tensorboard_time_series_data_rest_call_success(request_type)
 def test_batch_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -25244,9 +25248,9 @@ def test_read_tensorboard_time_series_data_rest_call_success(request_type):
 def test_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -25388,9 +25392,9 @@ def test_read_tensorboard_blob_data_rest_call_success(request_type):
 def test_read_tensorboard_blob_data_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -25526,9 +25530,9 @@ def test_write_tensorboard_experiment_data_rest_call_success(request_type):
 def test_write_tensorboard_experiment_data_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -25666,9 +25670,9 @@ def test_write_tensorboard_run_data_rest_call_success(request_type):
 def test_write_tensorboard_run_data_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -25805,9 +25809,9 @@ def test_export_tensorboard_time_series_data_rest_call_success(request_type):
 def test_export_tensorboard_time_series_data_rest_interceptors(null_interceptor):
     transport = transports.TensorboardServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.TensorboardServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.TensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceClient(transport=transport)
 
@@ -27354,9 +27358,11 @@ async def test_create_tensorboard_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -27516,9 +27522,11 @@ async def test_get_tensorboard_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -27744,9 +27752,11 @@ async def test_update_tensorboard_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -27890,9 +27900,11 @@ async def test_list_tensorboards_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -28033,9 +28045,11 @@ async def test_delete_tensorboard_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -28180,9 +28194,11 @@ async def test_read_tensorboard_usage_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -28333,9 +28349,11 @@ async def test_read_tensorboard_size_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -28573,9 +28591,11 @@ async def test_create_tensorboard_experiment_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -28736,9 +28756,11 @@ async def test_get_tensorboard_experiment_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -28986,9 +29008,11 @@ async def test_update_tensorboard_experiment_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -29139,9 +29163,11 @@ async def test_list_tensorboard_experiments_rest_asyncio_interceptors(null_inter
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -29290,9 +29316,11 @@ async def test_delete_tensorboard_experiment_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -29526,9 +29554,11 @@ async def test_create_tensorboard_run_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -29677,9 +29707,11 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -29838,9 +29870,11 @@ async def test_get_tensorboard_run_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -30076,9 +30110,11 @@ async def test_update_tensorboard_run_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -30226,9 +30262,11 @@ async def test_list_tensorboard_runs_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -30373,9 +30411,11 @@ async def test_delete_tensorboard_run_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -30528,9 +30568,11 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -30793,9 +30835,11 @@ async def test_create_tensorboard_time_series_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -30963,9 +31007,11 @@ async def test_get_tensorboard_time_series_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -31228,9 +31274,11 @@ async def test_update_tensorboard_time_series_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -31385,9 +31433,11 @@ async def test_list_tensorboard_time_series_rest_asyncio_interceptors(null_inter
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -31536,9 +31586,11 @@ async def test_delete_tensorboard_time_series_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -31695,9 +31747,11 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_interceptors
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -31859,9 +31913,11 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -32017,9 +32073,11 @@ async def test_read_tensorboard_blob_data_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -32177,9 +32235,11 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -32333,9 +32393,11 @@ async def test_write_tensorboard_run_data_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 
@@ -32494,9 +32556,11 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_interceptors(
         )
     transport = transports.AsyncTensorboardServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncTensorboardServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncTensorboardServiceRestInterceptor()
+        ),
     )
     client = TensorboardServiceAsyncClient(transport=transport)
 

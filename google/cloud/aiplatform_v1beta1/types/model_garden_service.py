@@ -23,7 +23,9 @@ from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.cloud.aiplatform_v1beta1.types import publisher_model as gca_publisher_model
+from google.cloud.aiplatform_v1beta1.types import (
+    publisher_model as gca_publisher_model,
+)
 
 
 __protobuf__ = proto.module(
@@ -65,6 +67,7 @@ class PublisherModelView(proto.Enum):
             Include: VersionId, ModelVersionExternalName,
             and SupportedActions.
     """
+
     PUBLISHER_MODEL_VIEW_UNSPECIFIED = 0
     PUBLISHER_MODEL_VIEW_BASIC = 1
     PUBLISHER_MODEL_VIEW_FULL = 2

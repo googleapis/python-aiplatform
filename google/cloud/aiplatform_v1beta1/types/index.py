@@ -20,7 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import deployed_index_ref
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -130,6 +132,7 @@ class Index(proto.Message):
                 corresponding DeployedIndexes in nearly
                 real-time.
         """
+
         INDEX_UPDATE_METHOD_UNSPECIFIED = 0
         BATCH_UPDATE = 1
         STREAM_UPDATE = 2
@@ -355,6 +358,7 @@ class IndexDatapoint(proto.Message):
                     Datapoints are eligible iff their value is !=
                     the query's.
             """
+
             OPERATOR_UNSPECIFIED = 0
             LESS = 1
             LESS_EQUAL = 2

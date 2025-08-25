@@ -52,7 +52,6 @@ class BaseExecutionSchema(execution.Execution):
         metadata: Optional[Dict] = None,
         description: Optional[str] = None,
     ):
-
         """Initializes the Execution with the given name, URI and metadata.
 
         Args:
@@ -97,7 +96,6 @@ class BaseExecutionSchema(execution.Execution):
         *,
         execution_name: str,
     ):
-
         """Initializes the Execution instance using an existing resource.
         Args:
             execution_name (str):
