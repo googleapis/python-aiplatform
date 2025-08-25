@@ -970,12 +970,15 @@ class AgentEngines(_api_module.BaseModule):
               "projects/123/locations/us-central1/reasoningEngines/456" or a
               shortened name such as "reasoningEngines/456".
         """
+        api_resource = self._get(name=name, config=config)
         agent_engine = types.AgentEngine(
             api_client=self,
             api_async_client=AsyncAgentEngines(api_client_=self._api_client),
-            api_resource=self._get(name=name, config=config),
+            api_resource=api_resource,
         )
-        return self._register_api_methods(agent_engine=agent_engine)
+        if api_resource.spec:
+            self._register_api_methods(agent_engine=agent_engine)
+        return agent_engine
 
     def create(
         self,
@@ -1513,7 +1516,9 @@ class AgentEngines(_api_module.BaseModule):
             logger.info(
                 f"agent_engine=client.agent_engines.get('{agent_engine.api_resource.name}')"
             )
-        return self._register_api_methods(agent_engine=agent_engine)
+        if agent_engine.api_resource.spec:
+            self._register_api_methods(agent_engine=agent_engine)
+        return agent_engine
 
     def _stream_query(
         self,

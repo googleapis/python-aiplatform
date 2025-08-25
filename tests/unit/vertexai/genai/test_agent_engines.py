@@ -1882,19 +1882,19 @@ class TestAgentEngineErrors:
         ],
     )
     @pytest.mark.usefixtures("caplog")
-    @mock.patch.object(_genai_types.AgentEngine, "operation_schemas")
     @mock.patch.object(agent_engines.AgentEngines, "_get")
     def test_invalid_operation_schema(
         self,
         mock_get,
-        mock_operation_schemas,
         test_case_name,
         test_operation_schemas,
         want_log_output,
         caplog,
     ):
-        mock_get.return_value = _genai_types.AgentEngine()  # just to avoid an API call
-        mock_operation_schemas.return_value = test_operation_schemas
+        mock_get.return_value = _genai_types.ReasoningEngine(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            spec=_genai_types.ReasoningEngineSpec(class_methods=test_operation_schemas),
+        )
         self.client.agent_engines.get(name=_TEST_AGENT_ENGINE_RESOURCE_NAME)
         assert want_log_output in caplog.text
 
