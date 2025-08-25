@@ -45,6 +45,13 @@ if TYPE_CHECKING:
         BaseAgent = Any
 
     try:
+        from google.adk.plugins.base_plugin import BasePlugin
+
+        BasePlugin = BasePlugin
+    except (ImportError, AttributeError):
+        BasePlugin = Any
+
+    try:
         from google.adk.sessions import BaseSessionService
 
         BaseSessionService = BaseSessionService
@@ -71,6 +78,15 @@ if TYPE_CHECKING:
         BaseMemoryService = BaseMemoryService
     except (ImportError, AttributeError):
         BaseMemoryService = Any
+
+    try:
+        from google.adk.auth.credential_service.base_credential_service import (
+            BaseCredentialService,
+        )
+
+        BaseCredentialService = BaseCredentialService
+    except (ImportError, AttributeError):
+        BaseCredentialService = Any
 
     try:
         from opentelemetry.sdk import trace
@@ -322,10 +338,14 @@ class AdkApp:
         self,
         *,
         agent: "BaseAgent",
+        plugins: Optional[List["BasePlugin"]] = None,
         enable_tracing: bool = False,
         session_service_builder: Optional[Callable[..., "BaseSessionService"]] = None,
         artifact_service_builder: Optional[Callable[..., "BaseArtifactService"]] = None,
         memory_service_builder: Optional[Callable[..., "BaseMemoryService"]] = None,
+        credential_service_builder: Optional[
+            Callable[..., "BaseCredentialService"]
+        ] = None,
         env_vars: Optional[Dict[str, str]] = None,
     ):
         """An ADK Application."""
@@ -343,10 +363,12 @@ class AdkApp:
             "project": initializer.global_config.project,
             "location": initializer.global_config.location,
             "agent": agent,
+            "plugins": plugins,
             "enable_tracing": enable_tracing,
             "session_service_builder": session_service_builder,
             "artifact_service_builder": artifact_service_builder,
             "memory_service_builder": memory_service_builder,
+            "credential_service_builder": credential_service_builder,
             "app_name": _DEFAULT_APP_NAME,
             "env_vars": env_vars or {},
         }
@@ -533,8 +555,19 @@ class AdkApp:
         else:
             self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
 
+        credential_service_builder = self._tmpl_attrs.get("credential_service_builder")
+        if credential_service_builder:
+            self._tmpl_attrs["credential_service"] = credential_service_builder()
+        else:
+            from google.adk.auth.credential_service.in_memory_credential_service import (
+                InMemoryCredentialService,
+            )
+
+            self._tmpl_attrs["credential_service"] = InMemoryCredentialService()
+
         self._tmpl_attrs["runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
+            plugins=self._tmpl_attrs.get("plugins"),
             session_service=self._tmpl_attrs.get("session_service"),
             artifact_service=self._tmpl_attrs.get("artifact_service"),
             memory_service=self._tmpl_attrs.get("memory_service"),
@@ -548,6 +581,7 @@ class AdkApp:
             session_service=self._tmpl_attrs.get("in_memory_session_service"),
             artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
             memory_service=self._tmpl_attrs.get("in_memory_memory_service"),
+            credential_service=self._tmpl_attrs.get("credential_service"),
             app_name=self._tmpl_attrs.get("app_name"),
         )
 
