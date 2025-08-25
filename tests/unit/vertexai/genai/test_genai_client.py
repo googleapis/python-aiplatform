@@ -20,6 +20,7 @@ import pytest
 
 from google.cloud import aiplatform
 import vertexai
+from google.genai import types as genai_types
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 
 
@@ -49,6 +50,24 @@ class TestGenAiClient:
         assert test_client._api_client.vertexai
         assert test_client._api_client.project == _TEST_PROJECT
         assert test_client._api_client.location == _TEST_LOCATION
+
+    @pytest.mark.usefixtures("google_auth_mock")
+    def test_http_options_passed_to_client(self):
+        test_http_options = genai_types.HttpOptions(
+            api_version="v1", base_url="https://test-base-url"
+        )
+        test_client = vertexai.Client(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            http_options=test_http_options,
+        )
+        assert (
+            test_client._api_client._http_options.api_version
+            == test_http_options.api_version
+        )
+        assert (
+            test_client._api_client._http_options.base_url == test_http_options.base_url
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.usefixtures("google_auth_mock")
