@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.111.0](https://github.com/googleapis/python-aiplatform/compare/v1.110.0...v1.111.0) (2025-08-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* GenAI SDK client - remove duplicate types for Content, Part, and evals
+
+### Features
+
+* Add `encryption_spec` support to Agent Engine genai sdk. ([3bb8100](https://github.com/googleapis/python-aiplatform/commit/3bb8100de89af74e2f6f787a1fc0f0d841205dea))
+* Add Customization Config to Memory Bank ([23d7681](https://github.com/googleapis/python-aiplatform/commit/23d76816d84d9ad65e235d5864879360542328cb))
+* Add new api for getting deploy options for Vertex AI Model Garden custom model ([d0c7803](https://github.com/googleapis/python-aiplatform/commit/d0c78032ffb082f3aff337ff70bb26f8f7523cb2))
+* Add TTL fields for Memory Bank and Sessions ([eff6c58](https://github.com/googleapis/python-aiplatform/commit/eff6c58bf95b530033f6cf87c4a13e1734909535))
+* Adding `gpu_partition_size` parameter to Endpoint.deploy() method. ([7ebbddb](https://github.com/googleapis/python-aiplatform/commit/7ebbddb6942ef93b975fde11269aa8caf1a7648f))
+* Enabled deploy dedicated endpoint by default ([1a3f477](https://github.com/googleapis/python-aiplatform/commit/1a3f4774e0e027229f255011727eea49357b918c))
+* GenAI SDK client(evals) - Support Predefined Metrics in generate_rubrics ([c0b6f5c](https://github.com/googleapis/python-aiplatform/commit/c0b6f5cb11489b156f6b5b12324df15592e3a2a0))
+* RAG - Add support for max_embedding_requests_per_min in upload_file request ([a330ecb](https://github.com/googleapis/python-aiplatform/commit/a330ecb64a6e971e9e9785e642dcc7796e1ff93b))
+* RAG - Add support for max_embedding_requests_per_min in upload_file request ([a885b5d](https://github.com/googleapis/python-aiplatform/commit/a885b5d6781b921306b29c8e9a48214831e4f2ac))
+
+
+### Bug Fixes
+
+* GenAI SDK client - do not register API methods in `get` or `update` for agent_engines with lightweight creation ([d76411a](https://github.com/googleapis/python-aiplatform/commit/d76411a70416c7cb511245adc395380168f45c70))
+* GenAI SDK client - switch to nested modules for agent engines ([b1d0b7c](https://github.com/googleapis/python-aiplatform/commit/b1d0b7c1991acef8a1ad45149920afc59adf21cd))
+* Rename `agent_engine` parameter to `agent` in Agent Engines. ([65bf9b6](https://github.com/googleapis/python-aiplatform/commit/65bf9b6d785d1315395349e30aef1d3d21c41bb5))
+
+
+### Miscellaneous Chores
+
+* GenAI SDK client - remove duplicate types for Content, Part, and evals ([b4d37b6](https://github.com/googleapis/python-aiplatform/commit/b4d37b64ddaa723e641b3109f2d2cfb2a893abfc))
+* Release 1.111.0 ([e1ad1c5](https://github.com/googleapis/python-aiplatform/commit/e1ad1c5fbdceb5a360235faccff1a4a72035e96a))
+
 ## [1.110.0](https://github.com/googleapis/python-aiplatform/compare/v1.109.0...v1.110.0) (2025-08-18)
 
 
