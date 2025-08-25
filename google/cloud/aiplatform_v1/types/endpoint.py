@@ -172,6 +172,9 @@ class Endpoint(proto.Message):
             native RAG integration can be configured.
             Currently, only Model Garden models are
             supported.
+        private_model_server_enabled (bool):
+            If true, the model server will be isolated from the external
+            network. By default, set to false.
     """
 
     name: str = proto.Field(
@@ -271,6 +274,10 @@ class Endpoint(proto.Message):
         proto.MESSAGE,
         number=29,
         message="GenAiAdvancedFeaturesConfig",
+    )
+    private_model_server_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=30,
     )
 
 
