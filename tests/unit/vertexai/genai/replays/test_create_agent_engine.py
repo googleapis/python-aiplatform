@@ -53,6 +53,7 @@ def test_create_with_context_spec(client):
                     "similarity_search_config": {
                         "embedding_model": embedding_model,
                     },
+                    "ttl_config": {"default_ttl": "120s"},
                 },
             },
             "http_options": {"api_version": "v1beta1"},
@@ -64,6 +65,9 @@ def test_create_with_context_spec(client):
     assert (
         memory_bank_config.similarity_search_config.embedding_model == embedding_model
     )
+    assert memory_bank_config.ttl_config.default_ttl == "120s"
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(

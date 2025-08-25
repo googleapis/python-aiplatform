@@ -14,25 +14,61 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import datetime
+
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 
 
-def test_create_memory(client):
+def test_create_memory_with_ttl(client):
     agent_engine = client.agent_engines.create()
     assert isinstance(agent_engine, types.AgentEngine)
     assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
 
-    operation = client.agent_engines.create_memory(
+    operation = client.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
-        config=types.AgentEngineMemoryConfig(display_name="my_memory_fact"),
+        config=types.AgentEngineMemoryConfig(display_name="my_memory_fact", ttl="120s"),
     )
     assert isinstance(operation, types.AgentEngineMemoryOperation)
     assert operation.response.fact == "memory_fact"
     assert operation.response.scope == {"user_id": "123"}
     assert operation.response.name.startswith(agent_engine.api_resource.name)
+    # Expire time is calculated by the server, so we only check that it is
+    # within a reasonable range to avoid flakiness.
+    assert (
+        operation.response.create_time + datetime.timedelta(seconds=119.5)
+        <= operation.response.expire_time
+        <= operation.response.create_time + datetime.timedelta(seconds=120.5)
+    )
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+
+
+def test_create_memory_with_expire_time(client):
+    agent_engine = client.agent_engines.create()
+    assert isinstance(agent_engine, types.AgentEngine)
+    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    expire_time = datetime.datetime(
+        2026, 1, 1, 12, 30, 00, tzinfo=datetime.timezone.utc
+    )
+
+    operation = client.agent_engines.memories.create(
+        name=agent_engine.api_resource.name,
+        fact="memory_fact",
+        scope={"user_id": "123"},
+        config=types.AgentEngineMemoryConfig(
+            display_name="my_memory_fact", expire_time=expire_time
+        ),
+    )
+    assert isinstance(operation, types.AgentEngineMemoryOperation)
+    assert operation.response.fact == "memory_fact"
+    assert operation.response.scope == {"user_id": "123"}
+    assert operation.response.name.startswith(agent_engine.api_resource.name)
+    assert operation.response.expire_time == expire_time
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(

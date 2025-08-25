@@ -51,6 +51,12 @@ def _CreateAgentEngineSessionConfig_to_vertex(
             getv(from_object, ["session_state"]),
         )
 
+    if getv(from_object, ["ttl"]) is not None:
+        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
+
+    if getv(from_object, ["expire_time"]) is not None:
+        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
+
     return to_object
 
 
@@ -184,6 +190,12 @@ def _UpdateAgentEngineSessionConfig_to_vertex(
             ["sessionState"],
             getv(from_object, ["session_state"]),
         )
+
+    if getv(from_object, ["ttl"]) is not None:
+        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
+
+    if getv(from_object, ["expire_time"]) is not None:
+        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
@@ -766,15 +778,15 @@ class Sessions(_api_module.BaseModule):
         Returns:
             AgentEngineSessionOperation: The operation for creating the session.
         """
+        if config is None:
+            config = types.CreateAgentEngineSessionConfig()
+        elif isinstance(config, dict):
+            config = types.CreateAgentEngineSessionConfig.model_validate(config)
         operation = self._create(
             name=name,
             user_id=user_id,
             config=config,
         )
-        if config is None:
-            config = types.CreateAgentEngineSessionConfig()
-        elif isinstance(config, dict):
-            config = types.CreateAgentEngineSessionConfig.model_validate(config)
         if config.wait_for_completion and not operation.done:
             operation = _agent_engines_utils._await_operation(
                 operation_name=operation.name,

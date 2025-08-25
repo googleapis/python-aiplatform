@@ -46,6 +46,12 @@ def _AgentEngineMemoryConfig_to_vertex(
     if getv(from_object, ["description"]) is not None:
         setv(parent_object, ["description"], getv(from_object, ["description"]))
 
+    if getv(from_object, ["ttl"]) is not None:
+        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
+
+    if getv(from_object, ["expire_time"]) is not None:
+        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
+
     return to_object
 
 
@@ -389,6 +395,12 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
     if getv(from_object, ["description"]) is not None:
         setv(parent_object, ["description"], getv(from_object, ["description"]))
 
+    if getv(from_object, ["ttl"]) is not None:
+        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
+
+    if getv(from_object, ["expire_time"]) is not None:
+        setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
+
     if getv(from_object, ["update_mask"]) is not None:
         setv(
             parent_object,
@@ -430,6 +442,12 @@ def _Memory_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["expireTime"]) is not None:
+        setv(to_object, ["expire_time"], getv(from_object, ["expireTime"]))
+
+    if getv(from_object, ["ttl"]) is not None:
+        setv(to_object, ["ttl"], getv(from_object, ["ttl"]))
+
     if getv(from_object, ["createTime"]) is not None:
         setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
 
@@ -1186,16 +1204,16 @@ class Memories(_api_module.BaseModule):
         Returns:
             AgentEngineMemoryOperation: The operation for creating the memory.
         """
+        if config is None:
+            config = types.AgentEngineMemoryConfig()
+        elif isinstance(config, dict):
+            config = types.AgentEngineMemoryConfig.model_validate(config)
         operation = self._create(
             name=name,
             fact=fact,
             scope=scope,
             config=config,
         )
-        if config is None:
-            config = types.AgentEngineMemoryConfig()
-        elif isinstance(config, dict):
-            config = types.AgentEngineMemoryConfig.model_validate(config)
         if config.wait_for_completion:
             if not operation.done:
                 operation = _agent_engines_utils._await_operation(
