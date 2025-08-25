@@ -746,7 +746,7 @@ def _resolve_dataset_inputs(
 def _resolve_metrics(
     metrics: list[types.Metric], api_client: Any
 ) -> list[types.Metric]:
-    """Resolves a list of metric instances, loading prebuilt metrics if necessary."""
+    """Resolves a list of metric instances, loading RubricMetric if necessary."""
     resolved_metrics_list = []
     for metric_instance in metrics:
         if isinstance(metric_instance, _evals_utils.LazyLoadedPrebuiltMetric):
@@ -756,7 +756,7 @@ def _resolve_metrics(
                 )
             except Exception as e:
                 logger.error(
-                    "Failed to resolve prebuilt metric %s@%s: %s",
+                    "Failed to resolve RubricMetric %s@%s: %s",
                     metric_instance.name,
                     metric_instance.version,
                     e,
@@ -768,7 +768,7 @@ def _resolve_metrics(
             try:
                 metric_name_str = str(metric_instance)
                 lazy_metric_instance = getattr(
-                    _evals_utils.PrebuiltMetric, metric_name_str.upper()
+                    _evals_utils.RubricMetric, metric_name_str.upper()
                 )
                 if isinstance(
                     lazy_metric_instance, _evals_utils.LazyLoadedPrebuiltMetric
@@ -778,12 +778,11 @@ def _resolve_metrics(
                     )
                 else:
                     raise TypeError(
-                        f"PrebuiltMetric.{metric_name_str.upper()} did not return a"
-                        " LazyLoadedPrebuiltMetric proxy."
+                        f"RubricMetric.{metric_name_str.upper()} cannot be resolved."
                     )
             except AttributeError as exc:
                 raise TypeError(
-                    "Unsupported metric type or invalid prebuilt metric name:"
+                    "Unsupported metric type or invalid RubricMetric name:"
                     f" {metric_instance}"
                 ) from exc
     return resolved_metrics_list
