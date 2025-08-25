@@ -480,8 +480,8 @@ class PrebuiltMetricLoader:
     when they are first accessed.
 
     Example:
-      metric = PrebuiltMetric.TEXT_QUALITY
-      metric = PrebuiltMetric.TEXT_QUALITY(version="v1")
+      metric = RubricMetric.TEXT_QUALITY
+      metric = RubricMetric.TEXT_QUALITY(version="v1")
     """
 
     def __getattr__(self, name: str) -> LazyLoadedPrebuiltMetric:
@@ -533,6 +533,7 @@ class PrebuiltMetricLoader:
 
 
 PrebuiltMetric = PrebuiltMetricLoader()
+RubricMetric = PrebuiltMetric
 
 
 class BatchEvaluateRequestPreparer:

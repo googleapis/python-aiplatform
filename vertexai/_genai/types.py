@@ -50,11 +50,11 @@ from typing_extensions import TypedDict
 
 logger = logging.getLogger("vertexai_genai.types")
 
-__all__ = ["PrebuiltMetric"]  # noqa: F822
+__all__ = ["PrebuiltMetric", "RubricMetric"]  # noqa: F822
 
 
 def __getattr__(name: str) -> typing.Any:
-    if name == "PrebuiltMetric":
+    if name == "PrebuiltMetric" or name == "RubricMetric":
         module = importlib.import_module("._evals_utils", __package__)
         prebuilt_metric_obj = getattr(module, name)
         globals()[name] = prebuilt_metric_obj

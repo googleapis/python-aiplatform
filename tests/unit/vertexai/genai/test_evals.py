@@ -3434,7 +3434,7 @@ class TestEvalsRunEvaluation:
             eval_dataset_df=dataset_df
         )
 
-        prebuilt_metric = vertexai_genai_types.PrebuiltMetric.SAFETY
+        prebuilt_metric = vertexai_genai_types.RubricMetric.SAFETY
 
         result = _evals_common._execute_evaluation(
             api_client=mock_api_client_fixture,

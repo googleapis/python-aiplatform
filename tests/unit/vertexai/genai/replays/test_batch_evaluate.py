@@ -30,7 +30,7 @@ def test_batch_eval(client):
     batch_eval_operation = client.evals.batch_evaluate(
         dataset=eval_dataset,
         metrics=[
-            types.PrebuiltMetric.TEXT_QUALITY,
+            types.RubricMetric.TEXT_QUALITY,
         ],
         dest="gs://genai-eval-sdk-replay-test/test_data/batch_eval_output",
     )
@@ -60,7 +60,7 @@ async def test_batch_eval_async(client):
     response = await client.aio.evals.batch_evaluate(
         dataset=eval_dataset,
         metrics=[
-            types.PrebuiltMetric.TEXT_QUALITY,
+            types.RubricMetric.TEXT_QUALITY,
         ],
         dest="gs://genai-eval-sdk-replay-test/test_data/batch_eval_output",
     )
