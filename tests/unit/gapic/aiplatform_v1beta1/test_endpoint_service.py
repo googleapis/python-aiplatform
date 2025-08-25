@@ -8290,6 +8290,7 @@ def test_create_endpoint_rest_call_success(request_type):
                 "disable_explanations": True,
                 "service_account": "service_account_value",
                 "enable_container_logging": True,
+                "disable_container_logging": True,
                 "enable_access_logging": True,
                 "private_endpoints": {
                     "predict_http_uri": "predict_http_uri_value",
@@ -8934,6 +8935,7 @@ def test_update_endpoint_rest_call_success(request_type):
                 "disable_explanations": True,
                 "service_account": "service_account_value",
                 "enable_container_logging": True,
+                "disable_container_logging": True,
                 "enable_access_logging": True,
                 "private_endpoints": {
                     "predict_http_uri": "predict_http_uri_value",
@@ -11096,6 +11098,7 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                 "disable_explanations": True,
                 "service_account": "service_account_value",
                 "enable_container_logging": True,
+                "disable_container_logging": True,
                 "enable_access_logging": True,
                 "private_endpoints": {
                     "predict_http_uri": "predict_http_uri_value",
@@ -11791,6 +11794,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                 "disable_explanations": True,
                 "service_account": "service_account_value",
                 "enable_container_logging": True,
+                "disable_container_logging": True,
                 "enable_access_logging": True,
                 "private_endpoints": {
                     "predict_http_uri": "predict_http_uri_value",
