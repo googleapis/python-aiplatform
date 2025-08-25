@@ -1505,10 +1505,14 @@ class PreviewMixin(abc.ABC):
     class allows the child class to introduce preview features.
     """
 
-    _preview_class: Type[PreviewClass]
-    """Class that is currently in preview or has a preview feature.
-    Class must have `resource_name` and `credentials` attributes.
-    """
+    @classmethod
+    @property
+    @abc.abstractmethod
+    def _preview_class(cls: Type[PreviewClass]) -> Type[PreviewClass]:
+        """Class that is currently in preview or has a preview feature.
+        Class must have `resource_name` and `credentials` attributes.
+        """
+        pass
 
     @property
     def preview(self) -> PreviewClass:
