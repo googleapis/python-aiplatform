@@ -233,12 +233,12 @@ class DedicatedResources(proto.Message):
         proto.INT32,
         number=9,
     )
-    autoscaling_metric_specs: MutableSequence[
-        "AutoscalingMetricSpec"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=4,
-        message="AutoscalingMetricSpec",
+    autoscaling_metric_specs: MutableSequence["AutoscalingMetricSpec"] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=4,
+            message="AutoscalingMetricSpec",
+        )
     )
     spot: bool = proto.Field(
         proto.BOOL,

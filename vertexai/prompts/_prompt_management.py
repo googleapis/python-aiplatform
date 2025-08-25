@@ -157,10 +157,10 @@ class MultimodalPrompt:
             tools = dct["multimodalPrompt"]["promptMessage"]["tools"]
             for tool in tools:
                 for function_declaration in tool.get("function_declarations", []):
-                    function_declaration[
-                        "parameters"
-                    ] = _format_function_declaration_parameters(
-                        function_declaration["parameters"]
+                    function_declaration["parameters"] = (
+                        _format_function_declaration_parameters(
+                            function_declaration["parameters"]
+                        )
                     )
 
         if self.executions and self.executions[0]:

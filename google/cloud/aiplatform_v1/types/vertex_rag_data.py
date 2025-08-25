@@ -20,7 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import api_auth as gca_api_auth
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1.types import io
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -303,6 +305,7 @@ class FileStatus(proto.Message):
                 RagFile resource is in a problematic state. See
                 ``error_message`` field for details.
         """
+
         STATE_UNSPECIFIED = 0
         ACTIVE = 1
         ERROR = 2
@@ -362,6 +365,7 @@ class CorpusStatus(proto.Message):
                 RagCorpus is in a problematic situation. See
                 ``error_message`` field for details.
         """
+
         UNKNOWN = 0
         INITIALIZED = 1
         ACTIVE = 2

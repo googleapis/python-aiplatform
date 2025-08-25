@@ -107,9 +107,9 @@ class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
 
         self._gca_resource = self._get_gca_resource(
             resource_name=evaluation_name,
-            parent_resource_name_fields={models.Model._resource_noun: model_id}
-            if model_id
-            else model_id,
+            parent_resource_name_fields=(
+                {models.Model._resource_noun: model_id} if model_id else model_id
+            ),
         )
 
     def delete(self):

@@ -78,6 +78,7 @@ class NotebookExecutionJobView(proto.Enum):
         NOTEBOOK_EXECUTION_JOB_VIEW_FULL (2):
             Includes all fields.
     """
+
     NOTEBOOK_EXECUTION_JOB_VIEW_UNSPECIFIED = 0
     NOTEBOOK_EXECUTION_JOB_VIEW_BASIC = 1
     NOTEBOOK_EXECUTION_JOB_VIEW_FULL = 2
@@ -530,12 +531,12 @@ class ListNotebookRuntimesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    notebook_runtimes: MutableSequence[
-        gca_notebook_runtime.NotebookRuntime
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_notebook_runtime.NotebookRuntime,
+    notebook_runtimes: MutableSequence[gca_notebook_runtime.NotebookRuntime] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_notebook_runtime.NotebookRuntime,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

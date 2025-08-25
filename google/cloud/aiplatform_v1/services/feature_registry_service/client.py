@@ -63,11 +63,15 @@ _LOGGER = std_logging.getLogger(__name__)
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1.services.feature_registry_service import pagers
+from google.cloud.aiplatform_v1.services.feature_registry_service import (
+    pagers,
+)
 from google.cloud.aiplatform_v1.types import feature
 from google.cloud.aiplatform_v1.types import feature as gca_feature
 from google.cloud.aiplatform_v1.types import feature_group
-from google.cloud.aiplatform_v1.types import feature_group as gca_feature_group
+from google.cloud.aiplatform_v1.types import (
+    feature_group as gca_feature_group,
+)
 from google.cloud.aiplatform_v1.types import feature_registry_service
 from google.cloud.aiplatform_v1.types import featurestore_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -781,21 +785,25 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
             ):  # pragma: NO COVER
                 _LOGGER.debug(
                     "Created client `google.cloud.aiplatform_v1.FeatureRegistryServiceClient`.",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "universeDomain": getattr(
-                            self._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "credentialsType": None,
-                    },
+                    extra=(
+                        {
+                            "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
+                            "universeDomain": getattr(
+                                self._transport._credentials, "universe_domain", ""
+                            ),
+                            "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
+                            "credentialsInfo": getattr(
+                                self.transport._credentials,
+                                "get_cred_info",
+                                lambda: None,
+                            )(),
+                        }
+                        if hasattr(self._transport, "_credentials")
+                        else {
+                            "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
+                            "credentialsType": None,
+                        }
+                    ),
                 )
 
     def create_feature_group(

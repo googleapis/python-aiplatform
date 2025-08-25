@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import cached_content as gca_cached_content
+from google.cloud.aiplatform_v1.types import (
+    cached_content as gca_cached_content,
+)
 from google.protobuf import field_mask_pb2  # type: ignore
 
 
@@ -169,12 +171,12 @@ class ListCachedContentsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    cached_contents: MutableSequence[
-        gca_cached_content.CachedContent
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_cached_content.CachedContent,
+    cached_contents: MutableSequence[gca_cached_content.CachedContent] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_cached_content.CachedContent,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

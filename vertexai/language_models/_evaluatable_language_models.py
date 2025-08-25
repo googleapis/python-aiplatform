@@ -419,7 +419,7 @@ def _convert_metrics_dict_to_response_type(
 
 
 def _format_classification_metrics(
-    metrics: Dict[str, Any]
+    metrics: Dict[str, Any],
 ) -> EvaluationSlicedClassificationMetric:
     """Reformats classification metrics returned by the eval pipeline to make them more readable.
 

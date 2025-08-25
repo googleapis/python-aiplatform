@@ -24,7 +24,9 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import metadata_store as gca_metadata_store
+from google.cloud.aiplatform.compat.types import (
+    metadata_store as gca_metadata_store,
+)
 from google.cloud.aiplatform.constants import base as base_constants
 
 

@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import feature_group as gca_feature_group
+from google.cloud.aiplatform_v1.types import (
+    feature_group as gca_feature_group,
+)
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -184,12 +186,12 @@ class ListFeatureGroupsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    feature_groups: MutableSequence[
-        gca_feature_group.FeatureGroup
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_feature_group.FeatureGroup,
+    feature_groups: MutableSequence[gca_feature_group.FeatureGroup] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_feature_group.FeatureGroup,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

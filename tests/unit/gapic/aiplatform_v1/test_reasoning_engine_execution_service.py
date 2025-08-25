@@ -72,7 +72,9 @@ from google.cloud.aiplatform_v1.services.reasoning_engine_execution_service impo
 from google.cloud.aiplatform_v1.services.reasoning_engine_execution_service import (
     transports,
 )
-from google.cloud.aiplatform_v1.types import reasoning_engine_execution_service
+from google.cloud.aiplatform_v1.types import (
+    reasoning_engine_execution_service,
+)
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -1327,9 +1329,9 @@ def test_query_reasoning_engine_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.query_reasoning_engine
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.query_reasoning_engine] = (
+            mock_rpc
+        )
         request = {}
         client.query_reasoning_engine(request)
 
@@ -1772,9 +1774,9 @@ def test_query_reasoning_engine_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.query_reasoning_engine
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.query_reasoning_engine] = (
+            mock_rpc
+        )
 
         request = {}
         client.query_reasoning_engine(request)
@@ -2315,9 +2317,11 @@ def test_query_reasoning_engine_rest_call_success(request_type):
 def test_query_reasoning_engine_rest_interceptors(null_interceptor):
     transport = transports.ReasoningEngineExecutionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ReasoningEngineExecutionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ReasoningEngineExecutionServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineExecutionServiceClient(transport=transport)
 
@@ -2461,9 +2465,11 @@ def test_stream_query_reasoning_engine_rest_call_success(request_type):
 def test_stream_query_reasoning_engine_rest_interceptors(null_interceptor):
     transport = transports.ReasoningEngineExecutionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ReasoningEngineExecutionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ReasoningEngineExecutionServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineExecutionServiceClient(transport=transport)
 
@@ -3305,9 +3311,11 @@ async def test_query_reasoning_engine_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncReasoningEngineExecutionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncReasoningEngineExecutionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncReasoningEngineExecutionServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineExecutionServiceAsyncClient(transport=transport)
 
@@ -3467,9 +3475,11 @@ async def test_stream_query_reasoning_engine_rest_asyncio_interceptors(
         )
     transport = transports.AsyncReasoningEngineExecutionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncReasoningEngineExecutionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncReasoningEngineExecutionServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineExecutionServiceAsyncClient(transport=transport)
 

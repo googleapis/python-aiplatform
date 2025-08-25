@@ -73,7 +73,9 @@ from google.cloud.aiplatform_v1beta1.services.schedule_service import (
     ScheduleServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.schedule_service import pagers
-from google.cloud.aiplatform_v1beta1.services.schedule_service import transports
+from google.cloud.aiplatform_v1beta1.services.schedule_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
@@ -6087,9 +6089,9 @@ def test_create_schedule_rest_call_success(request_type):
 def test_create_schedule_rest_interceptors(null_interceptor):
     transport = transports.ScheduleServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ScheduleServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceClient(transport=transport)
 
@@ -6208,9 +6210,9 @@ def test_delete_schedule_rest_call_success(request_type):
 def test_delete_schedule_rest_interceptors(null_interceptor):
     transport = transports.ScheduleServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ScheduleServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceClient(transport=transport)
 
@@ -6352,9 +6354,9 @@ def test_get_schedule_rest_call_success(request_type):
 def test_get_schedule_rest_interceptors(null_interceptor):
     transport = transports.ScheduleServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ScheduleServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceClient(transport=transport)
 
@@ -6479,9 +6481,9 @@ def test_list_schedules_rest_call_success(request_type):
 def test_list_schedules_rest_interceptors(null_interceptor):
     transport = transports.ScheduleServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ScheduleServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceClient(transport=transport)
 
@@ -6605,9 +6607,9 @@ def test_pause_schedule_rest_call_success(request_type):
 def test_pause_schedule_rest_interceptors(null_interceptor):
     transport = transports.ScheduleServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ScheduleServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceClient(transport=transport)
 
@@ -6714,9 +6716,9 @@ def test_resume_schedule_rest_call_success(request_type):
 def test_resume_schedule_rest_interceptors(null_interceptor):
     transport = transports.ScheduleServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ScheduleServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceClient(transport=transport)
 
@@ -7283,9 +7285,9 @@ def test_update_schedule_rest_call_success(request_type):
 def test_update_schedule_rest_interceptors(null_interceptor):
     transport = transports.ScheduleServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ScheduleServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.ScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceClient(transport=transport)
 
@@ -8676,9 +8678,11 @@ async def test_create_schedule_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncScheduleServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncScheduleServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceAsyncClient(transport=transport)
 
@@ -8814,9 +8818,11 @@ async def test_delete_schedule_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncScheduleServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncScheduleServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceAsyncClient(transport=transport)
 
@@ -8975,9 +8981,11 @@ async def test_get_schedule_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncScheduleServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncScheduleServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceAsyncClient(transport=transport)
 
@@ -9119,9 +9127,11 @@ async def test_list_schedules_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncScheduleServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncScheduleServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceAsyncClient(transport=transport)
 
@@ -9262,9 +9272,11 @@ async def test_pause_schedule_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncScheduleServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncScheduleServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceAsyncClient(transport=transport)
 
@@ -9387,9 +9399,11 @@ async def test_resume_schedule_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncScheduleServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncScheduleServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceAsyncClient(transport=transport)
 
@@ -9972,9 +9986,11 @@ async def test_update_schedule_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncScheduleServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncScheduleServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncScheduleServiceRestInterceptor()
+        ),
     )
     client = ScheduleServiceAsyncClient(transport=transport)
 

@@ -277,9 +277,9 @@ class OnePlatformResourceManager(object):
                 tag_name,
                 time_series_resource_creator,
             )
-            self._run_tag_name_to_time_series_name[
-                (run_name, tag_name)
-            ] = time_series.name
+            self._run_tag_name_to_time_series_name[(run_name, tag_name)] = (
+                time_series.name
+            )
         return self._run_tag_name_to_time_series_name[(run_name, tag_name)]
 
     def _create_or_get_time_series(
