@@ -33,6 +33,8 @@ def test_create_memory(client):
     assert operation.response.fact == "memory_fact"
     assert operation.response.scope == {"user_id": "123"}
     assert operation.response.name.startswith(agent_engine.api_resource.name)
+    # Clean up resources.
+    agent_engine.delete(force=True)
 
 
 pytestmark = pytest_helper.setup(
