@@ -34,6 +34,9 @@ from vertexai.agent_engines._agent_engines import (
     StreamQueryable,
     AsyncStreamQueryable,
 )
+from vertexai.agent_engines.templates.adk import (
+    AdkApp,
+)
 from vertexai.agent_engines.templates.ag2 import (
     AG2Agent,
 )
@@ -413,6 +416,7 @@ __all__ = (
     "list",
     "update",
     # Templates
+    "AdkApp",
     "ModuleAgent",
     "LangchainAgent",
     "LanggraphAgent",

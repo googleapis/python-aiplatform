@@ -913,9 +913,9 @@ def _validate_agent_engine_or_raise(
 
         if isinstance(agent_engine, BaseAgent):
             logger.info("Deploying google.adk.agents.Agent as an application.")
-            from vertexai.preview import reasoning_engines
+            from vertexai import agent_engines
 
-            agent_engine = reasoning_engines.AdkApp(agent=agent_engine)
+            agent_engine = agent_engines.AdkApp(agent=agent_engine)
     except Exception:
         pass
     is_queryable = isinstance(agent_engine, Queryable) and callable(agent_engine.query)
