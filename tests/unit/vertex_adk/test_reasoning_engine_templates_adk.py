@@ -220,8 +220,16 @@ class TestAdkApp:
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
         )
         assert app._tmpl_attrs.get("runner") is None
+        assert app._tmpl_attrs.get("session_service") is None
+        assert app._tmpl_attrs.get("artifact_service") is None
+        assert app._tmpl_attrs.get("memory_service") is None
+        assert app._tmpl_attrs.get("credential_service") is None
         app.set_up()
         assert app._tmpl_attrs.get("runner") is not None
+        assert app._tmpl_attrs.get("session_service") is not None
+        assert app._tmpl_attrs.get("artifact_service") is not None
+        assert app._tmpl_attrs.get("memory_service") is not None
+        assert app._tmpl_attrs.get("credential_service") is not None
 
     def test_clone(self):
         app = reasoning_engines.AdkApp(
