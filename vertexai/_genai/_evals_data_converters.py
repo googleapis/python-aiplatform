@@ -207,6 +207,7 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
             response_data = item.pop("response", None)
             reference_data = item.pop("reference", None)
             system_instruction_data = item.pop("instruction", None)
+            rubric_groups_data = item.pop("rubric_groups", None)
 
             if not response_data:
                 raise ValueError(
@@ -287,6 +288,25 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
                 elif isinstance(system_instruction_data, genai_types.Content):
                     system_instruction = system_instruction_data
 
+            rubric_groups: Optional[dict[str, types.RubricGroup]] = None
+            if rubric_groups_data:
+                if isinstance(rubric_groups_data, dict):
+                    rubric_groups = {}
+                    for key, value in rubric_groups_data.items():
+                        if isinstance(value, dict):
+                            rubric_groups[key] = types.RubricGroup.model_validate(value)
+                        elif isinstance(value, types.RubricGroup):
+                            rubric_groups[key] = value
+                        else:
+                            logger.warning(
+                                f"Invalid type for rubric group '{key}' in case {i}."
+                                " Expected dict or RubricGroup."
+                            )
+                else:
+                    logger.warning(
+                        f"Invalid type for rubric_groups in case {i}. Expected dict."
+                    )
+
             eval_case = types.EvalCase(
                 eval_case_id=eval_case_id,
                 prompt=prompt,
@@ -294,6 +314,7 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
                 reference=reference,
                 conversation_history=conversation_history,
                 system_instruction=system_instruction,
+                rubric_groups=rubric_groups,
                 **item,  # Pass remaining columns as extra fields to EvalCase.
                 # They can be used for custom metric prompt templates.
             )
