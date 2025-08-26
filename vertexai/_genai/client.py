@@ -22,6 +22,7 @@ from google.genai import _api_client
 from google.genai import _common
 from google.genai import client as genai_client
 from google.genai import types
+from . import live
 
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
@@ -45,14 +46,22 @@ _api_client.append_library_version_headers = _add_tracking_headers
 
 
 class AsyncClient:
-
     """Async Client for the GenAI SDK."""
 
     def __init__(self, api_client: genai_client.Client):
         self._api_client = api_client
+        self._live = live.AsyncLive(self._api_client)
         self._evals = None
         self._agent_engines = None
         self._prompt_optimizer = None
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI live module is experimental, and may change in future "
+        "versions."
+    )
+    def live(self) -> live.AsyncLive:
+        return self._live
 
     @property
     @_common.experimental_warning(
