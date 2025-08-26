@@ -1212,6 +1212,9 @@ class EvaluateDatasetRun(proto.Message):
             Output only. The checkpoint id used in the
             evaluation run. Only populated when evaluating
             checkpoints.
+        evaluate_dataset_response (google.cloud.aiplatform_v1beta1.types.EvaluateDatasetResponse):
+            Output only. Results for
+            EvaluationService.EvaluateDataset.
         error (google.rpc.status_pb2.Status):
             Output only. The error of the evaluation run
             if any.
@@ -1224,6 +1227,11 @@ class EvaluateDatasetRun(proto.Message):
     checkpoint_id: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    evaluate_dataset_response: evaluation_service.EvaluateDatasetResponse = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=evaluation_service.EvaluateDatasetResponse,
     )
     error: status_pb2.Status = proto.Field(
         proto.MESSAGE,

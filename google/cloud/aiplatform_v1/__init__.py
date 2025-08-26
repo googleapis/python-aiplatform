@@ -18,6 +18,8 @@ from google.cloud.aiplatform_v1 import gapic_version as package_version
 __version__ = package_version.__version__
 
 
+from .services.data_foundry_service import DataFoundryServiceClient
+from .services.data_foundry_service import DataFoundryServiceAsyncClient
 from .services.dataset_service import DatasetServiceClient
 from .services.dataset_service import DatasetServiceAsyncClient
 from .services.deployment_resource_pool_service import (
@@ -138,6 +140,12 @@ from .types.custom_job import CustomJobSpec
 from .types.custom_job import PythonPackageSpec
 from .types.custom_job import Scheduling
 from .types.custom_job import WorkerPoolSpec
+from .types.data_foundry_service import GenerateSyntheticDataRequest
+from .types.data_foundry_service import GenerateSyntheticDataResponse
+from .types.data_foundry_service import OutputFieldSpec
+from .types.data_foundry_service import SyntheticExample
+from .types.data_foundry_service import SyntheticField
+from .types.data_foundry_service import TaskDescriptionStrategy
 from .types.data_item import DataItem
 from .types.data_labeling_job import ActiveLearningConfig
 from .types.data_labeling_job import DataLabelingJob
@@ -1055,6 +1063,7 @@ from .types.vizier_service import SuggestTrialsRequest
 from .types.vizier_service import SuggestTrialsResponse
 
 __all__ = (
+    "DataFoundryServiceAsyncClient",
     "DatasetServiceAsyncClient",
     "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
@@ -1253,6 +1262,7 @@ __all__ = (
     "CsvSource",
     "CustomJob",
     "CustomJobSpec",
+    "DataFoundryServiceClient",
     "DataItem",
     "DataItemView",
     "DataLabelingJob",
@@ -1432,6 +1442,8 @@ __all__ = (
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
+    "GenerateSyntheticDataRequest",
+    "GenerateSyntheticDataResponse",
     "GenerationConfig",
     "GenericOperationMetadata",
     "GenieSource",
@@ -1698,6 +1710,7 @@ __all__ = (
     "NotebookRuntimeType",
     "NotebookServiceClient",
     "NotebookSoftwareConfig",
+    "OutputFieldSpec",
     "PSCAutomationConfig",
     "PSCAutomationState",
     "PairwiseChoice",
@@ -1923,7 +1936,10 @@ __all__ = (
     "SupervisedTuningSpec",
     "SyncFeatureViewRequest",
     "SyncFeatureViewResponse",
+    "SyntheticExample",
+    "SyntheticField",
     "TFRecordDestination",
+    "TaskDescriptionStrategy",
     "Tensor",
     "Tensorboard",
     "TensorboardBlob",

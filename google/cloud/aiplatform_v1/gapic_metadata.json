@@ -5,6 +5,40 @@
   "protoPackage": "google.cloud.aiplatform.v1",
   "schema": "1.0",
   "services": {
+    "DataFoundryService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "DataFoundryServiceClient",
+          "rpcs": {
+            "GenerateSyntheticData": {
+              "methods": [
+                "generate_synthetic_data"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "DataFoundryServiceAsyncClient",
+          "rpcs": {
+            "GenerateSyntheticData": {
+              "methods": [
+                "generate_synthetic_data"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "DataFoundryServiceClient",
+          "rpcs": {
+            "GenerateSyntheticData": {
+              "methods": [
+                "generate_synthetic_data"
+              ]
+            }
+          }
+        }
+      }
+    },
     "DatasetService": {
       "clients": {
         "grpc": {

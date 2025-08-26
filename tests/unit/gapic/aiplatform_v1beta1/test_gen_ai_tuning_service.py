@@ -4774,6 +4774,42 @@ def test_create_tuning_job_rest_call_success(request_type):
             {
                 "operation_name": "operation_name_value",
                 "checkpoint_id": "checkpoint_id_value",
+                "evaluate_dataset_response": {
+                    "aggregation_output": {
+                        "dataset": {
+                            "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
+                            "bigquery_source": {"input_uri": "input_uri_value"},
+                        },
+                        "aggregation_results": [
+                            {
+                                "pointwise_metric_result": {
+                                    "score": 0.54,
+                                    "explanation": "explanation_value",
+                                    "custom_output": {
+                                        "raw_outputs": {
+                                            "raw_output": [
+                                                "raw_output_value1",
+                                                "raw_output_value2",
+                                            ]
+                                        }
+                                    },
+                                },
+                                "pairwise_metric_result": {
+                                    "pairwise_choice": 1,
+                                    "explanation": "explanation_value",
+                                    "custom_output": {},
+                                },
+                                "exact_match_metric_value": {"score": 0.54},
+                                "bleu_metric_value": {"score": 0.54},
+                                "rouge_metric_value": {"score": 0.54},
+                                "aggregation_metric": 1,
+                            }
+                        ],
+                    },
+                    "output_info": {
+                        "gcs_output_directory": "gcs_output_directory_value"
+                    },
+                },
                 "error": {},
             }
         ],
@@ -6484,6 +6520,42 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
             {
                 "operation_name": "operation_name_value",
                 "checkpoint_id": "checkpoint_id_value",
+                "evaluate_dataset_response": {
+                    "aggregation_output": {
+                        "dataset": {
+                            "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
+                            "bigquery_source": {"input_uri": "input_uri_value"},
+                        },
+                        "aggregation_results": [
+                            {
+                                "pointwise_metric_result": {
+                                    "score": 0.54,
+                                    "explanation": "explanation_value",
+                                    "custom_output": {
+                                        "raw_outputs": {
+                                            "raw_output": [
+                                                "raw_output_value1",
+                                                "raw_output_value2",
+                                            ]
+                                        }
+                                    },
+                                },
+                                "pairwise_metric_result": {
+                                    "pairwise_choice": 1,
+                                    "explanation": "explanation_value",
+                                    "custom_output": {},
+                                },
+                                "exact_match_metric_value": {"score": 0.54},
+                                "bleu_metric_value": {"score": 0.54},
+                                "rouge_metric_value": {"score": 0.54},
+                                "aggregation_metric": 1,
+                            }
+                        ],
+                    },
+                    "output_info": {
+                        "gcs_output_directory": "gcs_output_directory_value"
+                    },
+                },
                 "error": {},
             }
         ],
