@@ -1115,7 +1115,7 @@ class Evals(_api_module.BaseModule):
         dataset: Union[
             types.EvaluationDatasetOrDict, list[types.EvaluationDatasetOrDict]
         ],
-        metrics: list[types.MetricOrDict],
+        metrics: list[types.MetricOrDict] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
     ) -> types.EvaluationResult:
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
@@ -1147,6 +1147,8 @@ class Evals(_api_module.BaseModule):
         else:
             if isinstance(dataset, dict):
                 dataset = types.EvaluationDataset.model_validate(dataset)
+        if metrics is None:
+            metrics = [types.Metric(name="general_quality_v1")]
 
         return _evals_common._execute_evaluation(
             api_client=self._api_client,
@@ -1279,7 +1281,7 @@ class Evals(_api_module.BaseModule):
             metric_spec_parameters: Optional. Parameters for the Predefined
               Metric, used to customize rubric generation. Only used if
               `predefined_spec_name` is set.
-                Example: {"requirements": ["The response must be in Japanese."]}
+                Example: {"guidelines": ["The response must be in Japanese."]}
             config: Optional. Configuration for the rubric generation process.
 
         Returns:

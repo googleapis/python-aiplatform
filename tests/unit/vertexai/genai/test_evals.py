@@ -3436,7 +3436,7 @@ class TestEvalsRunEvaluation:
             eval_dataset_df=dataset_df
         )
 
-        prebuilt_metric = vertexai_genai_types.PrebuiltMetric.FLUENCY
+        prebuilt_metric = vertexai_genai_types.RubricMetric.FLUENCY
 
         result = _evals_common._execute_evaluation(
             api_client=mock_api_client_fixture,

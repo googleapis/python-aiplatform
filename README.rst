@@ -95,7 +95,7 @@ Then run evaluation by providing the inference results and specifying the metric
         metrics=[
             types.Metric(name='exact_match'),
             types.Metric(name='rouge_l_sum'),
-            types.PrebuiltMetric.TEXT_QUALITY,
+            types.RubricMetric.TEXT_QUALITY,
         ]
     )
 

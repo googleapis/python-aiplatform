@@ -29,7 +29,7 @@ def test_evaluation_result(client):
     )
 
     metrics_to_run = [
-        types.PrebuiltMetric.TEXT_QUALITY,
+        types.RubricMetric.TEXT_QUALITY,
     ]
 
     evaluation_result = client.evals.evaluate(

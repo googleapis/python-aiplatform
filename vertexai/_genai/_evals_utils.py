@@ -521,8 +521,8 @@ class PrebuiltMetricLoader:
     when they are first accessed.
 
     Example:
-      metric = PrebuiltMetric.TEXT_QUALITY
-      metric = PrebuiltMetric.TEXT_QUALITY(version="v1")
+      from vertexai import types
+      text_quality_metric = types.RubricMetric.TEXT_QUALITY
     """
 
     def __getattr__(
@@ -553,14 +553,6 @@ class PrebuiltMetricLoader:
     @property
     def MULTI_TURN_TEXT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("MULTI_TURN_TEXT_QUALITY")
-
-    @property
-    def PARTIALLY_CUSTOMIZABLE_GENERAL_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("PARTIALLY_CUSTOMIZABLE_GENERAL_QUALITY")
-
-    @property
-    def FULLY_CUSTOMIZABLE_GENERAL_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("FULLY_CUSTOMIZABLE_GENERAL_QUALITY")
 
     @property
     def FINAL_RESPONSE_MATCH(self) -> LazyLoadedPrebuiltMetric:
@@ -600,6 +592,7 @@ class PrebuiltMetricLoader:
 
 
 PrebuiltMetric = PrebuiltMetricLoader()
+RubricMetric = PrebuiltMetric
 
 
 class BatchEvaluateRequestPreparer:
