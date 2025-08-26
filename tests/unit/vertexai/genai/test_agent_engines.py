@@ -617,6 +617,10 @@ _TEST_PACKAGE_DISTRIBUTIONS = {
     "pydantic": ["pydantic"],
 }
 _TEST_OPERATION_NAME = "test_operation_name"
+_TEST_AGENT_ENGINE_ERROR = {
+    "message": "The following quotas are exceeded",
+    "code": 8,
+}
 
 
 def _create_empty_fake_package(package_name: str) -> str:
@@ -1829,6 +1833,49 @@ class TestAgentEngineErrors:
             credentials=_TEST_CREDENTIALS,
         )
         self.test_agent = CapitalizeEngine()
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_create_agent_engine_error(self, mock_await_operation, mock_prepare):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            error=_TEST_AGENT_ENGINE_ERROR,
+        )
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            with pytest.raises(RuntimeError) as excinfo:
+                self.client.agent_engines.create(
+                    agent=self.test_agent,
+                    config=_genai_types.AgentEngineConfig(
+                        display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                        description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                        requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+                        extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+                        staging_bucket=_TEST_STAGING_BUCKET,
+                        gcs_dir_name=_TEST_GCS_DIR_NAME,
+                        env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
+                    ),
+                )
+                assert "Failed to create agent engine" in str(excinfo.value)
+
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_update_agent_engine_description(self, mock_await_operation):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            error=_TEST_AGENT_ENGINE_ERROR,
+        )
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            with pytest.raises(RuntimeError) as excinfo:
+                self.client.agent_engines.update(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    config=_genai_types.AgentEngineConfig(
+                        description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                    ),
+                )
+                assert "Failed to update agent engine" in str(excinfo.value)
 
     @pytest.mark.parametrize(
         "test_case_name, test_operation_schemas, want_log_output",

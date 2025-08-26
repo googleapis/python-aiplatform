@@ -1222,9 +1222,12 @@ class Memories(_api_module.BaseModule):
                 )
             # We need to make a call to get the memory because the operation
             # response might not contain the relevant fields.
-            if not operation.response:
-                raise ValueError("Error retrieving memory.")
-            operation.response = self.get(name=operation.response.name)
+            if operation.response:
+                operation.response = self.get(name=operation.response.name)
+            elif operation.error:
+                raise RuntimeError(f"Failed to create memory: {operation.error}")
+            else:
+                raise RuntimeError("Error creating memory.")
         return operation
 
     def generate(
@@ -1285,10 +1288,14 @@ class Memories(_api_module.BaseModule):
         elif isinstance(config, dict):
             config = types.GenerateAgentEngineMemoriesConfig.model_validate(config)
         if config.wait_for_completion and not operation.done:
-            return _agent_engines_utils._await_operation(
+            operation = _agent_engines_utils._await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_generate_memories_operation,
             )
+            if not operation.response:
+                if operation.error:
+                    raise RuntimeError(f"Failed to generate memory: {operation.error}")
+                raise RuntimeError(f"Error generating memory: {operation}")
         return operation
 
     def list(

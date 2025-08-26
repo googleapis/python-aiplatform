@@ -792,12 +792,15 @@ class Sessions(_api_module.BaseModule):
                 operation_name=operation.name,
                 get_operation_fn=self._get_session_operation,
             )
-            if not operation.response:
-                raise ValueError(
+            if operation.response:
+                operation.response = self.get(name=operation.response.name)
+            elif operation.error:
+                raise RuntimeError(f"Failed to create session: {operation.error}")
+            else:
+                raise RuntimeError(
                     "Error retrieving session from the operation response. "
                     f"Operation name: {operation.name}"
                 )
-            operation.response = self.get(name=operation.response.name)
         return operation
 
     def list(
