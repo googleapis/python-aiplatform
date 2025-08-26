@@ -17,7 +17,6 @@ import json
 import os
 import statistics
 from unittest import mock
-import warnings
 
 import google.auth.credentials
 from google.cloud import aiplatform
@@ -29,7 +28,6 @@ from vertexai._genai import _evals_metric_handlers
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
-from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 import pandas as pd
 import pytest
@@ -147,20 +145,6 @@ class TestEvals:
             location=_TEST_LOCATION,
         )
         self.client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-
-    @pytest.mark.usefixtures("google_auth_mock")
-    @mock.patch.object(client.Client, "_get_api_client")
-    @mock.patch.object(evals.Evals, "_evaluate_instances")
-    def test_evaluate_instances(self, mock_evaluate, mock_get_api_client):
-        with warnings.catch_warnings(record=True) as captured_warnings:
-            warnings.simplefilter("always")
-            self.client.evals._evaluate_instances(
-                bleu_input=vertexai_genai_types.BleuInput()
-            )
-            mock_evaluate.assert_called_once_with(
-                bleu_input=vertexai_genai_types.BleuInput()
-            )
-            assert captured_warnings[0].category == genai_errors.ExperimentalWarning
 
     @pytest.mark.usefixtures("google_auth_mock")
     def test_eval_run(self):

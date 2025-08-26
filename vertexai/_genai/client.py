@@ -64,10 +64,6 @@ class AsyncClient:
         return self._live
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI evals module is experimental, and may change in future "
-        "versions."
-    )
     def evals(self) -> Any:
         if self._evals is None:
             try:
@@ -172,10 +168,6 @@ class Client:
         self._agent_engines = None
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI evals module is experimental, and may change in future "
-        "versions."
-    )
     def evals(self) -> Any:
         if self._evals is None:
             try:
