@@ -154,19 +154,21 @@ def test_public_method_generate_rubrics(client):
             ]
         }
     )
-    data_with_rubrics = client.evals.generate_rubrics(
+    eval_dataset = client.evals.generate_rubrics(
         src=prompts_df,
         prompt_template=_TEST_RUBRIC_GENERATION_PROMPT,
         rubric_group_name="text_quality_rubrics",
     )
+    eval_dataset_df = eval_dataset.eval_dataset_df
 
     # Assertions focus on the returned DataFrame
-    assert isinstance(data_with_rubrics, pd.DataFrame)
-    assert "rubric_groups" in data_with_rubrics.columns
-    assert len(data_with_rubrics) == 2
+    assert isinstance(eval_dataset, types.EvaluationDataset)
+    assert isinstance(eval_dataset_df, pd.DataFrame)
+    assert "rubric_groups" in eval_dataset_df.columns
+    assert len(eval_dataset_df) == 2
 
     # Check the structure of the first row's rubric_groups
-    first_rubric_group = data_with_rubrics["rubric_groups"][0]
+    first_rubric_group = eval_dataset_df["rubric_groups"][0]
     assert isinstance(first_rubric_group, dict)
     assert "text_quality_rubrics" in first_rubric_group
     assert isinstance(first_rubric_group["text_quality_rubrics"], list)

@@ -811,6 +811,111 @@ ToolParameterKVMatchInputOrDict = Union[
 ]
 
 
+class InstanceDataContents(_common.BaseModel):
+    """List of standard Content messages from Gemini API."""
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""Repeated contents."""
+    )
+
+
+class InstanceDataContentsDict(TypedDict, total=False):
+    """List of standard Content messages from Gemini API."""
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Repeated contents."""
+
+
+InstanceDataContentsOrDict = Union[InstanceDataContents, InstanceDataContentsDict]
+
+
+class InstanceData(_common.BaseModel):
+    """Instance data used to populate placeholders in a metric prompt template."""
+
+    text: Optional[str] = Field(default=None, description="""Text data.""")
+    contents: Optional[InstanceDataContents] = Field(
+        default=None, description="""List of Gemini content data."""
+    )
+
+
+class InstanceDataDict(TypedDict, total=False):
+    """Instance data used to populate placeholders in a metric prompt template."""
+
+    text: Optional[str]
+    """Text data."""
+
+    contents: Optional[InstanceDataContentsDict]
+    """List of Gemini content data."""
+
+
+InstanceDataOrDict = Union[InstanceData, InstanceDataDict]
+
+
+class MapInstance(_common.BaseModel):
+    """Instance data specified as a map."""
+
+    map_instance: Optional[dict[str, InstanceData]] = Field(
+        default=None, description="""Map of instance data."""
+    )
+
+
+class MapInstanceDict(TypedDict, total=False):
+    """Instance data specified as a map."""
+
+    map_instance: Optional[dict[str, InstanceDataDict]]
+    """Map of instance data."""
+
+
+MapInstanceOrDict = Union[MapInstance, MapInstanceDict]
+
+
+class EvaluationInstance(_common.BaseModel):
+    """A single instance to be evaluated."""
+
+    prompt: Optional[InstanceData] = Field(
+        default=None,
+        description="""Data used to populate placeholder `prompt` in a metric prompt template.""",
+    )
+    response: Optional[InstanceData] = Field(
+        default=None,
+        description="""Data used to populate placeholder `response` in a metric prompt template.""",
+    )
+    reference: Optional[InstanceData] = Field(
+        default=None,
+        description="""Data used to populate placeholder `reference` in a metric prompt template.""",
+    )
+    other_data: Optional[MapInstance] = Field(
+        default=None,
+        description="""Other data used to populate placeholders based on their key.""",
+    )
+    rubric_groups: Optional[dict[str, "RubricGroup"]] = Field(
+        default=None,
+        description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
+    )
+
+
+class EvaluationInstanceDict(TypedDict, total=False):
+    """A single instance to be evaluated."""
+
+    prompt: Optional[InstanceDataDict]
+    """Data used to populate placeholder `prompt` in a metric prompt template."""
+
+    response: Optional[InstanceDataDict]
+    """Data used to populate placeholder `response` in a metric prompt template."""
+
+    reference: Optional[InstanceDataDict]
+    """Data used to populate placeholder `reference` in a metric prompt template."""
+
+    other_data: Optional[MapInstanceDict]
+    """Other data used to populate placeholders based on their key."""
+
+    rubric_groups: Optional[dict[str, "RubricGroupDict"]]
+    """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
+
+
+EvaluationInstanceOrDict = Union[EvaluationInstance, EvaluationInstanceDict]
+
+
 class HttpRetryOptions(_common.BaseModel):
     """HTTP retry options to be used in each of the requests."""
 
@@ -1264,6 +1369,258 @@ class RubricBasedMetricInputDict(TypedDict, total=False):
 RubricBasedMetricInputOrDict = Union[RubricBasedMetricInput, RubricBasedMetricInputDict]
 
 
+class Metric(_common.BaseModel):
+    """The metric used for evaluation."""
+
+    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
+    custom_function: Optional[Callable[..., Any]] = Field(
+        default=None,
+        description="""The custom function that defines the end-to-end logic for metric computation.""",
+    )
+    prompt_template: Optional[str] = Field(
+        default=None, description="""The prompt template for the metric."""
+    )
+    judge_model: Optional[str] = Field(
+        default=None, description="""The judge model for the metric."""
+    )
+    judge_model_sampling_count: Optional[int] = Field(
+        default=None, description="""The sampling count for the judge model."""
+    )
+    judge_model_system_instruction: Optional[str] = Field(
+        default=None,
+        description="""The system instruction for the judge model.""",
+    )
+    return_raw_output: Optional[bool] = Field(
+        default=None,
+        description="""Whether to return the raw output from the judge model.""",
+    )
+    parse_and_reduce_fn: Optional[Callable[..., Any]] = Field(
+        default=None,
+        description="""The parse and reduce function for the judge model.""",
+    )
+    aggregate_summary_fn: Optional[Callable[..., Any]] = Field(
+        default=None,
+        description="""The aggregate summary function for the judge model.""",
+    )
+    rubric_group_name: Optional[str] = Field(
+        default=None,
+        description="""The rubric group name for the rubric-based metric.""",
+    )
+    metric_spec_parameters: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional steering instruction parameters for the automated predefined metric.""",
+    )
+
+    # Allow extra fields to support metric-specific config fields.
+    model_config = ConfigDict(extra="allow")
+
+    _is_predefined: bool = PrivateAttr(default=False)
+    """A boolean indicating whether the metric is predefined."""
+
+    _config_source: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the source of the metric configuration."""
+
+    _version: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the version of the metric."""
+
+    @model_validator(mode="after")
+    @classmethod
+    def validate_name(cls, model: "Metric") -> "Metric":
+        if not model.name:
+            raise ValueError("Metric name cannot be empty.")
+        model.name = model.name.lower()
+        return model
+
+    def to_yaml_file(self, file_path: str, version: Optional[str] = None) -> None:
+        """Dumps the metric object to a YAML file.
+
+        Args:
+            file_path: The path to the YAML file.
+            version: Optional version string to include in the YAML output.
+
+        Raises:
+            ImportError: If the pyyaml library is not installed.
+        """
+        if yaml is None:
+            raise ImportError(
+                "YAML serialization requires the pyyaml library. Please install"
+                " it using 'pip install google-cloud-aiplatform[evaluation]'."
+            )
+
+        fields_to_exclude = {
+            field_name
+            for field_name, field_info in self.model_fields.items()
+            if self.__getattribute__(field_name) is not None
+            and isinstance(self.__getattribute__(field_name), Callable)
+        }
+
+        data_to_dump = self.model_dump(
+            exclude_unset=True,
+            exclude_none=True,
+            mode="json",
+            exclude=fields_to_exclude if fields_to_exclude else None,
+        )
+
+        if version:
+            data_to_dump["version"] = version
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
+
+
+class LLMMetric(Metric):
+    """A metric that uses LLM-as-a-judge for evaluation."""
+
+    rubric_group_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the column in the EvaluationDataset containing the list of rubrics to use for this metric.""",
+    )
+
+    @field_validator("prompt_template", mode="before")
+    @classmethod
+    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
+        """Validates prompt template to be a non-empty string."""
+        if value is None:
+            raise ValueError("Prompt template cannot be empty.")
+        if isinstance(value, MetricPromptBuilder):
+            value = str(value)
+        if not value.strip():
+            raise ValueError("Prompt template cannot be an empty string.")
+        return value
+
+    @field_validator("judge_model_sampling_count")
+    @classmethod
+    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
+        """Validates judge_model_sampling_count to be between 1 and 32."""
+        if value is not None and (value < 1 or value > 32):
+            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
+        return value
+
+    @classmethod
+    def load(cls, config_path: str, client: Optional[Any] = None) -> "LLMMetric":
+        """Loads a metric configuration from a YAML or JSON file.
+
+        This method allows for the creation of an LLMMetric instance from a
+        local file path or a Google Cloud Storage (GCS) URI. It will
+        automatically
+        detect the file type (.yaml, .yml, or .json) and parse it accordingly.
+
+        Args:
+            config_path: The local path or GCS URI (e.g.,
+              'gs://bucket/metric.yaml') to the metric configuration file.
+            client: Optional. The Vertex AI client instance to use for
+              authentication. If not provided, Application Default Credentials
+              (ADC) will be used.
+
+        Returns:
+            An instance of LLMMetric configured with the loaded data.
+
+        Raises:
+            ValueError: If the file path is invalid or the file content cannot
+            be parsed.
+            ImportError: If a required library like 'PyYAML' or
+            'google-cloud-storage' is not installed.
+            IOError: If the file cannot be read from the specified path.
+        """
+        file_extension = os.path.splitext(config_path)[1].lower()
+        if file_extension not in [".yaml", ".yml", ".json"]:
+            raise ValueError(
+                "Unsupported file extension for metric config. Must be .yaml,"
+                " .yml, or .json"
+            )
+
+        content_str: str
+        if config_path.startswith("gs://"):
+            try:
+                from google.cloud import storage
+
+                storage_client = storage.Client(
+                    credentials=client._api_client._credentials if client else None
+                )
+                path_without_prefix = config_path[len("gs://") :]
+                bucket_name, blob_path = path_without_prefix.split("/", 1)
+
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_path)
+                content_str = blob.download_as_bytes().decode("utf-8")
+            except ImportError as e:
+                raise ImportError(
+                    "Reading from GCS requires the 'google-cloud-storage'"
+                    " library. Please install it with 'pip install"
+                    " google-cloud-aiplatform[evaluation]'."
+                ) from e
+            except Exception as e:
+                raise IOError(f"Failed to read from GCS path {config_path}: {e}") from e
+        else:
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    content_str = f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    f"Local configuration file not found at: {config_path}"
+                )
+            except Exception as e:
+                raise IOError(f"Failed to read local file {config_path}: {e}") from e
+
+        data: Dict[str, Any]
+
+        if file_extension in [".yaml", ".yml"]:
+            if yaml is None:
+                raise ImportError(
+                    "YAML parsing requires the pyyaml library. Please install"
+                    " it with 'pip install"
+                    " google-cloud-aiplatform[evaluation]'."
+                )
+            data = yaml.safe_load(content_str)
+        elif file_extension == ".json":
+            data = json.loads(content_str)
+
+        if not isinstance(data, dict):
+            raise ValueError("Metric config content did not parse into a dictionary.")
+
+        return cls.model_validate(data)
+
+
+class MetricDict(TypedDict, total=False):
+    """The metric used for evaluation."""
+
+    name: Optional[str]
+    """The name of the metric."""
+
+    custom_function: Optional[Callable[..., Any]]
+    """The custom function that defines the end-to-end logic for metric computation."""
+
+    prompt_template: Optional[str]
+    """The prompt template for the metric."""
+
+    judge_model: Optional[str]
+    """The judge model for the metric."""
+
+    judge_model_sampling_count: Optional[int]
+    """The sampling count for the judge model."""
+
+    judge_model_system_instruction: Optional[str]
+    """The system instruction for the judge model."""
+
+    return_raw_output: Optional[bool]
+    """Whether to return the raw output from the judge model."""
+
+    parse_and_reduce_fn: Optional[Callable[..., Any]]
+    """The parse and reduce function for the judge model."""
+
+    aggregate_summary_fn: Optional[Callable[..., Any]]
+    """The aggregate summary function for the judge model."""
+
+    rubric_group_name: Optional[str]
+    """The rubric group name for the rubric-based metric."""
+
+    metric_spec_parameters: Optional[dict[str, Any]]
+    """Optional steering instruction parameters for the automated predefined metric."""
+
+
+MetricOrDict = Union[Metric, MetricDict]
+
+
 class _EvaluateInstancesRequestParameters(_common.BaseModel):
     """Parameters for evaluating instances."""
 
@@ -1295,6 +1652,15 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
         default=None, description=""""""
+    )
+    metrics: Optional[list[Metric]] = Field(
+        default=None,
+        description="""The metrics used for evaluation.
+  Currently, we only support evaluating a single metric. If multiple metrics
+  are provided, only the first one will be evaluated.""",
+    )
+    instance: Optional[EvaluationInstance] = Field(
+        default=None, description="""The instance to be evaluated."""
     )
     config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
 
@@ -1334,6 +1700,14 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
 
     autorater_config: Optional[genai_types.AutoraterConfigDict]
     """"""
+
+    metrics: Optional[list[MetricDict]]
+    """The metrics used for evaluation.
+  Currently, we only support evaluating a single metric. If multiple metrics
+  are provided, only the first one will be evaluated."""
+
+    instance: Optional[EvaluationInstanceDict]
+    """The instance to be evaluated."""
 
     config: Optional[EvaluateInstancesConfigDict]
     """"""
@@ -1387,6 +1761,44 @@ class RubricVerdictDict(TypedDict, total=False):
 
 
 RubricVerdictOrDict = Union[RubricVerdict, RubricVerdictDict]
+
+
+class MetricResult(_common.BaseModel):
+    """Result for a single metric on a single instance."""
+
+    score: Optional[float] = Field(
+        default=None,
+        description="""The score for the metric. Please refer to each metric's documentation for the meaning of the score.""",
+    )
+    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+        default=None,
+        description="""For rubric-based metrics, the verdicts for each rubric.""",
+    )
+    explanation: Optional[str] = Field(
+        default=None, description="""The explanation for the metric result."""
+    )
+    error: Optional[genai_types.GoogleRpcStatus] = Field(
+        default=None, description="""The error status for the metric result."""
+    )
+
+
+class MetricResultDict(TypedDict, total=False):
+    """Result for a single metric on a single instance."""
+
+    score: Optional[float]
+    """The score for the metric. Please refer to each metric's documentation for the meaning of the score."""
+
+    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    """For rubric-based metrics, the verdicts for each rubric."""
+
+    explanation: Optional[str]
+    """The explanation for the metric result."""
+
+    error: Optional[genai_types.GoogleRpcStatusDict]
+    """The error status for the metric result."""
+
+
+MetricResultOrDict = Union[MetricResult, MetricResultDict]
 
 
 class RubricBasedMetricResult(_common.BaseModel):
@@ -1836,6 +2248,10 @@ class EvaluateInstancesResponse(_common.BaseModel):
     rubric_based_metric_result: Optional[RubricBasedMetricResult] = Field(
         default=None, description="""Result for rubric based metric."""
     )
+    metric_results: Optional[list[MetricResult]] = Field(
+        default=None,
+        description="""A list of metric results for each evaluation case. The order of the metric results is guaranteed to be the same as the order of the instances in the request.""",
+    )
     bleu_results: Optional[BleuResults] = Field(
         default=None, description="""Results for bleu metric."""
     )
@@ -1882,6 +2298,9 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
 
     rubric_based_metric_result: Optional[RubricBasedMetricResultDict]
     """Result for rubric based metric."""
+
+    metric_results: Optional[list[MetricResultDict]]
+    """A list of metric results for each evaluation case. The order of the metric results is guaranteed to be the same as the order of the instances in the request."""
 
     bleu_results: Optional[BleuResultsDict]
     """Results for bleu metric."""
@@ -7495,244 +7914,6 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
 
 
-class Metric(_common.BaseModel):
-    """The metric used for evaluation."""
-
-    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
-    custom_function: Optional[Callable[..., Any]] = Field(
-        default=None,
-        description="""The custom function that defines the end-to-end logic for metric computation.""",
-    )
-    prompt_template: Optional[str] = Field(
-        default=None, description="""The prompt template for the metric."""
-    )
-    judge_model: Optional[str] = Field(
-        default=None, description="""The judge model for the metric."""
-    )
-    judge_model_sampling_count: Optional[int] = Field(
-        default=None, description="""The sampling count for the judge model."""
-    )
-    judge_model_system_instruction: Optional[str] = Field(
-        default=None,
-        description="""The system instruction for the judge model.""",
-    )
-    return_raw_output: Optional[bool] = Field(
-        default=None,
-        description="""Whether to return the raw output from the judge model.""",
-    )
-    parse_and_reduce_fn: Optional[Callable[..., Any]] = Field(
-        default=None,
-        description="""The parse and reduce function for the judge model.""",
-    )
-    aggregate_summary_fn: Optional[Callable[..., Any]] = Field(
-        default=None,
-        description="""The aggregate summary function for the judge model.""",
-    )
-
-    # Allow extra fields to support metric-specific config fields.
-    model_config = ConfigDict(extra="allow")
-
-    _is_predefined: bool = PrivateAttr(default=False)
-    """A boolean indicating whether the metric is predefined."""
-
-    _config_source: Optional[str] = PrivateAttr(default=None)
-    """An optional string indicating the source of the metric configuration."""
-
-    _version: Optional[str] = PrivateAttr(default=None)
-    """An optional string indicating the version of the metric."""
-
-    @model_validator(mode="after")
-    @classmethod
-    def validate_name(cls, model: "Metric") -> "Metric":
-        if not model.name:
-            raise ValueError("Metric name cannot be empty.")
-        model.name = model.name.lower()
-        return model
-
-    def to_yaml_file(self, file_path: str, version: Optional[str] = None) -> None:
-        """Dumps the metric object to a YAML file.
-
-        Args:
-            file_path: The path to the YAML file.
-            version: Optional version string to include in the YAML output.
-
-        Raises:
-            ImportError: If the pyyaml library is not installed.
-        """
-        if yaml is None:
-            raise ImportError(
-                "YAML serialization requires the pyyaml library. Please install"
-                " it using 'pip install google-cloud-aiplatform[evaluation]'."
-            )
-
-        fields_to_exclude = {
-            field_name
-            for field_name, field_info in self.model_fields.items()
-            if self.__getattribute__(field_name) is not None
-            and isinstance(self.__getattribute__(field_name), Callable)
-        }
-
-        data_to_dump = self.model_dump(
-            exclude_unset=True,
-            exclude_none=True,
-            mode="json",
-            exclude=fields_to_exclude if fields_to_exclude else None,
-        )
-
-        if version:
-            data_to_dump["version"] = version
-
-        with open(file_path, "w", encoding="utf-8") as f:
-            yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
-
-
-class LLMMetric(Metric):
-    """A metric that uses LLM-as-a-judge for evaluation."""
-
-    rubric_group_name: Optional[str] = Field(
-        default=None,
-        description="""Optional. The name of the column in the EvaluationDataset containing the list of rubrics to use for this metric.""",
-    )
-
-    @field_validator("prompt_template", mode="before")
-    @classmethod
-    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
-        """Validates prompt template to be a non-empty string."""
-        if value is None:
-            raise ValueError("Prompt template cannot be empty.")
-        if isinstance(value, MetricPromptBuilder):
-            value = str(value)
-        if not value.strip():
-            raise ValueError("Prompt template cannot be an empty string.")
-        return value
-
-    @field_validator("judge_model_sampling_count")
-    @classmethod
-    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
-        """Validates judge_model_sampling_count to be between 1 and 32."""
-        if value is not None and (value < 1 or value > 32):
-            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
-        return value
-
-    @classmethod
-    def load(cls, config_path: str, client: Optional[Any] = None) -> "LLMMetric":
-        """Loads a metric configuration from a YAML or JSON file.
-
-        This method allows for the creation of an LLMMetric instance from a
-        local file path or a Google Cloud Storage (GCS) URI. It will
-        automatically
-        detect the file type (.yaml, .yml, or .json) and parse it accordingly.
-
-        Args:
-            config_path: The local path or GCS URI (e.g.,
-              'gs://bucket/metric.yaml') to the metric configuration file.
-            client: Optional. The Vertex AI client instance to use for
-              authentication. If not provided, Application Default Credentials
-              (ADC) will be used.
-
-        Returns:
-            An instance of LLMMetric configured with the loaded data.
-
-        Raises:
-            ValueError: If the file path is invalid or the file content cannot
-            be parsed.
-            ImportError: If a required library like 'PyYAML' or
-            'google-cloud-storage' is not installed.
-            IOError: If the file cannot be read from the specified path.
-        """
-        file_extension = os.path.splitext(config_path)[1].lower()
-        if file_extension not in [".yaml", ".yml", ".json"]:
-            raise ValueError(
-                "Unsupported file extension for metric config. Must be .yaml,"
-                " .yml, or .json"
-            )
-
-        content_str: str
-        if config_path.startswith("gs://"):
-            try:
-                from google.cloud import storage
-
-                storage_client = storage.Client(
-                    credentials=client._api_client._credentials if client else None
-                )
-                path_without_prefix = config_path[len("gs://") :]
-                bucket_name, blob_path = path_without_prefix.split("/", 1)
-
-                bucket = storage_client.bucket(bucket_name)
-                blob = bucket.blob(blob_path)
-                content_str = blob.download_as_bytes().decode("utf-8")
-            except ImportError as e:
-                raise ImportError(
-                    "Reading from GCS requires the 'google-cloud-storage'"
-                    " library. Please install it with 'pip install"
-                    " google-cloud-aiplatform[evaluation]'."
-                ) from e
-            except Exception as e:
-                raise IOError(f"Failed to read from GCS path {config_path}: {e}") from e
-        else:
-            try:
-                with open(config_path, "r", encoding="utf-8") as f:
-                    content_str = f.read()
-            except FileNotFoundError:
-                raise FileNotFoundError(
-                    f"Local configuration file not found at: {config_path}"
-                )
-            except Exception as e:
-                raise IOError(f"Failed to read local file {config_path}: {e}") from e
-
-        data: Dict[str, Any]
-
-        if file_extension in [".yaml", ".yml"]:
-            if yaml is None:
-                raise ImportError(
-                    "YAML parsing requires the pyyaml library. Please install"
-                    " it with 'pip install"
-                    " google-cloud-aiplatform[evaluation]'."
-                )
-            data = yaml.safe_load(content_str)
-        elif file_extension == ".json":
-            data = json.loads(content_str)
-
-        if not isinstance(data, dict):
-            raise ValueError("Metric config content did not parse into a dictionary.")
-
-        return cls.model_validate(data)
-
-
-class MetricDict(TypedDict, total=False):
-    """The metric used for evaluation."""
-
-    name: Optional[str]
-    """The name of the metric."""
-
-    custom_function: Optional[Callable[..., Any]]
-    """The custom function that defines the end-to-end logic for metric computation."""
-
-    prompt_template: Optional[str]
-    """The prompt template for the metric."""
-
-    judge_model: Optional[str]
-    """The judge model for the metric."""
-
-    judge_model_sampling_count: Optional[int]
-    """The sampling count for the judge model."""
-
-    judge_model_system_instruction: Optional[str]
-    """The system instruction for the judge model."""
-
-    return_raw_output: Optional[bool]
-    """Whether to return the raw output from the judge model."""
-
-    parse_and_reduce_fn: Optional[Callable[..., Any]]
-    """The parse and reduce function for the judge model."""
-
-    aggregate_summary_fn: Optional[Callable[..., Any]]
-    """The aggregate summary function for the judge model."""
-
-
-MetricOrDict = Union[Metric, MetricDict]
-
-
 class Message(_common.BaseModel):
     """Represents a single message turn in a conversation."""
 
@@ -7846,6 +8027,10 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""List of all prior messages in the conversation (chat history).""",
     )
+    rubric_groups: Optional[dict[str, "RubricGroup"]] = Field(
+        default=None,
+        description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
+    )
     eval_case_id: Optional[str] = Field(
         default=None,
         description="""Unique identifier for the evaluation case.""",
@@ -7871,6 +8056,9 @@ class EvalCaseDict(TypedDict, total=False):
 
     conversation_history: Optional[list[MessageDict]]
     """List of all prior messages in the conversation (chat history)."""
+
+    rubric_groups: Optional[dict[str, "RubricGroupDict"]]
+    """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
 
     eval_case_id: Optional[str]
     """Unique identifier for the evaluation case."""

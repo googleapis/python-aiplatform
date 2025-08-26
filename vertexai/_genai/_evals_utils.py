@@ -30,6 +30,8 @@ from google.genai._common import set_value_by_path as setv
 import pandas as pd
 import yaml
 
+from . import _evals_constant
+from . import _transformers
 from . import types
 
 
@@ -291,17 +293,55 @@ class EvalDatasetLoader:
 
 
 class LazyLoadedPrebuiltMetric:
-    """A proxy object representing a prebuilt metric that will be loaded on demand."""
+    """A proxy object representing a prebuilt metric to be loaded on demand.
 
-    _cache: dict[str, types.LLMMetric] = {}
+    This can resolve to either an API Predefined Metric or an LLM Metric
+    loaded from GCS.
+    """
+
+    _cache: dict[str, types.Metric] = {}
     _base_gcs_path = (
         "gs://vertex-ai-generative-ai-eval-sdk-resources/metrics/{metric_name}/"
     )
 
-    def __init__(self, name: str, version: Optional[str] = None):
-        self.name = name.lower()
-        self.version = version or "latest"
-        self._resolved_metric: Optional[types.LLMMetric] = None
+    def __init__(self, name: str, version: Optional[str] = None, **kwargs):
+        self.name = name.upper()
+        self.version = version
+        self.metric_kwargs = kwargs
+        self._resolved_metric: Optional[types.Metric] = None
+
+    def _get_api_metric_spec_name(self) -> Optional[str]:
+        """Constructs the metric_spec_name for API Predefined Metrics."""
+        base_name = self.name.lower()
+        if self.version:
+            # Explicit version provided
+            version = self.version.lower()
+            potential_name = f"{base_name}_{version}"
+            return (
+                potential_name
+                if potential_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS
+                else None
+            )
+        else:
+            # Default versioning: Try _v1, then base name
+            v1_name = f"{base_name}_v1"
+            if v1_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS:
+                return v1_name
+            if base_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS:
+                return base_name
+        return None
+
+    def _resolve_api_predefined(self) -> Optional[types.Metric]:
+        """Attempts to resolve as an API Predefined Metric."""
+        metric_spec_name = self._get_api_metric_spec_name()
+        if metric_spec_name:
+            logger.info(
+                "Resolving '%s' as API Predefined Metric with spec name: %s",
+                self.name,
+                metric_spec_name,
+            )
+            return types.Metric(name=metric_spec_name, **self.metric_kwargs)
+        return None
 
     def _get_latest_version_uri(self, api_client: Any, metric_gcs_dir: str) -> str:
         """Lists files in GCS directory and determines the latest version URI."""
@@ -314,8 +354,6 @@ class LazyLoadedPrebuiltMetric:
             dict[str, Union[list[int], str]]
         ] = []  # {'version_parts': [1,0,0], 'filename': 'v1.0.0.yaml'}
 
-        # Regex to capture versions like v1, v1.0, v1.0.0 (supports .yaml and .json)
-        # It prioritizes more specific versions (e.g., v1.2.3 over v1.2)
         version_pattern = re.compile(
             r"v(\d+)(?:\.(\d+))?(?:\.(\d+))?\.(yaml|yml|json)$", re.IGNORECASE
         )
@@ -342,10 +380,10 @@ class LazyLoadedPrebuiltMetric:
         return os.path.join(metric_gcs_dir, latest_filename)
 
     def _fetch_and_parse(self, api_client: Any) -> types.LLMMetric:
-        """Fetches and parses the metric definition from the URI."""
-        metric_gcs_dir = self._base_gcs_path.format(metric_name=self.name)
+        """Fetches and parses the metric definition from GCS."""
+        metric_gcs_dir = self._base_gcs_path.format(metric_name=self.name.lower())
         uri: str
-        if self.version == "latest":
+        if self.version == "latest" or self.version is None:
             uri = self._get_latest_version_uri(api_client, metric_gcs_dir)
             resolved_version_match = re.match(
                 r"(v\d+(?:\.\d+)*)\.(?:yaml|yml|json)",
@@ -355,9 +393,8 @@ class LazyLoadedPrebuiltMetric:
             if resolved_version_match:
                 self.version = resolved_version_match.group(1)
             else:
-                self.version = os.path.splitext(
-                    os.path.splitext(os.path.basename(uri))[0]
-                )[0]
+                # Fallback if regex fails
+                self.version = os.path.splitext(os.path.basename(uri))[0]
         else:
             yaml_uri = os.path.join(metric_gcs_dir, f"{self.version}.yaml")
             json_uri = os.path.join(metric_gcs_dir, f"{self.version}.json")
@@ -383,8 +420,8 @@ class LazyLoadedPrebuiltMetric:
                         uri = json_uri
                     else:
                         raise IOError(
-                            f"Metric file for version '{self.version}' not found as .yaml"
-                            f" or .json in {metric_gcs_dir}"
+                            f"Metric file for version '{self.version}' "
+                            f"not found as .yaml or .json in {metric_gcs_dir}"
                         )
             except Exception as e:
                 raise IOError(
@@ -408,68 +445,72 @@ class LazyLoadedPrebuiltMetric:
             if yaml is None:
                 raise ImportError(
                     "YAML parsing requires the pyyaml library. Please install it"
-                    " using 'pip install google-cloud-aiplatform[evaluation]'."
+                    " with `pip install google-cloud-aiplatform[evaluation]`."
                 )
             data = yaml.safe_load(content_str)
         elif file_extension == ".json":
             data = json.loads(content_str)
         else:
-            raise ValueError(
-                f"Unsupported file extension for metric config: {file_extension}."
-                " Must be .yaml, .yml, or .json"
-            )
+            raise ValueError(f"Unsupported file extension: {file_extension}")
 
         if not isinstance(data, dict):
             raise ValueError("Metric config content did not parse into a dictionary.")
 
-        if "prompt_template" in data and isinstance(data["prompt_template"], dict):
-            data["prompt_template"] = types.MetricPromptBuilder.model_validate(
-                data["prompt_template"]
-            )
-
-        metric_obj = types.LLMMetric.model_validate(data)
-
+        metric_obj = types.LLMMetric.model_validate({**data, **self.metric_kwargs})
         metric_obj._is_predefined = True
         metric_obj._config_source = uri
         metric_obj._version = self.version
         return metric_obj
 
-    def resolve(self, api_client: Any) -> types.LLMMetric:
-        """Resolves the metric by loading it from the cache or fetching it if necessary."""
-        if self._resolved_metric is None:
-            temp_version_for_key = self.version
+    def resolve(self, api_client: Any) -> types.Metric:
+        """Resolves the metric by checking API Predefined, then GCS, caching results."""
+        if self._resolved_metric:
+            return self._resolved_metric
 
-            cache_key = f"{self.name}@{temp_version_for_key}"
+        cache_key = f"{self.name}@{self.version or 'default'}"
+        if cache_key in LazyLoadedPrebuiltMetric._cache:
+            self._resolved_metric = LazyLoadedPrebuiltMetric._cache[cache_key]
+            logger.debug("Metric '%s' found in cache.", cache_key)
+            return self._resolved_metric
 
-            if (
-                cache_key in LazyLoadedPrebuiltMetric._cache
-                and temp_version_for_key != "latest"
-            ):
-                self._resolved_metric = LazyLoadedPrebuiltMetric._cache[cache_key]
-                logger.debug(f"Metric '{cache_key}' found in cache.")
-            else:
-                logger.debug(
-                    f"Metric '{self.name}@{self.version}' not in cache or version is"
-                    " 'latest'. Fetching..."
-                )
-                try:
-                    fetched_metric = self._fetch_and_parse(api_client)
-                    final_cache_key = f"{self.name}@{self.version}"
-                    LazyLoadedPrebuiltMetric._cache[final_cache_key] = fetched_metric
-                    self._resolved_metric = fetched_metric
-                except Exception as e:
-                    logger.error(
-                        f"Error loading predefined metric {self.name} (requested version:"
-                        f" {self.version}): {e}"
-                    )
-                    raise
-        return self._resolved_metric
+        # Try resolving as API Predefined Metric first
+        api_metric = self._resolve_api_predefined()
+        if api_metric:
+            self._resolved_metric = api_metric
+            LazyLoadedPrebuiltMetric._cache[cache_key] = self._resolved_metric
+            return self._resolved_metric
 
-    def __call__(self, version: Optional[str] = None) -> "LazyLoadedPrebuiltMetric":
-        """Allows setting a specific version."""
-        if version is not None:
-            return LazyLoadedPrebuiltMetric(name=self.name, version=version)
-        return self
+        # Fallback to GCS loading for custom LLM-based Prebuilt Metrics
+        logger.debug(
+            "Metric '%s' not an API Predefined Metric, trying GCS...", self.name
+        )
+        try:
+            gcs_metric = self._fetch_and_parse(api_client)
+            final_cache_key = f"{self.name}@{self.version}"
+            LazyLoadedPrebuiltMetric._cache[final_cache_key] = gcs_metric
+            self._resolved_metric = gcs_metric
+            return self._resolved_metric
+        except Exception as e:
+            logger.error(
+                "Error loading metric %s (requested version: %s) from GCS: %s",
+                self.name,
+                self.version,
+                e,
+            )
+            raise ValueError(
+                f"Metric '{self.name}' could not be resolved as an API "
+                "Predefined Metric or loaded from GCS."
+            ) from e
+
+    def __call__(
+        self, version: Optional[str] = None, **kwargs
+    ) -> "LazyLoadedPrebuiltMetric":
+        """Allows setting a specific version and other metric attributes."""
+        updated_kwargs = self.metric_kwargs.copy()
+        updated_kwargs.update(kwargs)
+        return LazyLoadedPrebuiltMetric(
+            name=self.name, version=version or self.version, **updated_kwargs
+        )
 
 
 class PrebuiltMetricLoader:
@@ -484,8 +525,14 @@ class PrebuiltMetricLoader:
       metric = PrebuiltMetric.TEXT_QUALITY(version="v1")
     """
 
-    def __getattr__(self, name: str) -> LazyLoadedPrebuiltMetric:
-        return LazyLoadedPrebuiltMetric(name=name)
+    def __getattr__(
+        self, name: str, version: Optional[str] = None, **kwargs
+    ) -> LazyLoadedPrebuiltMetric:
+        return LazyLoadedPrebuiltMetric(name=name, version=version, **kwargs)
+
+    @property
+    def GENERAL_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("GENERAL_QUALITY")
 
     @property
     def TEXT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
@@ -496,20 +543,40 @@ class PrebuiltMetricLoader:
         return self.__getattr__("INSTRUCTION_FOLLOWING")
 
     @property
+    def SAFETY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("SAFETY")
+
+    @property
+    def MULTI_TURN_GENERAL_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_GENERAL_QUALITY")
+
+    @property
+    def MULTI_TURN_TEXT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TEXT_QUALITY")
+
+    @property
+    def PARTIALLY_CUSTOMIZABLE_GENERAL_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("PARTIALLY_CUSTOMIZABLE_GENERAL_QUALITY")
+
+    @property
+    def FULLY_CUSTOMIZABLE_GENERAL_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("FULLY_CUSTOMIZABLE_GENERAL_QUALITY")
+
+    @property
+    def FINAL_RESPONSE_MATCH(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("FINAL_RESPONSE_MATCH", version="v2")
+
+    @property
+    def FINAL_RESPONSE_REFERENCE_FREE(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("FINAL_RESPONSE_REFERENCE_FREE")
+
+    @property
     def COHERENCE(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("COHERENCE")
 
     @property
     def FLUENCY(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("FLUENCY")
-
-    @property
-    def GROUNDEDNESS(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("GROUNDEDNESS")
-
-    @property
-    def SAFETY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("SAFETY")
 
     @property
     def VERBOSITY(self) -> LazyLoadedPrebuiltMetric:
@@ -758,36 +825,7 @@ class BatchEvaluateRequestPreparer:
         Returns:
             The updated request dictionary with the prepared metric payload.
         """
-        metrics_payload = []
-
-        for metric in resolved_metrics:
-            metric_payload_item = {}
-            metric_payload_item["aggregation_metrics"] = [
-                "AVERAGE",
-                "STANDARD_DEVIATION",
-            ]
-
-            metric_name = getv(metric, ["name"]).lower()
-
-            if metric_name == "exact_match":
-                metric_payload_item["exact_match_spec"] = {}  # type: ignore[assignment]
-            elif metric_name == "bleu":
-                metric_payload_item["bleu_spec"] = {}  # type: ignore[assignment]
-            elif metric_name.startswith("rouge"):
-                rouge_type = metric_name.replace("_", "")
-                metric_payload_item["rouge_spec"] = {"rouge_type": rouge_type}  # type: ignore[assignment]
-
-            elif hasattr(metric, "prompt_template") and metric.prompt_template:
-                pointwise_spec = {"metric_prompt_template": metric.prompt_template}
-                system_instruction = getv(metric, ["judge_model_system_instruction"])
-                if system_instruction:
-                    pointwise_spec["system_instruction"] = system_instruction
-                metric_payload_item["pointwise_metric_spec"] = pointwise_spec  # type: ignore[assignment]
-            else:
-                raise ValueError(
-                    "Unsupported metric type or invalid metric name:" f" {metric_name}"
-                )
-
-            metrics_payload.append(metric_payload_item)
-        request_dict["metrics"] = metrics_payload
+        request_dict["metrics"] = _transformers.t_metrics(
+            resolved_metrics, set_default_aggregation_metrics=True
+        )
         return request_dict
