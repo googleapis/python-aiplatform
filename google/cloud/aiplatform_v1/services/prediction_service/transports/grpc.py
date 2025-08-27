@@ -273,6 +273,26 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # Wrap messages. This must be done after self._logged_channel exists
         self._prep_wrapped_messages(client_info)
 
+    def _create_timeout_aware_stub(
+        self, method_name, service_path, request_serializer, response_deserializer
+    ):
+        """Create a gRPC stub that properly handles timeout parameters."""
+        grpc_stub = self._logged_channel.unary_unary(
+            service_path,
+            request_serializer=request_serializer,
+            response_deserializer=response_deserializer,
+        )
+
+        # Create a wrapper that preserves the original stub's identity for _wrapped_methods
+        original_call = grpc_stub.__call__
+
+        def timeout_aware_call(request, timeout=None, metadata=(), **kwargs):
+            return original_call(request, timeout=timeout, metadata=metadata, **kwargs)
+
+        # Replace the stub's __call__ method with our timeout-aware version
+        grpc_stub.__call__ = timeout_aware_call
+        return grpc_stub
+
     @classmethod
     def create_channel(
         cls,
@@ -346,10 +366,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "predict" not in self._stubs:
-            self._stubs["predict"] = self._logged_channel.unary_unary(
+            self._stubs["predict"] = self._create_timeout_aware_stub(
+                "predict",
                 "/google.cloud.aiplatform.v1.PredictionService/Predict",
-                request_serializer=prediction_service.PredictRequest.serialize,
-                response_deserializer=prediction_service.PredictResponse.deserialize,
+                prediction_service.PredictRequest.serialize,
+                prediction_service.PredictResponse.deserialize,
             )
         return self._stubs["predict"]
 
@@ -382,10 +403,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "raw_predict" not in self._stubs:
-            self._stubs["raw_predict"] = self._logged_channel.unary_unary(
+            self._stubs["raw_predict"] = self._create_timeout_aware_stub(
+                "raw_predict",
                 "/google.cloud.aiplatform.v1.PredictionService/RawPredict",
-                request_serializer=prediction_service.RawPredictRequest.serialize,
-                response_deserializer=httpbody_pb2.HttpBody.FromString,
+                prediction_service.RawPredictRequest.serialize,
+                httpbody_pb2.HttpBody.FromString,
             )
         return self._stubs["raw_predict"]
 
@@ -440,10 +462,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "direct_predict" not in self._stubs:
-            self._stubs["direct_predict"] = self._logged_channel.unary_unary(
+            self._stubs["direct_predict"] = self._create_timeout_aware_stub(
+                "direct_predict",
                 "/google.cloud.aiplatform.v1.PredictionService/DirectPredict",
-                request_serializer=prediction_service.DirectPredictRequest.serialize,
-                response_deserializer=prediction_service.DirectPredictResponse.deserialize,
+                prediction_service.DirectPredictRequest.serialize,
+                prediction_service.DirectPredictResponse.deserialize,
             )
         return self._stubs["direct_predict"]
 
@@ -470,10 +493,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "direct_raw_predict" not in self._stubs:
-            self._stubs["direct_raw_predict"] = self._logged_channel.unary_unary(
+            self._stubs["direct_raw_predict"] = self._create_timeout_aware_stub(
+                "direct_raw_predict",
                 "/google.cloud.aiplatform.v1.PredictionService/DirectRawPredict",
-                request_serializer=prediction_service.DirectRawPredictRequest.serialize,
-                response_deserializer=prediction_service.DirectRawPredictResponse.deserialize,
+                prediction_service.DirectRawPredictRequest.serialize,
+                prediction_service.DirectRawPredictResponse.deserialize,
             )
         return self._stubs["direct_raw_predict"]
 
@@ -531,12 +555,12 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "stream_direct_raw_predict" not in self._stubs:
-            self._stubs[
-                "stream_direct_raw_predict"
-            ] = self._logged_channel.stream_stream(
-                "/google.cloud.aiplatform.v1.PredictionService/StreamDirectRawPredict",
-                request_serializer=prediction_service.StreamDirectRawPredictRequest.serialize,
-                response_deserializer=prediction_service.StreamDirectRawPredictResponse.deserialize,
+            self._stubs["stream_direct_raw_predict"] = (
+                self._logged_channel.stream_stream(
+                    "/google.cloud.aiplatform.v1.PredictionService/StreamDirectRawPredict",
+                    request_serializer=prediction_service.StreamDirectRawPredictRequest.serialize,
+                    response_deserializer=prediction_service.StreamDirectRawPredictResponse.deserialize,
+                )
             )
         return self._stubs["stream_direct_raw_predict"]
 
@@ -661,10 +685,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "explain" not in self._stubs:
-            self._stubs["explain"] = self._logged_channel.unary_unary(
+            self._stubs["explain"] = self._create_timeout_aware_stub(
+                "explain",
                 "/google.cloud.aiplatform.v1.PredictionService/Explain",
-                request_serializer=prediction_service.ExplainRequest.serialize,
-                response_deserializer=prediction_service.ExplainResponse.deserialize,
+                prediction_service.ExplainRequest.serialize,
+                prediction_service.ExplainResponse.deserialize,
             )
         return self._stubs["explain"]
 
@@ -690,10 +715,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "generate_content" not in self._stubs:
-            self._stubs["generate_content"] = self._logged_channel.unary_unary(
+            self._stubs["generate_content"] = self._create_timeout_aware_stub(
+                "generate_content",
                 "/google.cloud.aiplatform.v1.PredictionService/GenerateContent",
-                request_serializer=prediction_service.GenerateContentRequest.serialize,
-                response_deserializer=prediction_service.GenerateContentResponse.deserialize,
+                prediction_service.GenerateContentRequest.serialize,
+                prediction_service.GenerateContentResponse.deserialize,
             )
         return self._stubs["generate_content"]
 
@@ -740,10 +766,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_operation" not in self._stubs:
-            self._stubs["delete_operation"] = self._logged_channel.unary_unary(
+            self._stubs["delete_operation"] = self._create_timeout_aware_stub(
+                "delete_operation",
                 "/google.longrunning.Operations/DeleteOperation",
-                request_serializer=operations_pb2.DeleteOperationRequest.SerializeToString,
-                response_deserializer=None,
+                operations_pb2.DeleteOperationRequest.SerializeToString,
+                None,
             )
         return self._stubs["delete_operation"]
 
@@ -757,10 +784,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_operation" not in self._stubs:
-            self._stubs["cancel_operation"] = self._logged_channel.unary_unary(
+            self._stubs["cancel_operation"] = self._create_timeout_aware_stub(
+                "cancel_operation",
                 "/google.longrunning.Operations/CancelOperation",
-                request_serializer=operations_pb2.CancelOperationRequest.SerializeToString,
-                response_deserializer=None,
+                operations_pb2.CancelOperationRequest.SerializeToString,
+                None,
             )
         return self._stubs["cancel_operation"]
 
@@ -774,10 +802,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "wait_operation" not in self._stubs:
-            self._stubs["wait_operation"] = self._logged_channel.unary_unary(
+            self._stubs["wait_operation"] = self._create_timeout_aware_stub(
+                "wait_operation",
                 "/google.longrunning.Operations/WaitOperation",
-                request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,
-                response_deserializer=None,
+                operations_pb2.WaitOperationRequest.SerializeToString,
+                None,
             )
         return self._stubs["wait_operation"]
 
@@ -791,10 +820,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_operation" not in self._stubs:
-            self._stubs["get_operation"] = self._logged_channel.unary_unary(
+            self._stubs["get_operation"] = self._create_timeout_aware_stub(
+                "get_operation",
                 "/google.longrunning.Operations/GetOperation",
-                request_serializer=operations_pb2.GetOperationRequest.SerializeToString,
-                response_deserializer=operations_pb2.Operation.FromString,
+                operations_pb2.GetOperationRequest.SerializeToString,
+                operations_pb2.Operation.FromString,
             )
         return self._stubs["get_operation"]
 
@@ -810,10 +840,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_operations" not in self._stubs:
-            self._stubs["list_operations"] = self._logged_channel.unary_unary(
+            self._stubs["list_operations"] = self._create_timeout_aware_stub(
+                "list_operations",
                 "/google.longrunning.Operations/ListOperations",
-                request_serializer=operations_pb2.ListOperationsRequest.SerializeToString,
-                response_deserializer=operations_pb2.ListOperationsResponse.FromString,
+                operations_pb2.ListOperationsRequest.SerializeToString,
+                operations_pb2.ListOperationsResponse.FromString,
             )
         return self._stubs["list_operations"]
 
@@ -829,10 +860,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_locations" not in self._stubs:
-            self._stubs["list_locations"] = self._logged_channel.unary_unary(
+            self._stubs["list_locations"] = self._create_timeout_aware_stub(
+                "list_locations",
                 "/google.cloud.location.Locations/ListLocations",
-                request_serializer=locations_pb2.ListLocationsRequest.SerializeToString,
-                response_deserializer=locations_pb2.ListLocationsResponse.FromString,
+                locations_pb2.ListLocationsRequest.SerializeToString,
+                locations_pb2.ListLocationsResponse.FromString,
             )
         return self._stubs["list_locations"]
 
@@ -846,10 +878,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_location" not in self._stubs:
-            self._stubs["get_location"] = self._logged_channel.unary_unary(
+            self._stubs["get_location"] = self._create_timeout_aware_stub(
+                "get_location",
                 "/google.cloud.location.Locations/GetLocation",
-                request_serializer=locations_pb2.GetLocationRequest.SerializeToString,
-                response_deserializer=locations_pb2.Location.FromString,
+                locations_pb2.GetLocationRequest.SerializeToString,
+                locations_pb2.Location.FromString,
             )
         return self._stubs["get_location"]
 
@@ -871,10 +904,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "set_iam_policy" not in self._stubs:
-            self._stubs["set_iam_policy"] = self._logged_channel.unary_unary(
+            self._stubs["set_iam_policy"] = self._create_timeout_aware_stub(
+                "set_iam_policy",
                 "/google.iam.v1.IAMPolicy/SetIamPolicy",
-                request_serializer=iam_policy_pb2.SetIamPolicyRequest.SerializeToString,
-                response_deserializer=policy_pb2.Policy.FromString,
+                iam_policy_pb2.SetIamPolicyRequest.SerializeToString,
+                policy_pb2.Policy.FromString,
             )
         return self._stubs["set_iam_policy"]
 
@@ -897,10 +931,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_iam_policy" not in self._stubs:
-            self._stubs["get_iam_policy"] = self._logged_channel.unary_unary(
+            self._stubs["get_iam_policy"] = self._create_timeout_aware_stub(
+                "get_iam_policy",
                 "/google.iam.v1.IAMPolicy/GetIamPolicy",
-                request_serializer=iam_policy_pb2.GetIamPolicyRequest.SerializeToString,
-                response_deserializer=policy_pb2.Policy.FromString,
+                iam_policy_pb2.GetIamPolicyRequest.SerializeToString,
+                policy_pb2.Policy.FromString,
             )
         return self._stubs["get_iam_policy"]
 
@@ -926,10 +961,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "test_iam_permissions" not in self._stubs:
-            self._stubs["test_iam_permissions"] = self._logged_channel.unary_unary(
+            self._stubs["test_iam_permissions"] = self._create_timeout_aware_stub(
+                "test_iam_permissions",
                 "/google.iam.v1.IAMPolicy/TestIamPermissions",
-                request_serializer=iam_policy_pb2.TestIamPermissionsRequest.SerializeToString,
-                response_deserializer=iam_policy_pb2.TestIamPermissionsResponse.FromString,
+                iam_policy_pb2.TestIamPermissionsRequest.SerializeToString,
+                iam_policy_pb2.TestIamPermissionsResponse.FromString,
             )
         return self._stubs["test_iam_permissions"]
 

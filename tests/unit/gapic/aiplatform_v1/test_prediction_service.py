@@ -1466,6 +1466,170 @@ async def test_predict_flattened_error_async():
         )
 
 
+def test_predict_timeout():
+    # Test that timeout parameter is properly passed to gRPC call
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    request = prediction_service.PredictRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = prediction_service.PredictResponse(
+            deployed_model_id="deployed_model_id_value",
+            model="model_value",
+            model_version_id="model_version_id_value",
+            model_display_name="model_display_name_value",
+        )
+        response = client.predict(request, timeout=30.0)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, kwargs = call.mock_calls[0]
+        assert args[0] == request
+
+        # Verify that timeout was passed to the underlying call
+        assert kwargs.get("timeout") == 30.0
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.PredictResponse)
+    assert response.deployed_model_id == "deployed_model_id_value"
+
+
+def test_predict_timeout_edge_cases():
+    # Test timeout edge cases: None, 0, negative values
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    request = prediction_service.PredictRequest()
+
+    # Test timeout=None (should work)
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        call.return_value = prediction_service.PredictResponse()
+        response = client.predict(request, timeout=None)
+
+        _, args, kwargs = call.mock_calls[0]
+        assert kwargs.get("timeout") is None
+        assert isinstance(response, prediction_service.PredictResponse)
+
+    # Test timeout=0 (should work - means no timeout)
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        call.return_value = prediction_service.PredictResponse()
+        response = client.predict(request, timeout=0)
+
+        _, args, kwargs = call.mock_calls[0]
+        assert kwargs.get("timeout") == 0
+        assert isinstance(response, prediction_service.PredictResponse)
+
+    # Test negative timeout (should work - gRPC will handle validation)
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        call.return_value = prediction_service.PredictResponse()
+        response = client.predict(request, timeout=-1.0)
+
+        _, args, kwargs = call.mock_calls[0]
+        assert kwargs.get("timeout") == -1.0
+        assert isinstance(response, prediction_service.PredictResponse)
+
+
+def test_predict_timeout_with_metadata():
+    # Test that timeout works correctly with metadata
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    request = prediction_service.PredictRequest()
+    test_metadata = [("x-custom-header", "test-value")]
+
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        call.return_value = prediction_service.PredictResponse()
+        response = client.predict(request, timeout=15.0, metadata=test_metadata)
+
+        _, args, kwargs = call.mock_calls[0]
+        assert kwargs.get("timeout") == 15.0
+        assert kwargs.get("metadata") == test_metadata
+        assert isinstance(response, prediction_service.PredictResponse)
+
+
+@pytest.mark.asyncio
+async def test_predict_timeout_async():
+    # Test that timeout parameter works with async client
+    client = PredictionServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    request = prediction_service.PredictRequest()
+
+    # Mock the underlying gRPC stub creation to capture timeout
+    with mock.patch.object(
+        client.transport._logged_channel, "unary_unary"
+    ) as mock_unary_unary:
+        # Create a mock gRPC stub that records calls
+        mock_grpc_stub = mock.Mock()
+        mock_grpc_stub.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            prediction_service.PredictResponse()
+        )
+        mock_unary_unary.return_value = mock_grpc_stub
+
+        # Force creation of new stub by clearing cache
+        if "predict" in client.transport._stubs:
+            del client.transport._stubs["predict"]
+
+        # Call predict with timeout parameter
+        timeout_value = 45.0
+        response = await client.predict(request, timeout=timeout_value)
+
+        # Verify that the gRPC stub was called with timeout parameter
+        assert mock_grpc_stub.called
+        call_args = mock_grpc_stub.call_args
+        assert call_args is not None
+        assert call_args.kwargs.get("timeout") == timeout_value
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.PredictResponse)
+
+
+def test_predict_timeout_backward_compatibility():
+    # Test that predict works without timeout (backward compatibility)
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    request = prediction_service.PredictRequest()
+
+    # Mock the underlying gRPC stub creation
+    with mock.patch.object(
+        client.transport._logged_channel, "unary_unary"
+    ) as mock_unary_unary:
+        # Create a mock gRPC stub
+        mock_grpc_stub = mock.Mock()
+        mock_grpc_stub.return_value = prediction_service.PredictResponse()
+        mock_unary_unary.return_value = mock_grpc_stub
+
+        # Force creation of new stub by clearing cache
+        if "predict" in client.transport._stubs:
+            del client.transport._stubs["predict"]
+
+        # Call predict without timeout (should use None as default)
+        response = client.predict(request)
+
+        # Verify that the gRPC stub was called with timeout=None
+        assert mock_grpc_stub.called
+        call_args = mock_grpc_stub.call_args
+        assert call_args is not None
+        assert call_args.kwargs.get("timeout") is None
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.PredictResponse)
+
+
 @pytest.mark.parametrize(
     "request_type",
     [
@@ -1892,9 +2056,9 @@ def test_stream_raw_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.stream_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.stream_raw_predict] = (
+            mock_rpc
+        )
         request = {}
         client.stream_raw_predict(request)
 
@@ -2476,9 +2640,9 @@ def test_direct_raw_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.direct_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.direct_raw_predict] = (
+            mock_rpc
+        )
         request = {}
         client.direct_raw_predict(request)
 
@@ -2701,9 +2865,9 @@ def test_stream_direct_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.stream_direct_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.stream_direct_predict] = (
+            mock_rpc
+        )
         request = [{}]
         client.stream_direct_predict(request)
 
@@ -3016,9 +3180,9 @@ def test_streaming_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.streaming_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.streaming_predict] = (
+            mock_rpc
+        )
         request = [{}]
         client.streaming_predict(request)
 
@@ -3430,9 +3594,9 @@ def test_streaming_raw_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.streaming_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.streaming_raw_predict] = (
+            mock_rpc
+        )
         request = [{}]
         client.streaming_raw_predict(request)
 
@@ -3894,9 +4058,9 @@ def test_generate_content_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.generate_content
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.generate_content] = (
+            mock_rpc
+        )
         request = {}
         client.generate_content(request)
 
@@ -4145,6 +4309,42 @@ async def test_generate_content_flattened_error_async():
             model="model_value",
             contents=[content.Content(role="role_value")],
         )
+
+
+def test_generate_content_timeout():
+    # Test that timeout parameter is properly passed to gRPC call
+    client = PredictionServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    request = prediction_service.GenerateContentRequest()
+
+    # Mock the underlying gRPC stub creation to capture timeout
+    with mock.patch.object(
+        client.transport._logged_channel, "unary_unary"
+    ) as mock_unary_unary:
+        # Create a mock gRPC stub that records calls
+        mock_grpc_stub = mock.Mock()
+        mock_grpc_stub.return_value = prediction_service.GenerateContentResponse()
+        mock_unary_unary.return_value = mock_grpc_stub
+
+        # Force creation of new stub by clearing cache
+        if "generate_content" in client.transport._stubs:
+            del client.transport._stubs["generate_content"]
+
+        # Call generate_content with timeout parameter
+        timeout_value = 60.0
+        response = client.generate_content(request, timeout=timeout_value)
+
+        # Verify that the gRPC stub was called with timeout parameter
+        assert mock_grpc_stub.called
+        call_args = mock_grpc_stub.call_args
+        assert call_args is not None
+        assert call_args.kwargs.get("timeout") == timeout_value
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, prediction_service.GenerateContentResponse)
 
 
 @pytest.mark.parametrize(
@@ -4891,9 +5091,9 @@ def test_stream_raw_predict_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.stream_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.stream_raw_predict] = (
+            mock_rpc
+        )
 
         request = {}
         client.stream_raw_predict(request)
@@ -5201,9 +5401,9 @@ def test_direct_raw_predict_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.direct_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.direct_raw_predict] = (
+            mock_rpc
+        )
 
         request = {}
         client.direct_raw_predict(request)
@@ -5690,9 +5890,9 @@ def test_generate_content_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.generate_content
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.generate_content] = (
+            mock_rpc
+        )
 
         request = {}
         client.generate_content(request)
@@ -6762,9 +6962,9 @@ def test_predict_rest_call_success(request_type):
 def test_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -6890,9 +7090,9 @@ def test_raw_predict_rest_call_success(request_type):
 def test_raw_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7020,9 +7220,9 @@ def test_stream_raw_predict_rest_call_success(request_type):
 def test_stream_raw_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7145,9 +7345,9 @@ def test_direct_predict_rest_call_success(request_type):
 def test_direct_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7277,9 +7477,9 @@ def test_direct_raw_predict_rest_call_success(request_type):
 def test_direct_raw_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7450,9 +7650,9 @@ def test_server_streaming_predict_rest_call_success(request_type):
 def test_server_streaming_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7594,9 +7794,9 @@ def test_explain_rest_call_success(request_type):
 def test_explain_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7725,9 +7925,9 @@ def test_generate_content_rest_call_success(request_type):
 def test_generate_content_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7864,9 +8064,9 @@ def test_stream_generate_content_rest_call_success(request_type):
 def test_stream_generate_content_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -8850,9 +9050,11 @@ async def test_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -8994,9 +9196,11 @@ async def test_raw_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9139,9 +9343,11 @@ async def test_stream_raw_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9280,9 +9486,11 @@ async def test_direct_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9429,9 +9637,11 @@ async def test_direct_raw_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9631,9 +9841,11 @@ async def test_server_streaming_predict_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9799,9 +10011,11 @@ async def test_explain_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9946,9 +10160,11 @@ async def test_generate_content_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -10099,9 +10315,11 @@ async def test_stream_generate_content_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -13521,3 +13739,135 @@ def test_api_key_credentials(client_class, transport_class):
                 always_use_jwt_access=True,
                 api_audience=None,
             )
+
+
+def test_prediction_service_grpc_transport_timeout_aware_stubs():
+    # Test that gRPC transport creates timeout-aware stubs
+    transport = transports.PredictionServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Test that _create_timeout_aware_stub method exists
+    assert hasattr(transport, "_create_timeout_aware_stub")
+
+    # Test creating a timeout-aware stub
+    with mock.patch.object(
+        transport._logged_channel, "unary_unary"
+    ) as mock_unary_unary:
+        mock_grpc_stub = mock.Mock()
+        mock_grpc_stub.return_value = "test_response"
+        mock_unary_unary.return_value = mock_grpc_stub
+
+        # Create timeout-aware stub
+        wrapped_stub = transport._create_timeout_aware_stub(
+            "test_method", "/test/path", lambda x: x, lambda x: x
+        )
+
+        # Test that wrapper function is returned and callable
+        assert callable(wrapped_stub)
+
+        # Test calling the wrapper with timeout
+        result = wrapped_stub("test_request", timeout=10.0)
+
+        # Verify that the underlying stub was called with correct parameters
+        mock_grpc_stub.assert_called_once_with(
+            "test_request", timeout=10.0, metadata=(), **{}
+        )
+        assert result == "test_response"
+
+
+def test_prediction_service_grpc_transport_predict_stub_timeout():
+    # Test that predict stub properly handles timeout
+    transport = transports.PredictionServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the underlying gRPC channel
+    with mock.patch.object(
+        transport._logged_channel, "unary_unary"
+    ) as mock_unary_unary:
+        mock_grpc_stub = mock.Mock()
+        mock_grpc_stub.return_value = prediction_service.PredictResponse()
+        mock_unary_unary.return_value = mock_grpc_stub
+
+        # Clear any cached stubs
+        if "predict" in transport._stubs:
+            del transport._stubs["predict"]
+
+        # Get the predict stub
+        predict_stub = transport.predict
+
+        # Test that it's callable
+        assert callable(predict_stub)
+
+        # Test calling with timeout
+        request = prediction_service.PredictRequest()
+        timeout_value = 25.0
+        predict_stub(request, timeout=timeout_value)
+
+        # Verify the underlying gRPC stub was called with timeout
+        mock_grpc_stub.assert_called_once()
+        call_args = mock_grpc_stub.call_args
+        assert call_args.kwargs.get("timeout") == timeout_value
+
+
+@pytest.mark.parametrize(
+    "method_name",
+    [
+        "predict",
+        "raw_predict",
+        "direct_predict",
+        "direct_raw_predict",
+        "explain",
+        "generate_content",
+    ],
+)
+def test_prediction_service_grpc_transport_timeout_support(method_name):
+    # Test that all main prediction methods support timeout
+    transport = transports.PredictionServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Clear any cached stubs
+    if method_name in transport._stubs:
+        del transport._stubs[method_name]
+
+    # Mock the underlying gRPC channel
+    with mock.patch.object(
+        transport._logged_channel, "unary_unary"
+    ) as mock_unary_unary:
+        mock_grpc_stub = mock.Mock()
+        mock_grpc_stub.return_value = mock.Mock()  # Mock response
+        mock_unary_unary.return_value = mock_grpc_stub
+
+        # Get the method stub
+        method_stub = getattr(transport, method_name)
+        assert callable(method_stub)
+
+        # Test that calling with timeout does not raise TypeError
+        try:
+            if method_name == "predict":
+                request = prediction_service.PredictRequest()
+            elif method_name == "raw_predict":
+                request = prediction_service.RawPredictRequest()
+            elif method_name == "direct_predict":
+                request = prediction_service.DirectPredictRequest()
+            elif method_name == "direct_raw_predict":
+                request = prediction_service.DirectRawPredictRequest()
+            elif method_name == "explain":
+                request = prediction_service.ExplainRequest()
+            elif method_name == "generate_content":
+                request = prediction_service.GenerateContentRequest()
+
+            method_stub(request, timeout=15.0)
+
+            # Verify timeout was passed to underlying stub
+            mock_grpc_stub.assert_called_once()
+            call_args = mock_grpc_stub.call_args
+            assert call_args.kwargs.get("timeout") == 15.0
+
+        except TypeError as e:
+            if "timeout" in str(e):
+                pytest.fail(
+                    f"{method_name} does not properly handle timeout parameter: {e}"
+                )
