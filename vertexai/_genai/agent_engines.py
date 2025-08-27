@@ -1220,6 +1220,18 @@ class AgentEngines(_api_module.BaseModule):
                 _agent_engines_utils._to_dict(class_method)
                 for class_method in class_methods
             ]
+            # Set the agent_server_mode to EXPERIMENTAL if the agent has a
+            # bidi_stream method.
+            for class_method in class_methods:
+                if class_method["api_mode"] == "bidi_stream":
+                    if not agent_engine_spec.get("deployment_spec"):
+                        agent_engine_spec["deployment_spec"] = (
+                            types.ReasoningEngineSpecDeploymentSpecDict()
+                        )
+                    agent_engine_spec["deployment_spec"][
+                        "agent_server_mode"
+                    ] = types.AgentServerMode.EXPERIMENTAL
+                    break
             update_masks.append("spec.class_methods")
             agent_engine_spec["agent_framework"] = (
                 _agent_engines_utils._get_agent_framework(agent=agent)
