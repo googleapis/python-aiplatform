@@ -122,6 +122,7 @@ class Client:
     def __init__(
         self,
         *,
+        api_key: Optional[str] = None,
         credentials: Optional[google.auth.credentials.Credentials] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -131,6 +132,9 @@ class Client:
         """Initializes the client.
 
         Args:
+           api_key (str): The `API key
+           <https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview#api-keys>`_
+             to use for authentication. Applies to Vertex AI in express mode only.
            credentials (google.auth.credentials.Credentials): The credentials to use
              for authentication when calling the Vertex AI APIs. Credentials can be
              obtained from environment variables and default credentials. For more
@@ -156,6 +160,7 @@ class Client:
 
         self._api_client = genai_client.Client._get_api_client(
             vertexai=True,
+            api_key=api_key,
             credentials=credentials,
             project=project,
             location=location,
