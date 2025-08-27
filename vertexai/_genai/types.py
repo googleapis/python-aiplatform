@@ -4024,6 +4024,14 @@ class CreateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""The service account to be used for the Agent Engine.
+
+      See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/set-up#custom-service-account
+      for more details.
+      """,
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -4077,6 +4085,13 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
+
+    service_account: Optional[str]
+    """The service account to be used for the Agent Engine.
+
+      See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/set-up#custom-service-account
+      for more details.
+      """
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -4656,6 +4671,14 @@ class UpdateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""The service account to be used for the Agent Engine.
+
+      See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/set-up#custom-service-account
+      for more details.
+      """,
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -4714,6 +4737,13 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
+
+    service_account: Optional[str]
+    """The service account to be used for the Agent Engine.
+
+      See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/set-up#custom-service-account
+      for more details.
+      """
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -8812,6 +8842,14 @@ class AgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""The service account to be used for the Agent Engine.
+
+      See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/set-up#custom-service-account
+      for more details.
+      """,
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -8886,6 +8924,13 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
+
+    service_account: Optional[str]
+    """The service account to be used for the Agent Engine.
+
+      See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/set-up#custom-service-account
+      for more details.
+      """
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]

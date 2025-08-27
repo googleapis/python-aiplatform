@@ -165,6 +165,13 @@ def _CreateAgentEngineConfig_to_vertex(
             ),
         )
 
+    if getv(from_object, ["service_account"]) is not None:
+        setv(
+            parent_object,
+            ["serviceAccount"],
+            getv(from_object, ["service_account"]),
+        )
+
     return to_object
 
 
@@ -359,6 +366,13 @@ def _UpdateAgentEngineConfig_to_vertex(
             _EncryptionSpec_to_vertex(
                 getv(from_object, ["encryption_spec"]), to_object
             ),
+        )
+
+    if getv(from_object, ["service_account"]) is not None:
+        setv(
+            parent_object,
+            ["serviceAccount"],
+            getv(from_object, ["service_account"]),
         )
 
     if getv(from_object, ["update_mask"]) is not None:
@@ -1098,6 +1112,7 @@ class AgentEngines(_api_module.BaseModule):
             resource_limits=config.resource_limits,
             container_concurrency=config.container_concurrency,
             encryption_spec=config.encryption_spec,
+            service_account=config.service_account,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -1154,6 +1169,7 @@ class AgentEngines(_api_module.BaseModule):
         resource_limits: Optional[dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
         encryption_spec: Optional[types.EncryptionSpecDict] = None,
+        service_account: Optional[str] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1240,6 +1256,9 @@ class AgentEngines(_api_module.BaseModule):
             agent_engine_spec: types.ReasoningEngineSpecDict = {
                 "package_spec": package_spec,
             }
+            if service_account is not None:
+                update_masks.append("spec.service_account")
+                agent_engine_spec["service_account"] = service_account
             if (
                 env_vars is not None
                 or psc_interface_config is not None
@@ -1498,6 +1517,7 @@ class AgentEngines(_api_module.BaseModule):
             max_instances=config.max_instances,
             resource_limits=config.resource_limits,
             container_concurrency=config.container_concurrency,
+            service_account=config.service_account,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(
