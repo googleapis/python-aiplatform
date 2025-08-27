@@ -8773,6 +8773,12 @@ class AgentEngineConfig(_common.BaseModel):
       If it is a dictionary, the keys are the environment variable names, and
       the values are the corresponding values.""",
     )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""The service account to be used for the Agent Engine.
+
+      If not specified, the default Reasoning Engine P6SA service agent will be used.""",
+    )
     context_spec: Optional[ReasoningEngineContextSpec] = Field(
         default=None,
         description="""The context spec to be used for the Agent Engine.""",
@@ -8854,6 +8860,11 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
       If it is a dictionary, the keys are the environment variable names, and
       the values are the corresponding values."""
+
+    service_account: Optional[str]
+    """The service account to be used for the Agent Engine.
+
+      If not specified, the default Reasoning Engine P6SA service agent will be used."""
 
     context_spec: Optional[ReasoningEngineContextSpecDict]
     """The context spec to be used for the Agent Engine."""

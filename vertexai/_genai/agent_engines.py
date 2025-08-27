@@ -1091,6 +1091,7 @@ class AgentEngines(_api_module.BaseModule):
             gcs_dir_name=config.gcs_dir_name,
             extra_packages=config.extra_packages,
             env_vars=config.env_vars,
+            service_account=config.service_account,
             context_spec=context_spec,
             psc_interface_config=config.psc_interface_config,
             min_instances=config.min_instances,
@@ -1147,6 +1148,7 @@ class AgentEngines(_api_module.BaseModule):
         gcs_dir_name: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
         env_vars: Optional[dict[str, Union[str, Any]]] = None,
+        service_account: Optional[str] = None,
         context_spec: Optional[types.ReasoningEngineContextSpecDict] = None,
         psc_interface_config: Optional[types.PscInterfaceConfigDict] = None,
         min_instances: Optional[int] = None,
@@ -1261,6 +1263,9 @@ class AgentEngines(_api_module.BaseModule):
                 )
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
+            if service_account is not None:
+                agent_engine_spec["service_account"] = service_account
+                update_masks.append("spec.service_account")
             class_methods = _agent_engines_utils._generate_class_methods_spec_or_raise(
                 agent=agent,
                 operations=_agent_engines_utils._get_registered_operations(agent=agent),
@@ -1492,6 +1497,7 @@ class AgentEngines(_api_module.BaseModule):
             gcs_dir_name=config.gcs_dir_name,
             extra_packages=config.extra_packages,
             env_vars=config.env_vars,
+            service_account=config.service_account,
             context_spec=context_spec,
             psc_interface_config=config.psc_interface_config,
             min_instances=config.min_instances,
