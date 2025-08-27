@@ -80,6 +80,13 @@ def _EventMetadata_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["grounding_metadata"]) is not None:
+        setv(
+            to_object,
+            ["groundingMetadata"],
+            getv(from_object, ["grounding_metadata"]),
+        )
+
     if getv(from_object, ["branch"]) is not None:
         setv(to_object, ["branch"], getv(from_object, ["branch"]))
 
@@ -88,13 +95,6 @@ def _EventMetadata_to_vertex(
             to_object,
             ["customMetadata"],
             getv(from_object, ["custom_metadata"]),
-        )
-
-    if getv(from_object, ["grounding_metadata"]) is not None:
-        setv(
-            to_object,
-            ["groundingMetadata"],
-            getv(from_object, ["grounding_metadata"]),
         )
 
     if getv(from_object, ["interrupted"]) is not None:

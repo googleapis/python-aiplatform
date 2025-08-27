@@ -25,6 +25,7 @@ import warnings
 
 from google.genai import _api_module
 from google.genai import _common
+from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import Pager
@@ -108,17 +109,6 @@ def _PscInterfaceConfig_to_vertex(
     return to_object
 
 
-def _EncryptionSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["kms_key_name"]) is not None:
-        setv(to_object, ["kmsKeyName"], getv(from_object, ["kms_key_name"]))
-
-    return to_object
-
-
 def _CreateAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -160,9 +150,7 @@ def _CreateAgentEngineConfig_to_vertex(
         setv(
             parent_object,
             ["encryptionSpec"],
-            _EncryptionSpec_to_vertex(
-                getv(from_object, ["encryption_spec"]), to_object
-            ),
+            getv(from_object, ["encryption_spec"]),
         )
 
     return to_object
@@ -356,9 +344,7 @@ def _UpdateAgentEngineConfig_to_vertex(
         setv(
             parent_object,
             ["encryptionSpec"],
-            _EncryptionSpec_to_vertex(
-                getv(from_object, ["encryption_spec"]), to_object
-            ),
+            getv(from_object, ["encryption_spec"]),
         )
 
     if getv(from_object, ["update_mask"]) is not None:
@@ -396,6 +382,13 @@ def _ReasoningEngine_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(
+            to_object,
+            ["encryption_spec"],
+            getv(from_object, ["encryptionSpec"]),
+        )
+
     if getv(from_object, ["contextSpec"]) is not None:
         setv(to_object, ["context_spec"], getv(from_object, ["contextSpec"]))
 
@@ -407,13 +400,6 @@ def _ReasoningEngine_from_vertex(
 
     if getv(from_object, ["displayName"]) is not None:
         setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(
-            to_object,
-            ["encryption_spec"],
-            getv(from_object, ["encryptionSpec"]),
-        )
 
     if getv(from_object, ["etag"]) is not None:
         setv(to_object, ["etag"], getv(from_object, ["etag"]))
@@ -1155,7 +1141,7 @@ class AgentEngines(_api_module.BaseModule):
         max_instances: Optional[int] = None,
         resource_limits: Optional[dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
-        encryption_spec: Optional[types.EncryptionSpecDict] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecDict] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 

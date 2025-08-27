@@ -153,21 +153,24 @@ def _CustomJob_to_vertex(
             _CustomJobSpec_to_vertex(getv(from_object, ["job_spec"]), to_object),
         )
 
-    if getv(from_object, ["create_time"]) is not None:
-        setv(to_object, ["createTime"], getv(from_object, ["create_time"]))
-
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(
-            to_object,
+            parent_object,
             ["encryptionSpec"],
             getv(from_object, ["encryption_spec"]),
         )
 
-    if getv(from_object, ["end_time"]) is not None:
-        setv(to_object, ["endTime"], getv(from_object, ["end_time"]))
+    if getv(from_object, ["state"]) is not None:
+        setv(to_object, ["state"], getv(from_object, ["state"]))
 
     if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
+        setv(parent_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["create_time"]) is not None:
+        setv(to_object, ["createTime"], getv(from_object, ["create_time"]))
+
+    if getv(from_object, ["end_time"]) is not None:
+        setv(to_object, ["endTime"], getv(from_object, ["end_time"]))
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
@@ -183,9 +186,6 @@ def _CustomJob_to_vertex(
 
     if getv(from_object, ["start_time"]) is not None:
         setv(to_object, ["startTime"], getv(from_object, ["start_time"]))
-
-    if getv(from_object, ["state"]) is not None:
-        setv(to_object, ["state"], getv(from_object, ["state"]))
 
     if getv(from_object, ["update_time"]) is not None:
         setv(to_object, ["updateTime"], getv(from_object, ["update_time"]))
@@ -343,21 +343,24 @@ def _CustomJob_from_vertex(
             _CustomJobSpec_from_vertex(getv(parent_object, ["jobSpec"]), to_object),
         )
 
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["encryptionSpec"]) is not None:
+    if getv(parent_object, ["encryptionSpec"]) is not None:
         setv(
             to_object,
             ["encryption_spec"],
-            getv(from_object, ["encryptionSpec"]),
+            getv(parent_object, ["encryptionSpec"]),
         )
+
+    if getv(from_object, ["state"]) is not None:
+        setv(to_object, ["state"], getv(from_object, ["state"]))
+
+    if getv(parent_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(parent_object, ["error"]))
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
 
     if getv(from_object, ["endTime"]) is not None:
         setv(to_object, ["end_time"], getv(from_object, ["endTime"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
@@ -373,9 +376,6 @@ def _CustomJob_from_vertex(
 
     if getv(from_object, ["startTime"]) is not None:
         setv(to_object, ["start_time"], getv(from_object, ["startTime"]))
-
-    if getv(from_object, ["state"]) is not None:
-        setv(to_object, ["state"], getv(from_object, ["state"]))
 
     if getv(from_object, ["updateTime"]) is not None:
         setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
@@ -447,7 +447,7 @@ class PromptOptimizer(_api_module.BaseModule):
         self,
         *,
         custom_job: types.CustomJobOrDict,
-        config: Optional[types.BaseConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.CustomJob:
         """Creates a custom job."""
 
@@ -498,7 +498,10 @@ class PromptOptimizer(_api_module.BaseModule):
         return return_value
 
     def _get_custom_job(
-        self, *, name: str, config: Optional[types.BaseConfigOrDict] = None
+        self,
+        *,
+        name: str,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.CustomJob:
         """Gets a custom job."""
 
@@ -553,14 +556,14 @@ class PromptOptimizer(_api_module.BaseModule):
     def _wait_for_completion(self, job_name: str) -> types.CustomJob:
 
         JOB_COMPLETE_STATES = [
-            types.JobState.JOB_STATE_SUCCEEDED,
-            types.JobState.JOB_STATE_FAILED,
-            types.JobState.JOB_STATE_CANCELLED,
-            types.JobState.JOB_STATE_PAUSED,
+            genai_types.JobState.JOB_STATE_SUCCEEDED,
+            genai_types.JobState.JOB_STATE_FAILED,
+            genai_types.JobState.JOB_STATE_CANCELLED,
+            genai_types.JobState.JOB_STATE_PAUSED,
         ]
         JOB_ERROR_STATES = [
-            types.JobState.JOB_STATE_FAILED,
-            types.JobState.JOB_STATE_CANCELLED,
+            genai_types.JobState.JOB_STATE_FAILED,
+            genai_types.JobState.JOB_STATE_CANCELLED,
         ]
 
         log_wait = 5
@@ -642,7 +645,7 @@ class PromptOptimizer(_api_module.BaseModule):
 
         job_spec = types.CustomJobSpec(
             worker_pool_specs=worker_pool_specs,
-            base_output_directory=types.GcsDestination(output_uri_prefix=bucket),
+            base_output_directory=genai_types.GcsDestination(output_uri_prefix=bucket),
             service_account=service_account,
         )
 
@@ -734,7 +737,7 @@ class PromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[types.HttpOptions] = None
+        http_options: Optional[genai_types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -832,7 +835,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         self,
         *,
         custom_job: types.CustomJobOrDict,
-        config: Optional[types.BaseConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.CustomJob:
         """Creates a custom job."""
 
@@ -885,7 +888,10 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         return return_value
 
     async def _get_custom_job(
-        self, *, name: str, config: Optional[types.BaseConfigOrDict] = None
+        self,
+        *,
+        name: str,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.CustomJob:
         """Gets a custom job."""
 
@@ -1011,7 +1017,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         job_spec = types.CustomJobSpec(
             worker_pool_specs=worker_pool_specs,
-            base_output_directory=types.GcsDestination(output_uri_prefix=bucket),
+            base_output_directory=genai_types.GcsDestination(output_uri_prefix=bucket),
             service_account=service_account,
         )
 

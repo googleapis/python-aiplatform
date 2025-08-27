@@ -1170,7 +1170,7 @@ class Evals(_api_module.BaseModule):
 
         resolved_metrics = _evals_common._resolve_metrics(metrics, self._api_client)
         output_config = genai_types.OutputConfig(
-            gcs_destination=types.GcsDestination(output_uri_prefix=dest)
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
         parameter_model = types.EvaluateDatasetRequestParameters(
             dataset=dataset,
@@ -1595,7 +1595,7 @@ class AsyncEvals(_api_module.BaseModule):
         """Evaluates a dataset based on a set of given metrics."""
         resolved_metrics = _evals_common._resolve_metrics(metrics, self._api_client)
         output_config = genai_types.OutputConfig(
-            gcs_destination=types.GcsDestination(output_uri_prefix=dest)
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
         parameter_model = types.EvaluateDatasetRequestParameters(
             dataset=dataset,

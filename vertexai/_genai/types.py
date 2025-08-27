@@ -927,136 +927,10 @@ class EvaluationInstanceDict(TypedDict, total=False):
 EvaluationInstanceOrDict = Union[EvaluationInstance, EvaluationInstanceDict]
 
 
-class HttpRetryOptions(_common.BaseModel):
-    """HTTP retry options to be used in each of the requests."""
-
-    attempts: Optional[int] = Field(
-        default=None,
-        description="""Maximum number of attempts, including the original request.
-      If 0 or 1, it means no retries.""",
-    )
-    initial_delay: Optional[float] = Field(
-        default=None,
-        description="""Initial delay before the first retry, in fractions of a second.""",
-    )
-    max_delay: Optional[float] = Field(
-        default=None,
-        description="""Maximum delay between retries, in fractions of a second.""",
-    )
-    exp_base: Optional[float] = Field(
-        default=None,
-        description="""Multiplier by which the delay increases after each attempt.""",
-    )
-    jitter: Optional[float] = Field(
-        default=None, description="""Randomness factor for the delay."""
-    )
-    http_status_codes: Optional[list[int]] = Field(
-        default=None,
-        description="""List of HTTP status codes that should trigger a retry.
-      If not specified, a default set of retryable codes may be used.""",
-    )
-
-
-class HttpRetryOptionsDict(TypedDict, total=False):
-    """HTTP retry options to be used in each of the requests."""
-
-    attempts: Optional[int]
-    """Maximum number of attempts, including the original request.
-      If 0 or 1, it means no retries."""
-
-    initial_delay: Optional[float]
-    """Initial delay before the first retry, in fractions of a second."""
-
-    max_delay: Optional[float]
-    """Maximum delay between retries, in fractions of a second."""
-
-    exp_base: Optional[float]
-    """Multiplier by which the delay increases after each attempt."""
-
-    jitter: Optional[float]
-    """Randomness factor for the delay."""
-
-    http_status_codes: Optional[list[int]]
-    """List of HTTP status codes that should trigger a retry.
-      If not specified, a default set of retryable codes may be used."""
-
-
-HttpRetryOptionsOrDict = Union[HttpRetryOptions, HttpRetryOptionsDict]
-
-
-class HttpOptions(_common.BaseModel):
-    """HTTP options to be used in each of the requests."""
-
-    base_url: Optional[str] = Field(
-        default=None,
-        description="""The base URL for the AI platform service endpoint.""",
-    )
-    api_version: Optional[str] = Field(
-        default=None, description="""Specifies the version of the API to use."""
-    )
-    headers: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""Additional HTTP headers to be sent with the request.""",
-    )
-    timeout: Optional[int] = Field(
-        default=None, description="""Timeout for the request in milliseconds."""
-    )
-    client_args: Optional[dict[str, Any]] = Field(
-        default=None, description="""Args passed to the HTTP client."""
-    )
-    async_client_args: Optional[dict[str, Any]] = Field(
-        default=None, description="""Args passed to the async HTTP client."""
-    )
-    extra_body: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Extra parameters to add to the request body.
-      The structure must match the backend API's request structure.
-      - VertexAI backend API docs: https://cloud.google.com/vertex-ai/docs/reference/rest
-      - GeminiAPI backend API docs: https://ai.google.dev/api/rest""",
-    )
-    retry_options: Optional[HttpRetryOptions] = Field(
-        default=None, description="""HTTP retry options for the request."""
-    )
-
-
-class HttpOptionsDict(TypedDict, total=False):
-    """HTTP options to be used in each of the requests."""
-
-    base_url: Optional[str]
-    """The base URL for the AI platform service endpoint."""
-
-    api_version: Optional[str]
-    """Specifies the version of the API to use."""
-
-    headers: Optional[dict[str, str]]
-    """Additional HTTP headers to be sent with the request."""
-
-    timeout: Optional[int]
-    """Timeout for the request in milliseconds."""
-
-    client_args: Optional[dict[str, Any]]
-    """Args passed to the HTTP client."""
-
-    async_client_args: Optional[dict[str, Any]]
-    """Args passed to the async HTTP client."""
-
-    extra_body: Optional[dict[str, Any]]
-    """Extra parameters to add to the request body.
-      The structure must match the backend API's request structure.
-      - VertexAI backend API docs: https://cloud.google.com/vertex-ai/docs/reference/rest
-      - GeminiAPI backend API docs: https://ai.google.dev/api/rest"""
-
-    retry_options: Optional[HttpRetryOptionsDict]
-    """HTTP retry options for the request."""
-
-
-HttpOptionsOrDict = Union[HttpOptions, HttpOptionsDict]
-
-
 class EvaluateInstancesConfig(_common.BaseModel):
     """Config for evaluate instances."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -1064,7 +938,7 @@ class EvaluateInstancesConfig(_common.BaseModel):
 class EvaluateInstancesConfigDict(TypedDict, total=False):
     """Config for evaluate instances."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -2375,7 +2249,7 @@ PredefinedMetricSpecOrDict = Union[PredefinedMetricSpec, PredefinedMetricSpecDic
 class RubricGenerationConfig(_common.BaseModel):
     """Config for generating rubrics."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -2383,7 +2257,7 @@ class RubricGenerationConfig(_common.BaseModel):
 class RubricGenerationConfigDict(TypedDict, total=False):
     """Config for generating rubrics."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -2462,7 +2336,7 @@ GenerateInstanceRubricsResponseOrDict = Union[
 class OptimizeConfig(_common.BaseModel):
     """Config for Prompt Optimizer."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -2470,7 +2344,7 @@ class OptimizeConfig(_common.BaseModel):
 class OptimizeConfigDict(TypedDict, total=False):
     """Config for Prompt Optimizer."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -2515,25 +2389,6 @@ class OptimizeResponseEndpointDict(TypedDict, total=False):
 OptimizeResponseEndpointOrDict = Union[
     OptimizeResponseEndpoint, OptimizeResponseEndpointDict
 ]
-
-
-class GcsDestination(_common.BaseModel):
-    """The Google Cloud Storage location where the output is to be written to."""
-
-    output_uri_prefix: Optional[str] = Field(
-        default=None,
-        description="""Required. Google Cloud Storage URI to output directory. If the uri doesn't end with '/', a '/' will be automatically appended. The directory is created if it doesn't exist.""",
-    )
-
-
-class GcsDestinationDict(TypedDict, total=False):
-    """The Google Cloud Storage location where the output is to be written to."""
-
-    output_uri_prefix: Optional[str]
-    """Required. Google Cloud Storage URI to output directory. If the uri doesn't end with '/', a '/' will be automatically appended. The directory is created if it doesn't exist."""
-
-
-GcsDestinationOrDict = Union[GcsDestination, GcsDestinationDict]
 
 
 class DnsPeeringConfig(_common.BaseModel):
@@ -2961,7 +2816,7 @@ WorkerPoolSpecOrDict = Union[WorkerPoolSpec, WorkerPoolSpecDict]
 class CustomJobSpec(_common.BaseModel):
     """Represents a job that runs custom workloads such as a Docker container or a Python package."""
 
-    base_output_directory: Optional[GcsDestination] = Field(
+    base_output_directory: Optional[genai_types.GcsDestination] = Field(
         default=None,
         description="""The Cloud Storage location to store the output of this CustomJob or HyperparameterTuningJob. For HyperparameterTuningJob, the baseOutputDirectory of each child CustomJob backing a Trial is set to a subdirectory of name id under its parent HyperparameterTuningJob's baseOutputDirectory. The following Vertex AI environment variables will be passed to containers or python modules when this field is set: For CustomJob: * AIP_MODEL_DIR = `/model/` * AIP_CHECKPOINT_DIR = `/checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `/logs/` For CustomJob backing a Trial of HyperparameterTuningJob: * AIP_MODEL_DIR = `//model/` * AIP_CHECKPOINT_DIR = `//checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `//logs/`""",
     )
@@ -3025,7 +2880,7 @@ class CustomJobSpec(_common.BaseModel):
 class CustomJobSpecDict(TypedDict, total=False):
     """Represents a job that runs custom workloads such as a Docker container or a Python package."""
 
-    base_output_directory: Optional[GcsDestinationDict]
+    base_output_directory: Optional[genai_types.GcsDestinationDict]
     """The Cloud Storage location to store the output of this CustomJob or HyperparameterTuningJob. For HyperparameterTuningJob, the baseOutputDirectory of each child CustomJob backing a Trial is set to a subdirectory of name id under its parent HyperparameterTuningJob's baseOutputDirectory. The following Vertex AI environment variables will be passed to containers or python modules when this field is set: For CustomJob: * AIP_MODEL_DIR = `/model/` * AIP_CHECKPOINT_DIR = `/checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `/logs/` For CustomJob backing a Trial of HyperparameterTuningJob: * AIP_MODEL_DIR = `//model/` * AIP_CHECKPOINT_DIR = `//checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `//logs/`"""
 
     enable_dashboard_access: Optional[bool]
@@ -3074,70 +2929,6 @@ class CustomJobSpecDict(TypedDict, total=False):
 CustomJobSpecOrDict = Union[CustomJobSpec, CustomJobSpecDict]
 
 
-class EncryptionSpec(_common.BaseModel):
-    """The encryption spec."""
-
-    kms_key_name: Optional[str] = Field(
-        default=None,
-        description="""Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`. The key needs to be in the same region as where the compute resource is created.""",
-    )
-
-
-class EncryptionSpecDict(TypedDict, total=False):
-    """The encryption spec."""
-
-    kms_key_name: Optional[str]
-    """Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`. The key needs to be in the same region as where the compute resource is created."""
-
-
-EncryptionSpecOrDict = Union[EncryptionSpec, EncryptionSpecDict]
-
-
-class GoogleRpcStatus(_common.BaseModel):
-    """The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs.
-
-    It is used by [gRPC](https://github.com/grpc). Each `Status` message
-    contains three pieces of data: error code, error message, and error details.
-    You can find out more about this error model and how to work with it in the
-    [API Design Guide](https://cloud.google.com/apis/design/errors).
-    """
-
-    code: Optional[int] = Field(
-        default=None,
-        description="""The status code, which should be an enum value of google.rpc.Code.""",
-    )
-    details: Optional[list[dict[str, Any]]] = Field(
-        default=None,
-        description="""A list of messages that carry the error details. There is a common set of message types for APIs to use.""",
-    )
-    message: Optional[str] = Field(
-        default=None,
-        description="""A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client.""",
-    )
-
-
-class GoogleRpcStatusDict(TypedDict, total=False):
-    """The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs.
-
-    It is used by [gRPC](https://github.com/grpc). Each `Status` message
-    contains three pieces of data: error code, error message, and error details.
-    You can find out more about this error model and how to work with it in the
-    [API Design Guide](https://cloud.google.com/apis/design/errors).
-    """
-
-    code: Optional[int]
-    """The status code, which should be an enum value of google.rpc.Code."""
-
-    details: Optional[list[dict[str, Any]]]
-    """A list of messages that carry the error details. There is a common set of message types for APIs to use."""
-
-    message: Optional[str]
-    """A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client."""
-
-
-GoogleRpcStatusOrDict = Union[GoogleRpcStatus, GoogleRpcStatusDict]
-
-
 class CustomJob(_common.BaseModel):
     """Represents a job that runs custom workloads such as a Docker container or a Python package."""
 
@@ -3148,21 +2939,25 @@ class CustomJob(_common.BaseModel):
     job_spec: Optional[CustomJobSpec] = Field(
         default=None, description="""Required. Job spec."""
     )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key options for a CustomJob. If this is set, then all resources created by the CustomJob will be encrypted with the provided encryption key.""",
+    )
+    state: Optional[genai_types.JobState] = Field(
+        default=None,
+        description="""Output only. The detailed state of the job.""",
+    )
+    error: Optional[genai_types.GoogleRpcStatus] = Field(
+        default=None,
+        description="""Output only. Only populated when job's state is `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`.""",
+    )
     create_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Time when the CustomJob was created.""",
     )
-    encryption_spec: Optional[EncryptionSpec] = Field(
-        default=None,
-        description="""Customer-managed encryption key options for a CustomJob. If this is set, then all resources created by the CustomJob will be encrypted with the provided encryption key.""",
-    )
     end_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Time when the CustomJob entered any of the following states: `JOB_STATE_SUCCEEDED`, `JOB_STATE_FAILED`, `JOB_STATE_CANCELLED`.""",
-    )
-    error: Optional[GoogleRpcStatus] = Field(
-        default=None,
-        description="""Output only. Only populated when job's state is `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`.""",
     )
     labels: Optional[dict[str, str]] = Field(
         default=None,
@@ -3181,10 +2976,6 @@ class CustomJob(_common.BaseModel):
     start_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Time when the CustomJob for the first time entered the `JOB_STATE_RUNNING` state.""",
-    )
-    state: Optional[JobState] = Field(
-        default=None,
-        description="""Output only. The detailed state of the job.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
@@ -3205,17 +2996,20 @@ class CustomJobDict(TypedDict, total=False):
     job_spec: Optional[CustomJobSpecDict]
     """Required. Job spec."""
 
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key options for a CustomJob. If this is set, then all resources created by the CustomJob will be encrypted with the provided encryption key."""
+
+    state: Optional[genai_types.JobState]
+    """Output only. The detailed state of the job."""
+
+    error: Optional[genai_types.GoogleRpcStatusDict]
+    """Output only. Only populated when job's state is `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`."""
+
     create_time: Optional[datetime.datetime]
     """Output only. Time when the CustomJob was created."""
 
-    encryption_spec: Optional[EncryptionSpecDict]
-    """Customer-managed encryption key options for a CustomJob. If this is set, then all resources created by the CustomJob will be encrypted with the provided encryption key."""
-
     end_time: Optional[datetime.datetime]
     """Output only. Time when the CustomJob entered any of the following states: `JOB_STATE_SUCCEEDED`, `JOB_STATE_FAILED`, `JOB_STATE_CANCELLED`."""
-
-    error: Optional[GoogleRpcStatusDict]
-    """Output only. Only populated when job's state is `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`."""
 
     labels: Optional[dict[str, str]]
     """The labels with user-defined metadata to organize CustomJobs. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
@@ -3232,9 +3026,6 @@ class CustomJobDict(TypedDict, total=False):
     start_time: Optional[datetime.datetime]
     """Output only. Time when the CustomJob for the first time entered the `JOB_STATE_RUNNING` state."""
 
-    state: Optional[JobState]
-    """Output only. The detailed state of the job."""
-
     update_time: Optional[datetime.datetime]
     """Output only. Time when the CustomJob was most recently updated."""
 
@@ -3245,27 +3036,29 @@ class CustomJobDict(TypedDict, total=False):
 CustomJobOrDict = Union[CustomJob, CustomJobDict]
 
 
-class BaseConfig(_common.BaseModel):
+class VertexBaseConfig(_common.BaseModel):
+    """Base config for Vertex AI."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
 
-class BaseConfigDict(TypedDict, total=False):
+class VertexBaseConfigDict(TypedDict, total=False):
+    """Base config for Vertex AI."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
-BaseConfigOrDict = Union[BaseConfig, BaseConfigDict]
+VertexBaseConfigOrDict = Union[VertexBaseConfig, VertexBaseConfigDict]
 
 
 class _CustomJobParameters(_common.BaseModel):
     """Represents a job that runs custom workloads such as a Docker container or a Python package."""
 
     custom_job: Optional[CustomJob] = Field(default=None, description="""""")
-    config: Optional[BaseConfig] = Field(default=None, description="""""")
+    config: Optional[VertexBaseConfig] = Field(default=None, description="""""")
 
 
 class _CustomJobParametersDict(TypedDict, total=False):
@@ -3274,7 +3067,7 @@ class _CustomJobParametersDict(TypedDict, total=False):
     custom_job: Optional[CustomJobDict]
     """"""
 
-    config: Optional[BaseConfigDict]
+    config: Optional[VertexBaseConfigDict]
     """"""
 
 
@@ -3285,7 +3078,7 @@ class _GetCustomJobParameters(_common.BaseModel):
     """Represents a job that runs custom workloads such as a Docker container or a Python package."""
 
     name: Optional[str] = Field(default=None, description="""""")
-    config: Optional[BaseConfig] = Field(default=None, description="""""")
+    config: Optional[VertexBaseConfig] = Field(default=None, description="""""")
 
 
 class _GetCustomJobParametersDict(TypedDict, total=False):
@@ -3294,7 +3087,7 @@ class _GetCustomJobParametersDict(TypedDict, total=False):
     name: Optional[str]
     """"""
 
-    config: Optional[BaseConfigDict]
+    config: Optional[VertexBaseConfigDict]
     """"""
 
 
@@ -3966,7 +3759,7 @@ ReasoningEngineContextSpecOrDict = Union[
 class CreateAgentEngineConfig(_common.BaseModel):
     """Config for create agent engine."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     display_name: Optional[str] = Field(
@@ -4020,7 +3813,7 @@ class CreateAgentEngineConfig(_common.BaseModel):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """,
     )
-    encryption_spec: Optional[EncryptionSpec] = Field(
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
@@ -4029,7 +3822,7 @@ class CreateAgentEngineConfig(_common.BaseModel):
 class CreateAgentEngineConfigDict(TypedDict, total=False):
     """Config for create agent engine."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -4075,7 +3868,7 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """
 
-    encryption_spec: Optional[EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
 
 
@@ -4105,6 +3898,10 @@ _CreateAgentEngineRequestParametersOrDict = Union[
 class ReasoningEngine(_common.BaseModel):
     """An agent engine."""
 
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.""",
+    )
     context_spec: Optional[ReasoningEngineContextSpec] = Field(
         default=None,
         description="""Optional. Configuration for how Agent Engine sub-resources should manage context.""",
@@ -4120,10 +3917,6 @@ class ReasoningEngine(_common.BaseModel):
     display_name: Optional[str] = Field(
         default=None,
         description="""Required. The display name of the ReasoningEngine.""",
-    )
-    encryption_spec: Optional[EncryptionSpec] = Field(
-        default=None,
-        description="""Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.""",
     )
     etag: Optional[str] = Field(
         default=None,
@@ -4146,6 +3939,9 @@ class ReasoningEngine(_common.BaseModel):
 class ReasoningEngineDict(TypedDict, total=False):
     """An agent engine."""
 
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key."""
+
     context_spec: Optional[ReasoningEngineContextSpecDict]
     """Optional. Configuration for how Agent Engine sub-resources should manage context."""
 
@@ -4157,9 +3953,6 @@ class ReasoningEngineDict(TypedDict, total=False):
 
     display_name: Optional[str]
     """Required. The display name of the ReasoningEngine."""
-
-    encryption_spec: Optional[EncryptionSpecDict]
-    """Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key."""
 
     etag: Optional[str]
     """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
@@ -4226,7 +4019,7 @@ AgentEngineOperationOrDict = Union[AgentEngineOperation, AgentEngineOperationDic
 class DeleteAgentEngineConfig(_common.BaseModel):
     """Config for deleting agent engine."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -4234,7 +4027,7 @@ class DeleteAgentEngineConfig(_common.BaseModel):
 class DeleteAgentEngineConfigDict(TypedDict, total=False):
     """Config for deleting agent engine."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -4319,7 +4112,7 @@ DeleteAgentEngineOperationOrDict = Union[
 class GetAgentEngineConfig(_common.BaseModel):
     """Config for create agent engine."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -4327,7 +4120,7 @@ class GetAgentEngineConfig(_common.BaseModel):
 class GetAgentEngineConfigDict(TypedDict, total=False):
     """Config for create agent engine."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -4361,7 +4154,7 @@ _GetAgentEngineRequestParametersOrDict = Union[
 class ListAgentEngineConfig(_common.BaseModel):
     """Config for listing agent engines."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     page_size: Optional[int] = Field(default=None, description="""""")
@@ -4376,7 +4169,7 @@ class ListAgentEngineConfig(_common.BaseModel):
 class ListAgentEngineConfigDict(TypedDict, total=False):
     """Config for listing agent engines."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -4411,36 +4204,10 @@ _ListAgentEngineRequestParametersOrDict = Union[
 ]
 
 
-class HttpResponse(_common.BaseModel):
-    """A wrapper class for the http response."""
-
-    headers: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""Used to retain the processed HTTP headers in the response.""",
-    )
-    body: Optional[str] = Field(
-        default=None,
-        description="""The raw HTTP response body, in JSON format.""",
-    )
-
-
-class HttpResponseDict(TypedDict, total=False):
-    """A wrapper class for the http response."""
-
-    headers: Optional[dict[str, str]]
-    """Used to retain the processed HTTP headers in the response."""
-
-    body: Optional[str]
-    """The raw HTTP response body, in JSON format."""
-
-
-HttpResponseOrDict = Union[HttpResponse, HttpResponseDict]
-
-
 class ListReasoningEnginesResponse(_common.BaseModel):
     """Response for listing agent engines."""
 
-    sdk_http_response: Optional[HttpResponse] = Field(
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
         default=None, description="""Used to retain the full HTTP response."""
     )
     next_page_token: Optional[str] = Field(default=None, description="""""")
@@ -4454,7 +4221,7 @@ class ListReasoningEnginesResponse(_common.BaseModel):
 class ListReasoningEnginesResponseDict(TypedDict, total=False):
     """Response for listing agent engines."""
 
-    sdk_http_response: Optional[HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -4472,14 +4239,14 @@ ListReasoningEnginesResponseOrDict = Union[
 
 class GetAgentEngineOperationConfig(_common.BaseModel):
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
 
 class GetAgentEngineOperationConfigDict(TypedDict, total=False):
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -4519,7 +4286,7 @@ _GetAgentEngineOperationParametersOrDict = Union[
 class QueryAgentEngineConfig(_common.BaseModel):
     """Config for querying agent engines."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     class_method: Optional[str] = Field(
@@ -4534,7 +4301,7 @@ class QueryAgentEngineConfig(_common.BaseModel):
 class QueryAgentEngineConfigDict(TypedDict, total=False):
     """Config for querying agent engines."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     class_method: Optional[str]
@@ -4598,7 +4365,7 @@ QueryReasoningEngineResponseOrDict = Union[
 class UpdateAgentEngineConfig(_common.BaseModel):
     """Config for updating agent engine."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     display_name: Optional[str] = Field(
@@ -4652,7 +4419,7 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """,
     )
-    encryption_spec: Optional[EncryptionSpec] = Field(
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
@@ -4666,7 +4433,7 @@ class UpdateAgentEngineConfig(_common.BaseModel):
 class UpdateAgentEngineConfigDict(TypedDict, total=False):
     """Config for updating agent engine."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -4712,7 +4479,7 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """
 
-    encryption_spec: Optional[EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
 
     update_mask: Optional[str]
@@ -4752,7 +4519,7 @@ _UpdateAgentEngineRequestParametersOrDict = Union[
 class AgentEngineMemoryConfig(_common.BaseModel):
     """Config for creating a Memory."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     display_name: Optional[str] = Field(
@@ -4780,7 +4547,7 @@ class AgentEngineMemoryConfig(_common.BaseModel):
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for creating a Memory."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -4982,7 +4749,7 @@ AgentEngineMemoryOperationOrDict = Union[
 class DeleteAgentEngineMemoryConfig(_common.BaseModel):
     """Config for deleting an Agent Engine Memory."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -4990,7 +4757,7 @@ class DeleteAgentEngineMemoryConfig(_common.BaseModel):
 class DeleteAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for deleting an Agent Engine Memory."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -5200,7 +4967,7 @@ GenerateMemoriesRequestDirectMemoriesSourceOrDict = Union[
 class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
     """Config for generating memories."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     disable_consolidation: Optional[bool] = Field(
@@ -5221,7 +4988,7 @@ class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
 class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
     """Config for generating memories."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     disable_consolidation: Optional[bool]
@@ -5410,7 +5177,7 @@ AgentEngineGenerateMemoriesOperationOrDict = Union[
 class GetAgentEngineMemoryConfig(_common.BaseModel):
     """Config for getting an Agent Engine Memory."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -5418,7 +5185,7 @@ class GetAgentEngineMemoryConfig(_common.BaseModel):
 class GetAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for getting an Agent Engine Memory."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -5457,7 +5224,7 @@ _GetAgentEngineMemoryRequestParametersOrDict = Union[
 class ListAgentEngineMemoryConfig(_common.BaseModel):
     """Config for listing agent engine memories."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     page_size: Optional[int] = Field(default=None, description="""""")
@@ -5472,7 +5239,7 @@ class ListAgentEngineMemoryConfig(_common.BaseModel):
 class ListAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for listing agent engine memories."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -5521,7 +5288,7 @@ _ListAgentEngineMemoryRequestParametersOrDict = Union[
 class ListReasoningEnginesMemoriesResponse(_common.BaseModel):
     """Response for listing agent engine memories."""
 
-    sdk_http_response: Optional[HttpResponse] = Field(
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
         default=None, description="""Used to retain the full HTTP response."""
     )
     next_page_token: Optional[str] = Field(default=None, description="""""")
@@ -5533,7 +5300,7 @@ class ListReasoningEnginesMemoriesResponse(_common.BaseModel):
 class ListReasoningEnginesMemoriesResponseDict(TypedDict, total=False):
     """Response for listing agent engine memories."""
 
-    sdk_http_response: Optional[HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -5668,7 +5435,7 @@ RetrieveMemoriesRequestSimpleRetrievalParamsOrDict = Union[
 class RetrieveAgentEngineMemoriesConfig(_common.BaseModel):
     """Config for retrieving memories."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -5676,7 +5443,7 @@ class RetrieveAgentEngineMemoriesConfig(_common.BaseModel):
 class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
     """Config for retrieving memories."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -5806,7 +5573,7 @@ RetrieveMemoriesResponseOrDict = Union[
 class UpdateAgentEngineMemoryConfig(_common.BaseModel):
     """Config for updating agent engine memory."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     display_name: Optional[str] = Field(
@@ -5839,7 +5606,7 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
 class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for updating agent engine memory."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -5926,7 +5693,7 @@ _UpdateAgentEngineMemoryRequestParametersOrDict = Union[
 class CreateAgentEngineSessionConfig(_common.BaseModel):
     """Config for creating a Session."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     display_name: Optional[str] = Field(
@@ -5955,7 +5722,7 @@ class CreateAgentEngineSessionConfig(_common.BaseModel):
 class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
     """Config for creating a Session."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -6134,7 +5901,7 @@ AgentEngineSessionOperationOrDict = Union[
 class DeleteAgentEngineSessionConfig(_common.BaseModel):
     """Config for deleting an Agent Engine Session."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -6142,7 +5909,7 @@ class DeleteAgentEngineSessionConfig(_common.BaseModel):
 class DeleteAgentEngineSessionConfigDict(TypedDict, total=False):
     """Config for deleting an Agent Engine Session."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -6224,7 +5991,7 @@ DeleteAgentEngineSessionOperationOrDict = Union[
 class GetAgentEngineSessionConfig(_common.BaseModel):
     """Config for getting an Agent Engine Session."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -6232,7 +5999,7 @@ class GetAgentEngineSessionConfig(_common.BaseModel):
 class GetAgentEngineSessionConfigDict(TypedDict, total=False):
     """Config for getting an Agent Engine Session."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -6271,7 +6038,7 @@ _GetAgentEngineSessionRequestParametersOrDict = Union[
 class ListAgentEngineSessionsConfig(_common.BaseModel):
     """Config for listing agent engine sessions."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     page_size: Optional[int] = Field(default=None, description="""""")
@@ -6286,7 +6053,7 @@ class ListAgentEngineSessionsConfig(_common.BaseModel):
 class ListAgentEngineSessionsConfigDict(TypedDict, total=False):
     """Config for listing agent engine sessions."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -6335,7 +6102,7 @@ _ListAgentEngineSessionsRequestParametersOrDict = Union[
 class ListReasoningEnginesSessionsResponse(_common.BaseModel):
     """Response for listing agent engine sessions."""
 
-    sdk_http_response: Optional[HttpResponse] = Field(
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
         default=None, description="""Used to retain the full HTTP response."""
     )
     next_page_token: Optional[str] = Field(default=None, description="""""")
@@ -6347,7 +6114,7 @@ class ListReasoningEnginesSessionsResponse(_common.BaseModel):
 class ListReasoningEnginesSessionsResponseDict(TypedDict, total=False):
     """Response for listing agent engine sessions."""
 
-    sdk_http_response: Optional[HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -6395,7 +6162,7 @@ _GetAgentEngineSessionOperationParametersOrDict = Union[
 class UpdateAgentEngineSessionConfig(_common.BaseModel):
     """Config for updating agent engine session."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     display_name: Optional[str] = Field(
@@ -6433,7 +6200,7 @@ class UpdateAgentEngineSessionConfig(_common.BaseModel):
 class UpdateAgentEngineSessionConfigDict(TypedDict, total=False):
     """Config for updating agent engine session."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -6555,513 +6322,19 @@ class EventActionsDict(TypedDict, total=False):
 EventActionsOrDict = Union[EventActions, EventActionsDict]
 
 
-class GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution(_common.BaseModel):
-    """Author attribution for a photo or review."""
-
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Name of the author of the Photo or Review.""",
-    )
-    photo_uri: Optional[str] = Field(
-        default=None,
-        description="""Profile photo URI of the author of the Photo or Review.""",
-    )
-    uri: Optional[str] = Field(
-        default=None,
-        description="""URI of the author of the Photo or Review.""",
-    )
-
-
-class GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict(TypedDict, total=False):
-    """Author attribution for a photo or review."""
-
-    display_name: Optional[str]
-    """Name of the author of the Photo or Review."""
-
-    photo_uri: Optional[str]
-    """Profile photo URI of the author of the Photo or Review."""
-
-    uri: Optional[str]
-    """URI of the author of the Photo or Review."""
-
-
-GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionOrDict = Union[
-    GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution,
-    GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict,
-]
-
-
-class GroundingChunkMapsPlaceAnswerSourcesReviewSnippet(_common.BaseModel):
-    """Encapsulates a review snippet."""
-
-    author_attribution: Optional[
-        GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution
-    ] = Field(default=None, description="""This review's author.""")
-    flag_content_uri: Optional[str] = Field(
-        default=None,
-        description="""A link where users can flag a problem with the review.""",
-    )
-    google_maps_uri: Optional[str] = Field(
-        default=None,
-        description="""A link to show the review on Google Maps.""",
-    )
-    relative_publish_time_description: Optional[str] = Field(
-        default=None,
-        description="""A string of formatted recent time, expressing the review time relative to the current time in a form appropriate for the language and country.""",
-    )
-    review: Optional[str] = Field(
-        default=None,
-        description="""A reference representing this place review which may be used to look up this place review again.""",
-    )
-
-
-class GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict(TypedDict, total=False):
-    """Encapsulates a review snippet."""
-
-    author_attribution: Optional[
-        GroundingChunkMapsPlaceAnswerSourcesAuthorAttributionDict
-    ]
-    """This review's author."""
-
-    flag_content_uri: Optional[str]
-    """A link where users can flag a problem with the review."""
-
-    google_maps_uri: Optional[str]
-    """A link to show the review on Google Maps."""
-
-    relative_publish_time_description: Optional[str]
-    """A string of formatted recent time, expressing the review time relative to the current time in a form appropriate for the language and country."""
-
-    review: Optional[str]
-    """A reference representing this place review which may be used to look up this place review again."""
-
-
-GroundingChunkMapsPlaceAnswerSourcesReviewSnippetOrDict = Union[
-    GroundingChunkMapsPlaceAnswerSourcesReviewSnippet,
-    GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict,
-]
-
-
-class GroundingChunkMapsPlaceAnswerSources(_common.BaseModel):
-    """Sources used to generate the place answer."""
-
-    flag_content_uri: Optional[str] = Field(
-        default=None,
-        description="""A link where users can flag a problem with the generated answer.""",
-    )
-    review_snippets: Optional[
-        list[GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]
-    ] = Field(
-        default=None,
-        description="""Snippets of reviews that are used to generate the answer.""",
-    )
-
-
-class GroundingChunkMapsPlaceAnswerSourcesDict(TypedDict, total=False):
-    """Sources used to generate the place answer."""
-
-    flag_content_uri: Optional[str]
-    """A link where users can flag a problem with the generated answer."""
-
-    review_snippets: Optional[
-        list[GroundingChunkMapsPlaceAnswerSourcesReviewSnippetDict]
-    ]
-    """Snippets of reviews that are used to generate the answer."""
-
-
-GroundingChunkMapsPlaceAnswerSourcesOrDict = Union[
-    GroundingChunkMapsPlaceAnswerSources,
-    GroundingChunkMapsPlaceAnswerSourcesDict,
-]
-
-
-class GroundingChunkMaps(_common.BaseModel):
-    """Chunk from Google Maps."""
-
-    place_answer_sources: Optional[GroundingChunkMapsPlaceAnswerSources] = Field(
-        default=None,
-        description="""Sources used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as uris to flag content.""",
-    )
-    place_id: Optional[str] = Field(
-        default=None,
-        description="""This Place's resource name, in `places/{place_id}` format. Can be used to look up the Place.""",
-    )
-    text: Optional[str] = Field(default=None, description="""Text of the chunk.""")
-    title: Optional[str] = Field(default=None, description="""Title of the chunk.""")
-    uri: Optional[str] = Field(
-        default=None, description="""URI reference of the chunk."""
-    )
-
-
-class GroundingChunkMapsDict(TypedDict, total=False):
-    """Chunk from Google Maps."""
-
-    place_answer_sources: Optional[GroundingChunkMapsPlaceAnswerSourcesDict]
-    """Sources used to generate the place answer. This includes review snippets and photos that were used to generate the answer, as well as uris to flag content."""
-
-    place_id: Optional[str]
-    """This Place's resource name, in `places/{place_id}` format. Can be used to look up the Place."""
-
-    text: Optional[str]
-    """Text of the chunk."""
-
-    title: Optional[str]
-    """Title of the chunk."""
-
-    uri: Optional[str]
-    """URI reference of the chunk."""
-
-
-GroundingChunkMapsOrDict = Union[GroundingChunkMaps, GroundingChunkMapsDict]
-
-
-class RagChunkPageSpan(_common.BaseModel):
-    """Represents where the chunk starts and ends in the document."""
-
-    first_page: Optional[int] = Field(
-        default=None,
-        description="""Page where chunk starts in the document. Inclusive. 1-indexed.""",
-    )
-    last_page: Optional[int] = Field(
-        default=None,
-        description="""Page where chunk ends in the document. Inclusive. 1-indexed.""",
-    )
-
-
-class RagChunkPageSpanDict(TypedDict, total=False):
-    """Represents where the chunk starts and ends in the document."""
-
-    first_page: Optional[int]
-    """Page where chunk starts in the document. Inclusive. 1-indexed."""
-
-    last_page: Optional[int]
-    """Page where chunk ends in the document. Inclusive. 1-indexed."""
-
-
-RagChunkPageSpanOrDict = Union[RagChunkPageSpan, RagChunkPageSpanDict]
-
-
-class RagChunk(_common.BaseModel):
-    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
-
-    page_span: Optional[RagChunkPageSpan] = Field(
-        default=None,
-        description="""If populated, represents where the chunk starts and ends in the document.""",
-    )
-    text: Optional[str] = Field(
-        default=None, description="""The content of the chunk."""
-    )
-
-
-class RagChunkDict(TypedDict, total=False):
-    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
-
-    page_span: Optional[RagChunkPageSpanDict]
-    """If populated, represents where the chunk starts and ends in the document."""
-
-    text: Optional[str]
-    """The content of the chunk."""
-
-
-RagChunkOrDict = Union[RagChunk, RagChunkDict]
-
-
-class GroundingChunkRetrievedContext(_common.BaseModel):
-    """Chunk from context retrieved by the retrieval tools."""
-
-    document_name: Optional[str] = Field(
-        default=None,
-        description="""Output only. The full document name for the referenced Vertex AI Search document.""",
-    )
-    rag_chunk: Optional[RagChunk] = Field(
-        default=None,
-        description="""Additional context for the RAG retrieval result. This is only populated when using the RAG retrieval tool.""",
-    )
-    text: Optional[str] = Field(
-        default=None, description="""Text of the attribution."""
-    )
-    title: Optional[str] = Field(
-        default=None, description="""Title of the attribution."""
-    )
-    uri: Optional[str] = Field(
-        default=None, description="""URI reference of the attribution."""
-    )
-
-
-class GroundingChunkRetrievedContextDict(TypedDict, total=False):
-    """Chunk from context retrieved by the retrieval tools."""
-
-    document_name: Optional[str]
-    """Output only. The full document name for the referenced Vertex AI Search document."""
-
-    rag_chunk: Optional[RagChunkDict]
-    """Additional context for the RAG retrieval result. This is only populated when using the RAG retrieval tool."""
-
-    text: Optional[str]
-    """Text of the attribution."""
-
-    title: Optional[str]
-    """Title of the attribution."""
-
-    uri: Optional[str]
-    """URI reference of the attribution."""
-
-
-GroundingChunkRetrievedContextOrDict = Union[
-    GroundingChunkRetrievedContext, GroundingChunkRetrievedContextDict
-]
-
-
-class GroundingChunkWeb(_common.BaseModel):
-    """Chunk from the web."""
-
-    domain: Optional[str] = Field(
-        default=None, description="""Domain of the (original) URI."""
-    )
-    title: Optional[str] = Field(default=None, description="""Title of the chunk.""")
-    uri: Optional[str] = Field(
-        default=None, description="""URI reference of the chunk."""
-    )
-
-
-class GroundingChunkWebDict(TypedDict, total=False):
-    """Chunk from the web."""
-
-    domain: Optional[str]
-    """Domain of the (original) URI."""
-
-    title: Optional[str]
-    """Title of the chunk."""
-
-    uri: Optional[str]
-    """URI reference of the chunk."""
-
-
-GroundingChunkWebOrDict = Union[GroundingChunkWeb, GroundingChunkWebDict]
-
-
-class GroundingChunk(_common.BaseModel):
-    """Grounding chunk."""
-
-    maps: Optional[GroundingChunkMaps] = Field(
-        default=None, description="""Grounding chunk from Google Maps."""
-    )
-    retrieved_context: Optional[GroundingChunkRetrievedContext] = Field(
-        default=None,
-        description="""Grounding chunk from context retrieved by the retrieval tools.""",
-    )
-    web: Optional[GroundingChunkWeb] = Field(
-        default=None, description="""Grounding chunk from the web."""
-    )
-
-
-class GroundingChunkDict(TypedDict, total=False):
-    """Grounding chunk."""
-
-    maps: Optional[GroundingChunkMapsDict]
-    """Grounding chunk from Google Maps."""
-
-    retrieved_context: Optional[GroundingChunkRetrievedContextDict]
-    """Grounding chunk from context retrieved by the retrieval tools."""
-
-    web: Optional[GroundingChunkWebDict]
-    """Grounding chunk from the web."""
-
-
-GroundingChunkOrDict = Union[GroundingChunk, GroundingChunkDict]
-
-
-class Segment(_common.BaseModel):
-    """Segment of the content."""
-
-    end_index: Optional[int] = Field(
-        default=None,
-        description="""Output only. End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero.""",
-    )
-    part_index: Optional[int] = Field(
-        default=None,
-        description="""Output only. The index of a Part object within its parent Content object.""",
-    )
-    start_index: Optional[int] = Field(
-        default=None,
-        description="""Output only. Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero.""",
-    )
-    text: Optional[str] = Field(
-        default=None,
-        description="""Output only. The text corresponding to the segment from the response.""",
-    )
-
-
-class SegmentDict(TypedDict, total=False):
-    """Segment of the content."""
-
-    end_index: Optional[int]
-    """Output only. End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero."""
-
-    part_index: Optional[int]
-    """Output only. The index of a Part object within its parent Content object."""
-
-    start_index: Optional[int]
-    """Output only. Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero."""
-
-    text: Optional[str]
-    """Output only. The text corresponding to the segment from the response."""
-
-
-SegmentOrDict = Union[Segment, SegmentDict]
-
-
-class GroundingSupport(_common.BaseModel):
-    """Grounding support."""
-
-    confidence_scores: Optional[list[float]] = Field(
-        default=None,
-        description="""Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. For Gemini 2.0 and before, this list must have the same size as the grounding_chunk_indices. For Gemini 2.5 and after, this list will be empty and should be ignored.""",
-    )
-    grounding_chunk_indices: Optional[list[int]] = Field(
-        default=None,
-        description="""A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim.""",
-    )
-    segment: Optional[Segment] = Field(
-        default=None,
-        description="""Segment of the content this support belongs to.""",
-    )
-
-
-class GroundingSupportDict(TypedDict, total=False):
-    """Grounding support."""
-
-    confidence_scores: Optional[list[float]]
-    """Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. For Gemini 2.0 and before, this list must have the same size as the grounding_chunk_indices. For Gemini 2.5 and after, this list will be empty and should be ignored."""
-
-    grounding_chunk_indices: Optional[list[int]]
-    """A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim."""
-
-    segment: Optional[SegmentDict]
-    """Segment of the content this support belongs to."""
-
-
-GroundingSupportOrDict = Union[GroundingSupport, GroundingSupportDict]
-
-
-class RetrievalMetadata(_common.BaseModel):
-    """Metadata related to retrieval in the grounding flow."""
-
-    google_search_dynamic_retrieval_score: Optional[float] = Field(
-        default=None,
-        description="""Optional. Score indicating how likely information from Google Search could help answer the prompt. The score is in the range `[0, 1]`, where 0 is the least likely and 1 is the most likely. This score is only populated when Google Search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger Google Search.""",
-    )
-
-
-class RetrievalMetadataDict(TypedDict, total=False):
-    """Metadata related to retrieval in the grounding flow."""
-
-    google_search_dynamic_retrieval_score: Optional[float]
-    """Optional. Score indicating how likely information from Google Search could help answer the prompt. The score is in the range `[0, 1]`, where 0 is the least likely and 1 is the most likely. This score is only populated when Google Search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger Google Search."""
-
-
-RetrievalMetadataOrDict = Union[RetrievalMetadata, RetrievalMetadataDict]
-
-
-class SearchEntryPoint(_common.BaseModel):
-    """Google search entry point."""
-
-    rendered_content: Optional[str] = Field(
-        default=None,
-        description="""Optional. Web content snippet that can be embedded in a web page or an app webview.""",
-    )
-    sdk_blob: Optional[bytes] = Field(
-        default=None,
-        description="""Optional. Base64 encoded JSON representing array of tuple.""",
-    )
-
-
-class SearchEntryPointDict(TypedDict, total=False):
-    """Google search entry point."""
-
-    rendered_content: Optional[str]
-    """Optional. Web content snippet that can be embedded in a web page or an app webview."""
-
-    sdk_blob: Optional[bytes]
-    """Optional. Base64 encoded JSON representing array of tuple."""
-
-
-SearchEntryPointOrDict = Union[SearchEntryPoint, SearchEntryPointDict]
-
-
-class GroundingMetadata(_common.BaseModel):
-    """Metadata returned to client when grounding is enabled."""
-
-    google_maps_widget_context_token: Optional[str] = Field(
-        default=None,
-        description="""Optional. Output only. Resource name of the Google Maps widget context token to be used with the PlacesContextElement widget to render contextual data. This is populated only for Google Maps grounding.""",
-    )
-    grounding_chunks: Optional[list[GroundingChunk]] = Field(
-        default=None,
-        description="""List of supporting references retrieved from specified grounding source.""",
-    )
-    grounding_supports: Optional[list[GroundingSupport]] = Field(
-        default=None, description="""Optional. List of grounding support."""
-    )
-    retrieval_metadata: Optional[RetrievalMetadata] = Field(
-        default=None,
-        description="""Optional. Output only. Retrieval metadata.""",
-    )
-    retrieval_queries: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. Queries executed by the retrieval tools.""",
-    )
-    search_entry_point: Optional[SearchEntryPoint] = Field(
-        default=None,
-        description="""Optional. Google search entry for the following-up web searches.""",
-    )
-    web_search_queries: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. Web search queries for the following-up web search.""",
-    )
-
-
-class GroundingMetadataDict(TypedDict, total=False):
-    """Metadata returned to client when grounding is enabled."""
-
-    google_maps_widget_context_token: Optional[str]
-    """Optional. Output only. Resource name of the Google Maps widget context token to be used with the PlacesContextElement widget to render contextual data. This is populated only for Google Maps grounding."""
-
-    grounding_chunks: Optional[list[GroundingChunkDict]]
-    """List of supporting references retrieved from specified grounding source."""
-
-    grounding_supports: Optional[list[GroundingSupportDict]]
-    """Optional. List of grounding support."""
-
-    retrieval_metadata: Optional[RetrievalMetadataDict]
-    """Optional. Output only. Retrieval metadata."""
-
-    retrieval_queries: Optional[list[str]]
-    """Optional. Queries executed by the retrieval tools."""
-
-    search_entry_point: Optional[SearchEntryPointDict]
-    """Optional. Google search entry for the following-up web searches."""
-
-    web_search_queries: Optional[list[str]]
-    """Optional. Web search queries for the following-up web search."""
-
-
-GroundingMetadataOrDict = Union[GroundingMetadata, GroundingMetadataDict]
-
-
 class EventMetadata(_common.BaseModel):
     """Metadata relating to a LLM response event."""
 
+    grounding_metadata: Optional[genai_types.GroundingMetadata] = Field(
+        default=None,
+        description="""Optional. Metadata returned to client when grounding is enabled.""",
+    )
     branch: Optional[str] = Field(
         default=None,
         description="""Optional. The branch of the event. The format is like agent_1.agent_2.agent_3, where agent_1 is the parent of agent_2, and agent_2 is the parent of agent_3. Branch is used when multiple child agents shouldn't see their siblings' conversation history.""",
     )
     custom_metadata: Optional[dict[str, Any]] = Field(
         default=None, description="""The custom metadata of the LlmResponse."""
-    )
-    grounding_metadata: Optional[GroundingMetadata] = Field(
-        default=None,
-        description="""Optional. Metadata returned to client when grounding is enabled.""",
     )
     interrupted: Optional[bool] = Field(
         default=None,
@@ -7084,14 +6357,14 @@ class EventMetadata(_common.BaseModel):
 class EventMetadataDict(TypedDict, total=False):
     """Metadata relating to a LLM response event."""
 
+    grounding_metadata: Optional[genai_types.GroundingMetadataDict]
+    """Optional. Metadata returned to client when grounding is enabled."""
+
     branch: Optional[str]
     """Optional. The branch of the event. The format is like agent_1.agent_2.agent_3, where agent_1 is the parent of agent_2, and agent_2 is the parent of agent_3. Branch is used when multiple child agents shouldn't see their siblings' conversation history."""
 
     custom_metadata: Optional[dict[str, Any]]
     """The custom metadata of the LlmResponse."""
-
-    grounding_metadata: Optional[GroundingMetadataDict]
-    """Optional. Metadata returned to client when grounding is enabled."""
 
     interrupted: Optional[bool]
     """Optional. Flag indicating that LLM was interrupted when generating the content. Usually it's due to user interruption during a bidi streaming."""
@@ -7112,7 +6385,7 @@ EventMetadataOrDict = Union[EventMetadata, EventMetadataDict]
 class AppendAgentEngineSessionEventConfig(_common.BaseModel):
     """Config for appending agent engine session event."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     content: Optional[genai_types.Content] = Field(
@@ -7136,7 +6409,7 @@ class AppendAgentEngineSessionEventConfig(_common.BaseModel):
 class AppendAgentEngineSessionEventConfigDict(TypedDict, total=False):
     """Config for appending agent engine session event."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     content: Optional[genai_types.ContentDict]
@@ -7228,7 +6501,7 @@ AppendAgentEngineSessionEventResponseOrDict = Union[
 class ListAgentEngineSessionEventsConfig(_common.BaseModel):
     """Config for listing agent engine session events."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     page_size: Optional[int] = Field(default=None, description="""""")
@@ -7243,7 +6516,7 @@ class ListAgentEngineSessionEventsConfig(_common.BaseModel):
 class ListAgentEngineSessionEventsConfigDict(TypedDict, total=False):
     """Config for listing agent engine session events."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -7366,7 +6639,7 @@ SessionEventOrDict = Union[SessionEvent, SessionEventDict]
 class ListAgentEngineSessionEventsResponse(_common.BaseModel):
     """Response for listing agent engine session events."""
 
-    sdk_http_response: Optional[HttpResponse] = Field(
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
         default=None, description="""Used to retain the full HTTP response."""
     )
     next_page_token: Optional[str] = Field(default=None, description="""""")
@@ -7378,7 +6651,7 @@ class ListAgentEngineSessionEventsResponse(_common.BaseModel):
 class ListAgentEngineSessionEventsResponseDict(TypedDict, total=False):
     """Response for listing agent engine session events."""
 
-    sdk_http_response: Optional[HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -8487,7 +7760,7 @@ ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
 class EvaluateMethodConfig(_common.BaseModel):
     """Optional parameters for the evaluate method."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = Field(
@@ -8505,7 +7778,7 @@ class EvaluateMethodConfig(_common.BaseModel):
 class EvaluateMethodConfigDict(TypedDict, total=False):
     """Optional parameters for the evaluate method."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]]
@@ -8523,7 +7796,7 @@ EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDic
 class EvaluateDatasetConfig(_common.BaseModel):
     """Config for evaluate instances."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
@@ -8531,7 +7804,7 @@ class EvaluateDatasetConfig(_common.BaseModel):
 class EvaluateDatasetConfigDict(TypedDict, total=False):
     """Config for evaluate instances."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
 
@@ -8729,7 +8002,7 @@ AgentEngineOrDict = Union[AgentEngine, AgentEngineDict]
 class AgentEngineConfig(_common.BaseModel):
     """Config for agent engine methods."""
 
-    http_options: Optional[HttpOptions] = Field(
+    http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
     staging_bucket: Optional[str] = Field(
@@ -8814,7 +8087,7 @@ class AgentEngineConfig(_common.BaseModel):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """,
     )
-    encryption_spec: Optional[EncryptionSpec] = Field(
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
@@ -8823,7 +8096,7 @@ class AgentEngineConfig(_common.BaseModel):
 class AgentEngineConfigDict(TypedDict, total=False):
     """Config for agent engine methods."""
 
-    http_options: Optional[HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
     staging_bucket: Optional[str]
@@ -8895,7 +8168,7 @@ class AgentEngineConfigDict(TypedDict, total=False):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """
 
-    encryption_spec: Optional[EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
 
 
