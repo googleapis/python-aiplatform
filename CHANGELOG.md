@@ -1,5 +1,47 @@
 # Changelog
 
+## [1.111.0](https://github.com/googleapis/python-aiplatform/compare/v1.110.0...v1.111.0) (2025-08-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* GenAI SDK client - remove duplicate types for Content, Part, and evals
+
+### Features
+
+* Add `disable_container_logging` in v1beta1 api ([3a75313](https://github.com/googleapis/python-aiplatform/commit/3a75313e19e7b8b4ee65ad236492a6a872fbb7b2))
+* Add `encryption_spec` support to Agent Engine genai sdk. ([3bb8100](https://github.com/googleapis/python-aiplatform/commit/3bb8100de89af74e2f6f787a1fc0f0d841205dea))
+* Add API response for Gen AI Evaluation in Tuning ([3a75313](https://github.com/googleapis/python-aiplatform/commit/3a75313e19e7b8b4ee65ad236492a6a872fbb7b2))
+* Add Customization Config to Memory Bank ([23d7681](https://github.com/googleapis/python-aiplatform/commit/23d76816d84d9ad65e235d5864879360542328cb))
+* Add data foundry service synthetic data generation API for v1 ([3a75313](https://github.com/googleapis/python-aiplatform/commit/3a75313e19e7b8b4ee65ad236492a6a872fbb7b2))
+* Add new api for getting deploy options for Vertex AI Model Garden custom model ([d0c7803](https://github.com/googleapis/python-aiplatform/commit/d0c78032ffb082f3aff337ff70bb26f8f7523cb2))
+* Add support for plugins and credential service in AdkApp ([93561a7](https://github.com/googleapis/python-aiplatform/commit/93561a7040833548a339c2fda3d01eac695aad26))
+* Add TTL fields for Memory Bank and Sessions ([eff6c58](https://github.com/googleapis/python-aiplatform/commit/eff6c58bf95b530033f6cf87c4a13e1734909535))
+* Adding `gpu_partition_size` parameter to Endpoint.deploy() method. ([7ebbddb](https://github.com/googleapis/python-aiplatform/commit/7ebbddb6942ef93b975fde11269aa8caf1a7648f))
+* Enabled deploy dedicated endpoint by default ([1a3f477](https://github.com/googleapis/python-aiplatform/commit/1a3f4774e0e027229f255011727eea49357b918c))
+* GenAI SDK client - Add live/bidi streaming support for Agent Engine ([4fec136](https://github.com/googleapis/python-aiplatform/commit/4fec136e43662b44d9d2177df487a6ac7e85e59c))
+* GenAI SDK client(evals) - Implement Predefined metrics support in Vertex GenAI Eval SDK ([248a365](https://github.com/googleapis/python-aiplatform/commit/248a3654fbb5fd17a38a9f02b5fc28c55934943b))
+* GenAI SDK client(evals) - Release GenAI evals module to public preview and remove experimental warning from `client.evals` module ([b915b61](https://github.com/googleapis/python-aiplatform/commit/b915b614d1e4bf39df383cf809b43129054b0c90))
+* GenAI SDK client(evals) - Support Predefined Metrics in generate_rubrics ([c0b6f5c](https://github.com/googleapis/python-aiplatform/commit/c0b6f5cb11489b156f6b5b12324df15592e3a2a0))
+* Introduce AdkApp in GA ([a6600dd](https://github.com/googleapis/python-aiplatform/commit/a6600dd007fa4541604f05661a7f8a353f58856b))
+* RAG - Add support for max_embedding_requests_per_min in upload_file request ([a330ecb](https://github.com/googleapis/python-aiplatform/commit/a330ecb64a6e971e9e9785e642dcc7796e1ff93b))
+* RAG - Add support for max_embedding_requests_per_min in upload_file request ([a885b5d](https://github.com/googleapis/python-aiplatform/commit/a885b5d6781b921306b29c8e9a48214831e4f2ac))
+
+
+### Bug Fixes
+
+* GenAI SDK client - Deploy ADK agents using the AdkApp template in GA ([4f1e013](https://github.com/googleapis/python-aiplatform/commit/4f1e013d5bd88ad40640056e8cbad51a19bf8658))
+* GenAI SDK client - do not register API methods in `get` or `update` for agent_engines with lightweight creation ([d76411a](https://github.com/googleapis/python-aiplatform/commit/d76411a70416c7cb511245adc395380168f45c70))
+* GenAI SDK client - Provide the operation error message if it is available ([edaedb1](https://github.com/googleapis/python-aiplatform/commit/edaedb191d65011b3b01ea77312a2287dccc28b2))
+* GenAI SDK client - switch to nested modules for agent engines ([b1d0b7c](https://github.com/googleapis/python-aiplatform/commit/b1d0b7c1991acef8a1ad45149920afc59adf21cd))
+* Rename `agent_engine` parameter to `agent` in Agent Engines. ([65bf9b6](https://github.com/googleapis/python-aiplatform/commit/65bf9b6d785d1315395349e30aef1d3d21c41bb5))
+
+
+### Miscellaneous Chores
+
+* GenAI SDK client - remove duplicate types for Content, Part, and evals ([b4d37b6](https://github.com/googleapis/python-aiplatform/commit/b4d37b64ddaa723e641b3109f2d2cfb2a893abfc))
+* Release 1.111.0 ([e1ad1c5](https://github.com/googleapis/python-aiplatform/commit/e1ad1c5fbdceb5a360235faccff1a4a72035e96a))
+
 ## [1.110.0](https://github.com/googleapis/python-aiplatform/compare/v1.109.0...v1.110.0) (2025-08-18)
 
 
