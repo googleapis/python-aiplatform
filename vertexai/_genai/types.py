@@ -204,6 +204,17 @@ class JobState(_common.CaseInSensitiveEnum):
     """The job is partially succeeded, some results may be missing due to errors."""
 
 
+class AgentServerMode(_common.CaseInSensitiveEnum):
+    """The agent server mode."""
+
+    AGENT_SERVER_MODE_UNSPECIFIED = "AGENT_SERVER_MODE_UNSPECIFIED"
+    """Unspecified agent server mode. Do not use."""
+    STABLE = "STABLE"
+    """Stable agent server mode. This mode has everything stable and well-tested features agent engine offers."""
+    EXPERIMENTAL = "EXPERIMENTAL"
+    """Experimental agent server mode. This mode contains experimental features."""
+
+
 class ManagedTopicEnum(_common.CaseInSensitiveEnum):
     """Required. The managed topic."""
 
@@ -3355,6 +3366,9 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
         default=None,
         description="""Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent.""",
     )
+    agent_server_mode: Optional[AgentServerMode] = Field(
+        default=None, description="""The agent server mode."""
+    )
     psc_interface_config: Optional[PscInterfaceConfig] = Field(
         default=None, description="""Optional. Configuration for PSC-I."""
     )
@@ -3384,6 +3398,9 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
 
     secret_env: Optional[list[SecretEnvVarDict]]
     """Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent."""
+
+    agent_server_mode: Optional[AgentServerMode]
+    """The agent server mode."""
 
     psc_interface_config: Optional[PscInterfaceConfigDict]
     """Optional. Configuration for PSC-I."""
