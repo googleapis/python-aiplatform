@@ -492,7 +492,7 @@ class AdkApp:
         """Returns a clone of the ADK application."""
         import copy
 
-        return AdkApp(
+        return self.__class__(
             agent=copy.deepcopy(self._tmpl_attrs.get("agent")),
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             app_name=self._tmpl_attrs.get("app_name"),
