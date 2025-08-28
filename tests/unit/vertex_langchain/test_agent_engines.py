@@ -108,6 +108,20 @@ class StreamQueryEngine:
         return self
 
 
+class BidiStreamQueryEngine:
+    """A sample Agent Engine that implements `bidi_stream_query`."""
+
+    def set_up(self):
+        pass
+
+    async def bidi_stream_query(self, unused_request_queue) -> AsyncIterable[Any]:
+        """Runs the bidi stream engine."""
+        raise NotImplementedError()
+
+    def clone(self):
+        return self
+
+
 class OperationRegistrableEngine:
     """Add a test class that implements OperationRegistrable."""
 
@@ -141,6 +155,10 @@ class OperationRegistrableEngine:
         for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
             yield chunk
 
+    async def bidi_stream_query(self, unused_request_queue) -> AsyncIterable[Any]:
+        """Runs the bidi stream engine."""
+        raise NotImplementedError()
+
     # Add a custom method to test the custom stream method registration.
     def custom_stream_query(self, unused_arbitrary_string_name: str) -> Iterable[Any]:
         """Runs the stream engine."""
@@ -157,6 +175,12 @@ class OperationRegistrableEngine:
     ) -> AsyncIterable[Any]:
         for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
             yield chunk
+
+    async def custom_bidi_stream_method(
+        self, unused_request_queue
+    ) -> AsyncIterable[Any]:
+        """Runs the bidi stream engine."""
+        raise NotImplementedError()
 
     def clone(self):
         return self
@@ -890,6 +914,17 @@ class InvalidCapitalizeEngineWithoutAsyncStreamQuerySelf:
         return "RESPONSE"
 
 
+class InvalidCapitalizeEngineWithoutBidiStreamQuerySelf:
+    """A sample Agent Engine with an invalid bidi_stream_query method."""
+
+    def set_up(self):
+        pass
+
+    async def bidi_stream_query() -> AsyncIterable[Any]:
+        """Runs the engine."""
+        raise NotImplementedError()
+
+
 class InvalidCapitalizeEngineWithoutRegisterOperationsSelf:
     """A sample Agent Engine with an invalid register_operations method."""
 
@@ -1614,6 +1649,23 @@ class TestAgentEngine:
                 types.reasoning_engine_service.UpdateReasoningEngineRequest(
                     reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
                         _TEST_ASYNC_STREAM_QUERY_SCHEMAS,
+                        _agent_engines._DEFAULT_AGENT_FRAMEWORK,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.package_spec.pickle_object_gcs_uri",
+                            "spec.class_methods",
+                            "spec.agent_framework",
+                        ]
+                    ),
+                ),
+            ),
+            (
+                "Update the bidi stream query engine",
+                {"agent_engine": BidiStreamQueryEngine()},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        [],
                         _agent_engines._DEFAULT_AGENT_FRAMEWORK,
                     ),
                     update_mask=field_mask_pb2.FieldMask(
@@ -2826,6 +2878,95 @@ class TestAgentEngine:
                 )
             )
 
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine, test_class_method_docs, test_class_methods_spec",
+        [
+            (
+                "Default Bidi Stream Queryable (Not Operation Registrable) Engine",
+                BidiStreamQueryEngine(),
+                {},
+                _TEST_ASYNC_STREAM_QUERY_SCHEMAS,
+            ),
+            (
+                "Operation Registrable Engine",
+                OperationRegistrableEngine(),
+                {},
+                _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_create_agent_engine_with_bidi_stream_query_operation_schema(
+        self,
+        test_case_name,
+        test_engine,
+        test_class_method_docs,
+        test_class_methods_spec,
+    ):
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(test_class_methods_spec)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            agent_engines.create(test_engine)
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine, test_class_methods, test_class_methods_spec",
+        [
+            (
+                "Default Bidi Stream Queryable (Not Operation Registrable) Engine",
+                BidiStreamQueryEngine(),
+                [],
+                [],
+            ),
+            (
+                "Operation Registrable Engine",
+                OperationRegistrableEngine(),
+                [],
+                _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_update_agent_engine_with_bidi_stream_query_operation_schema(
+        self,
+        test_case_name,
+        test_engine,
+        test_class_methods,
+        test_class_methods_spec,
+        update_agent_engine_mock,
+    ):
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.append(_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME, spec=test_spec
+            )
+            test_agent_engine = agent_engines.create(MethodToBeUnregisteredEngine())
+            assert hasattr(test_agent_engine, _TEST_METHOD_TO_BE_UNREGISTERED_NAME)
+
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(test_class_methods_spec)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            test_agent_engine.update(agent_engine=test_engine)
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngineErrors:
@@ -2887,8 +3028,8 @@ class TestAgentEngineErrors:
             TypeError,
             match=(
                 "agent_engine has none of the following callable methods: "
-                "`query`, `async_query`, `stream_query`, `async_stream_query` "
-                "or `register_operations`."
+                "`query`, `async_query`, `stream_query`, `async_stream_query`, "
+                "`bidi_stream_query` or `register_operations`."
             ),
         ):
             agent_engines.create(
@@ -2911,8 +3052,8 @@ class TestAgentEngineErrors:
             TypeError,
             match=(
                 "agent_engine has none of the following callable methods: "
-                "`query`, `async_query`, `stream_query`, `async_stream_query` "
-                "or `register_operations`."
+                "`query`, `async_query`, `stream_query`, `async_stream_query`, "
+                "`bidi_stream_query` or `register_operations`."
             ),
         ):
             agent_engines.create(
@@ -3020,6 +3161,23 @@ class TestAgentEngineErrors:
         with pytest.raises(ValueError, match="Invalid async_stream_query signature"):
             agent_engines.create(
                 InvalidCapitalizeEngineWithoutAsyncStreamQuerySelf(),
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            )
+
+    def test_create_agent_engine_with_invalid_bidi_stream_query_method(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+    ):
+        with pytest.raises(ValueError, match="Invalid bidi_stream_query signature"):
+            agent_engines.create(
+                InvalidCapitalizeEngineWithoutBidiStreamQuerySelf(),
                 display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
             )
@@ -3158,8 +3316,8 @@ class TestAgentEngineErrors:
             TypeError,
             match=(
                 "agent_engine has none of the following callable methods: "
-                "`query`, `async_query`, `stream_query`, `async_stream_query` "
-                "or `register_operations`."
+                "`query`, `async_query`, `stream_query`, `async_stream_query`, "
+                "`bidi_stream_query` or `register_operations`."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
@@ -3181,8 +3339,8 @@ class TestAgentEngineErrors:
             TypeError,
             match=(
                 "agent_engine has none of the following callable methods: "
-                "`query`, `async_query`, `stream_query`, `async_stream_query` "
-                "or `register_operations`."
+                "`query`, `async_query`, `stream_query`, `async_stream_query`, "
+                "`bidi_stream_query` or `register_operations`."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
@@ -3324,7 +3482,8 @@ class TestAgentEngineErrors:
                     "register the API methods: "
                     "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
                     "Error: {Unsupported api mode: `UNKNOWN_API_MODE`, "
-                    "Supported modes are: ``, `async`, `async_stream`, `stream`.}"
+                    "Supported modes are: ``, `async`, `async_stream`, "
+                    "`bidi_stream`, `stream`.}"
                 ),
             ),
         ],
