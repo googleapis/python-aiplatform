@@ -91,10 +91,6 @@ class AsyncClient:
         return self._prompt_optimizer.AsyncPromptOptimizer(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent engines module is experimental, "
-        "and may change in future versions."
-    )
     def agent_engines(self):
         if self._agent_engines is None:
             try:
@@ -235,10 +231,6 @@ class Client:
             )
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent engines module is experimental, "
-        "and may change in future versions."
-    )
     def agent_engines(self):
         if self._agent_engines is None:
             try:

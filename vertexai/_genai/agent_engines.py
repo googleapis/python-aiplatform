@@ -896,10 +896,6 @@ class AgentEngines(_api_module.BaseModule):
     _sessions = None
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.memories module is experimental, "
-        "and may change in future versions."
-    )
     def memories(self):
         if self._memories is None:
             try:
@@ -915,10 +911,6 @@ class AgentEngines(_api_module.BaseModule):
         return self._memories.Memories(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.sessions module is experimental, "
-        "and may change in future versions."
-    )
     def sessions(self):
         if self._sessions is None:
             try:
@@ -2251,10 +2243,6 @@ class AsyncAgentEngines(_api_module.BaseModule):
     _sessions = None
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.memories module is experimental, "
-        "and may change in future versions."
-    )
     def memories(self):
         if self._memories is None:
             try:
@@ -2270,10 +2258,6 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return self._memories.AsyncMemories(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.sessions module is experimental, "
-        "and may change in future versions."
-    )
     def sessions(self):
         if self._sessions is None:
             try:
