@@ -14,6 +14,12 @@
 #
 """Constants for evals module."""
 
+import abc
+from typing import Any
+
+from . import types
+
+
 SUPPORTED_PREDEFINED_METRICS = frozenset(
     {
         "general_quality_v1",
@@ -27,3 +33,13 @@ SUPPORTED_PREDEFINED_METRICS = frozenset(
         "final_response_reference_free_v1",
     }
 )
+
+
+class EvalDataConverter(abc.ABC):
+    """Abstract base class for dataset converters."""
+
+    @abc.abstractmethod
+    def convert(self, raw_data: Any) -> types.EvaluationDataset:
+        """Converts a loaded raw dataset into an EvaluationDataset."""
+        raise NotImplementedError()
+
