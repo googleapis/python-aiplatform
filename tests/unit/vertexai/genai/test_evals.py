@@ -3585,3 +3585,169 @@ class TestEvalsRunEvaluation:
 
         assert result.metadata is not None
         assert result.metadata.creation_timestamp == mock_now
+
+
+class TestEvaluationDataset:
+    """Contains set of tests for the EvaluationDataset class methods."""
+
+    @mock.patch.object(_evals_utils, "GcsUtils")
+    def test_load_from_observability_eval_cases(self, mock_gcs_utils):
+        """Tests that load_from_observability_eval_cases reads data from GCS."""
+
+        def read_file_contents_side_effect(src: str) -> str:
+            if src == "gs://project/input.json":
+                return "input"
+            elif src == "gs://project/output.json":
+                return "output"
+            elif src == "gs://project/system_instruction.json":
+                return "system_instruction"
+            else:
+                return ""
+
+        mock_gcs_utils.return_value.read_file_contents.side_effect = (
+            read_file_contents_side_effect
+        )
+
+        eval_cases = [
+            vertexai_genai_types.ObservabilityEvalCase(
+                input_src="gs://project/input.json",
+                output_src="gs://project/output.json",
+                system_instruction_src="gs://project/system_instruction.json",
+            )
+        ]
+        result = (
+            vertexai_genai_types.EvaluationDataset.load_from_observability_eval_cases(
+                eval_cases
+            )
+        )
+
+        mock_gcs_utils.return_value.read_file_contents.assert_has_calls(
+            [
+                mock.call("gs://project/input.json"),
+                mock.call("gs://project/output.json"),
+                mock.call("gs://project/system_instruction.json"),
+            ],
+            any_order=True,
+        )
+        assert result.eval_dataset_df is not None
+        pd.testing.assert_frame_equal(
+            result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "format": ["observability"],
+                    "request": ["input"],
+                    "response": ["output"],
+                    "system_instruction": ["system_instruction"],
+                }
+            ),
+        )
+
+    @mock.patch.object(_evals_utils, "GcsUtils")
+    def test_load_from_observability_eval_cases_no_system_instruction(
+        self, mock_gcs_utils
+    ):
+        """Tests load_from_observability_eval_cases works without system_instruction."""
+
+        def read_file_contents_side_effect(src: str) -> str:
+            if src == "gs://project/input.json":
+                return "input"
+            elif src == "gs://project/output.json":
+                return "output"
+            elif src == "gs://project/system_instruction.json":
+                return "system_instruction"
+            else:
+                return ""
+
+        mock_gcs_utils.return_value.read_file_contents.side_effect = (
+            read_file_contents_side_effect
+        )
+
+        eval_cases = [
+            vertexai_genai_types.ObservabilityEvalCase(
+                input_src="gs://project/input.json",
+                output_src="gs://project/output.json",
+            )
+        ]
+        result = (
+            vertexai_genai_types.EvaluationDataset.load_from_observability_eval_cases(
+                eval_cases
+            )
+        )
+
+        mock_gcs_utils.return_value.read_file_contents.assert_has_calls(
+            [
+                mock.call("gs://project/input.json"),
+                mock.call("gs://project/output.json"),
+            ],
+            any_order=True,
+        )
+        assert result.eval_dataset_df is not None
+        pd.testing.assert_frame_equal(
+            result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "format": ["observability"],
+                    "request": ["input"],
+                    "response": ["output"],
+                    "system_instruction": [""],
+                }
+            ),
+        )
+
+    @mock.patch.object(_evals_utils, "GcsUtils")
+    def test_load_from_observability_eval_cases_multiple_cases(self, mock_gcs_utils):
+        """Test load_from_observability_eval_cases can handle multiple cases."""
+
+        def read_file_contents_side_effect(src: str) -> str:
+            if src == "gs://project/input_1.json":
+                return "input_1"
+            elif src == "gs://project/input_2.json":
+                return "input_2"
+            elif src == "gs://project/output_1.json":
+                return "output_1"
+            elif src == "gs://project/output_2.json":
+                return "output_2"
+            elif src == "gs://project/system_instruction_1.json":
+                return "system_instruction_1"
+            elif src == "gs://project/system_instruction_2.json":
+                return "system_instruction_2"
+            else:
+                return ""
+
+        mock_gcs_utils.return_value.read_file_contents.side_effect = (
+            read_file_contents_side_effect
+        )
+
+        eval_cases = [
+            vertexai_genai_types.ObservabilityEvalCase(
+                input_src="gs://project/input_1.json",
+                output_src="gs://project/output_1.json",
+                system_instruction_src="gs://project/system_instruction_1.json",
+            ),
+            vertexai_genai_types.ObservabilityEvalCase(
+                input_src="gs://project/input_2.json",
+                output_src="gs://project/output_2.json",
+                system_instruction_src="gs://project/system_instruction_2.json",
+            ),
+        ]
+        result = (
+            vertexai_genai_types.EvaluationDataset.load_from_observability_eval_cases(
+                eval_cases
+            )
+        )
+
+        assert result.eval_dataset_df is not None
+        pd.testing.assert_frame_equal(
+            result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "format": ["observability", "observability"],
+                    "request": ["input_1", "input_2"],
+                    "response": ["output_1", "output_2"],
+                    "system_instruction": [
+                        "system_instruction_1",
+                        "system_instruction_2",
+                    ],
+                }
+            ),
+        )

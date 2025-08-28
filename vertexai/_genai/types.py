@@ -7436,6 +7436,58 @@ class EvaluationDataset(_common.BaseModel):
                 )
         return data
 
+    @classmethod
+    def load_from_observability_eval_cases(
+        cls, cases: list["ObservabilityEvalCase"]
+    ) -> "EvaluationDataset":
+        """Fetches GenAI Observability data from GCS and parses into a DataFrame."""
+        try:
+            import pandas as pd
+            from . import _evals_utils
+
+            formats = []
+            requests = []
+            responses = []
+            system_instructions = []
+
+            for case in cases:
+                gcs_utils = _evals_utils.GcsUtils(
+                    case.api_client._api_client if case.api_client else None
+                )
+
+                # Associate "observability" data format for given sources
+                formats.append("observability")
+
+                # Input source
+                request_data = gcs_utils.read_file_contents(case.input_src)
+                requests.append(request_data)
+
+                # Output source
+                response_data = gcs_utils.read_file_contents(case.output_src)
+                responses.append(response_data)
+
+                # System instruction source
+                system_instruction_data = ""
+                if case.system_instruction_src is not None:
+                    system_instruction_data = gcs_utils.read_file_contents(
+                        case.system_instruction_src
+                    )
+                system_instructions.append(system_instruction_data)
+
+            eval_dataset_df = pd.DataFrame(
+                {
+                    "format": formats,
+                    "request": requests,
+                    "response": responses,
+                    "system_instruction": system_instructions,
+                }
+            )
+
+        except ImportError as e:
+            raise ImportError("Pandas DataFrame library is required.") from e
+
+        return EvaluationDataset(eval_dataset_df=eval_dataset_df)
+
     def show(self) -> None:
         """Shows the evaluation dataset."""
         from . import _evals_visualization
@@ -7891,6 +7943,45 @@ class EvaluateDatasetOperationDict(TypedDict, total=False):
 EvaluateDatasetOperationOrDict = Union[
     EvaluateDatasetOperation, EvaluateDatasetOperationDict
 ]
+
+
+class ObservabilityEvalCase(_common.BaseModel):
+    """A single evaluation case instance for data stored in GCP Observability."""
+
+    input_src: Optional[str] = Field(
+        default=None,
+        description="""String containing the GCS reference to the GenAI input content.""",
+    )
+    output_src: Optional[str] = Field(
+        default=None,
+        description="""String containing the GCS reference to the GenAI response content.""",
+    )
+    system_instruction_src: Optional[str] = Field(
+        default=None,
+        description="""An optional string containing the GCS reference to the GenAI system instruction.""",
+    )
+    api_client: Optional[Any] = Field(
+        default=None, description="""The underlying API client."""
+    )
+
+
+class ObservabilityEvalCaseDict(TypedDict, total=False):
+    """A single evaluation case instance for data stored in GCP Observability."""
+
+    input_src: Optional[str]
+    """String containing the GCS reference to the GenAI input content."""
+
+    output_src: Optional[str]
+    """String containing the GCS reference to the GenAI response content."""
+
+    system_instruction_src: Optional[str]
+    """An optional string containing the GCS reference to the GenAI system instruction."""
+
+    api_client: Optional[Any]
+    """The underlying API client."""
+
+
+ObservabilityEvalCaseOrDict = Union[ObservabilityEvalCase, ObservabilityEvalCaseDict]
 
 
 class RubricGroup(_common.BaseModel):
