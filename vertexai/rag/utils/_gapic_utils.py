@@ -302,7 +302,7 @@ def convert_path_to_resource_id(
 
 
 def convert_source_for_rag_import(
-    source: Union[SlackChannelsSource, JiraSource, SharePointSources]
+    source: Union[SlackChannelsSource, JiraSource, SharePointSources],
 ) -> Union[GapicSlackSource, GapicJiraSource]:
     """Converts a SlackChannelsSource or JiraSource to a GapicSlackSource or GapicJiraSource."""
     if isinstance(source, SlackChannelsSource):

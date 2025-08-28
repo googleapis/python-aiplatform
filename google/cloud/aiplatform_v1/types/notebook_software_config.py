@@ -63,6 +63,7 @@ class PostStartupScriptConfig(proto.Message):
                 Download and run post startup script every
                 time runtime is started.
         """
+
         POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED = 0
         RUN_ONCE = 1
         RUN_EVERY_START = 2

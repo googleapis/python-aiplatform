@@ -84,11 +84,13 @@ class Trial(base.VertexAiResourceNounWithFutureManager, TrialInterface):
         )
         self._gca_resource = self._get_gca_resource(
             resource_name=trial_name,
-            parent_resource_name_fields={
-                study.Study._resource_noun: study_id,
-            }
-            if study_id
-            else study_id,
+            parent_resource_name_fields=(
+                {
+                    study.Study._resource_noun: study_id,
+                }
+                if study_id
+                else study_id
+            ),
         )
 
     @property
@@ -136,9 +138,9 @@ class Trial(base.VertexAiResourceNounWithFutureManager, TrialInterface):
             complete_trial_request["infeasible_reason"] = infeasible_reason
             complete_trial_request["trial_infeasible"] = True
         if measurement is not None:
-            complete_trial_request[
-                "final_measurement"
-            ] = vz.MeasurementConverter.to_proto(measurement)
+            complete_trial_request["final_measurement"] = (
+                vz.MeasurementConverter.to_proto(measurement)
+            )
         trial = self.api_client.complete_trial(request=complete_trial_request)
         return (
             vz.MeasurementConverter.from_proto(trial.final_measurement)

@@ -72,8 +72,12 @@ from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
     ReasoningEngineServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import pagers
-from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import transports
+from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -1665,9 +1669,9 @@ def test_get_reasoning_engine_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_reasoning_engine
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_reasoning_engine] = (
+            mock_rpc
+        )
         request = {}
         client.get_reasoning_engine(request)
 
@@ -2018,9 +2022,9 @@ def test_list_reasoning_engines_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_reasoning_engines
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_reasoning_engines] = (
+            mock_rpc
+        )
         request = {}
         client.list_reasoning_engines(request)
 
@@ -3387,9 +3391,9 @@ def test_get_reasoning_engine_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.get_reasoning_engine
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.get_reasoning_engine] = (
+            mock_rpc
+        )
 
         request = {}
         client.get_reasoning_engine(request)
@@ -3572,9 +3576,9 @@ def test_list_reasoning_engines_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.list_reasoning_engines
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.list_reasoning_engines] = (
+            mock_rpc
+        )
 
         request = {}
         client.list_reasoning_engines(request)
@@ -4766,9 +4770,11 @@ def test_create_reasoning_engine_rest_call_success(request_type):
 def test_create_reasoning_engine_rest_interceptors(null_interceptor):
     transport = transports.ReasoningEngineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceClient(transport=transport)
 
@@ -4906,9 +4912,11 @@ def test_get_reasoning_engine_rest_call_success(request_type):
 def test_get_reasoning_engine_rest_interceptors(null_interceptor):
     transport = transports.ReasoningEngineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceClient(transport=transport)
 
@@ -5038,9 +5046,11 @@ def test_list_reasoning_engines_rest_call_success(request_type):
 def test_list_reasoning_engines_rest_interceptors(null_interceptor):
     transport = transports.ReasoningEngineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceClient(transport=transport)
 
@@ -5304,9 +5314,11 @@ def test_update_reasoning_engine_rest_call_success(request_type):
 def test_update_reasoning_engine_rest_interceptors(null_interceptor):
     transport = transports.ReasoningEngineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceClient(transport=transport)
 
@@ -5432,9 +5444,11 @@ def test_delete_reasoning_engine_rest_call_success(request_type):
 def test_delete_reasoning_engine_rest_interceptors(null_interceptor):
     transport = transports.ReasoningEngineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.ReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.ReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceClient(transport=transport)
 
@@ -6473,9 +6487,11 @@ async def test_create_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncReasoningEngineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceAsyncClient(transport=transport)
 
@@ -6631,9 +6647,11 @@ async def test_get_reasoning_engine_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncReasoningEngineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceAsyncClient(transport=transport)
 
@@ -6781,9 +6799,11 @@ async def test_list_reasoning_engines_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncReasoningEngineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceAsyncClient(transport=transport)
 
@@ -7065,9 +7085,11 @@ async def test_update_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncReasoningEngineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceAsyncClient(transport=transport)
 
@@ -7211,9 +7233,11 @@ async def test_delete_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncReasoningEngineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncReasoningEngineServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncReasoningEngineServiceRestInterceptor()
+        ),
     )
     client = ReasoningEngineServiceAsyncClient(transport=transport)
 

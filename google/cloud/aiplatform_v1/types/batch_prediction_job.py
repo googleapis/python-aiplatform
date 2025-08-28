@@ -19,8 +19,12 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import completion_stats as gca_completion_stats
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import (
+    completion_stats as gca_completion_stats,
+)
+from google.cloud.aiplatform_v1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
@@ -613,7 +617,9 @@ class BatchPredictionJob(proto.Message):
         proto.STRING,
         number=29,
     )
-    manual_batch_tuning_parameters: gca_manual_batch_tuning_parameters.ManualBatchTuningParameters = proto.Field(
+    manual_batch_tuning_parameters: (
+        gca_manual_batch_tuning_parameters.ManualBatchTuningParameters
+    ) = proto.Field(
         proto.MESSAGE,
         number=8,
         message=gca_manual_batch_tuning_parameters.ManualBatchTuningParameters,

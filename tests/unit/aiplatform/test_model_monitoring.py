@@ -73,11 +73,11 @@ class TestModelMonitoringConfigs:
             )
         else:
             expected_gapic_proto = gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
-                default_skew_threshold=gca_model_monitoring.ThresholdConfig(
-                    value=skew_thresholds
-                )
-                if skew_thresholds is not None
-                else None,
+                default_skew_threshold=(
+                    gca_model_monitoring.ThresholdConfig(value=skew_thresholds)
+                    if skew_thresholds is not None
+                    else None
+                ),
                 attribution_score_skew_thresholds={
                     key: gca_model_monitoring.ThresholdConfig(value=val)
                     for key, val in attribute_skew_thresholds.items()

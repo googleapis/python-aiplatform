@@ -1327,6 +1327,19 @@ def _wrap_agent_operation(*, agent: Any, operation: str) -> Callable[..., Any]:
     return _method
 
 
+AgentEngineOperationUnion = Union[
+    genai_types.AgentEngineOperation,
+    genai_types.AgentEngineMemoryOperation,
+    genai_types.AgentEngineGenerateMemoriesOperation,
+]
+
+
+class GetOperationFunction(Protocol):
+    def __call__(
+        self, *, operation_name: str, **kwargs
+    ) -> AgentEngineOperationUnion: ...
+
+
 def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
     """Wraps an Agent Engine method, creating a callable for `query` API.
 

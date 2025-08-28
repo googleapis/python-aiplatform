@@ -106,20 +106,20 @@ def submit_distillation_pipeline_job(
     if evaluation_spec is not None:
         pipeline_arguments["evaluation_data_uri"] = evaluation_spec.evaluation_data
         pipeline_arguments["evaluation_interval"] = evaluation_spec.evaluation_interval
-        pipeline_arguments[
-            "enable_early_stopping"
-        ] = evaluation_spec.enable_early_stopping
-        pipeline_arguments[
-            "enable_checkpoint_selection"
-        ] = evaluation_spec.enable_checkpoint_selection
+        pipeline_arguments["enable_early_stopping"] = (
+            evaluation_spec.enable_early_stopping
+        )
+        pipeline_arguments["enable_checkpoint_selection"] = (
+            evaluation_spec.enable_checkpoint_selection
+        )
         pipeline_arguments["tensorboard_resource_id"] = evaluation_spec.tensorboard
         # pipeline_parameter_values["evaluation_output_root_dir"] = ...
     if accelerator_type is not None:
         pipeline_arguments["accelerator_type"] = accelerator_type
     if aiplatform_initializer.global_config.encryption_spec_key_name is not None:
-        pipeline_arguments[
-            "encryption_spec_key_name"
-        ] = aiplatform_initializer.global_config.encryption_spec_key_name
+        pipeline_arguments["encryption_spec_key_name"] = (
+            aiplatform_initializer.global_config.encryption_spec_key_name
+        )
     if max_context_length is not None:
         pipeline_arguments["max_context_length"] = max_context_length
     if model_display_name is None:

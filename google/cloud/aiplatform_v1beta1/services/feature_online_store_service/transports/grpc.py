@@ -30,7 +30,9 @@ import google.protobuf.message
 import grpc  # type: ignore
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import feature_online_store_service
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_online_store_service,
+)
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -378,12 +380,12 @@ class FeatureOnlineStoreServiceGrpcTransport(FeatureOnlineStoreServiceTransport)
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "streaming_fetch_feature_values" not in self._stubs:
-            self._stubs[
-                "streaming_fetch_feature_values"
-            ] = self._logged_channel.stream_stream(
-                "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService/StreamingFetchFeatureValues",
-                request_serializer=feature_online_store_service.StreamingFetchFeatureValuesRequest.serialize,
-                response_deserializer=feature_online_store_service.StreamingFetchFeatureValuesResponse.deserialize,
+            self._stubs["streaming_fetch_feature_values"] = (
+                self._logged_channel.stream_stream(
+                    "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService/StreamingFetchFeatureValues",
+                    request_serializer=feature_online_store_service.StreamingFetchFeatureValuesRequest.serialize,
+                    response_deserializer=feature_online_store_service.StreamingFetchFeatureValuesResponse.deserialize,
+                )
             )
         return self._stubs["streaming_fetch_feature_values"]
 
@@ -444,12 +446,12 @@ class FeatureOnlineStoreServiceGrpcTransport(FeatureOnlineStoreServiceTransport)
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "feature_view_direct_write" not in self._stubs:
-            self._stubs[
-                "feature_view_direct_write"
-            ] = self._logged_channel.stream_stream(
-                "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService/FeatureViewDirectWrite",
-                request_serializer=feature_online_store_service.FeatureViewDirectWriteRequest.serialize,
-                response_deserializer=feature_online_store_service.FeatureViewDirectWriteResponse.deserialize,
+            self._stubs["feature_view_direct_write"] = (
+                self._logged_channel.stream_stream(
+                    "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService/FeatureViewDirectWrite",
+                    request_serializer=feature_online_store_service.FeatureViewDirectWriteRequest.serialize,
+                    response_deserializer=feature_online_store_service.FeatureViewDirectWriteResponse.deserialize,
+                )
             )
         return self._stubs["feature_view_direct_write"]
 

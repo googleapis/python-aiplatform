@@ -33,7 +33,9 @@ from google.cloud.aiplatform_v1.types import dataset
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_service
 from google.cloud.aiplatform_v1.types import dataset_version
-from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_version
+from google.cloud.aiplatform_v1.types import (
+    dataset_version as gca_dataset_version,
+)
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -524,13 +526,19 @@ class DatasetServiceTransport(abc.ABC):
     @property
     def cancel_operation(
         self,
-    ) -> Callable[[operations_pb2.CancelOperationRequest], None,]:
+    ) -> Callable[
+        [operations_pb2.CancelOperationRequest],
+        None,
+    ]:
         raise NotImplementedError()
 
     @property
     def delete_operation(
         self,
-    ) -> Callable[[operations_pb2.DeleteOperationRequest], None,]:
+    ) -> Callable[
+        [operations_pb2.DeleteOperationRequest],
+        None,
+    ]:
         raise NotImplementedError()
 
     @property

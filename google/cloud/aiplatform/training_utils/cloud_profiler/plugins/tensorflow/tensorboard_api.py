@@ -29,7 +29,9 @@ from google.cloud.aiplatform.compat.types import tensorboard_experiment
 from google.cloud.aiplatform.tensorboard import upload_tracker
 from google.cloud.aiplatform.tensorboard import uploader_constants
 from google.cloud.aiplatform.tensorboard import uploader_utils
-from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
+    profile_uploader,
+)
 from google.cloud.aiplatform.utils import TensorboardClientWithOverride
 
 from tensorboard.util import tb_logging

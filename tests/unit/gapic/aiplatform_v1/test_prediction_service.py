@@ -1892,9 +1892,9 @@ def test_stream_raw_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.stream_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.stream_raw_predict] = (
+            mock_rpc
+        )
         request = {}
         client.stream_raw_predict(request)
 
@@ -2476,9 +2476,9 @@ def test_direct_raw_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.direct_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.direct_raw_predict] = (
+            mock_rpc
+        )
         request = {}
         client.direct_raw_predict(request)
 
@@ -2701,9 +2701,9 @@ def test_stream_direct_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.stream_direct_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.stream_direct_predict] = (
+            mock_rpc
+        )
         request = [{}]
         client.stream_direct_predict(request)
 
@@ -3016,9 +3016,9 @@ def test_streaming_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.streaming_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.streaming_predict] = (
+            mock_rpc
+        )
         request = [{}]
         client.streaming_predict(request)
 
@@ -3430,9 +3430,9 @@ def test_streaming_raw_predict_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.streaming_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.streaming_raw_predict] = (
+            mock_rpc
+        )
         request = [{}]
         client.streaming_raw_predict(request)
 
@@ -3894,9 +3894,9 @@ def test_generate_content_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.generate_content
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.generate_content] = (
+            mock_rpc
+        )
         request = {}
         client.generate_content(request)
 
@@ -4891,9 +4891,9 @@ def test_stream_raw_predict_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.stream_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.stream_raw_predict] = (
+            mock_rpc
+        )
 
         request = {}
         client.stream_raw_predict(request)
@@ -5201,9 +5201,9 @@ def test_direct_raw_predict_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.direct_raw_predict
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.direct_raw_predict] = (
+            mock_rpc
+        )
 
         request = {}
         client.direct_raw_predict(request)
@@ -5690,9 +5690,9 @@ def test_generate_content_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.generate_content
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.generate_content] = (
+            mock_rpc
+        )
 
         request = {}
         client.generate_content(request)
@@ -6762,9 +6762,9 @@ def test_predict_rest_call_success(request_type):
 def test_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -6890,9 +6890,9 @@ def test_raw_predict_rest_call_success(request_type):
 def test_raw_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7020,9 +7020,9 @@ def test_stream_raw_predict_rest_call_success(request_type):
 def test_stream_raw_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7145,9 +7145,9 @@ def test_direct_predict_rest_call_success(request_type):
 def test_direct_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7277,9 +7277,9 @@ def test_direct_raw_predict_rest_call_success(request_type):
 def test_direct_raw_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7450,9 +7450,9 @@ def test_server_streaming_predict_rest_call_success(request_type):
 def test_server_streaming_predict_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7594,9 +7594,9 @@ def test_explain_rest_call_success(request_type):
 def test_explain_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7725,9 +7725,9 @@ def test_generate_content_rest_call_success(request_type):
 def test_generate_content_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -7864,9 +7864,9 @@ def test_stream_generate_content_rest_call_success(request_type):
 def test_stream_generate_content_rest_interceptors(null_interceptor):
     transport = transports.PredictionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.PredictionServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.PredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceClient(transport=transport)
 
@@ -8850,9 +8850,11 @@ async def test_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -8994,9 +8996,11 @@ async def test_raw_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9139,9 +9143,11 @@ async def test_stream_raw_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9280,9 +9286,11 @@ async def test_direct_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9429,9 +9437,11 @@ async def test_direct_raw_predict_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9631,9 +9641,11 @@ async def test_server_streaming_predict_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9799,9 +9811,11 @@ async def test_explain_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -9946,9 +9960,11 @@ async def test_generate_content_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 
@@ -10099,9 +10115,11 @@ async def test_stream_generate_content_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncPredictionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncPredictionServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncPredictionServiceRestInterceptor()
+        ),
     )
     client = PredictionServiceAsyncClient(transport=transport)
 

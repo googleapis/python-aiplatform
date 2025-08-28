@@ -223,7 +223,7 @@ def _prepare_exposed_ports(exposed_ports: Optional[List[int]] = None) -> str:
 
 
 def _prepare_environment_variables(
-    environment_variables: Optional[Dict[str, str]] = None
+    environment_variables: Optional[Dict[str, str]] = None,
 ) -> str:
     """Returns the Dockerfile entries required to set environment variables in containers.
 

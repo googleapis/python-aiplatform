@@ -507,12 +507,12 @@ class ModelGardenServiceGrpcTransport(ModelGardenServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "check_publisher_model_eula_acceptance" not in self._stubs:
-            self._stubs[
-                "check_publisher_model_eula_acceptance"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelGardenService/CheckPublisherModelEulaAcceptance",
-                request_serializer=model_garden_service.CheckPublisherModelEulaAcceptanceRequest.serialize,
-                response_deserializer=model_garden_service.PublisherModelEulaAcceptance.deserialize,
+            self._stubs["check_publisher_model_eula_acceptance"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.ModelGardenService/CheckPublisherModelEulaAcceptance",
+                    request_serializer=model_garden_service.CheckPublisherModelEulaAcceptanceRequest.serialize,
+                    response_deserializer=model_garden_service.PublisherModelEulaAcceptance.deserialize,
+                )
             )
         return self._stubs["check_publisher_model_eula_acceptance"]
 
@@ -539,12 +539,12 @@ class ModelGardenServiceGrpcTransport(ModelGardenServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "accept_publisher_model_eula" not in self._stubs:
-            self._stubs[
-                "accept_publisher_model_eula"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelGardenService/AcceptPublisherModelEula",
-                request_serializer=model_garden_service.AcceptPublisherModelEulaRequest.serialize,
-                response_deserializer=model_garden_service.PublisherModelEulaAcceptance.deserialize,
+            self._stubs["accept_publisher_model_eula"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.ModelGardenService/AcceptPublisherModelEula",
+                    request_serializer=model_garden_service.AcceptPublisherModelEulaRequest.serialize,
+                    response_deserializer=model_garden_service.PublisherModelEulaAcceptance.deserialize,
+                )
             )
         return self._stubs["accept_publisher_model_eula"]
 

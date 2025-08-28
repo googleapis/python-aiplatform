@@ -40,18 +40,22 @@ _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
 @mock.patch.object(
     constants,
     "AIPLATFORM_DEPENDENCY_PATH",
-    "google-cloud-aiplatform @ git+https://github.com/googleapis/"
-    f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}#egg=google-cloud-aiplatform"
-    if os.environ.get("KOKORO_GIT_COMMIT")
-    else constants.AIPLATFORM_DEPENDENCY_PATH,
+    (
+        "google-cloud-aiplatform @ git+https://github.com/googleapis/"
+        f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}#egg=google-cloud-aiplatform"
+        if os.environ.get("KOKORO_GIT_COMMIT")
+        else constants.AIPLATFORM_DEPENDENCY_PATH
+    ),
 )
 @mock.patch.object(
     constants,
     "AIPLATFORM_AUTOLOG_DEPENDENCY_PATH",
-    "google-cloud-aiplatform[autologging] @ git+https://github.com/googleapis/"
-    f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}#egg=google-cloud-aiplatform"
-    if os.environ.get("KOKORO_GIT_COMMIT")
-    else constants.AIPLATFORM_AUTOLOG_DEPENDENCY_PATH,
+    (
+        "google-cloud-aiplatform[autologging] @ git+https://github.com/googleapis/"
+        f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}#egg=google-cloud-aiplatform"
+        if os.environ.get("KOKORO_GIT_COMMIT")
+        else constants.AIPLATFORM_AUTOLOG_DEPENDENCY_PATH
+    ),
 )
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"

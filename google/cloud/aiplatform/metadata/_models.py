@@ -538,7 +538,7 @@ def save_model(
 
 
 def load_model(
-    model: Union[str, google_artifact_schema.ExperimentModel]
+    model: Union[str, google_artifact_schema.ExperimentModel],
 ) -> Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]:  # noqa: F821
     """Retrieves the original ML model from an ExperimentModel resource.
 
@@ -853,7 +853,7 @@ def register_model(
 
 
 def get_experiment_model_info(
-    model: Union[str, google_artifact_schema.ExperimentModel]
+    model: Union[str, google_artifact_schema.ExperimentModel],
 ) -> Dict[str, Any]:
     """Get the model's info from an experiment model artifact.
 

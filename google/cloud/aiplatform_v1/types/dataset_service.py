@@ -22,7 +22,9 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1.types import annotation
 from google.cloud.aiplatform_v1.types import data_item as gca_data_item
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
-from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_version
+from google.cloud.aiplatform_v1.types import (
+    dataset_version as gca_dataset_version,
+)
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import operation
 from google.cloud.aiplatform_v1.types import saved_query as gca_saved_query
@@ -578,12 +580,12 @@ class ListDatasetVersionsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    dataset_versions: MutableSequence[
-        gca_dataset_version.DatasetVersion
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_dataset_version.DatasetVersion,
+    dataset_versions: MutableSequence[gca_dataset_version.DatasetVersion] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_dataset_version.DatasetVersion,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

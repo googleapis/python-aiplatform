@@ -66,6 +66,7 @@ class ReservationAffinity(proto.Message):
                 reservation must be identified via the ``key`` and
                 ``values`` fields.
         """
+
         TYPE_UNSPECIFIED = 0
         NO_RESERVATION = 1
         ANY_RESERVATION = 2
