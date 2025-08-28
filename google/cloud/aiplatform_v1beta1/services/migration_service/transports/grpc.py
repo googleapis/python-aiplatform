@@ -368,12 +368,12 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "search_migratable_resources" not in self._stubs:
-            self._stubs[
-                "search_migratable_resources"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.MigrationService/SearchMigratableResources",
-                request_serializer=migration_service.SearchMigratableResourcesRequest.serialize,
-                response_deserializer=migration_service.SearchMigratableResourcesResponse.deserialize,
+            self._stubs["search_migratable_resources"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.MigrationService/SearchMigratableResources",
+                    request_serializer=migration_service.SearchMigratableResourcesRequest.serialize,
+                    response_deserializer=migration_service.SearchMigratableResourcesResponse.deserialize,
+                )
             )
         return self._stubs["search_migratable_resources"]
 

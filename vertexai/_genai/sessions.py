@@ -338,6 +338,7 @@ def _ListReasoningEnginesSessionsResponse_from_vertex(
 
 
 class Sessions(_api_module.BaseModule):
+
     def _create(
         self,
         *,
@@ -830,6 +831,7 @@ class Sessions(_api_module.BaseModule):
 
 
 class AsyncSessions(_api_module.BaseModule):
+
     async def _create(
         self,
         *,

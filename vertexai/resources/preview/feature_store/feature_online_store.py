@@ -570,9 +570,11 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
             big_query_source=big_query_source,
             vertex_rag_source=vertex_rag_source,
             feature_registry_source=feature_registry_source,
-            sync_config=gca_feature_view.FeatureView.SyncConfig(cron=sync_config)
-            if sync_config
-            else None,
+            sync_config=(
+                gca_feature_view.FeatureView.SyncConfig(cron=sync_config)
+                if sync_config
+                else None
+            ),
         )
 
         if labels:

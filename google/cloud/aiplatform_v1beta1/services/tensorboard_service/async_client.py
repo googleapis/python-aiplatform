@@ -49,18 +49,24 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service import pagers
+from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
+    pagers,
+)
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import tensorboard
-from google.cloud.aiplatform_v1beta1.types import tensorboard as gca_tensorboard
+from google.cloud.aiplatform_v1beta1.types import (
+    tensorboard as gca_tensorboard,
+)
 from google.cloud.aiplatform_v1beta1.types import tensorboard_data
 from google.cloud.aiplatform_v1beta1.types import tensorboard_experiment
 from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run
-from google.cloud.aiplatform_v1beta1.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform_v1beta1.types import (
+    tensorboard_run as gca_tensorboard_run,
+)
 from google.cloud.aiplatform_v1beta1.types import tensorboard_service
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import (
@@ -318,21 +324,23 @@ class TensorboardServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1beta1.TensorboardServiceAsyncClient`.",
-                extra={
-                    "serviceName": "google.cloud.aiplatform.v1beta1.TensorboardService",
-                    "universeDomain": getattr(
-                        self._client._transport._credentials, "universe_domain", ""
-                    ),
-                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                    "credentialsInfo": getattr(
-                        self.transport._credentials, "get_cred_info", lambda: None
-                    )(),
-                }
-                if hasattr(self._client._transport, "_credentials")
-                else {
-                    "serviceName": "google.cloud.aiplatform.v1beta1.TensorboardService",
-                    "credentialsType": None,
-                },
+                extra=(
+                    {
+                        "serviceName": "google.cloud.aiplatform.v1beta1.TensorboardService",
+                        "universeDomain": getattr(
+                            self._client._transport._credentials, "universe_domain", ""
+                        ),
+                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                        "credentialsInfo": getattr(
+                            self.transport._credentials, "get_cred_info", lambda: None
+                        )(),
+                    }
+                    if hasattr(self._client._transport, "_credentials")
+                    else {
+                        "serviceName": "google.cloud.aiplatform.v1beta1.TensorboardService",
+                        "credentialsType": None,
+                    }
+                ),
             )
 
     async def create_tensorboard(

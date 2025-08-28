@@ -34,7 +34,9 @@ from google.cloud.aiplatform_v1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
 from google.cloud.aiplatform_v1.types import tensorboard_run
-from google.cloud.aiplatform_v1.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform_v1.types import (
+    tensorboard_run as gca_tensorboard_run,
+)
 from google.cloud.aiplatform_v1.types import tensorboard_service
 from google.cloud.aiplatform_v1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1.types import (
@@ -730,13 +732,19 @@ class TensorboardServiceTransport(abc.ABC):
     @property
     def cancel_operation(
         self,
-    ) -> Callable[[operations_pb2.CancelOperationRequest], None,]:
+    ) -> Callable[
+        [operations_pb2.CancelOperationRequest],
+        None,
+    ]:
         raise NotImplementedError()
 
     @property
     def delete_operation(
         self,
-    ) -> Callable[[operations_pb2.DeleteOperationRequest], None,]:
+    ) -> Callable[
+        [operations_pb2.DeleteOperationRequest],
+        None,
+    ]:
         raise NotImplementedError()
 
     @property

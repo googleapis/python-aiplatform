@@ -47,7 +47,9 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import pagers
+from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import (
+    pagers,
+)
 from google.cloud.aiplatform_v1.types import deployment_resource_pool
 from google.cloud.aiplatform_v1.types import (
     deployment_resource_pool as gca_deployment_resource_pool,
@@ -317,21 +319,23 @@ class DeploymentResourcePoolServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient`.",
-                extra={
-                    "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
-                    "universeDomain": getattr(
-                        self._client._transport._credentials, "universe_domain", ""
-                    ),
-                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                    "credentialsInfo": getattr(
-                        self.transport._credentials, "get_cred_info", lambda: None
-                    )(),
-                }
-                if hasattr(self._client._transport, "_credentials")
-                else {
-                    "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
-                    "credentialsType": None,
-                },
+                extra=(
+                    {
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "universeDomain": getattr(
+                            self._client._transport._credentials, "universe_domain", ""
+                        ),
+                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                        "credentialsInfo": getattr(
+                            self.transport._credentials, "get_cred_info", lambda: None
+                        )(),
+                    }
+                    if hasattr(self._client._transport, "_credentials")
+                    else {
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "credentialsType": None,
+                    }
+                ),
             )
 
     async def create_deployment_resource_pool(

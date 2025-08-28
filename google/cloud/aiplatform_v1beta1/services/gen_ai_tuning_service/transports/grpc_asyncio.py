@@ -36,7 +36,9 @@ from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import genai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import tuning_job
-from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
+from google.cloud.aiplatform_v1beta1.types import (
+    tuning_job as gca_tuning_job,
+)
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore

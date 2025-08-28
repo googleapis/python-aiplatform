@@ -13,7 +13,9 @@
 # limitations under the License.
 #
 from vertexai import agent_engines
-from test_constants import test_agent
+from test_constants import (
+    test_agent,
+)
 
 _TEST_MODULE_NAME = "test_constants"
 _TEST_AGENT_NAME = "test_agent"

@@ -30,7 +30,9 @@ except ImportError:
     )
 
 from google.cloud.aiplatform.constants import prediction
-from google.cloud.aiplatform.docker_utils.utils import DEFAULT_MOUNTED_MODEL_DIRECTORY
+from google.cloud.aiplatform.docker_utils.utils import (
+    DEFAULT_MOUNTED_MODEL_DIRECTORY,
+)
 from google.cloud.aiplatform.utils import prediction_utils
 
 _logger = logging.getLogger(__name__)

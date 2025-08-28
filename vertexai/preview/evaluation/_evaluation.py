@@ -262,9 +262,9 @@ def _compute_custom_metrics(
         for future in futures_list:
             metric_output = future.result()
             try:
-                row_dict[
-                    f"{custom_metric.name}/{constants.MetricResult.SCORE_KEY}"
-                ] = metric_output[custom_metric.name]
+                row_dict[f"{custom_metric.name}/{constants.MetricResult.SCORE_KEY}"] = (
+                    metric_output[custom_metric.name]
+                )
             except KeyError:
                 raise KeyError(
                     f"Custom metric score `{custom_metric.name}` not found in"
@@ -282,7 +282,10 @@ def _compute_custom_metrics(
 
 def _separate_custom_metrics(
     metrics: List[Union[str, metrics_base._Metric]],
-) -> Tuple[List[Union[str, metrics_base._Metric]], List[metrics_base.CustomMetric],]:
+) -> Tuple[
+    List[Union[str, metrics_base._Metric]],
+    List[metrics_base.CustomMetric],
+]:
     """Separates the metrics list into API and custom metrics."""
     custom_metrics = []
     api_metrics = []
@@ -419,9 +422,9 @@ def _run_model_inference(
                 )
             t2 = time.perf_counter()
             _LOGGER.info(f"Multithreaded Batch Inference took: {t2 - t1} seconds.")
-            evaluation_run_config.metric_column_mapping[
+            evaluation_run_config.metric_column_mapping[response_column_name] = (
                 response_column_name
-            ] = response_column_name
+            )
         else:
             raise ValueError(
                 "Missing required input `prompt` column to start model inference."
@@ -606,9 +609,9 @@ def _run_runnable_inference(
         evaluation_run_config.dataset = evaluation_run_config.dataset.assign(
             failure=failure_list
         )
-        evaluation_run_config.metric_column_mapping[
+        evaluation_run_config.metric_column_mapping[response_column_name] = (
             response_column_name
-        ] = response_column_name
+        )
         if trajectory_list:
             evaluation_run_config.dataset = evaluation_run_config.dataset.assign(
                 predicted_trajectory=trajectory_list
@@ -664,11 +667,11 @@ def _assemble_prompt_for_dataset(
     )
 
     try:
-        evaluation_run_config.dataset[
-            constants.Dataset.PROMPT_COLUMN
-        ] = evaluation_run_config.dataset.apply(
-            lambda row: _pre_eval_utils._assemble_prompt(row, prompt_template),
-            axis=1,
+        evaluation_run_config.dataset[constants.Dataset.PROMPT_COLUMN] = (
+            evaluation_run_config.dataset.apply(
+                lambda row: _pre_eval_utils._assemble_prompt(row, prompt_template),
+                axis=1,
+            )
         )
         if (
             constants.Dataset.PROMPT_COLUMN
@@ -685,9 +688,9 @@ def _assemble_prompt_for_dataset(
                 " parameter is provided. Please verify that you want to use"
                 " the assembled `prompt` column for evaluation."
             )
-        evaluation_run_config.metric_column_mapping[
+        evaluation_run_config.metric_column_mapping[constants.Dataset.PROMPT_COLUMN] = (
             constants.Dataset.PROMPT_COLUMN
-        ] = constants.Dataset.PROMPT_COLUMN
+        )
     except Exception as e:
         raise ValueError(
             f"Failed to assemble prompt template: {e}. Please make sure all"
@@ -1007,7 +1010,7 @@ def _convert_metric_prompt_template_example(metrics):
 
 
 def _get_rubric_metric_with_idx(
-    metrics: List[Union[str, metrics_base._Metric]]
+    metrics: List[Union[str, metrics_base._Metric]],
 ) -> Optional[Tuple[rubric_based_metric.RubricBasedMetric, int]]:
     """Gets the rubric metric with its index in the metrics list."""
     for i, metric in enumerate(metrics):

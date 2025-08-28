@@ -19,11 +19,17 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.cloud.aiplatform_v1beta1.types import network_spec as gca_network_spec
+from google.cloud.aiplatform_v1beta1.types import (
+    network_spec as gca_network_spec,
+)
 from google.cloud.aiplatform_v1beta1.types import notebook_euc_config
-from google.cloud.aiplatform_v1beta1.types import notebook_idle_shutdown_config
+from google.cloud.aiplatform_v1beta1.types import (
+    notebook_idle_shutdown_config,
+)
 from google.cloud.aiplatform_v1beta1.types import (
     notebook_runtime_template_ref as gca_notebook_runtime_template_ref,
 )
@@ -55,6 +61,7 @@ class NotebookRuntimeType(proto.Enum):
             runtime or template with system defined
             configurations.
     """
+
     NOTEBOOK_RUNTIME_TYPE_UNSPECIFIED = 0
     USER_DEFINED = 1
     ONE_CLICK = 2
@@ -387,6 +394,7 @@ class NotebookRuntime(proto.Message):
                 NotebookRuntime is in unhealthy state.
                 Applies to ACTIVE state.
         """
+
         HEALTH_STATE_UNSPECIFIED = 0
         HEALTHY = 1
         UNHEALTHY = 2
@@ -419,6 +427,7 @@ class NotebookRuntime(proto.Message):
                 NotebookRuntime is in invalid state. Cannot
                 be recovered.
         """
+
         RUNTIME_STATE_UNSPECIFIED = 0
         RUNNING = 1
         BEING_STARTED = 2
@@ -436,7 +445,9 @@ class NotebookRuntime(proto.Message):
         proto.STRING,
         number=2,
     )
-    notebook_runtime_template_ref: gca_notebook_runtime_template_ref.NotebookRuntimeTemplateRef = proto.Field(
+    notebook_runtime_template_ref: (
+        gca_notebook_runtime_template_ref.NotebookRuntimeTemplateRef
+    ) = proto.Field(
         proto.MESSAGE,
         number=3,
         message=gca_notebook_runtime_template_ref.NotebookRuntimeTemplateRef,

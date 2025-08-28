@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_spec
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -152,7 +154,9 @@ class ModelMonitor(proto.Message):
             )
         )
 
-    tabular_objective: model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective = proto.Field(
+    tabular_objective: (
+        model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective
+    ) = proto.Field(
         proto.MESSAGE,
         number=11,
         oneof="default_objective",

@@ -3536,13 +3536,13 @@ class TestEvalsRunEvaluation:
             candidate_name="gemini-pro",
         )
 
-        mock_eval_dependencies[
-            "mock_evaluate_instances"
-        ].return_value = vertexai_genai_types.EvaluateInstancesResponse(
-            exact_match_results=vertexai_genai_types.ExactMatchResults(
-                exact_match_metric_values=[
-                    vertexai_genai_types.ExactMatchMetricValue(score=1.0)
-                ]
+        mock_eval_dependencies["mock_evaluate_instances"].return_value = (
+            vertexai_genai_types.EvaluateInstancesResponse(
+                exact_match_results=vertexai_genai_types.ExactMatchResults(
+                    exact_match_metric_values=[
+                        vertexai_genai_types.ExactMatchMetricValue(score=1.0)
+                    ]
+                )
             )
         )
 

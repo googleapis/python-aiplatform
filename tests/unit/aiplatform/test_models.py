@@ -1605,7 +1605,7 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                explanation_metadata=_TEST_EXPLANATION_METADATA
+                explanation_metadata=_TEST_EXPLANATION_METADATA,
                 # Missing the required explanations_parameters field
             )
 

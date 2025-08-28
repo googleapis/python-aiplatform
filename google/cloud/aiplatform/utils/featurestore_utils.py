@@ -18,7 +18,9 @@
 import re
 from typing import Dict, NamedTuple, Optional
 
-from google.cloud.aiplatform.compat.services import featurestore_service_client
+from google.cloud.aiplatform.compat.services import (
+    featurestore_service_client,
+)
 from google.cloud.aiplatform.compat.types import (
     feature as gca_feature,
     featurestore_service as gca_featurestore_service,

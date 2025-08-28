@@ -825,12 +825,12 @@ class FeatureRegistryServiceGrpcTransport(FeatureRegistryServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_feature_monitor_job" not in self._stubs:
-            self._stubs[
-                "create_feature_monitor_job"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/CreateFeatureMonitorJob",
-                request_serializer=feature_registry_service.CreateFeatureMonitorJobRequest.serialize,
-                response_deserializer=gca_feature_monitor_job.FeatureMonitorJob.deserialize,
+            self._stubs["create_feature_monitor_job"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/CreateFeatureMonitorJob",
+                    request_serializer=feature_registry_service.CreateFeatureMonitorJobRequest.serialize,
+                    response_deserializer=gca_feature_monitor_job.FeatureMonitorJob.deserialize,
+                )
             )
         return self._stubs["create_feature_monitor_job"]
 

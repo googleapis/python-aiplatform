@@ -45,9 +45,9 @@ _transport_registry["grpc"] = FeatureOnlineStoreAdminServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = FeatureOnlineStoreAdminServiceRestTransport
 if HAS_REST_ASYNC:  # pragma: NO COVER
-    _transport_registry[
-        "rest_asyncio"
-    ] = AsyncFeatureOnlineStoreAdminServiceRestTransport
+    _transport_registry["rest_asyncio"] = (
+        AsyncFeatureOnlineStoreAdminServiceRestTransport
+    )
 
 __all__ = (
     "FeatureOnlineStoreAdminServiceTransport",

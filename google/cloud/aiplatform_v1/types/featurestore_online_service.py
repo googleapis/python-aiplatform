@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import feature_selector as gca_feature_selector
+from google.cloud.aiplatform_v1.types import (
+    feature_selector as gca_feature_selector,
+)
 from google.cloud.aiplatform_v1.types import types
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -250,12 +252,12 @@ class ReadFeatureValuesResponse(proto.Message):
             proto.STRING,
             number=1,
         )
-        data: MutableSequence[
-            "ReadFeatureValuesResponse.EntityView.Data"
-        ] = proto.RepeatedField(
-            proto.MESSAGE,
-            number=2,
-            message="ReadFeatureValuesResponse.EntityView.Data",
+        data: MutableSequence["ReadFeatureValuesResponse.EntityView.Data"] = (
+            proto.RepeatedField(
+                proto.MESSAGE,
+                number=2,
+                message="ReadFeatureValuesResponse.EntityView.Data",
+            )
         )
 
     header: Header = proto.Field(

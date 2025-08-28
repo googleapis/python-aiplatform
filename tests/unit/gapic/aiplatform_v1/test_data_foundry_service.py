@@ -68,7 +68,9 @@ from google.cloud.aiplatform_v1.services.data_foundry_service import (
 from google.cloud.aiplatform_v1.services.data_foundry_service import (
     DataFoundryServiceClient,
 )
-from google.cloud.aiplatform_v1.services.data_foundry_service import transports
+from google.cloud.aiplatform_v1.services.data_foundry_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import data_foundry_service
 from google.cloud.aiplatform_v1.types import tool
@@ -1812,9 +1814,9 @@ def test_generate_synthetic_data_rest_call_success(request_type):
 def test_generate_synthetic_data_rest_interceptors(null_interceptor):
     transport = transports.DataFoundryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DataFoundryServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.DataFoundryServiceRestInterceptor()
+        ),
     )
     client = DataFoundryServiceClient(transport=transport)
 
@@ -2625,9 +2627,11 @@ async def test_generate_synthetic_data_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncDataFoundryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDataFoundryServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncDataFoundryServiceRestInterceptor()
+        ),
     )
     client = DataFoundryServiceAsyncClient(transport=transport)
 

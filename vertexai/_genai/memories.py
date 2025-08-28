@@ -631,6 +631,7 @@ def _RetrieveMemoriesResponse_from_vertex(
 
 
 class Memories(_api_module.BaseModule):
+
     def _create(
         self,
         *,
@@ -1377,6 +1378,7 @@ class Memories(_api_module.BaseModule):
 
 
 class AsyncMemories(_api_module.BaseModule):
+
     async def _create(
         self,
         *,

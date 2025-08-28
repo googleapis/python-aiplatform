@@ -142,7 +142,7 @@ def to_json_serializable_llama_index_object(
         LlamaIndexBaseModel,
         LlamaIndexChatResponse,
         Sequence[LlamaIndexBaseModel],
-    ]
+    ],
 ) -> Union[str, Dict[str, Any], Sequence[Union[str, Dict[str, Any]]]]:
     """Converts a LlamaIndexResponse to a JSON serializable object."""
     if isinstance(obj, LlamaIndexResponse):

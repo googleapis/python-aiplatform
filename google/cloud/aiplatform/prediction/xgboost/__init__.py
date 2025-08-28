@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.prediction.xgboost.predictor import XgboostPredictor
+from google.cloud.aiplatform.prediction.xgboost.predictor import (
+    XgboostPredictor,
+)
 
 __all__ = ("XgboostPredictor",)

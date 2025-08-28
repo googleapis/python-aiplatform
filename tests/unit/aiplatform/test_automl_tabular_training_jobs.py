@@ -912,15 +912,15 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular_alternative,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
         )
-        column_specs[
-            _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[0]
-        ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.NUMERIC
-        column_specs[
-            _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[1]
-        ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.CATEGORICAL
-        column_specs[
-            _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[2]
-        ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.TEXT
+        column_specs[_TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[0]] = (
+            training_jobs.AutoMLTabularTrainingJob.column_data_types.NUMERIC
+        )
+        column_specs[_TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[1]] = (
+            training_jobs.AutoMLTabularTrainingJob.column_data_types.CATEGORICAL
+        )
+        column_specs[_TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[2]] = (
+            training_jobs.AutoMLTabularTrainingJob.column_data_types.TEXT
+        )
 
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,

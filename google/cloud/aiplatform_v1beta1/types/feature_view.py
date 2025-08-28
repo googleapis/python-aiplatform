@@ -146,6 +146,7 @@ class FeatureView(proto.Message):
                 service account will be used to read from the source
                 BigQuery table during sync.
         """
+
         SERVICE_AGENT_TYPE_UNSPECIFIED = 0
         SERVICE_AGENT_TYPE_PROJECT = 1
         SERVICE_AGENT_TYPE_FEATURE_VIEW = 2
@@ -269,6 +270,7 @@ class FeatureView(proto.Message):
                     Dot Product Distance. Defined as a negative
                     of the dot product.
             """
+
             DISTANCE_MEASURE_TYPE_UNSPECIFIED = 0
             SQUARED_L2_DISTANCE = 1
             COSINE_DISTANCE = 2
@@ -412,6 +414,7 @@ class FeatureView(proto.Message):
                     Dot Product Distance. Defined as a negative
                     of the dot product.
             """
+
             DISTANCE_MEASURE_TYPE_UNSPECIFIED = 0
             SQUARED_L2_DISTANCE = 1
             COSINE_DISTANCE = 2
