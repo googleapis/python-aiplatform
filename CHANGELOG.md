@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.112.0](https://github.com/googleapis/python-aiplatform/compare/v1.111.0...v1.112.0) (2025-08-29)
+
+
+### Features
+
+* Add support for loading evaluation datasets from Observability GCS sources ([bfcccc9](https://github.com/googleapis/python-aiplatform/commit/bfcccc975c7720286908d609688e01c902b675c5))
+* Add the service account option for the agent engine ([219c33f](https://github.com/googleapis/python-aiplatform/commit/219c33fd5fb628ec3945df91347e74710c1318b3))
+* Adding `gpu_partition_size` parameter to Model.deploy() method. ([966c236](https://github.com/googleapis/python-aiplatform/commit/966c236fef9bb800b8ce6a9235c6bb06b3203c66))
+* GenAI SDK client - Add `api_key` parameter to vertexai.Client` ([a9ffc60](https://github.com/googleapis/python-aiplatform/commit/a9ffc6030dc58ed4acd269632033cbee23dd470a))
+* GenAI SDK client - Add sandbox code execution SDK support ([74e52d9](https://github.com/googleapis/python-aiplatform/commit/74e52d957035d5bc9d63bc0912b9785522930487))
+* GenAI SDK client - Remove experimental warning from agent_engines module ([42c3c9c](https://github.com/googleapis/python-aiplatform/commit/42c3c9c5546b7f02c07818934fcc804a882a9703))
+* Support bidi stream query in agent engines and ADK template. ([456249e](https://github.com/googleapis/python-aiplatform/commit/456249efacd7cebf274f6f28316e475a6271dfa3))
+
+
+### Bug Fixes
+
+* Allow for inheritance of clone behavior in AdkApp ([e5ced93](https://github.com/googleapis/python-aiplatform/commit/e5ced937033f0b194ccad6acc65ea03869d1847b))
+
 ## [1.111.0](https://github.com/googleapis/python-aiplatform/compare/v1.110.0...v1.111.0) (2025-08-27)
 
 
