@@ -54,9 +54,7 @@ def _EventActions_to_vertex(
 
     if getv(from_object, ["skip_summarization"]) is not None:
         setv(
-            to_object,
-            ["skipSummarization"],
-            getv(from_object, ["skip_summarization"]),
+            to_object, ["skipSummarization"], getv(from_object, ["skip_summarization"])
         )
 
     if getv(from_object, ["state_delta"]) is not None:
@@ -66,11 +64,7 @@ def _EventActions_to_vertex(
         setv(to_object, ["transferAgent"], getv(from_object, ["transfer_agent"]))
 
     if getv(from_object, ["transfer_to_agent"]) is not None:
-        setv(
-            to_object,
-            ["transferToAgent"],
-            getv(from_object, ["transfer_to_agent"]),
-        )
+        setv(to_object, ["transferToAgent"], getv(from_object, ["transfer_to_agent"]))
 
     return to_object
 
@@ -82,20 +76,14 @@ def _EventMetadata_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["grounding_metadata"]) is not None:
         setv(
-            to_object,
-            ["groundingMetadata"],
-            getv(from_object, ["grounding_metadata"]),
+            to_object, ["groundingMetadata"], getv(from_object, ["grounding_metadata"])
         )
 
     if getv(from_object, ["branch"]) is not None:
         setv(to_object, ["branch"], getv(from_object, ["branch"]))
 
     if getv(from_object, ["custom_metadata"]) is not None:
-        setv(
-            to_object,
-            ["customMetadata"],
-            getv(from_object, ["custom_metadata"]),
-        )
+        setv(to_object, ["customMetadata"], getv(from_object, ["custom_metadata"]))
 
     if getv(from_object, ["interrupted"]) is not None:
         setv(to_object, ["interrupted"], getv(from_object, ["interrupted"]))
@@ -136,11 +124,7 @@ def _AppendAgentEngineSessionEventConfig_to_vertex(
         setv(parent_object, ["errorCode"], getv(from_object, ["error_code"]))
 
     if getv(from_object, ["error_message"]) is not None:
-        setv(
-            parent_object,
-            ["errorMessage"],
-            getv(from_object, ["error_message"]),
-        )
+        setv(parent_object, ["errorMessage"], getv(from_object, ["error_message"]))
 
     if getv(from_object, ["event_metadata"]) is not None:
         setv(
@@ -188,18 +172,10 @@ def _ListAgentEngineSessionEventsConfig_to_vertex(
     to_object: dict[str, Any] = {}
 
     if getv(from_object, ["page_size"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "pageSize"],
-            getv(from_object, ["page_size"]),
-        )
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
 
     if getv(from_object, ["page_token"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "pageToken"],
-            getv(from_object, ["page_token"]),
-        )
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
 
     if getv(from_object, ["filter"]) is not None:
         setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
@@ -277,11 +253,7 @@ def _ListAgentEngineSessionEventsResponse_from_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(
-            to_object,
-            ["sdk_http_response"],
-            getv(from_object, ["sdkHttpResponse"]),
-        )
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
 
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
@@ -310,24 +282,21 @@ class SessionEvents(_api_module.BaseModule):
         timestamp: datetime.datetime,
         config: Optional[types.AppendAgentEngineSessionEventConfigOrDict] = None,
     ) -> types.AppendAgentEngineSessionEventResponse:
-        """Appends Agent Engine session event.
+        """
+        Appends Agent Engine session event.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to append
-              event for. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            author (str): Required. The author of the Agent Engine session
-              event.
-            invocation_id (str): Required. The invocation ID of the Agent Engine
-              session event.
-            timestamp (datetime.datetime): Required. The timestamp of the Agent
-              Engine session event.
-            config (AppendAgentEngineSessionEventConfig): Optional. Additional
-              configurations for appending the Agent Engine session event.
+            name (str): Required. The name of the Agent Engine session to append event for. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
+            author (str): Required. The author of the Agent Engine session event.
+            invocation_id (str): Required. The invocation ID of the Agent Engine session event.
+            timestamp (datetime.datetime): Required. The timestamp of the Agent Engine session event.
+            config (AppendAgentEngineSessionEventConfig):
+                Optional. Additional configurations for appending the Agent Engine session event.
 
         Returns:
-            AppendAgentEngineSessionEventResponse: The requested Agent Engine
-            session event.
+            AppendAgentEngineSessionEventResponse: The requested Agent Engine session event.
+
         """
 
         parameter_model = types._AppendAgentEngineSessionEventRequestParameters(
@@ -389,18 +358,18 @@ class SessionEvents(_api_module.BaseModule):
         name: str,
         config: Optional[types.ListAgentEngineSessionEventsConfigOrDict] = None,
     ) -> types.ListAgentEngineSessionEventsResponse:
-        """Lists Agent Engine session events.
+        """
+        Lists Agent Engine session events.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to list
-              events for. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (ListAgentEngineSessionEventsConfig): Optional. Additional
-              configurations for listing the Agent Engine session events.
+            name (str): Required. The name of the Agent Engine session to list events for. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
+            config (ListAgentEngineSessionEventsConfig):
+                Optional. Additional configurations for listing the Agent Engine session events.
 
         Returns:
-            ListAgentEngineSessionEventsResponse: The requested Agent Engine
-            session events.
+            ListAgentEngineSessionEventsResponse: The requested Agent Engine session events.
+
         """
 
         parameter_model = types._ListAgentEngineSessionEventsRequestParameters(
@@ -463,13 +432,13 @@ class SessionEvents(_api_module.BaseModule):
 
         Args:
             name (str): Required. The name of the agent engine to list session
-              events for.
-            config (ListAgentEngineSessionEventsConfig): Optional. The
-              configuration for the session events to list. Currently, the
-              `filter` field in `config` only supports filtering by `timestamp`.
-              The timestamp value must be enclosed in double quotes and include
-              the time zone information. For example: `config={'filter':
-              'timestamp>="2025-08-07T19:44:38.4Z"'}`.
+                events for.
+            config (ListAgentEngineSessionEventsConfig): Optional. The configuration
+                for the session events to list. Currently, the `filter` field in
+                `config` only supports filtering by `timestamp`. The timestamp
+                value must be enclosed in double quotes and include the time zone
+                information. For example:
+                `config={'filter': 'timestamp>="2025-08-07T19:44:38.4Z"'}`.
 
         Returns:
             Iterator[SessionEvent]: An iterable of session events.
@@ -494,24 +463,21 @@ class AsyncSessionEvents(_api_module.BaseModule):
         timestamp: datetime.datetime,
         config: Optional[types.AppendAgentEngineSessionEventConfigOrDict] = None,
     ) -> types.AppendAgentEngineSessionEventResponse:
-        """Appends Agent Engine session event.
+        """
+        Appends Agent Engine session event.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to append
-              event for. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            author (str): Required. The author of the Agent Engine session
-              event.
-            invocation_id (str): Required. The invocation ID of the Agent Engine
-              session event.
-            timestamp (datetime.datetime): Required. The timestamp of the Agent
-              Engine session event.
-            config (AppendAgentEngineSessionEventConfig): Optional. Additional
-              configurations for appending the Agent Engine session event.
+            name (str): Required. The name of the Agent Engine session to append event for. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
+            author (str): Required. The author of the Agent Engine session event.
+            invocation_id (str): Required. The invocation ID of the Agent Engine session event.
+            timestamp (datetime.datetime): Required. The timestamp of the Agent Engine session event.
+            config (AppendAgentEngineSessionEventConfig):
+                Optional. Additional configurations for appending the Agent Engine session event.
 
         Returns:
-            AppendAgentEngineSessionEventResponse: The requested Agent Engine
-            session event.
+            AppendAgentEngineSessionEventResponse: The requested Agent Engine session event.
+
         """
 
         parameter_model = types._AppendAgentEngineSessionEventRequestParameters(
@@ -575,18 +541,18 @@ class AsyncSessionEvents(_api_module.BaseModule):
         name: str,
         config: Optional[types.ListAgentEngineSessionEventsConfigOrDict] = None,
     ) -> types.ListAgentEngineSessionEventsResponse:
-        """Lists Agent Engine session events.
+        """
+        Lists Agent Engine session events.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to list
-              events for. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
-            config (ListAgentEngineSessionEventsConfig): Optional. Additional
-              configurations for listing the Agent Engine session events.
+            name (str): Required. The name of the Agent Engine session to list events for. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
+            config (ListAgentEngineSessionEventsConfig):
+                Optional. Additional configurations for listing the Agent Engine session events.
 
         Returns:
-            ListAgentEngineSessionEventsResponse: The requested Agent Engine
-            session events.
+            ListAgentEngineSessionEventsResponse: The requested Agent Engine session events.
+
         """
 
         parameter_model = types._ListAgentEngineSessionEventsRequestParameters(

@@ -43,31 +43,19 @@ def _ReasoningEngineSpec_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["agent_framework"]) is not None:
-        setv(
-            to_object,
-            ["agentFramework"],
-            getv(from_object, ["agent_framework"]),
-        )
+        setv(to_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
 
     if getv(from_object, ["class_methods"]) is not None:
         setv(to_object, ["classMethods"], getv(from_object, ["class_methods"]))
 
     if getv(from_object, ["deployment_spec"]) is not None:
-        setv(
-            to_object,
-            ["deploymentSpec"],
-            getv(from_object, ["deployment_spec"]),
-        )
+        setv(to_object, ["deploymentSpec"], getv(from_object, ["deployment_spec"]))
 
     if getv(from_object, ["package_spec"]) is not None:
         setv(to_object, ["packageSpec"], getv(from_object, ["package_spec"]))
 
     if getv(from_object, ["service_account"]) is not None:
-        setv(
-            to_object,
-            ["serviceAccount"],
-            getv(from_object, ["service_account"]),
-        )
+        setv(to_object, ["serviceAccount"], getv(from_object, ["service_account"]))
 
     return to_object
 
@@ -78,11 +66,7 @@ def _ReasoningEngineContextSpec_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["memory_bank_config"]) is not None:
-        setv(
-            to_object,
-            ["memoryBankConfig"],
-            getv(from_object, ["memory_bank_config"]),
-        )
+        setv(to_object, ["memoryBankConfig"], getv(from_object, ["memory_bank_config"]))
 
     return to_object
 
@@ -94,16 +78,12 @@ def _PscInterfaceConfig_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["dns_peering_configs"]) is not None:
         setv(
-            to_object,
-            ["dnsPeeringConfigs"],
-            getv(from_object, ["dns_peering_configs"]),
+            to_object, ["dnsPeeringConfigs"], getv(from_object, ["dns_peering_configs"])
         )
 
     if getv(from_object, ["network_attachment"]) is not None:
         setv(
-            to_object,
-            ["networkAttachment"],
-            getv(from_object, ["network_attachment"]),
+            to_object, ["networkAttachment"], getv(from_object, ["network_attachment"])
         )
 
     return to_object
@@ -147,11 +127,7 @@ def _CreateAgentEngineConfig_to_vertex(
         )
 
     if getv(from_object, ["encryption_spec"]) is not None:
-        setv(
-            parent_object,
-            ["encryptionSpec"],
-            getv(from_object, ["encryption_spec"]),
-        )
+        setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
 
     return to_object
 
@@ -211,18 +187,10 @@ def _ListAgentEngineConfig_to_vertex(
     to_object: dict[str, Any] = {}
 
     if getv(from_object, ["page_size"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "pageSize"],
-            getv(from_object, ["page_size"]),
-        )
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
 
     if getv(from_object, ["page_token"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "pageToken"],
-            getv(from_object, ["page_token"]),
-        )
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
 
     if getv(from_object, ["filter"]) is not None:
         setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
@@ -252,9 +220,7 @@ def _GetAgentEngineOperationParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["operation_name"]) is not None:
         setv(
-            to_object,
-            ["_url", "operationName"],
-            getv(from_object, ["operation_name"]),
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -276,11 +242,7 @@ def _QueryAgentEngineConfig_to_vertex(
         setv(parent_object, ["input"], getv(from_object, ["input"]))
 
     if getv(from_object, ["include_all_fields"]) is not None:
-        setv(
-            to_object,
-            ["includeAllFields"],
-            getv(from_object, ["include_all_fields"]),
-        )
+        setv(to_object, ["includeAllFields"], getv(from_object, ["include_all_fields"]))
 
     return to_object
 
@@ -341,17 +303,11 @@ def _UpdateAgentEngineConfig_to_vertex(
         )
 
     if getv(from_object, ["encryption_spec"]) is not None:
-        setv(
-            parent_object,
-            ["encryptionSpec"],
-            getv(from_object, ["encryption_spec"]),
-        )
+        setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
-            parent_object,
-            ["_query", "updateMask"],
-            getv(from_object, ["update_mask"]),
+            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
         )
 
     return to_object
@@ -383,11 +339,7 @@ def _ReasoningEngine_from_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(
-            to_object,
-            ["encryption_spec"],
-            getv(from_object, ["encryptionSpec"]),
-        )
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
 
     if getv(from_object, ["contextSpec"]) is not None:
         setv(to_object, ["context_spec"], getv(from_object, ["contextSpec"]))
@@ -469,11 +421,7 @@ def _ListReasoningEnginesResponse_from_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(
-            to_object,
-            ["sdk_http_response"],
-            getv(from_object, ["sdkHttpResponse"]),
-        )
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
 
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
@@ -507,7 +455,9 @@ class AgentEngines(_api_module.BaseModule):
     def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
-        """Creates a new Agent Engine."""
+        """
+        Creates a new Agent Engine.
+        """
 
         parameter_model = types._CreateAgentEngineRequestParameters(
             config=config,
@@ -563,19 +513,21 @@ class AgentEngines(_api_module.BaseModule):
         force: Optional[bool] = None,
         config: Optional[types.DeleteAgentEngineConfigOrDict] = None,
     ) -> types.DeleteAgentEngineOperation:
-        """Delete an Agent Engine resource.
+        """
+        Delete an Agent Engine resource.
 
         Args:
-            name (str): Required. The name of the Agent Engine to be deleted.
-              Format:
+            name (str):
+                Required. The name of the Agent Engine to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
                 or `reasoningEngines/{resource_id}`.
-            force (bool): Optional. If set to True, child resources will also be
-              deleted. Otherwise, the request will fail with FAILED_PRECONDITION
-              error when the Agent Engine has undeleted child resources.
-              Defaults to False.
-            config (DeleteAgentEngineConfig): Optional. Additional
-              configurations for deleting the Agent Engine.
+            force (bool):
+                Optional. If set to True, child resources will also be deleted.
+                Otherwise, the request will fail with FAILED_PRECONDITION error when
+                the Agent Engine has undeleted child resources. Defaults to False.
+            config (DeleteAgentEngineConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
         """
 
         parameter_model = types._DeleteAgentEngineRequestParameters(
@@ -628,12 +580,11 @@ class AgentEngines(_api_module.BaseModule):
         return return_value
 
     def _get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetAgentEngineConfigOrDict] = None
     ) -> types.ReasoningEngine:
-        """Get an Agent Engine instance."""
+        """
+        Get an Agent Engine instance.
+        """
 
         parameter_model = types._GetAgentEngineRequestParameters(
             name=name,
@@ -684,7 +635,9 @@ class AgentEngines(_api_module.BaseModule):
     def _list(
         self, *, config: Optional[types.ListAgentEngineConfigOrDict] = None
     ) -> types.ListReasoningEnginesResponse:
-        """Lists Agent Engines."""
+        """
+        Lists Agent Engines.
+        """
 
         parameter_model = types._ListAgentEngineRequestParameters(
             config=config,
@@ -784,12 +737,11 @@ class AgentEngines(_api_module.BaseModule):
         return return_value
 
     def _query(
-        self,
-        *,
-        name: str,
-        config: Optional[types.QueryAgentEngineConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.QueryAgentEngineConfigOrDict] = None
     ) -> types.QueryReasoningEngineResponse:
-        """Query an Agent Engine."""
+        """
+        Query an Agent Engine.
+        """
 
         parameter_model = types._QueryAgentEngineRequestParameters(
             name=name,
@@ -838,12 +790,11 @@ class AgentEngines(_api_module.BaseModule):
         return return_value
 
     def _update(
-        self,
-        *,
-        name: str,
-        config: Optional[types.UpdateAgentEngineConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.UpdateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
-        """Updates an Agent Engine."""
+        """
+        Updates an Agent Engine.
+        """
 
         parameter_model = types._UpdateAgentEngineRequestParameters(
             name=name,
@@ -920,9 +871,9 @@ class AgentEngines(_api_module.BaseModule):
                 self._sessions = importlib.import_module(".sessions", __package__)
             except ImportError as e:
                 raise ImportError(
-                    "The agent_engines.sessions module requires additional"
-                    " packages. Please install them using pip install"
-                    " google-cloud-aiplatform[agent_engines]"
+                    "The agent_engines.sessions module requires additional packages. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
                 ) from e
         return self._sessions.Sessions(self._api_client)
 
@@ -945,9 +896,10 @@ class AgentEngines(_api_module.BaseModule):
         """Gets an agent engine.
 
         Args:
-            name (str): Required. A fully-qualified resource name or ID such as
-              "projects/123/locations/us-central1/reasoningEngines/456" or a
-              shortened name such as "reasoningEngines/456".
+            name (str):
+                Required. A fully-qualified resource name or ID such as
+                "projects/123/locations/us-central1/reasoningEngines/456" or
+                a shortened name such as "reasoningEngines/456".
         """
         api_resource = self._get(name=name, config=config)
         agent_engine = types.AgentEngine(
@@ -1008,14 +960,14 @@ class AgentEngines(_api_module.BaseModule):
             )
 
         Args:
-            agent (Any): Optional. The Agent to be created. If not specified,
-              this will correspond to a lightweight instance that cannot be
-              queried (but can be updated to future instances that can be
-              queried).
-            agent_engine (Any): Optional. This is deprecated. Please use `agent`
-              instead.
-            config (AgentEngineConfig): Optional. The configurations to use for
-              creating the Agent Engine.
+            agent (Any):
+                Optional. The Agent to be created. If not specified, this will
+                correspond to a lightweight instance that cannot be queried
+                (but can be updated to future instances that can be queried).
+            agent_engine (Any):
+                Optional. This is deprecated. Please use `agent` instead.
+            config (AgentEngineConfig):
+                Optional. The configurations to use for creating the Agent Engine.
 
         Returns:
             AgentEngine: The created Agent Engine instance.
@@ -1028,10 +980,8 @@ class AgentEngines(_api_module.BaseModule):
             ValueError: If `config.staging_bucket` does not start with "gs://".
             ValueError: If `config.extra_packages` is specified but `agent`
             is None.
-            ValueError: If `config.requirements` is specified but `agent` is
-            None.
-            ValueError: If `config.env_vars` has a dictionary entry that does
-            not
+            ValueError: If `config.requirements` is specified but `agent` is None.
+            ValueError: If `config.env_vars` has a dictionary entry that does not
             correspond to an environment variable value or a SecretRef.
             TypeError: If `config.env_vars` is not a dictionary.
             FileNotFoundError: If `config.extra_packages` includes a file or
@@ -1045,8 +995,7 @@ class AgentEngines(_api_module.BaseModule):
             config = types.AgentEngineConfig.model_validate(config)
         elif not isinstance(config, types.AgentEngineConfig):
             raise TypeError(
-                "config must be a dict or AgentEngineConfig, but got"
-                f" {type(config)}."
+                f"config must be a dict or AgentEngineConfig, but got {type(config)}."
             )
         context_spec = config.context_spec
         if context_spec is not None:
@@ -1056,8 +1005,7 @@ class AgentEngines(_api_module.BaseModule):
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
             raise DeprecationWarning(
-                "The `agent_engine` argument is deprecated. Please use `agent`"
-                " instead."
+                "The `agent_engine` argument is deprecated. Please use `agent` instead."
             )
         agent = agent or agent_engine
         api_config = self._create_config(
@@ -1082,8 +1030,7 @@ class AgentEngines(_api_module.BaseModule):
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
         logger.info(
-            "View progress and logs at"
-            f" https://console.cloud.google.com/logs/query?project={self._api_client.project}."
+            f"View progress and logs at https://console.cloud.google.com/logs/query?project={self._api_client.project}."
         )
         if agent is None:
             poll_interval_seconds = 1  # Lightweight agent engine resource creation.
@@ -1295,19 +1242,18 @@ class AgentEngines(_api_module.BaseModule):
         if min_instances is not None:
             if not 0 <= min_instances <= 10:
                 raise ValueError(
-                    "min_instances must be between 0 and 10. Got" f" {min_instances}"
+                    f"min_instances must be between 0 and 10. Got {min_instances}"
                 )
             deployment_spec["min_instances"] = min_instances
             update_masks.append("spec.deployment_spec.min_instances")
         if max_instances is not None:
             if psc_interface_config and not 1 <= max_instances <= 100:
                 raise ValueError(
-                    "max_instances must be between 1 and 100 when PSC-I is"
-                    f" enabled. Got {max_instances}"
+                    f"max_instances must be between 1 and 100 when PSC-I is enabled. Got {max_instances}"
                 )
             elif not psc_interface_config and not 1 <= max_instances <= 1000:
                 raise ValueError(
-                    "max_instances must be between 1 and 1000. Got" f" {max_instances}"
+                    f"max_instances must be between 1 and 1000. Got {max_instances}"
                 )
             deployment_spec["max_instances"] = max_instances
             update_masks.append("spec.deployment_spec.max_instances")
@@ -1361,8 +1307,7 @@ class AgentEngines(_api_module.BaseModule):
             )
         except Exception as e:
             logger.warning(
-                _agent_engines_utils._FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE,
-                e,
+                _agent_engines_utils._FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e
             )
         return agent_engine
 
@@ -1376,20 +1321,18 @@ class AgentEngines(_api_module.BaseModule):
         .. code-block:: python
             import vertexai
 
-            client = vertexai.Client(project="my_project",
-            location="us-central1")
+            client = vertexai.Client(project="my_project", location="us-central1")
             for agent in client.agent_engines.list(
                 config={"filter": "'display_name="My Custom Agent"'},
             ):
                 print(agent.api_resource.name)
 
         Args:
-            config (ListAgentEngineConfig): Optional. The config (e.g. filter)
-              for the agents to be listed.
+            config (ListAgentEngineConfig):
+                Optional. The config (e.g. filter) for the agents to be listed.
 
         Returns:
-            Iterable[AgentEngine]: An iterable of Agent Engines matching the
-            filter.
+            Iterable[AgentEngine]: An iterable of Agent Engines matching the filter.
         """
 
         for reasoning_engine in self._list_pager(config=config):
@@ -1409,21 +1352,20 @@ class AgentEngines(_api_module.BaseModule):
     ) -> types.AgentEngine:
         """Updates an existing Agent Engine.
 
-        This method updates the configuration of an existing Agent Engine
-        running
+        This method updates the configuration of an existing Agent Engine running
         remotely, which is identified by its name.
 
         Args:
             name (str): Required. A fully-qualified resource name or ID such as
-              "projects/123/locations/us-central1/reasoningEngines/456" or a
-              shortened name such as "reasoningEngines/456".
-            agent (Any): Optional. The instance to be used as the updated Agent
-              Engine. If it is not specified, the existing instance will be
-              used.
-            agent_engine (Any): Optional. This is deprecated. Please use `agent`
-              instead.
-            config (AgentEngineConfig): Optional. The configurations to use for
-              updating the Agent Engine.
+                "projects/123/locations/us-central1/reasoningEngines/456" or a
+                shortened name such as "reasoningEngines/456".
+            agent (Any):
+                Optional. The instance to be used as the updated Agent Engine.
+                If it is not specified, the existing instance will be used.
+            agent_engine (Any):
+                Optional. This is deprecated. Please use `agent` instead.
+            config (AgentEngineConfig):
+                Optional. The configurations to use for updating the Agent Engine.
 
         Returns:
             AgentEngine: The updated Agent Engine.
@@ -1436,8 +1378,7 @@ class AgentEngines(_api_module.BaseModule):
           ValueError: If `config.staging_bucket` does not start with "gs://".
           ValueError: If `config.extra_packages` is specified but `agent_engine`
           is None.
-          ValueError: If `config.requirements` is specified but `agent_engine`
-          is
+          ValueError: If `config.requirements` is specified but `agent_engine` is
           None.
           ValueError: If `config.env_vars` has a dictionary entry that does not
           correspond to an environment variable value or a SecretRef.
@@ -1451,8 +1392,7 @@ class AgentEngines(_api_module.BaseModule):
             config = types.AgentEngineConfig.model_validate(config)
         elif not isinstance(config, types.AgentEngineConfig):
             raise TypeError(
-                "config must be a dict or AgentEngineConfig, but got"
-                f" {type(config)}."
+                f"config must be a dict or AgentEngineConfig, but got {type(config)}."
             )
         context_spec = config.context_spec
         if context_spec is not None:
@@ -1462,8 +1402,7 @@ class AgentEngines(_api_module.BaseModule):
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
             raise DeprecationWarning(
-                "The `agent_engine` argument is deprecated. Please use `agent`"
-                " instead."
+                "The `agent_engine` argument is deprecated. Please use `agent` instead."
             )
         agent = agent or agent_engine
         api_config = self._create_config(
@@ -1486,8 +1425,7 @@ class AgentEngines(_api_module.BaseModule):
         )
         operation = self._update(name=name, config=api_config)
         logger.info(
-            "View progress and logs at"
-            f" https://console.cloud.google.com/logs/query?project={self._api_client.project}."
+            f"View progress and logs at https://console.cloud.google.com/logs/query?project={self._api_client.project}."
         )
         operation = _agent_engines_utils._await_operation(
             operation_name=operation.name,
@@ -1510,10 +1448,7 @@ class AgentEngines(_api_module.BaseModule):
         return agent_engine
 
     def _stream_query(
-        self,
-        *,
-        name: str,
-        config: Optional[types.QueryAgentEngineConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.QueryAgentEngineConfigOrDict] = None
     ) -> Iterator[Any]:
         """Streams the response of the agent engine."""
         parameter_model = types._QueryAgentEngineRequestParameters(
@@ -1841,7 +1776,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
     async def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
-        """Creates a new Agent Engine."""
+        """
+        Creates a new Agent Engine.
+        """
 
         parameter_model = types._CreateAgentEngineRequestParameters(
             config=config,
@@ -1899,19 +1836,21 @@ class AsyncAgentEngines(_api_module.BaseModule):
         force: Optional[bool] = None,
         config: Optional[types.DeleteAgentEngineConfigOrDict] = None,
     ) -> types.DeleteAgentEngineOperation:
-        """Delete an Agent Engine resource.
+        """
+        Delete an Agent Engine resource.
 
         Args:
-            name (str): Required. The name of the Agent Engine to be deleted.
-              Format:
+            name (str):
+                Required. The name of the Agent Engine to be deleted. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
                 or `reasoningEngines/{resource_id}`.
-            force (bool): Optional. If set to True, child resources will also be
-              deleted. Otherwise, the request will fail with FAILED_PRECONDITION
-              error when the Agent Engine has undeleted child resources.
-              Defaults to False.
-            config (DeleteAgentEngineConfig): Optional. Additional
-              configurations for deleting the Agent Engine.
+            force (bool):
+                Optional. If set to True, child resources will also be deleted.
+                Otherwise, the request will fail with FAILED_PRECONDITION error when
+                the Agent Engine has undeleted child resources. Defaults to False.
+            config (DeleteAgentEngineConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
         """
 
         parameter_model = types._DeleteAgentEngineRequestParameters(
@@ -1966,12 +1905,11 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return return_value
 
     async def _get(
-        self,
-        *,
-        name: str,
-        config: Optional[types.GetAgentEngineConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.GetAgentEngineConfigOrDict] = None
     ) -> types.ReasoningEngine:
-        """Get an Agent Engine instance."""
+        """
+        Get an Agent Engine instance.
+        """
 
         parameter_model = types._GetAgentEngineRequestParameters(
             name=name,
@@ -2024,7 +1962,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
     async def _list(
         self, *, config: Optional[types.ListAgentEngineConfigOrDict] = None
     ) -> types.ListReasoningEnginesResponse:
-        """Lists Agent Engines."""
+        """
+        Lists Agent Engines.
+        """
 
         parameter_model = types._ListAgentEngineRequestParameters(
             config=config,
@@ -2128,12 +2068,11 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return return_value
 
     async def _query(
-        self,
-        *,
-        name: str,
-        config: Optional[types.QueryAgentEngineConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.QueryAgentEngineConfigOrDict] = None
     ) -> types.QueryReasoningEngineResponse:
-        """Query an Agent Engine."""
+        """
+        Query an Agent Engine.
+        """
 
         parameter_model = types._QueryAgentEngineRequestParameters(
             name=name,
@@ -2184,12 +2123,11 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return return_value
 
     async def _update(
-        self,
-        *,
-        name: str,
-        config: Optional[types.UpdateAgentEngineConfigOrDict] = None,
+        self, *, name: str, config: Optional[types.UpdateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
-        """Updates an Agent Engine."""
+        """
+        Updates an Agent Engine.
+        """
 
         parameter_model = types._UpdateAgentEngineRequestParameters(
             name=name,
@@ -2268,9 +2206,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
                 self._sessions = importlib.import_module(".sessions", __package__)
             except ImportError as e:
                 raise ImportError(
-                    "The agent_engines.sessions module requires additional"
-                    " packages. Please install them using pip install"
-                    " google-cloud-aiplatform[agent_engines]"
+                    "The agent_engines.sessions module requires additional packages. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
                 ) from e
         return self._sessions.AsyncSessions(self._api_client)
 
