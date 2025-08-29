@@ -45,6 +45,8 @@ def _add_tracking_headers(headers: dict[str, str]) -> None:
 _api_client.append_library_version_headers = _add_tracking_headers
 
 
+# Test change to trigger presubmit
+
 class AsyncClient:
     """Async Client for the GenAI SDK."""
 
