@@ -224,6 +224,43 @@ class ManagedTopicEnum(_common.CaseInSensitiveEnum):
     """Information that the user explicitly requested to remember or forget."""
 
 
+class Language(_common.CaseInSensitiveEnum):
+    """The coding language supported in this environment."""
+
+    LANGUAGE_UNSPECIFIED = "LANGUAGE_UNSPECIFIED"
+    """The default value. This value is unused."""
+    LANGUAGE_PYTHON = "LANGUAGE_PYTHON"
+    """The coding language is Python."""
+    LANGUAGE_JAVASCRIPT = "LANGUAGE_JAVASCRIPT"
+    """The coding language is JavaScript."""
+
+
+class MachineConfig(_common.CaseInSensitiveEnum):
+    """The machine config of the code execution environment."""
+
+    MACHINE_CONFIG_UNSPECIFIED = "MACHINE_CONFIG_UNSPECIFIED"
+    """The default value: milligcu 2000, memory 1.5Gib"""
+    MACHINE_CONFIG_VCPU4_RAM4GIB = "MACHINE_CONFIG_VCPU4_RAM4GIB"
+    """The default value: milligcu 4000, memory 4 Gib"""
+
+
+class State(_common.CaseInSensitiveEnum):
+    """Output only. The runtime state of the SandboxEnvironment."""
+
+    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
+    """The default value. This value is unused."""
+    STATE_PROVISIONING = "STATE_PROVISIONING"
+    """Runtime resources are being allocated for the sandbox environment."""
+    STATE_RUNNING = "STATE_RUNNING"
+    """Sandbox runtime is ready for serving."""
+    STATE_DEPROVISIONING = "STATE_DEPROVISIONING"
+    """Sandbox runtime is halted, performing tear down tasks."""
+    STATE_TERMINATED = "STATE_TERMINATED"
+    """Sandbox has terminated with underlying runtime failure."""
+    STATE_DELETED = "STATE_DELETED"
+    """Sandbox runtime has been deleted."""
+
+
 class RubricContentType(_common.CaseInSensitiveEnum):
     """Specifies the type of rubric content to generate."""
 
@@ -5617,6 +5654,631 @@ class _UpdateAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
 _UpdateAgentEngineMemoryRequestParametersOrDict = Union[
     _UpdateAgentEngineMemoryRequestParameters,
     _UpdateAgentEngineMemoryRequestParametersDict,
+]
+
+
+class SandboxEnvironmentSpecCodeExecutionEnvironment(_common.BaseModel):
+    """The code execution environment with customized settings."""
+
+    code_language: Optional[Language] = Field(
+        default=None,
+        description="""The coding language supported in this environment.""",
+    )
+    dependencies: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The additional dependencies to install in the code execution environment. For example, "pandas==2.2.3".""",
+    )
+    env: Optional[list[EnvVar]] = Field(
+        default=None,
+        description="""Optional. The environment variables to set in the code execution environment.""",
+    )
+    machine_config: Optional[MachineConfig] = Field(
+        default=None,
+        description="""The machine config of the code execution environment.""",
+    )
+
+
+class SandboxEnvironmentSpecCodeExecutionEnvironmentDict(TypedDict, total=False):
+    """The code execution environment with customized settings."""
+
+    code_language: Optional[Language]
+    """The coding language supported in this environment."""
+
+    dependencies: Optional[list[str]]
+    """Optional. The additional dependencies to install in the code execution environment. For example, "pandas==2.2.3"."""
+
+    env: Optional[list[EnvVarDict]]
+    """Optional. The environment variables to set in the code execution environment."""
+
+    machine_config: Optional[MachineConfig]
+    """The machine config of the code execution environment."""
+
+
+SandboxEnvironmentSpecCodeExecutionEnvironmentOrDict = Union[
+    SandboxEnvironmentSpecCodeExecutionEnvironment,
+    SandboxEnvironmentSpecCodeExecutionEnvironmentDict,
+]
+
+
+class SandboxEnvironmentSpec(_common.BaseModel):
+    """The specification of a sandbox environment."""
+
+    code_execution_environment: Optional[
+        SandboxEnvironmentSpecCodeExecutionEnvironment
+    ] = Field(default=None, description="""Optional. The code execution environment.""")
+
+
+class SandboxEnvironmentSpecDict(TypedDict, total=False):
+    """The specification of a sandbox environment."""
+
+    code_execution_environment: Optional[
+        SandboxEnvironmentSpecCodeExecutionEnvironmentDict
+    ]
+    """Optional. The code execution environment."""
+
+
+SandboxEnvironmentSpecOrDict = Union[SandboxEnvironmentSpec, SandboxEnvironmentSpecDict]
+
+
+class CreateAgentEngineSandboxConfig(_common.BaseModel):
+    """Config for creating a Sandbox."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the sandbox."""
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the sandbox."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class CreateAgentEngineSandboxConfigDict(TypedDict, total=False):
+    """Config for creating a Sandbox."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The display name of the sandbox."""
+
+    description: Optional[str]
+    """The description of the sandbox."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+CreateAgentEngineSandboxConfigOrDict = Union[
+    CreateAgentEngineSandboxConfig, CreateAgentEngineSandboxConfigDict
+]
+
+
+class _CreateAgentEngineSandboxRequestParameters(_common.BaseModel):
+    """Parameters for creating Agent Engine Sandboxes."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine to create the sandbox under.""",
+    )
+    spec: Optional[SandboxEnvironmentSpec] = Field(
+        default=None, description="""The specification of the sandbox."""
+    )
+    config: Optional[CreateAgentEngineSandboxConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateAgentEngineSandboxRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating Agent Engine Sandboxes."""
+
+    name: Optional[str]
+    """Name of the agent engine to create the sandbox under."""
+
+    spec: Optional[SandboxEnvironmentSpecDict]
+    """The specification of the sandbox."""
+
+    config: Optional[CreateAgentEngineSandboxConfigDict]
+    """"""
+
+
+_CreateAgentEngineSandboxRequestParametersOrDict = Union[
+    _CreateAgentEngineSandboxRequestParameters,
+    _CreateAgentEngineSandboxRequestParametersDict,
+]
+
+
+class SandboxEnvironment(_common.BaseModel):
+    """A sandbox environment."""
+
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. The timestamp when this SandboxEnvironment was created.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the SandboxEnvironment.""",
+    )
+    metadata: Optional[Any] = Field(
+        default=None,
+        description="""Output only. Additional information about the SandboxEnvironment.""",
+    )
+    name: Optional[str] = Field(
+        default=None, description="""Identifier. The name of the SandboxEnvironment."""
+    )
+    spec: Optional[SandboxEnvironmentSpec] = Field(
+        default=None,
+        description="""Optional. The configuration of the SandboxEnvironment.""",
+    )
+    state: Optional[State] = Field(
+        default=None,
+        description="""Output only. The runtime state of the SandboxEnvironment.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. The timestamp when this SandboxEnvironment was most recently updated.""",
+    )
+
+
+class SandboxEnvironmentDict(TypedDict, total=False):
+    """A sandbox environment."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. The timestamp when this SandboxEnvironment was created."""
+
+    display_name: Optional[str]
+    """Required. The display name of the SandboxEnvironment."""
+
+    metadata: Optional[Any]
+    """Output only. Additional information about the SandboxEnvironment."""
+
+    name: Optional[str]
+    """Identifier. The name of the SandboxEnvironment."""
+
+    spec: Optional[SandboxEnvironmentSpecDict]
+    """Optional. The configuration of the SandboxEnvironment."""
+
+    state: Optional[State]
+    """Output only. The runtime state of the SandboxEnvironment."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. The timestamp when this SandboxEnvironment was most recently updated."""
+
+
+SandboxEnvironmentOrDict = Union[SandboxEnvironment, SandboxEnvironmentDict]
+
+
+class AgentEngineSandboxOperation(_common.BaseModel):
+    """Operation that has an agent engine sandbox as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[SandboxEnvironment] = Field(
+        default=None, description="""The Agent Engine Sandbox."""
+    )
+
+
+class AgentEngineSandboxOperationDict(TypedDict, total=False):
+    """Operation that has an agent engine sandbox as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[SandboxEnvironmentDict]
+    """The Agent Engine Sandbox."""
+
+
+AgentEngineSandboxOperationOrDict = Union[
+    AgentEngineSandboxOperation, AgentEngineSandboxOperationDict
+]
+
+
+class DeleteAgentEngineSandboxConfig(_common.BaseModel):
+    """Config for deleting an Agent Engine Sandbox."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteAgentEngineSandboxConfigDict(TypedDict, total=False):
+    """Config for deleting an Agent Engine Sandbox."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteAgentEngineSandboxConfigOrDict = Union[
+    DeleteAgentEngineSandboxConfig, DeleteAgentEngineSandboxConfigDict
+]
+
+
+class _DeleteAgentEngineSandboxRequestParameters(_common.BaseModel):
+    """Parameters for deleting agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine sandbox to delete."""
+    )
+    config: Optional[DeleteAgentEngineSandboxConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteAgentEngineSandboxRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine sandbox to delete."""
+
+    config: Optional[DeleteAgentEngineSandboxConfigDict]
+    """"""
+
+
+_DeleteAgentEngineSandboxRequestParametersOrDict = Union[
+    _DeleteAgentEngineSandboxRequestParameters,
+    _DeleteAgentEngineSandboxRequestParametersDict,
+]
+
+
+class DeleteAgentEngineSandboxOperation(_common.BaseModel):
+    """Operation for deleting agent engines."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteAgentEngineSandboxOperationDict(TypedDict, total=False):
+    """Operation for deleting agent engines."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteAgentEngineSandboxOperationOrDict = Union[
+    DeleteAgentEngineSandboxOperation, DeleteAgentEngineSandboxOperationDict
+]
+
+
+class Metadata(_common.BaseModel):
+    """Metadata for a chunk."""
+
+    attributes: Optional[dict[str, bytes]] = Field(
+        default=None,
+        description="""Optional. Attributes attached to the data. The keys have semantic conventions and the consumers of the attributes should know how to deserialize the value bytes based on the keys.""",
+    )
+
+
+class MetadataDict(TypedDict, total=False):
+    """Metadata for a chunk."""
+
+    attributes: Optional[dict[str, bytes]]
+    """Optional. Attributes attached to the data. The keys have semantic conventions and the consumers of the attributes should know how to deserialize the value bytes based on the keys."""
+
+
+MetadataOrDict = Union[Metadata, MetadataDict]
+
+
+class Chunk(_common.BaseModel):
+    """A chunk of data."""
+
+    mime_type: Optional[str] = Field(
+        default=None,
+        description="""Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list.""",
+    )
+    data: Optional[bytes] = Field(
+        default=None, description="""Required. The data in the chunk."""
+    )
+    metadata: Optional[Metadata] = Field(
+        default=None,
+        description="""Optional. Metadata that is associated with the data in the payload.""",
+    )
+
+
+class ChunkDict(TypedDict, total=False):
+    """A chunk of data."""
+
+    mime_type: Optional[str]
+    """Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list."""
+
+    data: Optional[bytes]
+    """Required. The data in the chunk."""
+
+    metadata: Optional[MetadataDict]
+    """Optional. Metadata that is associated with the data in the payload."""
+
+
+ChunkOrDict = Union[Chunk, ChunkDict]
+
+
+class ExecuteCodeAgentEngineSandboxConfig(_common.BaseModel):
+    """Config for executing code in an Agent Engine sandbox."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class ExecuteCodeAgentEngineSandboxConfigDict(TypedDict, total=False):
+    """Config for executing code in an Agent Engine sandbox."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+ExecuteCodeAgentEngineSandboxConfigOrDict = Union[
+    ExecuteCodeAgentEngineSandboxConfig, ExecuteCodeAgentEngineSandboxConfigDict
+]
+
+
+class _ExecuteCodeAgentEngineSandboxRequestParameters(_common.BaseModel):
+    """Parameters for executing code in an agent engine sandbox."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine sandbox to execute code in.""",
+    )
+    inputs: Optional[list[Chunk]] = Field(
+        default=None, description="""Inputs to the code execution."""
+    )
+    config: Optional[ExecuteCodeAgentEngineSandboxConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ExecuteCodeAgentEngineSandboxRequestParametersDict(TypedDict, total=False):
+    """Parameters for executing code in an agent engine sandbox."""
+
+    name: Optional[str]
+    """Name of the agent engine sandbox to execute code in."""
+
+    inputs: Optional[list[ChunkDict]]
+    """Inputs to the code execution."""
+
+    config: Optional[ExecuteCodeAgentEngineSandboxConfigDict]
+    """"""
+
+
+_ExecuteCodeAgentEngineSandboxRequestParametersOrDict = Union[
+    _ExecuteCodeAgentEngineSandboxRequestParameters,
+    _ExecuteCodeAgentEngineSandboxRequestParametersDict,
+]
+
+
+class ExecuteSandboxEnvironmentResponse(_common.BaseModel):
+    """The response for executing a sandbox environment."""
+
+    outputs: Optional[list[Chunk]] = Field(
+        default=None, description="""The outputs from the sandbox environment."""
+    )
+
+
+class ExecuteSandboxEnvironmentResponseDict(TypedDict, total=False):
+    """The response for executing a sandbox environment."""
+
+    outputs: Optional[list[ChunkDict]]
+    """The outputs from the sandbox environment."""
+
+
+ExecuteSandboxEnvironmentResponseOrDict = Union[
+    ExecuteSandboxEnvironmentResponse, ExecuteSandboxEnvironmentResponseDict
+]
+
+
+class GetAgentEngineSandboxConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Memory."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineSandboxConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Memory."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineSandboxConfigOrDict = Union[
+    GetAgentEngineSandboxConfig, GetAgentEngineSandboxConfigDict
+]
+
+
+class _GetAgentEngineSandboxRequestParameters(_common.BaseModel):
+    """Parameters for getting an agent engine sandbox."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine sandbox."""
+    )
+    config: Optional[GetAgentEngineSandboxConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetAgentEngineSandboxRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an agent engine sandbox."""
+
+    name: Optional[str]
+    """Name of the agent engine sandbox."""
+
+    config: Optional[GetAgentEngineSandboxConfigDict]
+    """"""
+
+
+_GetAgentEngineSandboxRequestParametersOrDict = Union[
+    _GetAgentEngineSandboxRequestParameters, _GetAgentEngineSandboxRequestParametersDict
+]
+
+
+class ListAgentEngineSandboxesConfig(_common.BaseModel):
+    """Config for listing agent engine sandboxes."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListAgentEngineSandboxesConfigDict(TypedDict, total=False):
+    """Config for listing agent engine sandboxes."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListAgentEngineSandboxesConfigOrDict = Union[
+    ListAgentEngineSandboxesConfig, ListAgentEngineSandboxesConfigDict
+]
+
+
+class _ListAgentEngineSandboxesRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engine sandboxes."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[ListAgentEngineSandboxesConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineSandboxesRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engine sandboxes."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[ListAgentEngineSandboxesConfigDict]
+    """"""
+
+
+_ListAgentEngineSandboxesRequestParametersOrDict = Union[
+    _ListAgentEngineSandboxesRequestParameters,
+    _ListAgentEngineSandboxesRequestParametersDict,
+]
+
+
+class ListAgentEngineSandboxesResponse(_common.BaseModel):
+    """Response for listing agent engine sandboxes."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    sandbox_environments: Optional[list[SandboxEnvironment]] = Field(
+        default=None, description="""List of agent engine sandboxes."""
+    )
+
+
+class ListAgentEngineSandboxesResponseDict(TypedDict, total=False):
+    """Response for listing agent engine sandboxes."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    sandbox_environments: Optional[list[SandboxEnvironmentDict]]
+    """List of agent engine sandboxes."""
+
+
+ListAgentEngineSandboxesResponseOrDict = Union[
+    ListAgentEngineSandboxesResponse, ListAgentEngineSandboxesResponseDict
+]
+
+
+class _GetAgentEngineSandboxOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation with a sandbox as a response."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetAgentEngineOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetAgentEngineSandboxOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation with a sandbox as a response."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetAgentEngineOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetAgentEngineSandboxOperationParametersOrDict = Union[
+    _GetAgentEngineSandboxOperationParameters,
+    _GetAgentEngineSandboxOperationParametersDict,
 ]
 
 

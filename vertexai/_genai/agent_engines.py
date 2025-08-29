@@ -845,6 +845,7 @@ class AgentEngines(_api_module.BaseModule):
         return return_value
 
     _memories = None
+    _sandboxes = None
     _sessions = None
 
     @property
@@ -861,6 +862,25 @@ class AgentEngines(_api_module.BaseModule):
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
         return self._memories.Memories(self._api_client)
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI agent_engines.sandboxes module is experimental, "
+        "and may change in future versions."
+    )
+    def sandboxes(self):
+        if self._sandboxes is None:
+            try:
+                # We need to lazy load the sandboxes module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._sandboxes = importlib.import_module(".sandboxes", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The agent_engines.sandboxes module requires additional packages. "
+                    "Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._sandboxes.Sandboxes(self._api_client)
 
     @property
     def sessions(self):

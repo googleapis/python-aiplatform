@@ -367,14 +367,14 @@ def _await_operation(
     *,
     operation_name: str,
     get_operation_fn: GetOperationFunction,
-    poll_interval_seconds: int = 10,
+    poll_interval_seconds: float = 10,
 ) -> Any:
     """Waits for the operation for creating an agent engine to complete.
 
     Args:
         operation_name (str):
             Required. The name of the operation for creating the Agent Engine.
-        poll_interval_seconds (int):
+        poll_interval_seconds (float):
             The number of seconds to wait between each poll.
         get_operation_fn (Callable[[str], Any]):
             Optional. The function to use for getting the operation. If not
