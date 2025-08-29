@@ -770,6 +770,7 @@ class Sessions(_api_module.BaseModule):
             operation = _agent_engines_utils._await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_session_operation,
+                poll_interval_seconds=0.5,
             )
             if operation.response:
                 operation.response = self.get(name=operation.response.name)
