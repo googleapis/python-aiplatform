@@ -7140,6 +7140,7 @@ def test_create_endpoint_rest_call_success(request_type):
         "satisfies_pzs": True,
         "satisfies_pzi": True,
         "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
+        "private_model_server_enabled": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7765,6 +7766,7 @@ def test_update_endpoint_rest_call_success(request_type):
         "satisfies_pzs": True,
         "satisfies_pzi": True,
         "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
+        "private_model_server_enabled": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9605,6 +9607,7 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
         "satisfies_pzs": True,
         "satisfies_pzi": True,
         "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
+        "private_model_server_enabled": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10287,6 +10290,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
         "satisfies_pzs": True,
         "satisfies_pzi": True,
         "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
+        "private_model_server_enabled": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
