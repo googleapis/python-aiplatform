@@ -14,6 +14,7 @@
 #
 """Utility functions for evals."""
 
+import abc
 import io
 import json
 import logging
@@ -822,3 +823,12 @@ class BatchEvaluateRequestPreparer:
             resolved_metrics, set_default_aggregation_metrics=True
         )
         return request_dict
+
+
+class EvalDataConverter(abc.ABC):
+    """Abstract base class for dataset converters."""
+
+    @abc.abstractmethod
+    def convert(self, raw_data: Any) -> types.EvaluationDataset:
+        """Converts a loaded raw dataset into an EvaluationDataset."""
+        raise NotImplementedError()
