@@ -5209,6 +5209,17 @@ class ListAgentEngineMemoryConfig(_common.BaseModel):
         description="""An expression for filtering the results of the request.
       For field names both snake_case and camelCase are supported.""",
     )
+    order_by: Optional[str] = Field(
+        default=None,
+        description="""The standard list order by string. If not specified, the default
+      order is `create_time desc`. If specified, the default sorting order of
+      provided fields is ascending. More detail in
+      [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+      * `create_time`
+      * `update_time`""",
+    )
 
 
 class ListAgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -5226,6 +5237,16 @@ class ListAgentEngineMemoryConfigDict(TypedDict, total=False):
     filter: Optional[str]
     """An expression for filtering the results of the request.
       For field names both snake_case and camelCase are supported."""
+
+    order_by: Optional[str]
+    """The standard list order by string. If not specified, the default
+      order is `create_time desc`. If specified, the default sorting order of
+      provided fields is ascending. More detail in
+      [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+      * `create_time`
+      * `update_time`"""
 
 
 ListAgentEngineMemoryConfigOrDict = Union[
