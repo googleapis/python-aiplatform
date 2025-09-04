@@ -60,6 +60,11 @@ def __getattr__(name: str) -> typing.Any:
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
+def _camel_to_snake(camel_case_string: str) -> str:
+    snake_case_string = re.sub(r"(?<!^)([A-Z])", r"_\1", camel_case_string)
+    return snake_case_string.lower()
+
+
 if typing.TYPE_CHECKING:
     import pandas as pd
 
@@ -7245,6 +7250,1309 @@ ListAgentEngineSessionEventsResponseOrDict = Union[
 ]
 
 
+class CreateDatasetConfig(_common.BaseModel):
+    """Config for creating a dataset resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    should_return_http_response: Optional[bool] = Field(
+        default=None, description=""""""
+    )
+
+
+class CreateDatasetConfigDict(TypedDict, total=False):
+    """Config for creating a dataset resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    should_return_http_response: Optional[bool]
+    """"""
+
+
+CreateDatasetConfigOrDict = Union[CreateDatasetConfig, CreateDatasetConfigDict]
+
+
+class SchemaPredictParamsGroundingConfigSourceEntry(_common.BaseModel):
+    """Single source entry for the grounding checking."""
+
+    enterprise_datastore: Optional[str] = Field(
+        default=None,
+        description="""The uri of the Vertex AI Search data source. Deprecated. Use vertex_ai_search_datastore instead.""",
+    )
+    inline_context: Optional[str] = Field(
+        default=None,
+        description="""The grounding text passed inline with the Predict API. It can support up to 1 million bytes.""",
+    )
+    type: Optional[
+        Literal["UNSPECIFIED", "WEB", "ENTERPRISE", "VERTEX_AI_SEARCH", "INLINE"]
+    ] = Field(
+        default=None, description="""The type of the grounding checking source."""
+    )
+    vertex_ai_search_datastore: Optional[str] = Field(
+        default=None, description="""The uri of the Vertex AI Search data source."""
+    )
+
+
+class SchemaPredictParamsGroundingConfigSourceEntryDict(TypedDict, total=False):
+    """Single source entry for the grounding checking."""
+
+    enterprise_datastore: Optional[str]
+    """The uri of the Vertex AI Search data source. Deprecated. Use vertex_ai_search_datastore instead."""
+
+    inline_context: Optional[str]
+    """The grounding text passed inline with the Predict API. It can support up to 1 million bytes."""
+
+    type: Optional[
+        Literal["UNSPECIFIED", "WEB", "ENTERPRISE", "VERTEX_AI_SEARCH", "INLINE"]
+    ]
+    """The type of the grounding checking source."""
+
+    vertex_ai_search_datastore: Optional[str]
+    """The uri of the Vertex AI Search data source."""
+
+
+SchemaPredictParamsGroundingConfigSourceEntryOrDict = Union[
+    SchemaPredictParamsGroundingConfigSourceEntry,
+    SchemaPredictParamsGroundingConfigSourceEntryDict,
+]
+
+
+class SchemaPredictParamsGroundingConfig(_common.BaseModel):
+    """The configuration for grounding checking."""
+
+    disable_attribution: Optional[bool] = Field(
+        default=None,
+        description="""If set, skip finding claim attributions (i.e not generate grounding citation).""",
+    )
+    sources: Optional[list[SchemaPredictParamsGroundingConfigSourceEntry]] = Field(
+        default=None, description="""The sources for the grounding checking."""
+    )
+
+
+class SchemaPredictParamsGroundingConfigDict(TypedDict, total=False):
+    """The configuration for grounding checking."""
+
+    disable_attribution: Optional[bool]
+    """If set, skip finding claim attributions (i.e not generate grounding citation)."""
+
+    sources: Optional[list[SchemaPredictParamsGroundingConfigSourceEntryDict]]
+    """The sources for the grounding checking."""
+
+
+SchemaPredictParamsGroundingConfigOrDict = Union[
+    SchemaPredictParamsGroundingConfig, SchemaPredictParamsGroundingConfigDict
+]
+
+
+class SchemaPromptInstancePromptExecution(_common.BaseModel):
+    """A prompt instance's parameters set that contains a set of variable values."""
+
+    arguments: Optional[dict[str, "SchemaPromptInstanceVariableValue"]] = Field(
+        default=None, description="""Maps variable names to their value."""
+    )
+
+
+class SchemaPromptInstancePromptExecutionDict(TypedDict, total=False):
+    """A prompt instance's parameters set that contains a set of variable values."""
+
+    arguments: Optional[dict[str, "SchemaPromptInstanceVariableValueDict"]]
+    """Maps variable names to their value."""
+
+
+SchemaPromptInstancePromptExecutionOrDict = Union[
+    SchemaPromptInstancePromptExecution, SchemaPromptInstancePromptExecutionDict
+]
+
+
+class SchemaPromptSpecPromptMessage(_common.BaseModel):
+    """Represents a prompt message."""
+
+    generation_config: Optional[genai_types.GenerationConfig] = Field(
+        default=None, description="""Generation config."""
+    )
+    tool_config: Optional[genai_types.FunctionCallingConfig] = Field(
+        default=None,
+        description="""Tool config. This config is shared for all tools provided in the request.""",
+    )
+    tools: Optional[list[genai_types.Tool]] = Field(
+        default=None,
+        description="""A list of `Tools` the model may use to generate the next response. A `Tool` is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model.""",
+    )
+    safety_settings: Optional[list[genai_types.SafetySetting]] = Field(
+        default=None,
+        description="""Per request settings for blocking unsafe content. Enforced on GenerateContentResponse.candidates.""",
+    )
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None,
+        description="""The content of the current conversation with the model. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.""",
+    )
+    system_instruction: Optional[genai_types.Content] = Field(
+        default=None,
+        description="""The user provided system instructions for the model. Note: only text should be used in parts and content in each part will be in a separate paragraph.""",
+    )
+    variables: Optional[list[dict[str, genai_types.Part]]] = Field(
+        default=None, description=""""""
+    )
+    model: Optional[str] = Field(default=None, description="""The model name.""")
+
+
+class SchemaPromptSpecPromptMessageDict(TypedDict, total=False):
+    """Represents a prompt message."""
+
+    generation_config: Optional[genai_types.GenerationConfigDict]
+    """Generation config."""
+
+    tool_config: Optional[genai_types.FunctionCallingConfigDict]
+    """Tool config. This config is shared for all tools provided in the request."""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """A list of `Tools` the model may use to generate the next response. A `Tool` is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model."""
+
+    safety_settings: Optional[list[genai_types.SafetySettingDict]]
+    """Per request settings for blocking unsafe content. Enforced on GenerateContentResponse.candidates."""
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """The content of the current conversation with the model. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request."""
+
+    system_instruction: Optional[genai_types.ContentDict]
+    """The user provided system instructions for the model. Note: only text should be used in parts and content in each part will be in a separate paragraph."""
+
+    variables: Optional[list[dict[str, genai_types.PartDict]]]
+    """"""
+
+    model: Optional[str]
+    """The model name."""
+
+
+SchemaPromptSpecPromptMessageOrDict = Union[
+    SchemaPromptSpecPromptMessage, SchemaPromptSpecPromptMessageDict
+]
+
+
+class SchemaPromptSpecMultimodalPrompt(_common.BaseModel):
+    """Prompt variation that embeds preambles to prompt string."""
+
+    prompt_message: Optional[SchemaPromptSpecPromptMessage] = Field(
+        default=None, description="""The prompt message."""
+    )
+
+
+class SchemaPromptSpecMultimodalPromptDict(TypedDict, total=False):
+    """Prompt variation that embeds preambles to prompt string."""
+
+    prompt_message: Optional[SchemaPromptSpecPromptMessageDict]
+    """The prompt message."""
+
+
+SchemaPromptSpecMultimodalPromptOrDict = Union[
+    SchemaPromptSpecMultimodalPrompt, SchemaPromptSpecMultimodalPromptDict
+]
+
+
+class SchemaPromptSpecPartList(_common.BaseModel):
+    """Represents a prompt spec part list."""
+
+    parts: Optional[list[genai_types.Part]] = Field(
+        default=None, description="""A list of elements that can be part of a prompt."""
+    )
+
+
+class SchemaPromptSpecPartListDict(TypedDict, total=False):
+    """Represents a prompt spec part list."""
+
+    parts: Optional[list[genai_types.PartDict]]
+    """A list of elements that can be part of a prompt."""
+
+
+SchemaPromptSpecPartListOrDict = Union[
+    SchemaPromptSpecPartList, SchemaPromptSpecPartListDict
+]
+
+
+class SchemaPromptSpecStructuredPrompt(_common.BaseModel):
+    """Represents a structured prompt."""
+
+    context: Optional[genai_types.Content] = Field(
+        default=None, description="""Preamble: The context of the prompt."""
+    )
+    examples: Optional[list[SchemaPromptSpecPartList]] = Field(
+        default=None,
+        description="""Preamble: A set of examples for expected model response.""",
+    )
+    infill_prefix: Optional[str] = Field(
+        default=None,
+        description="""Preamble: For infill prompt, the prefix before expected model response.""",
+    )
+    infill_suffix: Optional[str] = Field(
+        default=None,
+        description="""Preamble: For infill prompt, the suffix after expected model response.""",
+    )
+    input_prefixes: Optional[list[str]] = Field(
+        default=None,
+        description="""Preamble: The input prefixes before each example input.""",
+    )
+    output_prefixes: Optional[list[str]] = Field(
+        default=None,
+        description="""Preamble: The output prefixes before each example output.""",
+    )
+    prediction_inputs: Optional[list[SchemaPromptSpecPartList]] = Field(
+        default=None,
+        description="""Preamble: The input test data for prediction. Each PartList in this field represents one text-only input set for a single model request.""",
+    )
+    prompt_message: Optional[SchemaPromptSpecPromptMessage] = Field(
+        default=None, description="""The prompt message."""
+    )
+
+
+class SchemaPromptSpecStructuredPromptDict(TypedDict, total=False):
+    """Represents a structured prompt."""
+
+    context: Optional[genai_types.ContentDict]
+    """Preamble: The context of the prompt."""
+
+    examples: Optional[list[SchemaPromptSpecPartListDict]]
+    """Preamble: A set of examples for expected model response."""
+
+    infill_prefix: Optional[str]
+    """Preamble: For infill prompt, the prefix before expected model response."""
+
+    infill_suffix: Optional[str]
+    """Preamble: For infill prompt, the suffix after expected model response."""
+
+    input_prefixes: Optional[list[str]]
+    """Preamble: The input prefixes before each example input."""
+
+    output_prefixes: Optional[list[str]]
+    """Preamble: The output prefixes before each example output."""
+
+    prediction_inputs: Optional[list[SchemaPromptSpecPartListDict]]
+    """Preamble: The input test data for prediction. Each PartList in this field represents one text-only input set for a single model request."""
+
+    prompt_message: Optional[SchemaPromptSpecPromptMessageDict]
+    """The prompt message."""
+
+
+SchemaPromptSpecStructuredPromptOrDict = Union[
+    SchemaPromptSpecStructuredPrompt, SchemaPromptSpecStructuredPromptDict
+]
+
+
+class SchemaPromptSpecReferenceSentencePair(_common.BaseModel):
+    """A pair of sentences used as reference in source and target languages."""
+
+    source_sentence: Optional[str] = Field(
+        default=None, description="""Source sentence in the sentence pair."""
+    )
+    target_sentence: Optional[str] = Field(
+        default=None, description="""Target sentence in the sentence pair."""
+    )
+
+
+class SchemaPromptSpecReferenceSentencePairDict(TypedDict, total=False):
+    """A pair of sentences used as reference in source and target languages."""
+
+    source_sentence: Optional[str]
+    """Source sentence in the sentence pair."""
+
+    target_sentence: Optional[str]
+    """Target sentence in the sentence pair."""
+
+
+SchemaPromptSpecReferenceSentencePairOrDict = Union[
+    SchemaPromptSpecReferenceSentencePair, SchemaPromptSpecReferenceSentencePairDict
+]
+
+
+class SchemaPromptSpecReferenceSentencePairList(_common.BaseModel):
+    """A list of reference sentence pairs."""
+
+    reference_sentence_pairs: Optional[list[SchemaPromptSpecReferenceSentencePair]] = (
+        Field(default=None, description="""Reference sentence pairs.""")
+    )
+
+
+class SchemaPromptSpecReferenceSentencePairListDict(TypedDict, total=False):
+    """A list of reference sentence pairs."""
+
+    reference_sentence_pairs: Optional[list[SchemaPromptSpecReferenceSentencePairDict]]
+    """Reference sentence pairs."""
+
+
+SchemaPromptSpecReferenceSentencePairListOrDict = Union[
+    SchemaPromptSpecReferenceSentencePairList,
+    SchemaPromptSpecReferenceSentencePairListDict,
+]
+
+
+class SchemaPromptSpecTranslationFileInputSource(_common.BaseModel):
+
+    content: Optional[str] = Field(default=None, description="""The file's contents.""")
+    display_name: Optional[str] = Field(
+        default=None, description="""The file's display name."""
+    )
+    mime_type: Optional[str] = Field(
+        default=None, description="""The file's mime type."""
+    )
+
+
+class SchemaPromptSpecTranslationFileInputSourceDict(TypedDict, total=False):
+
+    content: Optional[str]
+    """The file's contents."""
+
+    display_name: Optional[str]
+    """The file's display name."""
+
+    mime_type: Optional[str]
+    """The file's mime type."""
+
+
+SchemaPromptSpecTranslationFileInputSourceOrDict = Union[
+    SchemaPromptSpecTranslationFileInputSource,
+    SchemaPromptSpecTranslationFileInputSourceDict,
+]
+
+
+class SchemaPromptSpecTranslationGcsInputSource(_common.BaseModel):
+
+    input_uri: Optional[str] = Field(
+        default=None,
+        description="""Source data URI. For example, `gs://my_bucket/my_object`.""",
+    )
+
+
+class SchemaPromptSpecTranslationGcsInputSourceDict(TypedDict, total=False):
+
+    input_uri: Optional[str]
+    """Source data URI. For example, `gs://my_bucket/my_object`."""
+
+
+SchemaPromptSpecTranslationGcsInputSourceOrDict = Union[
+    SchemaPromptSpecTranslationGcsInputSource,
+    SchemaPromptSpecTranslationGcsInputSourceDict,
+]
+
+
+class SchemaPromptSpecTranslationSentenceFileInput(_common.BaseModel):
+
+    file_input_source: Optional[SchemaPromptSpecTranslationFileInputSource] = Field(
+        default=None, description="""Inlined file source."""
+    )
+    gcs_input_source: Optional[SchemaPromptSpecTranslationGcsInputSource] = Field(
+        default=None, description="""Cloud Storage file source."""
+    )
+
+
+class SchemaPromptSpecTranslationSentenceFileInputDict(TypedDict, total=False):
+
+    file_input_source: Optional[SchemaPromptSpecTranslationFileInputSourceDict]
+    """Inlined file source."""
+
+    gcs_input_source: Optional[SchemaPromptSpecTranslationGcsInputSourceDict]
+    """Cloud Storage file source."""
+
+
+SchemaPromptSpecTranslationSentenceFileInputOrDict = Union[
+    SchemaPromptSpecTranslationSentenceFileInput,
+    SchemaPromptSpecTranslationSentenceFileInputDict,
+]
+
+
+class SchemaPromptSpecTranslationExample(_common.BaseModel):
+    """The translation example that contains reference sentences from various sources."""
+
+    reference_sentence_pair_lists: Optional[
+        list[SchemaPromptSpecReferenceSentencePairList]
+    ] = Field(default=None, description="""The reference sentences from inline text.""")
+    reference_sentences_file_inputs: Optional[
+        list[SchemaPromptSpecTranslationSentenceFileInput]
+    ] = Field(default=None, description="""The reference sentences from file.""")
+
+
+class SchemaPromptSpecTranslationExampleDict(TypedDict, total=False):
+    """The translation example that contains reference sentences from various sources."""
+
+    reference_sentence_pair_lists: Optional[
+        list[SchemaPromptSpecReferenceSentencePairListDict]
+    ]
+    """The reference sentences from inline text."""
+
+    reference_sentences_file_inputs: Optional[
+        list[SchemaPromptSpecTranslationSentenceFileInputDict]
+    ]
+    """The reference sentences from file."""
+
+
+SchemaPromptSpecTranslationExampleOrDict = Union[
+    SchemaPromptSpecTranslationExample, SchemaPromptSpecTranslationExampleDict
+]
+
+
+class SchemaPromptSpecTranslationOption(_common.BaseModel):
+    """Optional settings for translation prompt."""
+
+    number_of_shots: Optional[int] = Field(
+        default=None, description="""How many shots to use."""
+    )
+
+
+class SchemaPromptSpecTranslationOptionDict(TypedDict, total=False):
+    """Optional settings for translation prompt."""
+
+    number_of_shots: Optional[int]
+    """How many shots to use."""
+
+
+SchemaPromptSpecTranslationOptionOrDict = Union[
+    SchemaPromptSpecTranslationOption, SchemaPromptSpecTranslationOptionDict
+]
+
+
+class SchemaPromptSpecTranslationPrompt(_common.BaseModel):
+    """Prompt variation for Translation use case."""
+
+    example: Optional[SchemaPromptSpecTranslationExample] = Field(
+        default=None, description="""The translation example."""
+    )
+    option: Optional[SchemaPromptSpecTranslationOption] = Field(
+        default=None, description="""The translation option."""
+    )
+    prompt_message: Optional[SchemaPromptSpecPromptMessage] = Field(
+        default=None, description="""The prompt message."""
+    )
+    source_language_code: Optional[str] = Field(
+        default=None, description="""The source language code."""
+    )
+    target_language_code: Optional[str] = Field(
+        default=None, description="""The target language code."""
+    )
+
+
+class SchemaPromptSpecTranslationPromptDict(TypedDict, total=False):
+    """Prompt variation for Translation use case."""
+
+    example: Optional[SchemaPromptSpecTranslationExampleDict]
+    """The translation example."""
+
+    option: Optional[SchemaPromptSpecTranslationOptionDict]
+    """The translation option."""
+
+    prompt_message: Optional[SchemaPromptSpecPromptMessageDict]
+    """The prompt message."""
+
+    source_language_code: Optional[str]
+    """The source language code."""
+
+    target_language_code: Optional[str]
+    """The target language code."""
+
+
+SchemaPromptSpecTranslationPromptOrDict = Union[
+    SchemaPromptSpecTranslationPrompt, SchemaPromptSpecTranslationPromptDict
+]
+
+
+class SchemaPromptApiSchema(_common.BaseModel):
+    """The A2 schema of a prompt."""
+
+    api_schema_version: Optional[str] = Field(
+        default=None,
+        description="""The Schema version that represents changes to the API behavior.""",
+    )
+    executions: Optional[list[SchemaPromptInstancePromptExecution]] = Field(
+        default=None,
+        description="""A list of execution instances for constructing a ready-to-use prompt.""",
+    )
+    multimodal_prompt: Optional[SchemaPromptSpecMultimodalPrompt] = Field(
+        default=None,
+        description="""Multimodal prompt which embeds preambles to prompt string.""",
+    )
+    structured_prompt: Optional[SchemaPromptSpecStructuredPrompt] = Field(
+        default=None,
+        description="""The prompt variation that stores preambles in separate fields.""",
+    )
+    translation_prompt: Optional[SchemaPromptSpecTranslationPrompt] = Field(
+        default=None, description="""The prompt variation for Translation use case."""
+    )
+
+
+class SchemaPromptApiSchemaDict(TypedDict, total=False):
+    """The A2 schema of a prompt."""
+
+    api_schema_version: Optional[str]
+    """The Schema version that represents changes to the API behavior."""
+
+    executions: Optional[list[SchemaPromptInstancePromptExecutionDict]]
+    """A list of execution instances for constructing a ready-to-use prompt."""
+
+    multimodal_prompt: Optional[SchemaPromptSpecMultimodalPromptDict]
+    """Multimodal prompt which embeds preambles to prompt string."""
+
+    structured_prompt: Optional[SchemaPromptSpecStructuredPromptDict]
+    """The prompt variation that stores preambles in separate fields."""
+
+    translation_prompt: Optional[SchemaPromptSpecTranslationPromptDict]
+    """The prompt variation for Translation use case."""
+
+
+SchemaPromptApiSchemaOrDict = Union[SchemaPromptApiSchema, SchemaPromptApiSchemaDict]
+
+
+class SchemaTextPromptDatasetMetadata(_common.BaseModel):
+    """Represents the text prompt dataset metadata."""
+
+    candidate_count: Optional[int] = Field(
+        default=None, description="""Number of candidates."""
+    )
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""The Google Cloud Storage URI that stores the prompt data.""",
+    )
+    grounding_config: Optional[SchemaPredictParamsGroundingConfig] = Field(
+        default=None, description="""Grounding checking configuration."""
+    )
+    has_prompt_variable: Optional[bool] = Field(
+        default=None, description="""Whether the prompt dataset has prompt variable."""
+    )
+    logprobs: Optional[bool] = Field(
+        default=None,
+        description="""Whether or not the user has enabled logit probabilities in the model parameters.""",
+    )
+    max_output_tokens: Optional[int] = Field(
+        default=None,
+        description="""Value of the maximum number of tokens generated set when the dataset was saved.""",
+    )
+    note: Optional[str] = Field(
+        default=None,
+        description="""User-created prompt note. Note size limit is 2KB.""",
+    )
+    prompt_api_schema: Optional[SchemaPromptApiSchema] = Field(
+        default=None,
+        description="""The API schema of the prompt to support both UI and SDK usages.""",
+    )
+    prompt_type: Optional[str] = Field(
+        default=None, description="""Type of the prompt dataset."""
+    )
+    seed_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Seeding enables model to return a deterministic response on a best effort basis. Determinism isn't guaranteed. This field determines whether or not seeding is enabled.""",
+    )
+    seed_value: Optional[int] = Field(
+        default=None, description="""The actual value of the seed."""
+    )
+    stop_sequences: Optional[list[str]] = Field(
+        default=None, description="""Customized stop sequences."""
+    )
+    system_instruction: Optional[str] = Field(
+        default=None,
+        description="""The content of the prompt dataset system instruction.""",
+    )
+    system_instruction_gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""The Google Cloud Storage URI that stores the system instruction, starting with gs://.""",
+    )
+    temperature: Optional[float] = Field(
+        default=None,
+        description="""Temperature value used for sampling set when the dataset was saved. This value is used to tune the degree of randomness.""",
+    )
+    text: Optional[str] = Field(
+        default=None, description="""The content of the prompt dataset."""
+    )
+    top_k: Optional[int] = Field(
+        default=None,
+        description="""Top K value set when the dataset was saved. This value determines how many candidates with highest probability from the vocab would be selected for each decoding step.""",
+    )
+    top_p: Optional[float] = Field(
+        default=None,
+        description="""Top P value set when the dataset was saved. Given topK tokens for decoding, top candidates will be selected until the sum of their probabilities is topP.""",
+    )
+
+
+class SchemaTextPromptDatasetMetadataDict(TypedDict, total=False):
+    """Represents the text prompt dataset metadata."""
+
+    candidate_count: Optional[int]
+    """Number of candidates."""
+
+    gcs_uri: Optional[str]
+    """The Google Cloud Storage URI that stores the prompt data."""
+
+    grounding_config: Optional[SchemaPredictParamsGroundingConfigDict]
+    """Grounding checking configuration."""
+
+    has_prompt_variable: Optional[bool]
+    """Whether the prompt dataset has prompt variable."""
+
+    logprobs: Optional[bool]
+    """Whether or not the user has enabled logit probabilities in the model parameters."""
+
+    max_output_tokens: Optional[int]
+    """Value of the maximum number of tokens generated set when the dataset was saved."""
+
+    note: Optional[str]
+    """User-created prompt note. Note size limit is 2KB."""
+
+    prompt_api_schema: Optional[SchemaPromptApiSchemaDict]
+    """The API schema of the prompt to support both UI and SDK usages."""
+
+    prompt_type: Optional[str]
+    """Type of the prompt dataset."""
+
+    seed_enabled: Optional[bool]
+    """Seeding enables model to return a deterministic response on a best effort basis. Determinism isn't guaranteed. This field determines whether or not seeding is enabled."""
+
+    seed_value: Optional[int]
+    """The actual value of the seed."""
+
+    stop_sequences: Optional[list[str]]
+    """Customized stop sequences."""
+
+    system_instruction: Optional[str]
+    """The content of the prompt dataset system instruction."""
+
+    system_instruction_gcs_uri: Optional[str]
+    """The Google Cloud Storage URI that stores the system instruction, starting with gs://."""
+
+    temperature: Optional[float]
+    """Temperature value used for sampling set when the dataset was saved. This value is used to tune the degree of randomness."""
+
+    text: Optional[str]
+    """The content of the prompt dataset."""
+
+    top_k: Optional[int]
+    """Top K value set when the dataset was saved. This value determines how many candidates with highest probability from the vocab would be selected for each decoding step."""
+
+    top_p: Optional[float]
+    """Top P value set when the dataset was saved. Given topK tokens for decoding, top candidates will be selected until the sum of their probabilities is topP."""
+
+
+SchemaTextPromptDatasetMetadataOrDict = Union[
+    SchemaTextPromptDatasetMetadata, SchemaTextPromptDatasetMetadataDict
+]
+
+
+class _CreateDatasetParameters(_common.BaseModel):
+    """Parameters for creating a dataset resource to store prompts."""
+
+    config: Optional[CreateDatasetConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    metadata_schema_uri: Optional[str] = Field(default=None, description="""""")
+    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
+        default=None, description=""""""
+    )
+    description: Optional[str] = Field(default=None, description="""""")
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None, description=""""""
+    )
+    model_reference: Optional[str] = Field(default=None, description="""""")
+
+
+class _CreateDatasetParametersDict(TypedDict, total=False):
+    """Parameters for creating a dataset resource to store prompts."""
+
+    config: Optional[CreateDatasetConfigDict]
+    """"""
+
+    name: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    metadata_schema_uri: Optional[str]
+    """"""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
+    """"""
+
+    description: Optional[str]
+    """"""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """"""
+
+    model_reference: Optional[str]
+    """"""
+
+
+_CreateDatasetParametersOrDict = Union[
+    _CreateDatasetParameters, _CreateDatasetParametersDict
+]
+
+
+class GenericOperationMetadata(_common.BaseModel):
+    """Represents a generic operation metadata."""
+
+    partial_failures: Optional[list[genai_types.GoogleRpcStatus]] = Field(
+        default=None,
+        description="""Output only. Partial failures encountered. E.g. single files that couldn't be read. This field should never exceed 20 entries. Status details field will contain standard Google Cloud error details.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Time when the operation was created.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Time when the operation was updated for the last time. If the operation has finished (successfully or not), this is the finish time.""",
+    )
+
+
+class GenericOperationMetadataDict(TypedDict, total=False):
+    """Represents a generic operation metadata."""
+
+    partial_failures: Optional[list[genai_types.GoogleRpcStatusDict]]
+    """Output only. Partial failures encountered. E.g. single files that couldn't be read. This field should never exceed 20 entries. Status details field will contain standard Google Cloud error details."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Time when the operation was created."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Time when the operation was updated for the last time. If the operation has finished (successfully or not), this is the finish time."""
+
+
+GenericOperationMetadataOrDict = Union[
+    GenericOperationMetadata, GenericOperationMetadataDict
+]
+
+
+class CreateDatasetOperationMetadata(_common.BaseModel):
+    """Represents the create dataset operation."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    generic_metadata: Optional[GenericOperationMetadata] = Field(
+        default=None, description="""The operation generic information."""
+    )
+
+
+class CreateDatasetOperationMetadataDict(TypedDict, total=False):
+    """Represents the create dataset operation."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    generic_metadata: Optional[GenericOperationMetadataDict]
+    """The operation generic information."""
+
+
+CreateDatasetOperationMetadataOrDict = Union[
+    CreateDatasetOperationMetadata, CreateDatasetOperationMetadataDict
+]
+
+
+class CreateDatasetVersionConfig(_common.BaseModel):
+    """Config for creating a dataset version resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    should_return_http_response: Optional[bool] = Field(
+        default=None, description=""""""
+    )
+
+
+class CreateDatasetVersionConfigDict(TypedDict, total=False):
+    """Config for creating a dataset version resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    should_return_http_response: Optional[bool]
+    """"""
+
+
+CreateDatasetVersionConfigOrDict = Union[
+    CreateDatasetVersionConfig, CreateDatasetVersionConfigDict
+]
+
+
+class DatasetVersion(_common.BaseModel):
+    """Represents a dataset version resource to store prompts."""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
+        default=None,
+        description="""Required. Output only. Additional information about the DatasetVersion.""",
+    )
+    big_query_dataset_name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Name of the associated BigQuery dataset.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this DatasetVersion was created.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
+    )
+    etag: Optional[str] = Field(
+        default=None,
+        description="""Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
+    )
+    model_reference: Optional[str] = Field(
+        default=None,
+        description="""Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`""",
+    )
+    satisfies_pzi: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    satisfies_pzs: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this DatasetVersion was last updated.""",
+    )
+
+
+class DatasetVersionDict(TypedDict, total=False):
+    """Represents a dataset version resource to store prompts."""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
+    """Required. Output only. Additional information about the DatasetVersion."""
+
+    big_query_dataset_name: Optional[str]
+    """Output only. Name of the associated BigQuery dataset."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this DatasetVersion was created."""
+
+    display_name: Optional[str]
+    """The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
+
+    etag: Optional[str]
+    """Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
+
+    model_reference: Optional[str]
+    """Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions."""
+
+    name: Optional[str]
+    """Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`"""
+
+    satisfies_pzi: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    satisfies_pzs: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this DatasetVersion was last updated."""
+
+
+DatasetVersionOrDict = Union[DatasetVersion, DatasetVersionDict]
+
+
+class _CreateDatasetVersionParameters(_common.BaseModel):
+    """Represents the create dataset version parameters."""
+
+    config: Optional[CreateDatasetVersionConfig] = Field(
+        default=None, description=""""""
+    )
+    dataset_name: Optional[str] = Field(default=None, description="""""")
+    dataset_version: Optional[DatasetVersion] = Field(default=None, description="""""")
+    parent: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+
+
+class _CreateDatasetVersionParametersDict(TypedDict, total=False):
+    """Represents the create dataset version parameters."""
+
+    config: Optional[CreateDatasetVersionConfigDict]
+    """"""
+
+    dataset_name: Optional[str]
+    """"""
+
+    dataset_version: Optional[DatasetVersionDict]
+    """"""
+
+    parent: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+
+_CreateDatasetVersionParametersOrDict = Union[
+    _CreateDatasetVersionParameters, _CreateDatasetVersionParametersDict
+]
+
+
+class CreateDatasetVersionOperationMetadata(_common.BaseModel):
+    """Represents the create dataset version operation."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    generic_metadata: Optional[GenericOperationMetadata] = Field(
+        default=None, description="""The common part of the operation metadata."""
+    )
+
+
+class CreateDatasetVersionOperationMetadataDict(TypedDict, total=False):
+    """Represents the create dataset version operation."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    generic_metadata: Optional[GenericOperationMetadataDict]
+    """The common part of the operation metadata."""
+
+
+CreateDatasetVersionOperationMetadataOrDict = Union[
+    CreateDatasetVersionOperationMetadata, CreateDatasetVersionOperationMetadataDict
+]
+
+
+class _GetDatasetParameters(_common.BaseModel):
+    """Parameters for getting a dataset resource to store prompts."""
+
+    config: Optional[VertexBaseConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
+
+
+class _GetDatasetParametersDict(TypedDict, total=False):
+    """Parameters for getting a dataset resource to store prompts."""
+
+    config: Optional[VertexBaseConfigDict]
+    """"""
+
+    name: Optional[str]
+    """"""
+
+
+_GetDatasetParametersOrDict = Union[_GetDatasetParameters, _GetDatasetParametersDict]
+
+
+class SavedQuery(_common.BaseModel):
+    """A SavedQuery is a view of the dataset. It references a subset of annotations by problem type and filters."""
+
+    annotation_filter: Optional[str] = Field(
+        default=None,
+        description="""Output only. Filters on the Annotations in the dataset.""",
+    )
+    annotation_spec_count: Optional[int] = Field(
+        default=None,
+        description="""Output only. Number of AnnotationSpecs in the context of the SavedQuery.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this SavedQuery was created.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The user-defined name of the SavedQuery. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
+    )
+    etag: Optional[str] = Field(
+        default=None,
+        description="""Used to perform a consistent read-modify-write update. If not set, a blind "overwrite" update happens.""",
+    )
+    metadata: Optional[Any] = Field(
+        default=None,
+        description="""Some additional information about the SavedQuery.""",
+    )
+    name: Optional[str] = Field(
+        default=None, description="""Output only. Resource name of the SavedQuery."""
+    )
+    problem_type: Optional[str] = Field(
+        default=None,
+        description="""Required. Problem type of the SavedQuery. Allowed values: * IMAGE_CLASSIFICATION_SINGLE_LABEL * IMAGE_CLASSIFICATION_MULTI_LABEL * IMAGE_BOUNDING_POLY * IMAGE_BOUNDING_BOX * TEXT_CLASSIFICATION_SINGLE_LABEL * TEXT_CLASSIFICATION_MULTI_LABEL * TEXT_EXTRACTION * TEXT_SENTIMENT * VIDEO_CLASSIFICATION * VIDEO_OBJECT_TRACKING""",
+    )
+    support_automl_training: Optional[bool] = Field(
+        default=None,
+        description="""Output only. If the Annotations belonging to the SavedQuery can be used for AutoML training.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when SavedQuery was last updated.""",
+    )
+
+
+class SavedQueryDict(TypedDict, total=False):
+    """A SavedQuery is a view of the dataset. It references a subset of annotations by problem type and filters."""
+
+    annotation_filter: Optional[str]
+    """Output only. Filters on the Annotations in the dataset."""
+
+    annotation_spec_count: Optional[int]
+    """Output only. Number of AnnotationSpecs in the context of the SavedQuery."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this SavedQuery was created."""
+
+    display_name: Optional[str]
+    """Required. The user-defined name of the SavedQuery. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
+
+    etag: Optional[str]
+    """Used to perform a consistent read-modify-write update. If not set, a blind "overwrite" update happens."""
+
+    metadata: Optional[Any]
+    """Some additional information about the SavedQuery."""
+
+    name: Optional[str]
+    """Output only. Resource name of the SavedQuery."""
+
+    problem_type: Optional[str]
+    """Required. Problem type of the SavedQuery. Allowed values: * IMAGE_CLASSIFICATION_SINGLE_LABEL * IMAGE_CLASSIFICATION_MULTI_LABEL * IMAGE_BOUNDING_POLY * IMAGE_BOUNDING_BOX * TEXT_CLASSIFICATION_SINGLE_LABEL * TEXT_CLASSIFICATION_MULTI_LABEL * TEXT_EXTRACTION * TEXT_SENTIMENT * VIDEO_CLASSIFICATION * VIDEO_OBJECT_TRACKING"""
+
+    support_automl_training: Optional[bool]
+    """Output only. If the Annotations belonging to the SavedQuery can be used for AutoML training."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when SavedQuery was last updated."""
+
+
+SavedQueryOrDict = Union[SavedQuery, SavedQueryDict]
+
+
+class Dataset(_common.BaseModel):
+    """Represents a dataset resource to store prompts."""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
+        default=None,
+        description="""Required. Additional information about the Dataset.""",
+    )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a Dataset. If set, this Dataset and all sub-resources of this Dataset will be secured by this key.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this Dataset was created.""",
+    )
+    data_item_count: Optional[int] = Field(
+        default=None,
+        description="""Output only. The number of DataItems in this Dataset. Only apply for non-structured Dataset.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the Dataset."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The user-defined name of the Dataset. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
+    )
+    etag: Optional[str] = Field(
+        default=None,
+        description="""Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The labels with user-defined metadata to organize your Datasets. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. No more than 64 user labels can be associated with one Dataset (System labels are excluded). See https://goo.gl/xmQnxf for more information and examples of labels. System reserved label keys are prefixed with "aiplatform.googleapis.com/" and are immutable. Following system labels exist for each Dataset: * "aiplatform.googleapis.com/dataset_metadata_schema": output only, its value is the metadata_schema's title.""",
+    )
+    metadata_artifact: Optional[str] = Field(
+        default=None,
+        description="""Output only. The resource name of the Artifact that was created in MetadataStore when creating the Dataset. The Artifact resource name pattern is `projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}`.""",
+    )
+    metadata_schema_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. Points to a YAML file stored on Google Cloud Storage describing additional information about the Dataset. The schema is defined as an OpenAPI 3.0.2 Schema Object. The schema files that can be used here are found in gs://google-cloud-aiplatform/schema/dataset/metadata/.""",
+    )
+    model_reference: Optional[str] = Field(
+        default=None,
+        description="""Optional. Reference to the public base model last used by the dataset. Only set for prompt datasets.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Identifier. The resource name of the Dataset. Format: `projects/{project}/locations/{location}/datasets/{dataset}`""",
+    )
+    satisfies_pzi: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    satisfies_pzs: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    saved_queries: Optional[list[SavedQuery]] = Field(
+        default=None,
+        description="""All SavedQueries belong to the Dataset will be returned in List/Get Dataset response. The annotation_specs field will not be populated except for UI cases which will only use annotation_spec_count. In CreateDataset request, a SavedQuery is created together if this field is set, up to one SavedQuery can be set in CreateDatasetRequest. The SavedQuery should not contain any AnnotationSpec.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this Dataset was last updated.""",
+    )
+
+    model_config = ConfigDict(alias_generator=_camel_to_snake, populate_by_name=True)
+
+    @classmethod
+    def _from_response(
+        cls: typing.Type["Dataset"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "Dataset":
+        """Converts a dictionary response into a Dataset object."""
+
+        # Some nested Dataset fields don't have converters, so we need to ensure camelCase fields from the API are converted to snake_case before calling _from_response.
+        # Instantiating a Dataset before calling _from_response ensures the model_config converting camel to snake is used
+        validated_dataset = Dataset.model_validate(response)
+        result = super()._from_response(
+            response=validated_dataset.model_dump(), kwargs=kwargs
+        )
+        return result
+
+
+class DatasetDict(TypedDict, total=False):
+    """Represents a dataset resource to store prompts."""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
+    """Required. Additional information about the Dataset."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a Dataset. If set, this Dataset and all sub-resources of this Dataset will be secured by this key."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this Dataset was created."""
+
+    data_item_count: Optional[int]
+    """Output only. The number of DataItems in this Dataset. Only apply for non-structured Dataset."""
+
+    description: Optional[str]
+    """The description of the Dataset."""
+
+    display_name: Optional[str]
+    """Required. The user-defined name of the Dataset. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
+
+    etag: Optional[str]
+    """Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
+
+    labels: Optional[dict[str, str]]
+    """The labels with user-defined metadata to organize your Datasets. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. No more than 64 user labels can be associated with one Dataset (System labels are excluded). See https://goo.gl/xmQnxf for more information and examples of labels. System reserved label keys are prefixed with "aiplatform.googleapis.com/" and are immutable. Following system labels exist for each Dataset: * "aiplatform.googleapis.com/dataset_metadata_schema": output only, its value is the metadata_schema's title."""
+
+    metadata_artifact: Optional[str]
+    """Output only. The resource name of the Artifact that was created in MetadataStore when creating the Dataset. The Artifact resource name pattern is `projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}`."""
+
+    metadata_schema_uri: Optional[str]
+    """Required. Points to a YAML file stored on Google Cloud Storage describing additional information about the Dataset. The schema is defined as an OpenAPI 3.0.2 Schema Object. The schema files that can be used here are found in gs://google-cloud-aiplatform/schema/dataset/metadata/."""
+
+    model_reference: Optional[str]
+    """Optional. Reference to the public base model last used by the dataset. Only set for prompt datasets."""
+
+    name: Optional[str]
+    """Output only. Identifier. The resource name of the Dataset. Format: `projects/{project}/locations/{location}/datasets/{dataset}`"""
+
+    satisfies_pzi: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    satisfies_pzs: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    saved_queries: Optional[list[SavedQueryDict]]
+    """All SavedQueries belong to the Dataset will be returned in List/Get Dataset response. The annotation_specs field will not be populated except for UI cases which will only use annotation_spec_count. In CreateDataset request, a SavedQuery is created together if this field is set, up to one SavedQuery can be set in CreateDatasetRequest. The SavedQuery should not contain any AnnotationSpec."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this Dataset was last updated."""
+
+
+DatasetOrDict = Union[Dataset, DatasetDict]
+
+
+class _GetDatasetVersionParameters(_common.BaseModel):
+    """Parameters for getting a dataset resource to store prompts."""
+
+    config: Optional[VertexBaseConfig] = Field(default=None, description="""""")
+    dataset_id: Optional[str] = Field(default=None, description="""""")
+    dataset_version_id: Optional[str] = Field(default=None, description="""""")
+
+
+class _GetDatasetVersionParametersDict(TypedDict, total=False):
+    """Parameters for getting a dataset resource to store prompts."""
+
+    config: Optional[VertexBaseConfigDict]
+    """"""
+
+    dataset_id: Optional[str]
+    """"""
+
+    dataset_version_id: Optional[str]
+    """"""
+
+
+_GetDatasetVersionParametersOrDict = Union[
+    _GetDatasetVersionParameters, _GetDatasetVersionParametersDict
+]
+
+
+class GetDatasetOperationConfig(_common.BaseModel):
+    """Config for getting a dataset version operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    should_return_http_response: Optional[bool] = Field(
+        default=None, description=""""""
+    )
+
+
+class GetDatasetOperationConfigDict(TypedDict, total=False):
+    """Config for getting a dataset version operation."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    should_return_http_response: Optional[bool]
+    """"""
+
+
+GetDatasetOperationConfigOrDict = Union[
+    GetDatasetOperationConfig, GetDatasetOperationConfigDict
+]
+
+
+class _GetDatasetOperationParameters(_common.BaseModel):
+    """Parameters for getting a dataset resource to store prompts."""
+
+    config: Optional[GetDatasetOperationConfig] = Field(
+        default=None, description=""""""
+    )
+    dataset_id: Optional[str] = Field(default=None, description="""""")
+    operation_id: Optional[str] = Field(default=None, description="""""")
+
+
+class _GetDatasetOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting a dataset resource to store prompts."""
+
+    config: Optional[GetDatasetOperationConfigDict]
+    """"""
+
+    dataset_id: Optional[str]
+    """"""
+
+    operation_id: Optional[str]
+    """"""
+
+
+_GetDatasetOperationParametersOrDict = Union[
+    _GetDatasetOperationParameters, _GetDatasetOperationParametersDict
+]
+
+
+class DatasetOperationMetadata(_common.BaseModel):
+    """Represents the get dataset version operation."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+
+
+class DatasetOperationMetadataDict(TypedDict, total=False):
+    """Represents the get dataset version operation."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+
+DatasetOperationMetadataOrDict = Union[
+    DatasetOperationMetadata, DatasetOperationMetadataDict
+]
+
+
 class PromptOptimizerVAPOConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
@@ -8334,6 +9642,11 @@ class EvaluationResult(_common.BaseModel):
         _evals_visualization.display_evaluation_result(self, candidate_names)
 
 
+PromptData = SchemaPromptSpecPromptMessage
+PromptDataDict = SchemaPromptSpecPromptMessageDict
+PromptDataOrDict = Union[PromptData, PromptDataDict]
+
+
 class EvaluationResultDict(TypedDict, total=False):
     """Result of an evaluation run for an evaluation dataset."""
 
@@ -8828,3 +10141,244 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
+
+
+class Prompt(_common.BaseModel):
+    """Represents a prompt."""
+
+    prompt_data: Optional["PromptData"] = Field(default=None, description="""""")
+    _dataset: Optional["Dataset"] = PrivateAttr(default=None)
+    _dataset_version: Optional["DatasetVersion"] = PrivateAttr(default=None)
+
+    @property
+    def dataset(self) -> "Dataset":
+        return self._dataset
+
+    @property
+    def dataset_version(self) -> "DatasetVersion":
+        return self._dataset_version
+
+    @property
+    def prompt_id(self) -> Optional[str]:
+        """Returns the ID associated with the prompt resource."""
+        if self._dataset and self._dataset.name:
+            return self._dataset.name.split("/")[-1]
+
+    @property
+    def version_id(self) -> Optional[str]:
+        """Returns the ID associated with the prompt version resource."""
+        if self._dataset_version and self._dataset_version.name:
+            return self._dataset_version.name.split("/")[-1]
+
+    def assemble_contents(self) -> list[genai_types.Content]:
+        """Transforms a Prompt object into a list with a single genai_types.Content object.
+
+        This method replaces the variables in the prompt template with the values provided in prompt.prompt_data.variables.
+        If no variables are provided, prompt.prompt_data.contents is returned as is. Only single-turn prompts are supported.
+
+        This can be used to call generate_content() in the Gen AI SDK.
+
+        Example usage:
+
+        my_prompt = types.Prompt(
+            prompt_data=types.PromptData(
+                model="gemini-2.0-flash-001",
+                contents=[
+                    genai_types.Content(
+                        parts=[
+                            genai_types.Part(text="Hello {name}!"),
+                        ],
+                    ),
+                ],
+                variables=[
+                    {
+                        "name": genai_types.Part(text="Alice"),
+                    },
+                ],
+            ),
+        )
+
+        from google import genai
+
+        genai_client = genai.Client(vertexai=True, project="my-project", location="us-central1")
+        genai_client.models.generate_content(
+            model=my_prompt.prompt_data.model,
+            contents=my_prompt.assemble_contents(),
+        )
+
+        Returns:
+            A list with a single Content object that can be used to call
+            generate_content().
+        """
+        if not self.prompt_data or not self.prompt_data.contents:
+            return []
+
+        if not self.prompt_data.variables:
+            return self.prompt_data.contents
+
+        if len(self.prompt_data.contents) > 1:
+            raise ValueError(
+                "Multiple contents are not supported. Use assemble_contents() for a prompt with a single Content item."
+            )
+
+        parts_to_process = self.prompt_data.contents[0].parts
+        if not isinstance(parts_to_process, list):
+            parts_to_process = [parts_to_process]
+
+        has_placeholders = False
+        variable_regex = r"\{.*?\}"
+        for item in parts_to_process:
+            part = (
+                item
+                if isinstance(item, genai_types.Part)
+                else genai_types.Part(text=str(item))
+            )
+            if part.text and re.search(variable_regex, part.text):
+                has_placeholders = True
+                break
+
+        if not has_placeholders:
+            return [genai_types.Content(parts=parts_to_process)]
+
+        all_rendered_parts: list[genai_types.Part] = []
+
+        for var_dict in self.prompt_data.variables:
+            for template_item in parts_to_process:
+                template_part = (
+                    template_item
+                    if isinstance(template_item, genai_types.Part)
+                    else genai_types.Part(text=str(template_item))
+                )
+                if template_part.text:
+                    rendered_text = template_part.text
+
+                    for key, value in var_dict.items():
+                        placeholder = f"{{{key}}}"
+                        replacement_text = None
+
+                        if isinstance(value, str):
+                            replacement_text = value
+                        elif isinstance(value, genai_types.Part):
+                            if value.text:
+                                replacement_text = value.text
+                            else:
+                                all_rendered_parts.append(value)
+                        if (
+                            replacement_text is not None
+                            and placeholder in rendered_text
+                        ):
+                            rendered_text = rendered_text.replace(
+                                placeholder, replacement_text
+                            )
+                    all_rendered_parts.append(genai_types.Part(text=rendered_text))
+                else:
+                    all_rendered_parts.append(template_part)
+        return [genai_types.Content(parts=all_rendered_parts, role="user")]
+
+
+class PromptDict(TypedDict, total=False):
+    """Represents a prompt."""
+
+    prompt_data: Optional["PromptDataDict"]
+    """"""
+
+
+PromptOrDict = Union[Prompt, PromptDict]
+
+
+class SchemaPromptInstanceVariableValue(_common.BaseModel):
+    """Represents a prompt instance variable."""
+
+    part_list: Optional[SchemaPromptSpecPartList] = Field(
+        default=None, description="""The parts of the variable value."""
+    )
+
+
+class SchemaPromptInstanceVariableValueDict(TypedDict, total=False):
+    """Represents a prompt instance variable."""
+
+    part_list: Optional[SchemaPromptSpecPartListDict]
+    """The parts of the variable value."""
+
+
+SchemaPromptInstanceVariableValueOrDict = Union[
+    SchemaPromptInstanceVariableValue, SchemaPromptInstanceVariableValueDict
+]
+
+
+class CreatePromptConfig(_common.BaseModel):
+    """Config for creating a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    prompt_id: Optional[str] = Field(
+        default=None,
+        description="""The dataset id of an existing prompt dataset to create the prompt version in. If not set, a new prompt dataset will be created.""",
+    )
+    prompt_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the prompt. If not set, a default name with a timestamp will be used.""",
+    )
+    version_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the prompt version. If not set, a default name with a timestamp will be used.""",
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds.""",
+    )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key.""",
+    )
+
+
+class CreatePromptConfigDict(TypedDict, total=False):
+    """Config for creating a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    prompt_id: Optional[str]
+    """The dataset id of an existing prompt dataset to create the prompt version in. If not set, a new prompt dataset will be created."""
+
+    prompt_display_name: Optional[str]
+    """The display name for the prompt. If not set, a default name with a timestamp will be used."""
+
+    version_display_name: Optional[str]
+    """The display name for the prompt version. If not set, a default name with a timestamp will be used."""
+
+    timeout: Optional[int]
+    """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
+
+
+CreatePromptConfigOrDict = Union[CreatePromptConfig, CreatePromptConfigDict]
+
+
+class GetPromptConfig(_common.BaseModel):
+    """Config for getting a prompt."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    version_id: Optional[str] = Field(
+        default=None,
+        description="""The version id of the prompt in the prompt dataset to get. For example, if the full prompt resource name is projects/123/locations/us-central1/datasets/456/datasetVersions/789, then the version id is '789'.""",
+    )
+
+
+class GetPromptConfigDict(TypedDict, total=False):
+    """Config for getting a prompt."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    version_id: Optional[str]
+    """The version id of the prompt in the prompt dataset to get. For example, if the full prompt resource name is projects/123/locations/us-central1/datasets/456/datasetVersions/789, then the version id is '789'."""
+
+
+GetPromptConfigOrDict = Union[GetPromptConfig, GetPromptConfigDict]

@@ -184,8 +184,6 @@ def client(use_vertex, replays_prefix, http_options, request):
             os.path.dirname(__file__),
             "credentials.json",
         )
-        os.environ["GOOGLE_CLOUD_PROJECT"] = "project-id"
-        os.environ["GOOGLE_CLOUD_LOCATION"] = "location"
         os.environ["VAPO_CONFIG_PATH"] = "gs://dummy-test/dummy-config.json"
         os.environ["VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"] = "1234567890"
         os.environ["GCS_BUCKET"] = "test-bucket"
