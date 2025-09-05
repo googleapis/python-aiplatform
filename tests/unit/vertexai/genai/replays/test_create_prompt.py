@@ -80,7 +80,6 @@ TEST_CONFIG = types.CreatePromptConfig(
 
 def test_create_dataset(client):
     create_dataset_operation = client.prompt_management._create_dataset_resource(
-        config=types.CreateDatasetConfig(should_return_http_response=True),
         name="projects/vertex-sdk-dev/locations/us-central1",
         display_name="test display name",
         metadata_schema_uri="gs://google-cloud-aiplatform/schema/dataset/metadata/text_prompt_1.0.0.yaml",
@@ -123,8 +122,8 @@ def test_create_dataset(client):
         },
         model_reference="gemini-2.0-flash-001",
     )
-    assert isinstance(create_dataset_operation, types.CreateDatasetOperationMetadata)
-    assert create_dataset_operation.sdk_http_response.body is not None
+    assert isinstance(create_dataset_operation, types.DatasetOperation)
+    assert create_dataset_operation
 
 
 def test_create_dataset_version(client):
@@ -134,9 +133,7 @@ def test_create_dataset_version(client):
             display_name="my new version yay",
         )
     )
-    assert isinstance(
-        dataset_version_resource, types.CreateDatasetVersionOperationMetadata
-    )
+    assert isinstance(dataset_version_resource, types.DatasetOperation)
 
 
 def test_create_version_e2e(client):

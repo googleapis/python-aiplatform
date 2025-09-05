@@ -15,16 +15,14 @@
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
 from tests.unit.vertexai.genai.replays import pytest_helper
-from vertexai._genai import types
 
 
 def test_get_dataset_operation(client):
     dataset_operation = client.prompt_management._get_dataset_operation(
-        config=types.GetDatasetOperationConfig(should_return_http_response=True),
         dataset_id="6550997480673116160",
         operation_id="5108504762664353792",
     )
-    assert dataset_operation.sdk_http_response.body is not None
+    assert dataset_operation.name is not None
 
 
 pytestmark = pytest_helper.setup(
