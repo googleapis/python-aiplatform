@@ -37,7 +37,7 @@ vertexai.init(project='my-project', location='us-central1')
 ```python
 from vertexai.generative_models import GenerativeModel
 model = GenerativeModel("gemini-pro")
-print(model.generate_content("Why is sky blue?"))
+print(model.generate_content("Why is the sky blue?"))
 ```
 
 #### Using images and videos
@@ -54,7 +54,7 @@ image_part = generative_models.Part.from_uri("gs://download.tensorflow.org/examp
 print(vision_model.generate_content([image_part, "Describe this image?"]))
 
 # Text and video
-video_part = Part.from_uri("gs://cloud-samples-data/video/animals.mp4", mime_type="video/mp4")
+video_part = generative_models.Part.from_uri("gs://cloud-samples-data/video/animals.mp4", mime_type="video/mp4")
 print(vision_model.generate_content(["What is in the video? ", video_part]))
 ```
 
@@ -65,7 +65,7 @@ vision_model = GenerativeModel("gemini-ultra-vision")
 vision_chat = vision_model.start_chat()
 image = Image.load_from_file("image.jpg")
 print(vision_chat.send_message(["I like this image.", image]))
-print(vision_chat.send_message("What things do I like?."))
+print(vision_chat.send_message("What things do I like?"))
 ```
 
 #### System instructions
@@ -78,14 +78,14 @@ model = GenerativeModel(
         "Don't use rude words.",
     ],
 )
-print(model.generate_content("Why is sky blue?"))
+print(model.generate_content("Why is the sky blue?"))
 ```
 
 #### Function calling
 
 ```python
-# First, create tools that the model is can use to answer your questions.
-# Describe a function by specifying it's schema (JsonSchema format)
+# First, create tools that the model can use to answer your questions.
+# Describe a function by specifying its schema (JsonSchema format)
 get_current_weather_func = generative_models.FunctionDeclaration(
     name="get_current_weather",
     description="Get the current weather in a given location",
@@ -184,7 +184,7 @@ print(chat.send_message("What is the weather like in Boston?"))
 
 #### Evaluation
 
--  To perform bring-your-own-response(BYOR) evaluation, provide the model responses in the `response` column in the dataset. If a pairwise metric is used for BYOR evaluation, provide the baseline model responses in the `baseline_model_response` column.
+-  To perform bring-your-own-response (BYOR) evaluation, provide the model responses in the `response` column in the dataset. If a pairwise metric is used for BYOR evaluation, provide the baseline model responses in the `baseline_model_response` column.
 
 ```python
 import pandas as pd
@@ -208,7 +208,7 @@ eval_task = EvalTask(
 )
 eval_result = eval_task.evaluate(experiment_run_name="eval-experiment-run")
 ```
--  To perform evaluation with Gemini model inference, specify the `model` parameter with a `GenerativeModel` instance.  The input column name to the model is `prompt` and must be present in the dataset.
+- To perform evaluation with Gemini model inference, specify the `model` parameter with a `GenerativeModel` instance.  The input column name to the model is `prompt` and must be present in the dataset.
 
 ```python
 from vertexai.evaluation import EvalTask
