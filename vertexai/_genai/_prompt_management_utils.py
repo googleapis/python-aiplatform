@@ -14,7 +14,6 @@
 #
 """Utility functions for prompt management."""
 
-import json
 from typing import Optional
 
 from google.genai import types as genai_types
@@ -76,19 +75,6 @@ def _create_dataset_metadata_from_prompt(
     prompt_metadata.prompt_type = PROMPT_TYPE
 
     return prompt_metadata
-
-
-def _check_operation_status_from_response_body(
-    operation_response: genai_types.HttpResponse,
-):
-    """Checks the operation status from the response body."""
-    if not hasattr(operation_response, "body"):
-        raise ValueError("Error creating prompt dataset resource.")
-    done = False
-    body = json.loads(operation_response.body)
-    if body.get("done"):
-        done = True
-    return done
 
 
 def _create_prompt_from_dataset_metadata(
