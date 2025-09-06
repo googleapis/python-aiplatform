@@ -36,6 +36,8 @@ from . import types
 
 logger = logging.getLogger("vertexai_genai.agentengines")
 
+logger.setLevel(logging.INFO)
+
 
 def _ReasoningEngineSpec_to_vertex(
     from_object: Union[dict[str, Any], object],

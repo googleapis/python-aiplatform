@@ -33,6 +33,8 @@ from . import types
 
 logger = logging.getLogger("vertexai_genai.sessionevents")
 
+logger.setLevel(logging.INFO)
+
 
 def _EventActions_to_vertex(
     from_object: Union[dict[str, Any], object],

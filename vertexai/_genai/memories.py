@@ -33,6 +33,8 @@ from . import types
 
 logger = logging.getLogger("vertexai_genai.memories")
 
+logger.setLevel(logging.INFO)
+
 
 def _AgentEngineMemoryConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
