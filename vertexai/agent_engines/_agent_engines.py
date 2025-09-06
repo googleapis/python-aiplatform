@@ -1533,14 +1533,14 @@ def _wrap_async_stream_query_operation(
     """
 
     async def _method(self, **kwargs) -> AsyncIterable[Any]:
-        response = self.execution_api_client.stream_query_reasoning_engine(
+        response = await self.execution_async_client.stream_query_reasoning_engine(
             request=aip_types.StreamQueryReasoningEngineRequest(
                 name=self.resource_name,
                 input=kwargs,
                 class_method=method_name,
             ),
         )
-        for chunk in response:
+        async for chunk in response:
             for parsed_json in _utils.yield_parsed_json(chunk):
                 if parsed_json is not None:
                     yield parsed_json
