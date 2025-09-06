@@ -26,7 +26,7 @@ import warnings
 import nox
 
 FLAKE8_VERSION = "flake8==6.1.0"
-BLACK_VERSION = "black==25.1.0"
+BLACK_VERSION = "black==24.10.0"
 ISORT_VERSION = "isort==5.10.1"
 LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
 
