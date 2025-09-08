@@ -79,6 +79,7 @@ class MetadataSchema(proto.Message):
                 A state indicating that the MetadataSchema
                 will be used by Contexts.
         """
+
         METADATA_SCHEMA_TYPE_UNSPECIFIED = 0
         ARTIFACT_TYPE = 1
         EXECUTION_TYPE = 2

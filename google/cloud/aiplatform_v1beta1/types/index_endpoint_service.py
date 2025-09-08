@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
+from google.cloud.aiplatform_v1beta1.types import (
+    index_endpoint as gca_index_endpoint,
+)
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -190,12 +192,12 @@ class ListIndexEndpointsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    index_endpoints: MutableSequence[
-        gca_index_endpoint.IndexEndpoint
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_index_endpoint.IndexEndpoint,
+    index_endpoints: MutableSequence[gca_index_endpoint.IndexEndpoint] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=gca_index_endpoint.IndexEndpoint,
+        )
     )
     next_page_token: str = proto.Field(
         proto.STRING,

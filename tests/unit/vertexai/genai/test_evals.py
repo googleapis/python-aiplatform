@@ -25,6 +25,7 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
 from vertexai._genai import _evals_data_converters
 from vertexai._genai import _evals_metric_handlers
+from vertexai._genai import _observability_data_converter
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
@@ -1921,6 +1922,277 @@ class TestOpenAIDataConverter:
         assert len(result_dataset.eval_cases) == 0
 
 
+class TestObservabilityDataConverter:
+    """Unit tests for the ObservabilityDataConverter class."""
+
+    def setup_method(self):
+        self.converter = _observability_data_converter.ObservabilityDataConverter()
+
+    def test_convert_simple_request_response(self):
+        raw_data = [
+            {
+                "format": "observability",
+                "request": [
+                    {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
+                ],
+                "response": [
+                    {
+                        "role": "system",
+                        "parts": [{"content": "Hi", "type": "text"}],
+                    }
+                ],
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+
+        assert isinstance(result_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(result_dataset.eval_cases) == 1
+
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Hi")], role="system"
+        )
+        assert eval_case.reference is None
+        assert eval_case.system_instruction is None
+        assert not eval_case.conversation_history
+
+    def test_convert_with_system_instruction(self):
+        raw_data = [
+            {
+                "format": "observability",
+                "request": [
+                    {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
+                ],
+                "response": [
+                    {
+                        "role": "system",
+                        "parts": [{"content": "Hi", "type": "text"}],
+                    }
+                ],
+                "system_instruction": {
+                    "role": "user",
+                    "parts": [{"content": "Be helpful", "type": "text"}],
+                },
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.system_instruction == genai_types.Content(
+            parts=[genai_types.Part(text="Be helpful")], role="user"
+        )
+
+    def test_convert_with_conversation_history(self):
+        raw_data = [
+            {
+                "format": "observability",
+                "request": [
+                    {"role": "user", "parts": [{"content": "Hello", "type": "text"}]},
+                    {"role": "system", "parts": [{"content": "Hi", "type": "text"}]},
+                    {
+                        "role": "user",
+                        "parts": [
+                            {"content": "What's the meaning of life?", "type": "text"}
+                        ],
+                    },
+                ],
+                "response": [
+                    {
+                        "role": "system",
+                        "parts": [{"content": "42.", "type": "text"}],
+                    }
+                ],
+            }
+        ]
+
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="What's the meaning of life?")], role="user"
+        )
+
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0] == vertexai_genai_types.Message(
+            content=genai_types.Content(
+                parts=[genai_types.Part(text="Hello")], role="user"
+            ),
+            turn_id="0",
+            author="user",
+        )
+        assert eval_case.conversation_history[1] == vertexai_genai_types.Message(
+            content=genai_types.Content(
+                parts=[genai_types.Part(text="Hi")], role="system"
+            ),
+            turn_id="1",
+            author="system",
+        )
+
+    def test_convert_multiple_request_response(self):
+        raw_data = [
+            {
+                "format": "observability",
+                "request": [
+                    {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
+                ],
+                "response": [
+                    {
+                        "role": "system",
+                        "parts": [{"content": "Hi", "type": "text"}],
+                    }
+                ],
+            },
+            {
+                "format": "observability",
+                "request": [
+                    {"role": "user", "parts": [{"content": "Goodbye", "type": "text"}]}
+                ],
+                "response": [
+                    {
+                        "role": "system",
+                        "parts": [{"content": "Bye", "type": "text"}],
+                    }
+                ],
+            },
+        ]
+        result_dataset = self.converter.convert(raw_data)
+
+        assert isinstance(result_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(result_dataset.eval_cases) == 2
+
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Hi")], role="system"
+        )
+
+        eval_case = result_dataset.eval_cases[1]
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Goodbye")], role="user"
+        )
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[genai_types.Part(text="Bye")], role="system"
+        )
+
+    def test_convert_skips_unknown_part_type(self):
+        raw_data = [
+            {
+                "format": "observability",
+                "request": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {"content": 123, "type": ""},
+                            {"content": 456},
+                            {"content": "Hello", "type": "text"},
+                        ],
+                    }
+                ],
+                "response": [
+                    {
+                        "role": "system",
+                        "parts": [{"content": "Hi", "type": "text"}],
+                    }
+                ],
+            }
+        ]
+
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Hello")], role="user"
+        )
+
+    def test_convert_skips_missing_request(self):
+        raw_data = [
+            {
+                "format": "observability",
+                "response": [
+                    {
+                        "role": "system",
+                        "parts": [{"content": "Hi", "type": "text"}],
+                    }
+                ],
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        assert not result_dataset.eval_cases
+
+    def test_convert_skips_missing_response(self):
+        raw_data = [
+            {
+                "format": "observability",
+                "request": [
+                    {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
+                ],
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+        assert not result_dataset.eval_cases
+
+    def test_convert_tool_call_parts(self):
+        raw_data = [
+            {
+                "format": "observability",
+                "request": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "type": "tool_call",
+                                "id": "tool_id",
+                                "name": "tool_name",
+                                "arguments": {"param": "1"},
+                            }
+                        ],
+                    }
+                ],
+                "response": [
+                    {
+                        "role": "system",
+                        "parts": [
+                            {
+                                "type": "tool_call_response",
+                                "id": "tool_id",
+                                "result": {"field": "2"},
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+        result_dataset = self.converter.convert(raw_data)
+
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.prompt == genai_types.Content(
+            parts=[
+                genai_types.Part(
+                    function_call=genai_types.FunctionCall(
+                        id="tool_id", name="tool_id", args={"param": "1"}
+                    )
+                )
+            ],
+            role="user",
+        )
+        assert len(eval_case.responses) == 1
+        assert eval_case.responses[0].response == genai_types.Content(
+            parts=[
+                genai_types.Part(
+                    function_response=genai_types.FunctionResponse(
+                        id="tool_id", name="tool_id", response={"field": "2"}
+                    )
+                )
+            ],
+            role="system",
+        )
+
+
 class TestMetric:
     """Unit tests for the Metric class."""
 
@@ -2953,6 +3225,26 @@ class TestAutoDetectDatasetSchema:
             == _evals_data_converters.EvalDatasetSchema.OPENAI
         )
 
+    def test_auto_detect_observability_schema(self):
+        raw_data = [
+            {
+                "format": "observability",
+                "request": [
+                    {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
+                ],
+                "response": [
+                    {
+                        "role": "system",
+                        "parts": [{"content": "Hi", "type": "text"}],
+                    }
+                ],
+            }
+        ]
+        assert (
+            _evals_data_converters.auto_detect_dataset_schema(raw_data)
+            == _evals_data_converters.EvalDatasetSchema.OBSERVABILITY
+        )
+
     def test_auto_detect_unknown_schema(self):
         raw_data = [{"foo": "bar"}]
         assert (
@@ -3536,13 +3828,13 @@ class TestEvalsRunEvaluation:
             candidate_name="gemini-pro",
         )
 
-        mock_eval_dependencies[
-            "mock_evaluate_instances"
-        ].return_value = vertexai_genai_types.EvaluateInstancesResponse(
-            exact_match_results=vertexai_genai_types.ExactMatchResults(
-                exact_match_metric_values=[
-                    vertexai_genai_types.ExactMatchMetricValue(score=1.0)
-                ]
+        mock_eval_dependencies["mock_evaluate_instances"].return_value = (
+            vertexai_genai_types.EvaluateInstancesResponse(
+                exact_match_results=vertexai_genai_types.ExactMatchResults(
+                    exact_match_metric_values=[
+                        vertexai_genai_types.ExactMatchMetricValue(score=1.0)
+                    ]
+                )
             )
         )
 
@@ -3585,3 +3877,169 @@ class TestEvalsRunEvaluation:
 
         assert result.metadata is not None
         assert result.metadata.creation_timestamp == mock_now
+
+
+class TestEvaluationDataset:
+    """Contains set of tests for the EvaluationDataset class methods."""
+
+    @mock.patch.object(_evals_utils, "GcsUtils")
+    def test_load_from_observability_eval_cases(self, mock_gcs_utils):
+        """Tests that load_from_observability_eval_cases reads data from GCS."""
+
+        def read_file_contents_side_effect(src: str) -> str:
+            if src == "gs://project/input.json":
+                return "input"
+            elif src == "gs://project/output.json":
+                return "output"
+            elif src == "gs://project/system_instruction.json":
+                return "system_instruction"
+            else:
+                return ""
+
+        mock_gcs_utils.return_value.read_file_contents.side_effect = (
+            read_file_contents_side_effect
+        )
+
+        eval_cases = [
+            vertexai_genai_types.ObservabilityEvalCase(
+                input_src="gs://project/input.json",
+                output_src="gs://project/output.json",
+                system_instruction_src="gs://project/system_instruction.json",
+            )
+        ]
+        result = (
+            vertexai_genai_types.EvaluationDataset.load_from_observability_eval_cases(
+                eval_cases
+            )
+        )
+
+        mock_gcs_utils.return_value.read_file_contents.assert_has_calls(
+            [
+                mock.call("gs://project/input.json"),
+                mock.call("gs://project/output.json"),
+                mock.call("gs://project/system_instruction.json"),
+            ],
+            any_order=True,
+        )
+        assert result.eval_dataset_df is not None
+        pd.testing.assert_frame_equal(
+            result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "format": ["observability"],
+                    "request": ["input"],
+                    "response": ["output"],
+                    "system_instruction": ["system_instruction"],
+                }
+            ),
+        )
+
+    @mock.patch.object(_evals_utils, "GcsUtils")
+    def test_load_from_observability_eval_cases_no_system_instruction(
+        self, mock_gcs_utils
+    ):
+        """Tests load_from_observability_eval_cases works without system_instruction."""
+
+        def read_file_contents_side_effect(src: str) -> str:
+            if src == "gs://project/input.json":
+                return "input"
+            elif src == "gs://project/output.json":
+                return "output"
+            elif src == "gs://project/system_instruction.json":
+                return "system_instruction"
+            else:
+                return ""
+
+        mock_gcs_utils.return_value.read_file_contents.side_effect = (
+            read_file_contents_side_effect
+        )
+
+        eval_cases = [
+            vertexai_genai_types.ObservabilityEvalCase(
+                input_src="gs://project/input.json",
+                output_src="gs://project/output.json",
+            )
+        ]
+        result = (
+            vertexai_genai_types.EvaluationDataset.load_from_observability_eval_cases(
+                eval_cases
+            )
+        )
+
+        mock_gcs_utils.return_value.read_file_contents.assert_has_calls(
+            [
+                mock.call("gs://project/input.json"),
+                mock.call("gs://project/output.json"),
+            ],
+            any_order=True,
+        )
+        assert result.eval_dataset_df is not None
+        pd.testing.assert_frame_equal(
+            result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "format": ["observability"],
+                    "request": ["input"],
+                    "response": ["output"],
+                    "system_instruction": [""],
+                }
+            ),
+        )
+
+    @mock.patch.object(_evals_utils, "GcsUtils")
+    def test_load_from_observability_eval_cases_multiple_cases(self, mock_gcs_utils):
+        """Test load_from_observability_eval_cases can handle multiple cases."""
+
+        def read_file_contents_side_effect(src: str) -> str:
+            if src == "gs://project/input_1.json":
+                return "input_1"
+            elif src == "gs://project/input_2.json":
+                return "input_2"
+            elif src == "gs://project/output_1.json":
+                return "output_1"
+            elif src == "gs://project/output_2.json":
+                return "output_2"
+            elif src == "gs://project/system_instruction_1.json":
+                return "system_instruction_1"
+            elif src == "gs://project/system_instruction_2.json":
+                return "system_instruction_2"
+            else:
+                return ""
+
+        mock_gcs_utils.return_value.read_file_contents.side_effect = (
+            read_file_contents_side_effect
+        )
+
+        eval_cases = [
+            vertexai_genai_types.ObservabilityEvalCase(
+                input_src="gs://project/input_1.json",
+                output_src="gs://project/output_1.json",
+                system_instruction_src="gs://project/system_instruction_1.json",
+            ),
+            vertexai_genai_types.ObservabilityEvalCase(
+                input_src="gs://project/input_2.json",
+                output_src="gs://project/output_2.json",
+                system_instruction_src="gs://project/system_instruction_2.json",
+            ),
+        ]
+        result = (
+            vertexai_genai_types.EvaluationDataset.load_from_observability_eval_cases(
+                eval_cases
+            )
+        )
+
+        assert result.eval_dataset_df is not None
+        pd.testing.assert_frame_equal(
+            result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "format": ["observability", "observability"],
+                    "request": ["input_1", "input_2"],
+                    "response": ["output_1", "output_2"],
+                    "system_instruction": [
+                        "system_instruction_1",
+                        "system_instruction_2",
+                    ],
+                }
+            ),
+        )

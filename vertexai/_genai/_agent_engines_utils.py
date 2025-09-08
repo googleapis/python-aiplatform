@@ -15,6 +15,7 @@
 """Utility functions for agent engines."""
 
 import abc
+import asyncio
 from importlib import metadata as importlib_metadata
 import inspect
 import io
@@ -108,6 +109,7 @@ _ACTION_APPEND = "append"
 _AGENT_FRAMEWORK_ATTR = "agent_framework"
 _ASYNC_API_MODE = "async"
 _ASYNC_STREAM_API_MODE = "async_stream"
+_BIDI_STREAM_API_MODE = "bidi_stream"
 _BASE_MODULES = set(_BUILTIN_MODULE_NAMES + tuple(_STDLIB_MODULE_NAMES))
 _BLOB_FILENAME = "agent_engine.pkl"
 _DEFAULT_AGENT_FRAMEWORK = "custom"
@@ -132,6 +134,7 @@ _DEFAULT_METHOD_RETURN_TYPE = "dict[str, Any]"
 _DEFAULT_STREAM_METHOD_RETURN_TYPE = "Iterable[Any]"
 _DEFAULT_REQUIRED_PACKAGES = frozenset(["cloudpickle", "pydantic"])
 _DEFAULT_STREAM_METHOD_NAME = "stream_query"
+_DEFAULT_BIDI_STREAM_METHOD_NAME = "bidi_stream_query"
 _EXTRA_PACKAGES_FILE = "dependencies.tar.gz"
 _FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE = (
     "Failed to register API methods. Please follow the guide to "
@@ -203,6 +206,15 @@ class StreamQueryable(Protocol):
 
 
 @typing.runtime_checkable
+class BidiStreamQueryable(Protocol):
+    """Protocol for Agent Engines that can stream requests and responses."""
+
+    @abc.abstractmethod
+    async def bidi_stream_query(self, input_queue: asyncio.Queue) -> AsyncIterator[Any]:
+        """Stream requests and responses to serve the user queries."""
+
+
+@typing.runtime_checkable
 class Cloneable(Protocol):
     """Protocol for Agent Engines that can be cloned."""
 
@@ -234,6 +246,7 @@ _AgentEngineInterface = Union[
     OperationRegistrable,
     Queryable,
     StreamQueryable,
+    BidiStreamQueryable,
 ]
 
 
@@ -367,14 +380,14 @@ def _await_operation(
     *,
     operation_name: str,
     get_operation_fn: GetOperationFunction,
-    poll_interval_seconds: int = 10,
+    poll_interval_seconds: float = 10,
 ) -> Any:
     """Waits for the operation for creating an agent engine to complete.
 
     Args:
         operation_name (str):
             Required. The name of the operation for creating the Agent Engine.
-        poll_interval_seconds (int):
+        poll_interval_seconds (float):
             The number of seconds to wait between each poll.
         get_operation_fn (Callable[[str], Any]):
             Optional. The function to use for getting the operation. If not
@@ -557,6 +570,9 @@ def _generate_schema(
             inspect.Parameter.KEYWORD_ONLY,
             inspect.Parameter.POSITIONAL_ONLY,
         )
+        # For a bidi endpoint, it requires an asyncio.Queue as the input, but
+        # it is not JSON serializable. We hence exclude it from the schema.
+        and param.annotation != asyncio.Queue
     }
     parameters = pydantic.create_model(f.__name__, **fields_dict).schema()
     # Postprocessing
@@ -656,6 +672,8 @@ def _get_registered_operations(
         operations[_STREAM_API_MODE] = [_DEFAULT_STREAM_METHOD_NAME]
     if isinstance(agent, AsyncStreamQueryable):
         operations[_ASYNC_STREAM_API_MODE] = [_DEFAULT_ASYNC_STREAM_METHOD_NAME]
+    if isinstance(agent, BidiStreamQueryable):
+        operations[_BIDI_STREAM_API_MODE] = [_DEFAULT_BIDI_STREAM_METHOD_NAME]
     return operations
 
 
@@ -839,6 +857,10 @@ def _register_api_methods_or_raise(
                 f" contain an `{_MODE_KEY_IN_SCHEMA}` field."
             )
         api_mode = operation_schema.get(_MODE_KEY_IN_SCHEMA)
+        # For bidi stream api mode, we don't need to wrap the operation.
+        if api_mode == _BIDI_STREAM_API_MODE:
+            continue
+
         if _METHOD_NAME_KEY_IN_SCHEMA not in operation_schema:
             raise ValueError(
                 f"Operation schema {operation_schema} does not"
@@ -1212,6 +1234,7 @@ def _validate_agent_or_raise(
     * a callable method named `query`
     * a callable method named `stream_query`
     * a callable method named `async_stream_query`
+    * a callable method named `bidi_stream_query`
     * a callable method named `register_operations`
 
     Args:
@@ -1246,6 +1269,9 @@ def _validate_agent_or_raise(
     is_async_stream_queryable = isinstance(agent, AsyncStreamQueryable) and callable(
         agent.async_stream_query
     )
+    is_bidi_stream_queryable = isinstance(agent, BidiStreamQueryable) and callable(
+        agent.bidi_stream_query
+    )
     is_operation_registrable = isinstance(agent, OperationRegistrable) and callable(
         agent.register_operations
     )
@@ -1255,12 +1281,13 @@ def _validate_agent_or_raise(
         or is_async_queryable
         or is_stream_queryable
         or is_operation_registrable
+        or is_bidi_stream_queryable
         or is_async_stream_queryable
     ):
         raise TypeError(
             "agent_engine has none of the following callable methods: "
-            "`query`, `async_query`, `stream_query`, `async_stream_query` or "
-            "`register_operations`."
+            "`query`, `async_query`, `stream_query`, `async_stream_query`, "
+            "`bidi_stream_query`, or `register_operations`."
         )
 
     if is_queryable:
@@ -1299,6 +1326,15 @@ def _validate_agent_or_raise(
                 " missing `self` argument in the agent.async_stream_query method."
             ) from err
 
+    if is_bidi_stream_queryable:
+        try:
+            inspect.signature(getattr(agent, "bidi_stream_query"))
+        except ValueError as err:
+            raise ValueError(
+                "Invalid bidi_stream_query signature. This might be due to a "
+                " missing `self` argument in the agent.bidi_stream_query method."
+            ) from err
+
     if is_operation_registrable:
         try:
             inspect.signature(getattr(agent, "register_operations"))
@@ -1325,6 +1361,19 @@ def _wrap_agent_operation(*, agent: Any, operation: str) -> Callable[..., Any]:
     _method.__name__ = operation
     _method.__doc__ = getattr(agent, operation).__doc__
     return _method
+
+
+AgentEngineOperationUnion = Union[
+    genai_types.AgentEngineOperation,
+    genai_types.AgentEngineMemoryOperation,
+    genai_types.AgentEngineGenerateMemoriesOperation,
+]
+
+
+class GetOperationFunction(Protocol):
+    def __call__(
+        self, *, operation_name: str, **kwargs
+    ) -> AgentEngineOperationUnion: ...
 
 
 def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:

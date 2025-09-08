@@ -14,7 +14,6 @@
 #
 """Dataset converters for evals."""
 
-import abc
 import json
 import logging
 from typing import Any, Optional, Union
@@ -23,6 +22,8 @@ from google.genai import _common
 from google.genai import types as genai_types
 from typing_extensions import override
 
+from . import _evals_utils
+from . import _observability_data_converter
 from . import types
 
 
@@ -35,16 +36,8 @@ class EvalDatasetSchema(_common.CaseInSensitiveEnum):
     GEMINI = "gemini"
     FLATTEN = "flatten"
     OPENAI = "openai"
+    OBSERVABILITY = "observability"
     UNKNOWN = "unknown"
-
-
-class _EvalDataConverter(abc.ABC):
-    """Abstract base class for dataset converters."""
-
-    @abc.abstractmethod
-    def convert(self, raw_data: Any) -> types.EvaluationDataset:
-        """Converts a loaded raw dataset into an EvaluationDataset."""
-        raise NotImplementedError()
 
 
 _PLACEHOLDER_RESPONSE_TEXT = "Error: Missing response for this candidate"
@@ -59,12 +52,10 @@ def _create_placeholder_response_candidate(
     )
 
 
-class _GeminiEvalDataConverter(_EvalDataConverter):
+class _GeminiEvalDataConverter(_evals_utils.EvalDataConverter):
     """Converter for dataset in the Gemini format."""
 
-    def _parse_request(
-        self, request_data: dict[str, Any]
-    ) -> tuple[
+    def _parse_request(self, request_data: dict[str, Any]) -> tuple[
         genai_types.Content,
         genai_types.Content,
         list[types.Message],
@@ -185,7 +176,7 @@ class _GeminiEvalDataConverter(_EvalDataConverter):
         return types.EvaluationDataset(eval_cases=eval_cases)
 
 
-class _FlattenEvalDataConverter(_EvalDataConverter):
+class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
     """Converter for datasets in a structured table format."""
 
     def convert(self, raw_data: list[dict[str, Any]]) -> types.EvaluationDataset:
@@ -296,9 +287,11 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
                         if isinstance(value, list):
                             try:
                                 validated_rubrics = [
-                                    types.Rubric.model_validate(r)
-                                    if isinstance(r, dict)
-                                    else r
+                                    (
+                                        types.Rubric.model_validate(r)
+                                        if isinstance(r, dict)
+                                        else r
+                                    )
                                     for r in value
                                 ]
                                 if all(
@@ -353,12 +346,10 @@ class _FlattenEvalDataConverter(_EvalDataConverter):
         return types.EvaluationDataset(eval_cases=eval_cases)
 
 
-class _OpenAIDataConverter(_EvalDataConverter):
+class _OpenAIDataConverter(_evals_utils.EvalDataConverter):
     """Converter for dataset in OpenAI's Chat Completion format."""
 
-    def _parse_messages(
-        self, messages: list[dict[str, Any]]
-    ) -> tuple[
+    def _parse_messages(self, messages: list[dict[str, Any]]) -> tuple[
         Optional[genai_types.Content],
         list[types.Message],
         Optional[genai_types.Content],
@@ -503,6 +494,11 @@ def auto_detect_dataset_schema(
     first_item = raw_dataset[0]
     keys = set(first_item.keys())
 
+    if "format" in keys:
+        format_content = first_item.get("format", "")
+        if isinstance(format_content, str) and format_content == "observability":
+            return EvalDatasetSchema.OBSERVABILITY
+
     if "request" in keys and "response" in keys:
         request_content = first_item.get("request", {})
         if isinstance(request_content, dict) and "contents" in request_content:
@@ -540,12 +536,13 @@ _CONVERTER_REGISTRY = {
     EvalDatasetSchema.GEMINI: _GeminiEvalDataConverter,
     EvalDatasetSchema.FLATTEN: _FlattenEvalDataConverter,
     EvalDatasetSchema.OPENAI: _OpenAIDataConverter,
+    EvalDatasetSchema.OBSERVABILITY: _observability_data_converter.ObservabilityDataConverter,
 }
 
 
 def get_dataset_converter(
     dataset_schema: EvalDatasetSchema,
-) -> _EvalDataConverter:
+) -> _evals_utils.EvalDataConverter:
     """Returns the appropriate dataset converter for the given schema."""
     if dataset_schema in _CONVERTER_REGISTRY:
         return _CONVERTER_REGISTRY[dataset_schema]()  # type: ignore[abstract]

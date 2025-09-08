@@ -18,6 +18,7 @@ import os
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+from google.genai import types as genai_types
 import pytest
 
 
@@ -50,7 +51,7 @@ def test_optimize(client):
         config=config,
     )
     assert isinstance(job, types.CustomJob)
-    assert job.state == types.JobState.JOB_STATE_SUCCEEDED
+    assert job.state == genai_types.JobState.JOB_STATE_SUCCEEDED
 
 
 pytestmark = pytest_helper.setup(
@@ -79,7 +80,7 @@ async def test_optimize_async(client):
         config=config,
     )
     assert isinstance(job, types.CustomJob)
-    assert job.state == types.JobState.JOB_STATE_PENDING
+    assert job.state == genai_types.JobState.JOB_STATE_PENDING
 
 
 @pytest.mark.asyncio
@@ -99,5 +100,5 @@ async def test_optimize_async_with_config_wait_for_completion(client, caplog):
         config=config,
     )
     assert isinstance(job, types.CustomJob)
-    assert job.state == types.JobState.JOB_STATE_PENDING
+    assert job.state == genai_types.JobState.JOB_STATE_PENDING
     assert "Ignoring wait_for_completion=True" in caplog.text

@@ -238,6 +238,7 @@ class GoogleDriveSource(proto.Message):
                 RESOURCE_TYPE_FOLDER (2):
                     Folder resource type.
             """
+
             RESOURCE_TYPE_UNSPECIFIED = 0
             RESOURCE_TYPE_FILE = 1
             RESOURCE_TYPE_FOLDER = 2
@@ -320,12 +321,12 @@ class SlackSource(proto.Message):
                 message=timestamp_pb2.Timestamp,
             )
 
-        channels: MutableSequence[
-            "SlackSource.SlackChannels.SlackChannel"
-        ] = proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message="SlackSource.SlackChannels.SlackChannel",
+        channels: MutableSequence["SlackSource.SlackChannels.SlackChannel"] = (
+            proto.RepeatedField(
+                proto.MESSAGE,
+                number=1,
+                message="SlackSource.SlackChannels.SlackChannel",
+            )
         )
         api_key_config: api_auth.ApiAuth.ApiKeyConfig = proto.Field(
             proto.MESSAGE,

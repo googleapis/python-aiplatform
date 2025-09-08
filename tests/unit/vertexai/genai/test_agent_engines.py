@@ -149,6 +149,20 @@ class OperationRegistrableEngine:
         for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
             yield chunk
 
+    async def bidi_stream_query(self, input_queue: asyncio.Queue) -> AsyncIterable[Any]:
+        """Runs the bidi stream engine."""
+        while True:
+            chunk = await input_queue.get()
+            yield chunk
+
+    async def custom_bidi_stream_method(
+        self, input_queue: asyncio.Queue
+    ) -> AsyncIterable[Any]:
+        """Runs the async bidi stream engine."""
+        while True:
+            chunk = await input_queue.get()
+            yield chunk
+
     def clone(self):
         return self
 
@@ -169,6 +183,10 @@ class OperationRegistrableEngine:
             _TEST_ASYNC_STREAM_API_MODE: [
                 _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
                 _TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
+            ],
+            _TEST_BIDI_STREAM_API_MODE: [
+                _TEST_DEFAULT_BIDI_STREAM_METHOD_NAME,
+                _TEST_CUSTOM_BIDI_STREAM_METHOD_NAME,
             ],
         }
 
@@ -323,21 +341,27 @@ _TEST_STANDARD_API_MODE = _agent_engines_utils._STANDARD_API_MODE
 _TEST_ASYNC_API_MODE = _agent_engines_utils._ASYNC_API_MODE
 _TEST_STREAM_API_MODE = _agent_engines_utils._STREAM_API_MODE
 _TEST_ASYNC_STREAM_API_MODE = _agent_engines_utils._ASYNC_STREAM_API_MODE
+_TEST_BIDI_STREAM_API_MODE = _agent_engines_utils._BIDI_STREAM_API_MODE
 _TEST_DEFAULT_METHOD_NAME = _agent_engines_utils._DEFAULT_METHOD_NAME
 _TEST_DEFAULT_ASYNC_METHOD_NAME = _agent_engines_utils._DEFAULT_ASYNC_METHOD_NAME
 _TEST_DEFAULT_STREAM_METHOD_NAME = _agent_engines_utils._DEFAULT_STREAM_METHOD_NAME
 _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME = (
     _agent_engines_utils._DEFAULT_ASYNC_STREAM_METHOD_NAME
 )
+_TEST_DEFAULT_BIDI_STREAM_METHOD_NAME = (
+    _agent_engines_utils._DEFAULT_BIDI_STREAM_METHOD_NAME
+)
 _TEST_CAPITALIZE_ENGINE_METHOD_DOCSTRING = "Runs the engine."
 _TEST_STREAM_METHOD_DOCSTRING = "Runs the stream engine."
 _TEST_ASYNC_STREAM_METHOD_DOCSTRING = "Runs the async stream engine."
+_TEST_BIDI_STREAM_METHOD_DOCSTRING = "Runs the bidi stream engine."
 _TEST_MODE_KEY_IN_SCHEMA = _agent_engines_utils._MODE_KEY_IN_SCHEMA
 _TEST_METHOD_NAME_KEY_IN_SCHEMA = _agent_engines_utils._METHOD_NAME_KEY_IN_SCHEMA
 _TEST_CUSTOM_METHOD_NAME = "custom_method"
 _TEST_CUSTOM_ASYNC_METHOD_NAME = "custom_async_method"
 _TEST_CUSTOM_STREAM_METHOD_NAME = "custom_stream_method"
 _TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME = "custom_async_stream_method"
+_TEST_CUSTOM_BIDI_STREAM_METHOD_NAME = "custom_bidi_stream_method"
 _TEST_CUSTOM_METHOD_DEFAULT_DOCSTRING = """
     Runs the Agent Engine to serve the user request.
 
@@ -541,16 +565,16 @@ _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA = _agent_engines_utils._generate_schema(
     OperationRegistrableEngine().custom_method,
     schema_name=_TEST_CUSTOM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STANDARD_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STANDARD_API_MODE
+)
 _TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA = _agent_engines_utils._generate_schema(
     OperationRegistrableEngine().custom_async_method,
     schema_name=_TEST_CUSTOM_ASYNC_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_API_MODE
+)
 _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA = _agent_engines_utils._generate_schema(
     StreamQueryEngine().stream_query,
     schema_name=_TEST_DEFAULT_STREAM_METHOD_NAME,
@@ -560,25 +584,41 @@ _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA = _agent_engines_utils._generate_s
     OperationRegistrableEngine().custom_stream_method,
     schema_name=_TEST_CUSTOM_STREAM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STREAM_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STREAM_API_MODE
+)
 _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA = _agent_engines_utils._generate_schema(
     AsyncStreamQueryEngine().async_stream_query,
     schema_name=_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
 )
-_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_STREAM_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_STREAM_API_MODE
+)
 _TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA = (
     _agent_engines_utils._generate_schema(
         OperationRegistrableEngine().custom_async_stream_method,
         schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
     )
 )
-_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_ASYNC_STREAM_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_ASYNC_STREAM_API_MODE
+)
+_TEST_AGENT_ENGINE_BIDI_STREAM_QUERY_SCHEMA = _agent_engines_utils._generate_schema(
+    OperationRegistrableEngine().bidi_stream_query,
+    schema_name=_TEST_DEFAULT_BIDI_STREAM_METHOD_NAME,
+)
+_TEST_AGENT_ENGINE_BIDI_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_BIDI_STREAM_API_MODE
+)
+_TEST_AGENT_ENGINE_CUSTOM_BIDI_STREAM_QUERY_SCHEMA = (
+    _agent_engines_utils._generate_schema(
+        OperationRegistrableEngine().custom_bidi_stream_method,
+        schema_name=_TEST_CUSTOM_BIDI_STREAM_METHOD_NAME,
+    )
+)
+_TEST_AGENT_ENGINE_CUSTOM_BIDI_STREAM_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_BIDI_STREAM_API_MODE
+)
 _TEST_OPERATION_REGISTRABLE_SCHEMAS = [
     _TEST_AGENT_ENGINE_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA,
@@ -588,6 +628,8 @@ _TEST_OPERATION_REGISTRABLE_SCHEMAS = [
     _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA,
+    _TEST_AGENT_ENGINE_BIDI_STREAM_QUERY_SCHEMA,
+    _TEST_AGENT_ENGINE_CUSTOM_BIDI_STREAM_QUERY_SCHEMA,
 ]
 _TEST_OPERATION_NOT_REGISTERED_SCHEMAS = [
     _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA,
@@ -603,9 +645,9 @@ _TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA = _agent_engines_utils._generate_schema(
     MethodToBeUnregisteredEngine().method_to_be_unregistered,
     schema_name=_TEST_METHOD_TO_BE_UNREGISTERED_NAME,
 )
-_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[
-    _TEST_MODE_KEY_IN_SCHEMA
-] = _TEST_STANDARD_API_MODE
+_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = (
+    _TEST_STANDARD_API_MODE
+)
 _TEST_ASYNC_QUERY_SCHEMAS = [_TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA]
 _TEST_STREAM_QUERY_SCHEMAS = [
     _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA,
@@ -1872,6 +1914,20 @@ class TestAgentEngine:
                             schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
                         ),
                         _TEST_ASYNC_STREAM_API_MODE,
+                    ),
+                    (
+                        _agent_engines_utils._generate_schema(
+                            OperationRegistrableEngine().bidi_stream_query,
+                            schema_name=_TEST_DEFAULT_BIDI_STREAM_METHOD_NAME,
+                        ),
+                        _TEST_BIDI_STREAM_API_MODE,
+                    ),
+                    (
+                        _agent_engines_utils._generate_schema(
+                            OperationRegistrableEngine().custom_bidi_stream_method,
+                            schema_name=_TEST_CUSTOM_BIDI_STREAM_METHOD_NAME,
+                        ),
+                        _TEST_BIDI_STREAM_API_MODE,
                     ),
                 ],
             ),

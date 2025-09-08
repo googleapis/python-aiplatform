@@ -45,11 +45,7 @@ def _CreateAgentEngineSessionConfig_to_vertex(
         setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
 
     if getv(from_object, ["session_state"]) is not None:
-        setv(
-            parent_object,
-            ["sessionState"],
-            getv(from_object, ["session_state"]),
-        )
+        setv(parent_object, ["sessionState"], getv(from_object, ["session_state"]))
 
     if getv(from_object, ["ttl"]) is not None:
         setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
@@ -118,18 +114,10 @@ def _ListAgentEngineSessionsConfig_to_vertex(
     to_object: dict[str, Any] = {}
 
     if getv(from_object, ["page_size"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "pageSize"],
-            getv(from_object, ["page_size"]),
-        )
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
 
     if getv(from_object, ["page_token"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "pageToken"],
-            getv(from_object, ["page_token"]),
-        )
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
 
     if getv(from_object, ["filter"]) is not None:
         setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
@@ -164,9 +152,7 @@ def _GetAgentEngineSessionOperationParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["operation_name"]) is not None:
         setv(
-            to_object,
-            ["_url", "operationName"],
-            getv(from_object, ["operation_name"]),
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -185,11 +171,7 @@ def _UpdateAgentEngineSessionConfig_to_vertex(
         setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
 
     if getv(from_object, ["session_state"]) is not None:
-        setv(
-            parent_object,
-            ["sessionState"],
-            getv(from_object, ["session_state"]),
-        )
+        setv(parent_object, ["sessionState"], getv(from_object, ["session_state"]))
 
     if getv(from_object, ["ttl"]) is not None:
         setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
@@ -199,9 +181,7 @@ def _UpdateAgentEngineSessionConfig_to_vertex(
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
-            parent_object,
-            ["_query", "updateMask"],
-            getv(from_object, ["update_mask"]),
+            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
         )
 
     if getv(from_object, ["user_id"]) is not None:
@@ -315,11 +295,7 @@ def _ListReasoningEnginesSessionsResponse_from_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(
-            to_object,
-            ["sdk_http_response"],
-            getv(from_object, ["sdkHttpResponse"]),
-        )
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
 
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
@@ -338,6 +314,7 @@ def _ListReasoningEnginesSessionsResponse_from_vertex(
 
 
 class Sessions(_api_module.BaseModule):
+
     def _create(
         self,
         *,
@@ -345,19 +322,19 @@ class Sessions(_api_module.BaseModule):
         user_id: str,
         config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
     ) -> types.AgentEngineSessionOperation:
-        """Creates a new session in the Agent Engine.
+        """
+        Creates a new session in the Agent Engine.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be
-              created. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            name (str): Required. The name of the Agent Engine session to be created. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             user_id (str): Required. The user ID of the session.
-            config (CreateAgentEngineSessionConfig): Optional. Additional
-              configurations for creating the Agent Engine session.
+            config (CreateAgentEngineSessionConfig):
+                Optional. Additional configurations for creating the Agent Engine session.
 
         Returns:
-            AgentEngineSessionOperation: The operation for creating the Agent
-            Engine session.
+            AgentEngineSessionOperation: The operation for creating the Agent Engine session.
+
         """
 
         parameter_model = types._CreateAgentEngineSessionRequestParameters(
@@ -415,18 +392,18 @@ class Sessions(_api_module.BaseModule):
         name: str,
         config: Optional[types.DeleteAgentEngineSessionConfigOrDict] = None,
     ) -> types.DeleteAgentEngineSessionOperation:
-        """Delete an Agent Engine session.
+        """
+        Delete an Agent Engine session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be
-              deleted. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (DeleteAgentEngineSessionConfig): Optional. Additional
-              configurations for deleting the Agent Engine session.
+            name (str): Required. The name of the Agent Engine session to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (DeleteAgentEngineSessionConfig):
+                Optional. Additional configurations for deleting the Agent Engine session.
 
         Returns:
-            DeleteAgentEngineSessionOperation: The operation for deleting the
-            Agent Engine session.
+            DeleteAgentEngineSessionOperation: The operation for deleting the Agent Engine session.
+
         """
 
         parameter_model = types._DeleteAgentEngineSessionRequestParameters(
@@ -485,17 +462,18 @@ class Sessions(_api_module.BaseModule):
         name: str,
         config: Optional[types.GetAgentEngineSessionConfigOrDict] = None,
     ) -> types.Session:
-        """Gets an agent engine session.
+        """
+        Gets an agent engine session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to get.
-              Format:
+            name (str): Required. The name of the Agent Engine session to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (GetAgentEngineSessionConfig): Optional. Additional
-              configurations for getting the Agent Engine session.
+            config (GetAgentEngineSessionConfig):
+                Optional. Additional configurations for getting the Agent Engine session.
 
         Returns:
             AgentEngineSession: The requested Agent Engine session.
+
         """
 
         parameter_model = types._GetAgentEngineSessionRequestParameters(
@@ -552,18 +530,18 @@ class Sessions(_api_module.BaseModule):
         name: str,
         config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
     ) -> types.ListReasoningEnginesSessionsResponse:
-        """Lists Agent Engine sessions.
+        """
+        Lists Agent Engine sessions.
 
         Args:
-            name (str): Required. The name of the Agent Engine to list sessions
-              for. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineSessionsConfig): Optional. Additional
-              configurations for listing the Agent Engine sessions.
+            name (str): Required. The name of the Agent Engine to list sessions for. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (ListAgentEngineSessionsConfig):
+                Optional. Additional configurations for listing the Agent Engine sessions.
 
         Returns:
-            ListReasoningEnginesSessionsResponse: The requested Agent Engine
-            sessions.
+            ListReasoningEnginesSessionsResponse: The requested Agent Engine sessions.
+
         """
 
         parameter_model = types._ListAgentEngineSessionsRequestParameters(
@@ -676,18 +654,18 @@ class Sessions(_api_module.BaseModule):
         name: str,
         config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
     ) -> types.AgentEngineSessionOperation:
-        """Updates an Agent Engine session.
+        """
+        Updates an Agent Engine session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be
-              updated. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (UpdateAgentEngineSessionConfig): Optional. Additional
-              configurations for updating the Agent Engine session.
+            name (str): Required. The name of the Agent Engine session to be updated. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (UpdateAgentEngineSessionConfig):
+                Optional. Additional configurations for updating the Agent Engine session.
 
         Returns:
-            AgentEngineSessionOperation: The operation for updating the Agent
-            Engine session.
+            AgentEngineSessionOperation: The operation for updating the Agent Engine session.
+
         """
 
         parameter_model = types._UpdateAgentEngineSessionRequestParameters(
@@ -753,9 +731,9 @@ class Sessions(_api_module.BaseModule):
                 self._events = importlib.import_module(".session_events", __package__)
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.sessions.events' module"
-                    " requiresadditional packages. Please install them using"
-                    " pip install google-cloud-aiplatform[agent_engines]"
+                    "The 'agent_engines.sessions.events' module requires"
+                    "additional packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
                 ) from e
         return self._events.SessionEvents(self._api_client)
 
@@ -769,11 +747,12 @@ class Sessions(_api_module.BaseModule):
         """Creates a new session in the Agent Engine.
 
         Args:
-            name (str): Required. The name of the agent engine to create the
-              session for.
-            user_id (str): Required. The user ID of the session.
-            config (CreateAgentEngineSessionConfig): Optional. The configuration
-              for the session to create.
+            name (str):
+                Required. The name of the agent engine to create the session for.
+            user_id (str):
+                Required. The user ID of the session.
+            config (CreateAgentEngineSessionConfig):
+                Optional. The configuration for the session to create.
 
         Returns:
             AgentEngineSessionOperation: The operation for creating the session.
@@ -791,6 +770,7 @@ class Sessions(_api_module.BaseModule):
             operation = _agent_engines_utils._await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_session_operation,
+                poll_interval_seconds=0.5,
             )
             if operation.response:
                 operation.response = self.get(name=operation.response.name)
@@ -813,9 +793,9 @@ class Sessions(_api_module.BaseModule):
 
         Args:
             name (str): Required. The name of the agent engine to list sessions
-              for.
+                for.
             config (ListAgentEngineSessionConfig): Optional. The configuration
-              for the sessions to list.
+                for the sessions to list.
 
         Returns:
             Iterable[Session]: An iterable of sessions.
@@ -830,6 +810,7 @@ class Sessions(_api_module.BaseModule):
 
 
 class AsyncSessions(_api_module.BaseModule):
+
     async def _create(
         self,
         *,
@@ -837,19 +818,19 @@ class AsyncSessions(_api_module.BaseModule):
         user_id: str,
         config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
     ) -> types.AgentEngineSessionOperation:
-        """Creates a new session in the Agent Engine.
+        """
+        Creates a new session in the Agent Engine.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be
-              created. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            name (str): Required. The name of the Agent Engine session to be created. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             user_id (str): Required. The user ID of the session.
-            config (CreateAgentEngineSessionConfig): Optional. Additional
-              configurations for creating the Agent Engine session.
+            config (CreateAgentEngineSessionConfig):
+                Optional. Additional configurations for creating the Agent Engine session.
 
         Returns:
-            AgentEngineSessionOperation: The operation for creating the Agent
-            Engine session.
+            AgentEngineSessionOperation: The operation for creating the Agent Engine session.
+
         """
 
         parameter_model = types._CreateAgentEngineSessionRequestParameters(
@@ -909,18 +890,18 @@ class AsyncSessions(_api_module.BaseModule):
         name: str,
         config: Optional[types.DeleteAgentEngineSessionConfigOrDict] = None,
     ) -> types.DeleteAgentEngineSessionOperation:
-        """Delete an Agent Engine session.
+        """
+        Delete an Agent Engine session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be
-              deleted. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (DeleteAgentEngineSessionConfig): Optional. Additional
-              configurations for deleting the Agent Engine session.
+            name (str): Required. The name of the Agent Engine session to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (DeleteAgentEngineSessionConfig):
+                Optional. Additional configurations for deleting the Agent Engine session.
 
         Returns:
-            DeleteAgentEngineSessionOperation: The operation for deleting the
-            Agent Engine session.
+            DeleteAgentEngineSessionOperation: The operation for deleting the Agent Engine session.
+
         """
 
         parameter_model = types._DeleteAgentEngineSessionRequestParameters(
@@ -981,17 +962,18 @@ class AsyncSessions(_api_module.BaseModule):
         name: str,
         config: Optional[types.GetAgentEngineSessionConfigOrDict] = None,
     ) -> types.Session:
-        """Gets an agent engine session.
+        """
+        Gets an agent engine session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to get.
-              Format:
+            name (str): Required. The name of the Agent Engine session to get. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (GetAgentEngineSessionConfig): Optional. Additional
-              configurations for getting the Agent Engine session.
+            config (GetAgentEngineSessionConfig):
+                Optional. Additional configurations for getting the Agent Engine session.
 
         Returns:
             AgentEngineSession: The requested Agent Engine session.
+
         """
 
         parameter_model = types._GetAgentEngineSessionRequestParameters(
@@ -1050,18 +1032,18 @@ class AsyncSessions(_api_module.BaseModule):
         name: str,
         config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
     ) -> types.ListReasoningEnginesSessionsResponse:
-        """Lists Agent Engine sessions.
+        """
+        Lists Agent Engine sessions.
 
         Args:
-            name (str): Required. The name of the Agent Engine to list sessions
-              for. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (ListAgentEngineSessionsConfig): Optional. Additional
-              configurations for listing the Agent Engine sessions.
+            name (str): Required. The name of the Agent Engine to list sessions for. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (ListAgentEngineSessionsConfig):
+                Optional. Additional configurations for listing the Agent Engine sessions.
 
         Returns:
-            ListReasoningEnginesSessionsResponse: The requested Agent Engine
-            sessions.
+            ListReasoningEnginesSessionsResponse: The requested Agent Engine sessions.
+
         """
 
         parameter_model = types._ListAgentEngineSessionsRequestParameters(
@@ -1178,18 +1160,18 @@ class AsyncSessions(_api_module.BaseModule):
         name: str,
         config: Optional[types.UpdateAgentEngineSessionConfigOrDict] = None,
     ) -> types.AgentEngineSessionOperation:
-        """Updates an Agent Engine session.
+        """
+        Updates an Agent Engine session.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be
-              updated. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
-            config (UpdateAgentEngineSessionConfig): Optional. Additional
-              configurations for updating the Agent Engine session.
+            name (str): Required. The name of the Agent Engine session to be updated. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+            config (UpdateAgentEngineSessionConfig):
+                Optional. Additional configurations for updating the Agent Engine session.
 
         Returns:
-            AgentEngineSessionOperation: The operation for updating the Agent
-            Engine session.
+            AgentEngineSessionOperation: The operation for updating the Agent Engine session.
+
         """
 
         parameter_model = types._UpdateAgentEngineSessionRequestParameters(

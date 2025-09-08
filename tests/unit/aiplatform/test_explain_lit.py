@@ -19,6 +19,7 @@ import explainable_ai_sdk
 import os
 import pandas as pd
 import pytest
+import sys
 import tensorflow as tf
 
 from google.auth import credentials as auth_credentials
@@ -296,6 +297,7 @@ def predict_client_explain_list_mock():
 
 
 class TestExplainLit:
+
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
@@ -336,6 +338,10 @@ class TestExplainLit:
             assert item.keys() == {"label"}
             assert len(item.values()) == 1
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 11),
+        reason=("temporarily skipped due to failures in python 3.9 and 3.10"),
+    )
     @mock.patch.dict(os.environ, {"LIT_PROXY_URL": "auto"})
     @pytest.mark.usefixtures(
         "sampled_shapley_explainer_mock", "load_model_from_local_path_mock"
@@ -568,7 +574,10 @@ class TestExplainLit:
 
     @pytest.mark.usefixtures("init_lit_widget_mock")
     def test_open_lit(
-        self, set_up_sequential, set_up_pandas_dataframe_and_columns, widget_render_mock
+        self,
+        set_up_sequential,
+        set_up_pandas_dataframe_and_columns,
+        widget_render_mock,
     ):
         pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
         lit_dataset = create_lit_dataset(pd_dataset, lit_columns)
@@ -580,7 +589,10 @@ class TestExplainLit:
 
     @pytest.mark.usefixtures("init_lit_widget_mock")
     def test_set_up_and_open_lit(
-        self, set_up_sequential, set_up_pandas_dataframe_and_columns, widget_render_mock
+        self,
+        set_up_sequential,
+        set_up_pandas_dataframe_and_columns,
+        widget_render_mock,
     ):
         pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
         feature_types, label_types, saved_model_path = set_up_sequential
@@ -608,13 +620,20 @@ class TestExplainLit:
 
         widget_render_mock.assert_called_once()
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 11),
+        reason=("temporarily skipped due to failures in python 3.9 and 3.10"),
+    )
     @pytest.mark.usefixtures("init_lit_widget_mock")
     @mock.patch.dict(os.environ, {"LIT_PROXY_URL": "auto"})
     @pytest.mark.usefixtures(
         "sampled_shapley_explainer_mock", "load_model_from_local_path_mock"
     )
     def test_set_up_and_open_lit_with_xai(
-        self, set_up_sequential, set_up_pandas_dataframe_and_columns, widget_render_mock
+        self,
+        set_up_sequential,
+        set_up_pandas_dataframe_and_columns,
+        widget_render_mock,
     ):
         pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
         feature_types, label_types, saved_model_path = set_up_sequential

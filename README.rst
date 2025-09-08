@@ -1,14 +1,6 @@
 Vertex AI SDK for Python
 =================================================
 
-.. note::
-
-   The following Generative AI modules in the Vertex AI SDK are deprecated as of June 24, 2025 and will be removed on June 24, 2026:
-   `vertexai.generative_models`, `vertexai.language_models`, `vertexai.vision_models`, `vertexai.tuning`, `vertexai.caching`. Please use the
-   [Google Gen AI SDK](https://pypi.org/project/google-genai/) to access these features. See
-   [the migration guide](https://cloud.google.com/vertex-ai/generative-ai/docs/deprecations/genai-vertexai-sdk) for details.
-   You can continue using all other Vertex AI SDK modules, as they are the recommended way to use the API.
-
 |GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
 
 `Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
@@ -32,18 +24,10 @@ Vertex AI SDK for Python
 .. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
-Gemini API and Generative AI on Vertex AI
------------------------------------------
-
-.. note::
-
-   For Gemini API and Generative AI on Vertex AI, please reference `Vertex Generative AI SDK for Python`_
-.. _Vertex Generative AI SDK for Python: https://cloud.google.com/vertex-ai/generative-ai/docs/reference/python/latest
-
-Using the Google Gen AI SDK client from the Vertex AI SDK (Experimental)
+Generative AI in the Vertex AI SDK
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To use features from the Google Gen AI SDK from the Vertex AI SDK, you can instantiate the client with the following:
+To use Gen AI features from the Vertex AI SDK, you can instantiate a Gen AI client with the following:
 
 .. code-block:: Python
 
@@ -99,7 +83,69 @@ Then run evaluation by providing the inference results and specifying the metric
         ]
     )
 
+Prompt optimization
+^^^^^^^^^^^^^^^^^^^
+
+To do a zero-shot prompt optimization, use the `optimize_prompt`
+method.
+
+.. code-block:: Python
+
+    prompt = "Generate system instructions for a question-answering assistant"
+    response = client.prompt_optimizer.optimize_prompt(prompt=prompt)
+
+    print(response.suggested_prompt)
+
+To call the data-driven prompt optimization, call the `optimize` method.
+In this case however, we need to provide `vapo_config`. This config needs to
+have either service account or project **number** and the config path.
+Please refer to this [tutorial](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/data-driven-optimizer)
+for more details on config parameter.
+
+.. code-block:: Python
+
+    from vertexai import types
+
+    project_number = PROJECT_NUMBER # replace with your project number
+    service_account = f"{project_number}-compute@developer.gserviceaccount.com"
+
+    vapo_config = vertexai.types.PromptOptimizerVAPOConfig(
+        config_path="gs://your-bucket/config.json",
+        service_account_project_number=project_number,
+        wait_for_completion=False
+    )
+
+    # Set up logging to see the progress of the optimization job
+    logging.basicConfig(encoding='utf-8', level=logging.INFO, force=True)
+
+    result = client.prompt_optimizer.optimize(method="vapo", config=vapo_config)
+
+If you want to use the project number instead of the service account, you can
+instead use the following config:
+
+.. code-block:: Python
+
+    vapo_config = vertexai.types.PromptOptimizerVAPOConfig(
+        config_path="gs://your-bucket/config.json",
+        service_account_project_number=project_number,
+        wait_for_completion=False
+    )
+
+We can also call optimize method async.
+
+.. code-block:: Python
+
+    await client.aio.prompt_optimizer.optimize(method="vapo", config=vapo_config)
+
 -----------------------------------------
+
+.. note::
+
+   The following Generative AI modules in the Vertex AI SDK are deprecated as of June 24, 2025 and will be removed on June 24, 2026:
+   `vertexai.generative_models`, `vertexai.language_models`, `vertexai.vision_models`, `vertexai.tuning`, `vertexai.caching`. Please use the
+   [Google Gen AI SDK](https://pypi.org/project/google-genai/) to access these features. See
+   [the migration guide](https://cloud.google.com/vertex-ai/generative-ai/docs/deprecations/genai-vertexai-sdk) for details.
+   You can continue using all other Vertex AI SDK modules, as they are the recommended way to use the API.
 
 Quick Start
 -----------

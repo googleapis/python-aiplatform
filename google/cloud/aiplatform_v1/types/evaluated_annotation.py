@@ -126,6 +126,7 @@ class EvaluatedAnnotation(proto.Message):
                 has a ground truth annotation which is not
                 matched by any of the model created predictions.
         """
+
         EVALUATED_ANNOTATION_TYPE_UNSPECIFIED = 0
         TRUE_POSITIVE = 1
         FALSE_POSITIVE = 2
@@ -155,19 +156,19 @@ class EvaluatedAnnotation(proto.Message):
         proto.STRING,
         number=6,
     )
-    explanations: MutableSequence[
-        "EvaluatedAnnotationExplanation"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=8,
-        message="EvaluatedAnnotationExplanation",
+    explanations: MutableSequence["EvaluatedAnnotationExplanation"] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=8,
+            message="EvaluatedAnnotationExplanation",
+        )
     )
-    error_analysis_annotations: MutableSequence[
-        "ErrorAnalysisAnnotation"
-    ] = proto.RepeatedField(
-        proto.MESSAGE,
-        number=9,
-        message="ErrorAnalysisAnnotation",
+    error_analysis_annotations: MutableSequence["ErrorAnalysisAnnotation"] = (
+        proto.RepeatedField(
+            proto.MESSAGE,
+            number=9,
+            message="ErrorAnalysisAnnotation",
+        )
     )
 
 
@@ -234,6 +235,7 @@ class ErrorAnalysisAnnotation(proto.Message):
                 Query dissimilar samples from the same class
                 of the input sample.
         """
+
         QUERY_TYPE_UNSPECIFIED = 0
         ALL_SIMILAR = 1
         SAME_CLASS_SIMILAR = 2

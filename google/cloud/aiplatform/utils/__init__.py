@@ -561,15 +561,17 @@ class ClientWithOverride:
             kwargs["transport"] = transport
 
         self._clients = {
-            version: self.WrappedClient(
-                client_class=client_class,
-                client_options=client_options,
-                client_info=client_info,
-                credentials=credentials,
-                transport=transport,
+            version: (
+                self.WrappedClient(
+                    client_class=client_class,
+                    client_options=client_options,
+                    client_info=client_info,
+                    credentials=credentials,
+                    transport=transport,
+                )
+                if self._is_temporary
+                else client_class(**kwargs)
             )
-            if self._is_temporary
-            else client_class(**kwargs)
             for version, client_class in self._version_map
         }
 

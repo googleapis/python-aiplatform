@@ -72,8 +72,12 @@ from google.cloud.aiplatform_v1beta1.services.memory_bank_service import (
 from google.cloud.aiplatform_v1beta1.services.memory_bank_service import (
     MemoryBankServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.memory_bank_service import pagers
-from google.cloud.aiplatform_v1beta1.services.memory_bank_service import transports
+from google.cloud.aiplatform_v1beta1.services.memory_bank_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1beta1.services.memory_bank_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import memory_bank
 from google.cloud.aiplatform_v1beta1.types import memory_bank_service
@@ -3025,9 +3029,9 @@ def test_generate_memories_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.generate_memories
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.generate_memories] = (
+            mock_rpc
+        )
         request = {}
         client.generate_memories(request)
 
@@ -3373,9 +3377,9 @@ def test_retrieve_memories_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.retrieve_memories
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.retrieve_memories] = (
+            mock_rpc
+        )
         request = {}
         client.retrieve_memories(request)
 
@@ -4577,9 +4581,9 @@ def test_generate_memories_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.generate_memories
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.generate_memories] = (
+            mock_rpc
+        )
 
         request = {}
         client.generate_memories(request)
@@ -4759,9 +4763,9 @@ def test_retrieve_memories_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[
-            client._transport.retrieve_memories
-        ] = mock_rpc
+        client._transport._wrapped_methods[client._transport.retrieve_memories] = (
+            mock_rpc
+        )
 
         request = {}
         client.retrieve_memories(request)
@@ -5540,9 +5544,9 @@ def test_create_memory_rest_call_success(request_type):
 def test_create_memory_rest_interceptors(null_interceptor):
     transport = transports.MemoryBankServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceClient(transport=transport)
 
@@ -5677,9 +5681,9 @@ def test_get_memory_rest_call_success(request_type):
 def test_get_memory_rest_interceptors(null_interceptor):
     transport = transports.MemoryBankServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceClient(transport=transport)
 
@@ -5884,9 +5888,9 @@ def test_update_memory_rest_call_success(request_type):
 def test_update_memory_rest_interceptors(null_interceptor):
     transport = transports.MemoryBankServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceClient(transport=transport)
 
@@ -6017,9 +6021,9 @@ def test_list_memories_rest_call_success(request_type):
 def test_list_memories_rest_interceptors(null_interceptor):
     transport = transports.MemoryBankServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceClient(transport=transport)
 
@@ -6147,9 +6151,9 @@ def test_delete_memory_rest_call_success(request_type):
 def test_delete_memory_rest_interceptors(null_interceptor):
     transport = transports.MemoryBankServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceClient(transport=transport)
 
@@ -6274,9 +6278,9 @@ def test_generate_memories_rest_call_success(request_type):
 def test_generate_memories_rest_interceptors(null_interceptor):
     transport = transports.MemoryBankServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceClient(transport=transport)
 
@@ -6410,9 +6414,9 @@ def test_retrieve_memories_rest_call_success(request_type):
 def test_retrieve_memories_rest_interceptors(null_interceptor):
     transport = transports.MemoryBankServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.MemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None if null_interceptor else transports.MemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceClient(transport=transport)
 
@@ -7439,9 +7443,11 @@ async def test_create_memory_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMemoryBankServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceAsyncClient(transport=transport)
 
@@ -7595,9 +7601,11 @@ async def test_get_memory_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMemoryBankServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceAsyncClient(transport=transport)
 
@@ -7819,9 +7827,11 @@ async def test_update_memory_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMemoryBankServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceAsyncClient(transport=transport)
 
@@ -7969,9 +7979,11 @@ async def test_list_memories_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMemoryBankServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceAsyncClient(transport=transport)
 
@@ -8116,9 +8128,11 @@ async def test_delete_memory_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMemoryBankServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceAsyncClient(transport=transport)
 
@@ -8260,9 +8274,11 @@ async def test_generate_memories_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMemoryBankServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceAsyncClient(transport=transport)
 
@@ -8412,9 +8428,11 @@ async def test_retrieve_memories_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncMemoryBankServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncMemoryBankServiceRestInterceptor(),
+        interceptor=(
+            None
+            if null_interceptor
+            else transports.AsyncMemoryBankServiceRestInterceptor()
+        ),
     )
     client = MemoryBankServiceAsyncClient(transport=transport)
 

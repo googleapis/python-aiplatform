@@ -60,6 +60,7 @@ _STANDARD_API_MODE = ""
 _ASYNC_API_MODE = "async"
 _STREAM_API_MODE = "stream"
 _ASYNC_STREAM_API_MODE = "async_stream"
+_BIDI_STREAM_API_MODE = "bidi_stream"
 _MODE_KEY_IN_SCHEMA = "api_mode"
 _METHOD_NAME_KEY_IN_SCHEMA = "name"
 _DEFAULT_METHOD_NAME = "query"
@@ -149,6 +150,15 @@ class StreamQueryable(Protocol):
 
 
 @typing.runtime_checkable
+class BidiStreamQueryable(Protocol):
+    """Protocol for Agent Engines that can stream requests and responses."""
+
+    @abc.abstractmethod
+    async def bidi_stream_query(self, **kwargs) -> AsyncIterable[Any]:
+        """Asynchronously stream requests and responses to serve the user query."""
+
+
+@typing.runtime_checkable
 class Cloneable(Protocol):
     """Protocol for Agent Engines that can be cloned."""
 
@@ -170,6 +180,7 @@ _AgentEngineInterface = Union[
     ADKAgent,
     AsyncQueryable,
     AsyncStreamQueryable,
+    BidiStreamQueryable,
     OperationRegistrable,
     Queryable,
     StreamQueryable,
@@ -894,10 +905,12 @@ def _validate_agent_engine_or_raise(
     * a callable method named `query`
     * a callable method named `stream_query`
     * a callable method named `async_stream_query`
+    * a callable method named `bidi_stream_query`
     * a callable method named `register_operations`
 
     Args:
         agent_engine: The agent engine to be validated.
+        logger: The logger to use for logging.
 
     Returns:
         The validated agent engine.
@@ -928,6 +941,9 @@ def _validate_agent_engine_or_raise(
     is_async_stream_queryable = isinstance(
         agent_engine, AsyncStreamQueryable
     ) and callable(agent_engine.async_stream_query)
+    is_bidi_stream_queryable = isinstance(
+        agent_engine, BidiStreamQueryable
+    ) and callable(agent_engine.bidi_stream_query)
     is_operation_registrable = isinstance(
         agent_engine, OperationRegistrable
     ) and callable(agent_engine.register_operations)
@@ -938,11 +954,12 @@ def _validate_agent_engine_or_raise(
         or is_stream_queryable
         or is_operation_registrable
         or is_async_stream_queryable
+        or is_bidi_stream_queryable
     ):
         raise TypeError(
             "agent_engine has none of the following callable methods: "
-            "`query`, `async_query`, `stream_query`, `async_stream_query` or "
-            "`register_operations`."
+            "`query`, `async_query`, `stream_query`, `async_stream_query`, "
+            "`bidi_stream_query` or `register_operations`."
         )
 
     if is_queryable:
@@ -980,6 +997,16 @@ def _validate_agent_engine_or_raise(
                 "Invalid async_stream_query signature. This might be due to a "
                 " missing `self` argument in the "
                 "agent_engine.async_stream_query method."
+            ) from err
+
+    if is_bidi_stream_queryable:
+        try:
+            inspect.signature(getattr(agent_engine, "bidi_stream_query"))
+        except ValueError as err:
+            raise ValueError(
+                "Invalid bidi_stream_query signature. This might be due to a "
+                " missing `self` argument in the "
+                "agent_engine.bidi_stream_query method."
             ) from err
 
     if is_operation_registrable:
@@ -1521,6 +1548,34 @@ def _wrap_async_stream_query_operation(
     return _method
 
 
+def _wrap_bidi_stream_query_operation(
+    *, method_name: str
+) -> Callable[..., AsyncIterable[Any]]:
+    """Wraps an Agent Engine method, creating an async callable for `bidi_stream_query` API.
+
+    This function creates a callable object that executes the specified
+    Agent Engine method using the `bidi_stream_query` API.  It handles the
+    creation of the API request and the processing of the API response.
+
+    Args:
+        method_name: The name of the Agent Engine method to call.
+
+    Returns:
+        A callable object that executes the method on the Agent Engine via
+        the `bidi_stream_query` API.
+    """
+
+    async def _method(self, **kwargs) -> AsyncIterable[Any]:
+        # Agent Engine bidi streaming query execution should use GenAI SDK Agent
+        # Engine live API client directly.
+        raise NotImplementedError(
+            f"{method_name} is not implemented, please use GenAI SDK Agent "
+            "Enginve live API client instead."
+        )
+
+    return _method
+
+
 def _unregister_api_methods(
     obj: "AgentEngine", operation_schemas: Sequence[_utils.JsonDict]
 ):
@@ -1596,6 +1651,7 @@ def _register_api_methods_or_raise(
             _ASYNC_API_MODE: _wrap_async_query_operation,
             _STREAM_API_MODE: _wrap_stream_query_operation,
             _ASYNC_STREAM_API_MODE: _wrap_async_stream_query_operation,
+            _BIDI_STREAM_API_MODE: _wrap_bidi_stream_query_operation,
         }
         if isinstance(wrap_operation_fn, dict) and api_mode in wrap_operation_fn:
             # Override the default function with user-specified function if it exists.
@@ -1669,6 +1725,13 @@ def _generate_class_methods_spec_or_raise(
     class_methods_spec = []
     for mode, method_names in operations.items():
         for method_name in method_names:
+            if mode == _BIDI_STREAM_API_MODE:
+                _LOGGER.warning(
+                    "Bidi stream API mode is not supported yet in Vertex SDK, "
+                    "please use the GenAI SDK instead. Skipping "
+                    f"method {method_name}."
+                )
+                continue
             if not hasattr(agent_engine, method_name):
                 raise ValueError(
                     f"Method `{method_name}` defined in `register_operations`"

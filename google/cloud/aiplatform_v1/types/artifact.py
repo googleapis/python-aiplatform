@@ -112,6 +112,7 @@ class Artifact(proto.Message):
                 exist, unless something external to the system
                 deletes it.
         """
+
         STATE_UNSPECIFIED = 0
         PENDING = 1
         LIVE = 2

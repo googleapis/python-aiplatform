@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -320,6 +322,7 @@ class SampleConfig(proto.Message):
             UNCERTAINTY (1):
                 Sample the most uncertain data to label.
         """
+
         SAMPLE_STRATEGY_UNSPECIFIED = 0
         UNCERTAINTY = 1
 

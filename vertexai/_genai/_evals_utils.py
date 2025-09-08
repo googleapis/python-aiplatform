@@ -14,6 +14,7 @@
 #
 """Utility functions for evals."""
 
+import abc
 import io
 import json
 import logging
@@ -350,9 +351,9 @@ class LazyLoadedPrebuiltMetric:
 
         blobs = gcs_utils.storage_client.list_blobs(bucket_name, prefix=prefix)
 
-        version_files: list[
-            dict[str, Union[list[int], str]]
-        ] = []  # {'version_parts': [1,0,0], 'filename': 'v1.0.0.yaml'}
+        version_files: list[dict[str, Union[list[int], str]]] = (
+            []
+        )  # {'version_parts': [1,0,0], 'filename': 'v1.0.0.yaml'}
 
         version_pattern = re.compile(
             r"v(\d+)(?:\.(\d+))?(?:\.(\d+))?\.(yaml|yml|json)$", re.IGNORECASE
@@ -822,3 +823,12 @@ class BatchEvaluateRequestPreparer:
             resolved_metrics, set_default_aggregation_metrics=True
         )
         return request_dict
+
+
+class EvalDataConverter(abc.ABC):
+    """Abstract base class for dataset converters."""
+
+    @abc.abstractmethod
+    def convert(self, raw_data: Any) -> types.EvaluationDataset:
+        """Converts a loaded raw dataset into an EvaluationDataset."""
+        raise NotImplementedError()

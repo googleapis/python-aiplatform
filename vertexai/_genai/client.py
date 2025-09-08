@@ -91,10 +91,6 @@ class AsyncClient:
         return self._prompt_optimizer.AsyncPromptOptimizer(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent engines module is experimental, "
-        "and may change in future versions."
-    )
     def agent_engines(self):
         if self._agent_engines is None:
             try:
@@ -122,6 +118,7 @@ class Client:
     def __init__(
         self,
         *,
+        api_key: Optional[str] = None,
         credentials: Optional[google.auth.credentials.Credentials] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -131,6 +128,9 @@ class Client:
         """Initializes the client.
 
         Args:
+           api_key (str): The `API key
+           <https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview#api-keys>`_
+             to use for authentication. Applies to Vertex AI in express mode only.
            credentials (google.auth.credentials.Credentials): The credentials to use
              for authentication when calling the Vertex AI APIs. Credentials can be
              obtained from environment variables and default credentials. For more
@@ -156,6 +156,7 @@ class Client:
 
         self._api_client = genai_client.Client._get_api_client(
             vertexai=True,
+            api_key=api_key,
             credentials=credentials,
             project=project,
             location=location,
@@ -166,6 +167,7 @@ class Client:
         self._evals = None
         self._prompt_optimizer = None
         self._agent_engines = None
+        self._prompt_management = None
 
     @property
     def evals(self) -> Any:
@@ -230,10 +232,6 @@ class Client:
             )
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent engines module is experimental, "
-        "and may change in future versions."
-    )
     def agent_engines(self):
         if self._agent_engines is None:
             try:
@@ -250,3 +248,17 @@ class Client:
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
         return self._agent_engines.AgentEngines(self._api_client)
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI prompt management module is experimental, "
+        "and may change in future versions."
+    )
+    def prompt_management(self):
+        if self._prompt_management is None:
+            # Lazy loading the prompt_management module
+            self._prompt_management = importlib.import_module(
+                ".prompt_management",
+                __package__,
+            )
+        return self._prompt_management.PromptManagement(self._api_client)

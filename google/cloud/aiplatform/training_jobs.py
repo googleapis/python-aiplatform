@@ -2636,9 +2636,9 @@ class _ForecastingTrainingJob(_TrainingJob):
             training_task_inputs_dict["windowConfig"] = window_config
 
         if enable_probabilistic_inference:
-            training_task_inputs_dict[
-                "enableProbabilisticInference"
-            ] = enable_probabilistic_inference
+            training_task_inputs_dict["enableProbabilisticInference"] = (
+                enable_probabilistic_inference
+            )
 
         final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
         if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
@@ -2653,9 +2653,9 @@ class _ForecastingTrainingJob(_TrainingJob):
             }
 
         if self._additional_experiments:
-            training_task_inputs_dict[
-                "additionalExperiments"
-            ] = self._additional_experiments
+            training_task_inputs_dict["additionalExperiments"] = (
+                self._additional_experiments
+            )
 
         model = gca_model.Model(
             display_name=model_display_name or self._display_name,
@@ -6462,9 +6462,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             }
 
         if self._additional_experiments:
-            training_task_inputs_dict[
-                "additionalExperiments"
-            ] = self._additional_experiments
+            training_task_inputs_dict["additionalExperiments"] = (
+                self._additional_experiments
+            )
 
         model = gca_model.Model(
             display_name=model_display_name or self._display_name,
@@ -7420,9 +7420,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
             training_task_inputs_dict["baseModelId"] = base_model.name
 
         if incremental_train_base_model:
-            training_task_inputs_dict[
-                "uptrainBaseModelId"
-            ] = incremental_train_base_model.name
+            training_task_inputs_dict["uptrainBaseModelId"] = (
+                incremental_train_base_model.name
+            )
 
         tunable_parameter_dict: Dict[str, any] = {}
 

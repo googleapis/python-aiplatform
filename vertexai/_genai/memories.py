@@ -149,11 +149,7 @@ def _GenerateMemoriesRequestDirectMemoriesSource_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["direct_memories"]) is not None:
-        setv(
-            to_object,
-            ["directMemories"],
-            getv(from_object, ["direct_memories"]),
-        )
+        setv(to_object, ["directMemories"], getv(from_object, ["direct_memories"]))
 
     return to_object
 
@@ -245,18 +241,10 @@ def _ListAgentEngineMemoryConfig_to_vertex(
     to_object: dict[str, Any] = {}
 
     if getv(from_object, ["page_size"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "pageSize"],
-            getv(from_object, ["page_size"]),
-        )
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
 
     if getv(from_object, ["page_token"]) is not None:
-        setv(
-            parent_object,
-            ["_query", "pageToken"],
-            getv(from_object, ["page_token"]),
-        )
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
 
     if getv(from_object, ["filter"]) is not None:
         setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
@@ -291,9 +279,7 @@ def _GetAgentEngineMemoryOperationParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["operation_name"]) is not None:
         setv(
-            to_object,
-            ["_url", "operationName"],
-            getv(from_object, ["operation_name"]),
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -309,9 +295,7 @@ def _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["operation_name"]) is not None:
         setv(
-            to_object,
-            ["_url", "operationName"],
-            getv(from_object, ["operation_name"]),
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -403,9 +387,7 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
-            parent_object,
-            ["_query", "updateMask"],
-            getv(from_object, ["update_mask"]),
+            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
         )
 
     return to_object
@@ -590,11 +572,7 @@ def _ListReasoningEnginesMemoriesResponse_from_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(
-            to_object,
-            ["sdk_http_response"],
-            getv(from_object, ["sdkHttpResponse"]),
-        )
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
 
     if getv(from_object, ["nextPageToken"]) is not None:
         setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
@@ -622,15 +600,14 @@ def _RetrieveMemoriesResponse_from_vertex(
 
     if getv(from_object, ["retrievedMemories"]) is not None:
         setv(
-            to_object,
-            ["retrieved_memories"],
-            getv(from_object, ["retrievedMemories"]),
+            to_object, ["retrieved_memories"], getv(from_object, ["retrievedMemories"])
         )
 
     return to_object
 
 
 class Memories(_api_module.BaseModule):
+
     def _create(
         self,
         *,
@@ -639,7 +616,9 @@ class Memories(_api_module.BaseModule):
         scope: dict[str, str],
         config: Optional[types.AgentEngineMemoryConfigOrDict] = None,
     ) -> types.AgentEngineMemoryOperation:
-        """Creates a new memory in the Agent Engine."""
+        """
+        Creates a new memory in the Agent Engine.
+        """
 
         parameter_model = types._CreateAgentEngineMemoryRequestParameters(
             name=name,
@@ -697,14 +676,16 @@ class Memories(_api_module.BaseModule):
         name: str,
         config: Optional[types.DeleteAgentEngineMemoryConfigOrDict] = None,
     ) -> types.DeleteAgentEngineMemoryOperation:
-        """Delete an Agent Engine memory.
+        """
+        Delete an Agent Engine memory.
 
         Args:
-            name (str): Required. The name of the Agent Engine memory to be
-              deleted. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory}`.
-            config (DeleteAgentEngineMemoryConfig): Optional. Additional
-              configurations for deleting the Agent Engine.
+            name (str):
+                Required. The name of the Agent Engine memory to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory}`.
+            config (DeleteAgentEngineMemoryConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
         """
 
         parameter_model = types._DeleteAgentEngineMemoryRequestParameters(
@@ -771,7 +752,9 @@ class Memories(_api_module.BaseModule):
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEngineGenerateMemoriesOperation:
-        """Generates memories for an Agent Engine."""
+        """
+        Generates memories for an Agent Engine.
+        """
 
         parameter_model = types._GenerateAgentEngineMemoriesRequestParameters(
             name=name,
@@ -833,12 +816,14 @@ class Memories(_api_module.BaseModule):
         name: str,
         config: Optional[types.GetAgentEngineMemoryConfigOrDict] = None,
     ) -> types.Memory:
-        """Gets an agent engine memory.
+        """
+        Gets an agent engine memory.
 
         Args:
             name (str): Required. A fully-qualified resource name or ID such as
               "projects/123/locations/us-central1/reasoningEngines/456/memories/789"
               or a shortened name such as "reasoningEngines/456/memories/789".
+
         """
 
         parameter_model = types._GetAgentEngineMemoryRequestParameters(
@@ -895,7 +880,9 @@ class Memories(_api_module.BaseModule):
         name: str,
         config: Optional[types.ListAgentEngineMemoryConfigOrDict] = None,
     ) -> types.ListReasoningEnginesMemoriesResponse:
-        """Lists Agent Engine memories."""
+        """
+        Lists Agent Engine memories.
+        """
 
         parameter_model = types._ListAgentEngineMemoryRequestParameters(
             name=name,
@@ -1070,7 +1057,9 @@ class Memories(_api_module.BaseModule):
         ] = None,
         config: Optional[types.RetrieveAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.RetrieveMemoriesResponse:
-        """Retrieves memories for an Agent Engine."""
+        """
+        Retrieves memories for an Agent Engine.
+        """
 
         parameter_model = types._RetrieveAgentEngineMemoriesRequestParameters(
             name=name,
@@ -1131,7 +1120,9 @@ class Memories(_api_module.BaseModule):
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.UpdateAgentEngineMemoryConfigOrDict] = None,
     ) -> types.AgentEngineMemoryOperation:
-        """Updates an Agent Engine memory."""
+        """
+        Updates an Agent Engine memory.
+        """
 
         parameter_model = types._UpdateAgentEngineMemoryRequestParameters(
             name=name,
@@ -1194,12 +1185,14 @@ class Memories(_api_module.BaseModule):
         """Creates a new memory in the Agent Engine.
 
         Args:
-            name (str): Required. The name of the memory to create.
-            fact (str): Required. The fact to be stored in the memory.
-            scope (dict[str, str]): Required. The scope of the memory. For
-              example, {"user_id": "123"}.
-            config (AgentEngineMemoryConfigOrDict): Optional. The configuration
-              for the memory.
+            name (str):
+                Required. The name of the memory to create.
+            fact (str):
+                Required. The fact to be stored in the memory.
+            scope (dict[str, str]):
+                Required. The scope of the memory. For example, {"user_id": "123"}.
+            config (AgentEngineMemoryConfigOrDict):
+                Optional. The configuration for the memory.
 
         Returns:
             AgentEngineMemoryOperation: The operation for creating the memory.
@@ -1249,27 +1242,26 @@ class Memories(_api_module.BaseModule):
         """Generates memories for the agent engine.
 
         Args:
-            name (str): Required. The name of the agent engine to generate
-              memories for.
+            name (str):
+                Required. The name of the agent engine to generate memories for.
             vertex_session_source (GenerateMemoriesRequestVertexSessionSource):
-              Optional. The vertex session source to use for generating
-              memories. Only one of vertex_session_source,
-              direct_contents_source, or direct_memories_source can be
-              specified.
-              direct_contents_source(GenerateMemoriesRequestDirectContentsSource):
-              Optional. The direct contents source to use for generating
-              memories. Only one of vertex_session_source,
-              direct_contents_source, or direct_memories_source can be
-              specified. direct_memories_source
-              (GenerateMemoriesRequestDirectMemoriesSource): Optional. The
-              direct memories source to use for generating memories. Only one of
-              vertex_session_source, direct_contents_source, or
-              direct_memories_source can be specified.
-            scope (dict[str, str]): Optional. The scope of the memories to
-              generate. This is optional if vertex_session_source is used,
-              otherwise it must be specified.
-            config (GenerateMemoriesConfig): Optional. The configuration for the
-              memories to generate.
+                Optional. The vertex session source to use for generating
+                memories. Only one of vertex_session_source,
+                direct_contents_source, or direct_memories_source can be
+                specified.
+            direct_contents_source(GenerateMemoriesRequestDirectContentsSource):
+                Optional. The direct contents source to use for generating
+                memories. Only one of vertex_session_source, direct_contents_source,
+                or direct_memories_source can be specified.
+            direct_memories_source (GenerateMemoriesRequestDirectMemoriesSource):
+                Optional. The direct memories source to use for generating
+                memories. Only one of vertex_session_source, direct_contents_source,
+                or direct_memories_source can be specified.
+            scope (dict[str, str]):
+                Optional. The scope of the memories to generate. This is optional
+                if vertex_session_source is used, otherwise it must be specified.
+            config (GenerateMemoriesConfig):
+                Optional. The configuration for the memories to generate.
 
         Returns:
             AgentEngineGenerateMemoriesOperation:
@@ -1291,11 +1283,10 @@ class Memories(_api_module.BaseModule):
             operation = _agent_engines_utils._await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_generate_memories_operation,
+                poll_interval_seconds=0.5,
             )
-            if not operation.response:
-                if operation.error:
-                    raise RuntimeError(f"Failed to generate memory: {operation.error}")
-                raise RuntimeError(f"Error generating memory: {operation}")
+            if operation.error:
+                raise RuntimeError(f"Failed to generate memory: {operation.error}")
         return operation
 
     def list(
@@ -1307,10 +1298,10 @@ class Memories(_api_module.BaseModule):
         """Lists Agent Engine memories.
 
         Args:
-            name (str): Required. The name of the agent engine to list memories
-              for.
-            config (ListAgentEngineMemoryConfig): Optional. The configuration
-              for the memories to list.
+            name (str):
+                Required. The name of the agent engine to list memories for.
+            config (ListAgentEngineMemoryConfig):
+                Optional. The configuration for the memories to list.
 
         Returns:
             Iterable[Memory]: An iterable of memories.
@@ -1339,18 +1330,19 @@ class Memories(_api_module.BaseModule):
         """Retrieves memories for the agent.
 
         Args:
-            name (str): Required. The name of the agent engine to retrieve
-              memories for.
-            scope (dict[str, str]): Required. The scope of the memories to
-              retrieve. For example, {"user_id": "123"}.
-              similarity_search_params
-              (RetrieveMemoriesRequestSimilaritySearchParams): Optional. The
-              similarity search parameters to use for retrieving memories.
-              simple_retrieval_params
-              (RetrieveMemoriesRequestSimpleRetrievalParams): Optional. The
-              simple retrieval parameters to use for retrieving memories.
-            config (RetrieveAgentEngineMemoriesConfig): Optional. The
-              configuration for the memories to retrieve.
+            name (str):
+                Required. The name of the agent engine to retrieve memories for.
+            scope (dict[str, str]):
+                Required. The scope of the memories to retrieve. For example,
+                {"user_id": "123"}.
+            similarity_search_params (RetrieveMemoriesRequestSimilaritySearchParams):
+                Optional. The similarity search parameters to use for retrieving
+                memories.
+            simple_retrieval_params (RetrieveMemoriesRequestSimpleRetrievalParams):
+                Optional. The simple retrieval parameters to use for retrieving
+                memories.
+            config (RetrieveAgentEngineMemoriesConfig):
+                Optional. The configuration for the memories to retrieve.
 
         Returns:
             Iterator[RetrieveMemoriesResponseRetrievedMemory]: An iterable of
@@ -1377,6 +1369,7 @@ class Memories(_api_module.BaseModule):
 
 
 class AsyncMemories(_api_module.BaseModule):
+
     async def _create(
         self,
         *,
@@ -1385,7 +1378,9 @@ class AsyncMemories(_api_module.BaseModule):
         scope: dict[str, str],
         config: Optional[types.AgentEngineMemoryConfigOrDict] = None,
     ) -> types.AgentEngineMemoryOperation:
-        """Creates a new memory in the Agent Engine."""
+        """
+        Creates a new memory in the Agent Engine.
+        """
 
         parameter_model = types._CreateAgentEngineMemoryRequestParameters(
             name=name,
@@ -1445,14 +1440,16 @@ class AsyncMemories(_api_module.BaseModule):
         name: str,
         config: Optional[types.DeleteAgentEngineMemoryConfigOrDict] = None,
     ) -> types.DeleteAgentEngineMemoryOperation:
-        """Delete an Agent Engine memory.
+        """
+        Delete an Agent Engine memory.
 
         Args:
-            name (str): Required. The name of the Agent Engine memory to be
-              deleted. Format:
-              `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory}`.
-            config (DeleteAgentEngineMemoryConfig): Optional. Additional
-              configurations for deleting the Agent Engine.
+            name (str):
+                Required. The name of the Agent Engine memory to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/memories/{memory}`.
+            config (DeleteAgentEngineMemoryConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
         """
 
         parameter_model = types._DeleteAgentEngineMemoryRequestParameters(
@@ -1521,7 +1518,9 @@ class AsyncMemories(_api_module.BaseModule):
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEngineGenerateMemoriesOperation:
-        """Generates memories for an Agent Engine."""
+        """
+        Generates memories for an Agent Engine.
+        """
 
         parameter_model = types._GenerateAgentEngineMemoriesRequestParameters(
             name=name,
@@ -1585,12 +1584,14 @@ class AsyncMemories(_api_module.BaseModule):
         name: str,
         config: Optional[types.GetAgentEngineMemoryConfigOrDict] = None,
     ) -> types.Memory:
-        """Gets an agent engine memory.
+        """
+        Gets an agent engine memory.
 
         Args:
             name (str): Required. A fully-qualified resource name or ID such as
               "projects/123/locations/us-central1/reasoningEngines/456/memories/789"
               or a shortened name such as "reasoningEngines/456/memories/789".
+
         """
 
         parameter_model = types._GetAgentEngineMemoryRequestParameters(
@@ -1649,7 +1650,9 @@ class AsyncMemories(_api_module.BaseModule):
         name: str,
         config: Optional[types.ListAgentEngineMemoryConfigOrDict] = None,
     ) -> types.ListReasoningEnginesMemoriesResponse:
-        """Lists Agent Engine memories."""
+        """
+        Lists Agent Engine memories.
+        """
 
         parameter_model = types._ListAgentEngineMemoryRequestParameters(
             name=name,
@@ -1830,7 +1833,9 @@ class AsyncMemories(_api_module.BaseModule):
         ] = None,
         config: Optional[types.RetrieveAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.RetrieveMemoriesResponse:
-        """Retrieves memories for an Agent Engine."""
+        """
+        Retrieves memories for an Agent Engine.
+        """
 
         parameter_model = types._RetrieveAgentEngineMemoriesRequestParameters(
             name=name,
@@ -1893,7 +1898,9 @@ class AsyncMemories(_api_module.BaseModule):
         scope: Optional[dict[str, str]] = None,
         config: Optional[types.UpdateAgentEngineMemoryConfigOrDict] = None,
     ) -> types.AgentEngineMemoryOperation:
-        """Updates an Agent Engine memory."""
+        """
+        Updates an Agent Engine memory.
+        """
 
         parameter_model = types._UpdateAgentEngineMemoryRequestParameters(
             name=name,

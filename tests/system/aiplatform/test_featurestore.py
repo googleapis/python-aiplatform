@@ -163,9 +163,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             value_type="STRING",
             entity_type_name=user_entity_type_name,
         )
-        shared_state[
-            "user_gender_feature_resource_name"
-        ] = user_gender_feature.resource_name
+        shared_state["user_gender_feature_resource_name"] = (
+            user_gender_feature.resource_name
+        )
 
         get_user_gender_feature = aiplatform.Feature(
             feature_name=user_gender_feature.resource_name
@@ -178,9 +178,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             feature_id=_TEST_USER_LIKED_GENRES_FEATURE_ID,
             value_type="STRING_ARRAY",
         )
-        shared_state[
-            "user_liked_genres_feature_resource_name"
-        ] = user_liked_genres_feature.resource_name
+        shared_state["user_liked_genres_feature_resource_name"] = (
+            user_liked_genres_feature.resource_name
+        )
 
         get_user_liked_genres_feature = aiplatform.Feature(
             feature_name=user_liked_genres_feature.resource_name

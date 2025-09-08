@@ -69,11 +69,7 @@ def _CustomJobSpec_to_vertex(
         )
 
     if getv(from_object, ["enable_web_access"]) is not None:
-        setv(
-            to_object,
-            ["enableWebAccess"],
-            getv(from_object, ["enable_web_access"]),
-        )
+        setv(to_object, ["enableWebAccess"], getv(from_object, ["enable_web_access"]))
 
     if getv(from_object, ["experiment"]) is not None:
         setv(to_object, ["experiment"], getv(from_object, ["experiment"]))
@@ -109,31 +105,19 @@ def _CustomJobSpec_to_vertex(
         )
 
     if getv(from_object, ["reserved_ip_ranges"]) is not None:
-        setv(
-            to_object,
-            ["reservedIpRanges"],
-            getv(from_object, ["reserved_ip_ranges"]),
-        )
+        setv(to_object, ["reservedIpRanges"], getv(from_object, ["reserved_ip_ranges"]))
 
     if getv(from_object, ["scheduling"]) is not None:
         setv(to_object, ["scheduling"], getv(from_object, ["scheduling"]))
 
     if getv(from_object, ["service_account"]) is not None:
-        setv(
-            to_object,
-            ["serviceAccount"],
-            getv(from_object, ["service_account"]),
-        )
+        setv(to_object, ["serviceAccount"], getv(from_object, ["service_account"]))
 
     if getv(from_object, ["tensorboard"]) is not None:
         setv(to_object, ["tensorboard"], getv(from_object, ["tensorboard"]))
 
     if getv(from_object, ["worker_pool_specs"]) is not None:
-        setv(
-            to_object,
-            ["workerPoolSpecs"],
-            getv(from_object, ["worker_pool_specs"]),
-        )
+        setv(to_object, ["workerPoolSpecs"], getv(from_object, ["worker_pool_specs"]))
 
     return to_object
 
@@ -153,21 +137,20 @@ def _CustomJob_to_vertex(
             _CustomJobSpec_to_vertex(getv(from_object, ["job_spec"]), to_object),
         )
 
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
+    if getv(from_object, ["state"]) is not None:
+        setv(to_object, ["state"], getv(from_object, ["state"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(parent_object, ["error"], getv(from_object, ["error"]))
+
     if getv(from_object, ["create_time"]) is not None:
         setv(to_object, ["createTime"], getv(from_object, ["create_time"]))
 
-    if getv(from_object, ["encryption_spec"]) is not None:
-        setv(
-            to_object,
-            ["encryptionSpec"],
-            getv(from_object, ["encryption_spec"]),
-        )
-
     if getv(from_object, ["end_time"]) is not None:
         setv(to_object, ["endTime"], getv(from_object, ["end_time"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
@@ -183,9 +166,6 @@ def _CustomJob_to_vertex(
 
     if getv(from_object, ["start_time"]) is not None:
         setv(to_object, ["startTime"], getv(from_object, ["start_time"]))
-
-    if getv(from_object, ["state"]) is not None:
-        setv(to_object, ["state"], getv(from_object, ["state"]))
 
     if getv(from_object, ["update_time"]) is not None:
         setv(to_object, ["updateTime"], getv(from_object, ["update_time"]))
@@ -259,11 +239,7 @@ def _CustomJobSpec_from_vertex(
         )
 
     if getv(from_object, ["enableWebAccess"]) is not None:
-        setv(
-            to_object,
-            ["enable_web_access"],
-            getv(from_object, ["enableWebAccess"]),
-        )
+        setv(to_object, ["enable_web_access"], getv(from_object, ["enableWebAccess"]))
 
     if getv(from_object, ["experiment"]) is not None:
         setv(to_object, ["experiment"], getv(from_object, ["experiment"]))
@@ -299,31 +275,19 @@ def _CustomJobSpec_from_vertex(
         )
 
     if getv(from_object, ["reservedIpRanges"]) is not None:
-        setv(
-            to_object,
-            ["reserved_ip_ranges"],
-            getv(from_object, ["reservedIpRanges"]),
-        )
+        setv(to_object, ["reserved_ip_ranges"], getv(from_object, ["reservedIpRanges"]))
 
     if getv(from_object, ["scheduling"]) is not None:
         setv(to_object, ["scheduling"], getv(from_object, ["scheduling"]))
 
     if getv(from_object, ["serviceAccount"]) is not None:
-        setv(
-            to_object,
-            ["service_account"],
-            getv(from_object, ["serviceAccount"]),
-        )
+        setv(to_object, ["service_account"], getv(from_object, ["serviceAccount"]))
 
     if getv(from_object, ["tensorboard"]) is not None:
         setv(to_object, ["tensorboard"], getv(from_object, ["tensorboard"]))
 
     if getv(from_object, ["workerPoolSpecs"]) is not None:
-        setv(
-            to_object,
-            ["worker_pool_specs"],
-            getv(from_object, ["workerPoolSpecs"]),
-        )
+        setv(to_object, ["worker_pool_specs"], getv(from_object, ["workerPoolSpecs"]))
 
     return to_object
 
@@ -343,21 +307,20 @@ def _CustomJob_from_vertex(
             _CustomJobSpec_from_vertex(getv(parent_object, ["jobSpec"]), to_object),
         )
 
+    if getv(parent_object, ["encryptionSpec"]) is not None:
+        setv(to_object, ["encryption_spec"], getv(parent_object, ["encryptionSpec"]))
+
+    if getv(from_object, ["state"]) is not None:
+        setv(to_object, ["state"], getv(from_object, ["state"]))
+
+    if getv(parent_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(parent_object, ["error"]))
+
     if getv(from_object, ["createTime"]) is not None:
         setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
 
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(
-            to_object,
-            ["encryption_spec"],
-            getv(from_object, ["encryptionSpec"]),
-        )
-
     if getv(from_object, ["endTime"]) is not None:
         setv(to_object, ["end_time"], getv(from_object, ["endTime"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
@@ -373,9 +336,6 @@ def _CustomJob_from_vertex(
 
     if getv(from_object, ["startTime"]) is not None:
         setv(to_object, ["start_time"], getv(from_object, ["startTime"]))
-
-    if getv(from_object, ["state"]) is not None:
-        setv(to_object, ["state"], getv(from_object, ["state"]))
 
     if getv(from_object, ["updateTime"]) is not None:
         setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
@@ -395,7 +355,9 @@ class PromptOptimizer(_api_module.BaseModule):
         content: Optional[genai_types.ContentOrDict] = None,
         config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponseEndpoint:
-        """Optimize a single prompt."""
+        """
+        Optimize a single prompt.
+        """
 
         parameter_model = types._OptimizeRequestParameters(
             content=content,
@@ -447,9 +409,11 @@ class PromptOptimizer(_api_module.BaseModule):
         self,
         *,
         custom_job: types.CustomJobOrDict,
-        config: Optional[types.BaseConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.CustomJob:
-        """Creates a custom job."""
+        """
+        Creates a custom job.
+        """
 
         parameter_model = types._CustomJobParameters(
             custom_job=custom_job,
@@ -498,9 +462,11 @@ class PromptOptimizer(_api_module.BaseModule):
         return return_value
 
     def _get_custom_job(
-        self, *, name: str, config: Optional[types.BaseConfigOrDict] = None
+        self, *, name: str, config: Optional[types.VertexBaseConfigOrDict] = None
     ) -> types.CustomJob:
-        """Gets a custom job."""
+        """
+        Gets a custom job.
+        """
 
         parameter_model = types._GetCustomJobParameters(
             name=name,
@@ -553,14 +519,14 @@ class PromptOptimizer(_api_module.BaseModule):
     def _wait_for_completion(self, job_name: str) -> types.CustomJob:
 
         JOB_COMPLETE_STATES = [
-            types.JobState.JOB_STATE_SUCCEEDED,
-            types.JobState.JOB_STATE_FAILED,
-            types.JobState.JOB_STATE_CANCELLED,
-            types.JobState.JOB_STATE_PAUSED,
+            genai_types.JobState.JOB_STATE_SUCCEEDED,
+            genai_types.JobState.JOB_STATE_FAILED,
+            genai_types.JobState.JOB_STATE_CANCELLED,
+            genai_types.JobState.JOB_STATE_PAUSED,
         ]
         JOB_ERROR_STATES = [
-            types.JobState.JOB_STATE_FAILED,
-            types.JobState.JOB_STATE_CANCELLED,
+            genai_types.JobState.JOB_STATE_FAILED,
+            genai_types.JobState.JOB_STATE_CANCELLED,
         ]
 
         log_wait = 5
@@ -597,8 +563,7 @@ class PromptOptimizer(_api_module.BaseModule):
         Args:
           method: The method for optimizing multiple prompts.
           config: PromptOptimizerVAPOConfig instance containing the
-            configuration for prompt optimization.
-
+              configuration for prompt optimization.
         Returns:
           The custom job that was created.
         """
@@ -642,7 +607,7 @@ class PromptOptimizer(_api_module.BaseModule):
 
         job_spec = types.CustomJobSpec(
             worker_pool_specs=worker_pool_specs,
-            base_output_directory=types.GcsDestination(output_uri_prefix=bucket),
+            base_output_directory=genai_types.GcsDestination(output_uri_prefix=bucket),
             service_account=service_account,
         )
 
@@ -683,16 +648,14 @@ class PromptOptimizer(_api_module.BaseModule):
 
         Args:
           prompt: The prompt to optimize.
-          config: The configuration for prompt optimization. Currently, config
-            is not supported for a single prompt optimization.
-
+          config: The configuration for prompt optimization. Currently, config is
+            not supported for a single prompt optimization.
         Returns:
           The parsed response from the API request.
         """
         if config is not None:
             raise ValueError(
-                "Currently, config is not supported for a single prompt"
-                " optimization."
+                "Currently, config is not supported for a single prompt optimization."
             )
 
         prompt = genai_types.Content(parts=[genai_types.Part(text=prompt)], role="user")
@@ -734,7 +697,7 @@ class PromptOptimizer(_api_module.BaseModule):
         # TODO: remove the hack that pops config.
         request_dict.pop("config", None)
 
-        http_options: Optional[types.HttpOptions] = None
+        http_options: Optional[genai_types.HttpOptions] = None
         if (
             parameter_model.config is not None
             and parameter_model.config.http_options is not None
@@ -778,7 +741,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         content: Optional[genai_types.ContentOrDict] = None,
         config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponseEndpoint:
-        """Optimize a single prompt."""
+        """
+        Optimize a single prompt.
+        """
 
         parameter_model = types._OptimizeRequestParameters(
             content=content,
@@ -832,9 +797,11 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         self,
         *,
         custom_job: types.CustomJobOrDict,
-        config: Optional[types.BaseConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.CustomJob:
-        """Creates a custom job."""
+        """
+        Creates a custom job.
+        """
 
         parameter_model = types._CustomJobParameters(
             custom_job=custom_job,
@@ -885,9 +852,11 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         return return_value
 
     async def _get_custom_job(
-        self, *, name: str, config: Optional[types.BaseConfigOrDict] = None
+        self, *, name: str, config: Optional[types.VertexBaseConfigOrDict] = None
     ) -> types.CustomJob:
-        """Gets a custom job."""
+        """
+        Gets a custom job.
+        """
 
         parameter_model = types._GetCustomJobParameters(
             name=name,
@@ -945,6 +914,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
     ) -> types.CustomJob:
         """Call async Vertex AI Prompt Optimizer (VAPO).
 
+
         Note: The `wait_for_completion` parameter in the config will be
         ignored when using the AsyncClient, as it is not supported.
 
@@ -962,7 +932,6 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             vapo is supported).
           config: PromptOptimizerVAPOConfig instance containing the
             configuration for prompt optimization.
-
         Returns:
           The custom job that was created.
         """
@@ -974,8 +943,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         if config.wait_for_completion:
             logger.info(
-                "Ignoring wait_for_completion=True since the AsyncClient does"
-                " not support it."
+                "Ignoring wait_for_completion=True since the AsyncClient does not support it."
             )
 
         if config.optimizer_job_display_name:
@@ -1011,7 +979,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         job_spec = types.CustomJobSpec(
             worker_pool_specs=worker_pool_specs,
-            base_output_directory=types.GcsDestination(output_uri_prefix=bucket),
+            base_output_directory=genai_types.GcsDestination(output_uri_prefix=bucket),
             service_account=service_account,
         )
 
@@ -1111,21 +1079,18 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         Example usage:
         client = vertexai.Client(project=PROJECT_NAME, location='us-central1')
         prompt = "Generate system instructions for analyzing medical articles"
-        response = await
-        client.aio.prompt_optimizer.optimize_prompt(prompt=prompt)
+        response = await client.aio.prompt_optimizer.optimize_prompt(prompt=prompt)
 
         Args:
           prompt: The prompt to optimize.
-          config: The configuration for prompt optimization. Currently, config
-            is not supported for a single prompt optimization.
-
+          config: The configuration for prompt optimization. Currently, config is
+            not supported for a single prompt optimization.
         Returns:
           The parsed response from the API request.
         """
         if config is not None:
             raise ValueError(
-                "Currently, config is not supported for a single prompt"
-                " optimization."
+                "Currently, config is not supported for a single prompt optimization."
             )
 
         prompt = genai_types.Content(parts=[genai_types.Part(text=prompt)], role="user")

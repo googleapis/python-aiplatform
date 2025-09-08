@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import asyncio
 import base64
 import importlib
 import json
@@ -153,6 +154,34 @@ class _MockRunner:
         )
 
     async def run_async(self, *args, **kwargs):
+        from google.adk.events import event
+
+        yield event.Event(
+            **{
+                "author": "currency_exchange_agent",
+                "content": {
+                    "parts": [
+                        {
+                            "thought_signature": b"test_signature",
+                            "function_call": {
+                                "args": {
+                                    "currency_date": "2025-04-03",
+                                    "currency_from": "USD",
+                                    "currency_to": "SEK",
+                                },
+                                "id": "af-c5a57692-9177-4091-a3df-098f834ee849",
+                                "name": "get_exchange_rate",
+                            },
+                        }
+                    ],
+                    "role": "model",
+                },
+                "id": "9aaItGK9",
+                "invocation_id": "e-6543c213-6417-484b-9551-b67915d1d5f7",
+            }
+        )
+
+    async def run_live(self, *args, **kwargs):
         from google.adk.events import event
 
         yield event.Event(
@@ -353,6 +382,29 @@ class TestAdkApp:
             }
         )
         events = list(app.streaming_agent_run_with_events(request_json=request_json))
+        assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_bidi_stream_query(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        request_queue = asyncio.Queue()
+        request_dict = {
+            "user_id": _TEST_USER_ID,
+            "live_request": {
+                "input": "What is the exchange rate from USD to SEK?",
+            },
+        }
+
+        await request_queue.put(request_dict)
+        await request_queue.put(None)  # Sentinel to end the stream.
+        events = []
+        async for event in app.bidi_stream_query(request_queue):
+            events.append(event)
         assert len(events) == 1
 
     def test_create_session(self):
@@ -567,4 +619,36 @@ class TestAdkAppErrors:
             match="message must be a string or a dictionary representing a Content object.",
         ):
             async for _ in app.async_stream_query(user_id=_TEST_USER_ID, message=123):
+                pass
+
+    @pytest.mark.asyncio
+    async def test_bidi_stream_query_invalid_request_queue(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        request_queue = []
+        with pytest.raises(
+            TypeError,
+            match="request_queue must be an asyncio.Queue instance.",
+        ):
+            async for _ in app.bidi_stream_query(request_queue):
+                pass
+
+    @pytest.mark.asyncio
+    async def test_bidi_stream_query_invalid_first_request(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        request_queue = asyncio.Queue()
+        request_dict = {
+            "live_request": {
+                "input": "What is the exchange rate from USD to SEK?",
+            },
+        }
+        await request_queue.put(request_dict)
+        with pytest.raises(
+            ValueError,
+            match="The first request must have a user_id.",
+        ):
+            async for _ in app.bidi_stream_query(request_queue):
                 pass

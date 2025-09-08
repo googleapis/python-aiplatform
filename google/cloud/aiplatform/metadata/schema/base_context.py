@@ -49,7 +49,6 @@ class BaseContextSchema(context.Context):
         metadata: Optional[Dict] = None,
         description: Optional[str] = None,
     ):
-
         """Initializes the Context with the given name, URI and metadata.
 
         Args:
