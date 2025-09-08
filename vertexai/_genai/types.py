@@ -7277,9 +7277,6 @@ class CreateDatasetConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
-    should_return_http_response: Optional[bool] = Field(
-        default=None, description=""""""
-    )
 
 
 class CreateDatasetConfigDict(TypedDict, total=False):
@@ -7287,9 +7284,6 @@ class CreateDatasetConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
-
-    should_return_http_response: Optional[bool]
-    """"""
 
 
 CreateDatasetConfigOrDict = Union[CreateDatasetConfig, CreateDatasetConfigDict]
@@ -8004,65 +7998,50 @@ _CreateDatasetParametersOrDict = Union[
 ]
 
 
-class GenericOperationMetadata(_common.BaseModel):
-    """Represents a generic operation metadata."""
-
-    partial_failures: Optional[list[genai_types.GoogleRpcStatus]] = Field(
-        default=None,
-        description="""Output only. Partial failures encountered. E.g. single files that couldn't be read. This field should never exceed 20 entries. Status details field will contain standard Google Cloud error details.""",
-    )
-    create_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Time when the operation was created.""",
-    )
-    update_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Time when the operation was updated for the last time. If the operation has finished (successfully or not), this is the finish time.""",
-    )
-
-
-class GenericOperationMetadataDict(TypedDict, total=False):
-    """Represents a generic operation metadata."""
-
-    partial_failures: Optional[list[genai_types.GoogleRpcStatusDict]]
-    """Output only. Partial failures encountered. E.g. single files that couldn't be read. This field should never exceed 20 entries. Status details field will contain standard Google Cloud error details."""
-
-    create_time: Optional[datetime.datetime]
-    """Output only. Time when the operation was created."""
-
-    update_time: Optional[datetime.datetime]
-    """Output only. Time when the operation was updated for the last time. If the operation has finished (successfully or not), this is the finish time."""
-
-
-GenericOperationMetadataOrDict = Union[
-    GenericOperationMetadata, GenericOperationMetadataDict
-]
-
-
-class CreateDatasetOperationMetadata(_common.BaseModel):
+class DatasetOperation(_common.BaseModel):
     """Represents the create dataset operation."""
 
-    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
-        default=None, description="""Used to retain the full HTTP response."""
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
     )
-    generic_metadata: Optional[GenericOperationMetadata] = Field(
-        default=None, description="""The operation generic information."""
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[dict[str, Any]] = Field(
+        default=None, description="""The result of the operation."""
     )
 
 
-class CreateDatasetOperationMetadataDict(TypedDict, total=False):
+class DatasetOperationDict(TypedDict, total=False):
     """Represents the create dataset operation."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
-    """Used to retain the full HTTP response."""
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
 
-    generic_metadata: Optional[GenericOperationMetadataDict]
-    """The operation generic information."""
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[dict[str, Any]]
+    """The result of the operation."""
 
 
-CreateDatasetOperationMetadataOrDict = Union[
-    CreateDatasetOperationMetadata, CreateDatasetOperationMetadataDict
-]
+DatasetOperationOrDict = Union[DatasetOperation, DatasetOperationDict]
 
 
 class CreateDatasetVersionConfig(_common.BaseModel):
@@ -8071,9 +8050,6 @@ class CreateDatasetVersionConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
-    should_return_http_response: Optional[bool] = Field(
-        default=None, description=""""""
-    )
 
 
 class CreateDatasetVersionConfigDict(TypedDict, total=False):
@@ -8081,9 +8057,6 @@ class CreateDatasetVersionConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
-
-    should_return_http_response: Optional[bool]
-    """"""
 
 
 CreateDatasetVersionConfigOrDict = Union[
@@ -8204,32 +8177,6 @@ class _CreateDatasetVersionParametersDict(TypedDict, total=False):
 
 _CreateDatasetVersionParametersOrDict = Union[
     _CreateDatasetVersionParameters, _CreateDatasetVersionParametersDict
-]
-
-
-class CreateDatasetVersionOperationMetadata(_common.BaseModel):
-    """Represents the create dataset version operation."""
-
-    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
-        default=None, description="""Used to retain the full HTTP response."""
-    )
-    generic_metadata: Optional[GenericOperationMetadata] = Field(
-        default=None, description="""The common part of the operation metadata."""
-    )
-
-
-class CreateDatasetVersionOperationMetadataDict(TypedDict, total=False):
-    """Represents the create dataset version operation."""
-
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
-    """Used to retain the full HTTP response."""
-
-    generic_metadata: Optional[GenericOperationMetadataDict]
-    """The common part of the operation metadata."""
-
-
-CreateDatasetVersionOperationMetadataOrDict = Union[
-    CreateDatasetVersionOperationMetadata, CreateDatasetVersionOperationMetadataDict
 ]
 
 
@@ -8506,9 +8453,6 @@ class GetDatasetOperationConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
-    should_return_http_response: Optional[bool] = Field(
-        default=None, description=""""""
-    )
 
 
 class GetDatasetOperationConfigDict(TypedDict, total=False):
@@ -8516,9 +8460,6 @@ class GetDatasetOperationConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
-
-    should_return_http_response: Optional[bool]
-    """"""
 
 
 GetDatasetOperationConfigOrDict = Union[
@@ -8551,26 +8492,6 @@ class _GetDatasetOperationParametersDict(TypedDict, total=False):
 
 _GetDatasetOperationParametersOrDict = Union[
     _GetDatasetOperationParameters, _GetDatasetOperationParametersDict
-]
-
-
-class DatasetOperationMetadata(_common.BaseModel):
-    """Represents the get dataset version operation."""
-
-    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
-        default=None, description="""Used to retain the full HTTP response."""
-    )
-
-
-class DatasetOperationMetadataDict(TypedDict, total=False):
-    """Represents the get dataset version operation."""
-
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
-    """Used to retain the full HTTP response."""
-
-
-DatasetOperationMetadataOrDict = Union[
-    DatasetOperationMetadata, DatasetOperationMetadataDict
 ]
 
 

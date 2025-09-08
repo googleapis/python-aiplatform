@@ -34,22 +34,6 @@ from . import types
 logger = logging.getLogger("vertexai_genai.promptmanagement")
 
 
-def _CreateDatasetConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["should_return_http_response"]) is not None:
-        setv(
-            to_object,
-            ["shouldReturnHttpResponse"],
-            getv(from_object, ["should_return_http_response"]),
-        )
-
-    return to_object
-
-
 def _SchemaTextPromptDatasetMetadata_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -126,11 +110,7 @@ def _CreateDatasetParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateDatasetConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["name"], getv(from_object, ["name"]))
@@ -160,22 +140,6 @@ def _CreateDatasetParameters_to_vertex(
 
     if getv(from_object, ["model_reference"]) is not None:
         setv(to_object, ["modelReference"], getv(from_object, ["model_reference"]))
-
-    return to_object
-
-
-def _CreateDatasetVersionConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["should_return_http_response"]) is not None:
-        setv(
-            to_object,
-            ["shouldReturnHttpResponse"],
-            getv(from_object, ["should_return_http_response"]),
-        )
 
     return to_object
 
@@ -234,13 +198,7 @@ def _CreateDatasetVersionParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateDatasetVersionConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     if getv(from_object, ["dataset_name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["dataset_name"]))
@@ -298,35 +256,13 @@ def _GetDatasetVersionParameters_to_vertex(
     return to_object
 
 
-def _GetDatasetOperationConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["should_return_http_response"]) is not None:
-        setv(
-            to_object,
-            ["shouldReturnHttpResponse"],
-            getv(from_object, ["should_return_http_response"]),
-        )
-
-    return to_object
-
-
 def _GetDatasetOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _GetDatasetOperationConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     if getv(from_object, ["dataset_id"]) is not None:
         setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
@@ -337,30 +273,25 @@ def _GetDatasetOperationParameters_to_vertex(
     return to_object
 
 
-def _CreateDatasetOperationMetadata_from_vertex(
+def _DatasetOperation_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
 
-    if getv(from_object, ["genericMetadata"]) is not None:
-        setv(to_object, ["generic_metadata"], getv(from_object, ["genericMetadata"]))
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
 
-    return to_object
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
 
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
 
-def _CreateDatasetVersionOperationMetadata_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["genericMetadata"]) is not None:
-        setv(to_object, ["generic_metadata"], getv(from_object, ["genericMetadata"]))
+    if getv(from_object, ["response"]) is not None:
+        setv(to_object, ["response"], getv(from_object, ["response"]))
 
     return to_object
 
@@ -547,17 +478,6 @@ def _DatasetVersion_from_vertex(
     return to_object
 
 
-def _DatasetOperationMetadata_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    return to_object
-
-
 class PromptManagement(_api_module.BaseModule):
 
     def _create_dataset_resource(
@@ -571,7 +491,7 @@ class PromptManagement(_api_module.BaseModule):
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         model_reference: Optional[str] = None,
-    ) -> types.CreateDatasetOperationMetadata:
+    ) -> types.DatasetOperation:
         """
         Creates a dataset resource to store prompts.
         """
@@ -616,19 +536,12 @@ class PromptManagement(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        if config is not None and getattr(config, "should_return_http_response", None):
-            return_value = types.CreateDatasetOperationMetadata(
-                sdk_http_response=response
-            )
-            self._api_client._verify_response(return_value)
-            return return_value
-
         response_dict = "" if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CreateDatasetOperationMetadata_from_vertex(response_dict)
+            response_dict = _DatasetOperation_from_vertex(response_dict)
 
-        return_value = types.CreateDatasetOperationMetadata._from_response(
+        return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -643,7 +556,7 @@ class PromptManagement(_api_module.BaseModule):
         dataset_version: Optional[types.DatasetVersionOrDict] = None,
         parent: Optional[str] = None,
         display_name: Optional[str] = None,
-    ) -> types.CreateDatasetVersionOperationMetadata:
+    ) -> types.DatasetOperation:
         """
         Creates a dataset version resource to store prompts.
         """
@@ -685,21 +598,12 @@ class PromptManagement(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        if config is not None and getattr(config, "should_return_http_response", None):
-            return_value = types.CreateDatasetVersionOperationMetadata(
-                sdk_http_response=response
-            )
-            self._api_client._verify_response(return_value)
-            return return_value
-
         response_dict = "" if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CreateDatasetVersionOperationMetadata_from_vertex(
-                response_dict
-            )
+            response_dict = _DatasetOperation_from_vertex(response_dict)
 
-        return_value = types.CreateDatasetVersionOperationMetadata._from_response(
+        return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -828,7 +732,7 @@ class PromptManagement(_api_module.BaseModule):
         config: Optional[types.GetDatasetOperationConfigOrDict] = None,
         dataset_id: Optional[str] = None,
         operation_id: Optional[str] = None,
-    ) -> types.DatasetOperationMetadata:
+    ) -> types.DatasetOperation:
         """
         Gets the operation from creating a dataset version.
         """
@@ -870,17 +774,12 @@ class PromptManagement(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        if config is not None and getattr(config, "should_return_http_response", None):
-            return_value = types.DatasetOperationMetadata(sdk_http_response=response)
-            self._api_client._verify_response(return_value)
-            return return_value
-
         response_dict = "" if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _DatasetOperationMetadata_from_vertex(response_dict)
+            response_dict = _DatasetOperation_from_vertex(response_dict)
 
-        return_value = types.DatasetOperationMetadata._from_response(
+        return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -976,7 +875,6 @@ class PromptManagement(_api_module.BaseModule):
         # Step 1: Create the dataset resource for the prompt if it doesn't exist.
         if not dataset_id:
             create_prompt_dataset_operation = self._create_dataset_resource(
-                config=types.CreateDatasetConfig(should_return_http_response=True),
                 display_name=(
                     config.prompt_display_name
                     if config and config.prompt_display_name
@@ -1006,7 +904,6 @@ class PromptManagement(_api_module.BaseModule):
 
         # Step 3: Create the dataset version
         create_dataset_version_operation = self._create_dataset_version_resource(
-            config=types.CreateDatasetVersionConfig(should_return_http_response=True),
             dataset_name=dataset_id,
             display_name=(
                 version_name
@@ -1029,18 +926,26 @@ class PromptManagement(_api_module.BaseModule):
 
     def _wait_for_operation(
         self,
-        operation: Union[
-            types.CreateDatasetOperationMetadata,
-            types.CreateDatasetVersionOperationMetadata,
-        ],
+        operation: types.DatasetOperation,
         timeout: int,
     ) -> str:
-        done = False
-        prompt_dataset_operation: Optional[types.DatasetOperationMetadata] = None
+        """Waits for a dataset operation to complete.
 
-        if not operation.sdk_http_response:
-            raise ValueError("Error creating prompt version resource.")
-        response_operation_name = json.loads(operation.sdk_http_response.body)["name"]
+        Args:
+          operation: The dataset operation to wait for.
+          timeout: The maximum time to wait for the operation to complete.
+
+        Returns:
+          The name of the Dataset resource from the operation result.
+
+        Raises:
+          TimeoutError: If the operation does not complete within the timeout.
+          ValueError: If the operation fails.
+        """
+        done = False
+        prompt_dataset_operation: Optional[types.DatasetOperation] = None
+
+        response_operation_name = operation.name
         dataset_id = response_operation_name.split("/datasets/")[1].split("/")[0]
         operation_id = response_operation_name.split("/")[-1]
 
@@ -1062,33 +967,28 @@ class PromptManagement(_api_module.BaseModule):
                 previous_time = current_time
             time.sleep(sleep_duration)
             prompt_dataset_operation = self._get_dataset_operation(
-                config=types.GetDatasetOperationConfig(
-                    should_return_http_response=True
-                ),
                 dataset_id=dataset_id,
                 operation_id=operation_id,
             )
-            done = _prompt_management_utils._check_operation_status_from_response_body(
-                prompt_dataset_operation.sdk_http_response
+            done = (
+                prompt_dataset_operation.done
+                if hasattr(prompt_dataset_operation, "done")
+                else False
             )
         if (
             not prompt_dataset_operation
-            or not prompt_dataset_operation.sdk_http_response
-            or not prompt_dataset_operation.sdk_http_response.body
+            or prompt_dataset_operation.response is None
+            or prompt_dataset_operation.response.get("name") is None
         ):
             raise ValueError("Error creating prompt version resource.")
-        response_body = json.loads(prompt_dataset_operation.sdk_http_response.body)
-        if response_body.get("error"):
+        if (
+            hasattr(prompt_dataset_operation, "error")
+            and prompt_dataset_operation.error is not None
+        ):
             raise ValueError(
-                f"Error creating prompt version resource: {response_body['error']}"
+                f"Error creating prompt version resource: {prompt_dataset_operation.error}"
             )
-        if not response_body.get("response") or not response_body.get("response").get(
-            "name"
-        ):
-            raise ValueError("Error creating prompt version resource.")
-        return json.loads(prompt_dataset_operation.sdk_http_response.body)["response"][
-            "name"
-        ]
+        return prompt_dataset_operation.response.get("name")
 
     def get(
         self,
@@ -1135,7 +1035,7 @@ class AsyncPromptManagement(_api_module.BaseModule):
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         model_reference: Optional[str] = None,
-    ) -> types.CreateDatasetOperationMetadata:
+    ) -> types.DatasetOperation:
         """
         Creates a dataset resource to store prompts.
         """
@@ -1182,19 +1082,12 @@ class AsyncPromptManagement(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        if config is not None and getattr(config, "should_return_http_response", None):
-            return_value = types.CreateDatasetOperationMetadata(
-                sdk_http_response=response
-            )
-            self._api_client._verify_response(return_value)
-            return return_value
-
         response_dict = "" if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CreateDatasetOperationMetadata_from_vertex(response_dict)
+            response_dict = _DatasetOperation_from_vertex(response_dict)
 
-        return_value = types.CreateDatasetOperationMetadata._from_response(
+        return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1209,7 +1102,7 @@ class AsyncPromptManagement(_api_module.BaseModule):
         dataset_version: Optional[types.DatasetVersionOrDict] = None,
         parent: Optional[str] = None,
         display_name: Optional[str] = None,
-    ) -> types.CreateDatasetVersionOperationMetadata:
+    ) -> types.DatasetOperation:
         """
         Creates a dataset version resource to store prompts.
         """
@@ -1253,21 +1146,12 @@ class AsyncPromptManagement(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        if config is not None and getattr(config, "should_return_http_response", None):
-            return_value = types.CreateDatasetVersionOperationMetadata(
-                sdk_http_response=response
-            )
-            self._api_client._verify_response(return_value)
-            return return_value
-
         response_dict = "" if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _CreateDatasetVersionOperationMetadata_from_vertex(
-                response_dict
-            )
+            response_dict = _DatasetOperation_from_vertex(response_dict)
 
-        return_value = types.CreateDatasetVersionOperationMetadata._from_response(
+        return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1400,7 +1284,7 @@ class AsyncPromptManagement(_api_module.BaseModule):
         config: Optional[types.GetDatasetOperationConfigOrDict] = None,
         dataset_id: Optional[str] = None,
         operation_id: Optional[str] = None,
-    ) -> types.DatasetOperationMetadata:
+    ) -> types.DatasetOperation:
         """
         Gets the operation from creating a dataset version.
         """
@@ -1444,17 +1328,12 @@ class AsyncPromptManagement(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        if config is not None and getattr(config, "should_return_http_response", None):
-            return_value = types.DatasetOperationMetadata(sdk_http_response=response)
-            self._api_client._verify_response(return_value)
-            return return_value
-
         response_dict = "" if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
-            response_dict = _DatasetOperationMetadata_from_vertex(response_dict)
+            response_dict = _DatasetOperation_from_vertex(response_dict)
 
-        return_value = types.DatasetOperationMetadata._from_response(
+        return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
