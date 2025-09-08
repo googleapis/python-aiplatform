@@ -249,6 +249,9 @@ def _ListAgentEngineMemoryConfig_to_vertex(
     if getv(from_object, ["filter"]) is not None:
         setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
 
+    if getv(from_object, ["order_by"]) is not None:
+        setv(parent_object, ["_query", "orderBy"], getv(from_object, ["order_by"]))
+
     return to_object
 
 
