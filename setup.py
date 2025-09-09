@@ -142,6 +142,10 @@ adk_extra_require = [
     "google-adk >= 1.0.0, < 2.0.0",
 ]
 
+a2a_extra_require = [
+    "a2a-sdk >= 0.3.4",
+]
+
 reasoning_engine_extra_require = [
     "cloudpickle >= 3.0, < 4.0",
     "google-cloud-trace < 2",
@@ -325,6 +329,7 @@ setuptools.setup(
         "ray": ray_extra_require,
         "ray_testing": ray_testing_extra_require,
         "adk": adk_extra_require,
+        "a2a": a2a_extra_require,
         "reasoningengine": reasoning_engine_extra_require,
         "agent_engines": agent_engines_extra_require,
         "evaluation": evaluation_extra_require,
