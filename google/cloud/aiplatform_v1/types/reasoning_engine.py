@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import struct_pb2  # type: ignore
@@ -150,13 +148,13 @@ class ReasoningEngineSpec(proto.Message):
                 'memory' keys are supported. Defaults to {"cpu": "4",
                 "memory": "4Gi"}.
 
-                -  The only supported values for CPU are '1', '2', '4', '6'
-                   and '8'. For more information, go to
-                   https://cloud.google.com/run/docs/configuring/cpu.
-                -  The only supported values for memory are '1Gi', '2Gi',
-                   ... '32 Gi'.
-                -  For required cpu on different memory values, go to
-                   https://cloud.google.com/run/docs/configuring/memory-limits
+                - The only supported values for CPU are '1', '2', '4', '6'
+                  and '8'. For more information, go to
+                  https://cloud.google.com/run/docs/configuring/cpu.
+                - The only supported values for memory are '1Gi', '2Gi', ...
+                  '32 Gi'.
+                - For required cpu on different memory values, go to
+                  https://cloud.google.com/run/docs/configuring/memory-limits
             container_concurrency (int):
                 Optional. Concurrency for each container and agent server.
                 Recommended value: 2 \* cpu + 1. Defaults to 9.

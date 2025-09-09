@@ -912,20 +912,31 @@ class FunctionCallingConfig(proto.Message):
                 language response.
             ANY (2):
                 Model is constrained to always predicting function calls
-                only. If "allowed_function_names" are set, the predicted
-                function calls will be limited to any one of
-                "allowed_function_names", else the predicted function calls
-                will be any one of the provided "function_declarations".
+                only. If
+                [allowed_function_names][FunctionCallingConfig.allowed_function_names]
+                are set, the predicted function calls will be limited to any
+                one of ``allowed_function_names``, else the predicted
+                function calls will be any one of the provided
+                [FunctionDeclaration].
             NONE (3):
                 Model will not predict any function calls.
                 Model behavior is same as when not passing any
                 function declarations.
+            VALIDATED (5):
+                Model is constrained to predict either function calls or
+                natural language response. If
+                [allowed_function_names][FunctionCallingConfig.allowed_function_names]
+                are set, the predicted function calls will be limited to any
+                one of ``allowed_function_names``, else the predicted
+                function calls will be any one of the provided
+                [FunctionDeclaration].
         """
 
         MODE_UNSPECIFIED = 0
         AUTO = 1
         ANY = 2
         NONE = 3
+        VALIDATED = 5
 
     mode: Mode = proto.Field(
         proto.ENUM,

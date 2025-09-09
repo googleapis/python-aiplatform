@@ -1207,6 +1207,7 @@ from .types.tuning_job import DistillationSpec
 from .types.tuning_job import EvaluateDatasetRun
 from .types.tuning_job import EvaluationConfig
 from .types.tuning_job import PartnerModelTuningSpec
+from .types.tuning_job import PreTunedModel
 from .types.tuning_job import SupervisedHyperParameters
 from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
@@ -2128,6 +2129,7 @@ __all__ = (
     "PointwiseMetricSpec",
     "Port",
     "PostStartupScriptConfig",
+    "PreTunedModel",
     "PrebuiltVoiceConfig",
     "PredefinedSplit",
     "PredictLongRunningMetadata",

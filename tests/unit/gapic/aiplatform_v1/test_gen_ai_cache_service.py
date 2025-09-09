@@ -69,13 +69,9 @@ from google.cloud.aiplatform_v1.services.gen_ai_cache_service import (
     GenAiCacheServiceClient,
 )
 from google.cloud.aiplatform_v1.services.gen_ai_cache_service import pagers
-from google.cloud.aiplatform_v1.services.gen_ai_cache_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1.services.gen_ai_cache_service import transports
 from google.cloud.aiplatform_v1.types import cached_content
-from google.cloud.aiplatform_v1.types import (
-    cached_content as gca_cached_content,
-)
+from google.cloud.aiplatform_v1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import gen_ai_cache_service
@@ -892,10 +888,9 @@ def test_gen_ai_cache_service_client_get_mtls_endpoint_and_cert_source(client_cl
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

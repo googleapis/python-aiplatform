@@ -20,9 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import deployed_model_ref
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import explanation
 from google.protobuf import duration_pb2  # type: ignore
@@ -161,31 +159,31 @@ class Model(proto.Message):
 
             The possible formats are:
 
-            -  ``jsonl`` The JSON Lines format, where each instance is a
-               single line. Uses
-               [GcsSource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.gcs_source].
+            - ``jsonl`` The JSON Lines format, where each instance is a
+              single line. Uses
+              [GcsSource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.gcs_source].
 
-            -  ``csv`` The CSV format, where each instance is a single
-               comma-separated line. The first line in the file is the
-               header, containing comma-separated field names. Uses
-               [GcsSource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.gcs_source].
+            - ``csv`` The CSV format, where each instance is a single
+              comma-separated line. The first line in the file is the
+              header, containing comma-separated field names. Uses
+              [GcsSource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.gcs_source].
 
-            -  ``tf-record`` The TFRecord format, where each instance is
-               a single record in tfrecord syntax. Uses
-               [GcsSource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.gcs_source].
+            - ``tf-record`` The TFRecord format, where each instance is
+              a single record in tfrecord syntax. Uses
+              [GcsSource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.gcs_source].
 
-            -  ``tf-record-gzip`` Similar to ``tf-record``, but the file
-               is gzipped. Uses
-               [GcsSource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.gcs_source].
+            - ``tf-record-gzip`` Similar to ``tf-record``, but the file
+              is gzipped. Uses
+              [GcsSource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.gcs_source].
 
-            -  ``bigquery`` Each instance is a single row in BigQuery.
-               Uses
-               [BigQuerySource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.bigquery_source].
+            - ``bigquery`` Each instance is a single row in BigQuery.
+              Uses
+              [BigQuerySource][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig.bigquery_source].
 
-            -  ``file-list`` Each line of the file is the location of an
-               instance to process, uses ``gcs_source`` field of the
-               [InputConfig][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig]
-               object.
+            - ``file-list`` Each line of the file is the location of an
+              instance to process, uses ``gcs_source`` field of the
+              [InputConfig][google.cloud.aiplatform.v1.BatchPredictionJob.InputConfig]
+              object.
 
             If this Model doesn't support any of these formats it means
             it cannot be used with a
@@ -210,19 +208,19 @@ class Model(proto.Message):
 
             The possible formats are:
 
-            -  ``jsonl`` The JSON Lines format, where each prediction is
-               a single line. Uses
-               [GcsDestination][google.cloud.aiplatform.v1.BatchPredictionJob.OutputConfig.gcs_destination].
+            - ``jsonl`` The JSON Lines format, where each prediction is
+              a single line. Uses
+              [GcsDestination][google.cloud.aiplatform.v1.BatchPredictionJob.OutputConfig.gcs_destination].
 
-            -  ``csv`` The CSV format, where each prediction is a single
-               comma-separated line. The first line in the file is the
-               header, containing comma-separated field names. Uses
-               [GcsDestination][google.cloud.aiplatform.v1.BatchPredictionJob.OutputConfig.gcs_destination].
+            - ``csv`` The CSV format, where each prediction is a single
+              comma-separated line. The first line in the file is the
+              header, containing comma-separated field names. Uses
+              [GcsDestination][google.cloud.aiplatform.v1.BatchPredictionJob.OutputConfig.gcs_destination].
 
-            -  ``bigquery`` Each prediction is a single row in a
-               BigQuery table, uses
-               [BigQueryDestination][google.cloud.aiplatform.v1.BatchPredictionJob.OutputConfig.bigquery_destination]
-               .
+            - ``bigquery`` Each prediction is a single row in a BigQuery
+              table, uses
+              [BigQueryDestination][google.cloud.aiplatform.v1.BatchPredictionJob.OutputConfig.bigquery_destination]
+              .
 
             If this Model doesn't support any of these formats it means
             it cannot be used with a
@@ -366,23 +364,23 @@ class Model(proto.Message):
                 Output only. The ID of the export format. The possible
                 format IDs are:
 
-                -  ``tflite`` Used for Android mobile devices.
+                - ``tflite`` Used for Android mobile devices.
 
-                -  ``edgetpu-tflite`` Used for `Edge
-                   TPU <https://cloud.google.com/edge-tpu/>`__ devices.
+                - ``edgetpu-tflite`` Used for `Edge
+                  TPU <https://cloud.google.com/edge-tpu/>`__ devices.
 
-                -  ``tf-saved-model`` A tensorflow model in SavedModel
-                   format.
+                - ``tf-saved-model`` A tensorflow model in SavedModel
+                  format.
 
-                -  ``tf-js`` A
-                   `TensorFlow.js <https://www.tensorflow.org/js>`__ model
-                   that can be used in the browser and in Node.js using
-                   JavaScript.
+                - ``tf-js`` A
+                  `TensorFlow.js <https://www.tensorflow.org/js>`__ model
+                  that can be used in the browser and in Node.js using
+                  JavaScript.
 
-                -  ``core-ml`` Used for iOS mobile devices.
+                - ``core-ml`` Used for iOS mobile devices.
 
-                -  ``custom-trained`` A Model that was uploaded or trained
-                   by custom code.
+                - ``custom-trained`` A Model that was uploaded or trained by
+                  custom code.
             exportable_contents (MutableSequence[google.cloud.aiplatform_v1.types.Model.ExportFormat.ExportableContent]):
                 Output only. The content of this Model that
                 may be exported.
@@ -1018,19 +1016,19 @@ class ModelContainerSpec(proto.Message):
             /v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict
             The placeholders in this value are replaced as follows:
 
-            -  ENDPOINT: The last segment (following ``endpoints/``)of
-               the Endpoint.name][] field of the Endpoint where this
-               Model has been deployed. (Vertex AI makes this value
-               available to your container code as the
-               ```AIP_ENDPOINT_ID`` environment
-               variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
+            - ENDPOINT: The last segment (following ``endpoints/``)of
+              the Endpoint.name][] field of the Endpoint where this
+              Model has been deployed. (Vertex AI makes this value
+              available to your container code as the
+              ```AIP_ENDPOINT_ID`` environment
+              variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
 
-            -  DEPLOYED_MODEL:
-               [DeployedModel.id][google.cloud.aiplatform.v1.DeployedModel.id]
-               of the ``DeployedModel``. (Vertex AI makes this value
-               available to your container code as the
-               ```AIP_DEPLOYED_MODEL_ID`` environment
-               variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
+            - DEPLOYED_MODEL:
+              [DeployedModel.id][google.cloud.aiplatform.v1.DeployedModel.id]
+              of the ``DeployedModel``. (Vertex AI makes this value
+              available to your container code as the
+              ```AIP_DEPLOYED_MODEL_ID`` environment
+              variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
         health_route (str):
             Immutable. HTTP path on the container to send health checks
             to. Vertex AI intermittently sends GET requests to this path
@@ -1051,22 +1049,22 @@ class ModelContainerSpec(proto.Message):
             /v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict
             The placeholders in this value are replaced as follows:
 
-            -  ENDPOINT: The last segment (following ``endpoints/``)of
-               the Endpoint.name][] field of the Endpoint where this
-               Model has been deployed. (Vertex AI makes this value
-               available to your container code as the
-               ```AIP_ENDPOINT_ID`` environment
-               variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
+            - ENDPOINT: The last segment (following ``endpoints/``)of
+              the Endpoint.name][] field of the Endpoint where this
+              Model has been deployed. (Vertex AI makes this value
+              available to your container code as the
+              ```AIP_ENDPOINT_ID`` environment
+              variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
 
-            -  DEPLOYED_MODEL:
-               [DeployedModel.id][google.cloud.aiplatform.v1.DeployedModel.id]
-               of the ``DeployedModel``. (Vertex AI makes this value
-               available to your container code as the
-               ```AIP_DEPLOYED_MODEL_ID`` environment
-               variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
+            - DEPLOYED_MODEL:
+              [DeployedModel.id][google.cloud.aiplatform.v1.DeployedModel.id]
+              of the ``DeployedModel``. (Vertex AI makes this value
+              available to your container code as the
+              ```AIP_DEPLOYED_MODEL_ID`` environment
+              variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
         invoke_route_prefix (str):
             Immutable. Invoke route prefix for the custom container.
-            "/*" is the only supported value right now. By setting this
+            "/\*" is the only supported value right now. By setting this
             field, any non-root route on this model will be accessible
             with invoke http call eg: "/invoke/foo/bar", however the
             [PredictionService.Invoke] RPC is not supported yet.
@@ -1324,7 +1322,7 @@ class Probe(proto.Message):
                 the working directory for the command is root ('/') in the
                 container's filesystem. The command is simply exec'd, it is
                 not run inside a shell, so traditional shell instructions
-                ('|', etc) won't work. To use a shell, you need to
+                ('\|', etc) won't work. To use a shell, you need to
                 explicitly call out to that shell. Exit status of 0 is
                 treated as live/healthy and non-zero is unhealthy.
         """

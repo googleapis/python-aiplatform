@@ -47,9 +47,9 @@ class ArtifactTypeSchema(proto.Message):
             The name of the type. The format of the title must be:
             ``<namespace>.<title>``. Examples:
 
-            -  ``aiplatform.Model``
-            -  ``acme.CustomModel`` When this field is set, the type
-               must be pre-registered in the MLMD store.
+            - ``aiplatform.Model``
+            - ``acme.CustomModel`` When this field is set, the type must
+              be pre-registered in the MLMD store.
 
             This field is a member of `oneof`_ ``kind``.
         schema_uri (str):

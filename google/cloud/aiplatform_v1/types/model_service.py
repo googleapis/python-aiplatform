@@ -19,16 +19,12 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import evaluated_annotation
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model as gca_model
-from google.cloud.aiplatform_v1.types import (
-    model_evaluation as gca_model_evaluation,
-)
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -214,25 +210,25 @@ class ListModelsRequest(proto.Message):
             An expression for filtering the results of the request. For
             field names both snake_case and camelCase are supported.
 
-            -  ``model`` supports = and !=. ``model`` represents the
-               Model ID, i.e. the last segment of the Model's [resource
-               name][google.cloud.aiplatform.v1.Model.name].
-            -  ``display_name`` supports = and !=
-            -  ``labels`` supports general map functions that is:
+            - ``model`` supports = and !=. ``model`` represents the
+              Model ID, i.e. the last segment of the Model's [resource
+              name][google.cloud.aiplatform.v1.Model.name].
+            - ``display_name`` supports = and !=
+            - ``labels`` supports general map functions that is:
 
-               -  ``labels.key=value`` - key:value equality
-               -  \`labels.key:\* or labels:key - key existence
-               -  A key including a space must be quoted.
-                  ``labels."a key"``.
+              - ``labels.key=value`` - key:value equality
+              - \`labels.key:\* or labels:key - key existence
+              - A key including a space must be quoted.
+                ``labels."a key"``.
 
-            -  ``base_model_name`` only supports =
+            - ``base_model_name`` only supports =
 
             Some examples:
 
-            -  ``model=1234``
-            -  ``displayName="myDisplayName"``
-            -  ``labels.myKey="myValue"``
-            -  ``baseModelName="text-bison"``
+            - ``model=1234``
+            - ``displayName="myDisplayName"``
+            - ``labels.myKey="myValue"``
+            - ``baseModelName="text-bison"``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -248,9 +244,9 @@ class ListModelsRequest(proto.Message):
             ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``display_name``
-            -  ``create_time``
-            -  ``update_time``
+            - ``display_name``
+            - ``create_time``
+            - ``update_time``
 
             Example: ``display_name, create_time desc``.
     """
@@ -330,16 +326,16 @@ class ListModelVersionsRequest(proto.Message):
             An expression for filtering the results of the request. For
             field names both snake_case and camelCase are supported.
 
-            -  ``labels`` supports general map functions that is:
+            - ``labels`` supports general map functions that is:
 
-               -  ``labels.key=value`` - key:value equality
-               -  \`labels.key:\* or labels:key - key existence
-               -  A key including a space must be quoted.
-                  ``labels."a key"``.
+              - ``labels.key=value`` - key:value equality
+              - \`labels.key:\* or labels:key - key existence
+              - A key including a space must be quoted.
+                ``labels."a key"``.
 
             Some examples:
 
-            -  ``labels.myKey="myValue"``
+            - ``labels.myKey="myValue"``
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
         order_by (str):
@@ -347,8 +343,8 @@ class ListModelVersionsRequest(proto.Message):
             ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``create_time``
-            -  ``update_time``
+            - ``create_time``
+            - ``update_time``
 
             Example: ``update_time asc, create_time desc``.
     """
@@ -1144,7 +1140,7 @@ class ListModelEvaluationSlicesRequest(proto.Message):
         filter (str):
             The standard list filter.
 
-            -  ``slice.dimension`` - for =.
+            - ``slice.dimension`` - for =.
         page_size (int):
             The standard list page size.
         page_token (str):

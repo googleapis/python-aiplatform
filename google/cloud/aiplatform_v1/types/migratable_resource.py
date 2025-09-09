@@ -80,10 +80,10 @@ class MigratableResource(proto.Message):
                 The ml.googleapis.com endpoint that this model Version
                 currently lives in. Example values:
 
-                -  ml.googleapis.com
-                -  us-centrall-ml.googleapis.com
-                -  europe-west4-ml.googleapis.com
-                -  asia-east1-ml.googleapis.com
+                - ml.googleapis.com
+                - us-centrall-ml.googleapis.com
+                - europe-west4-ml.googleapis.com
+                - asia-east1-ml.googleapis.com
             version (str):
                 Full resource name of ml engine model Version. Format:
                 ``projects/{project}/models/{model}/versions/{version}``.
