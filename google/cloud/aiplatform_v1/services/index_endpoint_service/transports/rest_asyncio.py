@@ -51,9 +51,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
 from google.cloud.aiplatform_v1.types import index_endpoint
-from google.cloud.aiplatform_v1.types import (
-    index_endpoint as gca_index_endpoint,
-)
+from google.cloud.aiplatform_v1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1.types import index_endpoint_service
 from google.longrunning import operations_pb2  # type: ignore
 
@@ -879,9 +877,9 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
         self._interceptor = interceptor or AsyncIndexEndpointServiceRestInterceptor()
         self._wrap_with_kind = True
         self._prep_wrapped_messages(client_info)
-        self._operations_client: Optional[operations_v1.AsyncOperationsRestClient] = (
-            None
-        )
+        self._operations_client: Optional[
+            operations_v1.AsyncOperationsRestClient
+        ] = None
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -1000,7 +998,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1164,7 +1161,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1322,7 +1318,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1488,7 +1483,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1646,7 +1640,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1807,7 +1800,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1971,7 +1963,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2135,7 +2126,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4324,7 +4314,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4476,7 +4465,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4626,7 +4614,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4776,7 +4763,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4932,7 +4918,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5082,7 +5067,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5204,7 +5188,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5326,7 +5309,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5476,7 +5458,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5626,7 +5607,6 @@ class AsyncIndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransp
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

@@ -69,13 +69,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.vizier_service import (
     VizierServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.vizier_service import (
-    VizierServiceClient,
-)
+from google.cloud.aiplatform_v1beta1.services.vizier_service import VizierServiceClient
 from google.cloud.aiplatform_v1beta1.services.vizier_service import pagers
-from google.cloud.aiplatform_v1beta1.services.vizier_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.vizier_service import transports
 from google.cloud.aiplatform_v1beta1.types import study
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
 from google.cloud.aiplatform_v1beta1.types import vizier_service
@@ -4525,9 +4521,9 @@ def test_add_trial_measurement_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.add_trial_measurement] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.add_trial_measurement
+        ] = mock_rpc
         request = {}
         client.add_trial_measurement(request)
 
@@ -5876,9 +5872,9 @@ def test_list_optimal_trials_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_optimal_trials] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_optimal_trials
+        ] = mock_rpc
         request = {}
         client.list_optimal_trials(request)
 
@@ -7899,9 +7895,9 @@ def test_add_trial_measurement_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.add_trial_measurement] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.add_trial_measurement
+        ] = mock_rpc
 
         request = {}
         client.add_trial_measurement(request)
@@ -8576,9 +8572,9 @@ def test_list_optimal_trials_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_optimal_trials] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_optimal_trials
+        ] = mock_rpc
 
         request = {}
         client.list_optimal_trials(request)
@@ -9849,9 +9845,9 @@ def test_create_study_rest_call_success(request_type):
 def test_create_study_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -9980,9 +9976,9 @@ def test_get_study_rest_call_success(request_type):
 def test_get_study_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -10103,9 +10099,9 @@ def test_list_studies_rest_call_success(request_type):
 def test_list_studies_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -10224,9 +10220,9 @@ def test_delete_study_rest_call_success(request_type):
 def test_delete_study_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -10343,9 +10339,9 @@ def test_lookup_study_rest_call_success(request_type):
 def test_lookup_study_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -10464,9 +10460,9 @@ def test_suggest_trials_rest_call_success(request_type):
 def test_suggest_trials_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -10698,9 +10694,9 @@ def test_create_trial_rest_call_success(request_type):
 def test_create_trial_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -10837,9 +10833,9 @@ def test_get_trial_rest_call_success(request_type):
 def test_get_trial_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -10960,9 +10956,9 @@ def test_list_trials_rest_call_success(request_type):
 def test_list_trials_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -11103,9 +11099,9 @@ def test_add_trial_measurement_rest_call_success(request_type):
 def test_add_trial_measurement_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -11245,9 +11241,9 @@ def test_complete_trial_rest_call_success(request_type):
 def test_complete_trial_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -11368,9 +11364,9 @@ def test_delete_trial_rest_call_success(request_type):
 def test_delete_trial_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -11481,9 +11477,9 @@ def test_check_trial_early_stopping_state_rest_call_success(request_type):
 def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -11623,9 +11619,9 @@ def test_stop_trial_rest_call_success(request_type):
 def test_stop_trial_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -11747,9 +11743,9 @@ def test_list_optimal_trials_rest_call_success(request_type):
 def test_list_optimal_trials_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
 
@@ -13027,9 +13023,9 @@ async def test_create_study_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -13176,9 +13172,9 @@ async def test_get_study_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -13317,9 +13313,9 @@ async def test_list_studies_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -13456,9 +13452,9 @@ async def test_delete_study_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -13593,9 +13589,9 @@ async def test_lookup_study_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -13730,9 +13726,9 @@ async def test_suggest_trials_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -13983,9 +13979,9 @@ async def test_create_trial_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -14140,9 +14136,9 @@ async def test_get_trial_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -14281,9 +14277,9 @@ async def test_list_trials_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -14440,9 +14436,9 @@ async def test_add_trial_measurement_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -14598,9 +14594,9 @@ async def test_complete_trial_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -14740,9 +14736,9 @@ async def test_delete_trial_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -14871,9 +14867,9 @@ async def test_check_trial_early_stopping_state_rest_asyncio_interceptors(
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -15033,9 +15029,9 @@ async def test_stop_trial_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 
@@ -15173,9 +15169,9 @@ async def test_list_optimal_trials_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVizierServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncVizierServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVizierServiceRestInterceptor(),
     )
     client = VizierServiceAsyncClient(transport=transport)
 

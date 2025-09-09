@@ -257,10 +257,10 @@ def build_request(
             _default_templates.PAIRWISE_MULTIMODAL_UNDERSTANDING_RUBRIC_CRITIQUE_TEMPLATE,
             _default_templates.PAIRWISE_TEXT_QUALITY_RUBRIC_CRITIQUE_TEMPLATE,
         ):
-            model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN] = (
-                _format_rubrics(
-                    model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN]
-                )
+            model_based_metric_instance_input[
+                constants.Dataset.RUBRICS_COLUMN
+            ] = _format_rubrics(
+                model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN]
             )
         if (
             constants.Dataset.RUBRICS_COLUMN in model_based_metric_instance_input
@@ -269,10 +269,10 @@ def build_request(
                 List,
             )
         ):
-            model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN] = (
-                "\n".join(
-                    model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN]
-                )
+            model_based_metric_instance_input[
+                constants.Dataset.RUBRICS_COLUMN
+            ] = "\n".join(
+                model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN]
             )
 
     if metric_name == constants.Metric.EXACT_MATCH:

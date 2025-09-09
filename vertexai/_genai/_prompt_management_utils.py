@@ -52,10 +52,10 @@ def _create_dataset_metadata_from_prompt(
             prompt_instance_execution = types.SchemaPromptInstancePromptExecution()
             prompt_instance_execution.arguments = {}
             for key, val in prompt_var.items():
-                prompt_instance_execution.arguments[key] = (
-                    types.SchemaPromptInstanceVariableValue(
-                        part_list=types.SchemaPromptSpecPartList(parts=[val])
-                    )
+                prompt_instance_execution.arguments[
+                    key
+                ] = types.SchemaPromptInstanceVariableValue(
+                    part_list=types.SchemaPromptSpecPartList(parts=[val])
                 )
             prompt_execution_list.append(prompt_instance_execution)
         prompt_api_schema.executions = prompt_execution_list
@@ -114,7 +114,6 @@ def _create_prompt_from_dataset_metadata(
     prompt = types.Prompt()
 
     if api_schema.multimodal_prompt:
-
         prompt_message = api_schema.multimodal_prompt.prompt_message
         prompt.prompt_data = prompt_message
 

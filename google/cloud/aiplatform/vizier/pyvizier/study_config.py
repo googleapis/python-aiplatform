@@ -386,9 +386,9 @@ class StudyConfig(ProblemStatement):
           ValueError: If the trial parameters do not exist in this search space.
           ValueError: If the trial contains duplicate parameters.
         """
-        trial_external_values: Dict[str, Union[float, int, str, bool]] = (
-            self._trial_to_external_values(pytrial)
-        )
+        trial_external_values: Dict[
+            str, Union[float, int, str, bool]
+        ] = self._trial_to_external_values(pytrial)
         if len(trial_external_values) != len(pytrial.parameters):
             raise ValueError(
                 "Invalid trial for this search space: failed to convert "

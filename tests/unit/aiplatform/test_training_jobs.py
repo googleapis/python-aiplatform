@@ -523,7 +523,6 @@ class TestTrainingScriptPythonPackagerHelpers:
     def test_timestamp_copy_to_gcs_calls_gcs_client_with_bucket(
         self, mock_client_bucket
     ):
-
         mock_client_bucket, mock_blob = mock_client_bucket
 
         gcs_path = utils._timestamped_copy_to_gcs(
@@ -550,7 +549,6 @@ class TestTrainingScriptPythonPackagerHelpers:
     def test_timestamp_copy_to_gcs_calls_gcs_client_with_gcs_path(
         self, mock_client_bucket
     ):
-
         mock_client_bucket, mock_blob = mock_client_bucket
 
         gcs_path = utils._timestamped_copy_to_gcs(
@@ -578,7 +576,6 @@ class TestTrainingScriptPythonPackagerHelpers:
     def test_timestamp_copy_to_gcs_calls_gcs_client_with_trailing_slash(
         self, mock_client_bucket
     ):
-
         mock_client_bucket, mock_blob = mock_client_bucket
 
         gcs_path = utils._timestamped_copy_to_gcs(
@@ -604,7 +601,6 @@ class TestTrainingScriptPythonPackagerHelpers:
         assert gcs_path.endswith(local_script_file_name)
 
     def test_timestamp_copy_to_gcs_calls_gcs_client(self, mock_client_bucket):
-
         mock_client_bucket, mock_blob = mock_client_bucket
 
         gcs_path = utils._timestamped_copy_to_gcs(
@@ -2396,7 +2392,6 @@ class TestCustomTrainingJob:
     def test_run_call_pipeline_service_create_with_enable_web_access(
         self, sync, caplog
     ):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
@@ -2445,7 +2440,6 @@ class TestCustomTrainingJob:
     def test_run_call_pipeline_service_create_with_enable_dashboard_access(
         self, sync, caplog
     ):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
@@ -2490,7 +2484,6 @@ class TestCustomTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_scheduling(self, sync, caplog):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
@@ -2551,7 +2544,6 @@ class TestCustomTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_spot_strategy(self, sync):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
@@ -2603,7 +2595,6 @@ class TestCustomTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_psc_interface_config(self, sync):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
@@ -2735,7 +2726,6 @@ class TestCustomTrainingJob:
         mock_tabular_dataset,
         sync,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomTrainingJob(
@@ -2790,7 +2780,6 @@ class TestCustomTrainingJob:
             job.state
 
     def test_run_raises_if_no_staging_bucket(self):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         with pytest.raises(RuntimeError):
@@ -3482,7 +3471,6 @@ class TestCustomTrainingJob:
     def test_run_call_pipeline_service_create_with_persistent_resource_id(
         self, sync, caplog
     ):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
@@ -4836,7 +4824,6 @@ class TestCustomContainerTrainingJob:
     def test_run_call_pipeline_service_create_with_enable_web_access(
         self, sync, caplog
     ):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
@@ -4884,7 +4871,6 @@ class TestCustomContainerTrainingJob:
     def test_run_call_pipeline_service_create_with_enable_dashboard_access(
         self, sync, caplog
     ):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
@@ -4928,7 +4914,6 @@ class TestCustomContainerTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_scheduling(self, sync, caplog):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
@@ -5062,7 +5047,6 @@ class TestCustomContainerTrainingJob:
         mock_tabular_dataset,
         sync,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomContainerTrainingJob(
@@ -5115,7 +5099,6 @@ class TestCustomContainerTrainingJob:
             job.state
 
     def test_run_raises_if_no_staging_bucket(self):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         with pytest.raises(RuntimeError):
@@ -5607,7 +5590,6 @@ class TestCustomContainerTrainingJob:
     def test_run_call_pipeline_service_create_with_persistent_resource_id(
         self, sync, caplog
     ):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
@@ -6021,7 +6003,6 @@ class Test_WorkerPoolSpec:
 
 class Test_DistributedTrainingSpec:
     def test_machine_spec_returns_pool_spec(self):
-
         spec = worker_spec_utils._DistributedTrainingSpec(
             chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
@@ -6119,7 +6100,6 @@ class Test_DistributedTrainingSpec:
         assert spec.pool_specs == true_pool_spec
 
     def test_chief_worker_pool_returns_spec(self):
-
         chief_worker_spec = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
             replica_count=10,
             machine_type=_TEST_MACHINE_TYPE,
@@ -6170,7 +6150,6 @@ class Test_DistributedTrainingSpec:
         assert chief_worker_spec.pool_specs == true_pool_spec
 
     def test_chief_worker_pool_returns_just_chief(self):
-
         chief_worker_spec = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
@@ -6204,7 +6183,6 @@ class Test_DistributedTrainingSpec:
         assert chief_worker_spec.pool_specs == true_pool_spec
 
     def test_machine_spec_raise_with_more_than_one_chief_replica(self):
-
         spec = worker_spec_utils._DistributedTrainingSpec(
             chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=2,
@@ -6218,7 +6196,6 @@ class Test_DistributedTrainingSpec:
             spec.pool_specs
 
     def test_machine_spec_handles_missing_pools(self):
-
         spec = worker_spec_utils._DistributedTrainingSpec(
             chief_spec=worker_spec_utils._WorkerPoolSpec(
                 replica_count=1,
@@ -7476,7 +7453,6 @@ class TestCustomPythonPackageTrainingJob:
     def test_run_call_pipeline_service_create_with_enable_web_access(
         self, sync, caplog
     ):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
@@ -7525,7 +7501,6 @@ class TestCustomPythonPackageTrainingJob:
     def test_run_call_pipeline_service_create_with_enable_dashboard_access(
         self, sync, caplog
     ):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
@@ -7569,7 +7544,6 @@ class TestCustomPythonPackageTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_scheduling(self, sync, caplog):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
@@ -7711,7 +7685,6 @@ class TestCustomPythonPackageTrainingJob:
         mock_tabular_dataset,
         sync,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomPythonPackageTrainingJob(
@@ -7762,7 +7735,6 @@ class TestCustomPythonPackageTrainingJob:
             job.state
 
     def test_run_raises_if_no_staging_bucket(self):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         with pytest.raises(RuntimeError):
@@ -8263,7 +8235,6 @@ class TestCustomPythonPackageTrainingJob:
     def test_run_call_pipeline_service_create_with_persistent_resource_id(
         self, sync, caplog
     ):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(

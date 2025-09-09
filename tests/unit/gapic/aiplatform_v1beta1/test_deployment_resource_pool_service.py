@@ -83,9 +83,7 @@ from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool
 from google.cloud.aiplatform_v1beta1.types import (
     deployment_resource_pool as gca_deployment_resource_pool,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    deployment_resource_pool_service,
-)
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -3366,9 +3364,9 @@ def test_query_deployed_models_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.query_deployed_models] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.query_deployed_models
+        ] = mock_rpc
         request = {}
         client.query_deployed_models(request)
 
@@ -4920,9 +4918,9 @@ def test_query_deployed_models_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.query_deployed_models] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.query_deployed_models
+        ] = mock_rpc
 
         request = {}
         client.query_deployed_models(request)
@@ -5696,11 +5694,9 @@ def test_create_deployment_resource_pool_rest_call_success(request_type):
 def test_create_deployment_resource_pool_rest_interceptors(null_interceptor):
     transport = transports.DeploymentResourcePoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.DeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceClient(transport=transport)
 
@@ -5844,11 +5840,9 @@ def test_get_deployment_resource_pool_rest_call_success(request_type):
 def test_get_deployment_resource_pool_rest_interceptors(null_interceptor):
     transport = transports.DeploymentResourcePoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.DeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceClient(transport=transport)
 
@@ -5989,11 +5983,9 @@ def test_list_deployment_resource_pools_rest_call_success(request_type):
 def test_list_deployment_resource_pools_rest_interceptors(null_interceptor):
     transport = transports.DeploymentResourcePoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.DeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceClient(transport=transport)
 
@@ -6239,11 +6231,9 @@ def test_update_deployment_resource_pool_rest_call_success(request_type):
 def test_update_deployment_resource_pool_rest_interceptors(null_interceptor):
     transport = transports.DeploymentResourcePoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.DeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceClient(transport=transport)
 
@@ -6373,11 +6363,9 @@ def test_delete_deployment_resource_pool_rest_call_success(request_type):
 def test_delete_deployment_resource_pool_rest_interceptors(null_interceptor):
     transport = transports.DeploymentResourcePoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.DeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceClient(transport=transport)
 
@@ -6519,11 +6507,9 @@ def test_query_deployed_models_rest_call_success(request_type):
 def test_query_deployed_models_rest_interceptors(null_interceptor):
     transport = transports.DeploymentResourcePoolServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.DeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.DeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceClient(transport=transport)
 
@@ -7474,11 +7460,9 @@ async def test_create_deployment_resource_pool_rest_asyncio_interceptors(
         )
     transport = transports.AsyncDeploymentResourcePoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncDeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncDeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceAsyncClient(transport=transport)
 
@@ -7638,11 +7622,9 @@ async def test_get_deployment_resource_pool_rest_asyncio_interceptors(null_inter
         )
     transport = transports.AsyncDeploymentResourcePoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncDeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncDeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceAsyncClient(transport=transport)
 
@@ -7801,11 +7783,9 @@ async def test_list_deployment_resource_pools_rest_asyncio_interceptors(
         )
     transport = transports.AsyncDeploymentResourcePoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncDeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncDeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceAsyncClient(transport=transport)
 
@@ -8069,11 +8049,9 @@ async def test_update_deployment_resource_pool_rest_asyncio_interceptors(
         )
     transport = transports.AsyncDeploymentResourcePoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncDeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncDeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceAsyncClient(transport=transport)
 
@@ -8221,11 +8199,9 @@ async def test_delete_deployment_resource_pool_rest_asyncio_interceptors(
         )
     transport = transports.AsyncDeploymentResourcePoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncDeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncDeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceAsyncClient(transport=transport)
 
@@ -8383,11 +8359,9 @@ async def test_query_deployed_models_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncDeploymentResourcePoolServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncDeploymentResourcePoolServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncDeploymentResourcePoolServiceRestInterceptor(),
     )
     client = DeploymentResourcePoolServiceAsyncClient(transport=transport)
 

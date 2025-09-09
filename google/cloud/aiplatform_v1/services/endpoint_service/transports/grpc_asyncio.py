@@ -485,12 +485,12 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_endpoint_long_running" not in self._stubs:
-            self._stubs["update_endpoint_long_running"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.EndpointService/UpdateEndpointLongRunning",
-                    request_serializer=endpoint_service.UpdateEndpointLongRunningRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "update_endpoint_long_running"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.EndpointService/UpdateEndpointLongRunning",
+                request_serializer=endpoint_service.UpdateEndpointLongRunningRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["update_endpoint_long_running"]
 

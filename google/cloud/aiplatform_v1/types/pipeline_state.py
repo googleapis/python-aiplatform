@@ -55,7 +55,6 @@ class PipelineState(proto.Enum):
             The pipeline has been stopped, and can be
             resumed.
     """
-
     PIPELINE_STATE_UNSPECIFIED = 0
     PIPELINE_STATE_QUEUED = 1
     PIPELINE_STATE_PENDING = 2

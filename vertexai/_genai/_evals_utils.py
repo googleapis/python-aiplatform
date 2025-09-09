@@ -351,9 +351,9 @@ class LazyLoadedPrebuiltMetric:
 
         blobs = gcs_utils.storage_client.list_blobs(bucket_name, prefix=prefix)
 
-        version_files: list[dict[str, Union[list[int], str]]] = (
-            []
-        )  # {'version_parts': [1,0,0], 'filename': 'v1.0.0.yaml'}
+        version_files: list[
+            dict[str, Union[list[int], str]]
+        ] = []  # {'version_parts': [1,0,0], 'filename': 'v1.0.0.yaml'}
 
         version_pattern = re.compile(
             r"v(\d+)(?:\.(\d+))?(?:\.(\d+))?\.(yaml|yml|json)$", re.IGNORECASE

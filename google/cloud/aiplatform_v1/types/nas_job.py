@@ -20,9 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import custom_job
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import study
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -265,7 +263,6 @@ class NasJobSpec(proto.Message):
                     The Grid Search Algorithm for Multi-trial
                     Neural Architecture Search (NAS).
             """
-
             MULTI_TRIAL_ALGORITHM_UNSPECIFIED = 0
             REINFORCEMENT_LEARNING = 1
             GRID_SEARCH = 2
@@ -293,7 +290,6 @@ class NasJobSpec(proto.Message):
                     MINIMIZE (2):
                         Minimize the goal metric.
                 """
-
                 GOAL_TYPE_UNSPECIFIED = 0
                 MAXIMIZE = 1
                 MINIMIZE = 2
@@ -380,9 +376,7 @@ class NasJobSpec(proto.Message):
                 number=3,
             )
 
-        multi_trial_algorithm: (
-            "NasJobSpec.MultiTrialAlgorithmSpec.MultiTrialAlgorithm"
-        ) = proto.Field(
+        multi_trial_algorithm: "NasJobSpec.MultiTrialAlgorithmSpec.MultiTrialAlgorithm" = proto.Field(
             proto.ENUM,
             number=1,
             enum="NasJobSpec.MultiTrialAlgorithmSpec.MultiTrialAlgorithm",
@@ -513,7 +507,6 @@ class NasTrial(proto.Message):
                 The service will set a NasTrial to INFEASIBLE when it's done
                 but missing the final_measurement.
         """
-
         STATE_UNSPECIFIED = 0
         REQUESTED = 1
         ACTIVE = 2

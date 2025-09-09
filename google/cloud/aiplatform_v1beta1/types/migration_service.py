@@ -60,23 +60,22 @@ class SearchMigratableResourcesRequest(proto.Message):
             A filter for your search. You can use the following types of
             filters:
 
-            -  Resource type filters. The following strings filter for a
-               specific type of
-               [MigratableResource][google.cloud.aiplatform.v1beta1.MigratableResource]:
+            - Resource type filters. The following strings filter for a
+              specific type of
+              [MigratableResource][google.cloud.aiplatform.v1beta1.MigratableResource]:
 
-               -  ``ml_engine_model_version:*``
-               -  ``automl_model:*``
-               -  ``automl_dataset:*``
-               -  ``data_labeling_dataset:*``
+              - ``ml_engine_model_version:*``
+              - ``automl_model:*``
+              - ``automl_dataset:*``
+              - ``data_labeling_dataset:*``
 
-            -  "Migrated or not" filters. The following strings filter
-               for resources that either have or have not already been
-               migrated:
+            - "Migrated or not" filters. The following strings filter
+              for resources that either have or have not already been
+              migrated:
 
-               -  ``last_migrate_time:*`` filters for migrated
-                  resources.
-               -  ``NOT last_migrate_time:*`` filters for not yet
-                  migrated resources.
+              - ``last_migrate_time:*`` filters for migrated resources.
+              - ``NOT last_migrate_time:*`` filters for not yet migrated
+                resources.
     """
 
     parent: str = proto.Field(
@@ -147,12 +146,12 @@ class BatchMigrateResourcesRequest(proto.Message):
         proto.STRING,
         number=1,
     )
-    migrate_resource_requests: MutableSequence["MigrateResourceRequest"] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=2,
-            message="MigrateResourceRequest",
-        )
+    migrate_resource_requests: MutableSequence[
+        "MigrateResourceRequest"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="MigrateResourceRequest",
     )
 
 
@@ -200,13 +199,13 @@ class MigrateResourceRequest(proto.Message):
                 Required. The ml.googleapis.com endpoint that this model
                 version should be migrated from. Example values:
 
-                -  ml.googleapis.com
+                - ml.googleapis.com
 
-                -  us-centrall-ml.googleapis.com
+                - us-centrall-ml.googleapis.com
 
-                -  europe-west4-ml.googleapis.com
+                - europe-west4-ml.googleapis.com
 
-                -  asia-east1-ml.googleapis.com
+                - asia-east1-ml.googleapis.com
             model_version (str):
                 Required. Full resource name of ml engine model version.
                 Format:
@@ -367,12 +366,12 @@ class BatchMigrateResourcesResponse(proto.Message):
             Successfully migrated resources.
     """
 
-    migrate_resource_responses: MutableSequence["MigrateResourceResponse"] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message="MigrateResourceResponse",
-        )
+    migrate_resource_responses: MutableSequence[
+        "MigrateResourceResponse"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="MigrateResourceResponse",
     )
 
 

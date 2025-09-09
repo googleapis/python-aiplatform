@@ -38,9 +38,7 @@ import warnings
 
 
 from google.cloud.aiplatform_v1.types import feature_online_store
-from google.cloud.aiplatform_v1.types import (
-    feature_online_store_admin_service,
-)
+from google.cloud.aiplatform_v1.types import feature_online_store_admin_service
 from google.cloud.aiplatform_v1.types import feature_view
 from google.cloud.aiplatform_v1.types import feature_view_sync
 from google.longrunning import operations_pb2  # type: ignore
@@ -3161,7 +3159,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3318,7 +3315,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3476,7 +3472,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3627,7 +3622,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3779,7 +3773,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3935,7 +3928,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4089,7 +4081,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4246,7 +4237,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4404,7 +4394,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4561,7 +4550,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4716,7 +4704,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4879,7 +4866,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5036,7 +5022,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5339,7 +5324,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5483,7 +5467,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5625,7 +5608,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5769,7 +5751,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5921,7 +5902,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6065,7 +6045,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6181,7 +6160,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6297,7 +6275,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6441,7 +6418,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6583,7 +6559,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

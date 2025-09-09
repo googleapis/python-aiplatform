@@ -23,9 +23,7 @@ from google.cloud.aiplatform_v1.types import (
     feature_online_store as gca_feature_online_store,
 )
 from google.cloud.aiplatform_v1.types import feature_view as gca_feature_view
-from google.cloud.aiplatform_v1.types import (
-    feature_view_sync as gca_feature_view_sync,
-)
+from google.cloud.aiplatform_v1.types import feature_view_sync as gca_feature_view_sync
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -124,20 +122,20 @@ class ListFeatureOnlineStoresRequest(proto.Message):
             Lists the FeatureOnlineStores that match the filter
             expression. The following fields are supported:
 
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``labels``: Supports key-value equality and key presence.
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``labels``: Supports key-value equality and key presence.
 
             Examples:
 
-            -  ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
-               FeatureOnlineStores created or updated after 2020-01-01.
-            -  ``labels.env = "prod"`` FeatureOnlineStores with label
-               "env" set to "prod".
+            - ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
+              FeatureOnlineStores created or updated after 2020-01-01.
+            - ``labels.env = "prod"`` FeatureOnlineStores with label
+              "env" set to "prod".
         page_size (int):
             The maximum number of FeatureOnlineStores to
             return. The service may return fewer than this
@@ -158,8 +156,8 @@ class ListFeatureOnlineStoresRequest(proto.Message):
             ascending order. Use "desc" after a field name for
             descending. Supported Fields:
 
-            -  ``create_time``
-            -  ``update_time``
+            - ``create_time``
+            - ``update_time``
     """
 
     parent: str = proto.Field(
@@ -236,11 +234,11 @@ class UpdateFeatureOnlineStoreRequest(proto.Message):
 
             Updatable fields:
 
-            -  ``labels``
-            -  ``description``
-            -  ``bigtable``
-            -  ``bigtable.auto_scaling``
-            -  ``bigtable.enable_multi_region_replica``
+            - ``labels``
+            - ``description``
+            - ``bigtable``
+            - ``bigtable.auto_scaling``
+            - ``bigtable.enable_multi_region_replica``
     """
 
     feature_online_store: gca_feature_online_store.FeatureOnlineStore = proto.Field(
@@ -356,25 +354,25 @@ class ListFeatureViewsRequest(proto.Message):
             Lists the FeatureViews that match the filter expression. The
             following filters are supported:
 
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``>=``, and ``<=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``>=``, and ``<=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``labels``: Supports key-value equality as well as key
-               presence.
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``>=``, and ``<=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``>=``, and ``<=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``labels``: Supports key-value equality as well as key
+              presence.
 
             Examples:
 
-            -  ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
-               --> FeatureViews created or updated after
-               2020-01-31T15:30:00.000000Z.
-            -  ``labels.active = yes AND labels.env = prod`` -->
-               FeatureViews having both (active: yes) and (env: prod)
-               labels.
-            -  ``labels.env: *`` --> Any FeatureView which has a label
-               with 'env' as the key.
+            - ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
+              --> FeatureViews created or updated after
+              2020-01-31T15:30:00.000000Z.
+            - ``labels.active = yes AND labels.env = prod`` -->
+              FeatureViews having both (active: yes) and (env: prod)
+              labels.
+            - ``labels.env: *`` --> Any FeatureView which has a label
+              with 'env' as the key.
         page_size (int):
             The maximum number of FeatureViews to return.
             The service may return fewer than this value. If
@@ -396,9 +394,9 @@ class ListFeatureViewsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``feature_view_id``
-            -  ``create_time``
-            -  ``update_time``
+            - ``feature_view_id``
+            - ``create_time``
+            - ``update_time``
     """
 
     parent: str = proto.Field(
@@ -473,16 +471,16 @@ class UpdateFeatureViewRequest(proto.Message):
 
             Updatable fields:
 
-            -  ``labels``
-            -  ``service_agent_type``
-            -  ``big_query_source``
-            -  ``big_query_source.uri``
-            -  ``big_query_source.entity_id_columns``
-            -  ``feature_registry_source``
-            -  ``feature_registry_source.feature_groups``
-            -  ``sync_config``
-            -  ``sync_config.cron``
-            -  ``optimized_config.automatic_resources``
+            - ``labels``
+            - ``service_agent_type``
+            - ``big_query_source``
+            - ``big_query_source.uri``
+            - ``big_query_source.entity_id_columns``
+            - ``feature_registry_source``
+            - ``feature_registry_source.feature_groups``
+            - ``sync_config``
+            - ``sync_config.cron``
+            - ``optimized_config.automatic_resources``
     """
 
     feature_view: gca_feature_view.FeatureView = proto.Field(
@@ -634,15 +632,15 @@ class ListFeatureViewSyncsRequest(proto.Message):
             Lists the FeatureViewSyncs that match the filter expression.
             The following filters are supported:
 
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``>=``, and ``<=`` comparisons. Values must be in RFC
-               3339 format.
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``>=``, and ``<=`` comparisons. Values must be in RFC 3339
+              format.
 
             Examples:
 
-            -  ``create_time > \"2020-01-31T15:30:00.000000Z\"`` -->
-               FeatureViewSyncs created after
-               2020-01-31T15:30:00.000000Z.
+            - ``create_time > \"2020-01-31T15:30:00.000000Z\"`` -->
+              FeatureViewSyncs created after
+              2020-01-31T15:30:00.000000Z.
         page_size (int):
             The maximum number of FeatureViewSyncs to
             return. The service may return fewer than this
@@ -665,7 +663,7 @@ class ListFeatureViewSyncsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``create_time``
+            - ``create_time``
     """
 
     parent: str = proto.Field(
@@ -708,12 +706,12 @@ class ListFeatureViewSyncsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    feature_view_syncs: MutableSequence[gca_feature_view_sync.FeatureViewSync] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_feature_view_sync.FeatureViewSync,
-        )
+    feature_view_syncs: MutableSequence[
+        gca_feature_view_sync.FeatureViewSync
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature_view_sync.FeatureViewSync,
     )
     next_page_token: str = proto.Field(
         proto.STRING,

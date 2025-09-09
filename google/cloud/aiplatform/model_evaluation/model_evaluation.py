@@ -29,7 +29,6 @@ from google.cloud.aiplatform import utils
 
 
 class ModelEvaluation(base.VertexAiResourceNounWithFutureManager):
-
     client_class = utils.ModelClientWithOverride
     _resource_noun = "evaluations"
     _delete_method = None

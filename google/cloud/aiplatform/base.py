@@ -405,7 +405,6 @@ class FutureManager(metaclass=abc.ABCMeta):
             deps.extend(additional_dependencies)
 
         with self.__latest_future_lock:
-
             # form a dependency on the latest future of this object
             if self.__latest_future:
                 deps.append(self.__latest_future)
@@ -878,7 +877,6 @@ def optional_sync(
 
             # is a classmethod that creates the object and returns it
             if args and inspect.isclass(args[0]):
-
                 # assumes class in classmethod is the resource noun
                 returned_object = (
                     args[0]._empty_constructor()
@@ -890,7 +888,6 @@ def optional_sync(
             else:  # instance method
                 # if we're returning an input object
                 if returned_object and returned_object is not self:
-
                     # make sure the input object doesn't have any exceptions
                     # from previous futures
                     returned_object._raise_future_exception()

@@ -72,12 +72,8 @@ from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
     VertexRagDataServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import pagers
+from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import transports
 from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
@@ -1292,9 +1288,9 @@ def test_create_rag_corpus_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_rag_corpus] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_rag_corpus
+        ] = mock_rpc
         request = {}
         client.create_rag_corpus(request)
 
@@ -1674,9 +1670,9 @@ def test_update_rag_corpus_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.update_rag_corpus] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.update_rag_corpus
+        ] = mock_rpc
         request = {}
         client.update_rag_corpus(request)
 
@@ -2387,9 +2383,9 @@ def test_list_rag_corpora_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_rag_corpora] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_rag_corpora
+        ] = mock_rpc
         request = {}
         client.list_rag_corpora(request)
 
@@ -2908,9 +2904,9 @@ def test_delete_rag_corpus_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_rag_corpus] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_rag_corpus
+        ] = mock_rpc
         request = {}
         client.delete_rag_corpus(request)
 
@@ -3630,9 +3626,9 @@ def test_import_rag_files_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.import_rag_files] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.import_rag_files
+        ] = mock_rpc
         request = {}
         client.import_rag_files(request)
 
@@ -5531,9 +5527,9 @@ def test_get_rag_engine_config_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_rag_engine_config] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_rag_engine_config
+        ] = mock_rpc
         request = {}
         client.get_rag_engine_config(request)
 
@@ -5803,9 +5799,9 @@ def test_create_rag_corpus_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_rag_corpus] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_rag_corpus
+        ] = mock_rpc
 
         request = {}
         client.create_rag_corpus(request)
@@ -6005,9 +6001,9 @@ def test_update_rag_corpus_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.update_rag_corpus] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.update_rag_corpus
+        ] = mock_rpc
 
         request = {}
         client.update_rag_corpus(request)
@@ -6376,9 +6372,9 @@ def test_list_rag_corpora_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_rag_corpora] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_rag_corpora
+        ] = mock_rpc
 
         request = {}
         client.list_rag_corpora(request)
@@ -6636,9 +6632,9 @@ def test_delete_rag_corpus_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_rag_corpus] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_rag_corpus
+        ] = mock_rpc
 
         request = {}
         client.delete_rag_corpus(request)
@@ -7031,9 +7027,9 @@ def test_import_rag_files_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.import_rag_files] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.import_rag_files
+        ] = mock_rpc
 
         request = {}
         client.import_rag_files(request)
@@ -8033,9 +8029,9 @@ def test_get_rag_engine_config_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_rag_engine_config] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_rag_engine_config
+        ] = mock_rpc
 
         request = {}
         client.get_rag_engine_config(request)
@@ -9101,11 +9097,9 @@ def test_create_rag_corpus_rest_call_success(request_type):
 def test_create_rag_corpus_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -9360,11 +9354,9 @@ def test_update_rag_corpus_rest_call_success(request_type):
 def test_update_rag_corpus_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -9498,11 +9490,9 @@ def test_get_rag_corpus_rest_call_success(request_type):
 def test_get_rag_corpus_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -9628,11 +9618,9 @@ def test_list_rag_corpora_rest_call_success(request_type):
 def test_list_rag_corpora_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -9757,11 +9745,9 @@ def test_delete_rag_corpus_rest_call_success(request_type):
 def test_delete_rag_corpus_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -9886,11 +9872,9 @@ def test_upload_rag_file_rest_call_success(request_type):
 def test_upload_rag_file_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -10015,11 +9999,9 @@ def test_import_rag_files_rest_call_success(request_type):
 def test_import_rag_files_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -10163,11 +10145,9 @@ def test_get_rag_file_rest_call_success(request_type):
 def test_get_rag_file_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -10293,11 +10273,9 @@ def test_list_rag_files_rest_call_success(request_type):
 def test_list_rag_files_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -10426,11 +10404,9 @@ def test_delete_rag_file_rest_call_success(request_type):
 def test_delete_rag_file_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -10638,11 +10614,9 @@ def test_update_rag_engine_config_rest_call_success(request_type):
 def test_update_rag_engine_config_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -10770,11 +10744,9 @@ def test_get_rag_engine_config_rest_call_success(request_type):
 def test_get_rag_engine_config_rest_interceptors(null_interceptor):
     transport = transports.VertexRagDataServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.VertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceClient(transport=transport)
 
@@ -11951,11 +11923,9 @@ async def test_create_rag_corpus_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -12226,11 +12196,9 @@ async def test_update_rag_corpus_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -12380,11 +12348,9 @@ async def test_get_rag_corpus_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -12526,11 +12492,9 @@ async def test_list_rag_corpora_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -12671,11 +12635,9 @@ async def test_delete_rag_corpus_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -12816,11 +12778,9 @@ async def test_upload_rag_file_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -12961,11 +12921,9 @@ async def test_import_rag_files_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -13125,11 +13083,9 @@ async def test_get_rag_file_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -13271,11 +13227,9 @@ async def test_list_rag_files_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -13420,11 +13374,9 @@ async def test_delete_rag_file_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -13648,11 +13600,9 @@ async def test_update_rag_engine_config_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 
@@ -13798,11 +13748,9 @@ async def test_get_rag_engine_config_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncVertexRagDataServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagDataServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagDataServiceRestInterceptor(),
     )
     client = VertexRagDataServiceAsyncClient(transport=transport)
 

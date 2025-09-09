@@ -63,7 +63,6 @@ class JobState(proto.Enum):
             The job is partially succeeded, some results
             may be missing due to errors.
     """
-
     JOB_STATE_UNSPECIFIED = 0
     JOB_STATE_QUEUED = 1
     JOB_STATE_PENDING = 2

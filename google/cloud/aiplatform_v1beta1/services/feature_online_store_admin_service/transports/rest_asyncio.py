@@ -51,9 +51,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
 from google.cloud.aiplatform_v1beta1.types import feature_online_store
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_online_store_admin_service,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_online_store_admin_service
 from google.cloud.aiplatform_v1beta1.types import feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view_sync
 from google.longrunning import operations_pb2  # type: ignore
@@ -1184,9 +1182,9 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
         )
         self._wrap_with_kind = True
         self._prep_wrapped_messages(client_info)
-        self._operations_client: Optional[operations_v1.AsyncOperationsRestClient] = (
-            None
-        )
+        self._operations_client: Optional[
+            operations_v1.AsyncOperationsRestClient
+        ] = None
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -1332,7 +1330,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1502,7 +1499,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1668,7 +1664,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1832,7 +1827,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1992,7 +1986,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2159,7 +2152,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2319,7 +2311,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2482,7 +2473,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2651,7 +2641,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2814,7 +2803,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2980,7 +2968,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3149,7 +3136,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3319,7 +3305,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5769,7 +5754,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5921,7 +5905,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6071,7 +6054,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6227,7 +6209,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6385,7 +6366,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6543,7 +6523,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6667,7 +6646,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6789,7 +6767,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6941,7 +6918,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7093,7 +7069,6 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

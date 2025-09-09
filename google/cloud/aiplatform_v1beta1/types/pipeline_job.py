@@ -21,9 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
@@ -94,8 +92,8 @@ class PipelineJob(proto.Message):
             Note there is some reserved label key for Vertex AI
             Pipelines.
 
-            -  ``vertex-ai-pipelines-run-billing-id``, user set value
-               will get overrided.
+            - ``vertex-ai-pipelines-run-billing-id``, user set value
+              will get overrided.
         runtime_config (google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig):
             Runtime config of the pipeline.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
@@ -289,7 +287,6 @@ class PipelineJob(proto.Message):
                         Fall back to on-demand execution if the
                         timeout is reached.
                 """
-
                 TASK_RESOURCE_UNAVAILABLE_TIMEOUT_BEHAVIOR_UNSPECIFIED = 0
                 FAIL = 1
                 FALL_BACK_TO_ON_DEMAND = 2
@@ -320,9 +317,7 @@ class PipelineJob(proto.Message):
                     This field is a member of `oneof`_ ``runtime_detail``.
             """
 
-            persistent_resource_runtime_detail: (
-                "PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail"
-            ) = proto.Field(
+            persistent_resource_runtime_detail: "PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail" = proto.Field(
                 proto.MESSAGE,
                 number=1,
                 oneof="runtime_detail",
@@ -473,12 +468,12 @@ class PipelineJob(proto.Message):
         proto.INT64,
         number=29,
     )
-    pipeline_task_rerun_configs: MutableSequence["PipelineTaskRerunConfig"] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=30,
-            message="PipelineTaskRerunConfig",
-        )
+    pipeline_task_rerun_configs: MutableSequence[
+        "PipelineTaskRerunConfig"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=30,
+        message="PipelineTaskRerunConfig",
     )
 
 
@@ -618,7 +613,6 @@ class PipelineTaskDetail(proto.Message):
                 specified in the ``condition`` field of
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec].
         """
-
         STATE_UNSPECIFIED = 0
         PENDING = 1
         RUNNING = 2
@@ -888,12 +882,12 @@ class PipelineTaskRerunConfig(proto.Message):
                 Optional. A list of artifact metadata.
         """
 
-        artifacts: MutableSequence[ui_pipeline_spec.RuntimeArtifact] = (
-            proto.RepeatedField(
-                proto.MESSAGE,
-                number=1,
-                message=ui_pipeline_spec.RuntimeArtifact,
-            )
+        artifacts: MutableSequence[
+            ui_pipeline_spec.RuntimeArtifact
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message=ui_pipeline_spec.RuntimeArtifact,
         )
 
     class Inputs(proto.Message):
@@ -906,13 +900,13 @@ class PipelineTaskRerunConfig(proto.Message):
                 Optional. Input parameters.
         """
 
-        artifacts: MutableMapping[str, "PipelineTaskRerunConfig.ArtifactList"] = (
-            proto.MapField(
-                proto.STRING,
-                proto.MESSAGE,
-                number=1,
-                message="PipelineTaskRerunConfig.ArtifactList",
-            )
+        artifacts: MutableMapping[
+            str, "PipelineTaskRerunConfig.ArtifactList"
+        ] = proto.MapField(
+            proto.STRING,
+            proto.MESSAGE,
+            number=1,
+            message="PipelineTaskRerunConfig.ArtifactList",
         )
         parameter_values: MutableMapping[str, struct_pb2.Value] = proto.MapField(
             proto.STRING,

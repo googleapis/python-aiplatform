@@ -806,9 +806,9 @@ class ImageGenerationModel(
                 instance["image"] = {
                     "gcsUri": base_image._gcs_uri  # pylint: disable=protected-access
                 }
-                shared_generation_parameters["base_image_uri"] = (
-                    base_image._gcs_uri
-                )  # pylint: disable=protected-access
+                shared_generation_parameters[
+                    "base_image_uri"
+                ] = base_image._gcs_uri  # pylint: disable=protected-access
             else:
                 instance["image"] = {
                     "bytesBase64Encoded": base_image._as_base64_string()  # pylint: disable=protected-access
@@ -824,9 +824,9 @@ class ImageGenerationModel(
                         "gcsUri": mask._gcs_uri  # pylint: disable=protected-access
                     },
                 }
-                shared_generation_parameters["mask_uri"] = (
-                    mask._gcs_uri
-                )  # pylint: disable=protected-access
+                shared_generation_parameters[
+                    "mask_uri"
+                ] = mask._gcs_uri  # pylint: disable=protected-access
             else:
                 instance["mask"] = {
                     "image": {
@@ -869,12 +869,12 @@ class ImageGenerationModel(
                             reference_image.reference_image._image_bytes  # pylint: disable=protected-access
                         ).hexdigest()
 
-                reference_image_instance["referenceId"] = (
-                    reference_image.reference_id
-                )  # pylint: disable=protected-access
-                reference_image_instance["referenceType"] = (
-                    reference_image.reference_type
-                )  # pylint: disable=protected-access
+                reference_image_instance[
+                    "referenceId"
+                ] = reference_image.reference_id  # pylint: disable=protected-access
+                reference_image_instance[
+                    "referenceType"
+                ] = reference_image.reference_type  # pylint: disable=protected-access
                 shared_generation_parameters[
                     f"reference_type_{reference_image.reference_id}"
                 ] = reference_image.reference_type  # pylint: disable=protected-access
@@ -1790,7 +1790,6 @@ class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
 
 @dataclasses.dataclass
 class WatermarkVerificationResponse:
-
     __module__ = "vertexai.preview.vision_models"
 
     _prediction_response: Any

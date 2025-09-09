@@ -45,13 +45,9 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import pagers
 from google.cloud.aiplatform_v1beta1.types import cached_content
-from google.cloud.aiplatform_v1beta1.types import (
-    cached_content as gca_cached_content,
-)
+from google.cloud.aiplatform_v1beta1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import gen_ai_cache_service
@@ -294,23 +290,21 @@ class GenAiCacheServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1beta1.GenAiCacheServiceAsyncClient`.",
-                extra=(
-                    {
-                        "serviceName": "google.cloud.aiplatform.v1beta1.GenAiCacheService",
-                        "universeDomain": getattr(
-                            self._client._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._client._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1beta1.GenAiCacheService",
-                        "credentialsType": None,
-                    }
-                ),
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1beta1.GenAiCacheService",
+                    "universeDomain": getattr(
+                        self._client._transport._credentials, "universe_domain", ""
+                    ),
+                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                    "credentialsInfo": getattr(
+                        self.transport._credentials, "get_cred_info", lambda: None
+                    )(),
+                }
+                if hasattr(self._client._transport, "_credentials")
+                else {
+                    "serviceName": "google.cloud.aiplatform.v1beta1.GenAiCacheService",
+                    "credentialsType": None,
+                },
             )
 
     async def create_cached_content(

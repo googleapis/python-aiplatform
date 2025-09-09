@@ -695,12 +695,12 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "check_trial_early_stopping_state" not in self._stubs:
-            self._stubs["check_trial_early_stopping_state"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.VizierService/CheckTrialEarlyStoppingState",
-                    request_serializer=vizier_service.CheckTrialEarlyStoppingStateRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "check_trial_early_stopping_state"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/CheckTrialEarlyStoppingState",
+                request_serializer=vizier_service.CheckTrialEarlyStoppingStateRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["check_trial_early_stopping_state"]
 

@@ -20,9 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.cloud.aiplatform_v1beta1.types import (
-    specialist_pool as gca_specialist_pool,
-)
+from google.cloud.aiplatform_v1beta1.types import specialist_pool as gca_specialist_pool
 from google.protobuf import field_mask_pb2  # type: ignore
 
 
@@ -154,12 +152,12 @@ class ListSpecialistPoolsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    specialist_pools: MutableSequence[gca_specialist_pool.SpecialistPool] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_specialist_pool.SpecialistPool,
-        )
+    specialist_pools: MutableSequence[
+        gca_specialist_pool.SpecialistPool
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_specialist_pool.SpecialistPool,
     )
     next_page_token: str = proto.Field(
         proto.STRING,

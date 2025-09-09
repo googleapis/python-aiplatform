@@ -42,14 +42,14 @@ _transport_registry = (
     OrderedDict()
 )  # type: Dict[str, Type[FeaturestoreOnlineServingServiceTransport]]
 _transport_registry["grpc"] = FeaturestoreOnlineServingServiceGrpcTransport
-_transport_registry["grpc_asyncio"] = (
-    FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
-)
+_transport_registry[
+    "grpc_asyncio"
+] = FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = FeaturestoreOnlineServingServiceRestTransport
 if HAS_REST_ASYNC:  # pragma: NO COVER
-    _transport_registry["rest_asyncio"] = (
-        AsyncFeaturestoreOnlineServingServiceRestTransport
-    )
+    _transport_registry[
+        "rest_asyncio"
+    ] = AsyncFeaturestoreOnlineServingServiceRestTransport
 
 __all__ = (
     "FeaturestoreOnlineServingServiceTransport",

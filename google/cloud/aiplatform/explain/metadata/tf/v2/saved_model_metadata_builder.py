@@ -75,7 +75,9 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
             signature_name
         )
 
-    def _infer_metadata_entries_from_model(self, signature_name: str) -> Tuple[
+    def _infer_metadata_entries_from_model(
+        self, signature_name: str
+    ) -> Tuple[
         Dict[str, explanation_metadata.ExplanationMetadata.InputMetadata],
         Dict[str, explanation_metadata.ExplanationMetadata.OutputMetadata],
     ]:
@@ -105,10 +107,10 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
         output_mds = {}
         for name in output_sig:
             if not self._explain_output or self._explain_output[0] == name:
-                output_mds[name] = (
-                    explanation_metadata.ExplanationMetadata.OutputMetadata(
-                        output_tensor_name=name,
-                    )
+                output_mds[
+                    name
+                ] = explanation_metadata.ExplanationMetadata.OutputMetadata(
+                    output_tensor_name=name,
                 )
                 break
         else:

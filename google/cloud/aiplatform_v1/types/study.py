@@ -77,7 +77,6 @@ class Study(proto.Message):
                 The study is done when the service exhausts the parameter
                 search space or max_trial_count is reached.
         """
-
         STATE_UNSPECIFIED = 0
         ACTIVE = 1
         INACTIVE = 2
@@ -202,7 +201,6 @@ class Trial(proto.Message):
                 service will set a Trial to INFEASIBLE when it's done but
                 missing the final_measurement.
         """
-
         STATE_UNSPECIFIED = 0
         REQUESTED = 1
         ACTIVE = 2
@@ -427,7 +425,6 @@ class StudySpec(proto.Message):
                 Simple random search within the feasible
                 space.
         """
-
         ALGORITHM_UNSPECIFIED = 0
         GRID_SEARCH = 2
         RANDOM_SEARCH = 3
@@ -450,7 +447,6 @@ class StudySpec(proto.Message):
                 in metric evaluations, it may repeat the same
                 Trial parameters more than once.
         """
-
         OBSERVATION_NOISE_UNSPECIFIED = 0
         LOW = 1
         HIGH = 2
@@ -477,7 +473,6 @@ class StudySpec(proto.Message):
             BEST_MEASUREMENT (2):
                 Use the best measurement reported.
         """
-
         MEASUREMENT_SELECTION_TYPE_UNSPECIFIED = 0
         LAST_MEASUREMENT = 1
         BEST_MEASUREMENT = 2
@@ -514,7 +509,6 @@ class StudySpec(proto.Message):
                 MINIMIZE (2):
                     Minimize the goal metric.
             """
-
             GOAL_TYPE_UNSPECIFIED = 0
             MAXIMIZE = 1
             MINIMIZE = 2
@@ -634,7 +628,6 @@ class StudySpec(proto.Message):
                     The entire feasible space must be strictly
                     positive.
             """
-
             SCALE_TYPE_UNSPECIFIED = 0
             UNIT_LINEAR_SCALE = 1
             UNIT_LOG_SCALE = 2
@@ -870,9 +863,7 @@ class StudySpec(proto.Message):
                 oneof="parent_value_condition",
                 message="StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition",
             )
-            parent_int_values: (
-                "StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition"
-            ) = proto.Field(
+            parent_int_values: "StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition" = proto.Field(
                 proto.MESSAGE,
                 number=3,
                 oneof="parent_value_condition",

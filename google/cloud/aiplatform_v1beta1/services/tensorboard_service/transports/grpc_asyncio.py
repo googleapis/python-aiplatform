@@ -40,9 +40,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run
-from google.cloud.aiplatform_v1beta1.types import (
-    tensorboard_run as gca_tensorboard_run,
-)
+from google.cloud.aiplatform_v1beta1.types import tensorboard_run as gca_tensorboard_run
 from google.cloud.aiplatform_v1beta1.types import tensorboard_service
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import (
@@ -589,12 +587,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_tensorboard_experiment" not in self._stubs:
-            self._stubs["create_tensorboard_experiment"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/CreateTensorboardExperiment",
-                    request_serializer=tensorboard_service.CreateTensorboardExperimentRequest.serialize,
-                    response_deserializer=gca_tensorboard_experiment.TensorboardExperiment.deserialize,
-                )
+            self._stubs[
+                "create_tensorboard_experiment"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/CreateTensorboardExperiment",
+                request_serializer=tensorboard_service.CreateTensorboardExperimentRequest.serialize,
+                response_deserializer=gca_tensorboard_experiment.TensorboardExperiment.deserialize,
             )
         return self._stubs["create_tensorboard_experiment"]
 
@@ -620,12 +618,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_tensorboard_experiment" not in self._stubs:
-            self._stubs["get_tensorboard_experiment"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/GetTensorboardExperiment",
-                    request_serializer=tensorboard_service.GetTensorboardExperimentRequest.serialize,
-                    response_deserializer=tensorboard_experiment.TensorboardExperiment.deserialize,
-                )
+            self._stubs[
+                "get_tensorboard_experiment"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/GetTensorboardExperiment",
+                request_serializer=tensorboard_service.GetTensorboardExperimentRequest.serialize,
+                response_deserializer=tensorboard_experiment.TensorboardExperiment.deserialize,
             )
         return self._stubs["get_tensorboard_experiment"]
 
@@ -651,12 +649,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_tensorboard_experiment" not in self._stubs:
-            self._stubs["update_tensorboard_experiment"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/UpdateTensorboardExperiment",
-                    request_serializer=tensorboard_service.UpdateTensorboardExperimentRequest.serialize,
-                    response_deserializer=gca_tensorboard_experiment.TensorboardExperiment.deserialize,
-                )
+            self._stubs[
+                "update_tensorboard_experiment"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/UpdateTensorboardExperiment",
+                request_serializer=tensorboard_service.UpdateTensorboardExperimentRequest.serialize,
+                response_deserializer=gca_tensorboard_experiment.TensorboardExperiment.deserialize,
             )
         return self._stubs["update_tensorboard_experiment"]
 
@@ -682,12 +680,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_tensorboard_experiments" not in self._stubs:
-            self._stubs["list_tensorboard_experiments"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/ListTensorboardExperiments",
-                    request_serializer=tensorboard_service.ListTensorboardExperimentsRequest.serialize,
-                    response_deserializer=tensorboard_service.ListTensorboardExperimentsResponse.deserialize,
-                )
+            self._stubs[
+                "list_tensorboard_experiments"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/ListTensorboardExperiments",
+                request_serializer=tensorboard_service.ListTensorboardExperimentsRequest.serialize,
+                response_deserializer=tensorboard_service.ListTensorboardExperimentsResponse.deserialize,
             )
         return self._stubs["list_tensorboard_experiments"]
 
@@ -713,12 +711,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_tensorboard_experiment" not in self._stubs:
-            self._stubs["delete_tensorboard_experiment"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardExperiment",
-                    request_serializer=tensorboard_service.DeleteTensorboardExperimentRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "delete_tensorboard_experiment"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardExperiment",
+                request_serializer=tensorboard_service.DeleteTensorboardExperimentRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_tensorboard_experiment"]
 
@@ -773,12 +771,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "batch_create_tensorboard_runs" not in self._stubs:
-            self._stubs["batch_create_tensorboard_runs"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchCreateTensorboardRuns",
-                    request_serializer=tensorboard_service.BatchCreateTensorboardRunsRequest.serialize,
-                    response_deserializer=tensorboard_service.BatchCreateTensorboardRunsResponse.deserialize,
-                )
+            self._stubs[
+                "batch_create_tensorboard_runs"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchCreateTensorboardRuns",
+                request_serializer=tensorboard_service.BatchCreateTensorboardRunsRequest.serialize,
+                response_deserializer=tensorboard_service.BatchCreateTensorboardRunsResponse.deserialize,
             )
         return self._stubs["batch_create_tensorboard_runs"]
 
@@ -922,12 +920,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "batch_create_tensorboard_time_series" not in self._stubs:
-            self._stubs["batch_create_tensorboard_time_series"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchCreateTensorboardTimeSeries",
-                    request_serializer=tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.serialize,
-                    response_deserializer=tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.deserialize,
-                )
+            self._stubs[
+                "batch_create_tensorboard_time_series"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchCreateTensorboardTimeSeries",
+                request_serializer=tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.serialize,
+                response_deserializer=tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.deserialize,
             )
         return self._stubs["batch_create_tensorboard_time_series"]
 
@@ -953,12 +951,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_tensorboard_time_series" not in self._stubs:
-            self._stubs["create_tensorboard_time_series"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/CreateTensorboardTimeSeries",
-                    request_serializer=tensorboard_service.CreateTensorboardTimeSeriesRequest.serialize,
-                    response_deserializer=gca_tensorboard_time_series.TensorboardTimeSeries.deserialize,
-                )
+            self._stubs[
+                "create_tensorboard_time_series"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/CreateTensorboardTimeSeries",
+                request_serializer=tensorboard_service.CreateTensorboardTimeSeriesRequest.serialize,
+                response_deserializer=gca_tensorboard_time_series.TensorboardTimeSeries.deserialize,
             )
         return self._stubs["create_tensorboard_time_series"]
 
@@ -984,12 +982,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_tensorboard_time_series" not in self._stubs:
-            self._stubs["get_tensorboard_time_series"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/GetTensorboardTimeSeries",
-                    request_serializer=tensorboard_service.GetTensorboardTimeSeriesRequest.serialize,
-                    response_deserializer=tensorboard_time_series.TensorboardTimeSeries.deserialize,
-                )
+            self._stubs[
+                "get_tensorboard_time_series"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/GetTensorboardTimeSeries",
+                request_serializer=tensorboard_service.GetTensorboardTimeSeriesRequest.serialize,
+                response_deserializer=tensorboard_time_series.TensorboardTimeSeries.deserialize,
             )
         return self._stubs["get_tensorboard_time_series"]
 
@@ -1015,12 +1013,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_tensorboard_time_series" not in self._stubs:
-            self._stubs["update_tensorboard_time_series"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/UpdateTensorboardTimeSeries",
-                    request_serializer=tensorboard_service.UpdateTensorboardTimeSeriesRequest.serialize,
-                    response_deserializer=gca_tensorboard_time_series.TensorboardTimeSeries.deserialize,
-                )
+            self._stubs[
+                "update_tensorboard_time_series"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/UpdateTensorboardTimeSeries",
+                request_serializer=tensorboard_service.UpdateTensorboardTimeSeriesRequest.serialize,
+                response_deserializer=gca_tensorboard_time_series.TensorboardTimeSeries.deserialize,
             )
         return self._stubs["update_tensorboard_time_series"]
 
@@ -1046,12 +1044,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_tensorboard_time_series" not in self._stubs:
-            self._stubs["list_tensorboard_time_series"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/ListTensorboardTimeSeries",
-                    request_serializer=tensorboard_service.ListTensorboardTimeSeriesRequest.serialize,
-                    response_deserializer=tensorboard_service.ListTensorboardTimeSeriesResponse.deserialize,
-                )
+            self._stubs[
+                "list_tensorboard_time_series"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/ListTensorboardTimeSeries",
+                request_serializer=tensorboard_service.ListTensorboardTimeSeriesRequest.serialize,
+                response_deserializer=tensorboard_service.ListTensorboardTimeSeriesResponse.deserialize,
             )
         return self._stubs["list_tensorboard_time_series"]
 
@@ -1077,12 +1075,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_tensorboard_time_series" not in self._stubs:
-            self._stubs["delete_tensorboard_time_series"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardTimeSeries",
-                    request_serializer=tensorboard_service.DeleteTensorboardTimeSeriesRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "delete_tensorboard_time_series"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardTimeSeries",
+                request_serializer=tensorboard_service.DeleteTensorboardTimeSeriesRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_tensorboard_time_series"]
 
@@ -1114,12 +1112,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "batch_read_tensorboard_time_series_data" not in self._stubs:
-            self._stubs["batch_read_tensorboard_time_series_data"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchReadTensorboardTimeSeriesData",
-                    request_serializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.serialize,
-                    response_deserializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.deserialize,
-                )
+            self._stubs[
+                "batch_read_tensorboard_time_series_data"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/BatchReadTensorboardTimeSeriesData",
+                request_serializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.serialize,
+                response_deserializer=tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.deserialize,
             )
         return self._stubs["batch_read_tensorboard_time_series_data"]
 
@@ -1150,12 +1148,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "read_tensorboard_time_series_data" not in self._stubs:
-            self._stubs["read_tensorboard_time_series_data"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/ReadTensorboardTimeSeriesData",
-                    request_serializer=tensorboard_service.ReadTensorboardTimeSeriesDataRequest.serialize,
-                    response_deserializer=tensorboard_service.ReadTensorboardTimeSeriesDataResponse.deserialize,
-                )
+            self._stubs[
+                "read_tensorboard_time_series_data"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/ReadTensorboardTimeSeriesData",
+                request_serializer=tensorboard_service.ReadTensorboardTimeSeriesDataRequest.serialize,
+                response_deserializer=tensorboard_service.ReadTensorboardTimeSeriesDataResponse.deserialize,
             )
         return self._stubs["read_tensorboard_time_series_data"]
 
@@ -1184,12 +1182,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "read_tensorboard_blob_data" not in self._stubs:
-            self._stubs["read_tensorboard_blob_data"] = (
-                self._logged_channel.unary_stream(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/ReadTensorboardBlobData",
-                    request_serializer=tensorboard_service.ReadTensorboardBlobDataRequest.serialize,
-                    response_deserializer=tensorboard_service.ReadTensorboardBlobDataResponse.deserialize,
-                )
+            self._stubs[
+                "read_tensorboard_blob_data"
+            ] = self._logged_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/ReadTensorboardBlobData",
+                request_serializer=tensorboard_service.ReadTensorboardBlobDataRequest.serialize,
+                response_deserializer=tensorboard_service.ReadTensorboardBlobDataResponse.deserialize,
             )
         return self._stubs["read_tensorboard_blob_data"]
 
@@ -1218,12 +1216,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "write_tensorboard_experiment_data" not in self._stubs:
-            self._stubs["write_tensorboard_experiment_data"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/WriteTensorboardExperimentData",
-                    request_serializer=tensorboard_service.WriteTensorboardExperimentDataRequest.serialize,
-                    response_deserializer=tensorboard_service.WriteTensorboardExperimentDataResponse.deserialize,
-                )
+            self._stubs[
+                "write_tensorboard_experiment_data"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/WriteTensorboardExperimentData",
+                request_serializer=tensorboard_service.WriteTensorboardExperimentDataRequest.serialize,
+                response_deserializer=tensorboard_service.WriteTensorboardExperimentDataResponse.deserialize,
             )
         return self._stubs["write_tensorboard_experiment_data"]
 
@@ -1251,12 +1249,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "write_tensorboard_run_data" not in self._stubs:
-            self._stubs["write_tensorboard_run_data"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/WriteTensorboardRunData",
-                    request_serializer=tensorboard_service.WriteTensorboardRunDataRequest.serialize,
-                    response_deserializer=tensorboard_service.WriteTensorboardRunDataResponse.deserialize,
-                )
+            self._stubs[
+                "write_tensorboard_run_data"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/WriteTensorboardRunData",
+                request_serializer=tensorboard_service.WriteTensorboardRunDataRequest.serialize,
+                response_deserializer=tensorboard_service.WriteTensorboardRunDataResponse.deserialize,
             )
         return self._stubs["write_tensorboard_run_data"]
 
@@ -1284,12 +1282,12 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "export_tensorboard_time_series_data" not in self._stubs:
-            self._stubs["export_tensorboard_time_series_data"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.TensorboardService/ExportTensorboardTimeSeriesData",
-                    request_serializer=tensorboard_service.ExportTensorboardTimeSeriesDataRequest.serialize,
-                    response_deserializer=tensorboard_service.ExportTensorboardTimeSeriesDataResponse.deserialize,
-                )
+            self._stubs[
+                "export_tensorboard_time_series_data"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/ExportTensorboardTimeSeriesData",
+                request_serializer=tensorboard_service.ExportTensorboardTimeSeriesDataRequest.serialize,
+                response_deserializer=tensorboard_service.ExportTensorboardTimeSeriesDataResponse.deserialize,
             )
         return self._stubs["export_tensorboard_time_series_data"]
 

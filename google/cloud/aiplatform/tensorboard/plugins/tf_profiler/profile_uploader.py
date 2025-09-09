@@ -184,9 +184,9 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         )
 
         if run_name not in self._run_to_file_request_sender:
-            self._run_to_file_request_sender[run_name] = (
-                self._file_request_sender_factory(tb_run)
-            )
+            self._run_to_file_request_sender[
+                run_name
+            ] = self._file_request_sender_factory(tb_run)
 
         # Loop through any of the profiling sessions within this training run.
         # A training run can have multiple profile sessions.

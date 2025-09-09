@@ -37,9 +37,7 @@ from grpc.experimental import aio  # type: ignore
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
-from google.cloud.aiplatform_v1.types import (
-    model_evaluation as gca_model_evaluation,
-)
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.cloud.location import locations_pb2  # type: ignore
@@ -490,12 +488,12 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_model_version_checkpoints" not in self._stubs:
-            self._stubs["list_model_version_checkpoints"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.ModelService/ListModelVersionCheckpoints",
-                    request_serializer=model_service.ListModelVersionCheckpointsRequest.serialize,
-                    response_deserializer=model_service.ListModelVersionCheckpointsResponse.deserialize,
-                )
+            self._stubs[
+                "list_model_version_checkpoints"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/ListModelVersionCheckpoints",
+                request_serializer=model_service.ListModelVersionCheckpointsRequest.serialize,
+                response_deserializer=model_service.ListModelVersionCheckpointsResponse.deserialize,
             )
         return self._stubs["list_model_version_checkpoints"]
 
@@ -548,12 +546,12 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_explanation_dataset" not in self._stubs:
-            self._stubs["update_explanation_dataset"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.ModelService/UpdateExplanationDataset",
-                    request_serializer=model_service.UpdateExplanationDatasetRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "update_explanation_dataset"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/UpdateExplanationDataset",
+                request_serializer=model_service.UpdateExplanationDatasetRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["update_explanation_dataset"]
 
@@ -770,12 +768,12 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "batch_import_model_evaluation_slices" not in self._stubs:
-            self._stubs["batch_import_model_evaluation_slices"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.ModelService/BatchImportModelEvaluationSlices",
-                    request_serializer=model_service.BatchImportModelEvaluationSlicesRequest.serialize,
-                    response_deserializer=model_service.BatchImportModelEvaluationSlicesResponse.deserialize,
-                )
+            self._stubs[
+                "batch_import_model_evaluation_slices"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/BatchImportModelEvaluationSlices",
+                request_serializer=model_service.BatchImportModelEvaluationSlicesRequest.serialize,
+                response_deserializer=model_service.BatchImportModelEvaluationSlicesResponse.deserialize,
             )
         return self._stubs["batch_import_model_evaluation_slices"]
 
@@ -803,12 +801,12 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "batch_import_evaluated_annotations" not in self._stubs:
-            self._stubs["batch_import_evaluated_annotations"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.ModelService/BatchImportEvaluatedAnnotations",
-                    request_serializer=model_service.BatchImportEvaluatedAnnotationsRequest.serialize,
-                    response_deserializer=model_service.BatchImportEvaluatedAnnotationsResponse.deserialize,
-                )
+            self._stubs[
+                "batch_import_evaluated_annotations"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/BatchImportEvaluatedAnnotations",
+                request_serializer=model_service.BatchImportEvaluatedAnnotationsRequest.serialize,
+                response_deserializer=model_service.BatchImportEvaluatedAnnotationsResponse.deserialize,
             )
         return self._stubs["batch_import_evaluated_annotations"]
 
@@ -892,12 +890,12 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_model_evaluation_slice" not in self._stubs:
-            self._stubs["get_model_evaluation_slice"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.ModelService/GetModelEvaluationSlice",
-                    request_serializer=model_service.GetModelEvaluationSliceRequest.serialize,
-                    response_deserializer=model_evaluation_slice.ModelEvaluationSlice.deserialize,
-                )
+            self._stubs[
+                "get_model_evaluation_slice"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/GetModelEvaluationSlice",
+                request_serializer=model_service.GetModelEvaluationSliceRequest.serialize,
+                response_deserializer=model_evaluation_slice.ModelEvaluationSlice.deserialize,
             )
         return self._stubs["get_model_evaluation_slice"]
 
@@ -923,12 +921,12 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_model_evaluation_slices" not in self._stubs:
-            self._stubs["list_model_evaluation_slices"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.ModelService/ListModelEvaluationSlices",
-                    request_serializer=model_service.ListModelEvaluationSlicesRequest.serialize,
-                    response_deserializer=model_service.ListModelEvaluationSlicesResponse.deserialize,
-                )
+            self._stubs[
+                "list_model_evaluation_slices"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/ListModelEvaluationSlices",
+                request_serializer=model_service.ListModelEvaluationSlicesRequest.serialize,
+                response_deserializer=model_service.ListModelEvaluationSlicesResponse.deserialize,
             )
         return self._stubs["list_model_evaluation_slices"]
 

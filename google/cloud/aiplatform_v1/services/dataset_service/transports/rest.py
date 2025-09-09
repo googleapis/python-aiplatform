@@ -42,9 +42,7 @@ from google.cloud.aiplatform_v1.types import dataset
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_service
 from google.cloud.aiplatform_v1.types import dataset_version
-from google.cloud.aiplatform_v1.types import (
-    dataset_version as gca_dataset_version,
-)
+from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_version
 from google.longrunning import operations_pb2  # type: ignore
 
 
@@ -3481,7 +3479,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3635,7 +3632,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3790,7 +3786,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3938,7 +3933,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4087,7 +4081,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4236,7 +4229,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4393,7 +4385,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4543,7 +4534,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4694,7 +4684,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4843,7 +4832,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5000,7 +4988,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5152,7 +5139,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5302,7 +5288,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5453,7 +5438,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5605,7 +5589,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5758,7 +5741,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5907,7 +5889,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6059,7 +6040,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6214,7 +6194,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6555,7 +6534,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6696,7 +6674,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6837,7 +6814,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6978,7 +6954,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7125,7 +7100,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7268,7 +7242,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7383,7 +7356,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7498,7 +7470,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7639,7 +7610,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7780,7 +7750,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

@@ -19,12 +19,8 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_group as gca_feature_group,
-)
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_monitor as gca_feature_monitor,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_group as gca_feature_group
+from google.cloud.aiplatform_v1beta1.types import feature_monitor as gca_feature_monitor
 from google.cloud.aiplatform_v1beta1.types import (
     feature_monitor_job as gca_feature_monitor_job,
 )
@@ -127,20 +123,20 @@ class ListFeatureGroupsRequest(proto.Message):
             Lists the FeatureGroups that match the filter expression.
             The following fields are supported:
 
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``labels``: Supports key-value equality and key presence.
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``labels``: Supports key-value equality and key presence.
 
             Examples:
 
-            -  ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
-               FeatureGroups created or updated after 2020-01-01.
-            -  ``labels.env = "prod"`` FeatureGroups with label "env"
-               set to "prod".
+            - ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
+              FeatureGroups created or updated after 2020-01-01.
+            - ``labels.env = "prod"`` FeatureGroups with label "env" set
+              to "prod".
         page_size (int):
             The maximum number of FeatureGroups to
             return. The service may return fewer than this
@@ -160,8 +156,8 @@ class ListFeatureGroupsRequest(proto.Message):
             ascending order. Use "desc" after a field name for
             descending. Supported Fields:
 
-            -  ``create_time``
-            -  ``update_time``
+            - ``create_time``
+            - ``update_time``
     """
 
     parent: str = proto.Field(
@@ -204,12 +200,12 @@ class ListFeatureGroupsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    feature_groups: MutableSequence[gca_feature_group.FeatureGroup] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_feature_group.FeatureGroup,
-        )
+    feature_groups: MutableSequence[
+        gca_feature_group.FeatureGroup
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature_group.FeatureGroup,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -238,10 +234,10 @@ class UpdateFeatureGroupRequest(proto.Message):
 
             Updatable fields:
 
-            -  ``labels``
-            -  ``description``
-            -  ``big_query``
-            -  ``big_query.entity_id_columns``
+            - ``labels``
+            - ``description``
+            - ``big_query``
+            - ``big_query.entity_id_columns``
     """
 
     feature_group: gca_feature_group.FeatureGroup = proto.Field(
@@ -348,20 +344,20 @@ class ListFeatureMonitorsRequest(proto.Message):
             Optional. Lists the FeatureMonitors that match the filter
             expression. The following fields are supported:
 
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``labels``: Supports key-value equality and key presence.
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``labels``: Supports key-value equality and key presence.
 
             Examples:
 
-            -  ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
-               FeatureMonitors created or updated after 2020-01-01.
-            -  ``labels.env = "prod"`` FeatureGroups with label "env"
-               set to "prod".
+            - ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
+              FeatureMonitors created or updated after 2020-01-01.
+            - ``labels.env = "prod"`` FeatureGroups with label "env" set
+              to "prod".
         page_size (int):
             Optional. The maximum number of FeatureGroups
             to return. The service may return fewer than
@@ -382,8 +378,8 @@ class ListFeatureMonitorsRequest(proto.Message):
             sorted in ascending order. Use "desc" after a field name for
             descending. Supported Fields:
 
-            -  ``create_time``
-            -  ``update_time``
+            - ``create_time``
+            - ``update_time``
     """
 
     parent: str = proto.Field(
@@ -429,7 +425,7 @@ class UpdateFeatureMonitorRequest(proto.Message):
 
             Updatable fields:
 
-            -  ``labels``
+            - ``labels``
     """
 
     feature_monitor: gca_feature_monitor.FeatureMonitor = proto.Field(
@@ -479,12 +475,12 @@ class ListFeatureMonitorsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    feature_monitors: MutableSequence[gca_feature_monitor.FeatureMonitor] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_feature_monitor.FeatureMonitor,
-        )
+    feature_monitors: MutableSequence[
+        gca_feature_monitor.FeatureMonitor
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature_monitor.FeatureMonitor,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -643,13 +639,13 @@ class ListFeatureMonitorJobsRequest(proto.Message):
             Optional. Lists the FeatureMonitorJobs that match the filter
             expression. The following fields are supported:
 
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be
 
             Examples:
 
-            -  ``create_time > "2020-01-01"`` FeatureMonitorJobs created
-               after 2020-01-01.
+            - ``create_time > "2020-01-01"`` FeatureMonitorJobs created
+              after 2020-01-01.
         page_size (int):
             Optional. The maximum number of
             FeatureMonitorJobs to return. The service may
@@ -670,7 +666,7 @@ class ListFeatureMonitorJobsRequest(proto.Message):
             sorted in ascending order. Use "desc" after a field name for
             descending. Supported Fields:
 
-            -  ``create_time``
+            - ``create_time``
     """
 
     parent: str = proto.Field(
@@ -713,12 +709,12 @@ class ListFeatureMonitorJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    feature_monitor_jobs: MutableSequence[gca_feature_monitor_job.FeatureMonitorJob] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_feature_monitor_job.FeatureMonitorJob,
-        )
+    feature_monitor_jobs: MutableSequence[
+        gca_feature_monitor_job.FeatureMonitorJob
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature_monitor_job.FeatureMonitorJob,
     )
     next_page_token: str = proto.Field(
         proto.STRING,

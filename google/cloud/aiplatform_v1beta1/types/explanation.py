@@ -194,20 +194,19 @@ class Attribution(proto.Message):
             The format of the value is determined by the feature's input
             format:
 
-            -  If the feature is a scalar value, the attribution value
-               is a [floating
-               number][google.protobuf.Value.number_value].
+            - If the feature is a scalar value, the attribution value is
+              a [floating number][google.protobuf.Value.number_value].
 
-            -  If the feature is an array of scalar values, the
-               attribution value is an
-               [array][google.protobuf.Value.list_value].
+            - If the feature is an array of scalar values, the
+              attribution value is an
+              [array][google.protobuf.Value.list_value].
 
-            -  If the feature is a struct, the attribution value is a
-               [struct][google.protobuf.Value.struct_value]. The keys in
-               the attribution value struct are the same as the keys in
-               the feature struct. The formats of the values in the
-               attribution struct are determined by the formats of the
-               values in the feature struct.
+            - If the feature is a struct, the attribution value is a
+              [struct][google.protobuf.Value.struct_value]. The keys in
+              the attribution value struct are the same as the keys in
+              the feature struct. The formats of the values in the
+              attribution struct are determined by the formats of the
+              values in the feature struct.
 
             The
             [ExplanationMetadata.feature_attributions_schema_uri][google.cloud.aiplatform.v1beta1.ExplanationMetadata.feature_attributions_schema_uri]
@@ -243,21 +242,21 @@ class Attribution(proto.Message):
             caused by approximation used in the explanation method.
             Lower value means more precise attributions.
 
-            -  For Sampled Shapley
-               [attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.sampled_shapley_attribution],
-               increasing
-               [path_count][google.cloud.aiplatform.v1beta1.SampledShapleyAttribution.path_count]
-               might reduce the error.
-            -  For Integrated Gradients
-               [attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.integrated_gradients_attribution],
-               increasing
-               [step_count][google.cloud.aiplatform.v1beta1.IntegratedGradientsAttribution.step_count]
-               might reduce the error.
-            -  For [XRAI
-               attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.xrai_attribution],
-               increasing
-               [step_count][google.cloud.aiplatform.v1beta1.XraiAttribution.step_count]
-               might reduce the error.
+            - For Sampled Shapley
+              [attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.sampled_shapley_attribution],
+              increasing
+              [path_count][google.cloud.aiplatform.v1beta1.SampledShapleyAttribution.path_count]
+              might reduce the error.
+            - For Integrated Gradients
+              [attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.integrated_gradients_attribution],
+              increasing
+              [step_count][google.cloud.aiplatform.v1beta1.IntegratedGradientsAttribution.step_count]
+              might reduce the error.
+            - For [XRAI
+              attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.xrai_attribution],
+              increasing
+              [step_count][google.cloud.aiplatform.v1beta1.XraiAttribution.step_count]
+              might reduce the error.
 
             See `this
             introduction </vertex-ai/docs/explainable-ai/overview>`__
@@ -778,7 +777,6 @@ class Examples(proto.Message):
                 JSONL (1):
                     Examples are stored in JSONL files.
             """
-
             DATA_FORMAT_UNSPECIFIED = 0
             JSONL = 1
 
@@ -855,7 +853,6 @@ class Presets(proto.Message):
                 Faster response as a trade-off against less
                 precise neighbors.
         """
-
         PRECISE = 0
         FAST = 1
 
@@ -873,7 +870,6 @@ class Presets(proto.Message):
             TABULAR (3):
                 TABULAR modality
         """
-
         MODALITY_UNSPECIFIED = 0
         IMAGE = 1
         TEXT = 2
@@ -1008,7 +1004,6 @@ class ExamplesOverride(proto.Message):
             EMBEDDINGS (2):
                 Provided data is a set of embeddings.
         """
-
         DATA_FORMAT_UNSPECIFIED = 0
         INSTANCES = 1
         EMBEDDINGS = 2
@@ -1021,12 +1016,12 @@ class ExamplesOverride(proto.Message):
         proto.INT32,
         number=2,
     )
-    restrictions: MutableSequence["ExamplesRestrictionsNamespace"] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=3,
-            message="ExamplesRestrictionsNamespace",
-        )
+    restrictions: MutableSequence[
+        "ExamplesRestrictionsNamespace"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="ExamplesRestrictionsNamespace",
     )
     return_embeddings: bool = proto.Field(
         proto.BOOL,

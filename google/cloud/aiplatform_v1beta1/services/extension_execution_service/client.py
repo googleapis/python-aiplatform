@@ -96,9 +96,9 @@ class ExtensionExecutionServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = ExtensionExecutionServiceGrpcAsyncIOTransport
     _transport_registry["rest"] = ExtensionExecutionServiceRestTransport
     if HAS_ASYNC_REST_DEPENDENCIES:  # pragma: NO COVER
-        _transport_registry["rest_asyncio"] = (
-            AsyncExtensionExecutionServiceRestTransport
-        )
+        _transport_registry[
+            "rest_asyncio"
+        ] = AsyncExtensionExecutionServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -768,25 +768,21 @@ class ExtensionExecutionServiceClient(metaclass=ExtensionExecutionServiceClientM
             ):  # pragma: NO COVER
                 _LOGGER.debug(
                     "Created client `google.cloud.aiplatform_v1beta1.ExtensionExecutionServiceClient`.",
-                    extra=(
-                        {
-                            "serviceName": "google.cloud.aiplatform.v1beta1.ExtensionExecutionService",
-                            "universeDomain": getattr(
-                                self._transport._credentials, "universe_domain", ""
-                            ),
-                            "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                            "credentialsInfo": getattr(
-                                self.transport._credentials,
-                                "get_cred_info",
-                                lambda: None,
-                            )(),
-                        }
-                        if hasattr(self._transport, "_credentials")
-                        else {
-                            "serviceName": "google.cloud.aiplatform.v1beta1.ExtensionExecutionService",
-                            "credentialsType": None,
-                        }
-                    ),
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ExtensionExecutionService",
+                        "universeDomain": getattr(
+                            self._transport._credentials, "universe_domain", ""
+                        ),
+                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
+                        "credentialsInfo": getattr(
+                            self.transport._credentials, "get_cred_info", lambda: None
+                        )(),
+                    }
+                    if hasattr(self._transport, "_credentials")
+                    else {
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ExtensionExecutionService",
+                        "credentialsType": None,
+                    },
                 )
 
     def execute_extension(

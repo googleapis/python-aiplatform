@@ -415,7 +415,6 @@ def test_wrapped_client():
 
 @pytest.mark.usefixtures("google_auth_mock")
 def test_client_w_override_default_version():
-
     test_client_info = gapic_v1.client_info.ClientInfo()
     test_client_options = client_options.ClientOptions()
 
@@ -433,7 +432,6 @@ def test_client_w_override_default_version():
 
 @pytest.mark.usefixtures("google_auth_mock")
 def test_client_w_override_select_version():
-
     test_client_info = gapic_v1.client_info.ClientInfo()
     test_client_options = client_options.ClientOptions()
 
@@ -511,7 +509,6 @@ def test_timestamped_unique_name():
 
 
 class TestColumnTransformationsUtils:
-
     column_transformations = [
         {"auto": {"column_name": "a"}},
         {"auto": {"column_name": "b"}},

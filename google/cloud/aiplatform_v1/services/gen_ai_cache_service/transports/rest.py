@@ -37,9 +37,7 @@ import warnings
 
 
 from google.cloud.aiplatform_v1.types import cached_content
-from google.cloud.aiplatform_v1.types import (
-    cached_content as gca_cached_content,
-)
+from google.cloud.aiplatform_v1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1.types import gen_ai_cache_service
 from google.protobuf import empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
@@ -694,7 +692,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -856,7 +853,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -969,7 +965,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1121,7 +1116,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1275,7 +1269,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1492,7 +1485,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1634,7 +1626,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1775,7 +1766,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1916,7 +1906,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2064,7 +2053,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2208,7 +2196,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2324,7 +2311,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2439,7 +2425,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2581,7 +2566,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2723,7 +2707,6 @@ class GenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

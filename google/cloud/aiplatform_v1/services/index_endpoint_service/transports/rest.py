@@ -38,9 +38,7 @@ import warnings
 
 
 from google.cloud.aiplatform_v1.types import index_endpoint
-from google.cloud.aiplatform_v1.types import (
-    index_endpoint as gca_index_endpoint,
-)
+from google.cloud.aiplatform_v1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1.types import index_endpoint_service
 from google.longrunning import operations_pb2  # type: ignore
 
@@ -2856,7 +2854,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3014,7 +3011,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3166,7 +3162,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3320,7 +3315,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3474,7 +3468,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3631,7 +3624,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3789,7 +3781,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3943,7 +3934,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4191,7 +4181,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4333,7 +4322,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4475,7 +4463,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4617,7 +4604,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4765,7 +4751,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4911,7 +4896,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5027,7 +5011,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5143,7 +5126,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5285,7 +5267,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5427,7 +5408,6 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

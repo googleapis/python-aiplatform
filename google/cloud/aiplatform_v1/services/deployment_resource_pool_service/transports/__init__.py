@@ -45,9 +45,9 @@ _transport_registry["grpc"] = DeploymentResourcePoolServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = DeploymentResourcePoolServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = DeploymentResourcePoolServiceRestTransport
 if HAS_REST_ASYNC:  # pragma: NO COVER
-    _transport_registry["rest_asyncio"] = (
-        AsyncDeploymentResourcePoolServiceRestTransport
-    )
+    _transport_registry[
+        "rest_asyncio"
+    ] = AsyncDeploymentResourcePoolServiceRestTransport
 
 __all__ = (
     "DeploymentResourcePoolServiceTransport",

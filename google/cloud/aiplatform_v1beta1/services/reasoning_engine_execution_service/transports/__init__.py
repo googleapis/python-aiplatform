@@ -42,14 +42,14 @@ _transport_registry = (
     OrderedDict()
 )  # type: Dict[str, Type[ReasoningEngineExecutionServiceTransport]]
 _transport_registry["grpc"] = ReasoningEngineExecutionServiceGrpcTransport
-_transport_registry["grpc_asyncio"] = (
-    ReasoningEngineExecutionServiceGrpcAsyncIOTransport
-)
+_transport_registry[
+    "grpc_asyncio"
+] = ReasoningEngineExecutionServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = ReasoningEngineExecutionServiceRestTransport
 if HAS_REST_ASYNC:  # pragma: NO COVER
-    _transport_registry["rest_asyncio"] = (
-        AsyncReasoningEngineExecutionServiceRestTransport
-    )
+    _transport_registry[
+        "rest_asyncio"
+    ] = AsyncReasoningEngineExecutionServiceRestTransport
 
 __all__ = (
     "ReasoningEngineExecutionServiceTransport",

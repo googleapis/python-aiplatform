@@ -72,7 +72,6 @@ class AcceleratorType(proto.Enum):
         TPU_V5_LITEPOD (12):
             TPU v5.
     """
-
     ACCELERATOR_TYPE_UNSPECIFIED = 0
     NVIDIA_TESLA_K80 = 1
     NVIDIA_TESLA_P100 = 2

@@ -1303,9 +1303,9 @@ def test_execute_extension_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.execute_extension] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.execute_extension
+        ] = mock_rpc
         request = {}
         client.execute_extension(request)
 
@@ -1919,9 +1919,9 @@ def test_execute_extension_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.execute_extension] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.execute_extension
+        ] = mock_rpc
 
         request = {}
         client.execute_extension(request)
@@ -2592,11 +2592,9 @@ def test_execute_extension_rest_call_success(request_type):
 def test_execute_extension_rest_interceptors(null_interceptor):
     transport = transports.ExtensionExecutionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.ExtensionExecutionServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ExtensionExecutionServiceRestInterceptor(),
     )
     client = ExtensionExecutionServiceClient(transport=transport)
 
@@ -2729,11 +2727,9 @@ def test_query_extension_rest_call_success(request_type):
 def test_query_extension_rest_interceptors(null_interceptor):
     transport = transports.ExtensionExecutionServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.ExtensionExecutionServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ExtensionExecutionServiceRestInterceptor(),
     )
     client = ExtensionExecutionServiceClient(transport=transport)
 
@@ -3567,11 +3563,9 @@ async def test_execute_extension_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExtensionExecutionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncExtensionExecutionServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncExtensionExecutionServiceRestInterceptor(),
     )
     client = ExtensionExecutionServiceAsyncClient(transport=transport)
 
@@ -3722,11 +3716,9 @@ async def test_query_extension_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExtensionExecutionServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncExtensionExecutionServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncExtensionExecutionServiceRestInterceptor(),
     )
     client = ExtensionExecutionServiceAsyncClient(transport=transport)
 

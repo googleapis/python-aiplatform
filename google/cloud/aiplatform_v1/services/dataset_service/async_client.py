@@ -55,9 +55,7 @@ from google.cloud.aiplatform_v1.types import dataset
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_service
 from google.cloud.aiplatform_v1.types import dataset_version
-from google.cloud.aiplatform_v1.types import (
-    dataset_version as gca_dataset_version,
-)
+from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_version
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import saved_query
@@ -308,23 +306,21 @@ class DatasetServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1.DatasetServiceAsyncClient`.",
-                extra=(
-                    {
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "universeDomain": getattr(
-                            self._client._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._client._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "credentialsType": None,
-                    }
-                ),
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1.DatasetService",
+                    "universeDomain": getattr(
+                        self._client._transport._credentials, "universe_domain", ""
+                    ),
+                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                    "credentialsInfo": getattr(
+                        self.transport._credentials, "get_cred_info", lambda: None
+                    )(),
+                }
+                if hasattr(self._client._transport, "_credentials")
+                else {
+                    "serviceName": "google.cloud.aiplatform.v1.DatasetService",
+                    "credentialsType": None,
+                },
             )
 
     async def create_dataset(
@@ -640,9 +636,9 @@ class DatasetServiceAsyncClient:
                 [google.protobuf.FieldMask][google.protobuf.FieldMask].
                 Updatable fields:
 
-                -  ``display_name``
-                -  ``description``
-                -  ``labels``
+                - ``display_name``
+                - ``description``
+                - ``labels``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1459,7 +1455,7 @@ class DatasetServiceAsyncClient:
                 [google.protobuf.FieldMask][google.protobuf.FieldMask].
                 Updatable fields:
 
-                -  ``display_name``
+                - ``display_name``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

@@ -418,12 +418,12 @@ class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTra
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "feature_view_direct_write" not in self._stubs:
-            self._stubs["feature_view_direct_write"] = (
-                self._logged_channel.stream_stream(
-                    "/google.cloud.aiplatform.v1.FeatureOnlineStoreService/FeatureViewDirectWrite",
-                    request_serializer=feature_online_store_service.FeatureViewDirectWriteRequest.serialize,
-                    response_deserializer=feature_online_store_service.FeatureViewDirectWriteResponse.deserialize,
-                )
+            self._stubs[
+                "feature_view_direct_write"
+            ] = self._logged_channel.stream_stream(
+                "/google.cloud.aiplatform.v1.FeatureOnlineStoreService/FeatureViewDirectWrite",
+                request_serializer=feature_online_store_service.FeatureViewDirectWriteRequest.serialize,
+                response_deserializer=feature_online_store_service.FeatureViewDirectWriteResponse.deserialize,
             )
         return self._stubs["feature_view_direct_write"]
 

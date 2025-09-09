@@ -47,16 +47,12 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.model_monitoring_service import pagers
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import model_monitor
-from google.cloud.aiplatform_v1beta1.types import (
-    model_monitor as gca_model_monitor,
-)
+from google.cloud.aiplatform_v1beta1.types import model_monitor as gca_model_monitor
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_alert
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_job
 from google.cloud.aiplatform_v1beta1.types import (
@@ -331,23 +327,21 @@ class ModelMonitoringServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1beta1.ModelMonitoringServiceAsyncClient`.",
-                extra=(
-                    {
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
-                        "universeDomain": getattr(
-                            self._client._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._client._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
-                        "credentialsType": None,
-                    }
-                ),
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                    "universeDomain": getattr(
+                        self._client._transport._credentials, "universe_domain", ""
+                    ),
+                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                    "credentialsInfo": getattr(
+                        self.transport._credentials, "get_cred_info", lambda: None
+                    )(),
+                }
+                if hasattr(self._client._transport, "_credentials")
+                else {
+                    "serviceName": "google.cloud.aiplatform.v1beta1.ModelMonitoringService",
+                    "credentialsType": None,
+                },
             )
 
     async def create_model_monitor(

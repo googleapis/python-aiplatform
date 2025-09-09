@@ -52,7 +52,6 @@ class PublisherModelView(proto.Enum):
             Include: VersionId, ModelVersionExternalName,
             and SupportedActions.
     """
-
     PUBLISHER_MODEL_VIEW_UNSPECIFIED = 0
     PUBLISHER_MODEL_VIEW_BASIC = 1
     PUBLISHER_MODEL_VIEW_FULL = 2

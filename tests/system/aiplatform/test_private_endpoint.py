@@ -27,7 +27,6 @@ _PRIVATE_ENDPOINT_NETWORK = "projects/580378083368/global/networks/private-endpo
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestPrivateEndpoint(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp_vertex_sdk_e2e"
 
     def test_create_deploy_delete_private_endpoint(self, shared_state):

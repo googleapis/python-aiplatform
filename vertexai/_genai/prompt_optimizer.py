@@ -517,7 +517,6 @@ class PromptOptimizer(_api_module.BaseModule):
     """Prompt Optimizer PO-Data."""
 
     def _wait_for_completion(self, job_name: str) -> types.CustomJob:
-
         JOB_COMPLETE_STATES = [
             genai_types.JobState.JOB_STATE_SUCCEEDED,
             genai_types.JobState.JOB_STATE_FAILED,

@@ -75,7 +75,6 @@ class AutoMlVideoClassificationInputs(proto.Message):
                 ModelService.ExportModel) to a Jetson device
                 afterwards.
         """
-
         MODEL_TYPE_UNSPECIFIED = 0
         CLOUD = 1
         MOBILE_VERSATILE_1 = 2

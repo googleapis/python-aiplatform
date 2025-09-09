@@ -1251,9 +1251,9 @@ def test_retrieve_contexts_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.retrieve_contexts] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.retrieve_contexts
+        ] = mock_rpc
         request = {}
         client.retrieve_contexts(request)
 
@@ -1958,9 +1958,9 @@ def test_corroborate_content_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.corroborate_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.corroborate_content
+        ] = mock_rpc
         request = {}
         client.corroborate_content(request)
 
@@ -2250,9 +2250,9 @@ def test_retrieve_contexts_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.retrieve_contexts] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.retrieve_contexts
+        ] = mock_rpc
 
         request = {}
         client.retrieve_contexts(request)
@@ -2629,9 +2629,9 @@ def test_corroborate_content_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.corroborate_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.corroborate_content
+        ] = mock_rpc
 
         request = {}
         client.corroborate_content(request)
@@ -3136,9 +3136,9 @@ def test_retrieve_contexts_rest_call_success(request_type):
 def test_retrieve_contexts_rest_interceptors(null_interceptor):
     transport = transports.VertexRagServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VertexRagServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagServiceRestInterceptor(),
     )
     client = VertexRagServiceClient(transport=transport)
 
@@ -3266,9 +3266,9 @@ def test_augment_prompt_rest_call_success(request_type):
 def test_augment_prompt_rest_interceptors(null_interceptor):
     transport = transports.VertexRagServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VertexRagServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagServiceRestInterceptor(),
     )
     client = VertexRagServiceClient(transport=transport)
 
@@ -3398,9 +3398,9 @@ def test_corroborate_content_rest_call_success(request_type):
 def test_corroborate_content_rest_interceptors(null_interceptor):
     transport = transports.VertexRagServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.VertexRagServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagServiceRestInterceptor(),
     )
     client = VertexRagServiceClient(transport=transport)
 
@@ -4251,11 +4251,9 @@ async def test_retrieve_contexts_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagServiceRestInterceptor(),
     )
     client = VertexRagServiceAsyncClient(transport=transport)
 
@@ -4399,11 +4397,9 @@ async def test_augment_prompt_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagServiceRestInterceptor(),
     )
     client = VertexRagServiceAsyncClient(transport=transport)
 
@@ -4550,11 +4546,9 @@ async def test_corroborate_content_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncVertexRagServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncVertexRagServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagServiceRestInterceptor(),
     )
     client = VertexRagServiceAsyncClient(transport=transport)
 

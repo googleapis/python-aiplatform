@@ -55,9 +55,7 @@ from google.cloud.aiplatform_v1.types import feature_online_store
 from google.cloud.aiplatform_v1.types import (
     feature_online_store as gca_feature_online_store,
 )
-from google.cloud.aiplatform_v1.types import (
-    feature_online_store_admin_service,
-)
+from google.cloud.aiplatform_v1.types import feature_online_store_admin_service
 from google.cloud.aiplatform_v1.types import feature_view
 from google.cloud.aiplatform_v1.types import feature_view as gca_feature_view
 from google.cloud.aiplatform_v1.types import feature_view_sync
@@ -327,23 +325,21 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceAsyncClient`.",
-                extra=(
-                    {
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "universeDomain": getattr(
-                            self._client._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._client._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "credentialsType": None,
-                    }
-                ),
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
+                    "universeDomain": getattr(
+                        self._client._transport._credentials, "universe_domain", ""
+                    ),
+                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                    "credentialsInfo": getattr(
+                        self.transport._credentials, "get_cred_info", lambda: None
+                    )(),
+                }
+                if hasattr(self._client._transport, "_credentials")
+                else {
+                    "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
+                    "credentialsType": None,
+                },
             )
 
     async def create_feature_online_store(
@@ -854,11 +850,11 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
 
                 Updatable fields:
 
-                -  ``labels``
-                -  ``description``
-                -  ``bigtable``
-                -  ``bigtable.auto_scaling``
-                -  ``bigtable.enable_multi_region_replica``
+                - ``labels``
+                - ``description``
+                - ``bigtable``
+                - ``bigtable.auto_scaling``
+                - ``bigtable.enable_multi_region_replica``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1590,16 +1586,16 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
 
                 Updatable fields:
 
-                -  ``labels``
-                -  ``service_agent_type``
-                -  ``big_query_source``
-                -  ``big_query_source.uri``
-                -  ``big_query_source.entity_id_columns``
-                -  ``feature_registry_source``
-                -  ``feature_registry_source.feature_groups``
-                -  ``sync_config``
-                -  ``sync_config.cron``
-                -  ``optimized_config.automatic_resources``
+                - ``labels``
+                - ``service_agent_type``
+                - ``big_query_source``
+                - ``big_query_source.uri``
+                - ``big_query_source.entity_id_columns``
+                - ``feature_registry_source``
+                - ``feature_registry_source.feature_groups``
+                - ``sync_config``
+                - ``sync_config.cron``
+                - ``optimized_config.automatic_resources``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

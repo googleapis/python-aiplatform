@@ -63,9 +63,7 @@ _LOGGER = std_logging.getLogger(__name__)
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.memory_bank_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.memory_bank_service import pagers
 from google.cloud.aiplatform_v1beta1.types import memory_bank
 from google.cloud.aiplatform_v1beta1.types import memory_bank_service
 from google.cloud.location import locations_pb2  # type: ignore
@@ -797,25 +795,21 @@ class MemoryBankServiceClient(metaclass=MemoryBankServiceClientMeta):
             ):  # pragma: NO COVER
                 _LOGGER.debug(
                     "Created client `google.cloud.aiplatform_v1beta1.MemoryBankServiceClient`.",
-                    extra=(
-                        {
-                            "serviceName": "google.cloud.aiplatform.v1beta1.MemoryBankService",
-                            "universeDomain": getattr(
-                                self._transport._credentials, "universe_domain", ""
-                            ),
-                            "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                            "credentialsInfo": getattr(
-                                self.transport._credentials,
-                                "get_cred_info",
-                                lambda: None,
-                            )(),
-                        }
-                        if hasattr(self._transport, "_credentials")
-                        else {
-                            "serviceName": "google.cloud.aiplatform.v1beta1.MemoryBankService",
-                            "credentialsType": None,
-                        }
-                    ),
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.MemoryBankService",
+                        "universeDomain": getattr(
+                            self._transport._credentials, "universe_domain", ""
+                        ),
+                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
+                        "credentialsInfo": getattr(
+                            self.transport._credentials, "get_cred_info", lambda: None
+                        )(),
+                    }
+                    if hasattr(self._transport, "_credentials")
+                    else {
+                        "serviceName": "google.cloud.aiplatform.v1beta1.MemoryBankService",
+                        "credentialsType": None,
+                    },
                 )
 
     def create_memory(

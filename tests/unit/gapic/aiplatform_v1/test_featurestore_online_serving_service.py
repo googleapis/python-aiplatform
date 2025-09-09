@@ -1326,9 +1326,9 @@ def test_read_feature_values_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.read_feature_values] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.read_feature_values
+        ] = mock_rpc
         request = {}
         client.read_feature_values(request)
 
@@ -2011,9 +2011,9 @@ def test_write_feature_values_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.write_feature_values] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.write_feature_values
+        ] = mock_rpc
         request = {}
         client.write_feature_values(request)
 
@@ -2316,9 +2316,9 @@ def test_read_feature_values_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.read_feature_values] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.read_feature_values
+        ] = mock_rpc
 
         request = {}
         client.read_feature_values(request)
@@ -2729,9 +2729,9 @@ def test_write_feature_values_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.write_feature_values] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.write_feature_values
+        ] = mock_rpc
 
         request = {}
         client.write_feature_values(request)
@@ -3265,11 +3265,9 @@ def test_read_feature_values_rest_call_success(request_type):
 def test_read_feature_values_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreOnlineServingServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.FeaturestoreOnlineServingServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.FeaturestoreOnlineServingServiceRestInterceptor(),
     )
     client = FeaturestoreOnlineServingServiceClient(transport=transport)
 
@@ -3409,11 +3407,9 @@ def test_streaming_read_feature_values_rest_call_success(request_type):
 def test_streaming_read_feature_values_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreOnlineServingServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.FeaturestoreOnlineServingServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.FeaturestoreOnlineServingServiceRestInterceptor(),
     )
     client = FeaturestoreOnlineServingServiceClient(transport=transport)
 
@@ -3549,11 +3545,9 @@ def test_write_feature_values_rest_call_success(request_type):
 def test_write_feature_values_rest_interceptors(null_interceptor):
     transport = transports.FeaturestoreOnlineServingServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.FeaturestoreOnlineServingServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.FeaturestoreOnlineServingServiceRestInterceptor(),
     )
     client = FeaturestoreOnlineServingServiceClient(transport=transport)
 
@@ -4414,11 +4408,9 @@ async def test_read_feature_values_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreOnlineServingServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor(),
     )
     client = FeaturestoreOnlineServingServiceAsyncClient(transport=transport)
 
@@ -4574,11 +4566,9 @@ async def test_streaming_read_feature_values_rest_asyncio_interceptors(
         )
     transport = transports.AsyncFeaturestoreOnlineServingServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor(),
     )
     client = FeaturestoreOnlineServingServiceAsyncClient(transport=transport)
 
@@ -4730,11 +4720,9 @@ async def test_write_feature_values_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeaturestoreOnlineServingServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor(),
     )
     client = FeaturestoreOnlineServingServiceAsyncClient(transport=transport)
 

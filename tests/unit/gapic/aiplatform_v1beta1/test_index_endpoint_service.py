@@ -72,18 +72,12 @@ from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
 from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
     IndexEndpointServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import pagers
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import index_endpoint
-from google.cloud.aiplatform_v1beta1.types import (
-    index_endpoint as gca_index_endpoint,
-)
+from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint_service
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -1301,9 +1295,9 @@ def test_create_index_endpoint_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_index_endpoint] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_index_endpoint
+        ] = mock_rpc
         request = {}
         client.create_index_endpoint(request)
 
@@ -1678,9 +1672,9 @@ def test_get_index_endpoint_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_index_endpoint] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_index_endpoint
+        ] = mock_rpc
         request = {}
         client.get_index_endpoint(request)
 
@@ -2042,9 +2036,9 @@ def test_list_index_endpoints_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_index_endpoints] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_index_endpoints
+        ] = mock_rpc
         request = {}
         client.list_index_endpoints(request)
 
@@ -2601,9 +2595,9 @@ def test_update_index_endpoint_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.update_index_endpoint] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.update_index_endpoint
+        ] = mock_rpc
         request = {}
         client.update_index_endpoint(request)
 
@@ -2969,9 +2963,9 @@ def test_delete_index_endpoint_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_index_endpoint] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_index_endpoint
+        ] = mock_rpc
         request = {}
         client.delete_index_endpoint(request)
 
@@ -3994,9 +3988,9 @@ def test_mutate_deployed_index_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.mutate_deployed_index] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.mutate_deployed_index
+        ] = mock_rpc
         request = {}
         client.mutate_deployed_index(request)
 
@@ -4286,9 +4280,9 @@ def test_create_index_endpoint_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_index_endpoint] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_index_endpoint
+        ] = mock_rpc
 
         request = {}
         client.create_index_endpoint(request)
@@ -4478,9 +4472,9 @@ def test_get_index_endpoint_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_index_endpoint] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_index_endpoint
+        ] = mock_rpc
 
         request = {}
         client.get_index_endpoint(request)
@@ -4662,9 +4656,9 @@ def test_list_index_endpoints_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_index_endpoints] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_index_endpoints
+        ] = mock_rpc
 
         request = {}
         client.list_index_endpoints(request)
@@ -4932,9 +4926,9 @@ def test_update_index_endpoint_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.update_index_endpoint] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.update_index_endpoint
+        ] = mock_rpc
 
         request = {}
         client.update_index_endpoint(request)
@@ -5127,9 +5121,9 @@ def test_delete_index_endpoint_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_index_endpoint] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_index_endpoint
+        ] = mock_rpc
 
         request = {}
         client.delete_index_endpoint(request)
@@ -5695,9 +5689,9 @@ def test_mutate_deployed_index_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.mutate_deployed_index] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.mutate_deployed_index
+        ] = mock_rpc
 
         request = {}
         client.mutate_deployed_index(request)
@@ -6646,11 +6640,9 @@ def test_create_index_endpoint_rest_call_success(request_type):
 def test_create_index_endpoint_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.IndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceClient(transport=transport)
 
@@ -6796,11 +6788,9 @@ def test_get_index_endpoint_rest_call_success(request_type):
 def test_get_index_endpoint_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.IndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceClient(transport=transport)
 
@@ -6930,11 +6920,9 @@ def test_list_index_endpoints_rest_call_success(request_type):
 def test_list_index_endpoints_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.IndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceClient(transport=transport)
 
@@ -7265,11 +7253,9 @@ def test_update_index_endpoint_rest_call_success(request_type):
 def test_update_index_endpoint_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.IndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceClient(transport=transport)
 
@@ -7391,11 +7377,9 @@ def test_delete_index_endpoint_rest_call_success(request_type):
 def test_delete_index_endpoint_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.IndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceClient(transport=transport)
 
@@ -7521,11 +7505,9 @@ def test_deploy_index_rest_call_success(request_type):
 def test_deploy_index_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.IndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceClient(transport=transport)
 
@@ -7651,11 +7633,9 @@ def test_undeploy_index_rest_call_success(request_type):
 def test_undeploy_index_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.IndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceClient(transport=transport)
 
@@ -7919,11 +7899,9 @@ def test_mutate_deployed_index_rest_call_success(request_type):
 def test_mutate_deployed_index_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.IndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceClient(transport=transport)
 
@@ -9067,11 +9045,9 @@ async def test_create_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncIndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
@@ -9234,11 +9210,9 @@ async def test_get_index_endpoint_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncIndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
@@ -9384,11 +9358,9 @@ async def test_list_index_endpoints_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncIndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
@@ -9735,11 +9707,9 @@ async def test_update_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncIndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
@@ -9878,11 +9848,9 @@ async def test_delete_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncIndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
@@ -10025,11 +9993,9 @@ async def test_deploy_index_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncIndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
@@ -10171,11 +10137,9 @@ async def test_undeploy_index_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncIndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
@@ -10455,11 +10419,9 @@ async def test_mutate_deployed_index_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncIndexEndpointServiceRestInterceptor(),
     )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 

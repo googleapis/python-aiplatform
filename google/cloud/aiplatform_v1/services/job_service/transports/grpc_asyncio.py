@@ -41,9 +41,7 @@ from google.cloud.aiplatform_v1.types import (
 from google.cloud.aiplatform_v1.types import custom_job
 from google.cloud.aiplatform_v1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1.types import data_labeling_job
-from google.cloud.aiplatform_v1.types import (
-    data_labeling_job as gca_data_labeling_job,
-)
+from google.cloud.aiplatform_v1.types import data_labeling_job as gca_data_labeling_job
 from google.cloud.aiplatform_v1.types import hyperparameter_tuning_job
 from google.cloud.aiplatform_v1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
@@ -688,12 +686,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_hyperparameter_tuning_job" not in self._stubs:
-            self._stubs["create_hyperparameter_tuning_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/CreateHyperparameterTuningJob",
-                    request_serializer=job_service.CreateHyperparameterTuningJobRequest.serialize,
-                    response_deserializer=gca_hyperparameter_tuning_job.HyperparameterTuningJob.deserialize,
-                )
+            self._stubs[
+                "create_hyperparameter_tuning_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/CreateHyperparameterTuningJob",
+                request_serializer=job_service.CreateHyperparameterTuningJobRequest.serialize,
+                response_deserializer=gca_hyperparameter_tuning_job.HyperparameterTuningJob.deserialize,
             )
         return self._stubs["create_hyperparameter_tuning_job"]
 
@@ -719,12 +717,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_hyperparameter_tuning_job" not in self._stubs:
-            self._stubs["get_hyperparameter_tuning_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/GetHyperparameterTuningJob",
-                    request_serializer=job_service.GetHyperparameterTuningJobRequest.serialize,
-                    response_deserializer=hyperparameter_tuning_job.HyperparameterTuningJob.deserialize,
-                )
+            self._stubs[
+                "get_hyperparameter_tuning_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/GetHyperparameterTuningJob",
+                request_serializer=job_service.GetHyperparameterTuningJobRequest.serialize,
+                response_deserializer=hyperparameter_tuning_job.HyperparameterTuningJob.deserialize,
             )
         return self._stubs["get_hyperparameter_tuning_job"]
 
@@ -751,12 +749,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_hyperparameter_tuning_jobs" not in self._stubs:
-            self._stubs["list_hyperparameter_tuning_jobs"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/ListHyperparameterTuningJobs",
-                    request_serializer=job_service.ListHyperparameterTuningJobsRequest.serialize,
-                    response_deserializer=job_service.ListHyperparameterTuningJobsResponse.deserialize,
-                )
+            self._stubs[
+                "list_hyperparameter_tuning_jobs"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/ListHyperparameterTuningJobs",
+                request_serializer=job_service.ListHyperparameterTuningJobsRequest.serialize,
+                response_deserializer=job_service.ListHyperparameterTuningJobsResponse.deserialize,
             )
         return self._stubs["list_hyperparameter_tuning_jobs"]
 
@@ -783,12 +781,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_hyperparameter_tuning_job" not in self._stubs:
-            self._stubs["delete_hyperparameter_tuning_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/DeleteHyperparameterTuningJob",
-                    request_serializer=job_service.DeleteHyperparameterTuningJobRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "delete_hyperparameter_tuning_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/DeleteHyperparameterTuningJob",
+                request_serializer=job_service.DeleteHyperparameterTuningJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_hyperparameter_tuning_job"]
 
@@ -827,12 +825,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_hyperparameter_tuning_job" not in self._stubs:
-            self._stubs["cancel_hyperparameter_tuning_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/CancelHyperparameterTuningJob",
-                    request_serializer=job_service.CancelHyperparameterTuningJobRequest.serialize,
-                    response_deserializer=empty_pb2.Empty.FromString,
-                )
+            self._stubs[
+                "cancel_hyperparameter_tuning_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/CancelHyperparameterTuningJob",
+                request_serializer=job_service.CancelHyperparameterTuningJobRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_hyperparameter_tuning_job"]
 
@@ -1062,12 +1060,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_batch_prediction_job" not in self._stubs:
-            self._stubs["create_batch_prediction_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/CreateBatchPredictionJob",
-                    request_serializer=job_service.CreateBatchPredictionJobRequest.serialize,
-                    response_deserializer=gca_batch_prediction_job.BatchPredictionJob.deserialize,
-                )
+            self._stubs[
+                "create_batch_prediction_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/CreateBatchPredictionJob",
+                request_serializer=job_service.CreateBatchPredictionJobRequest.serialize,
+                response_deserializer=gca_batch_prediction_job.BatchPredictionJob.deserialize,
             )
         return self._stubs["create_batch_prediction_job"]
 
@@ -1122,12 +1120,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_batch_prediction_jobs" not in self._stubs:
-            self._stubs["list_batch_prediction_jobs"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/ListBatchPredictionJobs",
-                    request_serializer=job_service.ListBatchPredictionJobsRequest.serialize,
-                    response_deserializer=job_service.ListBatchPredictionJobsResponse.deserialize,
-                )
+            self._stubs[
+                "list_batch_prediction_jobs"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/ListBatchPredictionJobs",
+                request_serializer=job_service.ListBatchPredictionJobsRequest.serialize,
+                response_deserializer=job_service.ListBatchPredictionJobsResponse.deserialize,
             )
         return self._stubs["list_batch_prediction_jobs"]
 
@@ -1154,12 +1152,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_batch_prediction_job" not in self._stubs:
-            self._stubs["delete_batch_prediction_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/DeleteBatchPredictionJob",
-                    request_serializer=job_service.DeleteBatchPredictionJobRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "delete_batch_prediction_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/DeleteBatchPredictionJob",
+                request_serializer=job_service.DeleteBatchPredictionJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_batch_prediction_job"]
 
@@ -1195,12 +1193,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_batch_prediction_job" not in self._stubs:
-            self._stubs["cancel_batch_prediction_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/CancelBatchPredictionJob",
-                    request_serializer=job_service.CancelBatchPredictionJobRequest.serialize,
-                    response_deserializer=empty_pb2.Empty.FromString,
-                )
+            self._stubs[
+                "cancel_batch_prediction_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/CancelBatchPredictionJob",
+                request_serializer=job_service.CancelBatchPredictionJobRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_batch_prediction_job"]
 
@@ -1228,12 +1226,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs["create_model_deployment_monitoring_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/CreateModelDeploymentMonitoringJob",
-                    request_serializer=job_service.CreateModelDeploymentMonitoringJobRequest.serialize,
-                    response_deserializer=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.deserialize,
-                )
+            self._stubs[
+                "create_model_deployment_monitoring_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/CreateModelDeploymentMonitoringJob",
+                request_serializer=job_service.CreateModelDeploymentMonitoringJobRequest.serialize,
+                response_deserializer=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.deserialize,
             )
         return self._stubs["create_model_deployment_monitoring_job"]
 
@@ -1261,12 +1259,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "search_model_deployment_monitoring_stats_anomalies" not in self._stubs:
-            self._stubs["search_model_deployment_monitoring_stats_anomalies"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/SearchModelDeploymentMonitoringStatsAnomalies",
-                    request_serializer=job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.serialize,
-                    response_deserializer=job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.deserialize,
-                )
+            self._stubs[
+                "search_model_deployment_monitoring_stats_anomalies"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/SearchModelDeploymentMonitoringStatsAnomalies",
+                request_serializer=job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.serialize,
+                response_deserializer=job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.deserialize,
             )
         return self._stubs["search_model_deployment_monitoring_stats_anomalies"]
 
@@ -1293,12 +1291,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs["get_model_deployment_monitoring_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/GetModelDeploymentMonitoringJob",
-                    request_serializer=job_service.GetModelDeploymentMonitoringJobRequest.serialize,
-                    response_deserializer=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.deserialize,
-                )
+            self._stubs[
+                "get_model_deployment_monitoring_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/GetModelDeploymentMonitoringJob",
+                request_serializer=job_service.GetModelDeploymentMonitoringJobRequest.serialize,
+                response_deserializer=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.deserialize,
             )
         return self._stubs["get_model_deployment_monitoring_job"]
 
@@ -1325,12 +1323,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_model_deployment_monitoring_jobs" not in self._stubs:
-            self._stubs["list_model_deployment_monitoring_jobs"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/ListModelDeploymentMonitoringJobs",
-                    request_serializer=job_service.ListModelDeploymentMonitoringJobsRequest.serialize,
-                    response_deserializer=job_service.ListModelDeploymentMonitoringJobsResponse.deserialize,
-                )
+            self._stubs[
+                "list_model_deployment_monitoring_jobs"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/ListModelDeploymentMonitoringJobs",
+                request_serializer=job_service.ListModelDeploymentMonitoringJobsRequest.serialize,
+                response_deserializer=job_service.ListModelDeploymentMonitoringJobsResponse.deserialize,
             )
         return self._stubs["list_model_deployment_monitoring_jobs"]
 
@@ -1357,12 +1355,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs["update_model_deployment_monitoring_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/UpdateModelDeploymentMonitoringJob",
-                    request_serializer=job_service.UpdateModelDeploymentMonitoringJobRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "update_model_deployment_monitoring_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/UpdateModelDeploymentMonitoringJob",
+                request_serializer=job_service.UpdateModelDeploymentMonitoringJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["update_model_deployment_monitoring_job"]
 
@@ -1389,12 +1387,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs["delete_model_deployment_monitoring_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/DeleteModelDeploymentMonitoringJob",
-                    request_serializer=job_service.DeleteModelDeploymentMonitoringJobRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "delete_model_deployment_monitoring_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/DeleteModelDeploymentMonitoringJob",
+                request_serializer=job_service.DeleteModelDeploymentMonitoringJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_model_deployment_monitoring_job"]
 
@@ -1424,12 +1422,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "pause_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs["pause_model_deployment_monitoring_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/PauseModelDeploymentMonitoringJob",
-                    request_serializer=job_service.PauseModelDeploymentMonitoringJobRequest.serialize,
-                    response_deserializer=empty_pb2.Empty.FromString,
-                )
+            self._stubs[
+                "pause_model_deployment_monitoring_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/PauseModelDeploymentMonitoringJob",
+                request_serializer=job_service.PauseModelDeploymentMonitoringJobRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["pause_model_deployment_monitoring_job"]
 
@@ -1458,12 +1456,12 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "resume_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs["resume_model_deployment_monitoring_job"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1.JobService/ResumeModelDeploymentMonitoringJob",
-                    request_serializer=job_service.ResumeModelDeploymentMonitoringJobRequest.serialize,
-                    response_deserializer=empty_pb2.Empty.FromString,
-                )
+            self._stubs[
+                "resume_model_deployment_monitoring_job"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.JobService/ResumeModelDeploymentMonitoringJob",
+                request_serializer=job_service.ResumeModelDeploymentMonitoringJobRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["resume_model_deployment_monitoring_job"]
 

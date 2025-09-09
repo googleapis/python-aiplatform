@@ -620,7 +620,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -783,7 +782,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -904,6 +902,22 @@ class FeaturestoreOnlineServingServiceRestTransport(
             ) = self._interceptor.post_streaming_read_feature_values_with_metadata(
                 resp, response_metadata
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreOnlineServingServiceClient.streaming_read_feature_values",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService",
+                        "rpcName": "StreamingReadFeatureValues",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _WriteFeatureValues(
@@ -925,7 +939,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1123,7 +1136,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1265,7 +1277,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1407,7 +1418,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1555,7 +1565,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1705,7 +1714,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1855,7 +1863,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1971,7 +1978,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2087,7 +2093,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2229,7 +2234,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2371,7 +2375,6 @@ class FeaturestoreOnlineServingServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

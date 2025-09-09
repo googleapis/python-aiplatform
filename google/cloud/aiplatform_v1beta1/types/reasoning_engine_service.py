@@ -194,12 +194,12 @@ class ListReasoningEnginesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    reasoning_engines: MutableSequence[gca_reasoning_engine.ReasoningEngine] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_reasoning_engine.ReasoningEngine,
-        )
+    reasoning_engines: MutableSequence[
+        gca_reasoning_engine.ReasoningEngine
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_reasoning_engine.ReasoningEngine,
     )
     next_page_token: str = proto.Field(
         proto.STRING,

@@ -160,7 +160,6 @@ class OutputFieldSpec(proto.Message):
             AUDIO (4):
                 Audio field type.
         """
-
         FIELD_TYPE_UNSPECIFIED = 0
         CONTENT = 1
         TEXT = 2

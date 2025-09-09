@@ -84,23 +84,23 @@ class AutoMlForecastingInputs(proto.Message):
 
             The supported optimization objectives:
 
-            -  "minimize-rmse" (default) - Minimize root-mean-squared
-               error (RMSE).
+            - "minimize-rmse" (default) - Minimize root-mean-squared
+              error (RMSE).
 
-            -  "minimize-mae" - Minimize mean-absolute error (MAE).
+            - "minimize-mae" - Minimize mean-absolute error (MAE).
 
-            -  "minimize-rmsle" - Minimize root-mean-squared log error
-               (RMSLE).
+            - "minimize-rmsle" - Minimize root-mean-squared log error
+              (RMSLE).
 
-            -  "minimize-rmspe" - Minimize root-mean-squared percentage
-               error (RMSPE).
+            - "minimize-rmspe" - Minimize root-mean-squared percentage
+              error (RMSPE).
 
-            -  "minimize-wape-mae" - Minimize the combination of
-               weighted absolute percentage error (WAPE) and
-               mean-absolute-error (MAE).
+            - "minimize-wape-mae" - Minimize the combination of weighted
+              absolute percentage error (WAPE) and mean-absolute-error
+              (MAE).
 
-            -  "minimize-quantile-loss" - Minimize the quantile loss at
-               the quantiles defined in ``quantiles``.
+            - "minimize-quantile-loss" - Minimize the quantile loss at
+              the quantiles defined in ``quantiles``.
         train_budget_milli_node_hours (int):
             Required. The train budget of creating this
             model, expressed in milli node hours i.e. 1,000
@@ -175,11 +175,11 @@ class AutoMlForecastingInputs(proto.Message):
             Validation options for the data validation component. The
             available options are:
 
-            -  "fail-pipeline" - default, will validate against the
-               validation and fail the pipeline if it fails.
+            - "fail-pipeline" - default, will validate against the
+              validation and fail the pipeline if it fails.
 
-            -  "ignore-validation" - ignore the results of the
-               validation and continue
+            - "ignore-validation" - ignore the results of the validation
+              and continue
         additional_experiments (MutableSequence[str]):
             Additional experiment flags for the time
             series forcasting training.
@@ -230,19 +230,19 @@ class AutoMlForecastingInputs(proto.Message):
         class NumericTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
 
-            -  The value converted to float32.
+            - The value converted to float32.
 
-            -  The z_score of the value.
+            - The z_score of the value.
 
-            -  log(value+1) when the value is greater than or equal to 0.
-               Otherwise, this transformation is not applied and the value is
-               considered a missing value.
+            - log(value+1) when the value is greater than or equal to 0.
+              Otherwise, this transformation is not applied and the value is
+              considered a missing value.
 
-            -  z_score of log(value+1) when the value is greater than or equal
-               to 0. Otherwise, this transformation is not applied and the value
-               is considered a missing value.
+            - z_score of log(value+1) when the value is greater than or equal to
+              0. Otherwise, this transformation is not applied and the value is
+              considered a missing value.
 
-            -  A boolean value that indicates whether the value is valid.
+            - A boolean value that indicates whether the value is valid.
 
             Attributes:
                 column_name (str):
@@ -257,15 +257,15 @@ class AutoMlForecastingInputs(proto.Message):
         class CategoricalTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
 
-            -  The categorical string as is--no change to case, punctuation,
-               spelling, tense, and so on.
+            - The categorical string as is--no change to case, punctuation,
+              spelling, tense, and so on.
 
-            -  Convert the category name to a dictionary lookup index and
-               generate an embedding for each index.
+            - Convert the category name to a dictionary lookup index and
+              generate an embedding for each index.
 
-            -  Categories that appear less than 5 times in the training dataset
-               are treated as the "unknown" category. The "unknown" category
-               gets its own special lookup index and resulting embedding.
+            - Categories that appear less than 5 times in the training dataset
+              are treated as the "unknown" category. The "unknown" category gets
+              its own special lookup index and resulting embedding.
 
             Attributes:
                 column_name (str):
@@ -280,14 +280,14 @@ class AutoMlForecastingInputs(proto.Message):
         class TimestampTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
 
-            -  Apply the transformation functions for Numerical columns.
+            - Apply the transformation functions for Numerical columns.
 
-            -  Determine the year, month, day,and weekday. Treat each value from
-               the timestamp as a Categorical column.
+            - Determine the year, month, day,and weekday. Treat each value from
+              the timestamp as a Categorical column.
 
-            -  Invalid numerical values (for example, values that fall outside
-               of a typical timestamp range, or are extreme values) receive no
-               special treatment and are not removed.
+            - Invalid numerical values (for example, values that fall outside of
+              a typical timestamp range, or are extreme values) receive no
+              special treatment and are not removed.
 
             Attributes:
                 column_name (str):
@@ -296,13 +296,13 @@ class AutoMlForecastingInputs(proto.Message):
                     The format in which that time field is expressed. The
                     time_format must either be one of:
 
-                    -  ``unix-seconds``
+                    - ``unix-seconds``
 
-                    -  ``unix-milliseconds``
+                    - ``unix-milliseconds``
 
-                    -  ``unix-microseconds``
+                    - ``unix-microseconds``
 
-                    -  ``unix-nanoseconds``
+                    - ``unix-nanoseconds``
 
                     (for respectively number of seconds, milliseconds,
                     microseconds and nanoseconds since start of the Unix epoch);
@@ -326,11 +326,11 @@ class AutoMlForecastingInputs(proto.Message):
         class TextTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
 
-            -  The text as is--no change to case, punctuation, spelling, tense,
-               and so on.
+            - The text as is--no change to case, punctuation, spelling, tense,
+              and so on.
 
-            -  Convert the category name to a dictionary lookup index and
-               generate an embedding for each index.
+            - Convert the category name to a dictionary lookup index and
+              generate an embedding for each index.
 
             Attributes:
                 column_name (str):
@@ -356,21 +356,17 @@ class AutoMlForecastingInputs(proto.Message):
                 message="AutoMlForecastingInputs.Transformation.NumericTransformation",
             )
         )
-        categorical: (
-            "AutoMlForecastingInputs.Transformation.CategoricalTransformation"
-        ) = proto.Field(
+        categorical: "AutoMlForecastingInputs.Transformation.CategoricalTransformation" = proto.Field(
             proto.MESSAGE,
             number=3,
             oneof="transformation_detail",
             message="AutoMlForecastingInputs.Transformation.CategoricalTransformation",
         )
-        timestamp: "AutoMlForecastingInputs.Transformation.TimestampTransformation" = (
-            proto.Field(
-                proto.MESSAGE,
-                number=4,
-                oneof="transformation_detail",
-                message="AutoMlForecastingInputs.Transformation.TimestampTransformation",
-            )
+        timestamp: "AutoMlForecastingInputs.Transformation.TimestampTransformation" = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            oneof="transformation_detail",
+            message="AutoMlForecastingInputs.Transformation.TimestampTransformation",
         )
         text: "AutoMlForecastingInputs.Transformation.TextTransformation" = proto.Field(
             proto.MESSAGE,
@@ -387,17 +383,17 @@ class AutoMlForecastingInputs(proto.Message):
                 The time granularity unit of this time period. The supported
                 units are:
 
-                -  "minute"
+                - "minute"
 
-                -  "hour"
+                - "hour"
 
-                -  "day"
+                - "day"
 
-                -  "week"
+                - "week"
 
-                -  "month"
+                - "month"
 
-                -  "year".
+                - "year".
             quantity (int):
                 The number of granularity_units between data points in the
                 training data. If ``granularity_unit`` is ``minute``, can be
@@ -468,9 +464,7 @@ class AutoMlForecastingInputs(proto.Message):
         proto.INT64,
         number=24,
     )
-    export_evaluated_data_items_config: (
-        gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig
-    ) = proto.Field(
+    export_evaluated_data_items_config: gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig = proto.Field(
         proto.MESSAGE,
         number=15,
         message=gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig,

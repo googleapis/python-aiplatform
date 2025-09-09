@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    index_endpoint as gca_index_endpoint,
-)
+from google.cloud.aiplatform_v1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -119,25 +117,25 @@ class ListIndexEndpointsRequest(proto.Message):
             request. For field names both snake_case and camelCase are
             supported.
 
-            -  ``index_endpoint`` supports = and !=. ``index_endpoint``
-               represents the IndexEndpoint ID, ie. the last segment of
-               the IndexEndpoint's
-               [resourcename][google.cloud.aiplatform.v1.IndexEndpoint.name].
-            -  ``display_name`` supports =, != and regex() (uses
-               `re2 <https://github.com/google/re2/wiki/Syntax>`__
-               syntax)
-            -  ``labels`` supports general map functions that is:
-               ``labels.key=value`` - key:value equality
-               ``labels.key:* or labels:key - key existence A key including a space must be quoted.``\ labels."a
-               key"`.
+            - ``index_endpoint`` supports = and !=. ``index_endpoint``
+              represents the IndexEndpoint ID, ie. the last segment of
+              the IndexEndpoint's
+              [resourcename][google.cloud.aiplatform.v1.IndexEndpoint.name].
+            - ``display_name`` supports =, != and regex() (uses
+              `re2 <https://github.com/google/re2/wiki/Syntax>`__
+              syntax)
+            - ``labels`` supports general map functions that is:
+              ``labels.key=value`` - key:value equality
+              ``labels.key:* or labels:key - key existence A key including a space must be quoted.``\ labels."a
+              key"\`.
 
             Some examples:
 
-            -  ``index_endpoint="1"``
-            -  ``display_name="myDisplayName"``
-            -  \`regex(display_name, "^A") -> The display name starts
-               with an A.
-            -  ``labels.myKey="myValue"``
+            - ``index_endpoint="1"``
+            - ``display_name="myDisplayName"``
+            - \`regex(display_name, "^A") -> The display name starts
+              with an A.
+            - ``labels.myKey="myValue"``
         page_size (int):
             Optional. The standard list page size.
         page_token (str):
@@ -192,12 +190,12 @@ class ListIndexEndpointsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    index_endpoints: MutableSequence[gca_index_endpoint.IndexEndpoint] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_index_endpoint.IndexEndpoint,
-        )
+    index_endpoints: MutableSequence[
+        gca_index_endpoint.IndexEndpoint
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_index_endpoint.IndexEndpoint,
     )
     next_page_token: str = proto.Field(
         proto.STRING,

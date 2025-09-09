@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import saved_query
 from google.protobuf import struct_pb2  # type: ignore
@@ -91,10 +89,10 @@ class Dataset(proto.Message):
             "aiplatform.googleapis.com/" and are immutable. Following
             system labels exist for each Dataset:
 
-            -  "aiplatform.googleapis.com/dataset_metadata_schema":
-               output only, its value is the
-               [metadata_schema's][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
-               title.
+            - "aiplatform.googleapis.com/dataset_metadata_schema":
+              output only, its value is the
+              [metadata_schema's][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
+              title.
         saved_queries (MutableSequence[google.cloud.aiplatform_v1.types.SavedQuery]):
             All SavedQueries belong to the Dataset will be returned in
             List/Get Dataset response. The annotation_specs field will
@@ -374,7 +372,6 @@ class ExportDataConfig(proto.Message):
             CUSTOM_CODE_TRAINING (6):
                 Export for custom code training.
         """
-
         EXPORT_USE_UNSPECIFIED = 0
         CUSTOM_CODE_TRAINING = 6
 

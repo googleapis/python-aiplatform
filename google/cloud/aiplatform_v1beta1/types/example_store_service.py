@@ -20,9 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import example as gca_example
-from google.cloud.aiplatform_v1beta1.types import (
-    example_store as gca_example_store,
-)
+from google.cloud.aiplatform_v1beta1.types import example_store as gca_example_store
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -245,12 +243,12 @@ class ListExampleStoresResponse(proto.Message):
     def raw_page(self):
         return self
 
-    example_stores: MutableSequence[gca_example_store.ExampleStore] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_example_store.ExampleStore,
-        )
+    example_stores: MutableSequence[
+        gca_example_store.ExampleStore
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_example_store.ExampleStore,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -470,9 +468,7 @@ class SearchExamplesRequest(proto.Message):
             return.
     """
 
-    stored_contents_example_parameters: (
-        gca_example_store.StoredContentsExampleParameters
-    ) = proto.Field(
+    stored_contents_example_parameters: gca_example_store.StoredContentsExampleParameters = proto.Field(
         proto.MESSAGE,
         number=6,
         oneof="parameters",

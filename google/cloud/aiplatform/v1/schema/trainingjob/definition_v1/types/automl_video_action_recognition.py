@@ -81,7 +81,6 @@ class AutoMlVideoActionRecognitionInputs(proto.Message):
                 TensorFlow Lite model and used on a Coral device
                 afterwards.
         """
-
         MODEL_TYPE_UNSPECIFIED = 0
         CLOUD = 1
         MOBILE_VERSATILE_1 = 2

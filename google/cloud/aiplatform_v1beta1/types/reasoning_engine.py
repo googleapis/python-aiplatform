@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.protobuf import duration_pb2  # type: ignore
@@ -149,11 +147,11 @@ class ReasoningEngineSpec(proto.Message):
                 'memory' keys are supported. Defaults to {"cpu": "4",
                 "memory": "4Gi"}.
 
-                -  The only supported values for CPU are '1', '2', '4', and
-                   '8'. For more information, go to
-                   https://cloud.google.com/run/docs/configuring/cpu.
-                -  For supported 'memory' values and syntax, go to
-                   https://cloud.google.com/run/docs/configuring/memory-limits
+                - The only supported values for CPU are '1', '2', '4', and
+                  '8'. For more information, go to
+                  https://cloud.google.com/run/docs/configuring/cpu.
+                - For supported 'memory' values and syntax, go to
+                  https://cloud.google.com/run/docs/configuring/memory-limits
             container_concurrency (int):
                 Optional. Concurrency for each container and agent server.
                 Recommended value: 2 \* cpu + 1. Defaults to 9.
@@ -437,16 +435,12 @@ class ReasoningEngineContextSpec(proto.Message):
                 number=1,
             )
 
-        generation_config: (
-            "ReasoningEngineContextSpec.MemoryBankConfig.GenerationConfig"
-        ) = proto.Field(
+        generation_config: "ReasoningEngineContextSpec.MemoryBankConfig.GenerationConfig" = proto.Field(
             proto.MESSAGE,
             number=1,
             message="ReasoningEngineContextSpec.MemoryBankConfig.GenerationConfig",
         )
-        similarity_search_config: (
-            "ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig"
-        ) = proto.Field(
+        similarity_search_config: "ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig" = proto.Field(
             proto.MESSAGE,
             number=2,
             message="ReasoningEngineContextSpec.MemoryBankConfig.SimilaritySearchConfig",

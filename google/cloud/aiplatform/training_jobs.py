@@ -83,7 +83,6 @@ _WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
 
 
 class _TrainingJob(base.VertexAiStatefulResource):
-
     client_class = utils.PipelineClientWithOverride
     _resource_noun = "trainingPipelines"
     _getter_method = "get_training_pipeline"
@@ -2636,9 +2635,9 @@ class _ForecastingTrainingJob(_TrainingJob):
             training_task_inputs_dict["windowConfig"] = window_config
 
         if enable_probabilistic_inference:
-            training_task_inputs_dict["enableProbabilisticInference"] = (
-                enable_probabilistic_inference
-            )
+            training_task_inputs_dict[
+                "enableProbabilisticInference"
+            ] = enable_probabilistic_inference
 
         final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
         if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
@@ -2653,9 +2652,9 @@ class _ForecastingTrainingJob(_TrainingJob):
             }
 
         if self._additional_experiments:
-            training_task_inputs_dict["additionalExperiments"] = (
-                self._additional_experiments
-            )
+            training_task_inputs_dict[
+                "additionalExperiments"
+            ] = self._additional_experiments
 
         model = gca_model.Model(
             display_name=model_display_name or self._display_name,
@@ -4248,7 +4247,6 @@ class CustomTrainingJob(_CustomTrainingJob):
         )
 
         for spec_order, spec in enumerate(worker_pool_specs):
-
             if not spec:
                 continue
 
@@ -5729,7 +5727,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         """
 
         for spec_order, spec in enumerate(worker_pool_specs):
-
             if not spec:
                 continue
 
@@ -6462,9 +6459,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             }
 
         if self._additional_experiments:
-            training_task_inputs_dict["additionalExperiments"] = (
-                self._additional_experiments
-            )
+            training_task_inputs_dict[
+                "additionalExperiments"
+            ] = self._additional_experiments
 
         model = gca_model.Model(
             display_name=model_display_name or self._display_name,
@@ -7420,9 +7417,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
             training_task_inputs_dict["baseModelId"] = base_model.name
 
         if incremental_train_base_model:
-            training_task_inputs_dict["uptrainBaseModelId"] = (
-                incremental_train_base_model.name
-            )
+            training_task_inputs_dict[
+                "uptrainBaseModelId"
+            ] = incremental_train_base_model.name
 
         tunable_parameter_dict: Dict[str, any] = {}
 
@@ -8435,7 +8432,6 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 produce a Vertex AI Model.
         """
         for spec_order, spec in enumerate(worker_pool_specs):
-
             if not spec:
                 continue
 
@@ -8510,7 +8506,6 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
 
 class AutoMLVideoTrainingJob(_TrainingJob):
-
     _supported_training_schemas = (
         schema.training_job.definition.automl_video_classification,
         schema.training_job.definition.automl_video_object_tracking,

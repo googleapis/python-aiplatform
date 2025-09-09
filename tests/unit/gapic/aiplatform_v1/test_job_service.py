@@ -66,9 +66,7 @@ from google.api_core import path_template
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1.services.job_service import (
-    JobServiceAsyncClient,
-)
+from google.cloud.aiplatform_v1.services.job_service import JobServiceAsyncClient
 from google.cloud.aiplatform_v1.services.job_service import JobServiceClient
 from google.cloud.aiplatform_v1.services.job_service import pagers
 from google.cloud.aiplatform_v1.services.job_service import transports
@@ -81,9 +79,7 @@ from google.cloud.aiplatform_v1.types import completion_stats
 from google.cloud.aiplatform_v1.types import custom_job
 from google.cloud.aiplatform_v1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1.types import data_labeling_job
-from google.cloud.aiplatform_v1.types import (
-    data_labeling_job as gca_data_labeling_job,
-)
+from google.cloud.aiplatform_v1.types import data_labeling_job as gca_data_labeling_job
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import explanation
@@ -1237,9 +1233,9 @@ def test_create_custom_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_custom_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_custom_job
+        ] = mock_rpc
         request = {}
         client.create_custom_job(request)
 
@@ -1933,9 +1929,9 @@ def test_list_custom_jobs_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_custom_jobs] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_custom_jobs
+        ] = mock_rpc
         request = {}
         client.list_custom_jobs(request)
 
@@ -2453,9 +2449,9 @@ def test_delete_custom_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_custom_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_custom_job
+        ] = mock_rpc
         request = {}
         client.delete_custom_job(request)
 
@@ -2796,9 +2792,9 @@ def test_cancel_custom_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.cancel_custom_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.cancel_custom_job
+        ] = mock_rpc
         request = {}
         client.cancel_custom_job(request)
 
@@ -3530,9 +3526,9 @@ def test_get_data_labeling_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_data_labeling_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_data_labeling_job
+        ] = mock_rpc
         request = {}
         client.get_data_labeling_job(request)
 
@@ -8964,9 +8960,9 @@ def test_get_nas_trial_detail_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_nas_trial_detail] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_nas_trial_detail
+        ] = mock_rpc
         request = {}
         client.get_nas_trial_detail(request)
 
@@ -9310,9 +9306,9 @@ def test_list_nas_trial_details_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_nas_trial_details] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_nas_trial_details
+        ] = mock_rpc
         request = {}
         client.list_nas_trial_details(request)
 
@@ -15145,9 +15141,9 @@ def test_create_custom_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_custom_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_custom_job
+        ] = mock_rpc
 
         request = {}
         client.create_custom_job(request)
@@ -15514,9 +15510,9 @@ def test_list_custom_jobs_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_custom_jobs] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_custom_jobs
+        ] = mock_rpc
 
         request = {}
         client.list_custom_jobs(request)
@@ -15775,9 +15771,9 @@ def test_delete_custom_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_custom_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_custom_job
+        ] = mock_rpc
 
         request = {}
         client.delete_custom_job(request)
@@ -15955,9 +15951,9 @@ def test_cancel_custom_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.cancel_custom_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.cancel_custom_job
+        ] = mock_rpc
 
         request = {}
         client.cancel_custom_job(request)
@@ -16330,9 +16326,9 @@ def test_get_data_labeling_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_data_labeling_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_data_labeling_job
+        ] = mock_rpc
 
         request = {}
         client.get_data_labeling_job(request)
@@ -19155,9 +19151,9 @@ def test_get_nas_trial_detail_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_nas_trial_detail] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_nas_trial_detail
+        ] = mock_rpc
 
         request = {}
         client.get_nas_trial_detail(request)
@@ -19340,9 +19336,9 @@ def test_list_nas_trial_details_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_nas_trial_details] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_nas_trial_details
+        ] = mock_rpc
 
         request = {}
         client.list_nas_trial_details(request)
@@ -20878,9 +20874,9 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_required_fields
 
     # verify required fields with default values are now present
 
-    jsonified_request["modelDeploymentMonitoringJob"] = (
-        "model_deployment_monitoring_job_value"
-    )
+    jsonified_request[
+        "modelDeploymentMonitoringJob"
+    ] = "model_deployment_monitoring_job_value"
     jsonified_request["deployedModelId"] = "deployed_model_id_value"
 
     unset_fields = transport_class(
@@ -24583,9 +24579,9 @@ def test_create_custom_job_rest_call_success(request_type):
 def test_create_custom_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -24716,9 +24712,9 @@ def test_get_custom_job_rest_call_success(request_type):
 def test_get_custom_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -24843,9 +24839,9 @@ def test_list_custom_jobs_rest_call_success(request_type):
 def test_list_custom_jobs_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -24966,9 +24962,9 @@ def test_delete_custom_job_rest_call_success(request_type):
 def test_delete_custom_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -25089,9 +25085,9 @@ def test_cancel_custom_job_rest_call_success(request_type):
 def test_cancel_custom_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -25338,9 +25334,9 @@ def test_create_data_labeling_job_rest_call_success(request_type):
 def test_create_data_labeling_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -25491,9 +25487,9 @@ def test_get_data_labeling_job_rest_call_success(request_type):
 def test_get_data_labeling_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -25620,9 +25616,9 @@ def test_list_data_labeling_jobs_rest_call_success(request_type):
 def test_list_data_labeling_jobs_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -25751,9 +25747,9 @@ def test_delete_data_labeling_job_rest_call_success(request_type):
 def test_delete_data_labeling_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -25879,9 +25875,9 @@ def test_cancel_data_labeling_job_rest_call_success(request_type):
 def test_cancel_data_labeling_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -26286,9 +26282,9 @@ def test_create_hyperparameter_tuning_job_rest_call_success(request_type):
 def test_create_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -26439,9 +26435,9 @@ def test_get_hyperparameter_tuning_job_rest_call_success(request_type):
 def test_get_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -26572,9 +26568,9 @@ def test_list_hyperparameter_tuning_jobs_rest_call_success(request_type):
 def test_list_hyperparameter_tuning_jobs_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -26703,9 +26699,9 @@ def test_delete_hyperparameter_tuning_job_rest_call_success(request_type):
 def test_delete_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -26831,9 +26827,9 @@ def test_cancel_hyperparameter_tuning_job_rest_call_success(request_type):
 def test_cancel_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -27164,9 +27160,9 @@ def test_create_nas_job_rest_call_success(request_type):
 def test_create_nas_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -27299,9 +27295,9 @@ def test_get_nas_job_rest_call_success(request_type):
 def test_get_nas_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -27422,9 +27418,9 @@ def test_list_nas_jobs_rest_call_success(request_type):
 def test_list_nas_jobs_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -27541,9 +27537,9 @@ def test_delete_nas_job_rest_call_success(request_type):
 def test_delete_nas_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -27662,9 +27658,9 @@ def test_cancel_nas_job_rest_call_success(request_type):
 def test_cancel_nas_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -27783,9 +27779,9 @@ def test_get_nas_trial_detail_rest_call_success(request_type):
 def test_get_nas_trial_detail_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -27910,9 +27906,9 @@ def test_list_nas_trial_details_rest_call_success(request_type):
 def test_list_nas_trial_details_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -28290,9 +28286,9 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
 def test_create_batch_prediction_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -28445,9 +28441,9 @@ def test_get_batch_prediction_job_rest_call_success(request_type):
 def test_get_batch_prediction_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -28578,9 +28574,9 @@ def test_list_batch_prediction_jobs_rest_call_success(request_type):
 def test_list_batch_prediction_jobs_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -28709,9 +28705,9 @@ def test_delete_batch_prediction_job_rest_call_success(request_type):
 def test_delete_batch_prediction_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -28837,9 +28833,9 @@ def test_cancel_batch_prediction_job_rest_call_success(request_type):
 def test_cancel_batch_prediction_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -29153,9 +29149,9 @@ def test_create_model_deployment_monitoring_job_rest_call_success(request_type):
 def test_create_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -29308,9 +29304,9 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_interceptors(
 ):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -29478,9 +29474,9 @@ def test_get_model_deployment_monitoring_job_rest_call_success(request_type):
 def test_get_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -29617,9 +29613,9 @@ def test_list_model_deployment_monitoring_jobs_rest_call_success(request_type):
 def test_list_model_deployment_monitoring_jobs_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -29928,9 +29924,9 @@ def test_update_model_deployment_monitoring_job_rest_call_success(request_type):
 def test_update_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -30058,9 +30054,9 @@ def test_delete_model_deployment_monitoring_job_rest_call_success(request_type):
 def test_delete_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -30188,9 +30184,9 @@ def test_pause_model_deployment_monitoring_job_rest_call_success(request_type):
 def test_pause_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -30302,9 +30298,9 @@ def test_resume_model_deployment_monitoring_job_rest_call_success(request_type):
 def test_resume_model_deployment_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.JobServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.JobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.JobServiceRestInterceptor(),
     )
     client = JobServiceClient(transport=transport)
 
@@ -32024,9 +32020,9 @@ async def test_create_custom_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -32176,9 +32172,9 @@ async def test_get_custom_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -32319,9 +32315,9 @@ async def test_list_custom_jobs_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -32458,9 +32454,9 @@ async def test_delete_custom_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -32598,9 +32594,9 @@ async def test_cancel_custom_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -32863,9 +32859,9 @@ async def test_create_data_labeling_job_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -33032,9 +33028,9 @@ async def test_get_data_labeling_job_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -33178,9 +33174,9 @@ async def test_list_data_labeling_jobs_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -33325,9 +33321,9 @@ async def test_delete_data_labeling_job_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -33469,9 +33465,9 @@ async def test_cancel_data_labeling_job_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -33894,9 +33890,9 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -34067,9 +34063,9 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -34218,9 +34214,9 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -34368,9 +34364,9 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -34516,9 +34512,9 @@ async def test_cancel_hyperparameter_tuning_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -34868,9 +34864,9 @@ async def test_create_nas_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -35021,9 +35017,9 @@ async def test_get_nas_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -35162,9 +35158,9 @@ async def test_list_nas_jobs_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -35299,9 +35295,9 @@ async def test_delete_nas_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -35438,9 +35434,9 @@ async def test_cancel_nas_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -35575,9 +35571,9 @@ async def test_get_nas_trial_detail_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -35719,9 +35715,9 @@ async def test_list_nas_trial_details_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -36115,9 +36111,9 @@ async def test_create_batch_prediction_job_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -36286,9 +36282,9 @@ async def test_get_batch_prediction_job_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -36435,9 +36431,9 @@ async def test_list_batch_prediction_jobs_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -36582,9 +36578,9 @@ async def test_delete_batch_prediction_job_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -36726,9 +36722,9 @@ async def test_cancel_batch_prediction_job_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -37062,9 +37058,9 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -37235,9 +37231,9 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_i
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -37425,9 +37421,9 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -37586,9 +37582,9 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -37917,9 +37913,9 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -38067,9 +38063,9 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -38217,9 +38213,9 @@ async def test_pause_model_deployment_monitoring_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 
@@ -38351,9 +38347,9 @@ async def test_resume_model_deployment_monitoring_job_rest_asyncio_interceptors(
         )
     transport = transports.AsyncJobServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None if null_interceptor else transports.AsyncJobServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncJobServiceRestInterceptor(),
     )
     client = JobServiceAsyncClient(transport=transport)
 

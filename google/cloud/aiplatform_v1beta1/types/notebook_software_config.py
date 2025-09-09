@@ -57,7 +57,6 @@ class PostStartupScriptConfig(proto.Message):
             DOWNLOAD_AND_RUN_EVERY_START (3):
                 No description available.
         """
-
         POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED = 0
         RUN_ONCE = 1
         RUN_EVERY_START = 2

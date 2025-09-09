@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
@@ -65,7 +63,6 @@ class ModelDeploymentMonitoringObjectiveType(proto.Enum):
             between Prediction datasets collected within
             different time windows.
     """
-
     MODEL_DEPLOYMENT_MONITORING_OBJECTIVE_TYPE_UNSPECIFIED = 0
     RAW_FEATURE_SKEW = 1
     RAW_FEATURE_DRIFT = 2
@@ -221,7 +218,6 @@ class ModelDeploymentMonitoringJob(proto.Message):
             RUNNING (3):
                 The pipeline is running.
         """
-
         MONITORING_SCHEDULE_STATE_UNSPECIFIED = 0
         PENDING = 1
         OFFLINE = 2
@@ -284,9 +280,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
         number=6,
         message="ModelDeploymentMonitoringObjectiveConfig",
     )
-    model_deployment_monitoring_schedule_config: (
-        "ModelDeploymentMonitoringScheduleConfig"
-    ) = proto.Field(
+    model_deployment_monitoring_schedule_config: "ModelDeploymentMonitoringScheduleConfig" = proto.Field(
         proto.MESSAGE,
         number=7,
         message="ModelDeploymentMonitoringScheduleConfig",
@@ -316,12 +310,12 @@ class ModelDeploymentMonitoringJob(proto.Message):
         proto.STRING,
         number=16,
     )
-    bigquery_tables: MutableSequence["ModelDeploymentMonitoringBigQueryTable"] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=10,
-            message="ModelDeploymentMonitoringBigQueryTable",
-        )
+    bigquery_tables: MutableSequence[
+        "ModelDeploymentMonitoringBigQueryTable"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=10,
+        message="ModelDeploymentMonitoringBigQueryTable",
     )
     log_ttl: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,
@@ -408,7 +402,6 @@ class ModelDeploymentMonitoringBigQueryTable(proto.Message):
             SERVING (2):
                 Logs coming from Serving traffic.
         """
-
         LOG_SOURCE_UNSPECIFIED = 0
         TRAINING = 1
         SERVING = 2
@@ -424,7 +417,6 @@ class ModelDeploymentMonitoringBigQueryTable(proto.Message):
             EXPLAIN (2):
                 Explain logs.
         """
-
         LOG_TYPE_UNSPECIFIED = 0
         PREDICT = 1
         EXPLAIN = 2

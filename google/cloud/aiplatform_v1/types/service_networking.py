@@ -44,7 +44,6 @@ class PSCAutomationState(proto.Enum):
         PSC_AUTOMATION_STATE_FAILED (2):
             The PSC service automation has failed.
     """
-
     PSC_AUTOMATION_STATE_UNSPECIFIED = 0
     PSC_AUTOMATION_STATE_SUCCESSFUL = 1
     PSC_AUTOMATION_STATE_FAILED = 2
@@ -133,12 +132,12 @@ class PrivateServiceConnectConfig(proto.Message):
         proto.STRING,
         number=2,
     )
-    psc_automation_configs: MutableSequence["PSCAutomationConfig"] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=3,
-            message="PSCAutomationConfig",
-        )
+    psc_automation_configs: MutableSequence[
+        "PSCAutomationConfig"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="PSCAutomationConfig",
     )
     service_attachment: str = proto.Field(
         proto.STRING,

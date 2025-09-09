@@ -89,7 +89,6 @@ def persistent_client_mock(api_client_mock):
         vertex_ray.util._gapic_utils,
         "create_persistent_resource_client",
     ) as persistent_client_mock:
-
         # get_persistent_resource
         api_client_mock.get_persistent_resource.return_value = (
             tc.ClusterConstants.TEST_RESPONSE_RUNNING_1_POOL

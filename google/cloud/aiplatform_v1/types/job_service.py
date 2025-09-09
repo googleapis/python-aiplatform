@@ -23,9 +23,7 @@ from google.cloud.aiplatform_v1.types import (
     batch_prediction_job as gca_batch_prediction_job,
 )
 from google.cloud.aiplatform_v1.types import custom_job as gca_custom_job
-from google.cloud.aiplatform_v1.types import (
-    data_labeling_job as gca_data_labeling_job,
-)
+from google.cloud.aiplatform_v1.types import data_labeling_job as gca_data_labeling_job
 from google.cloud.aiplatform_v1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
@@ -143,24 +141,24 @@ class ListCustomJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``state`` supports ``=``, ``!=`` comparisons.
-            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
-               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
-               be in RFC 3339 format.
-            -  ``labels`` supports general map functions that is:
-               ``labels.key=value`` - key:value equality \`labels.key:\*
-               - key existence
+            - ``display_name`` supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``state`` supports ``=``, ``!=`` comparisons.
+            - ``create_time`` supports ``=``, ``!=``,\ ``<``,
+              ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+              be in RFC 3339 format.
+            - ``labels`` supports general map functions that is:
+              ``labels.key=value`` - key:value equality \`labels.key:\*
+              - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
-            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
-            -  ``NOT display_name="my_job"``
-            -  ``create_time>"2021-05-18T00:00:00Z"``
-            -  ``labels.keyA=valueA``
-            -  ``labels.keyB:*``
+            - ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            - ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            - ``NOT display_name="my_job"``
+            - ``create_time>"2021-05-18T00:00:00Z"``
+            - ``labels.keyA=valueA``
+            - ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -309,24 +307,24 @@ class ListDataLabelingJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``state`` supports ``=``, ``!=`` comparisons.
-            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
-               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
-               be in RFC 3339 format.
-            -  ``labels`` supports general map functions that is:
-               ``labels.key=value`` - key:value equality \`labels.key:\*
-               - key existence
+            - ``display_name`` supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``state`` supports ``=``, ``!=`` comparisons.
+            - ``create_time`` supports ``=``, ``!=``,\ ``<``,
+              ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+              be in RFC 3339 format.
+            - ``labels`` supports general map functions that is:
+              ``labels.key=value`` - key:value equality \`labels.key:\*
+              - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
-            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
-            -  ``NOT display_name="my_job"``
-            -  ``create_time>"2021-05-18T00:00:00Z"``
-            -  ``labels.keyA=valueA``
-            -  ``labels.keyB:*``
+            - ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            - ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            - ``NOT display_name="my_job"``
+            - ``create_time>"2021-05-18T00:00:00Z"``
+            - ``labels.keyA=valueA``
+            - ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -386,12 +384,12 @@ class ListDataLabelingJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    data_labeling_jobs: MutableSequence[gca_data_labeling_job.DataLabelingJob] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_data_labeling_job.DataLabelingJob,
-        )
+    data_labeling_jobs: MutableSequence[
+        gca_data_labeling_job.DataLabelingJob
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_data_labeling_job.DataLabelingJob,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -490,24 +488,24 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``state`` supports ``=``, ``!=`` comparisons.
-            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
-               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
-               be in RFC 3339 format.
-            -  ``labels`` supports general map functions that is:
-               ``labels.key=value`` - key:value equality \`labels.key:\*
-               - key existence
+            - ``display_name`` supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``state`` supports ``=``, ``!=`` comparisons.
+            - ``create_time`` supports ``=``, ``!=``,\ ``<``,
+              ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+              be in RFC 3339 format.
+            - ``labels`` supports general map functions that is:
+              ``labels.key=value`` - key:value equality \`labels.key:\*
+              - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
-            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
-            -  ``NOT display_name="my_job"``
-            -  ``create_time>"2021-05-18T00:00:00Z"``
-            -  ``labels.keyA=valueA``
-            -  ``labels.keyB:*``
+            - ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            - ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            - ``NOT display_name="my_job"``
+            - ``create_time>"2021-05-18T00:00:00Z"``
+            - ``labels.keyA=valueA``
+            - ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -663,24 +661,24 @@ class ListNasJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``state`` supports ``=``, ``!=`` comparisons.
-            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
-               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
-               be in RFC 3339 format.
-            -  ``labels`` supports general map functions that is:
-               ``labels.key=value`` - key:value equality \`labels.key:\*
-               - key existence
+            - ``display_name`` supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``state`` supports ``=``, ``!=`` comparisons.
+            - ``create_time`` supports ``=``, ``!=``,\ ``<``,
+              ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+              be in RFC 3339 format.
+            - ``labels`` supports general map functions that is:
+              ``labels.key=value`` - key:value equality \`labels.key:\*
+              - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
-            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
-            -  ``NOT display_name="my_job"``
-            -  ``create_time>"2021-05-18T00:00:00Z"``
-            -  ``labels.keyA=valueA``
-            -  ``labels.keyB:*``
+            - ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            - ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            - ``NOT display_name="my_job"``
+            - ``create_time>"2021-05-18T00:00:00Z"``
+            - ``labels.keyA=valueA``
+            - ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -844,12 +842,12 @@ class ListNasTrialDetailsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    nas_trial_details: MutableSequence[gca_nas_job.NasTrialDetail] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_nas_job.NasTrialDetail,
-        )
+    nas_trial_details: MutableSequence[
+        gca_nas_job.NasTrialDetail
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_nas_job.NasTrialDetail,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -912,26 +910,25 @@ class ListBatchPredictionJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``model_display_name`` supports ``=``, ``!=``
-               comparisons.
-            -  ``state`` supports ``=``, ``!=`` comparisons.
-            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
-               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
-               be in RFC 3339 format.
-            -  ``labels`` supports general map functions that is:
-               ``labels.key=value`` - key:value equality \`labels.key:\*
-               - key existence
+            - ``display_name`` supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``model_display_name`` supports ``=``, ``!=`` comparisons.
+            - ``state`` supports ``=``, ``!=`` comparisons.
+            - ``create_time`` supports ``=``, ``!=``,\ ``<``,
+              ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+              be in RFC 3339 format.
+            - ``labels`` supports general map functions that is:
+              ``labels.key=value`` - key:value equality \`labels.key:\*
+              - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
-            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
-            -  ``NOT display_name="my_job"``
-            -  ``create_time>"2021-05-18T00:00:00Z"``
-            -  ``labels.keyA=valueA``
-            -  ``labels.keyB:*``
+            - ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            - ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            - ``NOT display_name="my_job"``
+            - ``create_time>"2021-05-18T00:00:00Z"``
+            - ``labels.keyA=valueA``
+            - ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -1049,9 +1046,7 @@ class CreateModelDeploymentMonitoringJobRequest(proto.Message):
         proto.STRING,
         number=1,
     )
-    model_deployment_monitoring_job: (
-        gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
-    ) = proto.Field(
+    model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
@@ -1111,9 +1106,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
                 latest monitoring run.
         """
 
-        type_: (
-            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType
-        ) = proto.Field(
+        type_: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType = proto.Field(
             proto.ENUM,
             number=1,
             enum=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType,
@@ -1223,24 +1216,24 @@ class ListModelDeploymentMonitoringJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``state`` supports ``=``, ``!=`` comparisons.
-            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
-               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
-               be in RFC 3339 format.
-            -  ``labels`` supports general map functions that is:
-               ``labels.key=value`` - key:value equality \`labels.key:\*
-               - key existence
+            - ``display_name`` supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``state`` supports ``=``, ``!=`` comparisons.
+            - ``create_time`` supports ``=``, ``!=``,\ ``<``,
+              ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+              be in RFC 3339 format.
+            - ``labels`` supports general map functions that is:
+              ``labels.key=value`` - key:value equality \`labels.key:\*
+              - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
-            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
-            -  ``NOT display_name="my_job"``
-            -  ``create_time>"2021-05-18T00:00:00Z"``
-            -  ``labels.keyA=valueA``
-            -  ``labels.keyB:*``
+            - ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            - ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            - ``NOT display_name="my_job"``
+            - ``create_time>"2021-05-18T00:00:00Z"``
+            - ``labels.keyA=valueA``
+            - ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -1325,22 +1318,20 @@ class UpdateModelDeploymentMonitoringJobRequest(proto.Message):
 
             Updatable fields:
 
-            -  ``display_name``
-            -  ``model_deployment_monitoring_schedule_config``
-            -  ``model_monitoring_alert_config``
-            -  ``logging_sampling_strategy``
-            -  ``labels``
-            -  ``log_ttl``
-            -  ``enable_monitoring_pipeline_logs`` . and
-            -  ``model_deployment_monitoring_objective_configs`` . or
-            -  ``model_deployment_monitoring_objective_configs.objective_config.training_dataset``
-            -  ``model_deployment_monitoring_objective_configs.objective_config.training_prediction_skew_detection_config``
-            -  ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
+            - ``display_name``
+            - ``model_deployment_monitoring_schedule_config``
+            - ``model_monitoring_alert_config``
+            - ``logging_sampling_strategy``
+            - ``labels``
+            - ``log_ttl``
+            - ``enable_monitoring_pipeline_logs`` . and
+            - ``model_deployment_monitoring_objective_configs`` . or
+            - ``model_deployment_monitoring_objective_configs.objective_config.training_dataset``
+            - ``model_deployment_monitoring_objective_configs.objective_config.training_prediction_skew_detection_config``
+            - ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
     """
 
-    model_deployment_monitoring_job: (
-        gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
-    ) = proto.Field(
+    model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = proto.Field(
         proto.MESSAGE,
         number=1,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,

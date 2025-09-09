@@ -146,7 +146,6 @@ class FeatureView(proto.Message):
                 service account will be used to read from the source
                 BigQuery table during sync.
         """
-
         SERVICE_AGENT_TYPE_UNSPECIFIED = 0
         SERVICE_AGENT_TYPE_PROJECT = 1
         SERVICE_AGENT_TYPE_FEATURE_VIEW = 2
@@ -270,7 +269,6 @@ class FeatureView(proto.Message):
                     Dot Product Distance. Defined as a negative
                     of the dot product.
             """
-
             DISTANCE_MEASURE_TYPE_UNSPECIFIED = 0
             SQUARED_L2_DISTANCE = 1
             COSINE_DISTANCE = 2
@@ -414,7 +412,6 @@ class FeatureView(proto.Message):
                     Dot Product Distance. Defined as a negative
                     of the dot product.
             """
-
             DISTANCE_MEASURE_TYPE_UNSPECIFIED = 0
             SQUARED_L2_DISTANCE = 1
             COSINE_DISTANCE = 2
@@ -541,13 +538,13 @@ class FeatureView(proto.Message):
                 materialized on each manual sync trigger. The table/view is
                 expected to have the following columns and types at least:
 
-                -  ``corpus_id`` (STRING, NULLABLE/REQUIRED)
-                -  ``file_id`` (STRING, NULLABLE/REQUIRED)
-                -  ``chunk_id`` (STRING, NULLABLE/REQUIRED)
-                -  ``chunk_data_type`` (STRING, NULLABLE/REQUIRED)
-                -  ``chunk_data`` (STRING, NULLABLE/REQUIRED)
-                -  ``embeddings`` (FLOAT, REPEATED)
-                -  ``file_original_uri`` (STRING, NULLABLE/REQUIRED)
+                - ``corpus_id`` (STRING, NULLABLE/REQUIRED)
+                - ``file_id`` (STRING, NULLABLE/REQUIRED)
+                - ``chunk_id`` (STRING, NULLABLE/REQUIRED)
+                - ``chunk_data_type`` (STRING, NULLABLE/REQUIRED)
+                - ``chunk_data`` (STRING, NULLABLE/REQUIRED)
+                - ``embeddings`` (FLOAT, REPEATED)
+                - ``file_original_uri`` (STRING, NULLABLE/REQUIRED)
             rag_corpus_id (int):
                 Optional. The RAG corpus id corresponding to
                 this FeatureView.

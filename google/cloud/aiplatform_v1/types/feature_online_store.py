@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -130,7 +128,6 @@ class FeatureOnlineStore(proto.Message):
                 featureOnlineStore is still usable in this
                 state.
         """
-
         STATE_UNSPECIFIED = 0
         STABLE = 1
         UPDATING = 2
@@ -217,9 +214,7 @@ class FeatureOnlineStore(proto.Message):
             proto.STRING,
             number=2,
         )
-        private_service_connect_config: (
-            service_networking.PrivateServiceConnectConfig
-        ) = proto.Field(
+        private_service_connect_config: service_networking.PrivateServiceConnectConfig = proto.Field(
             proto.MESSAGE,
             number=3,
             message=service_networking.PrivateServiceConnectConfig,

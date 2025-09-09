@@ -72,12 +72,8 @@ from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
 from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
     ModelGardenServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.model_garden_service import pagers
+from google.cloud.aiplatform_v1beta1.services.model_garden_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import io
@@ -86,6 +82,7 @@ from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model_garden_service
 from google.cloud.aiplatform_v1beta1.types import publisher_model
 from google.cloud.aiplatform_v1beta1.types import reservation_affinity
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -1303,9 +1300,9 @@ def test_get_publisher_model_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_publisher_model] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_publisher_model
+        ] = mock_rpc
         request = {}
         client.get_publisher_model(request)
 
@@ -1674,9 +1671,9 @@ def test_list_publisher_models_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_publisher_models] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_publisher_models
+        ] = mock_rpc
         request = {}
         client.list_publisher_models(request)
 
@@ -2255,9 +2252,9 @@ async def test_deploy_async_use_cached_wrapped_rpc(transport: str = "grpc_asynci
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[client._client._transport.deploy] = (
-            mock_rpc
-        )
+        client._client._transport._wrapped_methods[
+            client._client._transport.deploy
+        ] = mock_rpc
 
         request = {}
         await client.deploy(request)
@@ -2471,9 +2468,9 @@ def test_deploy_publisher_model_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.deploy_publisher_model] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.deploy_publisher_model
+        ] = mock_rpc
         request = {}
         client.deploy_publisher_model(request)
 
@@ -2734,9 +2731,9 @@ def test_export_publisher_model_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.export_publisher_model] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.export_publisher_model
+        ] = mock_rpc
         request = {}
         client.export_publisher_model(request)
 
@@ -3657,9 +3654,9 @@ def test_get_publisher_model_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_publisher_model] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_publisher_model
+        ] = mock_rpc
 
         request = {}
         client.get_publisher_model(request)
@@ -3859,9 +3856,9 @@ def test_list_publisher_models_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_publisher_models] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_publisher_models
+        ] = mock_rpc
 
         request = {}
         client.list_publisher_models(request)
@@ -4251,9 +4248,9 @@ def test_deploy_publisher_model_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.deploy_publisher_model] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.deploy_publisher_model
+        ] = mock_rpc
 
         request = {}
         client.deploy_publisher_model(request)
@@ -4390,9 +4387,9 @@ def test_export_publisher_model_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.export_publisher_model] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.export_publisher_model
+        ] = mock_rpc
 
         request = {}
         client.export_publisher_model(request)
@@ -5498,9 +5495,9 @@ def test_get_publisher_model_rest_call_success(request_type):
 def test_get_publisher_model_rest_interceptors(null_interceptor):
     transport = transports.ModelGardenServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.ModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceClient(transport=transport)
 
@@ -5628,9 +5625,9 @@ def test_list_publisher_models_rest_call_success(request_type):
 def test_list_publisher_models_rest_interceptors(null_interceptor):
     transport = transports.ModelGardenServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.ModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceClient(transport=transport)
 
@@ -5753,9 +5750,9 @@ def test_deploy_rest_call_success(request_type):
 def test_deploy_rest_interceptors(null_interceptor):
     transport = transports.ModelGardenServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.ModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceClient(transport=transport)
 
@@ -5876,9 +5873,9 @@ def test_deploy_publisher_model_rest_call_success(request_type):
 def test_deploy_publisher_model_rest_interceptors(null_interceptor):
     transport = transports.ModelGardenServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.ModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceClient(transport=transport)
 
@@ -6006,9 +6003,9 @@ def test_export_publisher_model_rest_call_success(request_type):
 def test_export_publisher_model_rest_interceptors(null_interceptor):
     transport = transports.ModelGardenServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.ModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceClient(transport=transport)
 
@@ -6142,9 +6139,9 @@ def test_check_publisher_model_eula_acceptance_rest_call_success(request_type):
 def test_check_publisher_model_eula_acceptance_rest_interceptors(null_interceptor):
     transport = transports.ModelGardenServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.ModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceClient(transport=transport)
 
@@ -6283,9 +6280,9 @@ def test_accept_publisher_model_eula_rest_call_success(request_type):
 def test_accept_publisher_model_eula_rest_interceptors(null_interceptor):
     transport = transports.ModelGardenServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.ModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceClient(transport=transport)
 
@@ -7264,11 +7261,9 @@ async def test_get_publisher_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelGardenServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceAsyncClient(transport=transport)
 
@@ -7412,11 +7407,9 @@ async def test_list_publisher_models_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncModelGardenServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceAsyncClient(transport=transport)
 
@@ -7557,11 +7550,9 @@ async def test_deploy_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncModelGardenServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceAsyncClient(transport=transport)
 
@@ -7698,11 +7689,9 @@ async def test_deploy_publisher_model_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncModelGardenServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceAsyncClient(transport=transport)
 
@@ -7846,11 +7835,9 @@ async def test_export_publisher_model_rest_asyncio_interceptors(null_interceptor
         )
     transport = transports.AsyncModelGardenServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceAsyncClient(transport=transport)
 
@@ -8004,11 +7991,9 @@ async def test_check_publisher_model_eula_acceptance_rest_asyncio_interceptors(
         )
     transport = transports.AsyncModelGardenServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceAsyncClient(transport=transport)
 
@@ -8163,11 +8148,9 @@ async def test_accept_publisher_model_eula_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncModelGardenServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncModelGardenServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncModelGardenServiceRestInterceptor(),
     )
     client = ModelGardenServiceAsyncClient(transport=transport)
 

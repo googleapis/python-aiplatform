@@ -111,7 +111,6 @@ class Execution(proto.Message):
             CANCELLED (6):
                 The Execution was cancelled.
         """
-
         STATE_UNSPECIFIED = 0
         NEW = 1
         RUNNING = 2

@@ -63,9 +63,7 @@ except ImportError:  # pragma: NO COVER
 _LOGGER = std_logging.getLogger(__name__)
 
 from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1.types import (
-    reasoning_engine_execution_service,
-)
+from google.cloud.aiplatform_v1.types import reasoning_engine_execution_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -103,14 +101,14 @@ class ReasoningEngineExecutionServiceClientMeta(type):
         OrderedDict()
     )  # type: Dict[str, Type[ReasoningEngineExecutionServiceTransport]]
     _transport_registry["grpc"] = ReasoningEngineExecutionServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = (
-        ReasoningEngineExecutionServiceGrpcAsyncIOTransport
-    )
+    _transport_registry[
+        "grpc_asyncio"
+    ] = ReasoningEngineExecutionServiceGrpcAsyncIOTransport
     _transport_registry["rest"] = ReasoningEngineExecutionServiceRestTransport
     if HAS_ASYNC_REST_DEPENDENCIES:  # pragma: NO COVER
-        _transport_registry["rest_asyncio"] = (
-            AsyncReasoningEngineExecutionServiceRestTransport
-        )
+        _transport_registry[
+            "rest_asyncio"
+        ] = AsyncReasoningEngineExecutionServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -766,25 +764,21 @@ class ReasoningEngineExecutionServiceClient(
             ):  # pragma: NO COVER
                 _LOGGER.debug(
                     "Created client `google.cloud.aiplatform_v1.ReasoningEngineExecutionServiceClient`.",
-                    extra=(
-                        {
-                            "serviceName": "google.cloud.aiplatform.v1.ReasoningEngineExecutionService",
-                            "universeDomain": getattr(
-                                self._transport._credentials, "universe_domain", ""
-                            ),
-                            "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                            "credentialsInfo": getattr(
-                                self.transport._credentials,
-                                "get_cred_info",
-                                lambda: None,
-                            )(),
-                        }
-                        if hasattr(self._transport, "_credentials")
-                        else {
-                            "serviceName": "google.cloud.aiplatform.v1.ReasoningEngineExecutionService",
-                            "credentialsType": None,
-                        }
-                    ),
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.ReasoningEngineExecutionService",
+                        "universeDomain": getattr(
+                            self._transport._credentials, "universe_domain", ""
+                        ),
+                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
+                        "credentialsInfo": getattr(
+                            self.transport._credentials, "get_cred_info", lambda: None
+                        )(),
+                    }
+                    if hasattr(self._transport, "_credentials")
+                    else {
+                        "serviceName": "google.cloud.aiplatform.v1.ReasoningEngineExecutionService",
+                        "credentialsType": None,
+                    },
                 )
 
     def query_reasoning_engine(

@@ -51,7 +51,6 @@ class Type(proto.Enum):
         OBJECT (6):
             OpenAPI object type
     """
-
     TYPE_UNSPECIFIED = 0
     STRING = 1
     NUMBER = 2

@@ -49,9 +49,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
 from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1.types import (
-    reasoning_engine_execution_service,
-)
+from google.cloud.aiplatform_v1.types import reasoning_engine_execution_service
 from google.longrunning import operations_pb2  # type: ignore
 
 
@@ -631,7 +629,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -800,7 +797,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -975,6 +971,23 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             ) = await self._interceptor.post_stream_query_reasoning_engine_with_metadata(
                 resp, response_metadata
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.ReasoningEngineExecutionServiceAsyncClient.stream_query_reasoning_engine",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.ReasoningEngineExecutionService",
+                        "rpcName": "StreamQueryReasoningEngine",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     @property
@@ -1016,7 +1029,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1168,7 +1180,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1320,7 +1331,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1472,7 +1482,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1630,7 +1639,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1782,7 +1790,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1906,7 +1913,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2030,7 +2036,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2182,7 +2187,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2334,7 +2338,6 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

@@ -38,9 +38,7 @@ import warnings
 
 
 from google.cloud.aiplatform_v1beta1.types import entity_type
-from google.cloud.aiplatform_v1beta1.types import (
-    entity_type as gca_entity_type,
-)
+from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import featurestore
@@ -3815,7 +3813,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3975,7 +3972,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4133,7 +4129,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4289,7 +4284,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4445,7 +4439,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4603,7 +4596,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4753,7 +4745,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4903,7 +4894,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5055,7 +5045,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5213,7 +5202,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5371,7 +5359,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5524,7 +5511,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5676,7 +5662,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5830,7 +5815,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5988,7 +5972,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6141,7 +6124,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6296,7 +6278,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6451,7 +6432,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6602,7 +6582,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6763,7 +6742,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6921,7 +6899,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7291,7 +7268,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7433,7 +7409,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7575,7 +7550,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7723,7 +7697,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7871,7 +7844,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -8023,7 +7995,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -8139,7 +8110,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -8255,7 +8225,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -8397,7 +8366,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -8539,7 +8507,6 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

@@ -100,7 +100,6 @@ class PublisherModel(proto.Message):
                 Used to indicate the PublisherModel is a
                 3p-owned pure open source model.
         """
-
         OPEN_SOURCE_CATEGORY_UNSPECIFIED = 0
         PROPRIETARY = 1
         GOOGLE_OWNED_OSS_WITH_GOOGLE_CHECKPOINT = 2
@@ -135,7 +134,6 @@ class PublisherModel(proto.Message):
                 launch stage, available to all customers and
                 ready for production workload.
         """
-
         LAUNCH_STAGE_UNSPECIFIED = 0
         EXPERIMENTAL = 1
         PRIVATE_PREVIEW = 2
@@ -153,7 +151,6 @@ class PublisherModel(proto.Message):
             VERSION_STATE_UNSTABLE (2):
                 Used to indicate the version is unstable.
         """
-
         VERSION_STATE_UNSPECIFIED = 0
         VERSION_STATE_STABLE = 1
         VERSION_STATE_UNSTABLE = 2
@@ -330,13 +327,13 @@ class PublisherModel(proto.Message):
                     This field is a member of `oneof`_ ``_resource_description``.
             """
 
-            references: MutableMapping[str, "PublisherModel.ResourceReference"] = (
-                proto.MapField(
-                    proto.STRING,
-                    proto.MESSAGE,
-                    number=1,
-                    message="PublisherModel.ResourceReference",
-                )
+            references: MutableMapping[
+                str, "PublisherModel.ResourceReference"
+            ] = proto.MapField(
+                proto.STRING,
+                proto.MESSAGE,
+                number=1,
+                message="PublisherModel.ResourceReference",
             )
             title: str = proto.Field(
                 proto.STRING,
@@ -368,12 +365,12 @@ class PublisherModel(proto.Message):
                     Required. The title of the view rest API.
             """
 
-            documentations: MutableSequence["PublisherModel.Documentation"] = (
-                proto.RepeatedField(
-                    proto.MESSAGE,
-                    number=1,
-                    message="PublisherModel.Documentation",
-                )
+            documentations: MutableSequence[
+                "PublisherModel.Documentation"
+            ] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=1,
+                message="PublisherModel.Documentation",
             )
             title: str = proto.Field(
                 proto.STRING,
@@ -612,24 +609,18 @@ class PublisherModel(proto.Message):
                 message="PublisherModel.CallToAction.RegionalResourceReferences",
             )
         )
-        open_fine_tuning_pipeline: (
-            "PublisherModel.CallToAction.RegionalResourceReferences"
-        ) = proto.Field(
+        open_fine_tuning_pipeline: "PublisherModel.CallToAction.RegionalResourceReferences" = proto.Field(
             proto.MESSAGE,
             number=4,
             message="PublisherModel.CallToAction.RegionalResourceReferences",
         )
-        open_fine_tuning_pipelines: (
-            "PublisherModel.CallToAction.OpenFineTuningPipelines"
-        ) = proto.Field(
+        open_fine_tuning_pipelines: "PublisherModel.CallToAction.OpenFineTuningPipelines" = proto.Field(
             proto.MESSAGE,
             number=13,
             optional=True,
             message="PublisherModel.CallToAction.OpenFineTuningPipelines",
         )
-        open_prompt_tuning_pipeline: (
-            "PublisherModel.CallToAction.RegionalResourceReferences"
-        ) = proto.Field(
+        open_prompt_tuning_pipeline: "PublisherModel.CallToAction.RegionalResourceReferences" = proto.Field(
             proto.MESSAGE,
             number=5,
             message="PublisherModel.CallToAction.RegionalResourceReferences",
@@ -656,9 +647,7 @@ class PublisherModel(proto.Message):
             number=14,
             message="PublisherModel.CallToAction.DeployGke",
         )
-        open_generation_ai_studio: (
-            "PublisherModel.CallToAction.RegionalResourceReferences"
-        ) = proto.Field(
+        open_generation_ai_studio: "PublisherModel.CallToAction.RegionalResourceReferences" = proto.Field(
             proto.MESSAGE,
             number=8,
             message="PublisherModel.CallToAction.RegionalResourceReferences",
@@ -670,9 +659,7 @@ class PublisherModel(proto.Message):
                 message="PublisherModel.CallToAction.RegionalResourceReferences",
             )
         )
-        open_evaluation_pipeline: (
-            "PublisherModel.CallToAction.RegionalResourceReferences"
-        ) = proto.Field(
+        open_evaluation_pipeline: "PublisherModel.CallToAction.RegionalResourceReferences" = proto.Field(
             proto.MESSAGE,
             number=11,
             message="PublisherModel.CallToAction.RegionalResourceReferences",

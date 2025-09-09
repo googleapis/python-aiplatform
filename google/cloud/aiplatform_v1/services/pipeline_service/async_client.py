@@ -57,9 +57,7 @@ from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import pipeline_state
 from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.aiplatform_v1.types import training_pipeline
-from google.cloud.aiplatform_v1.types import (
-    training_pipeline as gca_training_pipeline,
-)
+from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -323,23 +321,21 @@ class PipelineServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1.PipelineServiceAsyncClient`.",
-                extra=(
-                    {
-                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
-                        "universeDomain": getattr(
-                            self._client._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._client._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
-                        "credentialsType": None,
-                    }
-                ),
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                    "universeDomain": getattr(
+                        self._client._transport._credentials, "universe_domain", ""
+                    ),
+                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                    "credentialsInfo": getattr(
+                        self.transport._credentials, "get_cred_info", lambda: None
+                    )(),
+                }
+                if hasattr(self._client._transport, "_credentials")
+                else {
+                    "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                    "credentialsType": None,
+                },
             )
 
     async def create_training_pipeline(

@@ -234,7 +234,6 @@ class ExplanationMetadata(proto.Message):
                                   [0.5, 0.3, 0.1, 0.2, 0.4],
                                   [0.4, 0.3, 0.2, 0.5, 0.1]]
             """
-
             ENCODING_UNSPECIFIED = 0
             IDENTITY = 1
             BAG_OF_FEATURES = 2
@@ -347,7 +346,6 @@ class ExplanationMetadata(proto.Message):
                         Shows which region contributed to the image
                         prediction by outlining the region.
                 """
-
                 TYPE_UNSPECIFIED = 0
                 PIXELS = 1
                 OUTLINES = 2
@@ -370,7 +368,6 @@ class ExplanationMetadata(proto.Message):
                         Shows both positive and negative
                         attributions.
                 """
-
                 POLARITY_UNSPECIFIED = 0
                 POSITIVE = 1
                 NEGATIVE = 2
@@ -399,7 +396,6 @@ class ExplanationMetadata(proto.Message):
                     PINK_WHITE_GREEN (5):
                         PiYG palette.
                 """
-
                 COLOR_MAP_UNSPECIFIED = 0
                 PINK_GREEN = 1
                 VIRIDIS = 2
@@ -427,7 +423,6 @@ class ExplanationMetadata(proto.Message):
                         predictive parts of the image and hide the
                         un-predictive parts.
                 """
-
                 OVERLAY_TYPE_UNSPECIFIED = 0
                 NONE = 1
                 ORIGINAL = 2
@@ -461,9 +456,7 @@ class ExplanationMetadata(proto.Message):
                 proto.FLOAT,
                 number=5,
             )
-            overlay_type: (
-                "ExplanationMetadata.InputMetadata.Visualization.OverlayType"
-            ) = proto.Field(
+            overlay_type: "ExplanationMetadata.InputMetadata.Visualization.OverlayType" = proto.Field(
                 proto.ENUM,
                 number=6,
                 enum="ExplanationMetadata.InputMetadata.Visualization.OverlayType",

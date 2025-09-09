@@ -568,9 +568,9 @@ class LLMMetricHandler(MetricHandler):
                 "return_raw_output": self.metric.return_raw_output
             }
         if self.metric.judge_model_system_instruction:
-            metric_spec_payload["system_instruction"] = (
-                self.metric.judge_model_system_instruction
-            )
+            metric_spec_payload[
+                "system_instruction"
+            ] = self.metric.judge_model_system_instruction
 
         return {
             "pointwise_metric_input": {

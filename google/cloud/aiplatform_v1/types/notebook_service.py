@@ -22,9 +22,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1.types import (
     notebook_execution_job as gca_notebook_execution_job,
 )
-from google.cloud.aiplatform_v1.types import (
-    notebook_runtime as gca_notebook_runtime,
-)
+from google.cloud.aiplatform_v1.types import notebook_runtime as gca_notebook_runtime
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -78,7 +76,6 @@ class NotebookExecutionJobView(proto.Enum):
         NOTEBOOK_EXECUTION_JOB_VIEW_FULL (2):
             Includes all fields.
     """
-
     NOTEBOOK_EXECUTION_JOB_VIEW_UNSPECIFIED = 0
     NOTEBOOK_EXECUTION_JOB_VIEW_BASIC = 1
     NOTEBOOK_EXECUTION_JOB_VIEW_FULL = 2
@@ -165,32 +162,32 @@ class ListNotebookRuntimeTemplatesRequest(proto.Message):
             request. For field names both snake_case and camelCase are
             supported.
 
-            -  ``notebookRuntimeTemplate`` supports = and !=.
-               ``notebookRuntimeTemplate`` represents the
-               NotebookRuntimeTemplate ID, i.e. the last segment of the
-               NotebookRuntimeTemplate's [resource name]
-               [google.cloud.aiplatform.v1.NotebookRuntimeTemplate.name].
-            -  ``display_name`` supports = and !=
-            -  ``labels`` supports general map functions that is:
+            - ``notebookRuntimeTemplate`` supports = and !=.
+              ``notebookRuntimeTemplate`` represents the
+              NotebookRuntimeTemplate ID, i.e. the last segment of the
+              NotebookRuntimeTemplate's [resource name]
+              [google.cloud.aiplatform.v1.NotebookRuntimeTemplate.name].
+            - ``display_name`` supports = and !=
+            - ``labels`` supports general map functions that is:
 
-               -  ``labels.key=value`` - key:value equality
-               -  \`labels.key:\* or labels:key - key existence
-               -  A key including a space must be quoted.
-                  ``labels."a key"``.
+              - ``labels.key=value`` - key:value equality
+              - \`labels.key:\* or labels:key - key existence
+              - A key including a space must be quoted.
+                ``labels."a key"``.
 
-            -  ``notebookRuntimeType`` supports = and !=.
-               notebookRuntimeType enum: [USER_DEFINED, ONE_CLICK].
-            -  ``machineType`` supports = and !=.
-            -  ``acceleratorType`` supports = and !=.
+            - ``notebookRuntimeType`` supports = and !=.
+              notebookRuntimeType enum: [USER_DEFINED, ONE_CLICK].
+            - ``machineType`` supports = and !=.
+            - ``acceleratorType`` supports = and !=.
 
             Some examples:
 
-            -  ``notebookRuntimeTemplate=notebookRuntimeTemplate123``
-            -  ``displayName="myDisplayName"``
-            -  ``labels.myKey="myValue"``
-            -  ``notebookRuntimeType=USER_DEFINED``
-            -  ``machineType=e2-standard-4``
-            -  ``acceleratorType=NVIDIA_TESLA_T4``
+            - ``notebookRuntimeTemplate=notebookRuntimeTemplate123``
+            - ``displayName="myDisplayName"``
+            - ``labels.myKey="myValue"``
+            - ``notebookRuntimeType=USER_DEFINED``
+            - ``machineType=e2-standard-4``
+            - ``acceleratorType=NVIDIA_TESLA_T4``
         page_size (int):
             Optional. The standard list page size.
         page_token (str):
@@ -208,9 +205,9 @@ class ListNotebookRuntimeTemplatesRequest(proto.Message):
             sorted in ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``display_name``
-            -  ``create_time``
-            -  ``update_time``
+            - ``display_name``
+            - ``create_time``
+            - ``update_time``
 
             Example: ``display_name, create_time desc``.
     """
@@ -305,7 +302,7 @@ class UpdateNotebookRuntimeTemplateRequest(proto.Message):
             Input format: ``{paths: "${updated_filed}"}`` Updatable
             fields:
 
-            -  ``encryption_spec.kms_key_name``
+            - ``encryption_spec.kms_key_name``
     """
 
     notebook_runtime_template: gca_notebook_runtime.NotebookRuntimeTemplate = (
@@ -421,46 +418,45 @@ class ListNotebookRuntimesRequest(proto.Message):
             request. For field names both snake_case and camelCase are
             supported.
 
-            -  ``notebookRuntime`` supports = and !=.
-               ``notebookRuntime`` represents the NotebookRuntime ID,
-               i.e. the last segment of the NotebookRuntime's [resource
-               name] [google.cloud.aiplatform.v1.NotebookRuntime.name].
-            -  ``displayName`` supports = and != and regex.
-            -  ``notebookRuntimeTemplate`` supports = and !=.
-               ``notebookRuntimeTemplate`` represents the
-               NotebookRuntimeTemplate ID, i.e. the last segment of the
-               NotebookRuntimeTemplate's [resource name]
-               [google.cloud.aiplatform.v1.NotebookRuntimeTemplate.name].
-            -  ``healthState`` supports = and !=. healthState enum:
-               [HEALTHY, UNHEALTHY, HEALTH_STATE_UNSPECIFIED].
-            -  ``runtimeState`` supports = and !=. runtimeState enum:
-               [RUNTIME_STATE_UNSPECIFIED, RUNNING, BEING_STARTED,
-               BEING_STOPPED, STOPPED, BEING_UPGRADED, ERROR, INVALID].
-            -  ``runtimeUser`` supports = and !=.
-            -  API version is UI only: ``uiState`` supports = and !=.
-               uiState enum: [UI_RESOURCE_STATE_UNSPECIFIED,
-               UI_RESOURCE_STATE_BEING_CREATED,
-               UI_RESOURCE_STATE_ACTIVE,
-               UI_RESOURCE_STATE_BEING_DELETED,
-               UI_RESOURCE_STATE_CREATION_FAILED].
-            -  ``notebookRuntimeType`` supports = and !=.
-               notebookRuntimeType enum: [USER_DEFINED, ONE_CLICK].
-            -  ``machineType`` supports = and !=.
-            -  ``acceleratorType`` supports = and !=.
+            - ``notebookRuntime`` supports = and !=. ``notebookRuntime``
+              represents the NotebookRuntime ID, i.e. the last segment
+              of the NotebookRuntime's [resource name]
+              [google.cloud.aiplatform.v1.NotebookRuntime.name].
+            - ``displayName`` supports = and != and regex.
+            - ``notebookRuntimeTemplate`` supports = and !=.
+              ``notebookRuntimeTemplate`` represents the
+              NotebookRuntimeTemplate ID, i.e. the last segment of the
+              NotebookRuntimeTemplate's [resource name]
+              [google.cloud.aiplatform.v1.NotebookRuntimeTemplate.name].
+            - ``healthState`` supports = and !=. healthState enum:
+              [HEALTHY, UNHEALTHY, HEALTH_STATE_UNSPECIFIED].
+            - ``runtimeState`` supports = and !=. runtimeState enum:
+              [RUNTIME_STATE_UNSPECIFIED, RUNNING, BEING_STARTED,
+              BEING_STOPPED, STOPPED, BEING_UPGRADED, ERROR, INVALID].
+            - ``runtimeUser`` supports = and !=.
+            - API version is UI only: ``uiState`` supports = and !=.
+              uiState enum: [UI_RESOURCE_STATE_UNSPECIFIED,
+              UI_RESOURCE_STATE_BEING_CREATED, UI_RESOURCE_STATE_ACTIVE,
+              UI_RESOURCE_STATE_BEING_DELETED,
+              UI_RESOURCE_STATE_CREATION_FAILED].
+            - ``notebookRuntimeType`` supports = and !=.
+              notebookRuntimeType enum: [USER_DEFINED, ONE_CLICK].
+            - ``machineType`` supports = and !=.
+            - ``acceleratorType`` supports = and !=.
 
             Some examples:
 
-            -  ``notebookRuntime="notebookRuntime123"``
-            -  ``displayName="myDisplayName"`` and
-               ``displayName=~"myDisplayNameRegex"``
-            -  ``notebookRuntimeTemplate="notebookRuntimeTemplate321"``
-            -  ``healthState=HEALTHY``
-            -  ``runtimeState=RUNNING``
-            -  ``runtimeUser="test@google.com"``
-            -  ``uiState=UI_RESOURCE_STATE_BEING_DELETED``
-            -  ``notebookRuntimeType=USER_DEFINED``
-            -  ``machineType=e2-standard-4``
-            -  ``acceleratorType=NVIDIA_TESLA_T4``
+            - ``notebookRuntime="notebookRuntime123"``
+            - ``displayName="myDisplayName"`` and
+              ``displayName=~"myDisplayNameRegex"``
+            - ``notebookRuntimeTemplate="notebookRuntimeTemplate321"``
+            - ``healthState=HEALTHY``
+            - ``runtimeState=RUNNING``
+            - ``runtimeUser="test@google.com"``
+            - ``uiState=UI_RESOURCE_STATE_BEING_DELETED``
+            - ``notebookRuntimeType=USER_DEFINED``
+            - ``machineType=e2-standard-4``
+            - ``acceleratorType=NVIDIA_TESLA_T4``
         page_size (int):
             Optional. The standard list page size.
         page_token (str):
@@ -478,9 +474,9 @@ class ListNotebookRuntimesRequest(proto.Message):
             sorted in ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``display_name``
-            -  ``create_time``
-            -  ``update_time``
+            - ``display_name``
+            - ``create_time``
+            - ``update_time``
 
             Example: ``display_name, create_time desc``.
     """
@@ -530,12 +526,12 @@ class ListNotebookRuntimesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    notebook_runtimes: MutableSequence[gca_notebook_runtime.NotebookRuntime] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_notebook_runtime.NotebookRuntime,
-        )
+    notebook_runtimes: MutableSequence[
+        gca_notebook_runtime.NotebookRuntime
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_notebook_runtime.NotebookRuntime,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -800,18 +796,18 @@ class ListNotebookExecutionJobsRequest(proto.Message):
             request. For field names both snake_case and camelCase are
             supported.
 
-            -  ``notebookExecutionJob`` supports = and !=.
-               ``notebookExecutionJob`` represents the
-               NotebookExecutionJob ID.
-            -  ``displayName`` supports = and != and regex.
-            -  ``schedule`` supports = and != and regex.
+            - ``notebookExecutionJob`` supports = and !=.
+              ``notebookExecutionJob`` represents the
+              NotebookExecutionJob ID.
+            - ``displayName`` supports = and != and regex.
+            - ``schedule`` supports = and != and regex.
 
             Some examples:
 
-            -  ``notebookExecutionJob="123"``
-            -  ``notebookExecutionJob="my-execution-job"``
-            -  ``displayName="myDisplayName"`` and
-               ``displayName=~"myDisplayNameRegex"``
+            - ``notebookExecutionJob="123"``
+            - ``notebookExecutionJob="my-execution-job"``
+            - ``displayName="myDisplayName"`` and
+              ``displayName=~"myDisplayNameRegex"``
         page_size (int):
             Optional. The standard list page size.
         page_token (str):
@@ -826,9 +822,9 @@ class ListNotebookExecutionJobsRequest(proto.Message):
             sorted in ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``display_name``
-            -  ``create_time``
-            -  ``update_time``
+            - ``display_name``
+            - ``create_time``
+            - ``update_time``
 
             Example: ``display_name, create_time desc``.
         view (google.cloud.aiplatform_v1.types.NotebookExecutionJobView):

@@ -382,12 +382,12 @@ class FeaturestoreOnlineServingServiceGrpcTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "streaming_read_feature_values" not in self._stubs:
-            self._stubs["streaming_read_feature_values"] = (
-                self._logged_channel.unary_stream(
-                    "/google.cloud.aiplatform.v1.FeaturestoreOnlineServingService/StreamingReadFeatureValues",
-                    request_serializer=featurestore_online_service.StreamingReadFeatureValuesRequest.serialize,
-                    response_deserializer=featurestore_online_service.ReadFeatureValuesResponse.deserialize,
-                )
+            self._stubs[
+                "streaming_read_feature_values"
+            ] = self._logged_channel.unary_stream(
+                "/google.cloud.aiplatform.v1.FeaturestoreOnlineServingService/StreamingReadFeatureValues",
+                request_serializer=featurestore_online_service.StreamingReadFeatureValuesRequest.serialize,
+                response_deserializer=featurestore_online_service.ReadFeatureValuesResponse.deserialize,
             )
         return self._stubs["streaming_read_feature_values"]
 

@@ -73,9 +73,7 @@ from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import (
     GenAiTuningServiceClient,
 )
 from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import pagers
-from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import transports
 from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import genai_tuning_service
@@ -1290,9 +1288,9 @@ def test_create_tuning_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_tuning_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_tuning_job
+        ] = mock_rpc
         request = {}
         client.create_tuning_job(request)
 
@@ -1995,9 +1993,9 @@ def test_list_tuning_jobs_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_tuning_jobs] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_tuning_jobs
+        ] = mock_rpc
         request = {}
         client.list_tuning_jobs(request)
 
@@ -2516,9 +2514,9 @@ def test_cancel_tuning_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.cancel_tuning_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.cancel_tuning_job
+        ] = mock_rpc
         request = {}
         client.cancel_tuning_job(request)
 
@@ -2846,9 +2844,9 @@ def test_rebase_tuned_model_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.rebase_tuned_model] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.rebase_tuned_model
+        ] = mock_rpc
         request = {}
         client.rebase_tuned_model(request)
 
@@ -3135,9 +3133,9 @@ def test_create_tuning_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_tuning_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_tuning_job
+        ] = mock_rpc
 
         request = {}
         client.create_tuning_job(request)
@@ -3504,9 +3502,9 @@ def test_list_tuning_jobs_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_tuning_jobs] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_tuning_jobs
+        ] = mock_rpc
 
         request = {}
         client.list_tuning_jobs(request)
@@ -3763,9 +3761,9 @@ def test_cancel_tuning_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.cancel_tuning_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.cancel_tuning_job
+        ] = mock_rpc
 
         request = {}
         client.cancel_tuning_job(request)
@@ -3943,9 +3941,9 @@ def test_rebase_tuned_model_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.rebase_tuned_model] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.rebase_tuned_model
+        ] = mock_rpc
 
         request = {}
         client.rebase_tuned_model(request)
@@ -4757,9 +4755,9 @@ def test_create_tuning_job_rest_call_success(request_type):
 def test_create_tuning_job_rest_interceptors(null_interceptor):
     transport = transports.GenAiTuningServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceClient(transport=transport)
 
@@ -4896,9 +4894,9 @@ def test_get_tuning_job_rest_call_success(request_type):
 def test_get_tuning_job_rest_interceptors(null_interceptor):
     transport = transports.GenAiTuningServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceClient(transport=transport)
 
@@ -5024,9 +5022,9 @@ def test_list_tuning_jobs_rest_call_success(request_type):
 def test_list_tuning_jobs_rest_interceptors(null_interceptor):
     transport = transports.GenAiTuningServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceClient(transport=transport)
 
@@ -5151,9 +5149,9 @@ def test_cancel_tuning_job_rest_call_success(request_type):
 def test_cancel_tuning_job_rest_interceptors(null_interceptor):
     transport = transports.GenAiTuningServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceClient(transport=transport)
 
@@ -5260,9 +5258,9 @@ def test_rebase_tuned_model_rest_call_success(request_type):
 def test_rebase_tuned_model_rest_interceptors(null_interceptor):
     transport = transports.GenAiTuningServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceClient(transport=transport)
 
@@ -6365,11 +6363,9 @@ async def test_create_tuning_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncGenAiTuningServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceAsyncClient(transport=transport)
 
@@ -6522,11 +6518,9 @@ async def test_get_tuning_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncGenAiTuningServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceAsyncClient(transport=transport)
 
@@ -6668,11 +6662,9 @@ async def test_list_tuning_jobs_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncGenAiTuningServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceAsyncClient(transport=transport)
 
@@ -6813,11 +6805,9 @@ async def test_cancel_tuning_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncGenAiTuningServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceAsyncClient(transport=transport)
 
@@ -6940,11 +6930,9 @@ async def test_rebase_tuned_model_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncGenAiTuningServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiTuningServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiTuningServiceRestInterceptor(),
     )
     client = GenAiTuningServiceAsyncClient(transport=transport)
 

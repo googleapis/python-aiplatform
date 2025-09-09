@@ -854,25 +854,21 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             ):  # pragma: NO COVER
                 _LOGGER.debug(
                     "Created client `google.cloud.aiplatform_v1.EndpointServiceClient`.",
-                    extra=(
-                        {
-                            "serviceName": "google.cloud.aiplatform.v1.EndpointService",
-                            "universeDomain": getattr(
-                                self._transport._credentials, "universe_domain", ""
-                            ),
-                            "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                            "credentialsInfo": getattr(
-                                self.transport._credentials,
-                                "get_cred_info",
-                                lambda: None,
-                            )(),
-                        }
-                        if hasattr(self._transport, "_credentials")
-                        else {
-                            "serviceName": "google.cloud.aiplatform.v1.EndpointService",
-                            "credentialsType": None,
-                        }
-                    ),
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "universeDomain": getattr(
+                            self._transport._credentials, "universe_domain", ""
+                        ),
+                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
+                        "credentialsInfo": getattr(
+                            self.transport._credentials, "get_cred_info", lambda: None
+                        )(),
+                    }
+                    if hasattr(self._transport, "_credentials")
+                    else {
+                        "serviceName": "google.cloud.aiplatform.v1.EndpointService",
+                        "credentialsType": None,
+                    },
                 )
 
     def create_endpoint(
@@ -2044,19 +2040,19 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 Required. The DeployedModel to be mutated within the
                 Endpoint. Only the following fields can be mutated:
 
-                -  ``min_replica_count`` in either
-                   [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
-                   or
-                   [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
-                -  ``max_replica_count`` in either
-                   [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
-                   or
-                   [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
-                -  ``required_replica_count`` in
-                   [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
-                -  [autoscaling_metric_specs][google.cloud.aiplatform.v1.DedicatedResources.autoscaling_metric_specs]
-                -  ``disable_container_logging`` (v1 only)
-                -  ``enable_container_logging`` (v1beta1 only)
+                - ``min_replica_count`` in either
+                  [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
+                  or
+                  [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
+                - ``max_replica_count`` in either
+                  [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
+                  or
+                  [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
+                - ``required_replica_count`` in
+                  [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
+                - [autoscaling_metric_specs][google.cloud.aiplatform.v1.DedicatedResources.autoscaling_metric_specs]
+                - ``disable_container_logging`` (v1 only)
+                - ``enable_container_logging`` (v1beta1 only)
 
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this

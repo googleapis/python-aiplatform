@@ -995,9 +995,9 @@ class TensorboardRun(_TensorboardServiceResource):
             credentials=self.credentials,
         )
 
-        self._time_series_display_name_to_id_mapping[tb_time_series.display_name] = (
-            tb_time_series.name
-        )
+        self._time_series_display_name_to_id_mapping[
+            tb_time_series.display_name
+        ] = tb_time_series.name
 
         return tb_time_series
 

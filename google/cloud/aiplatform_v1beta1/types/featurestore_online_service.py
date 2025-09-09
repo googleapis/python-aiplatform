@@ -252,12 +252,12 @@ class ReadFeatureValuesResponse(proto.Message):
             proto.STRING,
             number=1,
         )
-        data: MutableSequence["ReadFeatureValuesResponse.EntityView.Data"] = (
-            proto.RepeatedField(
-                proto.MESSAGE,
-                number=2,
-                message="ReadFeatureValuesResponse.EntityView.Data",
-            )
+        data: MutableSequence[
+            "ReadFeatureValuesResponse.EntityView.Data"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message="ReadFeatureValuesResponse.EntityView.Data",
         )
 
     header: Header = proto.Field(

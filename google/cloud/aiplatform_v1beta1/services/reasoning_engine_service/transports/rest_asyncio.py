@@ -707,9 +707,9 @@ class AsyncReasoningEngineServiceRestTransport(
         self._interceptor = interceptor or AsyncReasoningEngineServiceRestInterceptor()
         self._wrap_with_kind = True
         self._prep_wrapped_messages(client_info)
-        self._operations_client: Optional[operations_v1.AsyncOperationsRestClient] = (
-            None
-        )
+        self._operations_client: Optional[
+            operations_v1.AsyncOperationsRestClient
+        ] = None
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -815,7 +815,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -984,7 +983,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1145,7 +1143,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1306,7 +1303,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1469,7 +1465,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3850,7 +3845,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4000,7 +3994,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4150,7 +4143,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4306,7 +4298,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4462,7 +4453,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4618,7 +4608,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4740,7 +4729,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4862,7 +4850,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5012,7 +4999,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5162,7 +5148,6 @@ class AsyncReasoningEngineServiceRestTransport(
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

@@ -865,7 +865,6 @@ def _GenerateInstanceRubricsResponse_from_vertex(
 
 
 class Evals(_api_module.BaseModule):
-
     def _evaluate_instances(
         self,
         *,
@@ -1400,7 +1399,6 @@ class Evals(_api_module.BaseModule):
 
 
 class AsyncEvals(_api_module.BaseModule):
-
     async def _evaluate_instances(
         self,
         *,

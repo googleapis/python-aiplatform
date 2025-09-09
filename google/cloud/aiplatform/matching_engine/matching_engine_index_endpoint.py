@@ -831,9 +831,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         if ip_address not in self._match_grpc_stub_cache:
             # Set up channel and stub
             channel = grpc.insecure_channel("{}:10000".format(ip_address))
-            self._match_grpc_stub_cache[ip_address] = (
-                match_service_pb2_grpc.MatchServiceStub(channel)
-            )
+            self._match_grpc_stub_cache[
+                ip_address
+            ] = match_service_pb2_grpc.MatchServiceStub(channel)
         return self._match_grpc_stub_cache[ip_address]
 
     @property

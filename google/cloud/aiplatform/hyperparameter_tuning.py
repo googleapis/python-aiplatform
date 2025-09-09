@@ -59,7 +59,6 @@ class _ParameterSpec(metaclass=abc.ABCMeta):
         conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
         parent_values: Optional[List[Union[float, int, str]]] = None,
     ):
-
         self.conditional_parameter_spec = conditional_parameter_spec
         self.parent_values = parent_values
 
@@ -214,7 +213,6 @@ class _ParameterSpec(metaclass=abc.ABCMeta):
 
 
 class DoubleParameterSpec(_ParameterSpec):
-
     _proto_parameter_value_class = (
         gca_study_compat.StudySpec.ParameterSpec.DoubleValueSpec
     )
@@ -260,7 +258,6 @@ class DoubleParameterSpec(_ParameterSpec):
 
 
 class IntegerParameterSpec(_ParameterSpec):
-
     _proto_parameter_value_class = (
         gca_study_compat.StudySpec.ParameterSpec.IntegerValueSpec
     )
@@ -308,7 +305,6 @@ class IntegerParameterSpec(_ParameterSpec):
 
 
 class CategoricalParameterSpec(_ParameterSpec):
-
     _proto_parameter_value_class = (
         gca_study_compat.StudySpec.ParameterSpec.CategoricalValueSpec
     )
@@ -343,7 +339,6 @@ class CategoricalParameterSpec(_ParameterSpec):
 
 
 class DiscreteParameterSpec(_ParameterSpec):
-
     _proto_parameter_value_class = (
         gca_study_compat.StudySpec.ParameterSpec.DiscreteValueSpec
     )

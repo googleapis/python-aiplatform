@@ -49,7 +49,6 @@ class PipelineFailurePolicy(proto.Enum):
             Indicates that the pipeline should stop
             scheduling new tasks after a task has failed.
     """
-
     PIPELINE_FAILURE_POLICY_UNSPECIFIED = 0
     PIPELINE_FAILURE_POLICY_FAIL_SLOW = 1
     PIPELINE_FAILURE_POLICY_FAIL_FAST = 2

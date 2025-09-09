@@ -73,9 +73,7 @@ from google.cloud.aiplatform_v1beta1.services.migration_service import (
     MigrationServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.services.migration_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.migration_service import transports
 from google.cloud.aiplatform_v1beta1.types import migratable_resource
 from google.cloud.aiplatform_v1beta1.types import migration_service
 from google.cloud.location import locations_pb2
@@ -2874,9 +2872,9 @@ def test_search_migratable_resources_rest_call_success(request_type):
 def test_search_migratable_resources_rest_interceptors(null_interceptor):
     transport = transports.MigrationServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.MigrationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.MigrationServiceRestInterceptor(),
     )
     client = MigrationServiceClient(transport=transport)
 
@@ -3001,9 +2999,9 @@ def test_batch_migrate_resources_rest_call_success(request_type):
 def test_batch_migrate_resources_rest_interceptors(null_interceptor):
     transport = transports.MigrationServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.MigrationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.MigrationServiceRestInterceptor(),
     )
     client = MigrationServiceClient(transport=transport)
 
@@ -3853,11 +3851,9 @@ async def test_search_migratable_resources_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncMigrationServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncMigrationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncMigrationServiceRestInterceptor(),
     )
     client = MigrationServiceAsyncClient(transport=transport)
 
@@ -4000,11 +3996,9 @@ async def test_batch_migrate_resources_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncMigrationServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncMigrationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncMigrationServiceRestInterceptor(),
     )
     client = MigrationServiceAsyncClient(transport=transport)
 

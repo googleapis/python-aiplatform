@@ -1255,9 +1255,9 @@ def test_evaluate_instances_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.evaluate_instances] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.evaluate_instances
+        ] = mock_rpc
         request = {}
         client.evaluate_instances(request)
 
@@ -1440,9 +1440,9 @@ def test_evaluate_instances_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.evaluate_instances] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.evaluate_instances
+        ] = mock_rpc
 
         request = {}
         client.evaluate_instances(request)
@@ -1785,9 +1785,9 @@ def test_evaluate_instances_rest_call_success(request_type):
 def test_evaluate_instances_rest_interceptors(null_interceptor):
     transport = transports.EvaluationServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.EvaluationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.EvaluationServiceRestInterceptor(),
     )
     client = EvaluationServiceClient(transport=transport)
 
@@ -2596,11 +2596,9 @@ async def test_evaluate_instances_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEvaluationServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncEvaluationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEvaluationServiceRestInterceptor(),
     )
     client = EvaluationServiceAsyncClient(transport=transport)
 

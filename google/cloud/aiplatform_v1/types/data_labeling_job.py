@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import job_state
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -121,10 +119,10 @@ class DataLabelingJob(proto.Message):
             "aiplatform.googleapis.com/" and are immutable. Following
             system labels exist for each DataLabelingJob:
 
-            -  "aiplatform.googleapis.com/schema": output only, its
-               value is the
-               [inputs_schema][google.cloud.aiplatform.v1.DataLabelingJob.inputs_schema_uri]'s
-               title.
+            - "aiplatform.googleapis.com/schema": output only, its value
+              is the
+              [inputs_schema][google.cloud.aiplatform.v1.DataLabelingJob.inputs_schema_uri]'s
+              title.
         specialist_pools (MutableSequence[str]):
             The SpecialistPools' resource names
             associated with this job.
@@ -322,7 +320,6 @@ class SampleConfig(proto.Message):
             UNCERTAINTY (1):
                 Sample the most uncertain data to label.
         """
-
         SAMPLE_STRATEGY_UNSPECIFIED = 0
         UNCERTAINTY = 1
 

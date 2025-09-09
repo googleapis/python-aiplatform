@@ -312,9 +312,9 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             if eval_spec.evaluation_data:
                 if isinstance(eval_spec.evaluation_data, str):
                     if eval_spec.evaluation_data.startswith("gs://"):
-                        tuning_parameters["evaluation_data_uri"] = (
-                            eval_spec.evaluation_data
-                        )
+                        tuning_parameters[
+                            "evaluation_data_uri"
+                        ] = eval_spec.evaluation_data
                     else:
                         raise ValueError("evaluation_data should be a GCS URI")
                 else:
@@ -322,13 +322,13 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             if eval_spec.evaluation_interval is not None:
                 tuning_parameters["evaluation_interval"] = eval_spec.evaluation_interval
             if eval_spec.enable_early_stopping is not None:
-                tuning_parameters["enable_early_stopping"] = (
-                    eval_spec.enable_early_stopping
-                )
+                tuning_parameters[
+                    "enable_early_stopping"
+                ] = eval_spec.enable_early_stopping
             if eval_spec.enable_checkpoint_selection is not None:
-                tuning_parameters["enable_checkpoint_selection"] = (
-                    eval_spec.enable_checkpoint_selection
-                )
+                tuning_parameters[
+                    "enable_checkpoint_selection"
+                ] = eval_spec.enable_checkpoint_selection
             tensorboard_resource_id = _get_tensorboard_resource_id_from_evaluation_spec(
                 eval_spec, tuning_job_location
             )
@@ -435,9 +435,9 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
                 }
             )
         if aiplatform_initializer.global_config.encryption_spec_key_name:
-            tuning_parameters["encryption_spec_key_name"] = (
-                aiplatform_initializer.global_config.encryption_spec_key_name
-            )
+            tuning_parameters[
+                "encryption_spec_key_name"
+            ] = aiplatform_initializer.global_config.encryption_spec_key_name
 
         if not model_info.tuning_pipeline_uri:
             raise RuntimeError(f"The {self._model_id} model does not support tuning")
@@ -1160,7 +1160,6 @@ class VertexAISearch(_GroundingSourceBase):
 
 @dataclasses.dataclass
 class GroundingSource:
-
     WebSearch = WebSearch
     VertexAISearch = VertexAISearch
     InlineContext = InlineContext
@@ -1775,9 +1774,9 @@ def _create_text_generation_prediction_request(
         prediction_parameters["candidateCount"] = candidate_count
 
     if grounding_source is not None:
-        prediction_parameters["groundingConfig"] = (
-            grounding_source._to_grounding_source_dict()
-        )
+        prediction_parameters[
+            "groundingConfig"
+        ] = grounding_source._to_grounding_source_dict()
 
     if logprobs is not None:
         prediction_parameters["logprobs"] = logprobs
@@ -2835,9 +2834,9 @@ class _ChatSessionBase:
             prediction_parameters["candidateCount"] = candidate_count
 
         if grounding_source is not None:
-            prediction_parameters["groundingConfig"] = (
-                grounding_source._to_grounding_source_dict()
-            )
+            prediction_parameters[
+                "groundingConfig"
+            ] = grounding_source._to_grounding_source_dict()
 
         message_structs = []
         for past_message in self._message_history:
@@ -3253,12 +3252,10 @@ class _ChatSessionBaseWithCountTokensMixin(_ChatSessionBase):
 
 
 class _PreviewChatSession(_ChatSessionBaseWithCountTokensMixin):
-
     __module__ = "vertexai.preview.language_models"
 
 
 class _PreviewCodeChatSession(_ChatSessionBaseWithCountTokensMixin):
-
     __module__ = "vertexai.preview.language_models"
 
 

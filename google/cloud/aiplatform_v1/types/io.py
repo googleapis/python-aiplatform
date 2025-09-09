@@ -117,8 +117,8 @@ class BigQuerySource(proto.Message):
             Required. BigQuery URI to a table, up to 2000 characters
             long. Accepted forms:
 
-            -  BigQuery path. For example:
-               ``bq://projectId.bqDatasetId.bqTableId``.
+            - BigQuery path. For example:
+              ``bq://projectId.bqDatasetId.bqTableId``.
     """
 
     input_uri: str = proto.Field(
@@ -141,9 +141,9 @@ class BigQueryDestination(proto.Message):
 
             Accepted forms:
 
-            -  BigQuery path. For example: ``bq://projectId`` or
-               ``bq://projectId.bqDatasetId`` or
-               ``bq://projectId.bqDatasetId.bqTableId``.
+            - BigQuery path. For example: ``bq://projectId`` or
+              ``bq://projectId.bqDatasetId`` or
+              ``bq://projectId.bqDatasetId.bqTableId``.
     """
 
     output_uri: str = proto.Field(
@@ -191,11 +191,11 @@ class ContainerRegistryDestination(proto.Message):
             Google Container Registry and Artifact Registry are
             supported now. Accepted forms:
 
-            -  Google Container Registry path. For example:
-               ``gcr.io/projectId/imageName:tag``.
+            - Google Container Registry path. For example:
+              ``gcr.io/projectId/imageName:tag``.
 
-            -  Artifact Registry path. For example:
-               ``us-central1-docker.pkg.dev/projectId/repoName/imageName:tag``.
+            - Artifact Registry path. For example:
+              ``us-central1-docker.pkg.dev/projectId/repoName/imageName:tag``.
 
             If a tag is not specified, "latest" will be used as the
             default tag.
@@ -238,7 +238,6 @@ class GoogleDriveSource(proto.Message):
                 RESOURCE_TYPE_FOLDER (2):
                     Folder resource type.
             """
-
             RESOURCE_TYPE_UNSPECIFIED = 0
             RESOURCE_TYPE_FILE = 1
             RESOURCE_TYPE_FOLDER = 2
@@ -321,12 +320,12 @@ class SlackSource(proto.Message):
                 message=timestamp_pb2.Timestamp,
             )
 
-        channels: MutableSequence["SlackSource.SlackChannels.SlackChannel"] = (
-            proto.RepeatedField(
-                proto.MESSAGE,
-                number=1,
-                message="SlackSource.SlackChannels.SlackChannel",
-            )
+        channels: MutableSequence[
+            "SlackSource.SlackChannels.SlackChannel"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message="SlackSource.SlackChannels.SlackChannel",
         )
         api_key_config: api_auth.ApiAuth.ApiKeyConfig = proto.Field(
             proto.MESSAGE,

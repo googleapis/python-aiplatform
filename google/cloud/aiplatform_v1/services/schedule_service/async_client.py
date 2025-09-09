@@ -325,23 +325,21 @@ class ScheduleServiceAsyncClient:
         ):  # pragma: NO COVER
             _LOGGER.debug(
                 "Created client `google.cloud.aiplatform_v1.ScheduleServiceAsyncClient`.",
-                extra=(
-                    {
-                        "serviceName": "google.cloud.aiplatform.v1.ScheduleService",
-                        "universeDomain": getattr(
-                            self._client._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._client._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1.ScheduleService",
-                        "credentialsType": None,
-                    }
-                ),
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1.ScheduleService",
+                    "universeDomain": getattr(
+                        self._client._transport._credentials, "universe_domain", ""
+                    ),
+                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                    "credentialsInfo": getattr(
+                        self.transport._credentials, "get_cred_info", lambda: None
+                    )(),
+                }
+                if hasattr(self._client._transport, "_credentials")
+                else {
+                    "serviceName": "google.cloud.aiplatform.v1.ScheduleService",
+                    "credentialsType": None,
+                },
             )
 
     async def create_schedule(
@@ -1132,9 +1130,9 @@ class ScheduleServiceAsyncClient:
                 Required. The Schedule which replaces the resource on
                 the server. The following restrictions will be applied:
 
-                -  The scheduled request type cannot be changed.
-                -  The non-empty fields cannot be unset.
-                -  The output_only fields will be ignored if specified.
+                - The scheduled request type cannot be changed.
+                - The non-empty fields cannot be unset.
+                - The output_only fields will be ignored if specified.
 
                 This corresponds to the ``schedule`` field
                 on the ``request`` instance; if ``request`` is provided, this

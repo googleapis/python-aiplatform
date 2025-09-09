@@ -28,9 +28,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 
 from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool
-from google.cloud.aiplatform_v1beta1.types import (
-    deployment_resource_pool_service,
-)
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool_service
 from google.longrunning import operations_pb2  # type: ignore
 
 

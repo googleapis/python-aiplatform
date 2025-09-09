@@ -68,9 +68,7 @@ from google.cloud.aiplatform_v1.services.feature_online_store_service import (
 from google.cloud.aiplatform_v1.services.feature_online_store_service import (
     FeatureOnlineStoreServiceClient,
 )
-from google.cloud.aiplatform_v1.services.feature_online_store_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1.services.feature_online_store_service import transports
 from google.cloud.aiplatform_v1.types import feature_online_store_service
 from google.cloud.aiplatform_v1.types import featurestore_online_service
 from google.cloud.aiplatform_v1.types import types
@@ -1300,9 +1298,9 @@ def test_fetch_feature_values_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.fetch_feature_values] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.fetch_feature_values
+        ] = mock_rpc
         request = {}
         client.fetch_feature_values(request)
 
@@ -2001,9 +1999,9 @@ def test_fetch_feature_values_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.fetch_feature_values] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.fetch_feature_values
+        ] = mock_rpc
 
         request = {}
         client.fetch_feature_values(request)
@@ -2617,11 +2615,9 @@ def test_fetch_feature_values_rest_call_success(request_type):
 def test_fetch_feature_values_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.FeatureOnlineStoreServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureOnlineStoreServiceRestInterceptor(),
     )
     client = FeatureOnlineStoreServiceClient(transport=transport)
 
@@ -2757,11 +2753,9 @@ def test_search_nearest_entities_rest_call_success(request_type):
 def test_search_nearest_entities_rest_interceptors(null_interceptor):
     transport = transports.FeatureOnlineStoreServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.FeatureOnlineStoreServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureOnlineStoreServiceRestInterceptor(),
     )
     client = FeatureOnlineStoreServiceClient(transport=transport)
 
@@ -2828,7 +2822,6 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
 
 
 def test_feature_view_direct_write_rest_error():
-
     client = FeatureOnlineStoreServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
@@ -3615,11 +3608,9 @@ async def test_fetch_feature_values_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncFeatureOnlineStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncFeatureOnlineStoreServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureOnlineStoreServiceRestInterceptor(),
     )
     client = FeatureOnlineStoreServiceAsyncClient(transport=transport)
 
@@ -3773,11 +3764,9 @@ async def test_search_nearest_entities_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncFeatureOnlineStoreServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncFeatureOnlineStoreServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureOnlineStoreServiceRestInterceptor(),
     )
     client = FeatureOnlineStoreServiceAsyncClient(transport=transport)
 

@@ -23,12 +23,8 @@ from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
 from google.cloud.aiplatform_v1beta1.types import context as gca_context
 from google.cloud.aiplatform_v1beta1.types import event
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
-from google.cloud.aiplatform_v1beta1.types import (
-    metadata_schema as gca_metadata_schema,
-)
-from google.cloud.aiplatform_v1beta1.types import (
-    metadata_store as gca_metadata_store,
-)
+from google.cloud.aiplatform_v1beta1.types import metadata_schema as gca_metadata_schema
+from google.cloud.aiplatform_v1beta1.types import metadata_store as gca_metadata_store
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -217,12 +213,12 @@ class ListMetadataStoresResponse(proto.Message):
     def raw_page(self):
         return self
 
-    metadata_stores: MutableSequence[gca_metadata_store.MetadataStore] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_metadata_store.MetadataStore,
-        )
+    metadata_stores: MutableSequence[
+        gca_metadata_store.MetadataStore
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_metadata_store.MetadataStore,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -351,25 +347,25 @@ class ListArtifactsRequest(proto.Message):
             define filter query is based on https://google.aip.dev/160.
             The supported set of filters include the following:
 
-            -  **Attribute filtering**: For example:
-               ``display_name = "test"``. Supported fields include:
-               ``name``, ``display_name``, ``uri``, ``state``,
-               ``schema_title``, ``create_time``, and ``update_time``.
-               Time fields, such as ``create_time`` and ``update_time``,
-               require values specified in RFC-3339 format. For example:
-               ``create_time = "2020-11-19T11:30:00-04:00"``
-            -  **Metadata field**: To filter on metadata fields use
-               traversal operation as follows:
-               ``metadata.<field_name>.<type_value>``. For example:
-               ``metadata.field_1.number_value = 10.0`` In case the
-               field name contains special characters (such as colon),
-               one can embed it inside double quote. For example:
-               ``metadata."field:1".number_value = 10.0``
-            -  **Context based filtering**: To filter Artifacts based on
-               the contexts to which they belong, use the function
-               operator with the full resource name
-               ``in_context(<context-name>)``. For example:
-               ``in_context("projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context-id>")``
+            - **Attribute filtering**: For example:
+              ``display_name = "test"``. Supported fields include:
+              ``name``, ``display_name``, ``uri``, ``state``,
+              ``schema_title``, ``create_time``, and ``update_time``.
+              Time fields, such as ``create_time`` and ``update_time``,
+              require values specified in RFC-3339 format. For example:
+              ``create_time = "2020-11-19T11:30:00-04:00"``
+            - **Metadata field**: To filter on metadata fields use
+              traversal operation as follows:
+              ``metadata.<field_name>.<type_value>``. For example:
+              ``metadata.field_1.number_value = 10.0`` In case the field
+              name contains special characters (such as colon), one can
+              embed it inside double quote. For example:
+              ``metadata."field:1".number_value = 10.0``
+            - **Context based filtering**: To filter Artifacts based on
+              the contexts to which they belong, use the function
+              operator with the full resource name
+              ``in_context(<context-name>)``. For example:
+              ``in_context("projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context-id>")``
 
             Each of the above supported filter types can be combined
             together using logical operators (``AND`` & ``OR``). Maximum
@@ -656,32 +652,31 @@ class ListContextsRequest(proto.Message):
             define filter query is based on https://google.aip.dev/160.
             Following are the supported set of filters:
 
-            -  **Attribute filtering**: For example:
-               ``display_name = "test"``. Supported fields include:
-               ``name``, ``display_name``, ``schema_title``,
-               ``create_time``, and ``update_time``. Time fields, such
-               as ``create_time`` and ``update_time``, require values
-               specified in RFC-3339 format. For example:
-               ``create_time = "2020-11-19T11:30:00-04:00"``.
+            - **Attribute filtering**: For example:
+              ``display_name = "test"``. Supported fields include:
+              ``name``, ``display_name``, ``schema_title``,
+              ``create_time``, and ``update_time``. Time fields, such as
+              ``create_time`` and ``update_time``, require values
+              specified in RFC-3339 format. For example:
+              ``create_time = "2020-11-19T11:30:00-04:00"``.
 
-            -  **Metadata field**: To filter on metadata fields use
-               traversal operation as follows:
-               ``metadata.<field_name>.<type_value>``. For example:
-               ``metadata.field_1.number_value = 10.0``. In case the
-               field name contains special characters (such as colon),
-               one can embed it inside double quote. For example:
-               ``metadata."field:1".number_value = 10.0``
+            - **Metadata field**: To filter on metadata fields use
+              traversal operation as follows:
+              ``metadata.<field_name>.<type_value>``. For example:
+              ``metadata.field_1.number_value = 10.0``. In case the
+              field name contains special characters (such as colon),
+              one can embed it inside double quote. For example:
+              ``metadata."field:1".number_value = 10.0``
 
-            -  **Parent Child filtering**: To filter Contexts based on
-               parent-child relationship use the HAS operator as
-               follows:
+            - **Parent Child filtering**: To filter Contexts based on
+              parent-child relationship use the HAS operator as follows:
 
-               ::
+              ::
 
-                  parent_contexts:
-                  "projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context_id>"
-                  child_contexts:
-                  "projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context_id>"
+                 parent_contexts:
+                 "projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context_id>"
+                 child_contexts:
+                 "projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context_id>"
 
             Each of the above supported filters can be combined together
             using logical operators (``AND`` & ``OR``). Maximum nested
@@ -1103,25 +1098,25 @@ class ListExecutionsRequest(proto.Message):
             https://google.aip.dev/160. Following are the supported set
             of filters:
 
-            -  **Attribute filtering**: For example:
-               ``display_name = "test"``. Supported fields include:
-               ``name``, ``display_name``, ``state``, ``schema_title``,
-               ``create_time``, and ``update_time``. Time fields, such
-               as ``create_time`` and ``update_time``, require values
-               specified in RFC-3339 format. For example:
-               ``create_time = "2020-11-19T11:30:00-04:00"``.
-            -  **Metadata field**: To filter on metadata fields use
-               traversal operation as follows:
-               ``metadata.<field_name>.<type_value>`` For example:
-               ``metadata.field_1.number_value = 10.0`` In case the
-               field name contains special characters (such as colon),
-               one can embed it inside double quote. For example:
-               ``metadata."field:1".number_value = 10.0``
-            -  **Context based filtering**: To filter Executions based
-               on the contexts to which they belong use the function
-               operator with the full resource name:
-               ``in_context(<context-name>)``. For example:
-               ``in_context("projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context-id>")``
+            - **Attribute filtering**: For example:
+              ``display_name = "test"``. Supported fields include:
+              ``name``, ``display_name``, ``state``, ``schema_title``,
+              ``create_time``, and ``update_time``. Time fields, such as
+              ``create_time`` and ``update_time``, require values
+              specified in RFC-3339 format. For example:
+              ``create_time = "2020-11-19T11:30:00-04:00"``.
+            - **Metadata field**: To filter on metadata fields use
+              traversal operation as follows:
+              ``metadata.<field_name>.<type_value>`` For example:
+              ``metadata.field_1.number_value = 10.0`` In case the field
+              name contains special characters (such as colon), one can
+              embed it inside double quote. For example:
+              ``metadata."field:1".number_value = 10.0``
+            - **Context based filtering**: To filter Executions based on
+              the contexts to which they belong use the function
+              operator with the full resource name:
+              ``in_context(<context-name>)``. For example:
+              ``in_context("projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context-id>")``
 
             Each of the above supported filters can be combined together
             using logical operators (``AND`` & ``OR``). Maximum nested
@@ -1496,12 +1491,12 @@ class ListMetadataSchemasResponse(proto.Message):
     def raw_page(self):
         return self
 
-    metadata_schemas: MutableSequence[gca_metadata_schema.MetadataSchema] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_metadata_schema.MetadataSchema,
-        )
+    metadata_schemas: MutableSequence[
+        gca_metadata_schema.MetadataSchema
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_metadata_schema.MetadataSchema,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -1535,20 +1530,20 @@ class QueryArtifactLineageSubgraphRequest(proto.Message):
             https://google.aip.dev/160. The supported set of filters
             include the following:
 
-            -  **Attribute filtering**: For example:
-               ``display_name = "test"`` Supported fields include:
-               ``name``, ``display_name``, ``uri``, ``state``,
-               ``schema_title``, ``create_time``, and ``update_time``.
-               Time fields, such as ``create_time`` and ``update_time``,
-               require values specified in RFC-3339 format. For example:
-               ``create_time = "2020-11-19T11:30:00-04:00"``
-            -  **Metadata field**: To filter on metadata fields use
-               traversal operation as follows:
-               ``metadata.<field_name>.<type_value>``. For example:
-               ``metadata.field_1.number_value = 10.0`` In case the
-               field name contains special characters (such as colon),
-               one can embed it inside double quote. For example:
-               ``metadata."field:1".number_value = 10.0``
+            - **Attribute filtering**: For example:
+              ``display_name = "test"`` Supported fields include:
+              ``name``, ``display_name``, ``uri``, ``state``,
+              ``schema_title``, ``create_time``, and ``update_time``.
+              Time fields, such as ``create_time`` and ``update_time``,
+              require values specified in RFC-3339 format. For example:
+              ``create_time = "2020-11-19T11:30:00-04:00"``
+            - **Metadata field**: To filter on metadata fields use
+              traversal operation as follows:
+              ``metadata.<field_name>.<type_value>``. For example:
+              ``metadata.field_1.number_value = 10.0`` In case the field
+              name contains special characters (such as colon), one can
+              embed it inside double quote. For example:
+              ``metadata."field:1".number_value = 10.0``
 
             Each of the above supported filter types can be combined
             together using logical operators (``AND`` & ``OR``). Maximum

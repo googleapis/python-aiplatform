@@ -23,13 +23,9 @@ from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import data_item as gca_data_item
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
-from google.cloud.aiplatform_v1beta1.types import (
-    dataset_version as gca_dataset_version,
-)
+from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset_version
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.cloud.aiplatform_v1beta1.types import (
-    saved_query as gca_saved_query,
-)
+from google.cloud.aiplatform_v1beta1.types import saved_query as gca_saved_query
 from google.cloud.aiplatform_v1beta1.types import tool
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -159,9 +155,9 @@ class UpdateDatasetRequest(proto.Message):
             [google.protobuf.FieldMask][google.protobuf.FieldMask].
             Updatable fields:
 
-            -  ``display_name``
-            -  ``description``
-            -  ``labels``
+            - ``display_name``
+            - ``description``
+            - ``labels``
     """
 
     dataset: gca_dataset.Dataset = proto.Field(
@@ -190,7 +186,7 @@ class UpdateDatasetVersionRequest(proto.Message):
             [google.protobuf.FieldMask][google.protobuf.FieldMask].
             Updatable fields:
 
-            -  ``display_name``
+            - ``display_name``
     """
 
     dataset_version: gca_dataset_version.DatasetVersion = proto.Field(
@@ -217,19 +213,19 @@ class ListDatasetsRequest(proto.Message):
             An expression for filtering the results of the request. For
             field names both snake_case and camelCase are supported.
 
-            -  ``display_name``: supports = and !=
-            -  ``metadata_schema_uri``: supports = and !=
-            -  ``labels`` supports general map functions that is:
+            - ``display_name``: supports = and !=
+            - ``metadata_schema_uri``: supports = and !=
+            - ``labels`` supports general map functions that is:
 
-               -  ``labels.key=value`` - key:value equality
-               -  \`labels.key:\* or labels:key - key existence
-               -  A key including a space must be quoted.
-                  ``labels."a key"``.
+              - ``labels.key=value`` - key:value equality
+              - \`labels.key:\* or labels:key - key existence
+              - A key including a space must be quoted.
+                ``labels."a key"``.
 
             Some examples:
 
-            -  ``displayName="myDisplayName"``
-            -  ``labels.myKey="myValue"``
+            - ``displayName="myDisplayName"``
+            - ``labels.myKey="myValue"``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -241,9 +237,9 @@ class ListDatasetsRequest(proto.Message):
             ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``display_name``
-            -  ``create_time``
-            -  ``update_time``
+            - ``display_name``
+            - ``create_time``
+            - ``update_time``
     """
 
     parent: str = proto.Field(
@@ -397,7 +393,7 @@ class ExportDataResponse(proto.Message):
             All of the files that are exported in this export operation.
             For custom code training export, only three (training,
             validation and test) Cloud Storage paths in wildcard format
-            are populated (for example, gs://.../training-*).
+            are populated (for example, gs://.../training-\*).
     """
 
     exported_files: MutableSequence[str] = proto.RepeatedField(
@@ -580,12 +576,12 @@ class ListDatasetVersionsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    dataset_versions: MutableSequence[gca_dataset_version.DatasetVersion] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=gca_dataset_version.DatasetVersion,
-        )
+    dataset_versions: MutableSequence[
+        gca_dataset_version.DatasetVersion
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_dataset_version.DatasetVersion,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
@@ -744,30 +740,30 @@ class SearchDataItemsRequest(proto.Message):
             An expression for filtering the DataItem that will be
             returned.
 
-            -  ``data_item_id`` - for = or !=.
-            -  ``labeled`` - for = or !=.
-            -  ``has_annotation(ANNOTATION_SPEC_ID)`` - true only for
-               DataItem that have at least one annotation with
-               annotation_spec_id = ``ANNOTATION_SPEC_ID`` in the
-               context of SavedQuery or DataLabelingJob.
+            - ``data_item_id`` - for = or !=.
+            - ``labeled`` - for = or !=.
+            - ``has_annotation(ANNOTATION_SPEC_ID)`` - true only for
+              DataItem that have at least one annotation with
+              annotation_spec_id = ``ANNOTATION_SPEC_ID`` in the context
+              of SavedQuery or DataLabelingJob.
 
             For example:
 
-            -  ``data_item=1``
-            -  ``has_annotation(5)``
+            - ``data_item=1``
+            - ``has_annotation(5)``
         annotations_filter (str):
             An expression for filtering the Annotations that will be
             returned per DataItem.
 
-            -  ``annotation_spec_id`` - for = or !=.
+            - ``annotation_spec_id`` - for = or !=.
         annotation_filters (MutableSequence[str]):
             An expression that specifies what Annotations will be
             returned per DataItem. Annotations satisfied either of the
             conditions will be returned.
 
-            -  ``annotation_spec_id`` - for = or !=. Must specify
-               ``saved_query_id=`` - saved query id that annotations
-               should belong to.
+            - ``annotation_spec_id`` - for = or !=. Must specify
+              ``saved_query_id=`` - saved query id that annotations
+              should belong to.
         field_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields of
             [DataItemView][google.cloud.aiplatform.v1beta1.DataItemView]
@@ -1200,7 +1196,6 @@ class AssessDataRequest(proto.Message):
                 SFT_VALIDATION (2):
                     Supervised fine-tuning validation dataset.
             """
-
             DATASET_USAGE_UNSPECIFIED = 0
             SFT_TRAINING = 1
             SFT_VALIDATION = 2
@@ -1209,9 +1204,7 @@ class AssessDataRequest(proto.Message):
             proto.STRING,
             number=1,
         )
-        dataset_usage: (
-            "AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage"
-        ) = proto.Field(
+        dataset_usage: "AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage" = proto.Field(
             proto.ENUM,
             number=2,
             enum="AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage",
@@ -1274,17 +1267,13 @@ class AssessDataRequest(proto.Message):
             message=TuningResourceUsageAssessmentConfig,
         )
     )
-    batch_prediction_validation_assessment_config: (
-        BatchPredictionValidationAssessmentConfig
-    ) = proto.Field(
+    batch_prediction_validation_assessment_config: BatchPredictionValidationAssessmentConfig = proto.Field(
         proto.MESSAGE,
         number=6,
         oneof="assessment_config",
         message=BatchPredictionValidationAssessmentConfig,
     )
-    batch_prediction_resource_usage_assessment_config: (
-        BatchPredictionResourceUsageAssessmentConfig
-    ) = proto.Field(
+    batch_prediction_resource_usage_assessment_config: BatchPredictionResourceUsageAssessmentConfig = proto.Field(
         proto.MESSAGE,
         number=7,
         oneof="assessment_config",
@@ -1407,17 +1396,13 @@ class AssessDataResponse(proto.Message):
             message=TuningResourceUsageAssessmentResult,
         )
     )
-    batch_prediction_validation_assessment_result: (
-        BatchPredictionValidationAssessmentResult
-    ) = proto.Field(
+    batch_prediction_validation_assessment_result: BatchPredictionValidationAssessmentResult = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="assessment_result",
         message=BatchPredictionValidationAssessmentResult,
     )
-    batch_prediction_resource_usage_assessment_result: (
-        BatchPredictionResourceUsageAssessmentResult
-    ) = proto.Field(
+    batch_prediction_resource_usage_assessment_result: BatchPredictionResourceUsageAssessmentResult = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="assessment_result",

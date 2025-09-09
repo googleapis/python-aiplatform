@@ -61,7 +61,6 @@ _CLASSIFICATION_METRICS = {
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )
 class TestExperiments(e2e_base.TestEndToEnd):
-
     _temp_prefix = "tmpvrtxsdk-e2e"
 
     def setup_class(cls):
@@ -73,7 +72,6 @@ class TestExperiments(e2e_base.TestEndToEnd):
         cls._pipeline_job_id = cls._make_display_name("job-id")
 
     def test_create_experiment(self, shared_state):
-
         # Truncating the name because of resource id constraints from the service
         tensorboard = aiplatform.Tensorboard.create(
             project=e2e_base._PROJECT,
@@ -320,7 +318,6 @@ class TestExperiments(e2e_base.TestEndToEnd):
             schema_title="system.ContainerExecution",
             resource_id=self._make_display_name("execution"),
         ) as execution:
-
             shared_state["resources"].append(execution)
 
             ds = aiplatform.Artifact(
@@ -694,7 +691,6 @@ class TestExperiments(e2e_base.TestEndToEnd):
             aiplatform.Experiment(experiment_name=self._experiment_name)
 
     def test_init_associates_global_tensorboard_to_experiment(self, shared_state):
-
         tensorboard = aiplatform.Tensorboard.create(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,

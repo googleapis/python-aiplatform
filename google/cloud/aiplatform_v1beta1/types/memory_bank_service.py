@@ -167,7 +167,7 @@ class ListMemoriesRequest(proto.Message):
 
             Supported fields (equality match only):
 
-            -  ``scope`` (as a JSON string)
+            - ``scope`` (as a JSON string)
         page_size (int):
             Optional. The standard list page size.
         page_token (str):
@@ -299,7 +299,7 @@ class GenerateMemoriesRequest(proto.Message):
             with the same scope. Must be provided unless the scope is
             defined in the source content. If ``scope`` is provided, it
             will override the scope defined in the source content. Scope
-            values cannot contain the wildcard character '*'.
+            values cannot contain the wildcard character '\*'.
     """
 
     class VertexSessionSource(proto.Message):
@@ -470,7 +470,6 @@ class GenerateMemoriesResponse(proto.Message):
                 DELETED (3):
                     The memory was deleted.
             """
-
             ACTION_UNSPECIFIED = 0
             CREATED = 1
             UPDATED = 2

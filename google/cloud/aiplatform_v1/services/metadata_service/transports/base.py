@@ -36,9 +36,7 @@ from google.cloud.aiplatform_v1.types import execution
 from google.cloud.aiplatform_v1.types import execution as gca_execution
 from google.cloud.aiplatform_v1.types import lineage_subgraph
 from google.cloud.aiplatform_v1.types import metadata_schema
-from google.cloud.aiplatform_v1.types import (
-    metadata_schema as gca_metadata_schema,
-)
+from google.cloud.aiplatform_v1.types import metadata_schema as gca_metadata_schema
 from google.cloud.aiplatform_v1.types import metadata_service
 from google.cloud.aiplatform_v1.types import metadata_store
 from google.cloud.location import locations_pb2  # type: ignore
@@ -729,19 +727,13 @@ class MetadataServiceTransport(abc.ABC):
     @property
     def cancel_operation(
         self,
-    ) -> Callable[
-        [operations_pb2.CancelOperationRequest],
-        None,
-    ]:
+    ) -> Callable[[operations_pb2.CancelOperationRequest], None,]:
         raise NotImplementedError()
 
     @property
     def delete_operation(
         self,
-    ) -> Callable[
-        [operations_pb2.DeleteOperationRequest],
-        None,
-    ]:
+    ) -> Callable[[operations_pb2.DeleteOperationRequest], None,]:
         raise NotImplementedError()
 
     @property

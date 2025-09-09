@@ -912,15 +912,15 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular_alternative,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
         )
-        column_specs[_TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[0]] = (
-            training_jobs.AutoMLTabularTrainingJob.column_data_types.NUMERIC
-        )
-        column_specs[_TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[1]] = (
-            training_jobs.AutoMLTabularTrainingJob.column_data_types.CATEGORICAL
-        )
-        column_specs[_TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[2]] = (
-            training_jobs.AutoMLTabularTrainingJob.column_data_types.TEXT
-        )
+        column_specs[
+            _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[0]
+        ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.NUMERIC
+        column_specs[
+            _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[1]
+        ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.CATEGORICAL
+        column_specs[
+            _TEST_TRAINING_COLUMN_NAMES_ALTERNATIVE[2]
+        ] = training_jobs.AutoMLTabularTrainingJob.column_data_types.TEXT
 
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -1014,7 +1014,6 @@ class TestAutoMLTabularTrainingJob:
     def test_run_raises_if_pipeline_fails(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_tabular, sync
     ):
-
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.AutoMLTabularTrainingJob(
@@ -1045,7 +1044,6 @@ class TestAutoMLTabularTrainingJob:
     def test_wait_for_resource_creation_does_not_fail_if_creation_does_not_fail(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_tabular
     ):
-
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.AutoMLTabularTrainingJob(
@@ -1077,7 +1075,6 @@ class TestAutoMLTabularTrainingJob:
     @pytest.mark.usefixtures("mock_pipeline_service_create_fail")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_fails(self, mock_dataset_tabular, sync):
-
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.AutoMLTabularTrainingJob(
@@ -1171,7 +1168,6 @@ class TestAutoMLTabularTrainingJob:
         )
 
     def test_properties_throw_if_not_available(self):
-
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,

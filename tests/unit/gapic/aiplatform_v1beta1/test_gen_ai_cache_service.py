@@ -68,16 +68,10 @@ from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import (
 from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import (
     GenAiCacheServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import pagers
+from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import transports
 from google.cloud.aiplatform_v1beta1.types import cached_content
-from google.cloud.aiplatform_v1beta1.types import (
-    cached_content as gca_cached_content,
-)
+from google.cloud.aiplatform_v1beta1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import gen_ai_cache_service
@@ -1281,9 +1275,9 @@ def test_create_cached_content_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_cached_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_cached_content
+        ] = mock_rpc
         request = {}
         client.create_cached_content(request)
 
@@ -1653,9 +1647,9 @@ def test_get_cached_content_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_cached_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_cached_content
+        ] = mock_rpc
         request = {}
         client.get_cached_content(request)
 
@@ -2000,9 +1994,9 @@ def test_update_cached_content_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.update_cached_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.update_cached_content
+        ] = mock_rpc
         request = {}
         client.update_cached_content(request)
 
@@ -2366,9 +2360,9 @@ def test_delete_cached_content_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_cached_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_cached_content
+        ] = mock_rpc
         request = {}
         client.delete_cached_content(request)
 
@@ -2701,9 +2695,9 @@ def test_list_cached_contents_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_cached_contents] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_cached_contents
+        ] = mock_rpc
         request = {}
         client.list_cached_contents(request)
 
@@ -3178,9 +3172,9 @@ def test_create_cached_content_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_cached_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_cached_content
+        ] = mock_rpc
 
         request = {}
         client.create_cached_content(request)
@@ -3375,9 +3369,9 @@ def test_get_cached_content_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_cached_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_cached_content
+        ] = mock_rpc
 
         request = {}
         client.get_cached_content(request)
@@ -3560,9 +3554,9 @@ def test_update_cached_content_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.update_cached_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.update_cached_content
+        ] = mock_rpc
 
         request = {}
         client.update_cached_content(request)
@@ -3759,9 +3753,9 @@ def test_delete_cached_content_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_cached_content] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_cached_content
+        ] = mock_rpc
 
         request = {}
         client.delete_cached_content(request)
@@ -3938,9 +3932,9 @@ def test_list_cached_contents_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_cached_contents] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_cached_contents
+        ] = mock_rpc
 
         request = {}
         client.list_cached_contents(request)
@@ -4879,9 +4873,9 @@ def test_create_cached_content_rest_call_success(request_type):
 def test_create_cached_content_rest_interceptors(null_interceptor):
     transport = transports.GenAiCacheServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceClient(transport=transport)
 
@@ -5013,9 +5007,9 @@ def test_get_cached_content_rest_call_success(request_type):
 def test_get_cached_content_rest_interceptors(null_interceptor):
     transport = transports.GenAiCacheServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceClient(transport=transport)
 
@@ -5395,9 +5389,9 @@ def test_update_cached_content_rest_call_success(request_type):
 def test_update_cached_content_rest_interceptors(null_interceptor):
     transport = transports.GenAiCacheServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceClient(transport=transport)
 
@@ -5519,9 +5513,9 @@ def test_delete_cached_content_rest_call_success(request_type):
 def test_delete_cached_content_rest_interceptors(null_interceptor):
     transport = transports.GenAiCacheServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceClient(transport=transport)
 
@@ -5634,9 +5628,9 @@ def test_list_cached_contents_rest_call_success(request_type):
 def test_list_cached_contents_rest_interceptors(null_interceptor):
     transport = transports.GenAiCacheServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.GenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.GenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceClient(transport=transport)
 
@@ -6780,11 +6774,9 @@ async def test_create_cached_content_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncGenAiCacheServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceAsyncClient(transport=transport)
 
@@ -6932,11 +6924,9 @@ async def test_get_cached_content_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncGenAiCacheServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceAsyncClient(transport=transport)
 
@@ -7332,11 +7322,9 @@ async def test_update_cached_content_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncGenAiCacheServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceAsyncClient(transport=transport)
 
@@ -7474,11 +7462,9 @@ async def test_delete_cached_content_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncGenAiCacheServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceAsyncClient(transport=transport)
 
@@ -7607,11 +7593,9 @@ async def test_list_cached_contents_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncGenAiCacheServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncGenAiCacheServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncGenAiCacheServiceRestInterceptor(),
     )
     client = GenAiCacheServiceAsyncClient(transport=transport)
 

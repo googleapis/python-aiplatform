@@ -72,9 +72,7 @@ from google.cloud.aiplatform_v1beta1.services.extension_registry_service import 
 from google.cloud.aiplatform_v1beta1.services.extension_registry_service import (
     ExtensionRegistryServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.extension_registry_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.extension_registry_service import pagers
 from google.cloud.aiplatform_v1beta1.services.extension_registry_service import (
     transports,
 )
@@ -1299,9 +1297,9 @@ def test_import_extension_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.import_extension] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.import_extension
+        ] = mock_rpc
         request = {}
         client.import_extension(request)
 
@@ -2500,9 +2498,9 @@ def test_update_extension_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.update_extension] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.update_extension
+        ] = mock_rpc
         request = {}
         client.update_extension(request)
 
@@ -2839,9 +2837,9 @@ def test_delete_extension_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_extension] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_extension
+        ] = mock_rpc
         request = {}
         client.delete_extension(request)
 
@@ -3108,9 +3106,9 @@ def test_import_extension_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.import_extension] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.import_extension
+        ] = mock_rpc
 
         request = {}
         client.import_extension(request)
@@ -3743,9 +3741,9 @@ def test_update_extension_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.update_extension] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.update_extension
+        ] = mock_rpc
 
         request = {}
         client.update_extension(request)
@@ -3935,9 +3933,9 @@ def test_delete_extension_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_extension] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_extension
+        ] = mock_rpc
 
         request = {}
         client.delete_extension(request)
@@ -4711,11 +4709,9 @@ def test_import_extension_rest_call_success(request_type):
 def test_import_extension_rest_interceptors(null_interceptor):
     transport = transports.ExtensionRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.ExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceClient(transport=transport)
 
@@ -4849,11 +4845,9 @@ def test_get_extension_rest_call_success(request_type):
 def test_get_extension_rest_interceptors(null_interceptor):
     transport = transports.ExtensionRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.ExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceClient(transport=transport)
 
@@ -4981,11 +4975,9 @@ def test_list_extensions_rest_call_success(request_type):
 def test_list_extensions_rest_interceptors(null_interceptor):
     transport = transports.ExtensionRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.ExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceClient(transport=transport)
 
@@ -5310,11 +5302,9 @@ def test_update_extension_rest_call_success(request_type):
 def test_update_extension_rest_interceptors(null_interceptor):
     transport = transports.ExtensionRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.ExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceClient(transport=transport)
 
@@ -5434,11 +5424,9 @@ def test_delete_extension_rest_call_success(request_type):
 def test_delete_extension_rest_interceptors(null_interceptor):
     transport = transports.ExtensionRegistryServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.ExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.ExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceClient(transport=transport)
 
@@ -6520,11 +6508,9 @@ async def test_import_extension_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExtensionRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceAsyncClient(transport=transport)
 
@@ -6674,11 +6660,9 @@ async def test_get_extension_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExtensionRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceAsyncClient(transport=transport)
 
@@ -6822,11 +6806,9 @@ async def test_list_extensions_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExtensionRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceAsyncClient(transport=transport)
 
@@ -7167,11 +7149,9 @@ async def test_update_extension_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExtensionRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceAsyncClient(transport=transport)
 
@@ -7307,11 +7287,9 @@ async def test_delete_extension_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncExtensionRegistryServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncExtensionRegistryServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncExtensionRegistryServiceRestInterceptor(),
     )
     client = ExtensionRegistryServiceAsyncClient(transport=transport)
 

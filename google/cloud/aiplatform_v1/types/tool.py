@@ -149,7 +149,6 @@ class Tool(proto.Message):
                 ENVIRONMENT_BROWSER (1):
                     Operates in a web browser.
             """
-
             ENVIRONMENT_UNSPECIFIED = 0
             ENVIRONMENT_BROWSER = 1
 
@@ -397,7 +396,6 @@ class ExecutableCode(proto.Message):
                 Python >= 3.10, with numpy and simpy
                 available.
         """
-
         LANGUAGE_UNSPECIFIED = 0
         PYTHON = 1
 
@@ -443,7 +441,6 @@ class CodeExecutionResult(proto.Message):
                 cancelled. There may or may not be a partial
                 output present.
         """
-
         OUTCOME_UNSPECIFIED = 0
         OUTCOME_OK = 1
         OUTCOME_FAILED = 2
@@ -723,7 +720,6 @@ class DynamicRetrievalConfig(proto.Message):
                 Run retrieval only when system decides it is
                 necessary.
         """
-
         MODE_UNSPECIFIED = 0
         MODE_DYNAMIC = 1
 
@@ -797,7 +793,6 @@ class FunctionCallingConfig(proto.Message):
                 Model behavior is same as when not passing any
                 function declarations.
         """
-
         MODE_UNSPECIFIED = 0
         AUTO = 1
         ANY = 2

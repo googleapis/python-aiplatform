@@ -87,9 +87,7 @@ class CreateIndexOperationMetadata(proto.Message):
         number=1,
         message=operation.GenericOperationMetadata,
     )
-    nearest_neighbor_search_operation_metadata: (
-        "NearestNeighborSearchOperationMetadata"
-    ) = proto.Field(
+    nearest_neighbor_search_operation_metadata: "NearestNeighborSearchOperationMetadata" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="NearestNeighborSearchOperationMetadata",
@@ -229,9 +227,7 @@ class UpdateIndexOperationMetadata(proto.Message):
         number=1,
         message=operation.GenericOperationMetadata,
     )
-    nearest_neighbor_search_operation_metadata: (
-        "NearestNeighborSearchOperationMetadata"
-    ) = proto.Field(
+    nearest_neighbor_search_operation_metadata: "NearestNeighborSearchOperationMetadata" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="NearestNeighborSearchOperationMetadata",
@@ -347,7 +343,6 @@ class ImportIndexRequest(proto.Message):
                         DOUBLE (3):
                             Represents 64 bit float.
                     """
-
                     VALUE_TYPE_UNSPECIFIED = 0
                     INT = 1
                     FLOAT = 2
@@ -411,17 +406,13 @@ class ImportIndexRequest(proto.Message):
                 proto.STRING,
                 number=1,
             )
-            datapoint_field_mapping: (
-                "ImportIndexRequest.ConnectorConfig.DatapointFieldMapping"
-            ) = proto.Field(
+            datapoint_field_mapping: "ImportIndexRequest.ConnectorConfig.DatapointFieldMapping" = proto.Field(
                 proto.MESSAGE,
                 number=2,
                 message="ImportIndexRequest.ConnectorConfig.DatapointFieldMapping",
             )
 
-        big_query_source_config: (
-            "ImportIndexRequest.ConnectorConfig.BigQuerySourceConfig"
-        ) = proto.Field(
+        big_query_source_config: "ImportIndexRequest.ConnectorConfig.BigQuerySourceConfig" = proto.Field(
             proto.MESSAGE,
             number=1,
             oneof="source",
@@ -495,8 +486,8 @@ class UpsertDatapointsRequest(proto.Message):
 
             Updatable fields:
 
-            -  Use ``all_restricts`` to update both restricts and
-               numeric_restricts.
+            - Use ``all_restricts`` to update both restricts and
+              numeric_restricts.
     """
 
     index: str = proto.Field(
@@ -641,7 +632,6 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 EMBEDDING_METADATA_EXCEEDS_SIZE_LIMIT (19):
                     Embedding metadata exceeds size limit.
             """
-
             ERROR_TYPE_UNSPECIFIED = 0
             EMPTY_LINE = 1
             INVALID_JSON_SYNTAX = 2
@@ -663,9 +653,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             INVALID_EMBEDDING_METADATA = 18
             EMBEDDING_METADATA_EXCEEDS_SIZE_LIMIT = 19
 
-        error_type: (
-            "NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType"
-        ) = proto.Field(
+        error_type: "NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType" = proto.Field(
             proto.ENUM,
             number=1,
             enum="NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType",
@@ -741,12 +729,12 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             number=6,
         )
 
-    content_validation_stats: MutableSequence[ContentValidationStats] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=ContentValidationStats,
-        )
+    content_validation_stats: MutableSequence[
+        ContentValidationStats
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=ContentValidationStats,
     )
     data_bytes_count: int = proto.Field(
         proto.INT64,

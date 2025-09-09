@@ -72,12 +72,8 @@ from google.cloud.aiplatform_v1.services.persistent_resource_service import (
 from google.cloud.aiplatform_v1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
 )
-from google.cloud.aiplatform_v1.services.persistent_resource_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1.services.persistent_resource_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1.services.persistent_resource_service import pagers
+from google.cloud.aiplatform_v1.services.persistent_resource_service import transports
 from google.cloud.aiplatform_v1.types import accelerator_type
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import machine_resources
@@ -5465,11 +5461,9 @@ def test_create_persistent_resource_rest_call_success(request_type):
 def test_create_persistent_resource_rest_interceptors(null_interceptor):
     transport = transports.PersistentResourceServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.PersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceClient(transport=transport)
 
@@ -5611,11 +5605,9 @@ def test_get_persistent_resource_rest_call_success(request_type):
 def test_get_persistent_resource_rest_interceptors(null_interceptor):
     transport = transports.PersistentResourceServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.PersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceClient(transport=transport)
 
@@ -5750,11 +5742,9 @@ def test_list_persistent_resources_rest_call_success(request_type):
 def test_list_persistent_resources_rest_interceptors(null_interceptor):
     transport = transports.PersistentResourceServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.PersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceClient(transport=transport)
 
@@ -5889,11 +5879,9 @@ def test_delete_persistent_resource_rest_call_success(request_type):
 def test_delete_persistent_resource_rest_interceptors(null_interceptor):
     transport = transports.PersistentResourceServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.PersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceClient(transport=transport)
 
@@ -6171,11 +6159,9 @@ def test_update_persistent_resource_rest_call_success(request_type):
 def test_update_persistent_resource_rest_interceptors(null_interceptor):
     transport = transports.PersistentResourceServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.PersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceClient(transport=transport)
 
@@ -6303,11 +6289,9 @@ def test_reboot_persistent_resource_rest_call_success(request_type):
 def test_reboot_persistent_resource_rest_interceptors(null_interceptor):
     transport = transports.PersistentResourceServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.PersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceClient(transport=transport)
 
@@ -7385,11 +7369,9 @@ async def test_create_persistent_resource_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncPersistentResourceServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceAsyncClient(transport=transport)
 
@@ -7547,11 +7529,9 @@ async def test_get_persistent_resource_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncPersistentResourceServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceAsyncClient(transport=transport)
 
@@ -7702,11 +7682,9 @@ async def test_list_persistent_resources_rest_asyncio_interceptors(null_intercep
         )
     transport = transports.AsyncPersistentResourceServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceAsyncClient(transport=transport)
 
@@ -7857,11 +7835,9 @@ async def test_delete_persistent_resource_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncPersistentResourceServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceAsyncClient(transport=transport)
 
@@ -8155,11 +8131,9 @@ async def test_update_persistent_resource_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncPersistentResourceServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceAsyncClient(transport=transport)
 
@@ -8303,11 +8277,9 @@ async def test_reboot_persistent_resource_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncPersistentResourceServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPersistentResourceServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPersistentResourceServiceRestInterceptor(),
     )
     client = PersistentResourceServiceAsyncClient(transport=transport)
 

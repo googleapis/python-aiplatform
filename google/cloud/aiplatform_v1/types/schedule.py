@@ -157,7 +157,6 @@ class Schedule(proto.Message):
                 allowed to complete. Schedules in completed
                 state cannot be paused or resumed.
         """
-
         STATE_UNSPECIFIED = 0
         ACTIVE = 1
         PAUSED = 2
@@ -197,9 +196,7 @@ class Schedule(proto.Message):
             message=pipeline_service.CreatePipelineJobRequest,
         )
     )
-    create_notebook_execution_job_request: (
-        notebook_service.CreateNotebookExecutionJobRequest
-    ) = proto.Field(
+    create_notebook_execution_job_request: notebook_service.CreateNotebookExecutionJobRequest = proto.Field(
         proto.MESSAGE,
         number=20,
         oneof="request",

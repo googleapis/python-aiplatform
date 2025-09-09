@@ -52,9 +52,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 from google.cloud.aiplatform_v1beta1.types import genai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import tuning_job
-from google.cloud.aiplatform_v1beta1.types import (
-    tuning_job as gca_tuning_job,
-)
+from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
 from google.protobuf import empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
@@ -669,9 +667,9 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
         self._interceptor = interceptor or AsyncGenAiTuningServiceRestInterceptor()
         self._wrap_with_kind = True
         self._prep_wrapped_messages(client_info)
-        self._operations_client: Optional[operations_v1.AsyncOperationsRestClient] = (
-            None
-        )
+        self._operations_client: Optional[
+            operations_v1.AsyncOperationsRestClient
+        ] = None
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -775,7 +773,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -898,7 +895,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1061,7 +1057,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1220,7 +1215,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1379,7 +1373,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3749,7 +3742,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3901,7 +3893,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4053,7 +4044,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4211,7 +4201,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4369,7 +4358,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4525,7 +4513,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4647,7 +4634,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4769,7 +4755,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4921,7 +4906,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5071,7 +5055,6 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

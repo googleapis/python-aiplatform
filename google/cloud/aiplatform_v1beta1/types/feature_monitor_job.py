@@ -95,7 +95,6 @@ class FeatureMonitorJob(proto.Message):
                 Triggered on demand by
                 CreateFeatureMonitorJob request.
         """
-
         FEATURE_MONITOR_JOB_TRIGGER_UNSPECIFIED = 0
         FEATURE_MONITOR_JOB_TRIGGER_PERIODIC = 1
         FEATURE_MONITOR_JOB_TRIGGER_ON_DEMAND = 2

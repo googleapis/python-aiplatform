@@ -1081,7 +1081,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1242,6 +1241,22 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             resp, _ = self._interceptor.post_chat_completions_with_metadata(
                 resp, response_metadata
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.PredictionServiceClient.chat_completions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "ChatCompletions",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CountTokens(
@@ -1260,7 +1275,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1417,7 +1431,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1574,7 +1587,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1732,7 +1744,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1893,7 +1904,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2050,7 +2060,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2210,7 +2219,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2412,7 +2420,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2536,6 +2543,22 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             resp, _ = self._interceptor.post_server_streaming_predict_with_metadata(
                 resp, response_metadata
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.PredictionServiceClient.server_streaming_predict",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "ServerStreamingPredict",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _StreamDirectPredict(
@@ -2593,7 +2616,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2711,6 +2733,22 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             resp, _ = self._interceptor.post_stream_generate_content_with_metadata(
                 resp, response_metadata
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.PredictionServiceClient.stream_generate_content",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "StreamGenerateContent",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _StreamingPredict(
@@ -2768,7 +2806,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2930,6 +2967,22 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             resp, _ = self._interceptor.post_stream_raw_predict_with_metadata(
                 resp, response_metadata
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.PredictionServiceClient.stream_raw_predict",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "StreamRawPredict",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     @property
@@ -3105,7 +3158,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3247,7 +3299,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3388,7 +3439,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3535,7 +3585,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3683,7 +3732,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3833,7 +3881,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3949,7 +3996,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4064,7 +4110,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4206,7 +4251,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4348,7 +4392,6 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

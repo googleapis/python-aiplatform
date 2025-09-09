@@ -32,9 +32,7 @@ import grpc  # type: ignore
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool
-from google.cloud.aiplatform_v1beta1.types import (
-    deployment_resource_pool_service,
-)
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -370,12 +368,12 @@ class DeploymentResourcePoolServiceGrpcTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_deployment_resource_pool" not in self._stubs:
-            self._stubs["create_deployment_resource_pool"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/CreateDeploymentResourcePool",
-                    request_serializer=deployment_resource_pool_service.CreateDeploymentResourcePoolRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "create_deployment_resource_pool"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/CreateDeploymentResourcePool",
+                request_serializer=deployment_resource_pool_service.CreateDeploymentResourcePoolRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_deployment_resource_pool"]
 
@@ -401,12 +399,12 @@ class DeploymentResourcePoolServiceGrpcTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_deployment_resource_pool" not in self._stubs:
-            self._stubs["get_deployment_resource_pool"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/GetDeploymentResourcePool",
-                    request_serializer=deployment_resource_pool_service.GetDeploymentResourcePoolRequest.serialize,
-                    response_deserializer=deployment_resource_pool.DeploymentResourcePool.deserialize,
-                )
+            self._stubs[
+                "get_deployment_resource_pool"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/GetDeploymentResourcePool",
+                request_serializer=deployment_resource_pool_service.GetDeploymentResourcePoolRequest.serialize,
+                response_deserializer=deployment_resource_pool.DeploymentResourcePool.deserialize,
             )
         return self._stubs["get_deployment_resource_pool"]
 
@@ -432,12 +430,12 @@ class DeploymentResourcePoolServiceGrpcTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_deployment_resource_pools" not in self._stubs:
-            self._stubs["list_deployment_resource_pools"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/ListDeploymentResourcePools",
-                    request_serializer=deployment_resource_pool_service.ListDeploymentResourcePoolsRequest.serialize,
-                    response_deserializer=deployment_resource_pool_service.ListDeploymentResourcePoolsResponse.deserialize,
-                )
+            self._stubs[
+                "list_deployment_resource_pools"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/ListDeploymentResourcePools",
+                request_serializer=deployment_resource_pool_service.ListDeploymentResourcePoolsRequest.serialize,
+                response_deserializer=deployment_resource_pool_service.ListDeploymentResourcePoolsResponse.deserialize,
             )
         return self._stubs["list_deployment_resource_pools"]
 
@@ -464,12 +462,12 @@ class DeploymentResourcePoolServiceGrpcTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_deployment_resource_pool" not in self._stubs:
-            self._stubs["update_deployment_resource_pool"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/UpdateDeploymentResourcePool",
-                    request_serializer=deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "update_deployment_resource_pool"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/UpdateDeploymentResourcePool",
+                request_serializer=deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["update_deployment_resource_pool"]
 
@@ -496,12 +494,12 @@ class DeploymentResourcePoolServiceGrpcTransport(
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_deployment_resource_pool" not in self._stubs:
-            self._stubs["delete_deployment_resource_pool"] = (
-                self._logged_channel.unary_unary(
-                    "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/DeleteDeploymentResourcePool",
-                    request_serializer=deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest.serialize,
-                    response_deserializer=operations_pb2.Operation.FromString,
-                )
+            self._stubs[
+                "delete_deployment_resource_pool"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DeploymentResourcePoolService/DeleteDeploymentResourcePool",
+                request_serializer=deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_deployment_resource_pool"]
 

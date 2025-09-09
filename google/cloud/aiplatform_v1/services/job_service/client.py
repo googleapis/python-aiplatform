@@ -72,9 +72,7 @@ from google.cloud.aiplatform_v1.types import completion_stats
 from google.cloud.aiplatform_v1.types import custom_job
 from google.cloud.aiplatform_v1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1.types import data_labeling_job
-from google.cloud.aiplatform_v1.types import (
-    data_labeling_job as gca_data_labeling_job,
-)
+from google.cloud.aiplatform_v1.types import data_labeling_job as gca_data_labeling_job
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import hyperparameter_tuning_job
@@ -1147,25 +1145,21 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             ):  # pragma: NO COVER
                 _LOGGER.debug(
                     "Created client `google.cloud.aiplatform_v1.JobServiceClient`.",
-                    extra=(
-                        {
-                            "serviceName": "google.cloud.aiplatform.v1.JobService",
-                            "universeDomain": getattr(
-                                self._transport._credentials, "universe_domain", ""
-                            ),
-                            "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                            "credentialsInfo": getattr(
-                                self.transport._credentials,
-                                "get_cred_info",
-                                lambda: None,
-                            )(),
-                        }
-                        if hasattr(self._transport, "_credentials")
-                        else {
-                            "serviceName": "google.cloud.aiplatform.v1.JobService",
-                            "credentialsType": None,
-                        }
-                    ),
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.JobService",
+                        "universeDomain": getattr(
+                            self._transport._credentials, "universe_domain", ""
+                        ),
+                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
+                        "credentialsInfo": getattr(
+                            self.transport._credentials, "get_cred_info", lambda: None
+                        )(),
+                    }
+                    if hasattr(self._transport, "_credentials")
+                    else {
+                        "serviceName": "google.cloud.aiplatform.v1.JobService",
+                        "credentialsType": None,
+                    },
                 )
 
     def create_custom_job(
@@ -5069,18 +5063,17 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
                 Updatable fields:
 
-                -  ``display_name``
-                -  ``model_deployment_monitoring_schedule_config``
-                -  ``model_monitoring_alert_config``
-                -  ``logging_sampling_strategy``
-                -  ``labels``
-                -  ``log_ttl``
-                -  ``enable_monitoring_pipeline_logs`` . and
-                -  ``model_deployment_monitoring_objective_configs`` .
-                   or
-                -  ``model_deployment_monitoring_objective_configs.objective_config.training_dataset``
-                -  ``model_deployment_monitoring_objective_configs.objective_config.training_prediction_skew_detection_config``
-                -  ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
+                - ``display_name``
+                - ``model_deployment_monitoring_schedule_config``
+                - ``model_monitoring_alert_config``
+                - ``logging_sampling_strategy``
+                - ``labels``
+                - ``log_ttl``
+                - ``enable_monitoring_pipeline_logs`` . and
+                - ``model_deployment_monitoring_objective_configs`` . or
+                - ``model_deployment_monitoring_objective_configs.objective_config.training_dataset``
+                - ``model_deployment_monitoring_objective_configs.objective_config.training_prediction_skew_detection_config``
+                - ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

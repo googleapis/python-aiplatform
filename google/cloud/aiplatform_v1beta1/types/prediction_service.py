@@ -610,11 +610,11 @@ class ExplainRequest(proto.Message):
             of the DeployedModel. Can be used for explaining prediction
             results with different configurations, such as:
 
-            -  Explaining top-5 predictions results as opposed to top-1;
-            -  Increasing path count or step count of the attribution
-               methods to reduce approximate errors;
-            -  Using different baselines for explaining the prediction
-               results.
+            - Explaining top-5 predictions results as opposed to top-1;
+            - Increasing path count or step count of the attribution
+              methods to reduce approximate errors;
+            - Using different baselines for explaining the prediction
+              results.
         concurrent_explanation_spec_override (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationSpecOverride]):
             Optional. This field is the same as the one above, but
             supports multiple explanations to occur in parallel. The key
@@ -711,13 +711,13 @@ class ExplainResponse(proto.Message):
         number=1,
         message=explanation.Explanation,
     )
-    concurrent_explanations: MutableMapping[str, ConcurrentExplanation] = (
-        proto.MapField(
-            proto.STRING,
-            proto.MESSAGE,
-            number=4,
-            message=ConcurrentExplanation,
-        )
+    concurrent_explanations: MutableMapping[
+        str, ConcurrentExplanation
+    ] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=4,
+        message=ConcurrentExplanation,
     )
     deployed_model_id: str = proto.Field(
         proto.STRING,
@@ -834,12 +834,12 @@ class CountTokensResponse(proto.Message):
         proto.INT32,
         number=2,
     )
-    prompt_tokens_details: MutableSequence[content.ModalityTokenCount] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=3,
-            message=content.ModalityTokenCount,
-        )
+    prompt_tokens_details: MutableSequence[
+        content.ModalityTokenCount
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=content.ModalityTokenCount,
     )
 
 
@@ -1017,7 +1017,6 @@ class GenerateContentResponse(proto.Message):
                 MODEL_ARMOR (5):
                     The user prompt was blocked by Model Armor.
             """
-
             BLOCKED_REASON_UNSPECIFIED = 0
             SAFETY = 1
             OTHER = 2
@@ -1092,26 +1091,26 @@ class GenerateContentResponse(proto.Message):
             proto.INT32,
             number=5,
         )
-        prompt_tokens_details: MutableSequence[content.ModalityTokenCount] = (
-            proto.RepeatedField(
-                proto.MESSAGE,
-                number=9,
-                message=content.ModalityTokenCount,
-            )
+        prompt_tokens_details: MutableSequence[
+            content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=9,
+            message=content.ModalityTokenCount,
         )
-        cache_tokens_details: MutableSequence[content.ModalityTokenCount] = (
-            proto.RepeatedField(
-                proto.MESSAGE,
-                number=10,
-                message=content.ModalityTokenCount,
-            )
+        cache_tokens_details: MutableSequence[
+            content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=10,
+            message=content.ModalityTokenCount,
         )
-        candidates_tokens_details: MutableSequence[content.ModalityTokenCount] = (
-            proto.RepeatedField(
-                proto.MESSAGE,
-                number=11,
-                message=content.ModalityTokenCount,
-            )
+        candidates_tokens_details: MutableSequence[
+            content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=11,
+            message=content.ModalityTokenCount,
         )
 
     candidates: MutableSequence[content.Candidate] = proto.RepeatedField(

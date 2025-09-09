@@ -119,9 +119,9 @@ class _SkewDetectionConfig:
                 attribution_score_skew_threshold = gca_model_monitoring.ThresholdConfig(
                     value=self.attribute_skew_thresholds[key]
                 )
-                attribution_score_skew_thresholds_mapping[key] = (
-                    attribution_score_skew_threshold
-                )
+                attribution_score_skew_thresholds_mapping[
+                    key
+                ] = attribution_score_skew_threshold
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
             skew_thresholds=skew_thresholds_mapping,
             attribution_score_skew_thresholds=attribution_score_skew_thresholds_mapping,
@@ -178,9 +178,9 @@ class _DriftDetectionConfig:
                         value=self.attribute_drift_thresholds[key]
                     )
                 )
-                attribution_score_drift_thresholds_mapping[key] = (
-                    attribution_score_drift_threshold
-                )
+                attribution_score_drift_thresholds_mapping[
+                    key
+                ] = attribution_score_drift_threshold
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
             drift_thresholds=drift_thresholds_mapping,
             attribution_score_drift_thresholds=attribution_score_drift_thresholds_mapping,

@@ -69,9 +69,7 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.migration_service import (
     MigrationServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1.services.migration_service import (
-    MigrationServiceClient,
-)
+from google.cloud.aiplatform_v1.services.migration_service import MigrationServiceClient
 from google.cloud.aiplatform_v1.services.migration_service import pagers
 from google.cloud.aiplatform_v1.services.migration_service import transports
 from google.cloud.aiplatform_v1.types import migratable_resource
@@ -2872,9 +2870,9 @@ def test_search_migratable_resources_rest_call_success(request_type):
 def test_search_migratable_resources_rest_interceptors(null_interceptor):
     transport = transports.MigrationServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.MigrationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.MigrationServiceRestInterceptor(),
     )
     client = MigrationServiceClient(transport=transport)
 
@@ -2999,9 +2997,9 @@ def test_batch_migrate_resources_rest_call_success(request_type):
 def test_batch_migrate_resources_rest_interceptors(null_interceptor):
     transport = transports.MigrationServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.MigrationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.MigrationServiceRestInterceptor(),
     )
     client = MigrationServiceClient(transport=transport)
 
@@ -3851,11 +3849,9 @@ async def test_search_migratable_resources_rest_asyncio_interceptors(null_interc
         )
     transport = transports.AsyncMigrationServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncMigrationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncMigrationServiceRestInterceptor(),
     )
     client = MigrationServiceAsyncClient(transport=transport)
 
@@ -3998,11 +3994,9 @@ async def test_batch_migrate_resources_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncMigrationServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncMigrationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncMigrationServiceRestInterceptor(),
     )
     client = MigrationServiceAsyncClient(transport=transport)
 
@@ -5404,6 +5398,58 @@ def test_parse_annotated_dataset_path():
 
 def test_dataset_path():
     project = "cuttlefish"
+    location = "mussel"
+    dataset = "winkle"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project,
+        location=location,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "dataset": "abalone",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "squid"
+    location = "clam"
+    dataset = "whelk"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project,
+        location=location,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "dataset": "nudibranch",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "cuttlefish"
     dataset = "mussel"
     expected = "projects/{project}/datasets/{dataset}".format(
         project=project,
@@ -5416,58 +5462,6 @@ def test_dataset_path():
 def test_parse_dataset_path():
     expected = {
         "project": "winkle",
-        "dataset": "nautilus",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "scallop"
-    location = "abalone"
-    dataset = "squid"
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project,
-        location=location,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "clam",
-        "location": "whelk",
-        "dataset": "octopus",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "oyster"
-    location = "nudibranch"
-    dataset = "cuttlefish"
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project,
-        location=location,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "mussel",
-        "location": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)

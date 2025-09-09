@@ -56,9 +56,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run
-from google.cloud.aiplatform_v1beta1.types import (
-    tensorboard_run as gca_tensorboard_run,
-)
+from google.cloud.aiplatform_v1beta1.types import tensorboard_run as gca_tensorboard_run
 from google.cloud.aiplatform_v1beta1.types import tensorboard_service
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import (
@@ -2201,9 +2199,9 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
         self._interceptor = interceptor or AsyncTensorboardServiceRestInterceptor()
         self._wrap_with_kind = True
         self._prep_wrapped_messages(client_info)
-        self._operations_client: Optional[operations_v1.AsyncOperationsRestClient] = (
-            None
-        )
+        self._operations_client: Optional[
+            operations_v1.AsyncOperationsRestClient
+        ] = None
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -2434,7 +2432,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2610,7 +2607,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2788,7 +2784,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2958,7 +2953,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3124,7 +3118,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3300,7 +3293,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3469,7 +3461,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3643,7 +3634,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3803,7 +3793,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3968,7 +3957,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4128,7 +4116,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4295,7 +4282,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4471,7 +4457,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4632,7 +4617,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4797,7 +4781,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4956,7 +4939,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5121,7 +5103,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5289,7 +5270,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5450,7 +5430,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5611,7 +5590,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5779,7 +5757,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5898,6 +5875,23 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             ) = await self._interceptor.post_read_tensorboard_blob_data_with_metadata(
                 resp, response_metadata
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.TensorboardServiceAsyncClient.read_tensorboard_blob_data",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.TensorboardService",
+                        "rpcName": "ReadTensorboardBlobData",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ReadTensorboardSize(
@@ -5917,7 +5911,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6080,7 +6073,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6246,7 +6238,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6407,7 +6398,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6573,7 +6563,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6749,7 +6738,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6918,7 +6906,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7094,7 +7081,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7268,7 +7254,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -9870,7 +9855,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10022,7 +10006,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10174,7 +10157,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10332,7 +10314,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10490,7 +10471,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10646,7 +10626,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10768,7 +10747,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10890,7 +10868,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11042,7 +11019,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11192,7 +11168,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

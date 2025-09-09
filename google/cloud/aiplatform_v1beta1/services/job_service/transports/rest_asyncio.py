@@ -55,9 +55,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     batch_prediction_job as gca_batch_prediction_job,
 )
 from google.cloud.aiplatform_v1beta1.types import custom_job
-from google.cloud.aiplatform_v1beta1.types import (
-    custom_job as gca_custom_job,
-)
+from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1beta1.types import data_labeling_job
 from google.cloud.aiplatform_v1beta1.types import (
     data_labeling_job as gca_data_labeling_job,
@@ -67,9 +65,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
 from google.cloud.aiplatform_v1beta1.types import job_service
-from google.cloud.aiplatform_v1beta1.types import (
-    model_deployment_monitoring_job,
-)
+from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1beta1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
@@ -2191,9 +2187,9 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
         self._interceptor = interceptor or AsyncJobServiceRestInterceptor()
         self._wrap_with_kind = True
         self._prep_wrapped_messages(client_info)
-        self._operations_client: Optional[operations_v1.AsyncOperationsRestClient] = (
-            None
-        )
+        self._operations_client: Optional[
+            operations_v1.AsyncOperationsRestClient
+        ] = None
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -2447,7 +2443,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2570,7 +2565,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2694,7 +2688,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2819,7 +2812,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2945,7 +2937,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3074,7 +3065,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3247,7 +3237,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3417,7 +3406,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3588,7 +3576,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3766,7 +3753,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3946,7 +3932,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4115,7 +4100,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4276,7 +4260,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4435,7 +4418,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4598,7 +4580,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4765,7 +4746,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4931,7 +4911,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5092,7 +5071,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5260,7 +5238,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5426,7 +5403,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5588,7 +5564,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5758,7 +5733,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5930,7 +5904,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6090,7 +6063,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6251,7 +6223,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6413,7 +6384,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6573,7 +6543,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6737,7 +6706,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6907,7 +6875,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7076,7 +7043,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7236,7 +7202,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7399,7 +7364,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7528,7 +7492,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7657,7 +7620,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7837,7 +7799,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10443,7 +10404,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10596,7 +10556,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10749,7 +10708,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10910,7 +10868,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11071,7 +11028,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11228,7 +11184,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11351,7 +11306,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11474,7 +11428,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11627,7 +11580,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11778,7 +11730,6 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

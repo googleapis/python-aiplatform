@@ -116,8 +116,8 @@ class ModelEvaluation(proto.Message):
 
                 For AutoML Image Classification models, possible values are:
 
-                -  ``image-integrated-gradients``
-                -  ``image-xrai``
+                - ``image-integrated-gradients``
+                - ``image-xrai``
             explanation_spec (google.cloud.aiplatform_v1.types.ExplanationSpec):
                 Explanation spec details.
         """
@@ -171,12 +171,12 @@ class ModelEvaluation(proto.Message):
         number=8,
         message=explanation.ModelExplanation,
     )
-    explanation_specs: MutableSequence[ModelEvaluationExplanationSpec] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=9,
-            message=ModelEvaluationExplanationSpec,
-        )
+    explanation_specs: MutableSequence[
+        ModelEvaluationExplanationSpec
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message=ModelEvaluationExplanationSpec,
     )
     metadata: struct_pb2.Value = proto.Field(
         proto.MESSAGE,

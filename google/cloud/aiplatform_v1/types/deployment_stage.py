@@ -56,7 +56,6 @@ class DeploymentStage(proto.Enum):
         DEPLOYMENT_TERMINATED (10):
             The deployment has terminated.
     """
-
     DEPLOYMENT_STAGE_UNSPECIFIED = 0
     STARTING_DEPLOYMENT = 5
     PREPARING_MODEL = 6

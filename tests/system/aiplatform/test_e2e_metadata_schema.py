@@ -33,7 +33,6 @@ from tests.system.aiplatform import e2e_base
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestMetadataSchema(e2e_base.TestEndToEnd):
-
     _temp_prefix = "tmpvrtxmlmdsdk-e2e"
 
     def setup_class(cls):
@@ -47,7 +46,6 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         cls.execution_description = cls._make_display_name("base-description")
 
     def test_system_dataset_artifact_create(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -71,7 +69,6 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         assert "/metadataStores/default/artifacts/" in artifact.resource_name
 
     def test_google_dataset_artifact_create(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -102,7 +99,6 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         )
 
     def test_execution_create_using_system_schema_class(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,

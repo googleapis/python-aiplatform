@@ -415,13 +415,13 @@ class TensorBoardUploader(object):
                             tensorboard_time_series.TensorboardTimeSeries.ValueType.BLOB_SEQUENCE
                         )
 
-                    run_tag_name_to_time_series_proto[(run_name, value.tag)] = (
-                        tensorboard_time_series.TensorboardTimeSeries(
-                            display_name=value.tag,
-                            value_type=value_type,
-                            plugin_name=metadata.plugin_data.plugin_name,
-                            plugin_data=metadata.plugin_data.content,
-                        )
+                    run_tag_name_to_time_series_proto[
+                        (run_name, value.tag)
+                    ] = tensorboard_time_series.TensorboardTimeSeries(
+                        display_name=value.tag,
+                        value_type=value_type,
+                        plugin_name=metadata.plugin_data.plugin_name,
+                        plugin_data=metadata.plugin_data.content,
                     )
 
         experiment_runs = [uploader_utils.reformat_run_name(run) for run in run_names]

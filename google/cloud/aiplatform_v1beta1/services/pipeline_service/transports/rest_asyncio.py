@@ -51,9 +51,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
 from google.cloud.aiplatform_v1beta1.types import pipeline_job
-from google.cloud.aiplatform_v1beta1.types import (
-    pipeline_job as gca_pipeline_job,
-)
+from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
@@ -1043,9 +1041,9 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
         self._interceptor = interceptor or AsyncPipelineServiceRestInterceptor()
         self._wrap_with_kind = True
         self._prep_wrapped_messages(client_info)
-        self._operations_client: Optional[operations_v1.AsyncOperationsRestClient] = (
-            None
-        )
+        self._operations_client: Optional[
+            operations_v1.AsyncOperationsRestClient
+        ] = None
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -1184,7 +1182,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1352,7 +1349,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1520,7 +1516,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1643,7 +1638,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1766,7 +1760,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -1929,7 +1922,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2101,7 +2093,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2259,7 +2250,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2420,7 +2410,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2579,7 +2568,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2742,7 +2730,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2903,7 +2890,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5327,7 +5313,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5479,7 +5464,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5631,7 +5615,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5789,7 +5772,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5947,7 +5929,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6103,7 +6084,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6227,7 +6207,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6351,7 +6330,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6503,7 +6481,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6655,7 +6632,6 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

@@ -22,9 +22,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import (
     completion_stats as gca_completion_stats,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
@@ -32,9 +30,7 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    model_deployment_monitoring_job,
-)
+from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1beta1.types import model_monitoring
 from google.cloud.aiplatform_v1beta1.types import (
     unmanaged_container_model as gca_unmanaged_container_model,
@@ -150,18 +146,18 @@ class BatchPredictionJob(proto.Message):
             [BatchPredictionJob.output_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.output_config]
             object:
 
-            -  ``bigquery``: output includes a column named
-               ``explanation``. The value is a struct that conforms to
-               the
-               [Explanation][google.cloud.aiplatform.v1beta1.Explanation]
-               object.
-            -  ``jsonl``: The JSON objects on each line include an
-               additional entry keyed ``explanation``. The value of the
-               entry is a JSON object that conforms to the
-               [Explanation][google.cloud.aiplatform.v1beta1.Explanation]
-               object.
-            -  ``csv``: Generating explanations for CSV format is not
-               supported.
+            - ``bigquery``: output includes a column named
+              ``explanation``. The value is a struct that conforms to
+              the
+              [Explanation][google.cloud.aiplatform.v1beta1.Explanation]
+              object.
+            - ``jsonl``: The JSON objects on each line include an
+              additional entry keyed ``explanation``. The value of the
+              entry is a JSON object that conforms to the
+              [Explanation][google.cloud.aiplatform.v1beta1.Explanation]
+              object.
+            - ``csv``: Generating explanations for CSV format is not
+              supported.
 
             If this field is set to true, either the
             [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec]
@@ -331,49 +327,48 @@ class BatchPredictionJob(proto.Message):
 
                 Supported values are:
 
-                -  ``object``: Each input is converted to JSON object
-                   format.
+                - ``object``: Each input is converted to JSON object format.
 
-                   -  For ``bigquery``, each row is converted to an object.
-                   -  For ``jsonl``, each line of the JSONL input must be an
-                      object.
-                   -  Does not apply to ``csv``, ``file-list``,
-                      ``tf-record``, or ``tf-record-gzip``.
+                  - For ``bigquery``, each row is converted to an object.
+                  - For ``jsonl``, each line of the JSONL input must be an
+                    object.
+                  - Does not apply to ``csv``, ``file-list``, ``tf-record``,
+                    or ``tf-record-gzip``.
 
-                -  ``array``: Each input is converted to JSON array format.
+                - ``array``: Each input is converted to JSON array format.
 
-                   -  For ``bigquery``, each row is converted to an array.
-                      The order of columns is determined by the BigQuery
-                      column order, unless
-                      [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
-                      is populated.
-                      [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
-                      must be populated for specifying field orders.
-                   -  For ``jsonl``, if each line of the JSONL input is an
-                      object,
-                      [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
-                      must be populated for specifying field orders.
-                   -  Does not apply to ``csv``, ``file-list``,
-                      ``tf-record``, or ``tf-record-gzip``.
+                  - For ``bigquery``, each row is converted to an array. The
+                    order of columns is determined by the BigQuery column
+                    order, unless
+                    [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                    is populated.
+                    [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                    must be populated for specifying field orders.
+                  - For ``jsonl``, if each line of the JSONL input is an
+                    object,
+                    [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                    must be populated for specifying field orders.
+                  - Does not apply to ``csv``, ``file-list``, ``tf-record``,
+                    or ``tf-record-gzip``.
 
                 If not specified, Vertex AI converts the batch prediction
                 input as follows:
 
-                -  For ``bigquery`` and ``csv``, the behavior is the same as
-                   ``array``. The order of columns is the same as defined in
-                   the file or table, unless
-                   [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
-                   is populated.
-                -  For ``jsonl``, the prediction instance format is
-                   determined by each line of the input.
-                -  For ``tf-record``/``tf-record-gzip``, each record will be
-                   converted to an object in the format of
-                   ``{"b64": <value>}``, where ``<value>`` is the
-                   Base64-encoded string of the content of the record.
-                -  For ``file-list``, each file in the list will be
-                   converted to an object in the format of
-                   ``{"b64": <value>}``, where ``<value>`` is the
-                   Base64-encoded string of the content of the file.
+                - For ``bigquery`` and ``csv``, the behavior is the same as
+                  ``array``. The order of columns is the same as defined in
+                  the file or table, unless
+                  [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                  is populated.
+                - For ``jsonl``, the prediction instance format is
+                  determined by each line of the input.
+                - For ``tf-record``/``tf-record-gzip``, each record will be
+                  converted to an object in the format of
+                  ``{"b64": <value>}``, where ``<value>`` is the
+                  Base64-encoded string of the content of the record.
+                - For ``file-list``, each file in the list will be converted
+                  to an object in the format of ``{"b64": <value>}``, where
+                  ``<value>`` is the Base64-encoded string of the content of
+                  the file.
             key_field (str):
                 The name of the field that is considered as a key.
 
@@ -386,11 +381,11 @@ class BatchPredictionJob(proto.Message):
                 value of the key field, in a field named ``key`` in the
                 output:
 
-                -  For ``jsonl`` output format, the output will have a
-                   ``key`` field instead of the ``instance`` field.
-                -  For ``csv``/``bigquery`` output format, the output will
-                   have have a ``key`` column instead of the instance
-                   feature columns.
+                - For ``jsonl`` output format, the output will have a
+                  ``key`` field instead of the ``instance`` field.
+                - For ``csv``/``bigquery`` output format, the output will
+                  have have a ``key`` column instead of the instance feature
+                  columns.
 
                 The input must be JSONL with objects at each line, CSV,
                 BigQuery or TfRecord.
@@ -633,9 +628,7 @@ class BatchPredictionJob(proto.Message):
         proto.STRING,
         number=29,
     )
-    manual_batch_tuning_parameters: (
-        gca_manual_batch_tuning_parameters.ManualBatchTuningParameters
-    ) = proto.Field(
+    manual_batch_tuning_parameters: gca_manual_batch_tuning_parameters.ManualBatchTuningParameters = proto.Field(
         proto.MESSAGE,
         number=8,
         message=gca_manual_batch_tuning_parameters.ManualBatchTuningParameters,

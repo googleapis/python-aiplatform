@@ -20,9 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import content
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import job_state
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
@@ -503,7 +501,6 @@ class SupervisedHyperParameters(proto.Message):
             ADAPTER_SIZE_THIRTY_TWO (5):
                 Adapter size 32.
         """
-
         ADAPTER_SIZE_UNSPECIFIED = 0
         ADAPTER_SIZE_ONE = 1
         ADAPTER_SIZE_TWO = 6

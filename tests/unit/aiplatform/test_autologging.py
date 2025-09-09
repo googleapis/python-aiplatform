@@ -645,7 +645,6 @@ class TestAutologging:
         get_metadata_store_mock,
         get_tensorboard_mock,
     ):
-
         try:
             import mlflow  # noqa: F401
         except ImportError:
@@ -706,7 +705,6 @@ class TestAutologging:
     def test_autologging_raises_if_experiment_tensorboard_not_set(
         self,
     ):
-
         # unset the global tensorboard
         aiplatform.metadata.metadata._experiment_tracker._global_tensorboard = None
 
@@ -767,7 +765,6 @@ class TestAutologging:
     def test_autologging_enabled_check(
         self,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -799,7 +796,6 @@ class TestAutologging:
     def test_calling_autolog_with_disable_raises_if_not_enabled(
         self,
     ):
-
         import mlflow  # noqa: F401
 
         aiplatform.init(
@@ -935,7 +931,6 @@ class TestAutologging:
         create_experiment_run_context_mock,
         caplog,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -989,7 +984,6 @@ class TestAutologging:
         self,
         caplog,
     ):
-
         import tensorflow  # noqa: F401
 
         aiplatform.init(

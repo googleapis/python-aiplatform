@@ -122,7 +122,6 @@ def build_and_train_test_sklearn_gridsearch_model():
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )
 class TestAutologging(e2e_base.TestEndToEnd):
-
     _temp_prefix = "tmpvrtxsdk-e2e"
 
     def setup_class(cls):
@@ -137,7 +136,6 @@ class TestAutologging(e2e_base.TestEndToEnd):
         )
 
     def test_autologging_with_autorun_creation(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -201,7 +199,6 @@ class TestAutologging(e2e_base.TestEndToEnd):
         assert len(experiment_df_after_disable) == 1
 
     def test_autologging_with_manual_run_creation(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -249,7 +246,6 @@ class TestAutologging(e2e_base.TestEndToEnd):
         assert experiment_df_after_autocreate["run_name"][0].startswith("sklearn-")
 
     def test_autologging_nested_run_model(self, shared_state, caplog):
-
         caplog.set_level(logging.INFO)
 
         aiplatform.init(

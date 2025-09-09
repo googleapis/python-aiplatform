@@ -69,9 +69,7 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.pipeline_service import (
     PipelineServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1.services.pipeline_service import (
-    PipelineServiceClient,
-)
+from google.cloud.aiplatform_v1.services.pipeline_service import PipelineServiceClient
 from google.cloud.aiplatform_v1.services.pipeline_service import pagers
 from google.cloud.aiplatform_v1.services.pipeline_service import transports
 from google.cloud.aiplatform_v1.types import artifact
@@ -92,9 +90,7 @@ from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import pipeline_state
 from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.aiplatform_v1.types import training_pipeline
-from google.cloud.aiplatform_v1.types import (
-    training_pipeline as gca_training_pipeline,
-)
+from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
 from google.cloud.aiplatform_v1.types import value
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -1661,9 +1657,9 @@ def test_get_training_pipeline_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_training_pipeline] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_training_pipeline
+        ] = mock_rpc
         request = {}
         client.get_training_pipeline(request)
 
@@ -3258,9 +3254,9 @@ def test_create_pipeline_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_pipeline_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_pipeline_job
+        ] = mock_rpc
         request = {}
         client.create_pipeline_job(request)
 
@@ -3646,9 +3642,9 @@ def test_get_pipeline_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_pipeline_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_pipeline_job
+        ] = mock_rpc
         request = {}
         client.get_pipeline_job(request)
 
@@ -3999,9 +3995,9 @@ def test_list_pipeline_jobs_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_pipeline_jobs] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_pipeline_jobs
+        ] = mock_rpc
         request = {}
         client.list_pipeline_jobs(request)
 
@@ -4540,9 +4536,9 @@ def test_delete_pipeline_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_pipeline_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_pipeline_job
+        ] = mock_rpc
         request = {}
         client.delete_pipeline_job(request)
 
@@ -5243,9 +5239,9 @@ def test_cancel_pipeline_job_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.cancel_pipeline_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.cancel_pipeline_job
+        ] = mock_rpc
         request = {}
         client.cancel_pipeline_job(request)
 
@@ -6060,9 +6056,9 @@ def test_get_training_pipeline_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_training_pipeline] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_training_pipeline
+        ] = mock_rpc
 
         request = {}
         client.get_training_pipeline(request)
@@ -6876,9 +6872,9 @@ def test_create_pipeline_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.create_pipeline_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.create_pipeline_job
+        ] = mock_rpc
 
         request = {}
         client.create_pipeline_job(request)
@@ -7071,9 +7067,9 @@ def test_get_pipeline_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.get_pipeline_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.get_pipeline_job
+        ] = mock_rpc
 
         request = {}
         client.get_pipeline_job(request)
@@ -7255,9 +7251,9 @@ def test_list_pipeline_jobs_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.list_pipeline_jobs] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.list_pipeline_jobs
+        ] = mock_rpc
 
         request = {}
         client.list_pipeline_jobs(request)
@@ -7521,9 +7517,9 @@ def test_delete_pipeline_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.delete_pipeline_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.delete_pipeline_job
+        ] = mock_rpc
 
         request = {}
         client.delete_pipeline_job(request)
@@ -7901,9 +7897,9 @@ def test_cancel_pipeline_job_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.cancel_pipeline_job] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.cancel_pipeline_job
+        ] = mock_rpc
 
         request = {}
         client.cancel_pipeline_job(request)
@@ -9365,9 +9361,9 @@ def test_create_training_pipeline_rest_call_success(request_type):
 def test_create_training_pipeline_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -9512,9 +9508,9 @@ def test_get_training_pipeline_rest_call_success(request_type):
 def test_get_training_pipeline_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -9642,9 +9638,9 @@ def test_list_training_pipelines_rest_call_success(request_type):
 def test_list_training_pipelines_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -9773,9 +9769,9 @@ def test_delete_training_pipeline_rest_call_success(request_type):
 def test_delete_training_pipeline_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -9901,9 +9897,9 @@ def test_cancel_training_pipeline_rest_call_success(request_type):
 def test_cancel_training_pipeline_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -10213,9 +10209,9 @@ def test_create_pipeline_job_rest_call_success(request_type):
 def test_create_pipeline_job_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -10359,9 +10355,9 @@ def test_get_pipeline_job_rest_call_success(request_type):
 def test_get_pipeline_job_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -10486,9 +10482,9 @@ def test_list_pipeline_jobs_rest_call_success(request_type):
 def test_list_pipeline_jobs_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -10613,9 +10609,9 @@ def test_delete_pipeline_job_rest_call_success(request_type):
 def test_delete_pipeline_job_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -10737,9 +10733,9 @@ def test_batch_delete_pipeline_jobs_rest_call_success(request_type):
 def test_batch_delete_pipeline_jobs_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -10861,9 +10857,9 @@ def test_cancel_pipeline_job_rest_call_success(request_type):
 def test_cancel_pipeline_job_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -10970,9 +10966,9 @@ def test_batch_cancel_pipeline_jobs_rest_call_success(request_type):
 def test_batch_cancel_pipeline_jobs_rest_interceptors(null_interceptor):
     transport = transports.PipelineServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.PipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.PipelineServiceRestInterceptor(),
     )
     client = PipelineServiceClient(transport=transport)
 
@@ -12322,11 +12318,9 @@ async def test_create_training_pipeline_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -12487,11 +12481,9 @@ async def test_get_training_pipeline_rest_asyncio_interceptors(null_interceptor)
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -12635,11 +12627,9 @@ async def test_list_training_pipelines_rest_asyncio_interceptors(null_intercepto
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -12784,11 +12774,9 @@ async def test_delete_training_pipeline_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -12930,11 +12918,9 @@ async def test_cancel_training_pipeline_rest_asyncio_interceptors(null_intercept
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -13260,11 +13246,9 @@ async def test_create_pipeline_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -13424,11 +13408,9 @@ async def test_get_pipeline_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -13570,11 +13552,9 @@ async def test_list_pipeline_jobs_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -13715,11 +13695,9 @@ async def test_delete_pipeline_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -13857,11 +13835,9 @@ async def test_batch_delete_pipeline_jobs_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -14000,11 +13976,9 @@ async def test_cancel_pipeline_job_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 
@@ -14127,11 +14101,9 @@ async def test_batch_cancel_pipeline_jobs_rest_asyncio_interceptors(null_interce
         )
     transport = transports.AsyncPipelineServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncPipelineServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncPipelineServiceRestInterceptor(),
     )
     client = PipelineServiceAsyncClient(transport=transport)
 

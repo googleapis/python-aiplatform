@@ -150,7 +150,6 @@ class PairwiseChoice(proto.Enum):
         TIE (3):
             Winner cannot be determined
     """
-
     PAIRWISE_CHOICE_UNSPECIFIED = 0
     BASELINE = 1
     CANDIDATE = 2
@@ -366,9 +365,7 @@ class EvaluateInstancesRequest(proto.Message):
         oneof="metric_inputs",
         message="QuestionAnsweringQualityInput",
     )
-    pairwise_question_answering_quality_input: (
-        "PairwiseQuestionAnsweringQualityInput"
-    ) = proto.Field(
+    pairwise_question_answering_quality_input: "PairwiseQuestionAnsweringQualityInput" = proto.Field(
         proto.MESSAGE,
         number=24,
         oneof="metric_inputs",
@@ -657,9 +654,7 @@ class EvaluateInstancesResponse(proto.Message):
         oneof="evaluation_results",
         message="QuestionAnsweringQualityResult",
     )
-    pairwise_question_answering_quality_result: (
-        "PairwiseQuestionAnsweringQualityResult"
-    ) = proto.Field(
+    pairwise_question_answering_quality_result: "PairwiseQuestionAnsweringQualityResult" = proto.Field(
         proto.MESSAGE,
         number=23,
         oneof="evaluation_results",
@@ -805,12 +800,12 @@ class ExactMatchResults(proto.Message):
             Output only. Exact match metric values.
     """
 
-    exact_match_metric_values: MutableSequence["ExactMatchMetricValue"] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message="ExactMatchMetricValue",
-        )
+    exact_match_metric_values: MutableSequence[
+        "ExactMatchMetricValue"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="ExactMatchMetricValue",
     )
 
 
@@ -2950,12 +2945,12 @@ class ToolCallValidResults(proto.Message):
             Output only. Tool call valid metric values.
     """
 
-    tool_call_valid_metric_values: MutableSequence["ToolCallValidMetricValue"] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message="ToolCallValidMetricValue",
-        )
+    tool_call_valid_metric_values: MutableSequence[
+        "ToolCallValidMetricValue"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="ToolCallValidMetricValue",
     )
 
 
@@ -3041,12 +3036,12 @@ class ToolNameMatchResults(proto.Message):
             Output only. Tool name match metric values.
     """
 
-    tool_name_match_metric_values: MutableSequence["ToolNameMatchMetricValue"] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message="ToolNameMatchMetricValue",
-        )
+    tool_name_match_metric_values: MutableSequence[
+        "ToolNameMatchMetricValue"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="ToolNameMatchMetricValue",
     )
 
 
@@ -3319,7 +3314,6 @@ class CometSpec(proto.Message):
                 Comet 22 for translation + source + reference
                 (source-reference-combined).
         """
-
         COMET_VERSION_UNSPECIFIED = 0
         COMET_22_SRC_REF = 2
 
@@ -3457,7 +3451,6 @@ class MetricxSpec(proto.Message):
                 MetricX 2024 (2.6) for translation + source +
                 reference (source-reference-combined).
         """
-
         METRICX_VERSION_UNSPECIFIED = 0
         METRICX_24_REF = 1
         METRICX_24_SRC = 2

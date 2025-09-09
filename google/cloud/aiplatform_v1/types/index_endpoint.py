@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -409,12 +407,12 @@ class DeployedIndex(proto.Message):
         proto.STRING,
         number=11,
     )
-    psc_automation_configs: MutableSequence[service_networking.PSCAutomationConfig] = (
-        proto.RepeatedField(
-            proto.MESSAGE,
-            number=19,
-            message=service_networking.PSCAutomationConfig,
-        )
+    psc_automation_configs: MutableSequence[
+        service_networking.PSCAutomationConfig
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=19,
+        message=service_networking.PSCAutomationConfig,
     )
 
 

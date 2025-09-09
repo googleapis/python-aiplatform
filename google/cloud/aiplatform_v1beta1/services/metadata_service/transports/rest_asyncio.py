@@ -58,9 +58,7 @@ from google.cloud.aiplatform_v1beta1.types import execution
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import lineage_subgraph
 from google.cloud.aiplatform_v1beta1.types import metadata_schema
-from google.cloud.aiplatform_v1beta1.types import (
-    metadata_schema as gca_metadata_schema,
-)
+from google.cloud.aiplatform_v1beta1.types import metadata_schema as gca_metadata_schema
 from google.cloud.aiplatform_v1beta1.types import metadata_service
 from google.cloud.aiplatform_v1beta1.types import metadata_store
 from google.longrunning import operations_pb2  # type: ignore
@@ -2260,9 +2258,9 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
         self._interceptor = interceptor or AsyncMetadataServiceRestInterceptor()
         self._wrap_with_kind = True
         self._prep_wrapped_messages(client_info)
-        self._operations_client: Optional[operations_v1.AsyncOperationsRestClient] = (
-            None
-        )
+        self._operations_client: Optional[
+            operations_v1.AsyncOperationsRestClient
+        ] = None
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -2503,7 +2501,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2677,7 +2674,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2842,7 +2838,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3007,7 +3002,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3170,7 +3164,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3333,7 +3326,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3496,7 +3488,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3659,7 +3650,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3823,7 +3813,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3983,7 +3972,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4143,7 +4131,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4303,7 +4290,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4460,7 +4446,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4616,7 +4601,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4773,7 +4757,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4930,7 +4913,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5085,7 +5067,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5245,7 +5226,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5406,7 +5386,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5567,7 +5546,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5728,7 +5706,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5887,7 +5864,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6046,7 +6022,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6212,7 +6187,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6378,7 +6352,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6546,7 +6519,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6713,7 +6685,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6882,7 +6853,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7049,7 +7019,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7217,7 +7186,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7380,7 +7348,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7543,7 +7510,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10111,7 +10077,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10263,7 +10228,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10415,7 +10379,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10573,7 +10536,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10731,7 +10693,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10887,7 +10848,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11011,7 +10971,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11135,7 +11094,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11287,7 +11245,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -11439,7 +11396,6 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

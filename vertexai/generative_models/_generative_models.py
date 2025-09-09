@@ -649,7 +649,8 @@ class _GenerativeModel:
         tool_config: Optional["ToolConfig"] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[False] = False,
-    ) -> "GenerationResponse": ...
+    ) -> "GenerationResponse":
+        ...
 
     @overload
     def generate_content(
@@ -662,7 +663,8 @@ class _GenerativeModel:
         tool_config: Optional["ToolConfig"] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[True],
-    ) -> Iterable["GenerationResponse"]: ...
+    ) -> Iterable["GenerationResponse"]:
+        ...
 
     def generate_content(
         self,
@@ -727,7 +729,8 @@ class _GenerativeModel:
         tool_config: Optional["ToolConfig"] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[False] = False,
-    ) -> "GenerationResponse": ...
+    ) -> "GenerationResponse":
+        ...
 
     @overload
     async def generate_content_async(
@@ -740,7 +743,8 @@ class _GenerativeModel:
         tool_config: Optional["ToolConfig"] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[True] = True,
-    ) -> AsyncIterable["GenerationResponse"]: ...
+    ) -> AsyncIterable["GenerationResponse"]:
+        ...
 
     async def generate_content_async(
         self,
@@ -1291,7 +1295,8 @@ class ChatSession:
         tools: Optional[List["Tool"]] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[False] = False,
-    ) -> "GenerationResponse": ...
+    ) -> "GenerationResponse":
+        ...
 
     @overload
     def send_message(
@@ -1303,7 +1308,8 @@ class ChatSession:
         tools: Optional[List["Tool"]] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[True] = True,
-    ) -> Iterable["GenerationResponse"]: ...
+    ) -> Iterable["GenerationResponse"]:
+        ...
 
     def send_message(
         self,
@@ -1363,7 +1369,8 @@ class ChatSession:
         tools: Optional[List["Tool"]] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[False] = False,
-    ) -> Awaitable["GenerationResponse"]: ...
+    ) -> Awaitable["GenerationResponse"]:
+        ...
 
     @overload
     def send_message_async(
@@ -1375,7 +1382,8 @@ class ChatSession:
         tools: Optional[List["Tool"]] = None,
         labels: Optional[Dict[str, str]] = None,
         stream: Literal[True] = True,
-    ) -> Awaitable[AsyncIterable["GenerationResponse"]]: ...
+    ) -> Awaitable[AsyncIterable["GenerationResponse"]]:
+        ...
 
     def send_message_async(
         self,
@@ -3677,7 +3685,6 @@ class _PreviewGenerativeModel(_GenerativeModel):
             )
 
         else:
-
             operation = self._endpoint_client.set_publisher_model_config(
                 aiplatform_types.SetPublisherModelConfigRequest(
                     name=self._prediction_resource_name,

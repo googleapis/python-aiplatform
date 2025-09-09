@@ -450,7 +450,6 @@ class Artifact(resource._Resource):
 
 
 class _VertexResourceArtifactResolver:
-
     # TODO(b/235594717) Add support for managed datasets
     _resource_to_artifact_type = {models.Model: "google.VertexModel"}
 

@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
@@ -253,20 +251,20 @@ class CustomJobSpec(proto.Message):
 
             For CustomJob:
 
-            -  AIP_MODEL_DIR = ``<base_output_directory>/model/``
-            -  AIP_CHECKPOINT_DIR =
-               ``<base_output_directory>/checkpoints/``
-            -  AIP_TENSORBOARD_LOG_DIR =
-               ``<base_output_directory>/logs/``
+            - AIP_MODEL_DIR = ``<base_output_directory>/model/``
+            - AIP_CHECKPOINT_DIR =
+              ``<base_output_directory>/checkpoints/``
+            - AIP_TENSORBOARD_LOG_DIR =
+              ``<base_output_directory>/logs/``
 
             For CustomJob backing a Trial of HyperparameterTuningJob:
 
-            -  AIP_MODEL_DIR =
-               ``<base_output_directory>/<trial_id>/model/``
-            -  AIP_CHECKPOINT_DIR =
-               ``<base_output_directory>/<trial_id>/checkpoints/``
-            -  AIP_TENSORBOARD_LOG_DIR =
-               ``<base_output_directory>/<trial_id>/logs/``
+            - AIP_MODEL_DIR =
+              ``<base_output_directory>/<trial_id>/model/``
+            - AIP_CHECKPOINT_DIR =
+              ``<base_output_directory>/<trial_id>/checkpoints/``
+            - AIP_TENSORBOARD_LOG_DIR =
+              ``<base_output_directory>/<trial_id>/logs/``
         protected_artifact_location_id (str):
             The ID of the location to store protected
             artifacts. e.g. us-central1. Populate only when
@@ -603,7 +601,6 @@ class Scheduling(proto.Message):
                 Flex Start strategy uses DWS to queue for
                 resources.
         """
-
         STRATEGY_UNSPECIFIED = 0
         ON_DEMAND = 1
         LOW_COST = 2

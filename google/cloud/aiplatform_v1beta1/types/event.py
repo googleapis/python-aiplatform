@@ -75,7 +75,6 @@ class Event(proto.Message):
             OUTPUT (2):
                 An output of the Execution.
         """
-
         TYPE_UNSPECIFIED = 0
         INPUT = 1
         OUTPUT = 2

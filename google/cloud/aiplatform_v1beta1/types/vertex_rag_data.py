@@ -20,9 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import api_auth as gca_api_auth
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -191,9 +189,7 @@ class RagEmbeddingModelConfig(proto.Message):
                 message="RagEmbeddingModelConfig.SparseEmbeddingConfig",
             )
         )
-        dense_embedding_model_prediction_endpoint: (
-            "RagEmbeddingModelConfig.VertexPredictionEndpoint"
-        ) = proto.Field(
+        dense_embedding_model_prediction_endpoint: "RagEmbeddingModelConfig.VertexPredictionEndpoint" = proto.Field(
             proto.MESSAGE,
             number=2,
             message="RagEmbeddingModelConfig.VertexPredictionEndpoint",
@@ -467,7 +463,6 @@ class FileStatus(proto.Message):
                 RagFile resource is in a problematic state. See
                 ``error_message`` field for details.
         """
-
         STATE_UNSPECIFIED = 0
         ACTIVE = 1
         ERROR = 2
@@ -527,7 +522,6 @@ class CorpusStatus(proto.Message):
                 RagCorpus is in a problematic situation. See
                 ``error_message`` field for details.
         """
-
         UNKNOWN = 0
         INITIALIZED = 1
         ACTIVE = 2
@@ -799,7 +793,6 @@ class RagFile(proto.Message):
             RAG_FILE_TYPE_PDF (2):
                 RagFile type is PDF.
         """
-
         RAG_FILE_TYPE_UNSPECIFIED = 0
         RAG_FILE_TYPE_TXT = 1
         RAG_FILE_TYPE_PDF = 2
@@ -1049,8 +1042,8 @@ class RagFileParsingConfig(proto.Message):
                 ``additional_config.parse_as_scanned_pdf`` field must be
                 false. Format:
 
-                -  ``projects/{project_id}/locations/{location}/processors/{processor_id}``
-                -  ``projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}``
+                - ``projects/{project_id}/locations/{location}/processors/{processor_id}``
+                - ``projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}``
             max_parsing_requests_per_min (int):
                 The maximum number of requests the job is
                 allowed to make to the Document AI processor per
@@ -1089,7 +1082,7 @@ class RagFileParsingConfig(proto.Message):
             model_name (str):
                 The name of a LLM model used for parsing. Format:
 
-                -  ``projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}``
+                - ``projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}``
             max_parsing_requests_per_min (int):
                 The maximum number of requests the job is
                 allowed to make to the LLM model per minute.
@@ -1167,11 +1160,10 @@ class RagFileMetadataConfig(proto.Message):
             files as well as entire Google Cloud Storage directories.
             Sample formats:
 
-            -  ``gs://bucket_name/my_directory/object_name/metadata_schema.json``
-            -  ``gs://bucket_name/my_directory`` If providing a
-               directory, the metadata schema will be read from the
-               files that ends with "metadata_schema.json" in the
-               directory.
+            - ``gs://bucket_name/my_directory/object_name/metadata_schema.json``
+            - ``gs://bucket_name/my_directory`` If providing a
+              directory, the metadata schema will be read from the files
+              that ends with "metadata_schema.json" in the directory.
 
             This field is a member of `oneof`_ ``metadata_schema_source``.
         google_drive_metadata_schema_source (google.cloud.aiplatform_v1beta1.types.GoogleDriveSource):
@@ -1191,10 +1183,10 @@ class RagFileMetadataConfig(proto.Message):
             files as well as entire Google Cloud Storage directories.
             Sample formats:
 
-            -  ``gs://bucket_name/my_directory/object_name/metadata.json``
-            -  ``gs://bucket_name/my_directory`` If providing a
-               directory, the metadata will be read from the files that
-               ends with "metadata.json" in the directory.
+            - ``gs://bucket_name/my_directory/object_name/metadata.json``
+            - ``gs://bucket_name/my_directory`` If providing a
+              directory, the metadata will be read from the files that
+              ends with "metadata.json" in the directory.
 
             This field is a member of `oneof`_ ``metadata_source``.
         google_drive_metadata_source (google.cloud.aiplatform_v1beta1.types.GoogleDriveSource):
@@ -1307,8 +1299,8 @@ class ImportRagFilesConfig(proto.Message):
             files as well as entire Google Cloud Storage directories.
             Sample formats:
 
-            -  ``gs://bucket_name/my_directory/object_name/my_file.txt``
-            -  ``gs://bucket_name/my_directory``
+            - ``gs://bucket_name/my_directory/object_name/my_file.txt``
+            - ``gs://bucket_name/my_directory``
 
             This field is a member of `oneof`_ ``import_source``.
         google_drive_source (google.cloud.aiplatform_v1beta1.types.GoogleDriveSource):
@@ -1543,10 +1535,10 @@ class RagManagedDbConfig(proto.Message):
         r"""Basic tier is a cost-effective and low compute tier suitable for the
         following cases:
 
-        -  Experimenting with RagManagedDb.
-        -  Small data size.
-        -  Latency insensitive workload.
-        -  Only using RAG Engine with external vector DBs.
+        - Experimenting with RagManagedDb.
+        - Small data size.
+        - Latency insensitive workload.
+        - Only using RAG Engine with external vector DBs.
 
         NOTE: This is the default tier if not explicitly chosen.
 

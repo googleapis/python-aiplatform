@@ -110,7 +110,6 @@ class FeatureGroup(proto.Message):
                 This service account will be used to read from the source
                 BigQuery table during jobs under a FeatureGroup.
         """
-
         SERVICE_AGENT_TYPE_UNSPECIFIED = 0
         SERVICE_AGENT_TYPE_PROJECT = 1
         SERVICE_AGENT_TYPE_FEATURE_GROUP = 2

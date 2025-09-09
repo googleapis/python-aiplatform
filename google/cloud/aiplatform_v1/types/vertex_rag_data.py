@@ -20,9 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import api_auth as gca_api_auth
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -305,7 +303,6 @@ class FileStatus(proto.Message):
                 RagFile resource is in a problematic state. See
                 ``error_message`` field for details.
         """
-
         STATE_UNSPECIFIED = 0
         ACTIVE = 1
         ERROR = 2
@@ -365,7 +362,6 @@ class CorpusStatus(proto.Message):
                 RagCorpus is in a problematic situation. See
                 ``error_message`` field for details.
         """
-
         UNKNOWN = 0
         INITIALIZED = 1
         ACTIVE = 2
@@ -737,8 +733,8 @@ class RagFileParsingConfig(proto.Message):
                 ``additional_config.parse_as_scanned_pdf`` field must be
                 false. Format:
 
-                -  ``projects/{project_id}/locations/{location}/processors/{processor_id}``
-                -  ``projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}``
+                - ``projects/{project_id}/locations/{location}/processors/{processor_id}``
+                - ``projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}``
             max_parsing_requests_per_min (int):
                 The maximum number of requests the job is
                 allowed to make to the Document AI processor per
@@ -765,7 +761,7 @@ class RagFileParsingConfig(proto.Message):
             model_name (str):
                 The name of a LLM model used for parsing. Format:
 
-                -  ``projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}``
+                - ``projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}``
             max_parsing_requests_per_min (int):
                 The maximum number of requests the job is
                 allowed to make to the LLM model per minute.
@@ -838,8 +834,8 @@ class ImportRagFilesConfig(proto.Message):
             files as well as entire Google Cloud Storage directories.
             Sample formats:
 
-            -  ``gs://bucket_name/my_directory/object_name/my_file.txt``
-            -  ``gs://bucket_name/my_directory``
+            - ``gs://bucket_name/my_directory/object_name/my_file.txt``
+            - ``gs://bucket_name/my_directory``
 
             This field is a member of `oneof`_ ``import_source``.
         google_drive_source (google.cloud.aiplatform_v1.types.GoogleDriveSource):
@@ -1031,10 +1027,10 @@ class RagManagedDbConfig(proto.Message):
         r"""Basic tier is a cost-effective and low compute tier suitable for the
         following cases:
 
-        -  Experimenting with RagManagedDb.
-        -  Small data size.
-        -  Latency insensitive workload.
-        -  Only using RAG Engine with external vector DBs.
+        - Experimenting with RagManagedDb.
+        - Small data size.
+        - Latency insensitive workload.
+        - Only using RAG Engine with external vector DBs.
 
         NOTE: This is the default tier if not explicitly chosen.
 

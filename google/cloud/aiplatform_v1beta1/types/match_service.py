@@ -222,12 +222,12 @@ class FindNeighborsResponse(proto.Message):
             proto.STRING,
             number=1,
         )
-        neighbors: MutableSequence["FindNeighborsResponse.Neighbor"] = (
-            proto.RepeatedField(
-                proto.MESSAGE,
-                number=2,
-                message="FindNeighborsResponse.Neighbor",
-            )
+        neighbors: MutableSequence[
+            "FindNeighborsResponse.Neighbor"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message="FindNeighborsResponse.Neighbor",
         )
 
     nearest_neighbors: MutableSequence[NearestNeighbors] = proto.RepeatedField(

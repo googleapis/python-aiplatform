@@ -23,11 +23,9 @@ from tests.system.aiplatform import e2e_base
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestTensorboard(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp-vertex-sdk-e2e-test"
 
     def test_create_and_get_tensorboard(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,

@@ -72,9 +72,7 @@ from google.cloud.aiplatform_v1beta1.services.evaluation_service import (
 from google.cloud.aiplatform_v1beta1.services.evaluation_service import (
     EvaluationServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.evaluation_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.evaluation_service import transports
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import evaluation_service
 from google.cloud.aiplatform_v1beta1.types import io
@@ -1266,9 +1264,9 @@ def test_evaluate_instances_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.evaluate_instances] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.evaluate_instances
+        ] = mock_rpc
         request = {}
         client.evaluate_instances(request)
 
@@ -1510,9 +1508,9 @@ def test_evaluate_dataset_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.evaluate_dataset] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.evaluate_dataset
+        ] = mock_rpc
         request = {}
         client.evaluate_dataset(request)
 
@@ -1699,9 +1697,9 @@ def test_evaluate_instances_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.evaluate_instances] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.evaluate_instances
+        ] = mock_rpc
 
         request = {}
         client.evaluate_instances(request)
@@ -1822,9 +1820,9 @@ def test_evaluate_dataset_rest_use_cached_wrapped_rpc():
         mock_rpc.return_value.name = (
             "foo"  # operation_request.operation in compute client(s) expect a string.
         )
-        client._transport._wrapped_methods[client._transport.evaluate_dataset] = (
-            mock_rpc
-        )
+        client._transport._wrapped_methods[
+            client._transport.evaluate_dataset
+        ] = mock_rpc
 
         request = {}
         client.evaluate_dataset(request)
@@ -2224,9 +2222,9 @@ def test_evaluate_instances_rest_call_success(request_type):
 def test_evaluate_instances_rest_interceptors(null_interceptor):
     transport = transports.EvaluationServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.EvaluationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.EvaluationServiceRestInterceptor(),
     )
     client = EvaluationServiceClient(transport=transport)
 
@@ -2351,9 +2349,9 @@ def test_evaluate_dataset_rest_call_success(request_type):
 def test_evaluate_dataset_rest_interceptors(null_interceptor):
     transport = transports.EvaluationServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None if null_interceptor else transports.EvaluationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.EvaluationServiceRestInterceptor(),
     )
     client = EvaluationServiceClient(transport=transport)
 
@@ -3196,11 +3194,9 @@ async def test_evaluate_instances_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEvaluationServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncEvaluationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEvaluationServiceRestInterceptor(),
     )
     client = EvaluationServiceAsyncClient(transport=transport)
 
@@ -3341,11 +3337,9 @@ async def test_evaluate_dataset_rest_asyncio_interceptors(null_interceptor):
         )
     transport = transports.AsyncEvaluationServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncEvaluationServiceRestInterceptor()
-        ),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEvaluationServiceRestInterceptor(),
     )
     client = EvaluationServiceAsyncClient(transport=transport)
 

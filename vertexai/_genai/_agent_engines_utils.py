@@ -1335,9 +1335,8 @@ AgentEngineOperationUnion = Union[
 
 
 class GetOperationFunction(Protocol):
-    def __call__(
-        self, *, operation_name: str, **kwargs
-    ) -> AgentEngineOperationUnion: ...
+    def __call__(self, *, operation_name: str, **kwargs) -> AgentEngineOperationUnion:
+        ...
 
 
 def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
