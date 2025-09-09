@@ -501,22 +501,6 @@ def scan_requirements(
     return {module: importlib_metadata.version(module) for module in modules_found}
 
 
-def _is_pydantic_serializable(param: inspect.Parameter) -> bool:
-    """Checks if the parameter is pydantic serializable."""
-
-    if param.annotation == inspect.Parameter.empty:
-        return True
-
-    if isinstance(param.annotation, str):
-        return False
-    pydantic = _import_pydantic_or_raise()
-    try:
-        pydantic.TypeAdapter(param.annotation)
-        return True
-    except Exception:
-        return False
-
-
 def generate_schema(
     f: Callable[..., Any],
     *,
@@ -576,7 +560,6 @@ def generate_schema(
             inspect.Parameter.KEYWORD_ONLY,
             inspect.Parameter.POSITIONAL_ONLY,
         )
-        and _is_pydantic_serializable(param)
     }
     parameters = pydantic.create_model(f.__name__, **fields_dict).schema()
     # Postprocessing

@@ -2073,7 +2073,7 @@ class TestAgentEngineErrors:
                     "register the API methods: "
                     "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
                     "Error: {Unsupported api mode: `UNKNOWN_API_MODE`, "
-                    "Supported modes are: ``, `a2a_extension`, `async`, `async_stream`, `stream`.}"
+                    "Supported modes are: ``, `async`, `async_stream`, `stream`.}"
                 ),
             ),
         ],

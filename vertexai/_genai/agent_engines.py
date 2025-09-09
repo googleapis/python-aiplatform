@@ -1335,7 +1335,6 @@ class AgentEngines(_api_module.BaseModule):
                     "async": _agent_engines_utils._wrap_async_query_operation,
                     "stream": _agent_engines_utils._wrap_stream_query_operation,
                     "async_stream": _agent_engines_utils._wrap_async_stream_query_operation,
-                    "a2a_extension": _agent_engines_utils._wrap_a2a_operation,
                 },
             )
         except Exception as e:

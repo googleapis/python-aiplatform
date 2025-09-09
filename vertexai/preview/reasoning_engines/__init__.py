@@ -15,13 +15,10 @@
 """Classes for working with reasoning engines."""
 
 # We just want to re-export certain classes
-# pylint: disable=g-multiple-import,g-importing-member, g-bad-import-order
+# pylint: disable=g-multiple-import,g-importing-member
 from vertexai.reasoning_engines._reasoning_engines import (
     Queryable,
     ReasoningEngine,
-)
-from vertexai.preview.reasoning_engines.templates.a2a import (
-    A2aAgent,
 )
 from vertexai.preview.reasoning_engines.templates.adk import (
     AdkApp,
@@ -40,7 +37,6 @@ from vertexai.preview.reasoning_engines.templates.llama_index import (
 )
 
 __all__ = (
-    "A2aAgent",
     "AdkApp",
     "AG2Agent",
     "LangchainAgent",
