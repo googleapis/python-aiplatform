@@ -26,7 +26,9 @@ import warnings
 import nox
 
 FLAKE8_VERSION = "flake8==6.1.0"
-BLACK_VERSION = "black==25.1.0"
+# 23.7.0 matches the version of black used in gapic-generator-python
+# https://github.com/googleapis/gapic-generator-python/blob/9166bb716337acfcf01cff5cdd4403634737d17f/gapic/templates/noxfile.py.j2#L15
+BLACK_VERSION = "black==23.7.0"
 ISORT_VERSION = "isort==5.10.1"
 LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
 
