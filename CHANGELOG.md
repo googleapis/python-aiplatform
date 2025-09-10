@@ -17,7 +17,7 @@
 * GenAI SDK client - Add live/bidi agent deployment support for Agent Engine ([74e3f25](https://github.com/googleapis/python-aiplatform/commit/74e3f25e1b2e50935d0ef6a8bc06472921cae32d))
 * GenAI SDK client - Add sandbox code execution SDK support ([74e52d9](https://github.com/googleapis/python-aiplatform/commit/74e52d957035d5bc9d63bc0912b9785522930487))
 * GenAI SDK client - Remove experimental warning from agent_engines module ([42c3c9c](https://github.com/googleapis/python-aiplatform/commit/42c3c9c5546b7f02c07818934fcc804a882a9703))
-* Support bidi stream query in agent engines and ADK template. ([456249e](https://github.com/googleapis/python-aiplatform/commit/456249efacd7cebf274f6f28316e475a6271dfa3))
+* GenAI SDK client - Support bidi stream query in agent engines and ADK template. ([456249e](https://github.com/googleapis/python-aiplatform/commit/456249efacd7cebf274f6f28316e475a6271dfa3))
 
 
 ### Bug Fixes
