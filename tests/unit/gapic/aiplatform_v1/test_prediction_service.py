@@ -7342,7 +7342,6 @@ def test_direct_raw_predict_rest_interceptors(null_interceptor):
 
 
 def test_stream_direct_predict_rest_error():
-
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
@@ -7355,7 +7354,6 @@ def test_stream_direct_predict_rest_error():
 
 
 def test_stream_direct_raw_predict_rest_error():
-
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
@@ -7368,7 +7366,6 @@ def test_stream_direct_raw_predict_rest_error():
 
 
 def test_streaming_predict_rest_error():
-
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
@@ -7515,7 +7512,6 @@ def test_server_streaming_predict_rest_interceptors(null_interceptor):
 
 
 def test_streaming_raw_predict_rest_error():
-
     client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )

@@ -743,7 +743,6 @@ class TestClusterManagement:
     def test_update_ray_cluster_1_pool_to_0_worker(
         self, update_persistent_resource_1_pool_mock, ray_version
     ):
-
         new_worker_node_types = []
         for worker_node_type in tc.ClusterConstants.TEST_CLUSTER.worker_node_types:
             # resize worker node to node_count = 0
@@ -767,7 +766,6 @@ class TestClusterManagement:
     def test_update_ray_cluster_2_pools(
         self, update_persistent_resource_2_pools_mock, ray_version
     ):
-
         new_worker_node_types = []
         for worker_node_type in tc.ClusterConstants.TEST_CLUSTER_2.worker_node_types:
             # resize worker node to node_count = 1
@@ -789,7 +787,6 @@ class TestClusterManagement:
 
     @pytest.mark.usefixtures("get_persistent_resource_2_pools_mock")
     def test_update_ray_cluster_2_pools_0_worker_fail(self, ray_version):
-
         new_worker_node_types = []
         for worker_node_type in tc.ClusterConstants.TEST_CLUSTER_2.worker_node_types:
             # resize worker node to node_count = 0

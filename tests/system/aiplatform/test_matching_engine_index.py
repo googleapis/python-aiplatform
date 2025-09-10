@@ -236,7 +236,6 @@ _TEST_STREAM_INDEX_DATAPOINTS = [
 
 
 class TestMatchingEngine(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp_vertex_sdk_e2e_matching_engine_test"
 
     def test_create_get_list_matching_engine_index(self, shared_state):

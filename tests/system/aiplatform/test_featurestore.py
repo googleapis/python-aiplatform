@@ -52,7 +52,6 @@ _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID = "average_rating"
     "tear_down_resources",
 )
 class TestFeaturestore(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp_vertex_sdk_e2e_featurestore_test"
 
     def test_create_get_list_featurestore(self, shared_state):
@@ -83,7 +82,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         ]
 
     def test_create_get_list_entity_types(self, shared_state):
-
         assert shared_state["featurestore"]
         assert shared_state["featurestore_name"]
 
@@ -137,7 +135,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert movie_entity_type.labels == _TEST_MOVIE_ENTITY_TYPE_UPDATE_LABELS
 
     def test_create_get_list_features(self, shared_state):
-
         assert shared_state["user_entity_type"]
         assert shared_state["user_entity_type_name"]
         user_entity_type = shared_state["user_entity_type"]
@@ -203,7 +200,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         )
 
     def test_ingest_feature_values(self, shared_state, caplog):
-
         assert shared_state["user_entity_type"]
         user_entity_type = shared_state["user_entity_type"]
 
@@ -272,7 +268,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
     def test_ingest_feature_values_from_df_using_feature_time_column_and_online_read_multiple_entities(
         self, shared_state, caplog
     ):
-
         assert shared_state["movie_entity_type"]
         movie_entity_type = shared_state["movie_entity_type"]
 
@@ -502,7 +497,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         caplog.clear()
 
     def test_search_features(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -512,7 +506,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         assert len(list_searched_features) >= 1
 
     def test_batch_serve_to_df(self, shared_state, caplog):
-
         assert shared_state["featurestore"]
         assert shared_state["user_age_feature_resource_name"]
         assert shared_state["user_gender_feature_resource_name"]
@@ -591,7 +584,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         caplog.clear()
 
     def test_batch_serve_to_gcs(self, shared_state, caplog):
-
         assert shared_state["featurestore"]
         assert shared_state["bucket"]
         assert shared_state["user_age_feature_resource_name"]
@@ -642,7 +634,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         caplog.clear()
 
     def test_batch_serve_to_bq(self, shared_state, caplog):
-
         assert shared_state["featurestore"]
         assert shared_state["bigquery_dataset"]
         assert shared_state["user_age_feature_resource_name"]

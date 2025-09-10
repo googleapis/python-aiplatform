@@ -531,7 +531,6 @@ class TestPipelineBasedService:
         job_spec_json,
         mock_pipeline_bucket_exists,
     ):
-
         import yaml
 
         aiplatform.init(

@@ -2434,7 +2434,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2610,7 +2609,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2788,7 +2786,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2958,7 +2955,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3124,7 +3120,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3300,7 +3295,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3469,7 +3463,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3643,7 +3636,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3803,7 +3795,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3968,7 +3959,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4128,7 +4118,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4295,7 +4284,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4471,7 +4459,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4632,7 +4619,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4797,7 +4783,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4956,7 +4941,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5121,7 +5105,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5289,7 +5272,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5450,7 +5432,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5611,7 +5592,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5779,7 +5759,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -5917,7 +5896,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6080,7 +6058,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6246,7 +6223,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6407,7 +6383,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6573,7 +6548,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6749,7 +6723,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -6918,7 +6891,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7094,7 +7066,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -7268,7 +7239,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -9658,7 +9628,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -9810,7 +9779,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -9962,7 +9930,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10114,7 +10081,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10272,7 +10238,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10422,7 +10387,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10544,7 +10508,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10666,7 +10629,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10818,7 +10780,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -10968,7 +10929,6 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

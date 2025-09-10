@@ -1338,7 +1338,6 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
         temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
 
         try:
-
             parquet_options = bigquery.format_options.ParquetOptions()
             parquet_options.enable_list_inference = True
 

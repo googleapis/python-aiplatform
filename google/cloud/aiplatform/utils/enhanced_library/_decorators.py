@@ -24,7 +24,6 @@ class ConversionValueRule(ValueRule):
         return super().to_python(value, absent=absent)
 
     def to_proto(self, value):
-
         # Need to check whether value is an instance
         # of an enhanced type
         if callable(getattr(value, "to_value", None)):

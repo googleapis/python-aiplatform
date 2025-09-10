@@ -320,7 +320,6 @@ class _Job(base.VertexAiStatefulResource):
 
 
 class BatchPredictionJob(_Job):
-
     _resource_noun = "batchPredictionJobs"
     _getter_method = "get_batch_prediction_job"
     _list_method = "list_batch_prediction_jobs"
@@ -1262,7 +1261,6 @@ class BatchPredictionJob(_Job):
 
         # Custom Compute
         if machine_type:
-
             machine_spec = gca_machine_resources_compat.MachineSpec()
             machine_spec.machine_type = machine_type
             machine_spec.accelerator_type = accelerator_type
@@ -1298,7 +1296,6 @@ class BatchPredictionJob(_Job):
             )
             # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
             if model_monitoring_objective_config:
-
                 explanation_spec = gca_explanation_v1beta1.ExplanationSpec.deserialize(
                     gca_explanation_compat.ExplanationSpec.serialize(explanation_spec)
                 )
@@ -1472,7 +1469,6 @@ class BatchPredictionJob(_Job):
 
         # GCS Destination, return Blobs
         if output_info.gcs_output_directory:
-
             # Build a Storage Client using the same credentials as JobServiceClient
             storage_client = storage.Client(
                 project=self.project,
@@ -1489,7 +1485,6 @@ class BatchPredictionJob(_Job):
 
         # BigQuery Destination, return RowIterator
         elif output_info.bigquery_output_dataset:
-
             # Format of `bigquery_output_dataset` from service is `bq://projectId.bqDatasetId`
             bq_dataset = output_info.bigquery_output_dataset
             bq_table = output_info.bigquery_output_table
@@ -2153,7 +2148,6 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             )
 
         for spec_order, spec in enumerate(worker_pool_specs):
-
             if not spec:
                 continue
 

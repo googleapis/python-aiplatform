@@ -142,7 +142,6 @@ _TEST_DATAFRAME_BQ_SCHEMA = [
 
 
 class TestDataset(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp-vertex-sdk-dataset-test"
 
     def setup_method(self):

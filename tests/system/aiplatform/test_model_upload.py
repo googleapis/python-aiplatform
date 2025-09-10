@@ -30,7 +30,6 @@ _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestModelUploadAndUpdate(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
 
     def test_upload_and_deploy_xgboost_model(self, shared_state):

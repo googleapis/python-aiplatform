@@ -779,7 +779,6 @@ class TestAutoMLTextTrainingJob:
     def test_run_raises_if_pipeline_fails(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_text, sync
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         job = training_jobs.AutoMLTextTrainingJob(

@@ -26,7 +26,9 @@ import warnings
 import nox
 
 FLAKE8_VERSION = "flake8==6.1.0"
-BLACK_VERSION = "black==25.1.0"
+BLACK_VERSION = (
+    "git+https://github.com/psf/black.git@4f6ad7cf8c3092e0fb4d82f54fe77ccde134468a"
+)
 ISORT_VERSION = "isort==5.10.1"
 LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
 

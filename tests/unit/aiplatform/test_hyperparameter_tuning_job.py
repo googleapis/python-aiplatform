@@ -457,7 +457,6 @@ class TestHyperparameterTuningJob:
         get_hyperparameter_tuning_job_mock,
         sync,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -530,7 +529,6 @@ class TestHyperparameterTuningJob:
         get_hyperparameter_tuning_job_mock,
         sync,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -780,7 +778,6 @@ class TestHyperparameterTuningJob:
             print(job.state)
 
     def test_get_hyperparameter_tuning_job(self, get_hyperparameter_tuning_job_mock):
-
         job = aiplatform.HyperparameterTuningJob.get(
             _TEST_HYPERPARAMETERTUNING_JOB_NAME
         )
@@ -799,7 +796,6 @@ class TestHyperparameterTuningJob:
         get_hyperparameter_tuning_job_mock,
         sync,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -959,7 +955,6 @@ class TestHyperparameterTuningJob:
         self,
         get_hyperparameter_tuning_job_mock_with_enable_web_access,
     ):
-
         hp_job = aiplatform.HyperparameterTuningJob.get(
             _TEST_HYPERPARAMETERTUNING_JOB_NAME
         )
@@ -973,7 +968,6 @@ class TestHyperparameterTuningJob:
         create_hyperparameter_tuning_job_mock_with_spot_strategy,
         get_hyperparameter_tuning_job_mock_with_spot_strategy,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,

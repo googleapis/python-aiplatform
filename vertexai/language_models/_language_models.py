@@ -1160,7 +1160,6 @@ class VertexAISearch(_GroundingSourceBase):
 
 @dataclasses.dataclass
 class GroundingSource:
-
     WebSearch = WebSearch
     VertexAISearch = VertexAISearch
     InlineContext = InlineContext
@@ -3253,12 +3252,10 @@ class _ChatSessionBaseWithCountTokensMixin(_ChatSessionBase):
 
 
 class _PreviewChatSession(_ChatSessionBaseWithCountTokensMixin):
-
     __module__ = "vertexai.preview.language_models"
 
 
 class _PreviewCodeChatSession(_ChatSessionBaseWithCountTokensMixin):
-
     __module__ = "vertexai.preview.language_models"
 
 

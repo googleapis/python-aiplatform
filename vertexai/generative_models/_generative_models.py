@@ -3677,7 +3677,6 @@ class _PreviewGenerativeModel(_GenerativeModel):
             )
 
         else:
-
             operation = self._endpoint_client.set_publisher_model_config(
                 aiplatform_types.SetPublisherModelConfigRequest(
                     name=self._prediction_resource_name,

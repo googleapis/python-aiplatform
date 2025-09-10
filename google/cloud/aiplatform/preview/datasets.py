@@ -672,7 +672,6 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
     def _validate_metadata_schema_uri(self):
         if self.metadata_schema_uri != _MULTIMODAL_METADATA_SCHEMA_URI:
-
             raise ValueError(
                 f"Dataset {self.resource_name} is not a multimodal dataset"
             )

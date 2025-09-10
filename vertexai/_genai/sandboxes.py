@@ -327,7 +327,6 @@ def _ListAgentEngineSandboxesResponse_from_vertex(
 
 
 class Sandboxes(_api_module.BaseModule):
-
     def _create(
         self,
         *,
@@ -845,7 +844,6 @@ class Sandboxes(_api_module.BaseModule):
 
 
 class AsyncSandboxes(_api_module.BaseModule):
-
     async def _create(
         self,
         *,

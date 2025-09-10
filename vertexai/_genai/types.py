@@ -332,7 +332,6 @@ BleuInstanceOrDict = Union[BleuInstance, BleuInstanceDict]
 
 
 class BleuInput(_common.BaseModel):
-
     instances: Optional[list[BleuInstance]] = Field(
         default=None, description="""Required. Repeated bleu instances."""
     )
@@ -342,7 +341,6 @@ class BleuInput(_common.BaseModel):
 
 
 class BleuInputDict(TypedDict, total=False):
-
     instances: Optional[list[BleuInstanceDict]]
     """Required. Repeated bleu instances."""
 
@@ -394,7 +392,6 @@ ExactMatchSpecOrDict = Union[ExactMatchSpec, ExactMatchSpecDict]
 
 
 class ExactMatchInput(_common.BaseModel):
-
     instances: Optional[list[ExactMatchInstance]] = Field(
         default=None, description="""Required. Repeated exact match instances."""
     )
@@ -404,7 +401,6 @@ class ExactMatchInput(_common.BaseModel):
 
 
 class ExactMatchInputDict(TypedDict, total=False):
-
     instances: Optional[list[ExactMatchInstanceDict]]
     """Required. Repeated exact match instances."""
 
@@ -4225,14 +4221,12 @@ ListReasoningEnginesResponseOrDict = Union[
 
 
 class GetAgentEngineOperationConfig(_common.BaseModel):
-
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
 
 
 class GetAgentEngineOperationConfigDict(TypedDict, total=False):
-
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
@@ -4856,7 +4850,6 @@ GenerateMemoriesRequestVertexSessionSourceOrDict = Union[
 
 
 class GenerateMemoriesRequestDirectContentsSourceEvent(_common.BaseModel):
-
     content: Optional[genai_types.Content] = Field(
         default=None,
         description="""Required. A single piece of content from which to generate memories.""",
@@ -4864,7 +4857,6 @@ class GenerateMemoriesRequestDirectContentsSourceEvent(_common.BaseModel):
 
 
 class GenerateMemoriesRequestDirectContentsSourceEventDict(TypedDict, total=False):
-
     content: Optional[genai_types.ContentDict]
     """Required. A single piece of content from which to generate memories."""
 
@@ -7602,7 +7594,6 @@ SchemaPromptSpecReferenceSentencePairListOrDict = Union[
 
 
 class SchemaPromptSpecTranslationFileInputSource(_common.BaseModel):
-
     content: Optional[str] = Field(default=None, description="""The file's contents.""")
     display_name: Optional[str] = Field(
         default=None, description="""The file's display name."""
@@ -7613,7 +7604,6 @@ class SchemaPromptSpecTranslationFileInputSource(_common.BaseModel):
 
 
 class SchemaPromptSpecTranslationFileInputSourceDict(TypedDict, total=False):
-
     content: Optional[str]
     """The file's contents."""
 
@@ -7631,7 +7621,6 @@ SchemaPromptSpecTranslationFileInputSourceOrDict = Union[
 
 
 class SchemaPromptSpecTranslationGcsInputSource(_common.BaseModel):
-
     input_uri: Optional[str] = Field(
         default=None,
         description="""Source data URI. For example, `gs://my_bucket/my_object`.""",
@@ -7639,7 +7628,6 @@ class SchemaPromptSpecTranslationGcsInputSource(_common.BaseModel):
 
 
 class SchemaPromptSpecTranslationGcsInputSourceDict(TypedDict, total=False):
-
     input_uri: Optional[str]
     """Source data URI. For example, `gs://my_bucket/my_object`."""
 
@@ -7651,7 +7639,6 @@ SchemaPromptSpecTranslationGcsInputSourceOrDict = Union[
 
 
 class SchemaPromptSpecTranslationSentenceFileInput(_common.BaseModel):
-
     file_input_source: Optional[SchemaPromptSpecTranslationFileInputSource] = Field(
         default=None, description="""Inlined file source."""
     )
@@ -7661,7 +7648,6 @@ class SchemaPromptSpecTranslationSentenceFileInput(_common.BaseModel):
 
 
 class SchemaPromptSpecTranslationSentenceFileInputDict(TypedDict, total=False):
-
     file_input_source: Optional[SchemaPromptSpecTranslationFileInputSourceDict]
     """Inlined file source."""
 
@@ -9721,7 +9707,6 @@ EvaluateDatasetRequestParametersOrDict = Union[
 
 
 class EvaluateDatasetOperation(_common.BaseModel):
-
     name: Optional[str] = Field(
         default=None,
         description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
@@ -9742,7 +9727,6 @@ class EvaluateDatasetOperation(_common.BaseModel):
 
 
 class EvaluateDatasetOperationDict(TypedDict, total=False):
-
     name: Optional[str]
     """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
 

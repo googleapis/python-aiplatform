@@ -2685,7 +2685,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2843,7 +2842,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -2995,7 +2993,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3158,7 +3155,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3315,7 +3311,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3529,7 +3524,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3671,7 +3665,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3813,7 +3806,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -3955,7 +3947,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4103,7 +4094,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4249,7 +4239,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4367,7 +4356,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4485,7 +4473,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4627,7 +4614,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)
@@ -4769,7 +4755,6 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             transcoded_request,
             body=None,
         ):
-
             uri = transcoded_request["uri"]
             method = transcoded_request["method"]
             headers = dict(metadata)

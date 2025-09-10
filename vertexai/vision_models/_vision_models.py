@@ -1790,7 +1790,6 @@ class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
 
 @dataclasses.dataclass
 class WatermarkVerificationResponse:
-
     __module__ = "vertexai.preview.vision_models"
 
     _prediction_response: Any

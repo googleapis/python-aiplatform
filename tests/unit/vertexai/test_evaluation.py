@@ -813,7 +813,6 @@ class TestEvaluation:
         initializer.global_pool.shutdown(wait=True)
 
     def test_create_eval_task(self):
-
         test_eval_task = EvalTask(
             dataset=_TEST_EVAL_DATASET_ALL_INCLUDED,
             metrics=_TEST_METRICS,

@@ -252,7 +252,6 @@ class TestHyperparameterTuningJobPersistentResource:
         get_hyperparameter_tuning_job_mock,
         sync,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,

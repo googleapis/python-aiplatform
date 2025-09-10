@@ -83,7 +83,6 @@ _WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
 
 
 class _TrainingJob(base.VertexAiStatefulResource):
-
     client_class = utils.PipelineClientWithOverride
     _resource_noun = "trainingPipelines"
     _getter_method = "get_training_pipeline"
@@ -4248,7 +4247,6 @@ class CustomTrainingJob(_CustomTrainingJob):
         )
 
         for spec_order, spec in enumerate(worker_pool_specs):
-
             if not spec:
                 continue
 
@@ -5729,7 +5727,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         """
 
         for spec_order, spec in enumerate(worker_pool_specs):
-
             if not spec:
                 continue
 
@@ -8435,7 +8432,6 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 produce a Vertex AI Model.
         """
         for spec_order, spec in enumerate(worker_pool_specs):
-
             if not spec:
                 continue
 
@@ -8510,7 +8506,6 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
 
 class AutoMLVideoTrainingJob(_TrainingJob):
-
     _supported_training_schemas = (
         schema.training_job.definition.automl_video_classification,
         schema.training_job.definition.automl_video_object_tracking,

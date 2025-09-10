@@ -38,7 +38,6 @@ CONTAINER_MAP = prediction._SERVING_CONTAINER_URI_MAP[
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )
 class TestExperimentModel(e2e_base.TestEndToEnd):
-
     _temp_prefix = "test-vertex-sdk-e2e-experiment-model"
     registered_models_cpu = []
     registered_models_gpu = []

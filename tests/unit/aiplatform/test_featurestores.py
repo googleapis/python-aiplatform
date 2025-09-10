@@ -861,7 +861,6 @@ class TestFeaturestoreUtils:
 
 class Test_FeatureConfig:
     def test_feature_config_return_create_feature_request(self):
-
         featureConfig = featurestore_utils._FeatureConfig(
             feature_id=_TEST_FEATURE_ID,
             value_type=_TEST_FEATURE_VALUE_TYPE_STR,
@@ -1416,7 +1415,6 @@ class TestFeaturestore:
         feature_destination_fields,
         expected_entity_type_specs,
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
         my_featurestore = aiplatform.Featurestore(
             featurestore_name=_TEST_FEATURESTORE_NAME
@@ -1726,7 +1724,6 @@ class TestFeaturestore:
 
     @pytest.mark.usefixtures("get_featurestore_mock")
     def test_batch_serve_to_gcs_with_invalid_gcs_destination_type(self):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         my_featurestore = aiplatform.Featurestore(
@@ -1805,7 +1802,6 @@ class TestFeaturestore:
     )
     @patch("uuid.uuid4", uuid_mock)
     def test_batch_serve_to_df(self, batch_read_feature_values_mock):
-
         aiplatform.init(project=_TEST_PROJECT_DIFF)
 
         my_featurestore = aiplatform.Featurestore(
@@ -1885,7 +1881,6 @@ class TestFeaturestore:
         bq_delete_dataset_mock,
         bq_delete_table_mock,
     ):
-
         aiplatform.init(project=_TEST_PROJECT_DIFF)
 
         my_featurestore = aiplatform.Featurestore(
@@ -1972,7 +1967,6 @@ class TestFeaturestore:
     )
     @patch("uuid.uuid4", uuid_mock)
     def test_batch_serve_to_df_with_start_time(self, batch_read_feature_values_mock):
-
         aiplatform.init(project=_TEST_PROJECT_DIFF)
 
         my_featurestore = aiplatform.Featurestore(
@@ -2481,7 +2475,6 @@ class TestEntityType:
         bq_load_table_from_dataframe_mock,
         bq_init_schema_field_mock,
     ):
-
         aiplatform.init(project=_TEST_PROJECT_DIFF)
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
@@ -2547,7 +2540,6 @@ class TestEntityType:
         bq_load_table_from_dataframe_mock,
         bq_init_schema_field_mock,
     ):
-
         aiplatform.init(project=_TEST_PROJECT_DIFF)
 
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)

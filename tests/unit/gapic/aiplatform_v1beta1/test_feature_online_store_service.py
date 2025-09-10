@@ -2866,7 +2866,6 @@ def test_fetch_feature_values_rest_interceptors(null_interceptor):
 
 
 def test_streaming_fetch_feature_values_rest_error():
-
     client = FeatureOnlineStoreServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
@@ -3024,7 +3023,6 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
 
 
 def test_feature_view_direct_write_rest_error():
-
     client = FeatureOnlineStoreServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )

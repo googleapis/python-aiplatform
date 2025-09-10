@@ -83,7 +83,6 @@ T = TypeVar("T", bound="_EvaluationMetricBase")
 def _check_dataset_is_within_size_limit(
     data: "pandas.DataFrame",
 ) -> None:
-
     if len(data) < _BATCH_PREDICTION_ROW_LIMIT:
         return
 
@@ -171,7 +170,6 @@ class _EvaluationTaskSpec:
         pass
 
     def __post_init__(self):
-
         if isinstance(self.ground_truth_data, str):
             self.ground_truth_data = [self.ground_truth_data]
 
@@ -181,7 +179,6 @@ class _EvaluationTaskSpec:
             raise ValueError("Please provide a valid GCS URI starting with 'gs://'")
 
         if pandas and isinstance(self.ground_truth_data, pandas.DataFrame):
-
             _check_dataset_is_within_size_limit(self.ground_truth_data)
 
 
@@ -349,7 +346,6 @@ def _populate_eval_template_params(
     )
 
     if isinstance(task_spec.ground_truth_data, pandas.DataFrame):
-
         # Convert to jsonl file and upload to gcs
         dataset_uri = os.path.join(
             staging_bucket,

@@ -638,7 +638,6 @@ class TestCustomJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_custom_job(self, create_custom_job_mock, get_custom_job_mock, sync):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -685,7 +684,6 @@ class TestCustomJob:
         assert job.network == _TEST_NETWORK
 
     def test_submit_custom_job(self, create_custom_job_mock, get_custom_job_mock):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -736,7 +734,6 @@ class TestCustomJob:
     def test_submit_custom_job_with_experiments(
         self, create_custom_job_mock, get_custom_job_mock, update_context_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -783,7 +780,6 @@ class TestCustomJob:
     def test_create_custom_job_with_timeout(
         self, create_custom_job_mock, get_custom_job_mock, sync
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -827,7 +823,6 @@ class TestCustomJob:
     def test_create_custom_job_with_timeout_not_explicitly_set(
         self, create_custom_job_mock, get_custom_job_mock, sync
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -873,7 +868,6 @@ class TestCustomJob:
         "get_tensorboard_run_artifact_not_found_mock",
     )
     def test_run_custom_job_with_experiment_run_warning(self, caplog):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -915,7 +909,6 @@ class TestCustomJob:
         get_custom_job_with_tensorboard_mock,
         caplog,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -956,7 +949,6 @@ class TestCustomJob:
         get_custom_job_with_tensorboard_mock,
         caplog,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1109,7 +1101,6 @@ class TestCustomJob:
             print(job.state)
 
     def test_no_staging_bucket_raises(self):
-
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with pytest.raises(RuntimeError):
@@ -1119,7 +1110,6 @@ class TestCustomJob:
             )
 
     def test_get_custom_job(self, get_custom_job_mock):
-
         job = aiplatform.CustomJob.get(_TEST_CUSTOM_JOB_NAME)
 
         get_custom_job_mock.assert_called_once_with(
@@ -1448,7 +1438,6 @@ class TestCustomJob:
     def test_create_custom_job_with_tensorboard(
         self, create_custom_job_mock_with_tensorboard, get_custom_job_mock, sync
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1496,7 +1485,6 @@ class TestCustomJob:
     def test_create_custom_job_without_base_output_dir(
         self,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1553,7 +1541,6 @@ class TestCustomJob:
     def test_create_custom_job_tpu_v5e(
         self, create_custom_job_mock, get_custom_tpu_v5e_job_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1610,7 +1597,6 @@ class TestCustomJob:
     def test_create_custom_job_tpu_v3(
         self, create_custom_job_mock, get_custom_tpu_v3_job_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1669,7 +1655,6 @@ class TestCustomJob:
         create_custom_job_mock_with_spot_strategy,
         get_custom_job_mock_with_spot_strategy,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,

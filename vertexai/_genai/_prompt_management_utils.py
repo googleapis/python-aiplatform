@@ -100,7 +100,6 @@ def _create_prompt_from_dataset_metadata(
     prompt = types.Prompt()
 
     if api_schema.multimodal_prompt:
-
         prompt_message = api_schema.multimodal_prompt.prompt_message
         prompt.prompt_data = prompt_message
 

@@ -1284,7 +1284,6 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         )
 
         try:
-
             job = bigquery_client.load_table_from_dataframe(
                 dataframe=read_instances_df,
                 destination=temp_bq_read_instances_table_id,

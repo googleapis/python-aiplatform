@@ -30,7 +30,6 @@ from tests.system.aiplatform import test_model_upload
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestVersionManagement(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
 
     def test_upload_deploy_manage_versioned_model(self, shared_state):

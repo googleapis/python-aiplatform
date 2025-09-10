@@ -32,7 +32,6 @@ assert not aiplatform.initializer.global_config.project.endswith("-tp")
 
 @pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket")
 class TestProjectIDInference(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp-vertex-sdk-project-id-inference"
 
     def test_project_id_inference(self, shared_state):
