@@ -689,11 +689,9 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = FeaturestoreServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            FeaturestoreServiceClient._read_environment_variables()
+        )
         self._client_cert_source = FeaturestoreServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )
@@ -1288,10 +1286,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 Updatable fields:
 
-                -  ``labels``
-                -  ``online_serving_config.fixed_node_count``
-                -  ``online_serving_config.scaling``
-                -  ``online_storage_ttl_days``
+                - ``labels``
+                - ``online_serving_config.fixed_node_count``
+                - ``online_serving_config.scaling``
+                - ``online_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1976,16 +1974,16 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 Updatable fields:
 
-                -  ``description``
-                -  ``labels``
-                -  ``monitoring_config.snapshot_analysis.disabled``
-                -  ``monitoring_config.snapshot_analysis.monitoring_interval_days``
-                -  ``monitoring_config.snapshot_analysis.staleness_days``
-                -  ``monitoring_config.import_features_analysis.state``
-                -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
-                -  ``monitoring_config.numerical_threshold_config.value``
-                -  ``monitoring_config.categorical_threshold_config.value``
-                -  ``offline_storage_ttl_days``
+                - ``description``
+                - ``labels``
+                - ``monitoring_config.snapshot_analysis.disabled``
+                - ``monitoring_config.snapshot_analysis.monitoring_interval_days``
+                - ``monitoring_config.snapshot_analysis.staleness_days``
+                - ``monitoring_config.import_features_analysis.state``
+                - ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
+                - ``monitoring_config.numerical_threshold_config.value``
+                - ``monitoring_config.categorical_threshold_config.value``
+                - ``offline_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2823,12 +2821,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 Updatable fields:
 
-                -  ``description``
-                -  ``labels``
-                -  ``disable_monitoring`` (Not supported for
-                   FeatureRegistryService Feature)
-                -  ``point_of_contact`` (Not supported for
-                   FeaturestoreService FeatureStore)
+                - ``description``
+                - ``labels``
+                - ``disable_monitoring`` (Not supported for
+                  FeatureRegistryService Feature)
+                - ``point_of_contact`` (Not supported for
+                  FeaturestoreService FeatureStore)
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3689,15 +3687,15 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 to a sequence of words (i.e. tokens) for comparison.
                 This is done by:
 
-                -  Removing leading/trailing whitespace and tokenizing
-                   the search value. Characters that are not one of
-                   alphanumeric ``[a-zA-Z0-9]``, underscore ``_``, or
-                   asterisk ``*`` are treated as delimiters for tokens.
-                   ``*`` is treated as a wildcard that matches
-                   characters within a token.
-                -  Ignoring case.
-                -  Prepending an asterisk to the first and appending an
-                   asterisk to the last token in QUERY.
+                - Removing leading/trailing whitespace and tokenizing
+                  the search value. Characters that are not one of
+                  alphanumeric ``[a-zA-Z0-9]``, underscore ``_``, or
+                  asterisk ``*`` are treated as delimiters for tokens.
+                  ``*`` is treated as a wildcard that matches characters
+                  within a token.
+                - Ignoring case.
+                - Prepending an asterisk to the first and appending an
+                  asterisk to the last token in QUERY.
 
                 A QUERY must be either a singular token or a phrase. A
                 phrase is one or multiple words enclosed in double
@@ -3707,47 +3705,47 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 Supported FIELDs for field-restricted queries:
 
-                -  ``feature_id``
-                -  ``description``
-                -  ``entity_type_id``
+                - ``feature_id``
+                - ``description``
+                - ``entity_type_id``
 
                 Examples:
 
-                -  ``feature_id: foo`` --> Matches a Feature with ID
-                   containing the substring ``foo`` (eg. ``foo``,
-                   ``foofeature``, ``barfoo``).
-                -  ``feature_id: foo*feature`` --> Matches a Feature
-                   with ID containing the substring ``foo*feature`` (eg.
-                   ``foobarfeature``).
-                -  ``feature_id: foo AND description: bar`` --> Matches
-                   a Feature with ID containing the substring ``foo``
-                   and description containing the substring ``bar``.
+                - ``feature_id: foo`` --> Matches a Feature with ID
+                  containing the substring ``foo`` (eg. ``foo``,
+                  ``foofeature``, ``barfoo``).
+                - ``feature_id: foo*feature`` --> Matches a Feature with
+                  ID containing the substring ``foo*feature`` (eg.
+                  ``foobarfeature``).
+                - ``feature_id: foo AND description: bar`` --> Matches a
+                  Feature with ID containing the substring ``foo`` and
+                  description containing the substring ``bar``.
 
                 Besides field queries, the following exact-match filters
                 are supported. The exact-match filters do not support
                 wildcards. Unlike field-restricted queries, exact-match
                 filters are case-sensitive.
 
-                -  ``feature_id``: Supports = comparisons.
-                -  ``description``: Supports = comparisons. Multi-token
-                   filters should be enclosed in quotes.
-                -  ``entity_type_id``: Supports = comparisons.
-                -  ``value_type``: Supports = and != comparisons.
-                -  ``labels``: Supports key-value equality as well as
-                   key presence.
-                -  ``featurestore_id``: Supports = comparisons.
+                - ``feature_id``: Supports = comparisons.
+                - ``description``: Supports = comparisons. Multi-token
+                  filters should be enclosed in quotes.
+                - ``entity_type_id``: Supports = comparisons.
+                - ``value_type``: Supports = and != comparisons.
+                - ``labels``: Supports key-value equality as well as key
+                  presence.
+                - ``featurestore_id``: Supports = comparisons.
 
                 Examples:
 
-                -  ``description = "foo bar"`` --> Any Feature with
-                   description exactly equal to ``foo bar``
-                -  ``value_type = DOUBLE`` --> Features whose type is
-                   DOUBLE.
-                -  ``labels.active = yes AND labels.env = prod`` -->
-                   Features having both (active: yes) and (env: prod)
-                   labels.
-                -  ``labels.env: *`` --> Any Feature which has a label
-                   with ``env`` as the key.
+                - ``description = "foo bar"`` --> Any Feature with
+                  description exactly equal to ``foo bar``
+                - ``value_type = DOUBLE`` --> Features whose type is
+                  DOUBLE.
+                - ``labels.active = yes AND labels.env = prod`` -->
+                  Features having both (active: yes) and (env: prod)
+                  labels.
+                - ``labels.env: *`` --> Any Feature which has a label
+                  with ``env`` as the key.
 
                 This corresponds to the ``query`` field
                 on the ``request`` instance; if ``request`` is provided, this

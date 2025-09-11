@@ -72,17 +72,11 @@ from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import (
 from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import (
     SpecialistPoolServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import pagers
+from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import transports
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import specialist_pool
-from google.cloud.aiplatform_v1beta1.types import (
-    specialist_pool as gca_specialist_pool,
-)
+from google.cloud.aiplatform_v1beta1.types import specialist_pool as gca_specialist_pool
 from google.cloud.aiplatform_v1beta1.types import specialist_pool_service
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -908,10 +902,9 @@ def test_specialist_pool_service_client_get_mtls_endpoint_and_cert_source(client
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

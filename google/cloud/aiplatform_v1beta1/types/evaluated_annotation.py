@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    explanation as gca_explanation,
-)
+from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
 from google.protobuf import struct_pb2  # type: ignore
 
 
@@ -183,8 +181,8 @@ class EvaluatedAnnotationExplanation(proto.Message):
 
             For AutoML Image Classification models, possible values are:
 
-            -  ``image-integrated-gradients``
-            -  ``image-xrai``
+            - ``image-integrated-gradients``
+            - ``image-xrai``
         explanation (google.cloud.aiplatform_v1beta1.types.Explanation):
             Explanation attribution response details.
     """
