@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.112.0](https://github.com/googleapis/python-aiplatform/compare/v1.111.0...v1.112.0) (2025-09-09)
+
+
+### Features
+
+* GenAI SDK client - Add A2A support in Agent Engine ([d500945](https://github.com/googleapis/python-aiplatform/commit/d5009458599c4e5eb1b9c4fea1346eafdaa778bc))
+* GenAI SDK client - Add Observability GenAI data format converter for evals ([0665566](https://github.com/googleapis/python-aiplatform/commit/0665566ac606b599177d4dca0643559df0540439))
+* GenAI SDK client - Add orderBy to ListMemories ([c6872f0](https://github.com/googleapis/python-aiplatform/commit/c6872f02fe8b45eb07cdd64c5d4bf9e3ac33226b))
+* GenAI SDK client - Add support for loading evaluation datasets from Observability GCS sources ([bfcccc9](https://github.com/googleapis/python-aiplatform/commit/bfcccc975c7720286908d609688e01c902b675c5))
+* GenAI SDK client - Add the service account option for the agent engine ([219c33f](https://github.com/googleapis/python-aiplatform/commit/219c33fd5fb628ec3945df91347e74710c1318b3))
+* Adding `gpu_partition_size` parameter to Model.deploy() method. ([966c236](https://github.com/googleapis/python-aiplatform/commit/966c236fef9bb800b8ce6a9235c6bb06b3203c66))
+* Change `gpu_partition_size` type hint to `str`. ([910016d](https://github.com/googleapis/python-aiplatform/commit/910016d71a7bc1eb380613e44b7ae2d7683d9769))
+* GenAI SDK client - Add `api_key` parameter to vertexai.Client ([a9ffc60](https://github.com/googleapis/python-aiplatform/commit/a9ffc6030dc58ed4acd269632033cbee23dd470a))
+* GenAI SDK client - Add experimental prompt_management module with create_version and get methods ([d5a14ba](https://github.com/googleapis/python-aiplatform/commit/d5a14ba462684a23afb7f15002fb603038562e7c))
+* GenAI SDK client - Add live/bidi agent deployment support for Agent Engine ([74e3f25](https://github.com/googleapis/python-aiplatform/commit/74e3f25e1b2e50935d0ef6a8bc06472921cae32d))
+* GenAI SDK client - Add sandbox code execution SDK support ([74e52d9](https://github.com/googleapis/python-aiplatform/commit/74e52d957035d5bc9d63bc0912b9785522930487))
+* GenAI SDK client - Remove experimental warning from agent_engines module ([42c3c9c](https://github.com/googleapis/python-aiplatform/commit/42c3c9c5546b7f02c07818934fcc804a882a9703))
+* GenAI SDK client - Support bidi stream query in agent engines and ADK template. ([456249e](https://github.com/googleapis/python-aiplatform/commit/456249efacd7cebf274f6f28316e475a6271dfa3))
+
+
+### Bug Fixes
+
+* Allow for inheritance of clone behavior in AdkApp ([e5ced93](https://github.com/googleapis/python-aiplatform/commit/e5ced937033f0b194ccad6acc65ea03869d1847b))
+* GenAI SDK client - Decrease polling interval for GenerateMemories and CreateSession (currently 10s) ([77a3933](https://github.com/googleapis/python-aiplatform/commit/77a39330473b9d04fdad6bf2ee87b5b5ce9cd696))
+* GenAI SDK client - Fix deepcopy for RubricGenerationConfig in RubricBasedMetric. ([e39f0bd](https://github.com/googleapis/python-aiplatform/commit/e39f0bd4afbf2cc9f32bffd2a801c2f48c1f9039))
+* GenAI SDK client - Handle empty GenerateMemories response (no memories generated) as valid response. ([99f0078](https://github.com/googleapis/python-aiplatform/commit/99f0078f0165bc33c8f001e310ea9b6823b00974))
+
 ## [1.111.0](https://github.com/googleapis/python-aiplatform/compare/v1.110.0...v1.111.0) (2025-08-27)
 
 
