@@ -59,6 +59,7 @@ from google.cloud.aiplatform.compat.services import (
     prediction_service_client_v1beta1,
     prediction_service_async_client_v1beta1,
     schedule_service_client_v1beta1,
+    session_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
     vizier_service_client_v1beta1,
     model_garden_service_client_v1beta1,
@@ -966,6 +967,17 @@ class ExampleStoreClientWithOverride(ClientWithOverride):
     )
 
 
+class SessionClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            session_service_client_v1beta1.SessionServiceClient,
+        ),
+    )
+
+
 class ReasoningEngineClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.V1BETA1
@@ -1076,6 +1088,7 @@ VertexAiServiceClientWithOverride = TypeVar(
     PersistentResourceClientWithOverride,
     ReasoningEngineClientWithOverride,
     ReasoningEngineExecutionClientWithOverride,
+    SessionClientWithOverride,
     AgentEngineClientWithOverride,
     AgentEngineExecutionClientWithOverride,
     ModelMonitoringClientWithOverride,
