@@ -1337,7 +1337,6 @@ class TestModel:
     def test_upload_uploads_and_gets_model(
         self, upload_model_mock, get_model_mock, sync
     ):
-
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -1378,7 +1377,6 @@ class TestModel:
     def test_upload_uploads_and_gets_invoke_model(
         self, upload_model_mock, get_model_mock, sync
     ):
-
         my_model = models.Model.upload(
             display_name=_TEST_INVOKE_MODEL_NAME,
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -1559,7 +1557,6 @@ class TestModel:
     def test_upload_uploads_and_gets_model_with_labels(
         self, upload_model_mock, get_model_mock, sync
     ):
-
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -1599,7 +1596,6 @@ class TestModel:
         )
 
     def test_upload_raises_with_impartial_explanation_spec(self):
-
         with pytest.raises(ValueError) as e:
             models.Model.upload(
                 display_name=_TEST_MODEL_NAME,
@@ -1728,7 +1724,6 @@ class TestModel:
     def test_upload_uploads_and_gets_model_with_all_args(
         self, upload_model_mock, get_model_mock, sync
     ):
-
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
             artifact_uri=_TEST_ARTIFACT_URI,
@@ -1849,7 +1844,6 @@ class TestModel:
         get_model_with_custom_project_mock,
         sync,
     ):
-
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
         )
@@ -1904,7 +1898,6 @@ class TestModel:
     def test_accessing_properties_with_no_resource_raises(
         self,
     ):
-
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
         )
@@ -1991,7 +1984,6 @@ class TestModel:
     def test_upload_with_model_garden_source(
         self, upload_model_mock, get_model_mock, sync
     ):
-
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -2040,7 +2032,6 @@ class TestModel:
     def test_upload_with_model_garden_source_without_version_id(
         self, upload_model_mock, get_model_mock, sync
     ):
-
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -2086,7 +2077,6 @@ class TestModel:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy(self, deploy_model_mock, sync):
-
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
@@ -2127,7 +2117,6 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_timeout(self, deploy_model_mock, sync):
-
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
@@ -2162,7 +2151,6 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_timeout_not_explicitly_set(self, deploy_model_mock, sync):
-
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
@@ -2198,7 +2186,6 @@ class TestModel:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_with_version")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_version(self, deploy_model_mock, sync):
-
         test_model = models.Model(_TEST_MODEL_NAME)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
@@ -2237,7 +2224,6 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint(self, deploy_model_mock, sync):
-
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
@@ -2269,7 +2255,6 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint_dedicated_resources(self, deploy_model_mock, sync):
-
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2319,7 +2304,6 @@ class TestModel:
     def test_deploy_no_endpoint_dedicated_resources_autoscaling_cpu_utilization(
         self, deploy_model_mock, sync
     ):
-
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2995,7 +2979,6 @@ class TestModel:
         "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
     )
     def test_deploy_raises_with_impartial_explanation_spec(self):
-
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -3050,7 +3033,6 @@ class TestModel:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_disable_container_logging(self, deploy_model_mock, sync):
-
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
@@ -3558,7 +3540,6 @@ class TestModel:
     def test_batch_predict_gcs_source_and_dest(
         self, create_batch_prediction_job_mock, sync
     ):
-
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -3577,7 +3558,6 @@ class TestModel:
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_with_version", "get_batch_prediction_job_mock")
     def test_batch_predict_with_version(self, sync, create_batch_prediction_job_mock):
-
         test_model = models.Model(_TEST_MODEL_NAME, version=_TEST_VERSION_ALIAS_1)
 
         # Make SDK batch_predict method call
@@ -3625,7 +3605,6 @@ class TestModel:
     def test_batch_predict_gcs_source_bq_dest(
         self, create_batch_prediction_job_mock, sync
     ):
-
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -3749,7 +3728,6 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_no_source(self, create_batch_prediction_job_mock):
-
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call without source
@@ -3763,7 +3741,6 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_two_sources(self, create_batch_prediction_job_mock):
-
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call with two sources
@@ -3779,7 +3756,6 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_no_destination(self):
-
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call without destination
@@ -3793,7 +3769,6 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_wrong_instance_format(self):
-
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -3809,7 +3784,6 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_wrong_prediction_format(self):
-
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -3826,7 +3800,6 @@ class TestModel:
     @pytest.mark.usefixtures("get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_model(self, delete_model_mock, sync):
-
         test_model = models.Model(_TEST_ID)
         test_model.delete(sync=sync)
 
@@ -3993,7 +3966,6 @@ class TestModel:
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_with_supported_export_formats_image")
     def test_export_model_as_image_with_invalid_args(self, export_model_mock, sync):
-
         # Passing an artifact destination on an image-only Model
         with pytest.raises(ValueError) as dest_type_err:
             test_model = models.Model(_TEST_ID)
@@ -4291,7 +4263,6 @@ class TestModel:
         assert staged_model_file_name in ["saved_model.pb", "saved_model.pbtxt"]
 
     def test_copy_as_new_model(self, copy_model_mock, get_model_mock):
-
         test_model = models.Model(_TEST_ID)
         test_model.copy(destination_location=_TEST_LOCATION_2)
 
@@ -4357,7 +4328,6 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock")
     def test_update(self, update_model_mock, get_model_mock):
-
         test_model = models.Model(_TEST_ID)
 
         test_model.update(
@@ -4435,7 +4405,6 @@ class TestModel:
         mock_model_eval_get,
         list_model_evaluations_mock,
     ):
-
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
 
         eval_list = test_model.list_model_evaluations()
@@ -4452,7 +4421,6 @@ class TestModel:
         mock_model_eval_get,
         list_model_evaluations_mock,
     ):
-
         test_model = models.Model(
             model_name=f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"
         )
@@ -4859,7 +4827,6 @@ class TestModel:
         get_model_mock,
         mock_model_eval_get,
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
@@ -4877,7 +4844,6 @@ class TestModel:
         get_model_mock,
         mock_model_eval_get,
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
@@ -4894,7 +4860,6 @@ class TestModel:
         get_model_mock,
         mock_model_eval_get,
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
@@ -4911,7 +4876,6 @@ class TestModel:
         get_model_mock,
         mock_model_eval_get,
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)

@@ -66,11 +66,9 @@ class TestModelGardenModels:
     """Unit tests for the _ModelGardenModel base class."""
 
     class FakeModelGardenBisonModel(_model_garden_models._ModelGardenModel):
-
         _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_generation_1.0.0.yaml"
 
     class FakeModelGardenGeckoModel(_model_garden_models._ModelGardenModel):
-
         _INSTANCE_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/predict/instance/text_embedding_1.0.0.yaml"
 
     def setup_method(self):

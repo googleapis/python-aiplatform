@@ -1218,7 +1218,6 @@ class TestAgentEngine:
         get_agent_engine_mock,
         get_gca_resource_mock,
     ):
-
         with mock.patch("os.path.exists", return_value=True):
             agent_engines.create(
                 self.test_agent,

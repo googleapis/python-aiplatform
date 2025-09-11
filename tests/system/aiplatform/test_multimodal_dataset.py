@@ -79,7 +79,6 @@ def _uri_to_table_id(bq_uri):
     "prepare_bigquery_dataset", "delete_bigquery_dataset", "copy_sample_data"
 )
 class TestDataset(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp-vertex-sdk-multimodal-dataset-test"
 
     def setup_method(self):

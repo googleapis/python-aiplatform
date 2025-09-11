@@ -143,7 +143,6 @@ class TestContainerUriHelpers:
         ],
     )
     def test_invalid_prediction_uri_args(self, args, expected_error_msg):
-
         with pytest.raises(ValueError) as err:
             helpers.get_prebuilt_prediction_container_uri(
                 **self._build_predict_uri_kwargs(args)

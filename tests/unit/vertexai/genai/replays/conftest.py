@@ -159,7 +159,6 @@ def _mock_read_file_contents_side_effect(uri: str):
 
 @pytest.fixture
 def client(use_vertex, replays_prefix, http_options, request):
-
     mode = request.config.getoption("--mode")
     if mode not in ["auto", "record", "replay", "api", "tap"]:
         raise ValueError("Invalid mode: " + mode)

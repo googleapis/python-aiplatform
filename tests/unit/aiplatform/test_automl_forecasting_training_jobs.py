@@ -757,7 +757,6 @@ class TestForecastingTrainingJob:
         sync,
         training_job,
     ):
-
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_job(

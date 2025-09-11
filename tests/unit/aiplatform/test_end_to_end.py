@@ -132,7 +132,6 @@ class TestEndToEnd:
         mock_pipeline_service_get,  # noqa: F811
         sync,
     ):
-
         aiplatform.init(
             project=test_constants.ProjectConstants._TEST_PROJECT,
             staging_bucket=test_constants.TrainingJobConstants._TEST_BUCKET_NAME,
@@ -362,7 +361,6 @@ class TestEndToEnd:
         mock_pipeline_service_create_and_get_with_fail,  # noqa: F811
         mock_model_service_get,  # noqa: F811
     ):
-
         sync = False
 
         aiplatform.init(

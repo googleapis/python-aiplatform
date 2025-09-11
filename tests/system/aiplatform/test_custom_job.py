@@ -61,7 +61,6 @@ _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )
 class TestCustomJob(e2e_base.TestEndToEnd):
-
     _temp_prefix = "temp-vertex-sdk-custom-job"
 
     def setup_class(cls):
@@ -96,7 +95,6 @@ class TestCustomJob(e2e_base.TestEndToEnd):
         assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
     def test_from_local_script_custom_container(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -119,7 +117,6 @@ class TestCustomJob(e2e_base.TestEndToEnd):
         assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
     def test_from_local_script_enable_autolog_prebuilt_container(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -155,7 +152,6 @@ class TestCustomJob(e2e_base.TestEndToEnd):
         assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
     def test_from_local_script_enable_autolog_custom_container(self, shared_state):
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,

@@ -297,7 +297,6 @@ def predict_client_explain_list_mock():
 
 
 class TestExplainLit:
-
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)

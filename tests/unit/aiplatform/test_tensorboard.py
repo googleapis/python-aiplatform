@@ -460,7 +460,6 @@ class TestTensorboard:
 
     @pytest.mark.usefixtures("get_tensorboard_mock")
     def test_create_tensorboard(self, create_tensorboard_mock):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -485,7 +484,6 @@ class TestTensorboard:
 
     @pytest.mark.usefixtures("get_tensorboard_mock")
     def test_create_tensorboard_with_timeout(self, create_tensorboard_mock):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -512,7 +510,6 @@ class TestTensorboard:
     def test_create_tensorboard_with_timeout_not_explicitly_set(
         self, create_tensorboard_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -536,7 +533,6 @@ class TestTensorboard:
 
     @pytest.mark.usefixtures("get_tensorboard_mock")
     def test_create_tensorboard_is_default_true(self, create_tensorboard_mock):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -559,7 +555,6 @@ class TestTensorboard:
 
     @pytest.mark.usefixtures("get_tensorboard_mock")
     def test_create_tensorboard_is_default_false(self, create_tensorboard_mock):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -708,7 +703,6 @@ class TestTensorboardExperiment:
     def test_create_tensorboard_experiment(
         self, create_tensorboard_experiment_mock, get_tensorboard_experiment_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -741,7 +735,6 @@ class TestTensorboardExperiment:
     def test_create_tensorboard_experiment_with_timeout(
         self, create_tensorboard_experiment_mock, get_tensorboard_experiment_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -770,7 +763,6 @@ class TestTensorboardExperiment:
     def test_create_tensorboard_experiment_with_timeout_not_explicitly_set(
         self, create_tensorboard_experiment_mock, get_tensorboard_experiment_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -874,7 +866,6 @@ class TestTensorboardRun:
         create_tensorboard_run_mock,
         get_tensorboard_run_mock,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -905,7 +896,6 @@ class TestTensorboardRun:
     def test_create_tensorboard_run_with_timeout(
         self, create_tensorboard_run_mock, get_tensorboard_run_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -932,7 +922,6 @@ class TestTensorboardRun:
     def test_create_tensorboard_run_with_timeout_not_explicitly_set(
         self, create_tensorboard_run_mock, get_tensorboard_run_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )
@@ -1101,7 +1090,6 @@ class TestTensorboardTimeSeries:
         self,
         create_tensorboard_time_series_mock,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
         )

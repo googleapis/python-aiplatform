@@ -973,7 +973,6 @@ class TestDataset:
     def test_create_then_import(
         self, create_dataset_mock, import_data_mock, get_dataset_mock, sync
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets._Dataset.create(
@@ -1203,7 +1202,6 @@ class TestImageDataset:
     def test_create_then_import(
         self, create_dataset_mock, import_data_mock, get_dataset_image_mock, sync
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.ImageDataset.create(
@@ -1299,7 +1297,6 @@ class TestTabularDataset:
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_dataset_tabular(self, get_dataset_tabular_bq_mock):
-
         datasets.TabularDataset(dataset_name=_TEST_NAME)
         get_dataset_tabular_bq_mock.assert_called_once_with(
             name=_TEST_NAME, retry=base._DEFAULT_RETRY
@@ -1307,7 +1304,6 @@ class TestTabularDataset:
 
     @pytest.mark.usefixtures("get_dataset_image_mock")
     def test_init_dataset_non_tabular(self):
-
         with pytest.raises(ValueError):
             datasets.TabularDataset(dataset_name=_TEST_NAME)
 
@@ -1379,7 +1375,6 @@ class TestTabularDataset:
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
-
         my_dataset = datasets.TabularDataset.create(
             display_name=_TEST_DISPLAY_NAME,
             bq_source=_TEST_SOURCE_URI_BQ,
@@ -1408,7 +1403,6 @@ class TestTabularDataset:
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset_with_default_display_name(self, create_dataset_mock, sync):
-
         my_dataset = datasets.TabularDataset.create(
             bq_source=_TEST_SOURCE_URI_BQ,
             sync=sync,
@@ -1424,14 +1418,12 @@ class TestTabularDataset:
 
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     def test_no_import_data_method(self):
-
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
         with pytest.raises(NotImplementedError):
             my_dataset.import_data()
 
     def test_list_dataset(self, list_datasets_mock):
-
         ds_list = aiplatform.TabularDataset.list(
             filter=_TEST_LIST_FILTER, order_by=_TEST_LIST_ORDER_BY
         )
@@ -1447,7 +1439,6 @@ class TestTabularDataset:
             assert isinstance(ds, aiplatform.TabularDataset)
 
     def test_list_dataset_no_order_or_filter(self, list_datasets_mock):
-
         ds_list = aiplatform.TabularDataset.list()
 
         list_datasets_mock.assert_called_once_with(request={"parent": _TEST_PARENT})
@@ -1539,7 +1530,6 @@ class TestTabularDataset:
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset_with_labels(self, create_dataset_mock, sync):
-
         my_dataset = datasets.TabularDataset.create(
             display_name=_TEST_DISPLAY_NAME,
             bq_source=_TEST_SOURCE_URI_BQ,
@@ -1578,7 +1568,6 @@ class TestTabularDataset:
         source_df,
         bq_client_mock,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             credentials=_TEST_CREDENTIALS,
@@ -1622,7 +1611,6 @@ class TestTabularDataset:
         source_df,
         bq_client_mock,
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             credentials=_TEST_CREDENTIALS,
@@ -1789,7 +1777,6 @@ class TestTextDataset:
         )
 
         if sync:
-
             with pytest.raises(RuntimeError) as e:
                 my_dataset.import_data(
                     gcs_source=[_TEST_SOURCE_URI_GCS],
@@ -1799,7 +1786,6 @@ class TestTextDataset:
             e.match(regexp=r"Mock fail")
 
         else:
-
             my_dataset.import_data(
                 gcs_source=[_TEST_SOURCE_URI_GCS],
                 import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
@@ -1844,7 +1830,6 @@ class TestTextDataset:
     def test_create_then_import(
         self, create_dataset_mock, import_data_mock, get_dataset_text_mock, sync
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.TextDataset.create(
@@ -2058,7 +2043,6 @@ class TestVideoDataset:
     def test_create_then_import(
         self, create_dataset_mock, import_data_mock, get_dataset_video_mock, sync
     ):
-
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.VideoDataset.create(

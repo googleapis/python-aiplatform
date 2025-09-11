@@ -160,7 +160,6 @@ class TestCustomJobPersistentResource:
     def test_create_custom_job_with_persistent_resource(
         self, create_custom_job_mock, get_custom_job_mock, sync
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -209,7 +208,6 @@ class TestCustomJobPersistentResource:
     def test_submit_custom_job_with_persistent_resource(
         self, create_custom_job_mock, get_custom_job_mock
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -258,7 +256,6 @@ class TestCustomJobPersistentResource:
     def test_run_custom_job_with_persistent_resource(
         self, create_custom_job_mock, get_custom_job_mock, sync
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -309,7 +306,6 @@ class TestCustomJobPersistentResource:
     def test_from_local_script_custom_job_with_persistent_resource(
         self, create_custom_job_mock, get_custom_job_mock, sync
     ):
-
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,

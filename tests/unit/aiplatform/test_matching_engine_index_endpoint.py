@@ -1358,7 +1358,6 @@ class TestMatchingEngineIndexEndpoint:
     def test_delete_index_endpoint_without_force(
         self, undeploy_index_mock, delete_index_endpoint_mock, sync
     ):
-
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_NAME
         )
@@ -1380,7 +1379,6 @@ class TestMatchingEngineIndexEndpoint:
     def test_delete_index_endpoint_with_force(
         self, undeploy_index_mock, delete_index_endpoint_mock, sync
     ):
-
         my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
             index_endpoint_name=_TEST_INDEX_ENDPOINT_NAME
         )

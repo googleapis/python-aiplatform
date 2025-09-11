@@ -479,7 +479,6 @@ def _DatasetVersion_from_vertex(
 
 
 class PromptManagement(_api_module.BaseModule):
-
     def _create_dataset_resource(
         self,
         *,
@@ -1023,7 +1022,6 @@ class PromptManagement(_api_module.BaseModule):
 
 
 class AsyncPromptManagement(_api_module.BaseModule):
-
     async def _create_dataset_resource(
         self,
         *,

@@ -27,11 +27,9 @@ from google.protobuf.json_format import MessageToDict
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestPipelineJob(e2e_base.TestEndToEnd):
-
     _temp_prefix = "tmpvrtxsdk-e2e"
 
     def test_add_pipeline_job_to_experiment(self, shared_state):
-
         # Components:
         @dsl.component
         def train(

@@ -24,7 +24,6 @@ V1 = "v1"
 DEFAULT_VERSION = V1
 
 if DEFAULT_VERSION == V1BETA1:
-
     services.dataset_service_client = services.dataset_service_client_v1beta1
     services.deployment_resource_pool_service_client = (
         services.deployment_resource_pool_service_client_v1beta1
@@ -162,7 +161,6 @@ if DEFAULT_VERSION == V1BETA1:
     types.vizier_service = types.vizier_service_v1beta1
 
 if DEFAULT_VERSION == V1:
-
     services.dataset_service_client = services.dataset_service_client_v1
     services.deployment_resource_pool_service_client = (
         services.deployment_resource_pool_service_client_v1

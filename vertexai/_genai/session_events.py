@@ -272,7 +272,6 @@ def _ListAgentEngineSessionEventsResponse_from_vertex(
 
 
 class SessionEvents(_api_module.BaseModule):
-
     def append(
         self,
         *,
@@ -453,7 +452,6 @@ class SessionEvents(_api_module.BaseModule):
 
 
 class AsyncSessionEvents(_api_module.BaseModule):
-
     async def append(
         self,
         *,
