@@ -27,3 +27,15 @@ SUPPORTED_PREDEFINED_METRICS = frozenset(
         "final_response_reference_free_v1",
     }
 )
+
+SUPPORTED_VERTEX_MAAS_MODEL_PREFIXES = frozenset(
+    {
+        "meta/",  # Meta/Llama
+        "deepseek-ai/",  # DeepSeek AI
+        "qwen/",  # Qwen
+        "openai/",  # OpenAI (GPT-OSS)
+        "claude-",  # Anthropic (Claude)
+        "mistral-",  # Mistral AI
+        "jamba-",  # AI21 (Jamba)
+    }
+)

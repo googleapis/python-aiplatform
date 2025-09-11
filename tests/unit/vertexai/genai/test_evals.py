@@ -1102,7 +1102,7 @@ class TestEvalsRunInference:
         prompt_df = pd.DataFrame([{"prompt": "test"}])
         with pytest.raises(
             ImportError,
-            match="The 'litellm' library is required to use third-party models",
+            match="The 'litellm' library is required to use this model.",
         ):
             evals_module.run_inference(model="gpt-4o", src=prompt_df)
 
