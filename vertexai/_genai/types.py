@@ -8495,6 +8495,149 @@ _GetDatasetOperationParametersOrDict = Union[
 ]
 
 
+class ListPromptsConfig(_common.BaseModel):
+    """Config for listing prompt datasets and dataset versions."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListPromptsConfigDict(TypedDict, total=False):
+    """Config for listing prompt datasets and dataset versions."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListPromptsConfigOrDict = Union[ListPromptsConfig, ListPromptsConfigDict]
+
+
+class _ListDatasetsRequestParameters(_common.BaseModel):
+    """Parameters for listing prompt datasets."""
+
+    config: Optional[ListPromptsConfig] = Field(default=None, description="""""")
+
+
+class _ListDatasetsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing prompt datasets."""
+
+    config: Optional[ListPromptsConfigDict]
+    """"""
+
+
+_ListDatasetsRequestParametersOrDict = Union[
+    _ListDatasetsRequestParameters, _ListDatasetsRequestParametersDict
+]
+
+
+class ListDatasetsResponse(_common.BaseModel):
+    """Response for listing prompt datasets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    datasets: Optional[list[Dataset]] = Field(
+        default=None,
+        description="""List of datasets for the project.
+      """,
+    )
+
+
+class ListDatasetsResponseDict(TypedDict, total=False):
+    """Response for listing prompt datasets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    datasets: Optional[list[DatasetDict]]
+    """List of datasets for the project.
+      """
+
+
+ListDatasetsResponseOrDict = Union[ListDatasetsResponse, ListDatasetsResponseDict]
+
+
+class _ListDatasetVersionsRequestParameters(_common.BaseModel):
+    """Parameters for listing dataset versions."""
+
+    config: Optional[ListPromptsConfig] = Field(default=None, description="""""")
+    read_mask: Optional[str] = Field(default=None, description="""""")
+    dataset_id: Optional[str] = Field(default=None, description="""""")
+
+
+class _ListDatasetVersionsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing dataset versions."""
+
+    config: Optional[ListPromptsConfigDict]
+    """"""
+
+    read_mask: Optional[str]
+    """"""
+
+    dataset_id: Optional[str]
+    """"""
+
+
+_ListDatasetVersionsRequestParametersOrDict = Union[
+    _ListDatasetVersionsRequestParameters, _ListDatasetVersionsRequestParametersDict
+]
+
+
+class ListDatasetVersionsResponse(_common.BaseModel):
+    """Response for listing prompt datasets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    dataset_versions: Optional[list[DatasetVersion]] = Field(
+        default=None,
+        description="""List of datasets for the project.
+      """,
+    )
+
+
+class ListDatasetVersionsResponseDict(TypedDict, total=False):
+    """Response for listing prompt datasets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    dataset_versions: Optional[list[DatasetVersionDict]]
+    """List of datasets for the project.
+      """
+
+
+ListDatasetVersionsResponseOrDict = Union[
+    ListDatasetVersionsResponse, ListDatasetVersionsResponseDict
+]
+
+
 class PromptOptimizerVAPOConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
@@ -10105,6 +10248,10 @@ class Prompt(_common.BaseModel):
         """Returns the ID associated with the prompt resource."""
         if self._dataset and self._dataset.name:
             return self._dataset.name.split("/")[-1]
+        elif not self._dataset and (
+            self._dataset_version and self._dataset_version.name
+        ):
+            return self._dataset_version.name.split("datasets/")[1].split("/")[0]
 
     @property
     def version_id(self) -> Optional[str]:
@@ -10324,3 +10471,47 @@ class GetPromptConfigDict(TypedDict, total=False):
 
 
 GetPromptConfigOrDict = Union[GetPromptConfig, GetPromptConfigDict]
+
+
+class PromptRef(_common.BaseModel):
+    """Reference to a prompt."""
+
+    prompt_id: Optional[str] = Field(default=None, description="""""")
+    model: Optional[str] = Field(default=None, description="""""")
+
+
+class PromptRefDict(TypedDict, total=False):
+    """Reference to a prompt."""
+
+    prompt_id: Optional[str]
+    """"""
+
+    model: Optional[str]
+    """"""
+
+
+PromptRefOrDict = Union[PromptRef, PromptRefDict]
+
+
+class PromptVersionRef(_common.BaseModel):
+    """Reference to a prompt version."""
+
+    prompt_id: Optional[str] = Field(default=None, description="""""")
+    version_id: Optional[str] = Field(default=None, description="""""")
+    model: Optional[str] = Field(default=None, description="""""")
+
+
+class PromptVersionRefDict(TypedDict, total=False):
+    """Reference to a prompt version."""
+
+    prompt_id: Optional[str]
+    """"""
+
+    version_id: Optional[str]
+    """"""
+
+    model: Optional[str]
+    """"""
+
+
+PromptVersionRefOrDict = Union[PromptVersionRef, PromptVersionRefDict]

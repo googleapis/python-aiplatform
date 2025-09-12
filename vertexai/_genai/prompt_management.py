@@ -18,7 +18,7 @@
 import json
 import logging
 import time
-from typing import Any, Optional, Union
+from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
@@ -26,6 +26,7 @@ from google.genai import _common
 from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
+from google.genai.pagers import Pager
 
 from . import _prompt_management_utils
 from . import types
@@ -273,6 +274,60 @@ def _GetDatasetOperationParameters_to_vertex(
     return to_object
 
 
+def _ListPromptsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["page_size"]) is not None:
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
+
+    if getv(from_object, ["page_token"]) is not None:
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
+
+    return to_object
+
+
+def _ListDatasetsRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _ListPromptsConfig_to_vertex(getv(from_object, ["config"]), to_object),
+        )
+
+    return to_object
+
+
+def _ListDatasetVersionsRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _ListPromptsConfig_to_vertex(getv(from_object, ["config"]), to_object),
+        )
+
+    if getv(from_object, ["read_mask"]) is not None:
+        setv(to_object, ["_url", "read_mask"], getv(from_object, ["read_mask"]))
+
+    if getv(from_object, ["dataset_id"]) is not None:
+        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
+
+    return to_object
+
+
 def _DatasetOperation_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -474,6 +529,54 @@ def _DatasetVersion_from_vertex(
 
     if getv(from_object, ["updateTime"]) is not None:
         setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
+
+    return to_object
+
+
+def _ListDatasetsResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["datasets"]) is not None:
+        setv(
+            to_object,
+            ["datasets"],
+            [
+                _Dataset_from_vertex(item, to_object)
+                for item in getv(from_object, ["datasets"])
+            ],
+        )
+
+    return to_object
+
+
+def _ListDatasetVersionsResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["datasetVersions"]) is not None:
+        setv(
+            to_object,
+            ["dataset_versions"],
+            [
+                _DatasetVersion_from_vertex(item, to_object)
+                for item in getv(from_object, ["datasetVersions"])
+            ],
+        )
 
     return to_object
 
@@ -786,6 +889,120 @@ class PromptManagement(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _list_prompts(
+        self, *, config: Optional[types.ListPromptsConfigOrDict] = None
+    ) -> types.ListDatasetsResponse:
+        """
+        Lists Agent Engines.
+        """
+
+        parameter_model = types._ListDatasetsRequestParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListDatasetsRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets".format_map(request_url_dict)
+            else:
+                path = "datasets"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListDatasetsResponse_from_vertex(response_dict)
+
+        return_value = types.ListDatasetsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _list_versions(
+        self,
+        *,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+        read_mask: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+    ) -> types.ListDatasetVersionsResponse:
+        """
+        Lists Agent Engines.
+        """
+
+        parameter_model = types._ListDatasetVersionsRequestParameters(
+            config=config,
+            read_mask=read_mask,
+            dataset_id=dataset_id,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListDatasetVersionsRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}/datasetVersions".format_map(
+                    request_url_dict
+                )
+            else:
+                path = "datasets/{dataset_id}/datasetVersions"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListDatasetVersionsResponse_from_vertex(response_dict)
+
+        return_value = types.ListDatasetVersionsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def create_version(
         self,
         *,
@@ -1020,6 +1237,117 @@ class PromptManagement(_api_module.BaseModule):
             prompt._dataset_version = prompt_version_resource
 
         return prompt
+
+    def _list_prompts_pager(
+        self,
+        *,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+    ) -> Pager[types.Dataset]:
+        return Pager(
+            "datasets",
+            self._list_prompts,
+            self._list_prompts(config=config),
+            config,
+        )
+
+    def _list_versions_pager(
+        self,
+        *,
+        prompt_id: str,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+    ) -> Pager[types.DatasetVersion]:
+        return Pager(
+            "dataset_versions",
+            self._list_versions,
+            self._list_versions(config=config, dataset_id=prompt_id),
+            config,
+        )
+
+    def list_prompts(
+        self,
+        *,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+    ) -> Iterator[types.PromptRef]:
+        """Lists prompt resources in a project.
+
+        This method retrieves all the prompts from the project provided in the
+        vertexai.Client constructor and returns a list of prompt references containing the prompt_id and model for the prompt.
+
+        To get the full types.Prompt resource for a PromptRef after calling this method, use the get() method with the prompt_id as the prompt_id argument.
+        Example usage:
+
+        ```
+        # Using an iterator
+        prompt_refs = client.prompt_management.list_prompts()
+        for prompt_ref in prompt_refs:
+          client.prompt_management.get(prompt_id=prompt_ref.prompt_id)
+
+        # Using a list
+        prompts_list = list(client.prompt_management.list_prompts())
+        client.prompt_management.get(prompt_id=prompts_list[0].prompt_id)
+        ```
+
+        Args:
+          config: Optional configuration for listing prompts.
+
+        Returns:
+            An iterable of types.PromptRef objects.
+        """
+        if isinstance(config, dict):
+            config = types.ListPromptsConfig(**config)
+        elif not config:
+            config = types.ListPromptsConfig()
+        for dataset in self._list_prompts_pager(config=config):
+            prompt_ref = types.PromptRef(
+                model=dataset.model_reference, prompt_id=dataset.name.split("/")[-1]
+            )
+            yield prompt_ref
+
+    def list_versions(
+        self,
+        *,
+        prompt_id: str,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+    ) -> Iterator[types.PromptVersionRef]:
+        """Lists prompt version resources for a provided prompt_id.
+
+        This method retrieves all the prompt versions for a provided prompt_id.
+
+        To get the full types.Prompt resource for a PromptVersionRef after calling this method, use the get() method with the returned prompt_id and version_id.
+        Example usage:
+
+        ```
+        # Using an iterator
+        prompt_version_refs = client.prompt_management.list_versions(prompt_id="123")
+        for version_ref in prompt_version_refs:
+          client.prompt_management.get(prompt_id=version_ref.prompt_id, version_id=version_ref.version_id)
+
+        # Using a list
+        prompt_versions_list = list(client.prompt_management.list_versions(prompt_id="123"))
+        client.prompt_management.get(prompt_id=prompt_versions_list[0].prompt_id, version_id=prompt_versions_list[0].version_id)
+        ```
+
+        Args:
+          prompt_id: The id of the Vertex Dataset resource containing the prompt. For example, if the prompt resource name is "projects/123/locations/us-central1/datasets/456", then the prompt_id is "456".
+          config: Optional configuration for listing prompts.
+
+        Returns:
+            An iterable of types.PromptVersionRef objects representing the prompt version resources for the provided prompt_id.
+
+        """
+        if isinstance(config, dict):
+            config = types.ListPromptsConfig(**config)
+        elif not config:
+            config = types.ListPromptsConfig()
+        for dataset_version in self._list_versions_pager(
+            config=config, prompt_id=prompt_id
+        ):
+            prompt_version_ref = types.PromptVersionRef(
+                model=dataset_version.model_reference,
+                version_id=dataset_version.name.split("/")[-1],
+                prompt_id=prompt_id,
+            )
+            yield prompt_version_ref
 
 
 class AsyncPromptManagement(_api_module.BaseModule):
@@ -1334,6 +1662,124 @@ class AsyncPromptManagement(_api_module.BaseModule):
             response_dict = _DatasetOperation_from_vertex(response_dict)
 
         return_value = types.DatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _list_prompts(
+        self, *, config: Optional[types.ListPromptsConfigOrDict] = None
+    ) -> types.ListDatasetsResponse:
+        """
+        Lists Agent Engines.
+        """
+
+        parameter_model = types._ListDatasetsRequestParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListDatasetsRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets".format_map(request_url_dict)
+            else:
+                path = "datasets"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListDatasetsResponse_from_vertex(response_dict)
+
+        return_value = types.ListDatasetsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _list_versions(
+        self,
+        *,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+        read_mask: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+    ) -> types.ListDatasetVersionsResponse:
+        """
+        Lists Agent Engines.
+        """
+
+        parameter_model = types._ListDatasetVersionsRequestParameters(
+            config=config,
+            read_mask=read_mask,
+            dataset_id=dataset_id,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListDatasetVersionsRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}/datasetVersions".format_map(
+                    request_url_dict
+                )
+            else:
+                path = "datasets/{dataset_id}/datasetVersions"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListDatasetVersionsResponse_from_vertex(response_dict)
+
+        return_value = types.ListDatasetVersionsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
