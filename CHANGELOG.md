@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.114.0](https://github.com/googleapis/python-aiplatform/compare/v1.113.0...v1.114.0) (2025-09-12)
+
+
+### Features
+
+* GenAI SDK client - Add experimental list_prompts() and list_versions() methods to Prompt Management ([18a5559](https://github.com/googleapis/python-aiplatform/commit/18a55590c5679b8ea7536c4c3c73566ba006bf36))
+
 ## [1.113.0](https://github.com/googleapis/python-aiplatform/compare/v1.112.0...v1.113.0) (2025-09-12)
 
 
