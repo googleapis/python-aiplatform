@@ -54,6 +54,7 @@ class AsyncClient:
         self._evals = None
         self._agent_engines = None
         self._prompt_optimizer = None
+        self._prompt_management = None
 
     @property
     @_common.experimental_warning(
@@ -107,6 +108,19 @@ class AsyncClient:
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
         return self._agent_engines.AsyncAgentEngines(self._api_client)
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI async prompt management module is experimental, "
+        "and may change in future versions."
+    )
+    def prompt_management(self):
+        if self._prompt_management is None:
+            self._prompt_management = importlib.import_module(
+                ".prompt_management",
+                __package__,
+            )
+        return self._prompt_management.AsyncPromptManagement(self._api_client)
 
 
 class Client:
