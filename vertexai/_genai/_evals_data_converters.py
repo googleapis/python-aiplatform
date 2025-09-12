@@ -20,6 +20,7 @@ from typing import Any, Optional, Union
 
 from google.genai import _common
 from google.genai import types as genai_types
+from pydantic import ValidationError
 from typing_extensions import override
 
 from . import _evals_utils
@@ -221,13 +222,44 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
 
             conversation_history: Optional[list[types.Message]] = None
             if isinstance(conversation_history_data, list):
-                conversation_history = [
-                    types.Message(
-                        turn_id=str(turn_id),
-                        content=genai_types.Content.model_validate(content),
-                    )
-                    for turn_id, content in enumerate(conversation_history_data)
-                ]
+                conversation_history = []
+                for turn_id, content in enumerate(conversation_history_data):
+                    if isinstance(content, genai_types.Content):
+                        conversation_history.append(
+                            types.Message(
+                                turn_id=str(turn_id),
+                                content=content,
+                            )
+                        )
+                    elif isinstance(content, dict):
+                        try:
+                            validated_content = genai_types.Content.model_validate(
+                                content
+                            )
+                            conversation_history.append(
+                                types.Message(
+                                    turn_id=str(turn_id),
+                                    content=validated_content,
+                                )
+                            )
+                        except ValidationError as e:
+                            logger.warning(
+                                "Item at index %s in 'history' column for case "
+                                " %s is a dict but could not be validated as"
+                                " genai_types.Content: %s",
+                                turn_id,
+                                eval_case_id,
+                                e,
+                            )
+                    else:
+                        logger.warning(
+                            "Invalid type in 'history' column for case %s at index %s. "
+                            "Expected genai_types.Content or dict, but got %s. "
+                            "Skipping this history item.",
+                            eval_case_id,
+                            turn_id,
+                            type(content),
+                        )
 
             responses: list[types.ResponseCandidate]
             if isinstance(response_data, dict):
