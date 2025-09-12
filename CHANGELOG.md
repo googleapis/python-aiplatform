@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.113.0](https://github.com/googleapis/python-aiplatform/compare/v1.112.0...v1.113.0) (2025-09-12)
+
+
+### Features
+
+* GenAI - Added GPT, Qwen, and DeepSeek models support in GenAI batch prediction ([cdd73d2](https://github.com/googleapis/python-aiplatform/commit/cdd73d2a8428ab0c62619e631fe0efab6a32c972))
+* GenAI Client(evals) - Add support for Vertex Model Garden MaaS models. ([751cb18](https://github.com/googleapis/python-aiplatform/commit/751cb182245a16f075b66d7a3bdda082aa4bc83d))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Update data handling for adaptive rubric multi-turn evaluation metrics ([c511490](https://github.com/googleapis/python-aiplatform/commit/c51149083734fd773591d9ebcfb476e411613741))
+
 ## [1.112.0](https://github.com/googleapis/python-aiplatform/compare/v1.111.0...v1.112.0) (2025-09-09)
 
 
