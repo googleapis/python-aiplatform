@@ -8715,7 +8715,7 @@ class ApplicableGuidelineDict(TypedDict, total=False):
 ApplicableGuidelineOrDict = Union[ApplicableGuideline, ApplicableGuidelineDict]
 
 
-class OptimizeResponse(_common.BaseModel):
+class ParsedResponse(_common.BaseModel):
     """Response for the optimize_prompt method."""
 
     optimization_type: Optional[str] = Field(default=None, description="""""")
@@ -8726,7 +8726,7 @@ class OptimizeResponse(_common.BaseModel):
     suggested_prompt: Optional[str] = Field(default=None, description="""""")
 
 
-class OptimizeResponseDict(TypedDict, total=False):
+class ParsedResponseDict(TypedDict, total=False):
     """Response for the optimize_prompt method."""
 
     optimization_type: Optional[str]
@@ -8739,6 +8739,26 @@ class OptimizeResponseDict(TypedDict, total=False):
     """"""
 
     suggested_prompt: Optional[str]
+    """"""
+
+
+ParsedResponseOrDict = Union[ParsedResponse, ParsedResponseDict]
+
+
+class OptimizeResponse(_common.BaseModel):
+    """Response for the optimize_prompt method."""
+
+    raw_text_response: Optional[str] = Field(default=None, description="""""")
+    parsed_response: Optional[ParsedResponse] = Field(default=None, description="""""")
+
+
+class OptimizeResponseDict(TypedDict, total=False):
+    """Response for the optimize_prompt method."""
+
+    raw_text_response: Optional[str]
+    """"""
+
+    parsed_response: Optional[ParsedResponseDict]
     """"""
 
 
