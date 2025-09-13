@@ -343,6 +343,18 @@ def get_endpoint_alt_location_mock():
         )
         yield get_endpoint_mock
 
+@pytest.fixture
+def get_endpoint_with_private_model_server_enabled_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_mock:
+        get_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME_ALT_LOCATION,
+            private_model_server_enabled=True,
+        )
+        yield get_endpoint_mock
+
 
 @pytest.fixture
 def get_endpoint_with_models_mock():
@@ -1472,6 +1484,33 @@ class TestEndpoint:
             client_connection_config=_TEST_CLIENT_CONNECTION_CONFIG,
         )
         create_dedicated_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_with_private_model_server_enabled_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_endpoint_with_private_model_server_enabled(
+        self, create_endpoint_mock, sync
+    ):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            enable_private_model_server=True,
+            sync=sync,
+        )
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            private_model_server_enabled=True,
+        )
+        create_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             endpoint=expected_endpoint,
             metadata=(),
