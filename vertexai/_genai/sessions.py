@@ -34,6 +34,8 @@ from . import types
 
 logger = logging.getLogger("vertexai_genai.sessions")
 
+logger.setLevel(logging.INFO)
+
 
 def _CreateAgentEngineSessionConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
