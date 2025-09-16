@@ -32,9 +32,7 @@ import grpc  # type: ignore
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import index_endpoint
-from google.cloud.aiplatform_v1.types import (
-    index_endpoint as gca_index_endpoint,
-)
+from google.cloud.aiplatform_v1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1.types import index_endpoint_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore

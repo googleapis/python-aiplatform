@@ -3440,11 +3440,10 @@ class PointwiseMetricSpec(proto.Message):
             explanation. When this config is set, the default output is
             replaced with either:
 
-            -  The raw output string.
-            -  A parsed output based on a user-defined schema. If a
-               custom format is chosen, the ``score`` and
-               ``explanation`` fields in the corresponding metric result
-               will be empty.
+            - The raw output string.
+            - A parsed output based on a user-defined schema. If a
+              custom format is chosen, the ``score`` and ``explanation``
+              fields in the corresponding metric result will be empty.
     """
 
     metric_prompt_template: str = proto.Field(

@@ -879,11 +879,9 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = ScheduleServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            ScheduleServiceClient._read_environment_variables()
+        )
         self._client_cert_source = ScheduleServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )
@@ -1786,9 +1784,9 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
                 Required. The Schedule which replaces the resource on
                 the server. The following restrictions will be applied:
 
-                -  The scheduled request type cannot be changed.
-                -  The non-empty fields cannot be unset.
-                -  The output_only fields will be ignored if specified.
+                - The scheduled request type cannot be changed.
+                - The non-empty fields cannot be unset.
+                - The output_only fields will be ignored if specified.
 
                 This corresponds to the ``schedule`` field
                 on the ``request`` instance; if ``request`` is provided, this

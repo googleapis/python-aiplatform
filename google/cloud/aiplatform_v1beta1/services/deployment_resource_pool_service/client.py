@@ -70,9 +70,7 @@ from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool
 from google.cloud.aiplatform_v1beta1.types import (
     deployment_resource_pool as gca_deployment_resource_pool,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    deployment_resource_pool_service,
-)
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -714,11 +712,9 @@ class DeploymentResourcePoolServiceClient(
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = DeploymentResourcePoolServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            DeploymentResourcePoolServiceClient._read_environment_variables()
+        )
         self._client_cert_source = (
             DeploymentResourcePoolServiceClient._get_client_cert_source(
                 self._client_options.client_cert_source, self._use_client_cert

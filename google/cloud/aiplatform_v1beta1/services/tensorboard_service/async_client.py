@@ -49,24 +49,18 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.tensorboard_service import pagers
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import tensorboard
-from google.cloud.aiplatform_v1beta1.types import (
-    tensorboard as gca_tensorboard,
-)
+from google.cloud.aiplatform_v1beta1.types import tensorboard as gca_tensorboard
 from google.cloud.aiplatform_v1beta1.types import tensorboard_data
 from google.cloud.aiplatform_v1beta1.types import tensorboard_experiment
 from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run
-from google.cloud.aiplatform_v1beta1.types import (
-    tensorboard_run as gca_tensorboard_run,
-)
+from google.cloud.aiplatform_v1beta1.types import tensorboard_run as gca_tensorboard_run
 from google.cloud.aiplatform_v1beta1.types import tensorboard_service
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import (

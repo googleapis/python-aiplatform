@@ -36,9 +36,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 import warnings
 
 
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_online_store_service,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_online_store_service
 from google.longrunning import operations_pb2  # type: ignore
 
 

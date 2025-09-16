@@ -4618,11 +4618,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
 
             resp = self._interceptor.post_search_model_monitoring_alerts(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_search_model_monitoring_alerts_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_search_model_monitoring_alerts_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4785,11 +4784,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
 
             resp = self._interceptor.post_search_model_monitoring_stats(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_search_model_monitoring_stats_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_search_model_monitoring_stats_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

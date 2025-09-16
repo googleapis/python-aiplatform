@@ -72,12 +72,8 @@ from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
 from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
     ModelGardenServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.model_garden_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.model_garden_service import pagers
+from google.cloud.aiplatform_v1beta1.services.model_garden_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import io
@@ -86,6 +82,7 @@ from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model_garden_service
 from google.cloud.aiplatform_v1beta1.types import publisher_model
 from google.cloud.aiplatform_v1beta1.types import reservation_affinity
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -897,10 +894,9 @@ def test_model_garden_service_client_get_mtls_endpoint_and_cert_source(client_cl
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

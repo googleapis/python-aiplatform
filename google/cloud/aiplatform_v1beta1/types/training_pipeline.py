@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
@@ -303,19 +301,19 @@ class InputDataConfig(proto.Message):
             The Vertex AI environment variables representing Cloud
             Storage data URIs are represented in the Cloud Storage
             wildcard format to support sharded data. e.g.:
-            "gs://.../training-*.jsonl"
+            "gs://.../training-\*.jsonl"
 
-            -  AIP_DATA_FORMAT = "jsonl" for non-tabular data, "csv" for
-               tabular data
+            - AIP_DATA_FORMAT = "jsonl" for non-tabular data, "csv" for
+              tabular data
 
-            -  AIP_TRAINING_DATA_URI =
-               "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
+            - AIP_TRAINING_DATA_URI =
+              "gcs_destination/dataset---/training-\*.${AIP_DATA_FORMAT}"
 
-            -  AIP_VALIDATION_DATA_URI =
-               "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
+            - AIP_VALIDATION_DATA_URI =
+              "gcs_destination/dataset---/validation-\*.${AIP_DATA_FORMAT}"
 
-            -  AIP_TEST_DATA_URI =
-               "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
+            - AIP_TEST_DATA_URI =
+              "gcs_destination/dataset---/test-\*.${AIP_DATA_FORMAT}".
 
             This field is a member of `oneof`_ ``destination``.
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
@@ -331,16 +329,16 @@ class InputDataConfig(proto.Message):
             dataset three tables are created, ``training``,
             ``validation`` and ``test``.
 
-            -  AIP_DATA_FORMAT = "bigquery".
+            - AIP_DATA_FORMAT = "bigquery".
 
-            -  AIP_TRAINING_DATA_URI =
-               "bigquery_destination.dataset\_\ **\ .training"
+            - AIP_TRAINING_DATA_URI =
+              "bigquery_destination.dataset\_\ **\ .training"
 
-            -  AIP_VALIDATION_DATA_URI =
-               "bigquery_destination.dataset\_\ **\ .validation"
+            - AIP_VALIDATION_DATA_URI =
+              "bigquery_destination.dataset\_\ **\ .validation"
 
-            -  AIP_TEST_DATA_URI =
-               "bigquery_destination.dataset\_\ **\ .test".
+            - AIP_TEST_DATA_URI =
+              "bigquery_destination.dataset\_\ **\ .test".
 
             This field is a member of `oneof`_ ``destination``.
         dataset_id (str):

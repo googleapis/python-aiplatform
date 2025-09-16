@@ -1630,11 +1630,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_assign_notebook_runtime(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_assign_notebook_runtime_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_assign_notebook_runtime_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1726,11 +1725,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 _BaseNotebookServiceRestTransport._BaseCreateNotebookExecutionJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_create_notebook_execution_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_create_notebook_execution_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseNotebookServiceRestTransport._BaseCreateNotebookExecutionJob._get_transcoded_request(
                 http_options, request
@@ -1801,11 +1799,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_notebook_execution_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_notebook_execution_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_notebook_execution_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1899,11 +1896,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 _BaseNotebookServiceRestTransport._BaseCreateNotebookRuntimeTemplate._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_create_notebook_runtime_template(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_create_notebook_runtime_template(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseNotebookServiceRestTransport._BaseCreateNotebookRuntimeTemplate._get_transcoded_request(
                 http_options, request
@@ -1974,11 +1970,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_notebook_runtime_template(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_notebook_runtime_template_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_notebook_runtime_template_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2069,11 +2064,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 _BaseNotebookServiceRestTransport._BaseDeleteNotebookExecutionJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_delete_notebook_execution_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_delete_notebook_execution_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseNotebookServiceRestTransport._BaseDeleteNotebookExecutionJob._get_transcoded_request(
                 http_options, request
@@ -2139,11 +2133,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_notebook_execution_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_notebook_execution_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_notebook_execution_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2300,11 +2293,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_notebook_runtime(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_notebook_runtime_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_notebook_runtime_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2397,11 +2389,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 _BaseNotebookServiceRestTransport._BaseDeleteNotebookRuntimeTemplate._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_delete_notebook_runtime_template(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_delete_notebook_runtime_template(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseNotebookServiceRestTransport._BaseDeleteNotebookRuntimeTemplate._get_transcoded_request(
                 http_options, request
@@ -2467,11 +2458,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_notebook_runtime_template(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_notebook_runtime_template_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_notebook_runtime_template_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2628,11 +2618,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_notebook_execution_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_notebook_execution_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_notebook_execution_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2891,11 +2880,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 _BaseNotebookServiceRestTransport._BaseGetNotebookRuntimeTemplate._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_get_notebook_runtime_template(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_get_notebook_runtime_template(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseNotebookServiceRestTransport._BaseGetNotebookRuntimeTemplate._get_transcoded_request(
                 http_options, request
@@ -2961,11 +2949,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_notebook_runtime_template(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_notebook_runtime_template_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_notebook_runtime_template_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3057,11 +3044,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 _BaseNotebookServiceRestTransport._BaseListNotebookExecutionJobs._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_list_notebook_execution_jobs(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_list_notebook_execution_jobs(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseNotebookServiceRestTransport._BaseListNotebookExecutionJobs._get_transcoded_request(
                 http_options, request
@@ -3127,11 +3113,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_notebook_execution_jobs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_notebook_execution_jobs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_notebook_execution_jobs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3386,11 +3371,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 _BaseNotebookServiceRestTransport._BaseListNotebookRuntimeTemplates._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_list_notebook_runtime_templates(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_list_notebook_runtime_templates(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseNotebookServiceRestTransport._BaseListNotebookRuntimeTemplates._get_transcoded_request(
                 http_options, request
@@ -3456,11 +3440,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_notebook_runtime_templates(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_notebook_runtime_templates_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_notebook_runtime_templates_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3888,11 +3871,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 _BaseNotebookServiceRestTransport._BaseUpdateNotebookRuntimeTemplate._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_update_notebook_runtime_template(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_update_notebook_runtime_template(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseNotebookServiceRestTransport._BaseUpdateNotebookRuntimeTemplate._get_transcoded_request(
                 http_options, request
@@ -3963,11 +3945,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_notebook_runtime_template(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_notebook_runtime_template_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_notebook_runtime_template_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4132,11 +4113,10 @@ class AsyncNotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_upgrade_notebook_runtime(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_upgrade_notebook_runtime_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_upgrade_notebook_runtime_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

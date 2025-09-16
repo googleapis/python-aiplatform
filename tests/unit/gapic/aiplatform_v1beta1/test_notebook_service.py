@@ -73,9 +73,7 @@ from google.cloud.aiplatform_v1beta1.services.notebook_service import (
     NotebookServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.notebook_service import pagers
-from google.cloud.aiplatform_v1beta1.services.notebook_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.notebook_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
@@ -87,16 +85,12 @@ from google.cloud.aiplatform_v1beta1.types import notebook_execution_job
 from google.cloud.aiplatform_v1beta1.types import (
     notebook_execution_job as gca_notebook_execution_job,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    notebook_idle_shutdown_config,
-)
+from google.cloud.aiplatform_v1beta1.types import notebook_idle_shutdown_config
 from google.cloud.aiplatform_v1beta1.types import notebook_runtime
 from google.cloud.aiplatform_v1beta1.types import (
     notebook_runtime as gca_notebook_runtime,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    notebook_runtime_template_ref,
-)
+from google.cloud.aiplatform_v1beta1.types import notebook_runtime_template_ref
 from google.cloud.aiplatform_v1beta1.types import notebook_service
 from google.cloud.aiplatform_v1beta1.types import notebook_software_config
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -904,10 +898,9 @@ def test_notebook_service_client_get_mtls_endpoint_and_cert_source(client_class)
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

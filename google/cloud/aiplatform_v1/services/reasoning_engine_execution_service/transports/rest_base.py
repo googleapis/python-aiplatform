@@ -28,9 +28,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 
 from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1.types import (
-    reasoning_engine_execution_service,
-)
+from google.cloud.aiplatform_v1.types import reasoning_engine_execution_service
 from google.longrunning import operations_pb2  # type: ignore
 
 

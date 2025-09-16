@@ -51,9 +51,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
 from google.cloud.aiplatform_v1beta1.types import pipeline_job
-from google.cloud.aiplatform_v1beta1.types import (
-    pipeline_job as gca_pipeline_job,
-)
+from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
@@ -1305,11 +1303,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_cancel_pipeline_jobs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_batch_cancel_pipeline_jobs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_batch_cancel_pipeline_jobs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1473,11 +1470,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_delete_pipeline_jobs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_batch_delete_pipeline_jobs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_batch_delete_pipeline_jobs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2052,11 +2048,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_training_pipeline(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_training_pipeline_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_training_pipeline_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2373,11 +2368,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_training_pipeline(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_training_pipeline_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_training_pipeline_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3016,11 +3010,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_training_pipelines(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_training_pipelines_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_training_pipelines_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

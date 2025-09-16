@@ -74,7 +74,7 @@ class Memory(proto.Message):
             Required. Immutable. The scope of the Memory. Memories are
             isolated within their scope. The scope is defined when
             creating or generating memories. Scope values cannot contain
-            the wildcard character '*'.
+            the wildcard character '\*'.
     """
 
     expire_time: timestamp_pb2.Timestamp = proto.Field(

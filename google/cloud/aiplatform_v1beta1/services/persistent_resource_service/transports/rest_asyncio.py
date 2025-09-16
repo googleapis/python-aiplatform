@@ -1001,11 +1001,10 @@ class AsyncPersistentResourceServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_persistent_resource(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_persistent_resource_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_persistent_resource_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1165,11 +1164,10 @@ class AsyncPersistentResourceServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_persistent_resource(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_persistent_resource_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_persistent_resource_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1330,11 +1328,10 @@ class AsyncPersistentResourceServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_persistent_resource(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_persistent_resource_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_persistent_resource_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1496,11 +1493,10 @@ class AsyncPersistentResourceServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_persistent_resources(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_persistent_resources_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_persistent_resources_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1668,11 +1664,10 @@ class AsyncPersistentResourceServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_reboot_persistent_resource(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_reboot_persistent_resource_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_reboot_persistent_resource_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1838,11 +1833,10 @@ class AsyncPersistentResourceServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_persistent_resource(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_persistent_resource_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_persistent_resource_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

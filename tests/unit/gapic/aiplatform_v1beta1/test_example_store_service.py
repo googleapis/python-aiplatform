@@ -72,18 +72,12 @@ from google.cloud.aiplatform_v1beta1.services.example_store_service import (
 from google.cloud.aiplatform_v1beta1.services.example_store_service import (
     ExampleStoreServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.example_store_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.example_store_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.example_store_service import pagers
+from google.cloud.aiplatform_v1beta1.services.example_store_service import transports
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import example
 from google.cloud.aiplatform_v1beta1.types import example_store
-from google.cloud.aiplatform_v1beta1.types import (
-    example_store as gca_example_store,
-)
+from google.cloud.aiplatform_v1beta1.types import example_store as gca_example_store
 from google.cloud.aiplatform_v1beta1.types import example_store_service
 from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.location import locations_pb2
@@ -911,10 +905,9 @@ def test_example_store_service_client_get_mtls_endpoint_and_cert_source(client_c
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

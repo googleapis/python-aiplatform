@@ -68,9 +68,7 @@ from google.cloud.aiplatform_v1.services.feature_online_store_service import (
 from google.cloud.aiplatform_v1.services.feature_online_store_service import (
     FeatureOnlineStoreServiceClient,
 )
-from google.cloud.aiplatform_v1.services.feature_online_store_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1.services.feature_online_store_service import transports
 from google.cloud.aiplatform_v1.types import feature_online_store_service
 from google.cloud.aiplatform_v1.types import featurestore_online_service
 from google.cloud.aiplatform_v1.types import types
@@ -910,10 +908,9 @@ def test_feature_online_store_service_client_get_mtls_endpoint_and_cert_source(
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

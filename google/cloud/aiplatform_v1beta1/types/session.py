@@ -125,7 +125,7 @@ class SessionEvent(proto.Message):
     Attributes:
         name (str):
             Identifier. The resource name of the event.
-            Format:\ ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}``.
+            Format:``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}``.
         author (str):
             Required. The name of the agent that sent the
             event, or user.

@@ -738,11 +738,9 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = EndpointServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            EndpointServiceClient._read_environment_variables()
+        )
         self._client_cert_source = EndpointServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )
@@ -2044,19 +2042,19 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 Required. The DeployedModel to be mutated within the
                 Endpoint. Only the following fields can be mutated:
 
-                -  ``min_replica_count`` in either
-                   [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
-                   or
-                   [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
-                -  ``max_replica_count`` in either
-                   [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
-                   or
-                   [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
-                -  ``required_replica_count`` in
-                   [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
-                -  [autoscaling_metric_specs][google.cloud.aiplatform.v1.DedicatedResources.autoscaling_metric_specs]
-                -  ``disable_container_logging`` (v1 only)
-                -  ``enable_container_logging`` (v1beta1 only)
+                - ``min_replica_count`` in either
+                  [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
+                  or
+                  [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
+                - ``max_replica_count`` in either
+                  [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
+                  or
+                  [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
+                - ``required_replica_count`` in
+                  [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
+                - [autoscaling_metric_specs][google.cloud.aiplatform.v1.DedicatedResources.autoscaling_metric_specs]
+                - ``disable_container_logging`` (v1 only)
+                - ``enable_container_logging`` (v1beta1 only)
 
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this

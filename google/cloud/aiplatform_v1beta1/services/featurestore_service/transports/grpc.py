@@ -32,9 +32,7 @@ import grpc  # type: ignore
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import entity_type
-from google.cloud.aiplatform_v1beta1.types import (
-    entity_type as gca_entity_type,
-)
+from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import featurestore

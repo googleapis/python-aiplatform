@@ -33,9 +33,7 @@ import grpc  # type: ignore
 import proto  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_online_store_service,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_online_store_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore

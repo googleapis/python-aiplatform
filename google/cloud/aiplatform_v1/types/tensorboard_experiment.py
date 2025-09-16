@@ -65,10 +65,10 @@ class TensorboardExperiment(proto.Message):
             ``aiplatform.googleapis.com/`` and are immutable. The
             following system labels exist for each Dataset:
 
-            -  ``aiplatform.googleapis.com/dataset_metadata_schema``:
-               output only. Its value is the
-               [metadata_schema's][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
-               title.
+            - ``aiplatform.googleapis.com/dataset_metadata_schema``:
+              output only. Its value is the
+              [metadata_schema's][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
+              title.
         etag (str):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update

@@ -25,9 +25,7 @@ from google.cloud.aiplatform_v1.types import tensorboard_data
 from google.cloud.aiplatform_v1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
-from google.cloud.aiplatform_v1.types import (
-    tensorboard_run as gca_tensorboard_run,
-)
+from google.cloud.aiplatform_v1.types import tensorboard_run as gca_tensorboard_run
 from google.cloud.aiplatform_v1.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )

@@ -53,9 +53,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
-from google.cloud.aiplatform_v1.types import (
-    model_evaluation as gca_model_evaluation,
-)
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.longrunning import operations_pb2  # type: ignore
@@ -1732,11 +1730,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
                 _BaseModelServiceRestTransport._BaseBatchImportEvaluatedAnnotations._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_batch_import_evaluated_annotations(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_batch_import_evaluated_annotations(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelServiceRestTransport._BaseBatchImportEvaluatedAnnotations._get_transcoded_request(
                 http_options, request
@@ -1807,11 +1804,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_import_evaluated_annotations(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_batch_import_evaluated_annotations_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_batch_import_evaluated_annotations_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1908,11 +1904,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
                 _BaseModelServiceRestTransport._BaseBatchImportModelEvaluationSlices._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_batch_import_model_evaluation_slices(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_batch_import_model_evaluation_slices(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelServiceRestTransport._BaseBatchImportModelEvaluationSlices._get_transcoded_request(
                 http_options, request
@@ -1985,11 +1980,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_batch_import_model_evaluation_slices_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_batch_import_model_evaluation_slices_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3128,11 +3122,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_model_evaluation_slice(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_model_evaluation_slice_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_model_evaluation_slice_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3298,11 +3291,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_import_model_evaluation(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_import_model_evaluation_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_import_model_evaluation_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3553,11 +3545,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
                 _BaseModelServiceRestTransport._BaseListModelEvaluationSlices._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_list_model_evaluation_slices(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_list_model_evaluation_slices(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelServiceRestTransport._BaseListModelEvaluationSlices._get_transcoded_request(
                 http_options, request
@@ -3623,11 +3614,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_model_evaluation_slices(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_model_evaluation_slices_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_model_evaluation_slices_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3883,11 +3873,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
                 _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_list_model_version_checkpoints(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_list_model_version_checkpoints(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints._get_transcoded_request(
                 http_options, request
@@ -3953,11 +3942,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_model_version_checkpoints(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_model_version_checkpoints_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_model_version_checkpoints_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4448,11 +4436,10 @@ class AsyncModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_explanation_dataset(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_explanation_dataset_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_explanation_dataset_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

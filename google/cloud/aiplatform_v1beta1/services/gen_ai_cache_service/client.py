@@ -61,13 +61,9 @@ except ImportError:  # pragma: NO COVER
 
 _LOGGER = std_logging.getLogger(__name__)
 
-from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import pagers
 from google.cloud.aiplatform_v1beta1.types import cached_content
-from google.cloud.aiplatform_v1beta1.types import (
-    cached_content as gca_cached_content,
-)
+from google.cloud.aiplatform_v1beta1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import gen_ai_cache_service
@@ -657,11 +653,9 @@ class GenAiCacheServiceClient(metaclass=GenAiCacheServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = GenAiCacheServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            GenAiCacheServiceClient._read_environment_variables()
+        )
         self._client_cert_source = GenAiCacheServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )

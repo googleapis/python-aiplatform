@@ -933,11 +933,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseCreateDeploymentResourcePool._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_create_deployment_resource_pool(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_create_deployment_resource_pool(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseDeploymentResourcePoolServiceRestTransport._BaseCreateDeploymentResourcePool._get_transcoded_request(
                 http_options, request
@@ -1008,11 +1007,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1105,11 +1103,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseDeleteDeploymentResourcePool._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_delete_deployment_resource_pool(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_delete_deployment_resource_pool(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseDeploymentResourcePoolServiceRestTransport._BaseDeleteDeploymentResourcePool._get_transcoded_request(
                 http_options, request
@@ -1175,11 +1172,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1273,11 +1269,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseGetDeploymentResourcePool._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_get_deployment_resource_pool(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_get_deployment_resource_pool(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseDeploymentResourcePoolServiceRestTransport._BaseGetDeploymentResourcePool._get_transcoded_request(
                 http_options, request
@@ -1343,11 +1338,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1443,11 +1437,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseListDeploymentResourcePools._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_list_deployment_resource_pools(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_list_deployment_resource_pools(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseDeploymentResourcePoolServiceRestTransport._BaseListDeploymentResourcePools._get_transcoded_request(
                 http_options, request
@@ -1519,11 +1512,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_deployment_resource_pools(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_deployment_resource_pools_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_deployment_resource_pools_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1782,11 +1774,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseUpdateDeploymentResourcePool._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_update_deployment_resource_pool(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_update_deployment_resource_pool(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseDeploymentResourcePoolServiceRestTransport._BaseUpdateDeploymentResourcePool._get_transcoded_request(
                 http_options, request
@@ -1857,11 +1848,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

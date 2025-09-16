@@ -30,9 +30,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
-from google.cloud.aiplatform_v1.types import (
-    model_evaluation as gca_model_evaluation,
-)
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.longrunning import operations_pb2  # type: ignore

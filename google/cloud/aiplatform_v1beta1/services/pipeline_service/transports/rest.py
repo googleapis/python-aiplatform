@@ -38,9 +38,7 @@ import warnings
 
 
 from google.cloud.aiplatform_v1beta1.types import pipeline_job
-from google.cloud.aiplatform_v1beta1.types import (
-    pipeline_job as gca_pipeline_job,
-)
+from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
 from google.cloud.aiplatform_v1beta1.types import (

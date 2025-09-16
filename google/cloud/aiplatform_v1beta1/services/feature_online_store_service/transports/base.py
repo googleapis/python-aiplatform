@@ -27,9 +27,7 @@ from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 import google.protobuf
 
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_online_store_service,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_online_store_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore

@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    cached_content as gca_cached_content,
-)
+from google.cloud.aiplatform_v1.types import cached_content as gca_cached_content
 from google.protobuf import field_mask_pb2  # type: ignore
 
 

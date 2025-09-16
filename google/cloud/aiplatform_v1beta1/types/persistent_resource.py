@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -357,8 +355,8 @@ class ResourceRuntimeSpec(proto.Message):
     r"""Configuration for the runtime on a PersistentResource instance,
     including but not limited to:
 
-    -  Service accounts used to run the workloads.
-    -  Whether to make it a dedicated Ray Cluster.
+    - Service accounts used to run the workloads.
+    - Whether to make it a dedicated Ray Cluster.
 
     Attributes:
         service_account_spec (google.cloud.aiplatform_v1beta1.types.ServiceAccountSpec):
@@ -495,9 +493,9 @@ class ServiceAccountSpec(proto.Message):
         service_account (str):
             Optional. Required when all below conditions are met
 
-            -  ``enable_custom_service_account`` is true;
-            -  any runtime is specified via ``ResourceRuntimeSpec`` on
-               creation time, for example, Ray
+            - ``enable_custom_service_account`` is true;
+            - any runtime is specified via ``ResourceRuntimeSpec`` on
+              creation time, for example, Ray
 
             The users must have ``iam.serviceAccounts.actAs`` permission
             on this service account and then the specified runtime

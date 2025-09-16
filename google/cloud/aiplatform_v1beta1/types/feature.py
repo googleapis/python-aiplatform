@@ -45,7 +45,7 @@ class Feature(proto.Message):
 
             The last part feature is assigned by the client. The feature
             can be up to 64 characters long and can consist only of
-            ASCII Latin letters A-Z and a-z, underscore(_), and ASCII
+            ASCII Latin letters A-Z and a-z, underscore(\_), and ASCII
             digits 0-9 starting with a letter. The value will be unique
             given an entity type.
         description (str):

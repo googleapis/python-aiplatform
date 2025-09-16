@@ -42,9 +42,7 @@ from google.cloud.aiplatform_v1beta1.types import execution
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import lineage_subgraph
 from google.cloud.aiplatform_v1beta1.types import metadata_schema
-from google.cloud.aiplatform_v1beta1.types import (
-    metadata_schema as gca_metadata_schema,
-)
+from google.cloud.aiplatform_v1beta1.types import metadata_schema as gca_metadata_schema
 from google.cloud.aiplatform_v1beta1.types import metadata_service
 from google.cloud.aiplatform_v1beta1.types import metadata_store
 from google.cloud.location import locations_pb2  # type: ignore

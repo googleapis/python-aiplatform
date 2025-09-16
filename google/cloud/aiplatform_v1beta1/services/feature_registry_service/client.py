@@ -63,19 +63,13 @@ _LOGGER = std_logging.getLogger(__name__)
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.feature_registry_service import pagers
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import feature_group
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_group as gca_feature_group,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_group as gca_feature_group
 from google.cloud.aiplatform_v1beta1.types import feature_monitor
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_monitor as gca_feature_monitor,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_monitor as gca_feature_monitor
 from google.cloud.aiplatform_v1beta1.types import feature_monitor_job
 from google.cloud.aiplatform_v1beta1.types import (
     feature_monitor_job as gca_feature_monitor_job,
@@ -729,11 +723,9 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = FeatureRegistryServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            FeatureRegistryServiceClient._read_environment_variables()
+        )
         self._client_cert_source = FeatureRegistryServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )
@@ -1330,10 +1322,10 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
                 Updatable fields:
 
-                -  ``labels``
-                -  ``description``
-                -  ``big_query``
-                -  ``big_query.entity_id_columns``
+                - ``labels``
+                - ``description``
+                - ``big_query``
+                - ``big_query.entity_id_columns``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2180,12 +2172,12 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
                 Updatable fields:
 
-                -  ``description``
-                -  ``labels``
-                -  ``disable_monitoring`` (Not supported for
-                   FeatureRegistryService Feature)
-                -  ``point_of_contact`` (Not supported for
-                   FeaturestoreService FeatureStore)
+                - ``description``
+                - ``labels``
+                - ``disable_monitoring`` (Not supported for
+                  FeatureRegistryService Feature)
+                - ``point_of_contact`` (Not supported for
+                  FeaturestoreService FeatureStore)
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2857,7 +2849,7 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
 
                 Updatable fields:
 
-                -  ``labels``
+                - ``labels``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

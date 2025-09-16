@@ -48,9 +48,7 @@ except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1.types import (
-    reasoning_engine_execution_service,
-)
+from google.cloud.aiplatform_v1.types import reasoning_engine_execution_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore

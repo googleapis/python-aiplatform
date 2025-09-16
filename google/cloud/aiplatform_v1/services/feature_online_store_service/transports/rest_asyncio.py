@@ -944,11 +944,10 @@ class AsyncFeatureOnlineStoreServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_search_nearest_entities(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_search_nearest_entities_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_search_nearest_entities_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

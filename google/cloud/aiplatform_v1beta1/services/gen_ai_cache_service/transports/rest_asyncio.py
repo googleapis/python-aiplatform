@@ -49,9 +49,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
 from google.cloud.aiplatform_v1beta1.types import cached_content
-from google.cloud.aiplatform_v1beta1.types import (
-    cached_content as gca_cached_content,
-)
+from google.cloud.aiplatform_v1beta1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1beta1.types import gen_ai_cache_service
 from google.protobuf import empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore

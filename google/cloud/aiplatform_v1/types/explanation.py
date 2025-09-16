@@ -194,20 +194,19 @@ class Attribution(proto.Message):
             The format of the value is determined by the feature's input
             format:
 
-            -  If the feature is a scalar value, the attribution value
-               is a [floating
-               number][google.protobuf.Value.number_value].
+            - If the feature is a scalar value, the attribution value is
+              a [floating number][google.protobuf.Value.number_value].
 
-            -  If the feature is an array of scalar values, the
-               attribution value is an
-               [array][google.protobuf.Value.list_value].
+            - If the feature is an array of scalar values, the
+              attribution value is an
+              [array][google.protobuf.Value.list_value].
 
-            -  If the feature is a struct, the attribution value is a
-               [struct][google.protobuf.Value.struct_value]. The keys in
-               the attribution value struct are the same as the keys in
-               the feature struct. The formats of the values in the
-               attribution struct are determined by the formats of the
-               values in the feature struct.
+            - If the feature is a struct, the attribution value is a
+              [struct][google.protobuf.Value.struct_value]. The keys in
+              the attribution value struct are the same as the keys in
+              the feature struct. The formats of the values in the
+              attribution struct are determined by the formats of the
+              values in the feature struct.
 
             The
             [ExplanationMetadata.feature_attributions_schema_uri][google.cloud.aiplatform.v1.ExplanationMetadata.feature_attributions_schema_uri]
@@ -243,21 +242,21 @@ class Attribution(proto.Message):
             caused by approximation used in the explanation method.
             Lower value means more precise attributions.
 
-            -  For Sampled Shapley
-               [attribution][google.cloud.aiplatform.v1.ExplanationParameters.sampled_shapley_attribution],
-               increasing
-               [path_count][google.cloud.aiplatform.v1.SampledShapleyAttribution.path_count]
-               might reduce the error.
-            -  For Integrated Gradients
-               [attribution][google.cloud.aiplatform.v1.ExplanationParameters.integrated_gradients_attribution],
-               increasing
-               [step_count][google.cloud.aiplatform.v1.IntegratedGradientsAttribution.step_count]
-               might reduce the error.
-            -  For [XRAI
-               attribution][google.cloud.aiplatform.v1.ExplanationParameters.xrai_attribution],
-               increasing
-               [step_count][google.cloud.aiplatform.v1.XraiAttribution.step_count]
-               might reduce the error.
+            - For Sampled Shapley
+              [attribution][google.cloud.aiplatform.v1.ExplanationParameters.sampled_shapley_attribution],
+              increasing
+              [path_count][google.cloud.aiplatform.v1.SampledShapleyAttribution.path_count]
+              might reduce the error.
+            - For Integrated Gradients
+              [attribution][google.cloud.aiplatform.v1.ExplanationParameters.integrated_gradients_attribution],
+              increasing
+              [step_count][google.cloud.aiplatform.v1.IntegratedGradientsAttribution.step_count]
+              might reduce the error.
+            - For [XRAI
+              attribution][google.cloud.aiplatform.v1.ExplanationParameters.xrai_attribution],
+              increasing
+              [step_count][google.cloud.aiplatform.v1.XraiAttribution.step_count]
+              might reduce the error.
 
             See `this
             introduction </vertex-ai/docs/explainable-ai/overview>`__

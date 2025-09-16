@@ -56,9 +56,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run
-from google.cloud.aiplatform_v1beta1.types import (
-    tensorboard_run as gca_tensorboard_run,
-)
+from google.cloud.aiplatform_v1beta1.types import tensorboard_run as gca_tensorboard_run
 from google.cloud.aiplatform_v1beta1.types import tensorboard_service
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import (
@@ -2482,11 +2480,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_batch_create_tensorboard_runs(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_batch_create_tensorboard_runs(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_transcoded_request(
                 http_options, request
@@ -2557,11 +2554,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_create_tensorboard_runs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_batch_create_tensorboard_runs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_batch_create_tensorboard_runs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2658,11 +2654,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_batch_create_tensorboard_time_series(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_batch_create_tensorboard_time_series(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_transcoded_request(
                 http_options, request
@@ -2737,11 +2732,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_batch_create_tensorboard_time_series_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_batch_create_tensorboard_time_series_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2835,11 +2829,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_batch_read_tensorboard_time_series_data(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_batch_read_tensorboard_time_series_data(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_transcoded_request(
                 http_options, request
@@ -2909,11 +2902,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_batch_read_tensorboard_time_series_data_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_batch_read_tensorboard_time_series_data_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3174,11 +3166,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_create_tensorboard_experiment(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_create_tensorboard_experiment(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_transcoded_request(
                 http_options, request
@@ -3249,11 +3240,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_tensorboard_experiment(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_tensorboard_experiment_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_tensorboard_experiment_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3517,11 +3507,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_create_tensorboard_time_series(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_create_tensorboard_time_series(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_transcoded_request(
                 http_options, request
@@ -3592,11 +3581,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_tensorboard_time_series(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_tensorboard_time_series_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_tensorboard_time_series_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3851,11 +3839,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_delete_tensorboard_experiment(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_delete_tensorboard_experiment(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_transcoded_request(
                 http_options, request
@@ -3921,11 +3908,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_tensorboard_experiment(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_tensorboard_experiment_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_tensorboard_experiment_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4176,11 +4162,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_delete_tensorboard_time_series(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_delete_tensorboard_time_series(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_transcoded_request(
                 http_options, request
@@ -4246,11 +4231,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_tensorboard_time_series(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_tensorboard_time_series_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_tensorboard_time_series_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4343,11 +4327,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_export_tensorboard_time_series_data(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_export_tensorboard_time_series_data(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_transcoded_request(
                 http_options, request
@@ -4422,11 +4405,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_export_tensorboard_time_series_data_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_export_tensorboard_time_series_data_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4748,11 +4730,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_tensorboard_experiment(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_tensorboard_experiment_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_tensorboard_experiment_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5070,11 +5051,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_tensorboard_time_series(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_tensorboard_time_series_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_tensorboard_time_series_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5168,11 +5148,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_list_tensorboard_experiments(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_list_tensorboard_experiments(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_transcoded_request(
                 http_options, request
@@ -5238,11 +5217,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_tensorboard_experiments(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_tensorboard_experiments_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_tensorboard_experiments_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5658,11 +5636,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_list_tensorboard_time_series(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_list_tensorboard_time_series(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_transcoded_request(
                 http_options, request
@@ -5728,11 +5705,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_tensorboard_time_series(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_tensorboard_time_series_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_tensorboard_time_series_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5892,12 +5868,28 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             )
             resp = await self._interceptor.post_read_tensorboard_blob_data(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_read_tensorboard_blob_data_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_read_tensorboard_blob_data_with_metadata(
+                    resp, response_metadata
+                )
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.TensorboardServiceAsyncClient.read_tensorboard_blob_data",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.TensorboardService",
+                        "rpcName": "ReadTensorboardBlobData",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ReadTensorboardSize(
@@ -6127,11 +6119,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_read_tensorboard_time_series_data(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_read_tensorboard_time_series_data(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_transcoded_request(
                 http_options, request
@@ -6197,11 +6188,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_read_tensorboard_time_series_data(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_read_tensorboard_time_series_data_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_read_tensorboard_time_series_data_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -6623,11 +6613,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_update_tensorboard_experiment(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_update_tensorboard_experiment(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_transcoded_request(
                 http_options, request
@@ -6698,11 +6687,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_tensorboard_experiment(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_tensorboard_experiment_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_tensorboard_experiment_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -6966,11 +6954,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_update_tensorboard_time_series(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_update_tensorboard_time_series(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_transcoded_request(
                 http_options, request
@@ -7041,11 +7028,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_tensorboard_time_series(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_tensorboard_time_series_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_tensorboard_time_series_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -7142,11 +7128,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_write_tensorboard_experiment_data(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_write_tensorboard_experiment_data(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_transcoded_request(
                 http_options, request
@@ -7219,11 +7204,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_write_tensorboard_experiment_data(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_write_tensorboard_experiment_data_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_write_tensorboard_experiment_data_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -7388,11 +7372,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_write_tensorboard_run_data(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_write_tensorboard_run_data_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_write_tensorboard_run_data_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

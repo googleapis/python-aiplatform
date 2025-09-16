@@ -2864,11 +2864,10 @@ class DeploymentResourcePoolServiceRestTransport(
 
             resp = self._interceptor.post_create_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_create_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_create_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3020,11 +3019,10 @@ class DeploymentResourcePoolServiceRestTransport(
 
             resp = self._interceptor.post_delete_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_delete_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_delete_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3343,11 +3341,10 @@ class DeploymentResourcePoolServiceRestTransport(
 
             resp = self._interceptor.post_list_deployment_resource_pools(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_list_deployment_resource_pools_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_list_deployment_resource_pools_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3664,11 +3661,10 @@ class DeploymentResourcePoolServiceRestTransport(
 
             resp = self._interceptor.post_update_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_update_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_update_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

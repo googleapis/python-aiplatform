@@ -49,7 +49,7 @@ class ComputeTokensRequest(proto.Message):
         model (str):
             Optional. The name of the publisher model requested to serve
             the prediction. Format:
-            projects/{project}/locations/{location}/publishers/\ */models/*
+            projects/{project}/locations/{location}/publishers/*/models/*
         contents (MutableSequence[google.cloud.aiplatform_v1.types.Content]):
             Optional. Input content.
     """

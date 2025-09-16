@@ -44,7 +44,7 @@ class EntityType(proto.Message):
 
             The last part entity_type is assigned by the client. The
             entity_type can be up to 64 characters long and can consist
-            only of ASCII Latin letters A-Z and a-z and underscore(_),
+            only of ASCII Latin letters A-Z and a-z and underscore(\_),
             and ASCII digits 0-9 starting with a letter. The value will
             be unique given a featurestore.
         description (str):

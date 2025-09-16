@@ -19,17 +19,13 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    entity_type as gca_entity_type,
-)
+from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import feature_monitor
 from google.cloud.aiplatform_v1beta1.types import (
     feature_selector as gca_feature_selector,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    featurestore as gca_featurestore,
-)
+from google.cloud.aiplatform_v1beta1.types import featurestore as gca_featurestore
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -152,23 +148,23 @@ class ListFeaturestoresRequest(proto.Message):
             Lists the featurestores that match the filter expression.
             The following fields are supported:
 
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``online_serving_config.fixed_node_count``: Supports
-               ``=``, ``!=``, ``<``, ``>``, ``<=``, and ``>=``
-               comparisons.
-            -  ``labels``: Supports key-value equality and key presence.
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``online_serving_config.fixed_node_count``: Supports
+              ``=``, ``!=``, ``<``, ``>``, ``<=``, and ``>=``
+              comparisons.
+            - ``labels``: Supports key-value equality and key presence.
 
             Examples:
 
-            -  ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
-               Featurestores created or updated after 2020-01-01.
-            -  ``labels.env = "prod"`` Featurestores with label "env"
-               set to "prod".
+            - ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
+              Featurestores created or updated after 2020-01-01.
+            - ``labels.env = "prod"`` Featurestores with label "env" set
+              to "prod".
         page_size (int):
             The maximum number of Featurestores to
             return. The service may return fewer than this
@@ -188,9 +184,9 @@ class ListFeaturestoresRequest(proto.Message):
             ascending order. Use "desc" after a field name for
             descending. Supported Fields:
 
-            -  ``create_time``
-            -  ``update_time``
-            -  ``online_serving_config.fixed_node_count``
+            - ``create_time``
+            - ``update_time``
+            - ``online_serving_config.fixed_node_count``
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
@@ -272,10 +268,10 @@ class UpdateFeaturestoreRequest(proto.Message):
 
             Updatable fields:
 
-            -  ``labels``
-            -  ``online_serving_config.fixed_node_count``
-            -  ``online_serving_config.scaling``
-            -  ``online_storage_ttl_days``
+            - ``labels``
+            - ``online_serving_config.fixed_node_count``
+            - ``online_serving_config.scaling``
+            - ``online_storage_ttl_days``
     """
 
     featurestore: gca_featurestore.Featurestore = proto.Field(
@@ -474,10 +470,10 @@ class ImportFeatureValuesResponse(proto.Message):
             The number of rows in input source that weren't imported due
             to either
 
-            -  Not having any featureValues.
-            -  Having a null entityId.
-            -  Having a null timestamp.
-            -  Not being parsable (applicable for CSV sources).
+            - Not having any featureValues.
+            - Having a null entityId.
+            - Having a null timestamp.
+            - Not being parsable (applicable for CSV sources).
         timestamp_outside_retention_rows_count (int):
             The number rows that weren't ingested due to
             having feature timestamps outside the retention
@@ -948,25 +944,25 @@ class ListEntityTypesRequest(proto.Message):
             Lists the EntityTypes that match the filter expression. The
             following filters are supported:
 
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``>=``, and ``<=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``>=``, and ``<=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``labels``: Supports key-value equality as well as key
-               presence.
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``>=``, and ``<=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``>=``, and ``<=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``labels``: Supports key-value equality as well as key
+              presence.
 
             Examples:
 
-            -  ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
-               --> EntityTypes created or updated after
-               2020-01-31T15:30:00.000000Z.
-            -  ``labels.active = yes AND labels.env = prod`` -->
-               EntityTypes having both (active: yes) and (env: prod)
-               labels.
-            -  ``labels.env: *`` --> Any EntityType which has a label
-               with 'env' as the key.
+            - ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
+              --> EntityTypes created or updated after
+              2020-01-31T15:30:00.000000Z.
+            - ``labels.active = yes AND labels.env = prod`` -->
+              EntityTypes having both (active: yes) and (env: prod)
+              labels.
+            - ``labels.env: *`` --> Any EntityType which has a label
+              with 'env' as the key.
         page_size (int):
             The maximum number of EntityTypes to return.
             The service may return fewer than this value. If
@@ -988,9 +984,9 @@ class ListEntityTypesRequest(proto.Message):
 
             Supported fields:
 
-            -  ``entity_type_id``
-            -  ``create_time``
-            -  ``update_time``
+            - ``entity_type_id``
+            - ``create_time``
+            - ``update_time``
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
@@ -1072,16 +1068,16 @@ class UpdateEntityTypeRequest(proto.Message):
 
             Updatable fields:
 
-            -  ``description``
-            -  ``labels``
-            -  ``monitoring_config.snapshot_analysis.disabled``
-            -  ``monitoring_config.snapshot_analysis.monitoring_interval_days``
-            -  ``monitoring_config.snapshot_analysis.staleness_days``
-            -  ``monitoring_config.import_features_analysis.state``
-            -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
-            -  ``monitoring_config.numerical_threshold_config.value``
-            -  ``monitoring_config.categorical_threshold_config.value``
-            -  ``offline_storage_ttl_days``
+            - ``description``
+            - ``labels``
+            - ``monitoring_config.snapshot_analysis.disabled``
+            - ``monitoring_config.snapshot_analysis.monitoring_interval_days``
+            - ``monitoring_config.snapshot_analysis.staleness_days``
+            - ``monitoring_config.import_features_analysis.state``
+            - ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
+            - ``monitoring_config.numerical_threshold_config.value``
+            - ``monitoring_config.categorical_threshold_config.value``
+            - ``offline_storage_ttl_days``
     """
 
     entity_type: gca_entity_type.EntityType = proto.Field(
@@ -1259,26 +1255,24 @@ class ListFeaturesRequest(proto.Message):
             Lists the Features that match the filter expression. The
             following filters are supported:
 
-            -  ``value_type``: Supports = and != comparisons.
-            -  ``create_time``: Supports =, !=, <, >, >=, and <=
-               comparisons. Values must be in RFC 3339 format.
-            -  ``update_time``: Supports =, !=, <, >, >=, and <=
-               comparisons. Values must be in RFC 3339 format.
-            -  ``labels``: Supports key-value equality as well as key
-               presence.
+            - ``value_type``: Supports = and != comparisons.
+            - ``create_time``: Supports =, !=, <, >, >=, and <=
+              comparisons. Values must be in RFC 3339 format.
+            - ``update_time``: Supports =, !=, <, >, >=, and <=
+              comparisons. Values must be in RFC 3339 format.
+            - ``labels``: Supports key-value equality as well as key
+              presence.
 
             Examples:
 
-            -  ``value_type = DOUBLE`` --> Features whose type is
-               DOUBLE.
-            -  ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
-               --> EntityTypes created or updated after
-               2020-01-31T15:30:00.000000Z.
-            -  ``labels.active = yes AND labels.env = prod`` -->
-               Features having both (active: yes) and (env: prod)
-               labels.
-            -  ``labels.env: *`` --> Any Feature which has a label with
-               'env' as the key.
+            - ``value_type = DOUBLE`` --> Features whose type is DOUBLE.
+            - ``create_time > \"2020-01-31T15:30:00.000000Z\" OR update_time > \"2020-01-31T15:30:00.000000Z\"``
+              --> EntityTypes created or updated after
+              2020-01-31T15:30:00.000000Z.
+            - ``labels.active = yes AND labels.env = prod`` --> Features
+              having both (active: yes) and (env: prod) labels.
+            - ``labels.env: *`` --> Any Feature which has a label with
+              'env' as the key.
         page_size (int):
             The maximum number of Features to return. The
             service may return fewer than this value. If
@@ -1302,11 +1296,10 @@ class ListFeaturesRequest(proto.Message):
             ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``feature_id``
-            -  ``value_type`` (Not supported for FeatureRegistry
-               Feature)
-            -  ``create_time``
-            -  ``update_time``
+            - ``feature_id``
+            - ``value_type`` (Not supported for FeatureRegistry Feature)
+            - ``create_time``
+            - ``update_time``
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
         latest_stats_count (int):
@@ -1401,14 +1394,14 @@ class SearchFeaturesRequest(proto.Message):
             FIELD. The QUERY and the FIELD are converted to a sequence
             of words (i.e. tokens) for comparison. This is done by:
 
-            -  Removing leading/trailing whitespace and tokenizing the
-               search value. Characters that are not one of alphanumeric
-               ``[a-zA-Z0-9]``, underscore ``_``, or asterisk ``*`` are
-               treated as delimiters for tokens. ``*`` is treated as a
-               wildcard that matches characters within a token.
-            -  Ignoring case.
-            -  Prepending an asterisk to the first and appending an
-               asterisk to the last token in QUERY.
+            - Removing leading/trailing whitespace and tokenizing the
+              search value. Characters that are not one of alphanumeric
+              ``[a-zA-Z0-9]``, underscore ``_``, or asterisk ``*`` are
+              treated as delimiters for tokens. ``*`` is treated as a
+              wildcard that matches characters within a token.
+            - Ignoring case.
+            - Prepending an asterisk to the first and appending an
+              asterisk to the last token in QUERY.
 
             A QUERY must be either a singular token or a phrase. A
             phrase is one or multiple words enclosed in double quotation
@@ -1418,47 +1411,45 @@ class SearchFeaturesRequest(proto.Message):
 
             Supported FIELDs for field-restricted queries:
 
-            -  ``feature_id``
-            -  ``description``
-            -  ``entity_type_id``
+            - ``feature_id``
+            - ``description``
+            - ``entity_type_id``
 
             Examples:
 
-            -  ``feature_id: foo`` --> Matches a Feature with ID
-               containing the substring ``foo`` (eg. ``foo``,
-               ``foofeature``, ``barfoo``).
-            -  ``feature_id: foo*feature`` --> Matches a Feature with ID
-               containing the substring ``foo*feature`` (eg.
-               ``foobarfeature``).
-            -  ``feature_id: foo AND description: bar`` --> Matches a
-               Feature with ID containing the substring ``foo`` and
-               description containing the substring ``bar``.
+            - ``feature_id: foo`` --> Matches a Feature with ID
+              containing the substring ``foo`` (eg. ``foo``,
+              ``foofeature``, ``barfoo``).
+            - ``feature_id: foo*feature`` --> Matches a Feature with ID
+              containing the substring ``foo*feature`` (eg.
+              ``foobarfeature``).
+            - ``feature_id: foo AND description: bar`` --> Matches a
+              Feature with ID containing the substring ``foo`` and
+              description containing the substring ``bar``.
 
             Besides field queries, the following exact-match filters are
             supported. The exact-match filters do not support wildcards.
             Unlike field-restricted queries, exact-match filters are
             case-sensitive.
 
-            -  ``feature_id``: Supports = comparisons.
-            -  ``description``: Supports = comparisons. Multi-token
-               filters should be enclosed in quotes.
-            -  ``entity_type_id``: Supports = comparisons.
-            -  ``value_type``: Supports = and != comparisons.
-            -  ``labels``: Supports key-value equality as well as key
-               presence.
-            -  ``featurestore_id``: Supports = comparisons.
+            - ``feature_id``: Supports = comparisons.
+            - ``description``: Supports = comparisons. Multi-token
+              filters should be enclosed in quotes.
+            - ``entity_type_id``: Supports = comparisons.
+            - ``value_type``: Supports = and != comparisons.
+            - ``labels``: Supports key-value equality as well as key
+              presence.
+            - ``featurestore_id``: Supports = comparisons.
 
             Examples:
 
-            -  ``description = "foo bar"`` --> Any Feature with
-               description exactly equal to ``foo bar``
-            -  ``value_type = DOUBLE`` --> Features whose type is
-               DOUBLE.
-            -  ``labels.active = yes AND labels.env = prod`` -->
-               Features having both (active: yes) and (env: prod)
-               labels.
-            -  ``labels.env: *`` --> Any Feature which has a label with
-               ``env`` as the key.
+            - ``description = "foo bar"`` --> Any Feature with
+              description exactly equal to ``foo bar``
+            - ``value_type = DOUBLE`` --> Features whose type is DOUBLE.
+            - ``labels.active = yes AND labels.env = prod`` --> Features
+              having both (active: yes) and (env: prod) labels.
+            - ``labels.env: *`` --> Any Feature which has a label with
+              ``env`` as the key.
         page_size (int):
             The maximum number of Features to return. The
             service may return fewer than this value. If
@@ -1504,11 +1495,11 @@ class SearchFeaturesResponse(proto.Message):
 
             Fields returned:
 
-            -  ``name``
-            -  ``description``
-            -  ``labels``
-            -  ``create_time``
-            -  ``update_time``
+            - ``name``
+            - ``description``
+            - ``labels``
+            - ``create_time``
+            - ``update_time``
         next_page_token (str):
             A token, which can be sent as
             [SearchFeaturesRequest.page_token][google.cloud.aiplatform.v1beta1.SearchFeaturesRequest.page_token]
@@ -1554,12 +1545,12 @@ class UpdateFeatureRequest(proto.Message):
 
             Updatable fields:
 
-            -  ``description``
-            -  ``labels``
-            -  ``disable_monitoring`` (Not supported for
-               FeatureRegistryService Feature)
-            -  ``point_of_contact`` (Not supported for
-               FeaturestoreService FeatureStore)
+            - ``description``
+            - ``labels``
+            - ``disable_monitoring`` (Not supported for
+              FeatureRegistryService Feature)
+            - ``point_of_contact`` (Not supported for
+              FeaturestoreService FeatureStore)
     """
 
     feature: gca_feature.Feature = proto.Field(
@@ -1643,10 +1634,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
             The number of rows in input source that weren't imported due
             to either
 
-            -  Not having any featureValues.
-            -  Having a null entityId.
-            -  Having a null timestamp.
-            -  Not being parsable (applicable for CSV sources).
+            - Not having any featureValues.
+            - Having a null entityId.
+            - Having a null timestamp.
+            - Not being parsable (applicable for CSV sources).
         timestamp_outside_retention_rows_count (int):
             The number rows that weren't ingested due to
             having timestamps outside the retention

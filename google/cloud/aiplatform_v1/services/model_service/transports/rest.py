@@ -40,9 +40,7 @@ import warnings
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
-from google.cloud.aiplatform_v1.types import (
-    model_evaluation as gca_model_evaluation,
-)
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.longrunning import operations_pb2  # type: ignore
@@ -3531,11 +3529,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 _BaseModelServiceRestTransport._BaseBatchImportEvaluatedAnnotations._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = self._interceptor.pre_batch_import_evaluated_annotations(
-                request, metadata
+            request, metadata = (
+                self._interceptor.pre_batch_import_evaluated_annotations(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelServiceRestTransport._BaseBatchImportEvaluatedAnnotations._get_transcoded_request(
                 http_options, request
@@ -3601,11 +3598,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
 
             resp = self._interceptor.post_batch_import_evaluated_annotations(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_batch_import_evaluated_annotations_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_batch_import_evaluated_annotations_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3699,11 +3695,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 _BaseModelServiceRestTransport._BaseBatchImportModelEvaluationSlices._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = self._interceptor.pre_batch_import_model_evaluation_slices(
-                request, metadata
+            request, metadata = (
+                self._interceptor.pre_batch_import_model_evaluation_slices(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelServiceRestTransport._BaseBatchImportModelEvaluationSlices._get_transcoded_request(
                 http_options, request
@@ -3769,11 +3764,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
 
             resp = self._interceptor.post_batch_import_model_evaluation_slices(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_batch_import_model_evaluation_slices_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_batch_import_model_evaluation_slices_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5628,11 +5622,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
 
             resp = self._interceptor.post_list_model_version_checkpoints(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_list_model_version_checkpoints_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_list_model_version_checkpoints_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

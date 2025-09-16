@@ -21,9 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
@@ -94,8 +92,8 @@ class PipelineJob(proto.Message):
             Note there is some reserved label key for Vertex AI
             Pipelines.
 
-            -  ``vertex-ai-pipelines-run-billing-id``, user set value
-               will get overrided.
+            - ``vertex-ai-pipelines-run-billing-id``, user set value
+              will get overrided.
         runtime_config (google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig):
             Runtime config of the pipeline.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):

@@ -73,9 +73,7 @@ from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     EndpointServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import pagers
-from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.endpoint_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint
@@ -890,10 +888,9 @@ def test_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_class)
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -1557,6 +1554,7 @@ def test_get_endpoint(request_type, transport: str = "grpc"):
             dedicated_endpoint_dns="dedicated_endpoint_dns_value",
             satisfies_pzs=True,
             satisfies_pzi=True,
+            private_model_server_enabled=True,
         )
         response = client.get_endpoint(request)
 
@@ -1582,6 +1580,7 @@ def test_get_endpoint(request_type, transport: str = "grpc"):
     assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.private_model_server_enabled is True
 
 
 def test_get_endpoint_non_empty_request_with_auto_populated_field():
@@ -1718,6 +1717,7 @@ async def test_get_endpoint_async(
                 dedicated_endpoint_dns="dedicated_endpoint_dns_value",
                 satisfies_pzs=True,
                 satisfies_pzi=True,
+                private_model_server_enabled=True,
             )
         )
         response = await client.get_endpoint(request)
@@ -1744,6 +1744,7 @@ async def test_get_endpoint_async(
     assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.private_model_server_enabled is True
 
 
 @pytest.mark.asyncio
@@ -2443,6 +2444,7 @@ def test_update_endpoint(request_type, transport: str = "grpc"):
             dedicated_endpoint_dns="dedicated_endpoint_dns_value",
             satisfies_pzs=True,
             satisfies_pzi=True,
+            private_model_server_enabled=True,
         )
         response = client.update_endpoint(request)
 
@@ -2468,6 +2470,7 @@ def test_update_endpoint(request_type, transport: str = "grpc"):
     assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.private_model_server_enabled is True
 
 
 def test_update_endpoint_non_empty_request_with_auto_populated_field():
@@ -2600,6 +2603,7 @@ async def test_update_endpoint_async(
                 dedicated_endpoint_dns="dedicated_endpoint_dns_value",
                 satisfies_pzs=True,
                 satisfies_pzi=True,
+                private_model_server_enabled=True,
             )
         )
         response = await client.update_endpoint(request)
@@ -2626,6 +2630,7 @@ async def test_update_endpoint_async(
     assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.private_model_server_enabled is True
 
 
 @pytest.mark.asyncio
@@ -7891,6 +7896,7 @@ async def test_get_endpoint_empty_call_grpc_asyncio():
                 dedicated_endpoint_dns="dedicated_endpoint_dns_value",
                 satisfies_pzs=True,
                 satisfies_pzi=True,
+                private_model_server_enabled=True,
             )
         )
         await client.get_endpoint(request=None)
@@ -7955,6 +7961,7 @@ async def test_update_endpoint_empty_call_grpc_asyncio():
                 dedicated_endpoint_dns="dedicated_endpoint_dns_value",
                 satisfies_pzs=True,
                 satisfies_pzi=True,
+                private_model_server_enabled=True,
             )
         )
         await client.update_endpoint(request=None)
@@ -8364,6 +8371,7 @@ def test_create_endpoint_rest_call_success(request_type):
         "satisfies_pzs": True,
         "satisfies_pzi": True,
         "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
+        "private_model_server_enabled": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8572,6 +8580,7 @@ def test_get_endpoint_rest_call_success(request_type):
             dedicated_endpoint_dns="dedicated_endpoint_dns_value",
             satisfies_pzs=True,
             satisfies_pzi=True,
+            private_model_server_enabled=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -8602,6 +8611,7 @@ def test_get_endpoint_rest_call_success(request_type):
     assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.private_model_server_enabled is True
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -9009,6 +9019,7 @@ def test_update_endpoint_rest_call_success(request_type):
         "satisfies_pzs": True,
         "satisfies_pzi": True,
         "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
+        "private_model_server_enabled": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9094,6 +9105,7 @@ def test_update_endpoint_rest_call_success(request_type):
             dedicated_endpoint_dns="dedicated_endpoint_dns_value",
             satisfies_pzs=True,
             satisfies_pzi=True,
+            private_model_server_enabled=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -9124,6 +9136,7 @@ def test_update_endpoint_rest_call_success(request_type):
     assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.private_model_server_enabled is True
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -11172,6 +11185,7 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
         "satisfies_pzs": True,
         "satisfies_pzi": True,
         "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
+        "private_model_server_enabled": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11399,6 +11413,7 @@ async def test_get_endpoint_rest_asyncio_call_success(request_type):
             dedicated_endpoint_dns="dedicated_endpoint_dns_value",
             satisfies_pzs=True,
             satisfies_pzi=True,
+            private_model_server_enabled=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -11431,6 +11446,7 @@ async def test_get_endpoint_rest_asyncio_call_success(request_type):
     assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.private_model_server_enabled is True
 
 
 @pytest.mark.asyncio
@@ -11874,6 +11890,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
         "satisfies_pzs": True,
         "satisfies_pzi": True,
         "gen_ai_advanced_features_config": {"rag_config": {"enable_rag": True}},
+        "private_model_server_enabled": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11959,6 +11976,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
             dedicated_endpoint_dns="dedicated_endpoint_dns_value",
             satisfies_pzs=True,
             satisfies_pzi=True,
+            private_model_server_enabled=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -11991,6 +12009,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
     assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
+    assert response.private_model_server_enabled is True
 
 
 @pytest.mark.asyncio

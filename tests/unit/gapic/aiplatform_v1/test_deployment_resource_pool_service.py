@@ -72,9 +72,7 @@ from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import
 from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import (
     DeploymentResourcePoolServiceClient,
 )
-from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import pagers
 from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import (
     transports,
 )
@@ -933,10 +931,9 @@ def test_deployment_resource_pool_service_client_get_mtls_endpoint_and_cert_sour
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

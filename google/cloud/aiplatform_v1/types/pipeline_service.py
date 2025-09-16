@@ -21,9 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import operation
 from google.cloud.aiplatform_v1.types import pipeline_job as gca_pipeline_job
-from google.cloud.aiplatform_v1.types import (
-    training_pipeline as gca_training_pipeline,
-)
+from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
 from google.protobuf import field_mask_pb2  # type: ignore
 
 
@@ -121,25 +119,25 @@ class ListTrainingPipelinesRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``state`` supports ``=``, ``!=`` comparisons.
-            -  ``training_task_definition`` ``=``, ``!=`` comparisons,
-               and ``:`` wildcard.
-            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
-               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
-               be in RFC 3339 format.
-            -  ``labels`` supports general map functions that is:
-               ``labels.key=value`` - key:value equality \`labels.key:\*
-               - key existence
+            - ``display_name`` supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``state`` supports ``=``, ``!=`` comparisons.
+            - ``training_task_definition`` ``=``, ``!=`` comparisons,
+              and ``:`` wildcard.
+            - ``create_time`` supports ``=``, ``!=``,\ ``<``,
+              ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+              be in RFC 3339 format.
+            - ``labels`` supports general map functions that is:
+              ``labels.key=value`` - key:value equality \`labels.key:\*
+              - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="PIPELINE_STATE_SUCCEEDED" AND display_name:"my_pipeline_*"``
-            -  ``state!="PIPELINE_STATE_FAILED" OR display_name="my_pipeline"``
-            -  ``NOT display_name="my_pipeline"``
-            -  ``create_time>"2021-05-18T00:00:00Z"``
-            -  ``training_task_definition:"*automl_text_classification*"``
+            - ``state="PIPELINE_STATE_SUCCEEDED" AND display_name:"my_pipeline_*"``
+            - ``state!="PIPELINE_STATE_FAILED" OR display_name="my_pipeline"``
+            - ``NOT display_name="my_pipeline"``
+            - ``create_time>"2021-05-18T00:00:00Z"``
+            - ``training_task_definition:"*automl_text_classification*"``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -304,28 +302,28 @@ class ListPipelineJobsRequest(proto.Message):
             Lists the PipelineJobs that match the filter expression. The
             following fields are supported:
 
-            -  ``pipeline_name``: Supports ``=`` and ``!=`` comparisons.
-            -  ``display_name``: Supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``pipeline_job_user_id``: Supports ``=``, ``!=``
-               comparisons, and ``:`` wildcard. for example, can check
-               if pipeline's display_name contains *step* by doing
-               display_name:"*step*"
-            -  ``state``: Supports ``=`` and ``!=`` comparisons.
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``end_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``labels``: Supports key-value equality and key presence.
-            -  ``template_uri``: Supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``template_metadata.version``: Supports ``=``, ``!=``
-               comparisons, and ``:`` wildcard.
+            - ``pipeline_name``: Supports ``=`` and ``!=`` comparisons.
+            - ``display_name``: Supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``pipeline_job_user_id``: Supports ``=``, ``!=``
+              comparisons, and ``:`` wildcard. for example, can check if
+              pipeline's display_name contains *step* by doing
+              display_name:"*step*"
+            - ``state``: Supports ``=`` and ``!=`` comparisons.
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``end_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``labels``: Supports key-value equality and key presence.
+            - ``template_uri``: Supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``template_metadata.version``: Supports ``=``, ``!=``
+              comparisons, and ``:`` wildcard.
 
             Filter expressions can be combined together using logical
             operators (``AND`` & ``OR``). For example:
@@ -336,11 +334,11 @@ class ListPipelineJobsRequest(proto.Message):
 
             Examples:
 
-            -  ``create_time>"2021-05-18T00:00:00Z" OR update_time>"2020-05-18T00:00:00Z"``
-               PipelineJobs created or updated after 2020-05-18 00:00:00
-               UTC.
-            -  ``labels.env = "prod"`` PipelineJobs with label "env" set
-               to "prod".
+            - ``create_time>"2021-05-18T00:00:00Z" OR update_time>"2020-05-18T00:00:00Z"``
+              PipelineJobs created or updated after 2020-05-18 00:00:00
+              UTC.
+            - ``labels.env = "prod"`` PipelineJobs with label "env" set
+              to "prod".
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -362,10 +360,10 @@ class ListPipelineJobsRequest(proto.Message):
             default order is create time in descending order. Supported
             fields:
 
-            -  ``create_time``
-            -  ``update_time``
-            -  ``end_time``
-            -  ``start_time``
+            - ``create_time``
+            - ``update_time``
+            - ``end_time``
+            - ``start_time``
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """

@@ -1531,11 +1531,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 _BaseVizierServiceRestTransport._BaseCheckTrialEarlyStoppingState._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_check_trial_early_stopping_state(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_check_trial_early_stopping_state(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseVizierServiceRestTransport._BaseCheckTrialEarlyStoppingState._get_transcoded_request(
                 http_options, request
@@ -1606,11 +1605,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_check_trial_early_stopping_state(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_check_trial_early_stopping_state_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_check_trial_early_stopping_state_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

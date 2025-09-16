@@ -452,11 +452,11 @@ class GenerationConfig(proto.Message):
             Optional. Output response mimetype of the generated
             candidate text. Supported mimetype:
 
-            -  ``text/plain``: (default) Text output.
-            -  ``application/json``: JSON response in the candidates.
-               The model needs to be prompted to output the appropriate
-               response type, otherwise the behavior is undefined. This
-               is a preview feature.
+            - ``text/plain``: (default) Text output.
+            - ``application/json``: JSON response in the candidates. The
+              model needs to be prompted to output the appropriate
+              response type, otherwise the behavior is undefined. This
+              is a preview feature.
         response_schema (google.cloud.aiplatform_v1beta1.types.Schema):
             Optional. The ``Schema`` object allows the definition of
             input and output data types. These types can be objects, but
@@ -480,26 +480,26 @@ class GenerationConfig(proto.Message):
             supported. Specifically, only the following properties are
             supported:
 
-            -  ``$id``
-            -  ``$defs``
-            -  ``$ref``
-            -  ``$anchor``
-            -  ``type``
-            -  ``format``
-            -  ``title``
-            -  ``description``
-            -  ``enum`` (for strings and numbers)
-            -  ``items``
-            -  ``prefixItems``
-            -  ``minItems``
-            -  ``maxItems``
-            -  ``minimum``
-            -  ``maximum``
-            -  ``anyOf``
-            -  ``oneOf`` (interpreted the same as ``anyOf``)
-            -  ``properties``
-            -  ``additionalProperties``
-            -  ``required``
+            - ``$id``
+            - ``$defs``
+            - ``$ref``
+            - ``$anchor``
+            - ``type``
+            - ``format``
+            - ``title``
+            - ``description``
+            - ``enum`` (for strings and numbers)
+            - ``items``
+            - ``prefixItems``
+            - ``minItems``
+            - ``maxItems``
+            - ``minimum``
+            - ``maximum``
+            - ``anyOf``
+            - ``oneOf`` (interpreted the same as ``anyOf``)
+            - ``properties``
+            - ``additionalProperties``
+            - ``required``
 
             The non-standard ``propertyOrdering`` property may also be
             set.

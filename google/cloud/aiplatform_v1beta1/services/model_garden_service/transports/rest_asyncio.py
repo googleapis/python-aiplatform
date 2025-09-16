@@ -1058,11 +1058,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_accept_publisher_model_eula(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_accept_publisher_model_eula_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_accept_publisher_model_eula_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1159,11 +1158,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_check_publisher_model_eula_acceptance(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_check_publisher_model_eula_acceptance(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_transcoded_request(
                 http_options, request
@@ -1236,11 +1234,10 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_check_publisher_model_eula_acceptance_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_check_publisher_model_eula_acceptance_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

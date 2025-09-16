@@ -454,10 +454,10 @@ class AutoscalingMetricSpec(proto.Message):
         metric_name (str):
             Required. The resource metric name. Supported metrics:
 
-            -  For Online Prediction:
-            -  ``aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle``
-            -  ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
-            -  ``aiplatform.googleapis.com/prediction/online/request_count``
+            - For Online Prediction:
+            - ``aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle``
+            - ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
+            - ``aiplatform.googleapis.com/prediction/online/request_count``
         target (int):
             The target resource utilization in percentage
             (1% - 100%) for the given metric; once the real

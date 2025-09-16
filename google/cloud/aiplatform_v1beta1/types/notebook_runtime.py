@@ -19,17 +19,11 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.cloud.aiplatform_v1beta1.types import (
-    network_spec as gca_network_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import network_spec as gca_network_spec
 from google.cloud.aiplatform_v1beta1.types import notebook_euc_config
-from google.cloud.aiplatform_v1beta1.types import (
-    notebook_idle_shutdown_config,
-)
+from google.cloud.aiplatform_v1beta1.types import notebook_idle_shutdown_config
 from google.cloud.aiplatform_v1beta1.types import (
     notebook_runtime_template_ref as gca_notebook_runtime_template_ref,
 )
@@ -323,12 +317,12 @@ class NotebookRuntime(proto.Message):
             "aiplatform.googleapis.com/" and are immutable. Following
             system labels exist for NotebookRuntime:
 
-            -  "aiplatform.googleapis.com/notebook_runtime_gce_instance_id":
-               output only, its value is the Compute Engine instance id.
-            -  "aiplatform.googleapis.com/colab_enterprise_entry_service":
-               its value is either "bigquery" or "vertex"; if absent, it
-               should be "vertex". This is to describe the entry
-               service, either BigQuery or Vertex.
+            - "aiplatform.googleapis.com/notebook_runtime_gce_instance_id":
+              output only, its value is the Compute Engine instance id.
+            - "aiplatform.googleapis.com/colab_enterprise_entry_service":
+              its value is either "bigquery" or "vertex"; if absent, it
+              should be "vertex". This is to describe the entry service,
+              either BigQuery or Vertex.
         expiration_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             NotebookRuntime will be expired:

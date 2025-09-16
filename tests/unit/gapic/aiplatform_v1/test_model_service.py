@@ -66,12 +66,8 @@ from google.api_core import path_template
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1.services.model_service import (
-    ModelServiceAsyncClient,
-)
-from google.cloud.aiplatform_v1.services.model_service import (
-    ModelServiceClient,
-)
+from google.cloud.aiplatform_v1.services.model_service import ModelServiceAsyncClient
+from google.cloud.aiplatform_v1.services.model_service import ModelServiceClient
 from google.cloud.aiplatform_v1.services.model_service import pagers
 from google.cloud.aiplatform_v1.services.model_service import transports
 from google.cloud.aiplatform_v1.types import deployed_model_ref
@@ -84,9 +80,7 @@ from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
-from google.cloud.aiplatform_v1.types import (
-    model_evaluation as gca_model_evaluation,
-)
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -850,10 +844,9 @@ def test_model_service_client_get_mtls_endpoint_and_cert_source(client_class):
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

@@ -55,9 +55,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     batch_prediction_job as gca_batch_prediction_job,
 )
 from google.cloud.aiplatform_v1beta1.types import custom_job
-from google.cloud.aiplatform_v1beta1.types import (
-    custom_job as gca_custom_job,
-)
+from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1beta1.types import data_labeling_job
 from google.cloud.aiplatform_v1beta1.types import (
     data_labeling_job as gca_data_labeling_job,
@@ -67,9 +65,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
 from google.cloud.aiplatform_v1beta1.types import job_service
-from google.cloud.aiplatform_v1beta1.types import (
-    model_deployment_monitoring_job,
-)
+from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1beta1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
@@ -2861,11 +2857,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseCancelHyperparameterTuningJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_cancel_hyperparameter_tuning_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_cancel_hyperparameter_tuning_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseCancelHyperparameterTuningJob._get_transcoded_request(
                 http_options, request
@@ -3199,11 +3194,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_batch_prediction_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_batch_prediction_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_batch_prediction_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3539,11 +3533,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_data_labeling_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_data_labeling_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_data_labeling_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3638,11 +3631,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseCreateHyperparameterTuningJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_create_hyperparameter_tuning_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_create_hyperparameter_tuning_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseCreateHyperparameterTuningJob._get_transcoded_request(
                 http_options, request
@@ -3713,11 +3705,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_hyperparameter_tuning_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_hyperparameter_tuning_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_hyperparameter_tuning_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3817,11 +3808,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseCreateModelDeploymentMonitoringJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_create_model_deployment_monitoring_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_create_model_deployment_monitoring_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseCreateModelDeploymentMonitoringJob._get_transcoded_request(
                 http_options, request
@@ -3898,11 +3888,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_model_deployment_monitoring_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_model_deployment_monitoring_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4230,11 +4219,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_batch_prediction_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_batch_prediction_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_batch_prediction_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4551,11 +4539,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_data_labeling_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_data_labeling_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_data_labeling_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4646,11 +4633,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseDeleteHyperparameterTuningJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_delete_hyperparameter_tuning_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_delete_hyperparameter_tuning_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseDeleteHyperparameterTuningJob._get_transcoded_request(
                 http_options, request
@@ -4716,11 +4702,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_hyperparameter_tuning_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_hyperparameter_tuning_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_hyperparameter_tuning_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4813,11 +4798,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseDeleteModelDeploymentMonitoringJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_delete_model_deployment_monitoring_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_delete_model_deployment_monitoring_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseDeleteModelDeploymentMonitoringJob._get_transcoded_request(
                 http_options, request
@@ -4885,11 +4869,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_model_deployment_monitoring_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_model_deployment_monitoring_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5212,11 +5195,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_batch_prediction_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_batch_prediction_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_batch_prediction_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5637,11 +5619,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseGetHyperparameterTuningJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_get_hyperparameter_tuning_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_get_hyperparameter_tuning_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseGetHyperparameterTuningJob._get_transcoded_request(
                 http_options, request
@@ -5707,11 +5688,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_hyperparameter_tuning_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_hyperparameter_tuning_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_hyperparameter_tuning_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5808,11 +5788,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseGetModelDeploymentMonitoringJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_get_model_deployment_monitoring_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_get_model_deployment_monitoring_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseGetModelDeploymentMonitoringJob._get_transcoded_request(
                 http_options, request
@@ -5882,11 +5861,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_model_deployment_monitoring_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_model_deployment_monitoring_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -6365,11 +6343,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_batch_prediction_jobs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_batch_prediction_jobs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_batch_prediction_jobs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -6688,11 +6665,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_data_labeling_jobs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_data_labeling_jobs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_data_labeling_jobs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -6784,11 +6760,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseListHyperparameterTuningJobs._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_list_hyperparameter_tuning_jobs(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_list_hyperparameter_tuning_jobs(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseListHyperparameterTuningJobs._get_transcoded_request(
                 http_options, request
@@ -6854,11 +6829,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_hyperparameter_tuning_jobs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_hyperparameter_tuning_jobs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_hyperparameter_tuning_jobs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -6954,11 +6928,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseListModelDeploymentMonitoringJobs._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_list_model_deployment_monitoring_jobs(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_list_model_deployment_monitoring_jobs(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseListModelDeploymentMonitoringJobs._get_transcoded_request(
                 http_options, request
@@ -7026,11 +6999,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_model_deployment_monitoring_jobs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_model_deployment_monitoring_jobs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -7441,11 +7413,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BasePauseModelDeploymentMonitoringJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_pause_model_deployment_monitoring_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_pause_model_deployment_monitoring_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BasePauseModelDeploymentMonitoringJob._get_transcoded_request(
                 http_options, request
@@ -7570,11 +7541,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseResumeModelDeploymentMonitoringJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_resume_model_deployment_monitoring_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_resume_model_deployment_monitoring_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseResumeModelDeploymentMonitoringJob._get_transcoded_request(
                 http_options, request
@@ -7705,11 +7675,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseSearchModelDeploymentMonitoringStatsAnomalies._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_search_model_deployment_monitoring_stats_anomalies(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_search_model_deployment_monitoring_stats_anomalies(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseSearchModelDeploymentMonitoringStatsAnomalies._get_transcoded_request(
                 http_options, request
@@ -7786,11 +7755,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_search_model_deployment_monitoring_stats_anomalies_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_search_model_deployment_monitoring_stats_anomalies_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -7886,11 +7854,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 _BaseJobServiceRestTransport._BaseUpdateModelDeploymentMonitoringJob._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_update_model_deployment_monitoring_job(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_update_model_deployment_monitoring_job(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseJobServiceRestTransport._BaseUpdateModelDeploymentMonitoringJob._get_transcoded_request(
                 http_options, request
@@ -7963,11 +7930,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 resp
             )
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_model_deployment_monitoring_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_model_deployment_monitoring_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

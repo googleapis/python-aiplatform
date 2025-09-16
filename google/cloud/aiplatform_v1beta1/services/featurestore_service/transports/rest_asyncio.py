@@ -51,9 +51,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
 from google.cloud.aiplatform_v1beta1.types import entity_type
-from google.cloud.aiplatform_v1beta1.types import (
-    entity_type as gca_entity_type,
-)
+from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import featurestore
@@ -2100,11 +2098,10 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_read_feature_values(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_batch_read_feature_values_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_batch_read_feature_values_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

@@ -29,9 +29,7 @@ from google.oauth2 import service_account  # type: ignore
 import google.protobuf
 
 from google.cloud.aiplatform_v1beta1.types import feature_online_store
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_online_store_admin_service,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_online_store_admin_service
 from google.cloud.aiplatform_v1beta1.types import feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view_sync
 from google.cloud.location import locations_pb2  # type: ignore

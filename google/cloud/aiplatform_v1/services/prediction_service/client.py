@@ -719,11 +719,9 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = PredictionServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            PredictionServiceClient._read_environment_variables()
+        )
         self._client_cert_source = PredictionServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )
@@ -1017,13 +1015,13 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         The response includes the following HTTP headers:
 
-        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
-           [Endpoint][google.cloud.aiplatform.v1.Endpoint] that served
-           this prediction.
+        - ``X-Vertex-AI-Endpoint-Id``: ID of the
+          [Endpoint][google.cloud.aiplatform.v1.Endpoint] that served
+          this prediction.
 
-        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
-           [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
-           that served this prediction.
+        - ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
+          [DeployedModel][google.cloud.aiplatform.v1.DeployedModel] that
+          served this prediction.
 
         .. code-block:: python
 
