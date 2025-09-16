@@ -1048,6 +1048,7 @@ class AgentEngines(_api_module.BaseModule):
             resource_limits=config.resource_limits,
             container_concurrency=config.container_concurrency,
             encryption_spec=config.encryption_spec,
+            agent_server_mode=config.agent_server_mode,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -1104,6 +1105,7 @@ class AgentEngines(_api_module.BaseModule):
         resource_limits: Optional[dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecDict] = None,
+        agent_server_mode: Optional[types.AgentServerMode] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1222,18 +1224,16 @@ class AgentEngines(_api_module.BaseModule):
                 _agent_engines_utils._to_dict(class_method)
                 for class_method in class_methods
             ]
-            # Set the agent_server_mode to EXPERIMENTAL if the agent has a
-            # bidi_stream method.
-            for class_method in class_methods:
-                if class_method["api_mode"] == "bidi_stream":
-                    if not agent_engine_spec.get("deployment_spec"):
-                        agent_engine_spec["deployment_spec"] = (
-                            types.ReasoningEngineSpecDeploymentSpecDict()
-                        )
-                    agent_engine_spec["deployment_spec"][
-                        "agent_server_mode"
-                    ] = types.AgentServerMode.EXPERIMENTAL
-                    break
+
+            if agent_server_mode:
+                if not agent_engine_spec.get("deployment_spec"):
+                    agent_engine_spec["deployment_spec"] = (
+                        types.ReasoningEngineSpecDeploymentSpecDict()
+                    )
+                agent_engine_spec["deployment_spec"][
+                    "agent_server_mode"
+                ] = agent_server_mode
+
             update_masks.append("spec.class_methods")
             agent_engine_spec["agent_framework"] = (
                 _agent_engines_utils._get_agent_framework(agent=agent)
