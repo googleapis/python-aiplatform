@@ -183,6 +183,9 @@ class _StreamRunRequest:
         self.user_id: Optional[str] = kwargs.get("user_id", _DEFAULT_USER_ID)
         # The user ID.
 
+        self.session_id: Optional[str] = kwargs.get("session_id")
+        # The session ID.
+
 
 class _StreamingRunResponse:
     """Response object for `streaming_agent_run_with_events` method.
@@ -195,6 +198,8 @@ class _StreamingRunResponse:
         # List of generated events.
         self.artifacts: Optional[List[_Artifact]] = kwargs.get("artifacts")
         # List of artifacts belonging to the session.
+        self.session_id: Optional[str] = kwargs.get("session_id")
+        # The session ID.
 
     def dump(self) -> Dict[str, Any]:
         from vertexai.agent_engines import _utils
@@ -208,6 +213,8 @@ class _StreamingRunResponse:
                 result["events"].append(event_dict)
         if self.artifacts:
             result["artifacts"] = [artifact.dump() for artifact in self.artifacts]
+        if self.session_id:
+            result["session_id"] = self.session_id
         return result
 
 
@@ -431,7 +438,7 @@ class AdkApp:
         """Converts the events to the streaming run response object."""
         import collections
 
-        result = _StreamingRunResponse(events=events, artifacts=[])
+        result = _StreamingRunResponse(events=events, artifacts=[], session_id=session_id)
 
         # Save the generated artifacts into the result object.
         artifact_versions = collections.defaultdict(list)
@@ -737,11 +744,24 @@ class AdkApp:
                 self.set_up()
             if not self._tmpl_attrs.get("in_memory_session_service"):
                 self.set_up()
-            session = await self._init_session(
-                session_service=self._tmpl_attrs.get("in_memory_session_service"),
-                artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
-                request=request,
-            )
+            # Try to get the session, if it doesn't exist, create a new one.
+            session = None
+            if request.session_id:
+                try:
+                    session = await self.async_get_session(
+                        user_id=request.user_id,
+                        session_id=request.session_id,
+                    )
+                except RuntimeError:
+                    pass
+            if not session:
+                #  If the user has setup a Vertex AI session service, we will
+                #  use that to create the session.
+                session = await self._init_session(
+                    session_service=self._tmpl_attrs.get("session_service"),
+                    artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
+                    request=request,
+                )
             if not session:
                 raise RuntimeError("Session initialization failed.")
 
@@ -763,11 +783,14 @@ class AdkApp:
                     )
                     event_queue.put(converted_event)
             finally:
-                await self._tmpl_attrs.get("in_memory_session_service").delete_session(
-                    app_name=self._tmpl_attrs.get("app_name"),
-                    user_id=request.user_id,
-                    session_id=session.id,
-                )
+                if self._tmpl_attrs["in_memory_session_service"] is not None:
+                    await self._tmpl_attrs.get(
+                        "in_memory_session_service"
+                    ).delete_session(
+                        app_name=self._tmpl_attrs.get("app_name"),
+                        user_id=request.user_id,
+                        session_id=session.id,
+                    )
 
         def _asyncio_thread_main():
             try:
