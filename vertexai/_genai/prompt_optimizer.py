@@ -667,6 +667,7 @@ class PromptOptimizer(_api_module.BaseModule):
         *,
         content: Optional[genai_types.ContentOrDict] = None,
         config: Optional[types.OptimizeConfigOrDict] = None,
+        number_parsing_attempts: int = 4,
     ) -> types.OptimizeResponse:
         """Optimize a single prompt.
 
@@ -707,29 +708,40 @@ class PromptOptimizer(_api_module.BaseModule):
         request_dict = _common.convert_to_dict(request_dict)
         request_dict = _common.encode_unserializable_types(request_dict)
 
-        response = self._api_client.request("post", path, request_dict, http_options)
+        for attempt in range(number_parsing_attempts):
+            try:
+                response = self._api_client.request(
+                    "post", path, request_dict, http_options
+                )
+                response_list = "" if not response.body else json.loads(response.body)
+                return_value = []
+                for response_dict in response_list:
+                    if self._api_client.vertexai:
+                        response_dict = _OptimizeResponseEndpoint_from_vertex(
+                            response_dict
+                        )
 
-        response_list = "" if not response.body else json.loads(response.body)
+                    response_value = types.OptimizeResponseEndpoint._from_response(
+                        response=response_dict,
+                        kwargs=parameter_model.model_dump(),
+                    )
+                    self._api_client._verify_response(response_value)
+                    if (
+                        response_value.content is not None
+                        and len(response_value.content.parts) > 0
+                        and response_value.content.parts[0].text is not None
+                    ):
+                        return_value.append(response_value.content.parts[0].text)
 
-        return_value = []
-
-        for response_dict in response_list:
-            if self._api_client.vertexai:
-                response_dict = _OptimizeResponseEndpoint_from_vertex(response_dict)
-
-            response_value = types.OptimizeResponseEndpoint._from_response(
-                response=response_dict, kwargs=parameter_model.model_dump()
-            )
-            self._api_client._verify_response(response_value)
-            if (
-                response_value.content is not None
-                and len(response_value.content.parts) > 0
-                and response_value.content.parts[0].text is not None
-            ):
-                return_value.append(response_value.content.parts[0].text)
-
-        output = "".join(return_value)
-        return _prompt_optimizer_utils._parse(output)
+                output = "".join(return_value)
+                return _prompt_optimizer_utils._parse(output)
+            except ValueError as e:
+                logger.info(f"Unable to parse the model response. Retrying...")
+                if attempt == number_parsing_attempts - 1:
+                    raise ValueError(
+                        f"Failed {number_parsing_attempts} attempts to parse"
+                        f" the response from prompt optimizer endpoint. {e}"
+                    ) from e
 
 
 class AsyncPromptOptimizer(_api_module.BaseModule):
