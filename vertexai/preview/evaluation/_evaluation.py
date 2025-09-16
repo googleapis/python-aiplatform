@@ -1019,6 +1019,24 @@ def _get_rubric_metric_with_idx(
     return None
 
 
+def _safe_deepcopy_rubric_generation_config(
+    generation_config: metrics_base.RubricGenerationConfig,
+) -> metrics_base.RubricGenerationConfig:
+    """Safely deepcopies the rubric generation config of RubricBasedMetric."""
+    copied_generation_config = None
+
+    if generation_config:
+        generation_config_model = generation_config.model
+        # Cannot deepcopy instance of GenerativeModel due to its cygrpc.Channel
+        generation_config.model = None
+        copied_generation_config = copy.deepcopy(generation_config)
+
+        if generation_config_model:
+            copied_generation_config.model = generation_config_model
+
+    return copied_generation_config
+
+
 def evaluate(
     dataset: "pd.DataFrame",
     metrics: List[Union[str, metrics_base._Metric]],
@@ -1095,7 +1113,9 @@ def evaluate(
         elif isinstance(metric, rubric_based_metric.RubricBasedMetric):
             copied_metrics.append(
                 rubric_based_metric.RubricBasedMetric(
-                    generation_config=copy.deepcopy(metric.generation_config),
+                    generation_config=_safe_deepcopy_rubric_generation_config(
+                        metric.generation_config,
+                    ),
                     critique_metric=copy.deepcopy(metric.critique_metric),
                 )
             )

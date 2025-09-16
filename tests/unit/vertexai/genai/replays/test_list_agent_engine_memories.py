@@ -21,20 +21,37 @@ from vertexai._genai import types
 def test_list_memories(client):
     agent_engine = client.agent_engines.create()
     assert not list(
-        client.agent_engines.list_memories(
+        client.agent_engines.memories.list(
             name=agent_engine.api_resource.name,
         )
     )
-    client.agent_engines.create_memory(
+    client.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
+        config={
+            "wait_for_completion": True,
+        },
     )
-    memory_list = client.agent_engines.list_memories(
+    client.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
+        fact="memory_fact_2",
+        scope={"user_id": "456"},
+        config={
+            "wait_for_completion": True,
+        },
+    )
+    memory_list = client.agent_engines.memories.list(
+        name=agent_engine.api_resource.name,
+        config=types.ListAgentEngineMemoryConfig(
+            page_size=1,
+            order_by="create_time asc",
+        ),
     )
     assert len(memory_list) == 1
     assert isinstance(memory_list[0], types.Memory)
+    assert memory_list[0].fact == "memory_fact"
+    assert memory_list[0].scope["user_id"] == "123"
     # Clean up resources.
     agent_engine.delete(force=True)
 

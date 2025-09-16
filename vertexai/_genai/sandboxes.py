@@ -34,6 +34,8 @@ from . import types
 
 logger = logging.getLogger("vertexai_genai.sandboxes")
 
+logger.setLevel(logging.INFO)
+
 
 def _SandboxEnvironmentSpec_to_vertex(
     from_object: Union[dict[str, Any], object],
