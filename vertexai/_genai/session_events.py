@@ -36,6 +36,76 @@ logger = logging.getLogger("vertexai_genai.sessionevents")
 logger.setLevel(logging.INFO)
 
 
+def _AppendAgentEngineSessionEventConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["content"]) is not None:
+        setv(parent_object, ["content"], getv(from_object, ["content"]))
+
+    if getv(from_object, ["actions"]) is not None:
+        setv(
+            parent_object,
+            ["actions"],
+            _EventActions_to_vertex(getv(from_object, ["actions"]), to_object),
+        )
+
+    if getv(from_object, ["error_code"]) is not None:
+        setv(parent_object, ["errorCode"], getv(from_object, ["error_code"]))
+
+    if getv(from_object, ["error_message"]) is not None:
+        setv(parent_object, ["errorMessage"], getv(from_object, ["error_message"]))
+
+    if getv(from_object, ["event_metadata"]) is not None:
+        setv(
+            parent_object,
+            ["eventMetadata"],
+            _EventMetadata_to_vertex(getv(from_object, ["event_metadata"]), to_object),
+        )
+
+    return to_object
+
+
+def _AppendAgentEngineSessionEventRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["author"]) is not None:
+        setv(to_object, ["author"], getv(from_object, ["author"]))
+
+    if getv(from_object, ["invocation_id"]) is not None:
+        setv(to_object, ["invocationId"], getv(from_object, ["invocation_id"]))
+
+    if getv(from_object, ["timestamp"]) is not None:
+        setv(to_object, ["timestamp"], getv(from_object, ["timestamp"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _AppendAgentEngineSessionEventConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _AppendAgentEngineSessionEventResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    return to_object
+
+
 def _EventActions_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -106,67 +176,6 @@ def _EventMetadata_to_vertex(
     return to_object
 
 
-def _AppendAgentEngineSessionEventConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["content"]) is not None:
-        setv(parent_object, ["content"], getv(from_object, ["content"]))
-
-    if getv(from_object, ["actions"]) is not None:
-        setv(
-            parent_object,
-            ["actions"],
-            _EventActions_to_vertex(getv(from_object, ["actions"]), to_object),
-        )
-
-    if getv(from_object, ["error_code"]) is not None:
-        setv(parent_object, ["errorCode"], getv(from_object, ["error_code"]))
-
-    if getv(from_object, ["error_message"]) is not None:
-        setv(parent_object, ["errorMessage"], getv(from_object, ["error_message"]))
-
-    if getv(from_object, ["event_metadata"]) is not None:
-        setv(
-            parent_object,
-            ["eventMetadata"],
-            _EventMetadata_to_vertex(getv(from_object, ["event_metadata"]), to_object),
-        )
-
-    return to_object
-
-
-def _AppendAgentEngineSessionEventRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["author"]) is not None:
-        setv(to_object, ["author"], getv(from_object, ["author"]))
-
-    if getv(from_object, ["invocation_id"]) is not None:
-        setv(to_object, ["invocationId"], getv(from_object, ["invocation_id"]))
-
-    if getv(from_object, ["timestamp"]) is not None:
-        setv(to_object, ["timestamp"], getv(from_object, ["timestamp"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _AppendAgentEngineSessionEventConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
-
-    return to_object
-
-
 def _ListAgentEngineSessionEventsConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -205,11 +214,26 @@ def _ListAgentEngineSessionEventsRequestParameters_to_vertex(
     return to_object
 
 
-def _AppendAgentEngineSessionEventResponse_from_vertex(
+def _ListAgentEngineSessionEventsResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["sessionEvents"]) is not None:
+        setv(
+            to_object,
+            ["session_events"],
+            [
+                _SessionEvent_from_vertex(item, to_object)
+                for item in getv(from_object, ["sessionEvents"])
+            ],
+        )
 
     return to_object
 
@@ -245,30 +269,6 @@ def _SessionEvent_from_vertex(
 
     if getv(from_object, ["timestamp"]) is not None:
         setv(to_object, ["timestamp"], getv(from_object, ["timestamp"]))
-
-    return to_object
-
-
-def _ListAgentEngineSessionEventsResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["sessionEvents"]) is not None:
-        setv(
-            to_object,
-            ["session_events"],
-            [
-                _SessionEvent_from_vertex(item, to_object)
-                for item in getv(from_object, ["sessionEvents"])
-            ],
-        )
 
     return to_object
 

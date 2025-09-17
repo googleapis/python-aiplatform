@@ -36,6 +36,35 @@ logger = logging.getLogger("vertexai_genai.memories")
 logger.setLevel(logging.INFO)
 
 
+def _AgentEngineGenerateMemoriesOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(
+            to_object,
+            ["response"],
+            _GenerateMemoriesResponse_from_vertex(
+                getv(from_object, ["response"]), to_object
+            ),
+        )
+
+    return to_object
+
+
 def _AgentEngineMemoryConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -53,6 +82,33 @@ def _AgentEngineMemoryConfig_to_vertex(
 
     if getv(from_object, ["expire_time"]) is not None:
         setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
+
+    return to_object
+
+
+def _AgentEngineMemoryOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(
+            to_object,
+            ["response"],
+            _Memory_from_vertex(getv(from_object, ["response"]), to_object),
+        )
 
     return to_object
 
@@ -83,6 +139,26 @@ def _CreateAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
+def _DeleteAgentEngineMemoryOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    return to_object
+
+
 def _DeleteAgentEngineMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -93,65 +169,6 @@ def _DeleteAgentEngineMemoryRequestParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _GenerateMemoriesRequestVertexSessionSource_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["end_time"]) is not None:
-        setv(to_object, ["endTime"], getv(from_object, ["end_time"]))
-
-    if getv(from_object, ["session"]) is not None:
-        setv(to_object, ["session"], getv(from_object, ["session"]))
-
-    if getv(from_object, ["start_time"]) is not None:
-        setv(to_object, ["startTime"], getv(from_object, ["start_time"]))
-
-    return to_object
-
-
-def _GenerateMemoriesRequestDirectContentsSourceEvent_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["content"]) is not None:
-        setv(to_object, ["content"], getv(from_object, ["content"]))
-
-    return to_object
-
-
-def _GenerateMemoriesRequestDirectContentsSource_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["events"]) is not None:
-        setv(
-            to_object,
-            ["events"],
-            [
-                _GenerateMemoriesRequestDirectContentsSourceEvent_to_vertex(
-                    item, to_object
-                )
-                for item in getv(from_object, ["events"])
-            ],
-        )
-
-    return to_object
-
-
-def _GenerateMemoriesRequestDirectMemoriesSource_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["direct_memories"]) is not None:
-        setv(to_object, ["directMemories"], getv(from_object, ["direct_memories"]))
 
     return to_object
 
@@ -222,6 +239,133 @@ def _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
     return to_object
 
 
+def _GenerateMemoriesRequestDirectContentsSourceEvent_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["content"]) is not None:
+        setv(to_object, ["content"], getv(from_object, ["content"]))
+
+    return to_object
+
+
+def _GenerateMemoriesRequestDirectContentsSource_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["events"]) is not None:
+        setv(
+            to_object,
+            ["events"],
+            [
+                _GenerateMemoriesRequestDirectContentsSourceEvent_to_vertex(
+                    item, to_object
+                )
+                for item in getv(from_object, ["events"])
+            ],
+        )
+
+    return to_object
+
+
+def _GenerateMemoriesRequestDirectMemoriesSource_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["direct_memories"]) is not None:
+        setv(to_object, ["directMemories"], getv(from_object, ["direct_memories"]))
+
+    return to_object
+
+
+def _GenerateMemoriesRequestVertexSessionSource_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["end_time"]) is not None:
+        setv(to_object, ["endTime"], getv(from_object, ["end_time"]))
+
+    if getv(from_object, ["session"]) is not None:
+        setv(to_object, ["session"], getv(from_object, ["session"]))
+
+    if getv(from_object, ["start_time"]) is not None:
+        setv(to_object, ["startTime"], getv(from_object, ["start_time"]))
+
+    return to_object
+
+
+def _GenerateMemoriesResponseGeneratedMemory_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memory"]) is not None:
+        setv(
+            to_object,
+            ["memory"],
+            _Memory_from_vertex(getv(from_object, ["memory"]), to_object),
+        )
+
+    if getv(from_object, ["action"]) is not None:
+        setv(to_object, ["action"], getv(from_object, ["action"]))
+
+    return to_object
+
+
+def _GenerateMemoriesResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["generatedMemories"]) is not None:
+        setv(
+            to_object,
+            ["generated_memories"],
+            [
+                _GenerateMemoriesResponseGeneratedMemory_from_vertex(item, to_object)
+                for item in getv(from_object, ["generatedMemories"])
+            ],
+        )
+
+    return to_object
+
+
+def _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GetAgentEngineMemoryOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
 def _GetAgentEngineMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -277,30 +421,92 @@ def _ListAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineMemoryOperationParameters_to_vertex(
+def _ListReasoningEnginesMemoriesResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["memories"]) is not None:
+        setv(
+            to_object,
+            ["memories"],
+            [
+                _Memory_from_vertex(item, to_object)
+                for item in getv(from_object, ["memories"])
+            ],
+        )
 
     return to_object
 
 
-def _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
+def _Memory_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
+    if getv(from_object, ["expireTime"]) is not None:
+        setv(to_object, ["expire_time"], getv(from_object, ["expireTime"]))
+
+    if getv(from_object, ["ttl"]) is not None:
+        setv(to_object, ["ttl"], getv(from_object, ["ttl"]))
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["fact"]) is not None:
+        setv(to_object, ["fact"], getv(from_object, ["fact"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["scope"]) is not None:
+        setv(to_object, ["scope"], getv(from_object, ["scope"]))
+
+    if getv(from_object, ["updateTime"]) is not None:
+        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
+
+    return to_object
+
+
+def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["scope"]) is not None:
+        setv(to_object, ["scope"], getv(from_object, ["scope"]))
+
+    if getv(from_object, ["similarity_search_params"]) is not None:
         setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+            to_object,
+            ["similaritySearchParams"],
+            _RetrieveMemoriesRequestSimilaritySearchParams_to_vertex(
+                getv(from_object, ["similarity_search_params"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["simple_retrieval_params"]) is not None:
+        setv(
+            to_object,
+            ["simpleRetrievalParams"],
+            _RetrieveMemoriesRequestSimpleRetrievalParams_to_vertex(
+                getv(from_object, ["simple_retrieval_params"]), to_object
+            ),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -337,37 +543,18 @@ def _RetrieveMemoriesRequestSimpleRetrievalParams_to_vertex(
     return to_object
 
 
-def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
+def _RetrieveMemoriesResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
 
-    if getv(from_object, ["scope"]) is not None:
-        setv(to_object, ["scope"], getv(from_object, ["scope"]))
-
-    if getv(from_object, ["similarity_search_params"]) is not None:
+    if getv(from_object, ["retrievedMemories"]) is not None:
         setv(
-            to_object,
-            ["similaritySearchParams"],
-            _RetrieveMemoriesRequestSimilaritySearchParams_to_vertex(
-                getv(from_object, ["similarity_search_params"]), to_object
-            ),
+            to_object, ["retrieved_memories"], getv(from_object, ["retrievedMemories"])
         )
-
-    if getv(from_object, ["simple_retrieval_params"]) is not None:
-        setv(
-            to_object,
-            ["simpleRetrievalParams"],
-            _RetrieveMemoriesRequestSimpleRetrievalParams_to_vertex(
-                getv(from_object, ["simple_retrieval_params"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -419,193 +606,6 @@ def _UpdateAgentEngineMemoryRequestParameters_to_vertex(
             _UpdateAgentEngineMemoryConfig_to_vertex(
                 getv(from_object, ["config"]), to_object
             ),
-        )
-
-    return to_object
-
-
-def _Memory_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["expireTime"]) is not None:
-        setv(to_object, ["expire_time"], getv(from_object, ["expireTime"]))
-
-    if getv(from_object, ["ttl"]) is not None:
-        setv(to_object, ["ttl"], getv(from_object, ["ttl"]))
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["fact"]) is not None:
-        setv(to_object, ["fact"], getv(from_object, ["fact"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["scope"]) is not None:
-        setv(to_object, ["scope"], getv(from_object, ["scope"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
-def _AgentEngineMemoryOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _Memory_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
-def _DeleteAgentEngineMemoryOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    return to_object
-
-
-def _GenerateMemoriesResponseGeneratedMemory_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["memory"]) is not None:
-        setv(
-            to_object,
-            ["memory"],
-            _Memory_from_vertex(getv(from_object, ["memory"]), to_object),
-        )
-
-    if getv(from_object, ["action"]) is not None:
-        setv(to_object, ["action"], getv(from_object, ["action"]))
-
-    return to_object
-
-
-def _GenerateMemoriesResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["generatedMemories"]) is not None:
-        setv(
-            to_object,
-            ["generated_memories"],
-            [
-                _GenerateMemoriesResponseGeneratedMemory_from_vertex(item, to_object)
-                for item in getv(from_object, ["generatedMemories"])
-            ],
-        )
-
-    return to_object
-
-
-def _AgentEngineGenerateMemoriesOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _GenerateMemoriesResponse_from_vertex(
-                getv(from_object, ["response"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _ListReasoningEnginesMemoriesResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["memories"]) is not None:
-        setv(
-            to_object,
-            ["memories"],
-            [
-                _Memory_from_vertex(item, to_object)
-                for item in getv(from_object, ["memories"])
-            ],
-        )
-
-    return to_object
-
-
-def _RetrieveMemoriesResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["retrievedMemories"]) is not None:
-        setv(
-            to_object, ["retrieved_memories"], getv(from_object, ["retrievedMemories"])
         )
 
     return to_object
