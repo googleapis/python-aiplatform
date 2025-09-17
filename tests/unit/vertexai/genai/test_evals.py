@@ -1002,11 +1002,8 @@ class TestEvalsRunInference:
             assert call_kwargs["model"] == "gpt-4o"
             assert call_kwargs["messages"] == expected_messages
             assert "response" in result_dataset.eval_dataset_df.columns
-            response_content = json.loads(result_dataset.eval_dataset_df["response"][0])
-            assert (
-                response_content["choices"][0]["message"]["content"]
-                == "LiteLLM is a library..."
-            )
+            response_content = result_dataset.eval_dataset_df["response"][0]
+            assert response_content == "LiteLLM is a library..."
 
     def test_run_inference_with_litellm_openai_request_format(
         self,
@@ -1077,8 +1074,8 @@ class TestEvalsRunInference:
             assert call_kwargs["model"] == "gpt-4o"
             assert call_kwargs["messages"] == expected_messages
             assert "response" in result_dataset.eval_dataset_df.columns
-            response_content = json.loads(result_dataset.eval_dataset_df["response"][0])
-            assert response_content["choices"][0]["message"]["content"] == "Hello there"
+            response_content = result_dataset.eval_dataset_df["response"][0]
+            assert response_content == "Hello there"
 
     def test_run_inference_with_unsupported_model_string(
         self,
@@ -1105,6 +1102,113 @@ class TestEvalsRunInference:
             match="The 'litellm' library is required to use this model.",
         ):
             evals_module.run_inference(model="gpt-4o", src=prompt_df)
+
+    @mock.patch.object(_evals_common, "_run_litellm_inference")
+    @mock.patch.object(_evals_common, "_is_gemini_model")
+    @mock.patch.object(_evals_common, "_is_litellm_model")
+    @mock.patch.object(_evals_common, "_is_litellm_vertex_maas_model")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_run_inference_with_litellm_parsing(
+        self,
+        mock_eval_dataset_loader,
+        mock_is_litellm_vertex_maas_model,
+        mock_is_litellm_model,
+        mock_is_gemini_model,
+        mock_run_litellm_inference,
+    ):
+        """Tests the parsing logic for LiteLLM responses within _run_inference_internal."""
+        mock_is_gemini_model.return_value = False
+        mock_is_litellm_model.return_value = True
+        mock_is_litellm_vertex_maas_model.return_value = False
+
+        mock_df = pd.DataFrame(
+            {
+                "prompt": [
+                    "prompt1",
+                    "prompt2",
+                    "prompt3",
+                    "prompt4",
+                    "prompt5",
+                    "prompt6",
+                ]
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        raw_responses = [
+            {  # Successful response
+                "choices": [{"message": {"content": "LiteLLM response 1"}}]
+            },
+            {"error": "LiteLLM call failed: API key error"},  # Response with error key
+            {"id": "test-id-3"},  # Missing choices
+            {"choices": [{"index": 0}]},  # Missing message
+            {"choices": [{"message": {"role": "assistant"}}]},  # Missing content
+            "Invalid JSON string",  # Non-dict response
+        ]
+        mock_run_litellm_inference.return_value = raw_responses
+        # fmt: off
+        with mock.patch("vertexai._genai._evals_common.litellm") as mock_litellm:
+            # fmt: on
+            mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
+            inference_result = self.client.evals.run_inference(
+                model="gpt-4o",
+                src=mock_df,
+            )
+
+        expected_responses = [
+            "LiteLLM response 1",
+            json.dumps({"error": "LiteLLM call failed: API key error"}),
+            json.dumps(
+                {
+                    "error": "LiteLLM response missing 'choices'",
+                    "details": {"id": "test-id-3"},
+                }
+            ),
+            json.dumps(
+                {
+                    "error": "LiteLLM response missing 'message' in first choice",
+                    "details": {"choices": [{"index": 0}]},
+                }
+            ),
+            json.dumps(
+                {
+                    "error": "LiteLLM response missing 'content' in message",
+                    "details": {"choices": [{"message": {"role": "assistant"}}]},
+                }
+            ),
+            json.dumps(
+                {
+                    "error": "Invalid LiteLLM response format",
+                    "details": "Invalid JSON string",
+                }
+            ),
+        ]
+
+        expected_df = pd.DataFrame(
+            {
+                "prompt": [
+                    "prompt1",
+                    "prompt2",
+                    "prompt3",
+                    "prompt4",
+                    "prompt5",
+                    "prompt6",
+                ],
+                "response": expected_responses,
+            }
+        )
+
+        pd.testing.assert_frame_equal(
+            inference_result.eval_dataset_df.reset_index(drop=True),
+            expected_df.reset_index(drop=True),
+            check_dtype=False,
+        )
+        mock_run_litellm_inference.assert_called_once()
+        _, call_kwargs = mock_run_litellm_inference.call_args
+        assert call_kwargs["model"] == "gpt-4o"
+        pd.testing.assert_frame_equal(call_kwargs["prompt_dataset"], mock_df)
 
 
 class TestMetricPromptBuilder:
