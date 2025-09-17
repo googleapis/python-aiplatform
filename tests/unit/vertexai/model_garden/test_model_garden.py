@@ -1476,7 +1476,8 @@ class TestModelGardenCustomModel:
             )
         )
 
-    def test_list_deploy_options_with_recommendations(self):
+    @pytest.mark.parametrize("filter_by_user_quota", [True, False])
+    def test_list_deploy_options_with_recommendations(self, filter_by_user_quota):
         """Tests list_deploy_options when recommend_spec returns recommendations."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1529,42 +1530,56 @@ class TestModelGardenCustomModel:
             mock_model_service_client.recommend_spec.return_value = mock_response
 
             custom_model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
-            result = custom_model.list_deploy_options()
-
-            expected_output = textwrap.dedent(
-                """\
-            [Option 1]
-                machine_type="n1-standard-4",
-                accelerator_type="NVIDIA_TESLA_T4",
-                accelerator_count=1,
-                region="us-central1",
-                user_quota_state="QUOTA_STATE_USER_HAS_QUOTA"
-
-            [Option 2]
-                machine_type="n1-standard-8",
-                accelerator_type="NVIDIA_TESLA_V100",
-                accelerator_count=2,
-                region="us-east1",
-                user_quota_state="QUOTA_STATE_NO_USER_QUOTA"
-
-            [Option 3]
-                machine_type="g2-standard-24",
-                accelerator_type="NVIDIA_L4",
-                accelerator_count=2,
-                region="us-central1\""""
+            result = custom_model.list_deploy_options(
+                filter_by_user_quota=filter_by_user_quota
             )
+
+            if filter_by_user_quota:
+                expected_output = textwrap.dedent(
+                    """\
+                [Option 1]
+                    machine_type="n1-standard-4",
+                    accelerator_type="NVIDIA_TESLA_T4",
+                    accelerator_count=1,
+                    region="us-central1",
+                    user_quota_state="QUOTA_STATE_USER_HAS_QUOTA\""""
+                )
+            else:
+                expected_output = textwrap.dedent(
+                    """\
+                [Option 1]
+                    machine_type="n1-standard-4",
+                    accelerator_type="NVIDIA_TESLA_T4",
+                    accelerator_count=1,
+                    region="us-central1",
+                    user_quota_state="QUOTA_STATE_USER_HAS_QUOTA"
+
+                [Option 2]
+                    machine_type="n1-standard-8",
+                    accelerator_type="NVIDIA_TESLA_V100",
+                    accelerator_count=2,
+                    region="us-east1",
+                    user_quota_state="QUOTA_STATE_NO_USER_QUOTA"
+
+                [Option 3]
+                    machine_type="g2-standard-24",
+                    accelerator_type="NVIDIA_L4",
+                    accelerator_count=2,
+                    region="us-central1\""""
+                )
             assert result == expected_output
             mock_model_service_client.recommend_spec.assert_called_once_with(
                 types.RecommendSpecRequest(
                     gcs_uri=_TEST_GCS_URI,
                     parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
                     check_machine_availability=True,
+                    check_user_quota=filter_by_user_quota,
                 ),
                 timeout=60,
             )
 
     def test_list_deploy_options_with_specs(self):
-        """Tests list_deploy_options when recommend_spec returns specs."""
+        """Tests list_deploy_options with available_machines set to False and recommend_spec returns all compatible specs."""
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1596,7 +1611,9 @@ class TestModelGardenCustomModel:
             mock_model_service_client.recommend_spec.return_value = mock_response
 
             custom_model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
-            result = custom_model.list_deploy_options(available_machines=False)
+            result = custom_model.list_deploy_options(
+                available_machines=False, filter_by_user_quota=False
+            )
 
             expected_output = textwrap.dedent(
                 """\
@@ -1616,6 +1633,7 @@ class TestModelGardenCustomModel:
                     gcs_uri=_TEST_GCS_URI,
                     parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
                     check_machine_availability=False,
+                    check_user_quota=False,
                 ),
                 timeout=60,
             )
