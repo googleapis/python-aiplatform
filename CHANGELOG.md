@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.114.0](https://github.com/googleapis/python-aiplatform/compare/v1.113.0...v1.114.0) (2025-09-16)
+
+
+### Features
+
+* GenAI SDK client - Add experimental list_prompts() and list_versions() methods to Prompt Management ([18a5559](https://github.com/googleapis/python-aiplatform/commit/18a55590c5679b8ea7536c4c3c73566ba006bf36))
+
+
+### Bug Fixes
+
+* GenAI SDK client - Add agent_server_mode arg to AgentEngineConfig and pass it to API request if present. ([1f821fd](https://github.com/googleapis/python-aiplatform/commit/1f821fd5a79e3bad206ca1a725358890506e4383))
+
 ## [1.113.0](https://github.com/googleapis/python-aiplatform/compare/v1.112.0...v1.113.0) (2025-09-12)
 
 

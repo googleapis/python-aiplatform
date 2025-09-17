@@ -10144,6 +10144,9 @@ class AgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    agent_server_mode: Optional[AgentServerMode] = Field(
+        default=None, description="""The agent server mode to use for deployment."""
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -10223,6 +10226,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
+
+    agent_server_mode: Optional[AgentServerMode]
+    """The agent server mode to use for deployment."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
