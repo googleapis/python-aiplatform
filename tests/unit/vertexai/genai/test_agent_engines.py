@@ -1353,6 +1353,7 @@ class TestAgentEngine:
                 container_concurrency=None,
                 encryption_spec=None,
                 agent_server_mode=None,
+                labels=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1432,6 +1433,7 @@ class TestAgentEngine:
                 resource_limits=None,
                 container_concurrency=None,
                 encryption_spec=None,
+                labels=None,
                 agent_server_mode=None,
             )
             request_mock.assert_called_with(
@@ -1514,6 +1516,7 @@ class TestAgentEngine:
                 resource_limits=None,
                 container_concurrency=None,
                 encryption_spec=None,
+                labels=None,
                 agent_server_mode=_genai_types.AgentServerMode.EXPERIMENTAL,
             )
             request_mock.assert_called_with(

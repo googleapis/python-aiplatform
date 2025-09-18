@@ -106,6 +106,9 @@ def _CreateAgentEngineConfig_to_vertex(
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
 
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
     return to_object
 
 
@@ -369,6 +372,9 @@ def _ReasoningEngine_from_vertex(
     if getv(from_object, ["displayName"]) is not None:
         setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
 
+    if getv(from_object, ["labels"]) is not None:
+        setv(to_object, ["labels"], getv(from_object, ["labels"]))
+
     if getv(from_object, ["etag"]) is not None:
         setv(to_object, ["etag"], getv(from_object, ["etag"]))
 
@@ -423,6 +429,9 @@ def _UpdateAgentEngineConfig_to_vertex(
 
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
@@ -1049,6 +1058,7 @@ class AgentEngines(_api_module.BaseModule):
             container_concurrency=config.container_concurrency,
             encryption_spec=config.encryption_spec,
             agent_server_mode=config.agent_server_mode,
+            labels=config.labels,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -1105,6 +1115,7 @@ class AgentEngines(_api_module.BaseModule):
         resource_limits: Optional[dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecDict] = None,
+        labels: Optional[dict[str, str]] = None,
         agent_server_mode: Optional[types.AgentServerMode] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
@@ -1130,6 +1141,9 @@ class AgentEngines(_api_module.BaseModule):
         if encryption_spec is not None:
             update_masks.append("encryption_spec")
             config["encryption_spec"] = encryption_spec
+        if labels is not None:
+            update_masks.append("labels")
+            config["labels"] = labels
         if agent is not None:
             project = self._api_client.project
             if project is None:
@@ -1457,6 +1471,7 @@ class AgentEngines(_api_module.BaseModule):
             max_instances=config.max_instances,
             resource_limits=config.resource_limits,
             container_concurrency=config.container_concurrency,
+            labels=config.labels,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(

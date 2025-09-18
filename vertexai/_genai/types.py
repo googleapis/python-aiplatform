@@ -3805,6 +3805,9 @@ class CreateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""The labels to be used for the Agent Engine."""
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -3859,6 +3862,9 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
 
+    labels: Optional[dict[str, str]]
+    """The labels to be used for the Agent Engine."""
+
 
 CreateAgentEngineConfigOrDict = Union[
     CreateAgentEngineConfig, CreateAgentEngineConfigDict
@@ -3906,6 +3912,9 @@ class ReasoningEngine(_common.BaseModel):
         default=None,
         description="""Required. The display name of the ReasoningEngine.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""Labels for the ReasoningEngine."""
+    )
     etag: Optional[str] = Field(
         default=None,
         description="""Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
@@ -3940,6 +3949,9 @@ class ReasoningEngineDict(TypedDict, total=False):
 
     display_name: Optional[str]
     """Required. The display name of the ReasoningEngine."""
+
+    labels: Optional[dict[str, str]]
+    """Labels for the ReasoningEngine."""
 
     etag: Optional[str]
     """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
@@ -4407,6 +4419,9 @@ class UpdateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""The labels to be used for the Agent Engine."""
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -4465,6 +4480,9 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
+
+    labels: Optional[dict[str, str]]
+    """The labels to be used for the Agent Engine."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -10326,6 +10344,9 @@ class AgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""The labels to be used for the Agent Engine."""
+    )
     agent_server_mode: Optional[AgentServerMode] = Field(
         default=None, description="""The agent server mode to use for deployment."""
     )
@@ -10408,6 +10429,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
+
+    labels: Optional[dict[str, str]]
+    """The labels to be used for the Agent Engine."""
 
     agent_server_mode: Optional[AgentServerMode]
     """The agent server mode to use for deployment."""
