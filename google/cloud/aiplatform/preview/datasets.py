@@ -1288,6 +1288,11 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         )
         return self
 
+    def has_template_config(self) -> bool:
+        """Returns true if the dataset has a template config attached."""
+        self._assert_gca_resource_is_available()
+        return _GEMINI_TEMPLATE_CONFIG_SOURCE_FIELD in self._gca_resource.metadata
+
     @property
     def template_config(self) -> Optional[GeminiTemplateConfig]:
         """Return a copy of the template config attached to this dataset."""

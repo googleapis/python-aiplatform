@@ -749,6 +749,18 @@ class TestMultimodalDataset:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_has_template_config(self, update_dataset_with_template_config_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        template_config = ummd.GeminiTemplateConfig(
+            field_mapping={"question": "questionColumn"},
+        )
+        assert dataset.has_template_config() is False
+        # Attach a template config to the dataset.
+        dataset.attach_template_config(template_config=template_config)
+        assert dataset.has_template_config() is True
+
     @pytest.mark.usefixtures(
         "get_dataset_with_prompt_resource_mock", "prompts_get_mock"
     )
