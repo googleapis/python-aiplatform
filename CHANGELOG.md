@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.115.0](https://github.com/googleapis/python-aiplatform/compare/v1.114.0...v1.115.0) (2025-09-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* The `optimize_prompt` method no longer returns the parsed response directly. Code must be updated to access the `.raw_text_response` or `.parsed_response` attribute on the new return object.
+
+### Features
+
+* Add `has_template_config` to MultimodalDataset. ([97a6e71](https://github.com/googleapis/python-aiplatform/commit/97a6e719c410055fa82e5aebc88e3504e2a885a2))
+* GenAI SDK client - add experimental async create_version and get methods to prompt management ([d8de037](https://github.com/googleapis/python-aiplatform/commit/d8de03702ae77cabd4ea4edb5e8707426ea4f49f))
+* GenAI SDK client - Add experimental delete_prompt() and delete_version() methods to Prompt Management ([3f7f976](https://github.com/googleapis/python-aiplatform/commit/3f7f97633eb2994d75a99afcdc34ec58e820a98c))
+* GenAI SDK client - Modify optimize_prompt to return raw and parsed responses. ([415cf26](https://github.com/googleapis/python-aiplatform/commit/415cf26282283305afa9687ea055d59ad8784422))
+* GenAI SDK client -- add support for user defined labels for ReasoningEngine ([002b441](https://github.com/googleapis/python-aiplatform/commit/002b4416e41313a0148c5a69bee3459c14f1fb83))
+* Update list_deploy_options api for Vertex AI Model Garden custom model to support filtering by machines that user has quota for. ([540e9e0](https://github.com/googleapis/python-aiplatform/commit/540e9e02fc9c5ad937d8540b814d534bf7ff5315))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Improve LiteLLM model completion response parsing ([ff55a48](https://github.com/googleapis/python-aiplatform/commit/ff55a48c59f5c6a656df6aa167b09770c8878219))
+* Update definition of async_add_session_to_memory to not depend on Session ([dc9a5da](https://github.com/googleapis/python-aiplatform/commit/dc9a5da1505f5f75b7ffe06a68512aede6e2cad2))
+
+
+### Documentation
+
+* Add Agent Engine with ADK examples to README. ([c74305b](https://github.com/googleapis/python-aiplatform/commit/c74305bd1808cd08c41e4b8e87718c3e0e08209d))
+* Streamline installation section in README and add uv package installation command ([bf91a55](https://github.com/googleapis/python-aiplatform/commit/bf91a55e17d697aca40b0bde17ab1b4dbbfe9188))
+
+
+### Miscellaneous Chores
+
+* Release 1.115.0 ([bcf9ce0](https://github.com/googleapis/python-aiplatform/commit/bcf9ce008ce73d8245f52047a21bac7557c4a252))
+
 ## [1.114.0](https://github.com/googleapis/python-aiplatform/compare/v1.113.0...v1.114.0) (2025-09-16)
 
 
