@@ -93,6 +93,9 @@ from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_execution_service import (
     client as reasoning_engine_execution_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.session_service import (
+    client as session_service_client_v1beta1,
+)
 from google.cloud.aiplatform_v1beta1.services.schedule_service import (
     client as schedule_service_client_v1beta1,
 )
