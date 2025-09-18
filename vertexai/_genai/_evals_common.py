@@ -496,8 +496,63 @@ def _run_inference_internal(
         raw_responses = _run_litellm_inference(
             model=processed_model_id, prompt_dataset=prompt_dataset
         )
-        responses = [json.dumps(resp) for resp in raw_responses]
+        processed_llm_responses = []
+        for response_dict in raw_responses:
+            if not isinstance(response_dict, dict):
+                processed_llm_responses.append(
+                    json.dumps(
+                        {
+                            "error": "Invalid LiteLLM response format",
+                            "details": str(response_dict),
+                        }
+                    )
+                )
+                continue
 
+            if "error" in response_dict:
+                processed_llm_responses.append(json.dumps(response_dict))
+                continue
+
+            if (
+                "choices" in response_dict
+                and isinstance(response_dict["choices"], list)
+                and len(response_dict["choices"]) > 0
+            ):
+                first_choice = response_dict["choices"][0]
+                if "message" in first_choice and isinstance(
+                    first_choice["message"], dict
+                ):
+                    message = first_choice["message"]
+                    if "content" in message and isinstance(message["content"], str):
+                        processed_llm_responses.append(message["content"])
+                    else:
+                        processed_llm_responses.append(
+                            json.dumps(
+                                {
+                                    "error": "LiteLLM response missing 'content' in message",
+                                    "details": response_dict,
+                                }
+                            )
+                        )
+                else:
+                    processed_llm_responses.append(
+                        json.dumps(
+                            {
+                                "error": "LiteLLM response missing 'message' in first choice",
+                                "details": response_dict,
+                            }
+                        )
+                    )
+            else:
+                processed_llm_responses.append(
+                    json.dumps(
+                        {
+                            "error": "LiteLLM response missing 'choices'",
+                            "details": response_dict,
+                        }
+                    )
+                )
+        responses = processed_llm_responses
     else:
         raise TypeError(
             f"Unsupported model type: {type(model)}. Expecting string (model"

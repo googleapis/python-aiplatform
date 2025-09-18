@@ -39,53 +39,28 @@ logger = logging.getLogger("vertexai_genai.agentengines")
 logger.setLevel(logging.INFO)
 
 
-def _ReasoningEngineSpec_to_vertex(
+def _AgentEngineOperation_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["agent_framework"]) is not None:
-        setv(to_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
 
-    if getv(from_object, ["class_methods"]) is not None:
-        setv(to_object, ["classMethods"], getv(from_object, ["class_methods"]))
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
 
-    if getv(from_object, ["deployment_spec"]) is not None:
-        setv(to_object, ["deploymentSpec"], getv(from_object, ["deployment_spec"]))
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
 
-    if getv(from_object, ["package_spec"]) is not None:
-        setv(to_object, ["packageSpec"], getv(from_object, ["package_spec"]))
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
 
-    if getv(from_object, ["service_account"]) is not None:
-        setv(to_object, ["serviceAccount"], getv(from_object, ["service_account"]))
-
-    return to_object
-
-
-def _ReasoningEngineContextSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["memory_bank_config"]) is not None:
-        setv(to_object, ["memoryBankConfig"], getv(from_object, ["memory_bank_config"]))
-
-    return to_object
-
-
-def _PscInterfaceConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["dns_peering_configs"]) is not None:
+    if getv(from_object, ["response"]) is not None:
         setv(
-            to_object, ["dnsPeeringConfigs"], getv(from_object, ["dns_peering_configs"])
-        )
-
-    if getv(from_object, ["network_attachment"]) is not None:
-        setv(
-            to_object, ["networkAttachment"], getv(from_object, ["network_attachment"])
+            to_object,
+            ["response"],
+            _ReasoningEngine_from_vertex(getv(from_object, ["response"]), to_object),
         )
 
     return to_object
@@ -151,6 +126,26 @@ def _CreateAgentEngineRequestParameters_to_vertex(
     return to_object
 
 
+def _DeleteAgentEngineOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    return to_object
+
+
 def _DeleteAgentEngineRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -161,6 +156,22 @@ def _DeleteAgentEngineRequestParameters_to_vertex(
 
     if getv(from_object, ["force"]) is not None:
         setv(to_object, ["force"], getv(from_object, ["force"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GetAgentEngineOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+        )
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
@@ -215,18 +226,44 @@ def _ListAgentEngineRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineOperationParameters_to_vertex(
+def _ListReasoningEnginesResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["reasoningEngines"]) is not None:
         setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+            to_object,
+            ["reasoning_engines"],
+            [
+                _ReasoningEngine_from_vertex(item, to_object)
+                for item in getv(from_object, ["reasoningEngines"])
+            ],
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
+    return to_object
+
+
+def _PscInterfaceConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["dns_peering_configs"]) is not None:
+        setv(
+            to_object, ["dnsPeeringConfigs"], getv(from_object, ["dns_peering_configs"])
+        )
+
+    if getv(from_object, ["network_attachment"]) is not None:
+        setv(
+            to_object, ["networkAttachment"], getv(from_object, ["network_attachment"])
+        )
 
     return to_object
 
@@ -263,6 +300,86 @@ def _QueryAgentEngineRequestParameters_to_vertex(
             ["config"],
             _QueryAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object),
         )
+
+    return to_object
+
+
+def _QueryReasoningEngineResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["output"]) is not None:
+        setv(to_object, ["output"], getv(from_object, ["output"]))
+
+    return to_object
+
+
+def _ReasoningEngineContextSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memory_bank_config"]) is not None:
+        setv(to_object, ["memoryBankConfig"], getv(from_object, ["memory_bank_config"]))
+
+    return to_object
+
+
+def _ReasoningEngineSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["agent_framework"]) is not None:
+        setv(to_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
+
+    if getv(from_object, ["class_methods"]) is not None:
+        setv(to_object, ["classMethods"], getv(from_object, ["class_methods"]))
+
+    if getv(from_object, ["deployment_spec"]) is not None:
+        setv(to_object, ["deploymentSpec"], getv(from_object, ["deployment_spec"]))
+
+    if getv(from_object, ["package_spec"]) is not None:
+        setv(to_object, ["packageSpec"], getv(from_object, ["package_spec"]))
+
+    if getv(from_object, ["service_account"]) is not None:
+        setv(to_object, ["serviceAccount"], getv(from_object, ["service_account"]))
+
+    return to_object
+
+
+def _ReasoningEngine_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
+
+    if getv(from_object, ["contextSpec"]) is not None:
+        setv(to_object, ["context_spec"], getv(from_object, ["contextSpec"]))
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["etag"]) is not None:
+        setv(to_object, ["etag"], getv(from_object, ["etag"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["spec"]) is not None:
+        setv(to_object, ["spec"], getv(from_object, ["spec"]))
+
+    if getv(from_object, ["updateTime"]) is not None:
+        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
 
     return to_object
 
@@ -331,123 +448,6 @@ def _UpdateAgentEngineRequestParameters_to_vertex(
                 getv(from_object, ["config"]), to_object
             ),
         )
-
-    return to_object
-
-
-def _ReasoningEngine_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
-
-    if getv(from_object, ["contextSpec"]) is not None:
-        setv(to_object, ["context_spec"], getv(from_object, ["contextSpec"]))
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["etag"]) is not None:
-        setv(to_object, ["etag"], getv(from_object, ["etag"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["spec"]) is not None:
-        setv(to_object, ["spec"], getv(from_object, ["spec"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
-def _AgentEngineOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _ReasoningEngine_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
-def _DeleteAgentEngineOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    return to_object
-
-
-def _ListReasoningEnginesResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["reasoningEngines"]) is not None:
-        setv(
-            to_object,
-            ["reasoning_engines"],
-            [
-                _ReasoningEngine_from_vertex(item, to_object)
-                for item in getv(from_object, ["reasoningEngines"])
-            ],
-        )
-
-    return to_object
-
-
-def _QueryReasoningEngineResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["output"]) is not None:
-        setv(to_object, ["output"], getv(from_object, ["output"]))
 
     return to_object
 

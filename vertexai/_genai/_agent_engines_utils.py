@@ -92,21 +92,6 @@ except (ImportError, AttributeError):
 
 
 try:
-    # For the registration of the AdkApp.async_add_session_to_memory method to
-    # avoid errors of the form:
-    #     failed to generate schema for async_add_session_to_memory:
-    #     `async_add_session_to_memory` is not fully defined; you should define
-    #     `Session`, then call `async_add_session_to_memory.model_rebuild()`
-    from google.adk.sessions.session import Session
-
-    Session = Session
-except (ImportError, AttributeError):
-    # For agent engine templates that do not depend on ADK, we do not need to
-    # worry about registering the AdkApp.async_add_session_to_memory method.
-    Session = Any
-
-
-try:
     from a2a.types import (
         AgentCard,
         TransportProtocol,

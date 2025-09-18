@@ -35,76 +35,6 @@ from . import types
 logger = logging.getLogger("vertexai_genai.promptmanagement")
 
 
-def _SchemaTextPromptDatasetMetadata_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["candidate_count"]) is not None:
-        setv(to_object, ["candidateCount"], getv(from_object, ["candidate_count"]))
-
-    if getv(from_object, ["gcs_uri"]) is not None:
-        setv(to_object, ["gcsUri"], getv(from_object, ["gcs_uri"]))
-
-    if getv(from_object, ["grounding_config"]) is not None:
-        setv(to_object, ["groundingConfig"], getv(from_object, ["grounding_config"]))
-
-    if getv(from_object, ["has_prompt_variable"]) is not None:
-        setv(
-            to_object, ["hasPromptVariable"], getv(from_object, ["has_prompt_variable"])
-        )
-
-    if getv(from_object, ["logprobs"]) is not None:
-        setv(to_object, ["logprobs"], getv(from_object, ["logprobs"]))
-
-    if getv(from_object, ["max_output_tokens"]) is not None:
-        setv(to_object, ["maxOutputTokens"], getv(from_object, ["max_output_tokens"]))
-
-    if getv(from_object, ["note"]) is not None:
-        setv(to_object, ["note"], getv(from_object, ["note"]))
-
-    if getv(from_object, ["prompt_api_schema"]) is not None:
-        setv(to_object, ["promptApiSchema"], getv(from_object, ["prompt_api_schema"]))
-
-    if getv(from_object, ["prompt_type"]) is not None:
-        setv(to_object, ["promptType"], getv(from_object, ["prompt_type"]))
-
-    if getv(from_object, ["seed_enabled"]) is not None:
-        setv(to_object, ["seedEnabled"], getv(from_object, ["seed_enabled"]))
-
-    if getv(from_object, ["seed_value"]) is not None:
-        setv(to_object, ["seedValue"], getv(from_object, ["seed_value"]))
-
-    if getv(from_object, ["stop_sequences"]) is not None:
-        setv(to_object, ["stopSequences"], getv(from_object, ["stop_sequences"]))
-
-    if getv(from_object, ["system_instruction"]) is not None:
-        setv(
-            to_object, ["systemInstruction"], getv(from_object, ["system_instruction"])
-        )
-
-    if getv(from_object, ["system_instruction_gcs_uri"]) is not None:
-        setv(
-            to_object,
-            ["systemInstructionGcsUri"],
-            getv(from_object, ["system_instruction_gcs_uri"]),
-        )
-
-    if getv(from_object, ["temperature"]) is not None:
-        setv(to_object, ["temperature"], getv(from_object, ["temperature"]))
-
-    if getv(from_object, ["text"]) is not None:
-        setv(to_object, ["text"], getv(from_object, ["text"]))
-
-    if getv(from_object, ["top_k"]) is not None:
-        setv(to_object, ["topK"], getv(from_object, ["top_k"]))
-
-    if getv(from_object, ["top_p"]) is not None:
-        setv(to_object, ["topP"], getv(from_object, ["top_p"]))
-
-    return to_object
-
-
 def _CreateDatasetParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -141,6 +71,106 @@ def _CreateDatasetParameters_to_vertex(
 
     if getv(from_object, ["model_reference"]) is not None:
         setv(to_object, ["modelReference"], getv(from_object, ["model_reference"]))
+
+    return to_object
+
+
+def _CreateDatasetVersionParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    if getv(from_object, ["dataset_name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["dataset_name"]))
+
+    if getv(from_object, ["dataset_version"]) is not None:
+        setv(
+            to_object,
+            ["datasetVersion"],
+            _DatasetVersion_to_vertex(
+                getv(from_object, ["dataset_version"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["parent"]) is not None:
+        setv(to_object, ["parent"], getv(from_object, ["parent"]))
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    return to_object
+
+
+def _DatasetOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(to_object, ["response"], getv(from_object, ["response"]))
+
+    return to_object
+
+
+def _DatasetVersion_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metadata"]) is not None:
+        setv(
+            to_object,
+            ["metadata"],
+            _SchemaTextPromptDatasetMetadata_from_vertex(
+                getv(from_object, ["metadata"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["bigQueryDatasetName"]) is not None:
+        setv(
+            to_object,
+            ["big_query_dataset_name"],
+            getv(from_object, ["bigQueryDatasetName"]),
+        )
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["etag"]) is not None:
+        setv(to_object, ["etag"], getv(from_object, ["etag"]))
+
+    if getv(from_object, ["modelReference"]) is not None:
+        setv(to_object, ["model_reference"], getv(from_object, ["modelReference"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["satisfiesPzi"]) is not None:
+        setv(to_object, ["satisfies_pzi"], getv(from_object, ["satisfiesPzi"]))
+
+    if getv(from_object, ["satisfiesPzs"]) is not None:
+        setv(to_object, ["satisfies_pzs"], getv(from_object, ["satisfiesPzs"]))
+
+    if getv(from_object, ["updateTime"]) is not None:
+        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
 
     return to_object
 
@@ -193,7 +223,71 @@ def _DatasetVersion_to_vertex(
     return to_object
 
 
-def _CreateDatasetVersionParameters_to_vertex(
+def _Dataset_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metadata"]) is not None:
+        setv(
+            to_object,
+            ["metadata"],
+            _SchemaTextPromptDatasetMetadata_from_vertex(
+                getv(from_object, ["metadata"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["dataItemCount"]) is not None:
+        setv(to_object, ["data_item_count"], getv(from_object, ["dataItemCount"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["etag"]) is not None:
+        setv(to_object, ["etag"], getv(from_object, ["etag"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(to_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["metadataArtifact"]) is not None:
+        setv(to_object, ["metadata_artifact"], getv(from_object, ["metadataArtifact"]))
+
+    if getv(from_object, ["metadataSchemaUri"]) is not None:
+        setv(
+            to_object, ["metadata_schema_uri"], getv(from_object, ["metadataSchemaUri"])
+        )
+
+    if getv(from_object, ["modelReference"]) is not None:
+        setv(to_object, ["model_reference"], getv(from_object, ["modelReference"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["satisfiesPzi"]) is not None:
+        setv(to_object, ["satisfies_pzi"], getv(from_object, ["satisfiesPzi"]))
+
+    if getv(from_object, ["satisfiesPzs"]) is not None:
+        setv(to_object, ["satisfies_pzs"], getv(from_object, ["satisfiesPzs"]))
+
+    if getv(from_object, ["savedQueries"]) is not None:
+        setv(to_object, ["saved_queries"], getv(from_object, ["savedQueries"]))
+
+    if getv(from_object, ["updateTime"]) is not None:
+        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
+
+    return to_object
+
+
+def _GetDatasetOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -201,23 +295,11 @@ def _CreateDatasetVersionParameters_to_vertex(
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
-    if getv(from_object, ["dataset_name"]) is not None:
-        setv(to_object, ["_url", "name"], getv(from_object, ["dataset_name"]))
+    if getv(from_object, ["dataset_id"]) is not None:
+        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
 
-    if getv(from_object, ["dataset_version"]) is not None:
-        setv(
-            to_object,
-            ["datasetVersion"],
-            _DatasetVersion_to_vertex(
-                getv(from_object, ["dataset_version"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["parent"]) is not None:
-        setv(to_object, ["parent"], getv(from_object, ["parent"]))
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+    if getv(from_object, ["operation_id"]) is not None:
+        setv(to_object, ["_url", "operation_id"], getv(from_object, ["operation_id"]))
 
     return to_object
 
@@ -257,56 +339,6 @@ def _GetDatasetVersionParameters_to_vertex(
     return to_object
 
 
-def _GetDatasetOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    if getv(from_object, ["dataset_id"]) is not None:
-        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
-
-    if getv(from_object, ["operation_id"]) is not None:
-        setv(to_object, ["_url", "operation_id"], getv(from_object, ["operation_id"]))
-
-    return to_object
-
-
-def _ListPromptsConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["page_size"]) is not None:
-        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
-
-    if getv(from_object, ["page_token"]) is not None:
-        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
-
-    if getv(from_object, ["filter"]) is not None:
-        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
-
-    return to_object
-
-
-def _ListDatasetsRequestParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListPromptsConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
-
-    return to_object
-
-
 def _ListDatasetVersionsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -328,25 +360,83 @@ def _ListDatasetVersionsRequestParameters_to_vertex(
     return to_object
 
 
-def _DatasetOperation_from_vertex(
+def _ListDatasetVersionsResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
 
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
 
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
+    if getv(from_object, ["datasetVersions"]) is not None:
+        setv(
+            to_object,
+            ["dataset_versions"],
+            [
+                _DatasetVersion_from_vertex(item, to_object)
+                for item in getv(from_object, ["datasetVersions"])
+            ],
+        )
 
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
+    return to_object
 
-    if getv(from_object, ["response"]) is not None:
-        setv(to_object, ["response"], getv(from_object, ["response"]))
+
+def _ListDatasetsRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _ListPromptsConfig_to_vertex(getv(from_object, ["config"]), to_object),
+        )
+
+    return to_object
+
+
+def _ListDatasetsResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["datasets"]) is not None:
+        setv(
+            to_object,
+            ["datasets"],
+            [
+                _Dataset_from_vertex(item, to_object)
+                for item in getv(from_object, ["datasets"])
+            ],
+        )
+
+    return to_object
+
+
+def _ListPromptsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["page_size"]) is not None:
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
+
+    if getv(from_object, ["page_token"]) is not None:
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
 
     return to_object
 
@@ -421,162 +511,72 @@ def _SchemaTextPromptDatasetMetadata_from_vertex(
     return to_object
 
 
-def _Dataset_from_vertex(
+def _SchemaTextPromptDatasetMetadata_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["metadata"]) is not None:
+    if getv(from_object, ["candidate_count"]) is not None:
+        setv(to_object, ["candidateCount"], getv(from_object, ["candidate_count"]))
+
+    if getv(from_object, ["gcs_uri"]) is not None:
+        setv(to_object, ["gcsUri"], getv(from_object, ["gcs_uri"]))
+
+    if getv(from_object, ["grounding_config"]) is not None:
+        setv(to_object, ["groundingConfig"], getv(from_object, ["grounding_config"]))
+
+    if getv(from_object, ["has_prompt_variable"]) is not None:
+        setv(
+            to_object, ["hasPromptVariable"], getv(from_object, ["has_prompt_variable"])
+        )
+
+    if getv(from_object, ["logprobs"]) is not None:
+        setv(to_object, ["logprobs"], getv(from_object, ["logprobs"]))
+
+    if getv(from_object, ["max_output_tokens"]) is not None:
+        setv(to_object, ["maxOutputTokens"], getv(from_object, ["max_output_tokens"]))
+
+    if getv(from_object, ["note"]) is not None:
+        setv(to_object, ["note"], getv(from_object, ["note"]))
+
+    if getv(from_object, ["prompt_api_schema"]) is not None:
+        setv(to_object, ["promptApiSchema"], getv(from_object, ["prompt_api_schema"]))
+
+    if getv(from_object, ["prompt_type"]) is not None:
+        setv(to_object, ["promptType"], getv(from_object, ["prompt_type"]))
+
+    if getv(from_object, ["seed_enabled"]) is not None:
+        setv(to_object, ["seedEnabled"], getv(from_object, ["seed_enabled"]))
+
+    if getv(from_object, ["seed_value"]) is not None:
+        setv(to_object, ["seedValue"], getv(from_object, ["seed_value"]))
+
+    if getv(from_object, ["stop_sequences"]) is not None:
+        setv(to_object, ["stopSequences"], getv(from_object, ["stop_sequences"]))
+
+    if getv(from_object, ["system_instruction"]) is not None:
+        setv(
+            to_object, ["systemInstruction"], getv(from_object, ["system_instruction"])
+        )
+
+    if getv(from_object, ["system_instruction_gcs_uri"]) is not None:
         setv(
             to_object,
-            ["metadata"],
-            _SchemaTextPromptDatasetMetadata_from_vertex(
-                getv(from_object, ["metadata"]), to_object
-            ),
+            ["systemInstructionGcsUri"],
+            getv(from_object, ["system_instruction_gcs_uri"]),
         )
 
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
+    if getv(from_object, ["temperature"]) is not None:
+        setv(to_object, ["temperature"], getv(from_object, ["temperature"]))
 
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+    if getv(from_object, ["text"]) is not None:
+        setv(to_object, ["text"], getv(from_object, ["text"]))
 
-    if getv(from_object, ["dataItemCount"]) is not None:
-        setv(to_object, ["data_item_count"], getv(from_object, ["dataItemCount"]))
+    if getv(from_object, ["top_k"]) is not None:
+        setv(to_object, ["topK"], getv(from_object, ["top_k"]))
 
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["etag"]) is not None:
-        setv(to_object, ["etag"], getv(from_object, ["etag"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(to_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["metadataArtifact"]) is not None:
-        setv(to_object, ["metadata_artifact"], getv(from_object, ["metadataArtifact"]))
-
-    if getv(from_object, ["metadataSchemaUri"]) is not None:
-        setv(
-            to_object, ["metadata_schema_uri"], getv(from_object, ["metadataSchemaUri"])
-        )
-
-    if getv(from_object, ["modelReference"]) is not None:
-        setv(to_object, ["model_reference"], getv(from_object, ["modelReference"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["satisfiesPzi"]) is not None:
-        setv(to_object, ["satisfies_pzi"], getv(from_object, ["satisfiesPzi"]))
-
-    if getv(from_object, ["satisfiesPzs"]) is not None:
-        setv(to_object, ["satisfies_pzs"], getv(from_object, ["satisfiesPzs"]))
-
-    if getv(from_object, ["savedQueries"]) is not None:
-        setv(to_object, ["saved_queries"], getv(from_object, ["savedQueries"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
-def _DatasetVersion_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metadata"]) is not None:
-        setv(
-            to_object,
-            ["metadata"],
-            _SchemaTextPromptDatasetMetadata_from_vertex(
-                getv(from_object, ["metadata"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["bigQueryDatasetName"]) is not None:
-        setv(
-            to_object,
-            ["big_query_dataset_name"],
-            getv(from_object, ["bigQueryDatasetName"]),
-        )
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["etag"]) is not None:
-        setv(to_object, ["etag"], getv(from_object, ["etag"]))
-
-    if getv(from_object, ["modelReference"]) is not None:
-        setv(to_object, ["model_reference"], getv(from_object, ["modelReference"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["satisfiesPzi"]) is not None:
-        setv(to_object, ["satisfies_pzi"], getv(from_object, ["satisfiesPzi"]))
-
-    if getv(from_object, ["satisfiesPzs"]) is not None:
-        setv(to_object, ["satisfies_pzs"], getv(from_object, ["satisfiesPzs"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
-def _ListDatasetsResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["datasets"]) is not None:
-        setv(
-            to_object,
-            ["datasets"],
-            [
-                _Dataset_from_vertex(item, to_object)
-                for item in getv(from_object, ["datasets"])
-            ],
-        )
-
-    return to_object
-
-
-def _ListDatasetVersionsResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["datasetVersions"]) is not None:
-        setv(
-            to_object,
-            ["dataset_versions"],
-            [
-                _DatasetVersion_from_vertex(item, to_object)
-                for item in getv(from_object, ["datasetVersions"])
-            ],
-        )
+    if getv(from_object, ["top_p"]) is not None:
+        setv(to_object, ["topP"], getv(from_object, ["top_p"]))
 
     return to_object
 

@@ -59,13 +59,6 @@ if TYPE_CHECKING:
         BaseSessionService = Any
 
     try:
-        from google.adk.sessions.session import Session
-
-        Session = Session
-    except (ImportError, AttributeError):
-        Session = Any
-
-    try:
         from google.adk.artifacts import BaseArtifactService
 
         BaseArtifactService = BaseArtifactService
@@ -1135,16 +1128,14 @@ class AdkApp:
         if isinstance(outcome, RuntimeError):
             raise outcome from None
 
-    async def async_add_session_to_memory(
-        self,
-        *,
-        session: Union["Session", Dict[str, Any]],
-    ):
+    async def async_add_session_to_memory(self, *, session: Dict[str, Any]):
         """Generates memories.
 
         Args:
-            session (Union[Session, Dict[str, Any]]):
-                Required. The session to use for generating memories.
+            session (Dict[str, Any]):
+                Required. The session to use for generating memories. It should
+                be a dictionary representing an ADK Session object, e.g.
+                session.model_dump(mode="json").
         """
         from google.adk.sessions.session import Session
 

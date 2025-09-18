@@ -898,6 +898,7 @@ class CustomModel:
     def list_deploy_options(
         self,
         available_machines: bool = True,
+        filter_by_user_quota: bool = True,
         request_timeout: Optional[float] = None,
     ) -> str:
         """Lists the deploy options for the model.
@@ -905,6 +906,8 @@ class CustomModel:
         Args:
             available_machines: If true, only return the deploy options for
               available machines.
+            filter_by_user_quota: If true, only return the deploy options for
+              machines that the user has quota for.
             request_timeout: The timeout for the recommend spec request.
               Default is 60 seconds.
 
@@ -941,6 +944,7 @@ class CustomModel:
             gcs_uri=self._gcs_uri,
             parent=f"projects/{self._project}/locations/{self._location}",
             check_machine_availability=available_machines,
+            check_user_quota=filter_by_user_quota,
         )
         try:
             response = self._model_service_client.recommend_spec(
@@ -953,6 +957,13 @@ class CustomModel:
                     for recommendation in response.recommendations
                     if recommendation.spec
                 ]
+                if filter_by_user_quota:
+                    options = [
+                        option
+                        for option in options
+                        if option.get("user_quota_state")
+                        == "QUOTA_STATE_USER_HAS_QUOTA"
+                    ]
             elif response.specs:
                 options = [_extract_spec(spec) for spec in response.specs if spec]
             return "\n\n".join(

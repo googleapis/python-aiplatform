@@ -37,17 +37,46 @@ logger = logging.getLogger("vertexai_genai.sandboxes")
 logger.setLevel(logging.INFO)
 
 
-def _SandboxEnvironmentSpec_to_vertex(
+def _AgentEngineSandboxOperation_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["code_execution_environment"]) is not None:
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["response"]) is not None:
         setv(
             to_object,
-            ["codeExecutionEnvironment"],
-            getv(from_object, ["code_execution_environment"]),
+            ["response"],
+            _SandboxEnvironment_from_vertex(getv(from_object, ["response"]), to_object),
         )
+
+    return to_object
+
+
+def _Chunk_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["mime_type"]) is not None:
+        setv(to_object, ["mimeType"], getv(from_object, ["mime_type"]))
+
+    if getv(from_object, ["data"]) is not None:
+        setv(to_object, ["data"], getv(from_object, ["data"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
 
     return to_object
 
@@ -94,6 +123,26 @@ def _CreateAgentEngineSandboxRequestParameters_to_vertex(
     return to_object
 
 
+def _DeleteAgentEngineSandboxOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    return to_object
+
+
 def _DeleteAgentEngineSandboxRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -104,23 +153,6 @@ def _DeleteAgentEngineSandboxRequestParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _Chunk_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["mime_type"]) is not None:
-        setv(to_object, ["mimeType"], getv(from_object, ["mime_type"]))
-
-    if getv(from_object, ["data"]) is not None:
-        setv(to_object, ["data"], getv(from_object, ["data"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
 
     return to_object
 
@@ -141,6 +173,33 @@ def _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
                 _Chunk_to_vertex(item, to_object)
                 for item in getv(from_object, ["inputs"])
             ],
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _ExecuteSandboxEnvironmentResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["outputs"]) is not None:
+        setv(to_object, ["outputs"], getv(from_object, ["outputs"]))
+
+    return to_object
+
+
+def _GetAgentEngineSandboxOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -201,18 +260,41 @@ def _ListAgentEngineSandboxesRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineSandboxOperationParameters_to_vertex(
+def _ListAgentEngineSandboxesResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["sandboxEnvironments"]) is not None:
         setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+            to_object,
+            ["sandbox_environments"],
+            [
+                _SandboxEnvironment_from_vertex(item, to_object)
+                for item in getv(from_object, ["sandboxEnvironments"])
+            ],
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
+    return to_object
+
+
+def _SandboxEnvironmentSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["code_execution_environment"]) is not None:
+        setv(
+            to_object,
+            ["codeExecutionEnvironment"],
+            getv(from_object, ["code_execution_environment"]),
+        )
 
     return to_object
 
@@ -242,88 +324,6 @@ def _SandboxEnvironment_from_vertex(
 
     if getv(from_object, ["updateTime"]) is not None:
         setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
-def _AgentEngineSandboxOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _SandboxEnvironment_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
-def _DeleteAgentEngineSandboxOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    return to_object
-
-
-def _ExecuteSandboxEnvironmentResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["outputs"]) is not None:
-        setv(to_object, ["outputs"], getv(from_object, ["outputs"]))
-
-    return to_object
-
-
-def _ListAgentEngineSandboxesResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["sandboxEnvironments"]) is not None:
-        setv(
-            to_object,
-            ["sandbox_environments"],
-            [
-                _SandboxEnvironment_from_vertex(item, to_object)
-                for item in getv(from_object, ["sandboxEnvironments"])
-            ],
-        )
 
     return to_object
 
