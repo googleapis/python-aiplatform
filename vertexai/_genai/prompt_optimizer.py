@@ -729,7 +729,14 @@ class PromptOptimizer(_api_module.BaseModule):
                 return_value.append(response_value.content.parts[0].text)
 
         output = "".join(return_value)
-        return _prompt_optimizer_utils._parse(output)
+        final_response = types.OptimizeResponse(raw_text_response=output)
+        try:
+            final_response.parsed_response = _prompt_optimizer_utils._parse(output)
+        except Exception as e:
+            logger.warning(
+                f"Failed to parse response: {e}. Returning only raw_text_response."
+            )
+        return final_response
 
 
 class AsyncPromptOptimizer(_api_module.BaseModule):
@@ -1069,7 +1076,14 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
                 return_value.append(response_value.content.parts[0].text)
 
         output = "".join(return_value)
-        return _prompt_optimizer_utils._parse(output)
+        final_response = types.OptimizeResponse(raw_text_response=output)
+        try:
+            final_response.parsed_response = _prompt_optimizer_utils._parse(output)
+        except Exception as e:
+            logger.warning(
+                f"Failed to parse response: {e}. Returning only raw_text_response."
+            )
+        return final_response
 
     async def optimize_prompt(
         self, *, prompt: str, config: Optional[types.OptimizeConfig] = None

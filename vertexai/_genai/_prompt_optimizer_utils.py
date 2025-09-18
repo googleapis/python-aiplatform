@@ -70,7 +70,7 @@ def _clean_and_parse_optimized_prompt(output_str: str):
         ) from e
 
 
-def _parse(output_str: str) -> types.OptimizeResponse:
+def _parse(output_str: str) -> types.ParsedResponse:
     """Parses the output string from the prompt optimizer endpoint."""
     parsed_out = _clean_and_parse_optimized_prompt(output_str)
-    return types.OptimizeResponse(**parsed_out)
+    return types.ParsedResponse(**parsed_out)

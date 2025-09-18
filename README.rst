@@ -93,8 +93,9 @@ method.
 
     prompt = "Generate system instructions for a question-answering assistant"
     response = client.prompt_optimizer.optimize_prompt(prompt=prompt)
-
-    print(response.suggested_prompt)
+    print(response.raw_text_response)
+    if response.parsed_response:
+      print(response.parsed_response.suggested_prompt)
 
 To call the data-driven prompt optimization, call the `optimize` method.
 In this case however, we need to provide `vapo_config`. This config needs to

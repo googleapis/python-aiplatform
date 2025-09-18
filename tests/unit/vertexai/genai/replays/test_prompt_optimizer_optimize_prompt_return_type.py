@@ -24,6 +24,7 @@ def test_optimize_prompt(client):
     test_prompt = "Generate system instructions for analyzing medical articles"
     response = client.prompt_optimizer.optimize_prompt(prompt=test_prompt)
     assert isinstance(response, types.OptimizeResponse)
+    assert response.raw_text_response
 
 
 pytestmark = pytest_helper.setup(
