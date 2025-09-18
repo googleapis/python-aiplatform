@@ -23,6 +23,7 @@ from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
+from google.genai import operations
 from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
@@ -283,6 +284,97 @@ def _Dataset_from_vertex(
 
     if getv(from_object, ["updateTime"]) is not None:
         setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
+
+    return to_object
+
+
+def _DeleteDatasetRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt_id"]) is not None:
+        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["prompt_id"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _DeletePromptConfig_to_vertex(getv(from_object, ["config"]), to_object),
+        )
+
+    return to_object
+
+
+def _DeletePromptConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["timeout"]) is not None:
+        setv(to_object, ["timeout"], getv(from_object, ["timeout"]))
+
+    return to_object
+
+
+def _DeletePromptOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    return to_object
+
+
+def _DeletePromptVersionOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    return to_object
+
+
+def _DeletePromptVersionRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt_id"]) is not None:
+        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["prompt_id"]))
+
+    if getv(from_object, ["version_id"]) is not None:
+        setv(to_object, ["_url", "version_id"], getv(from_object, ["version_id"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _DeletePromptConfig_to_vertex(getv(from_object, ["config"]), to_object),
+        )
 
     return to_object
 
@@ -1003,6 +1095,113 @@ class PromptManagement(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _delete_dataset(
+        self, *, prompt_id: str, config: Optional[types.DeletePromptConfigOrDict] = None
+    ) -> types.DeletePromptOperation:
+        parameter_model = types._DeleteDatasetRequestParameters(
+            prompt_id=prompt_id,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeleteDatasetRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}".format_map(request_url_dict)
+            else:
+                path = "datasets/{dataset_id}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _DeletePromptOperation_from_vertex(response_dict)
+
+        return_value = types.DeletePromptOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _delete_dataset_version(
+        self,
+        *,
+        prompt_id: str,
+        version_id: str,
+        config: Optional[types.DeletePromptConfigOrDict] = None,
+    ) -> types.DeletePromptVersionOperation:
+        parameter_model = types._DeletePromptVersionRequestParameters(
+            prompt_id=prompt_id,
+            version_id=version_id,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeletePromptVersionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}/datasetVersions/{version_id}".format_map(
+                    request_url_dict
+                )
+            else:
+                path = "datasets/{dataset_id}/datasetVersions/{version_id}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _DeletePromptVersionOperation_from_vertex(response_dict)
+
+        return_value = types.DeletePromptVersionOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def create_version(
         self,
         *,
@@ -1348,6 +1547,104 @@ class PromptManagement(_api_module.BaseModule):
                 prompt_id=prompt_id,
             )
             yield prompt_version_ref
+
+    def _wait_for_project_operation(
+        self,
+        operation: types.DatasetOperation,
+        timeout: int,
+    ) -> None:
+        """Waits for a dataset deletion operation to complete.
+
+        Delete operations are project level operations and are separate from dataset resource operations, for example: projects/123/locations/us-central1/operations/789.
+
+        Args:
+          operation: The project operation to wait for.
+          timeout: The maximum time to wait for the operation to complete.
+        Raises:
+          TimeoutError: If the operation does not complete within the timeout.
+          ValueError: If the operation fails.
+        """
+        done = False
+
+        start_time = time.time()
+        sleep_duration = 5
+        wait_multiplier = 2
+        max_wait_time = 60
+        previous_time = time.time()
+        while not done:
+            if (time.time() - start_time) > timeout:
+                raise TimeoutError(
+                    f"Delete operation did not complete within the"
+                    f" specified timeout of {timeout} seconds."
+                )
+            current_time = time.time()
+            if current_time - previous_time >= sleep_duration:
+                sleep_duration = min(sleep_duration * wait_multiplier, max_wait_time)
+                previous_time = current_time
+            time.sleep(sleep_duration)
+            operations_module = operations.Operations(api_client_=self._api_client)
+
+            operation = operations_module._get(
+                operation_id=operation.name.split("/")[-1],
+            )
+            done = operation.done if hasattr(operation, "done") else False
+        if hasattr(operation, "error") and operation.error is not None:
+            raise ValueError(f"Error in delete operation: {operation.error}")
+
+    def delete_prompt(
+        self,
+        *,
+        prompt_id: str,
+        config: Optional[types.DeletePromptConfig] = None,
+    ) -> None:
+        """Deletes a prompt resource.
+
+        Args:
+          prompt_id: The id of the prompt resource to delete.
+
+        Raises:
+          TimeoutError: If the delete operation does not complete within the timeout.
+          ValueError: If the delete operation fails.
+        """
+
+        delete_prompt_operation = self._delete_dataset(
+            prompt_id=prompt_id,
+            config=config,
+        )
+        self._wait_for_project_operation(
+            operation=delete_prompt_operation, timeout=config.timeout if config else 90
+        )
+        logger.info(f"Deleted prompt with id: {prompt_id}")
+
+    def delete_version(
+        self,
+        *,
+        prompt_id: str,
+        version_id: str,
+        config: Optional[types.DeletePromptConfig] = None,
+    ) -> None:
+        """Deletes a prompt version resource.
+
+        Args:
+          prompt_id: The id of the prompt resource to delete.
+          version_id: The id of the prompt version resource to delete.
+
+        Raises:
+          TimeoutError: If the delete operation does not complete within the timeout.
+          ValueError: If the delete operation fails.
+        """
+        delete_version_operation = self._delete_dataset_version(
+            prompt_id=prompt_id,
+            version_id=version_id,
+            config=config,
+        )
+
+        self._wait_for_project_operation(
+            operation=delete_version_operation, timeout=config.timeout if config else 90
+        )
+        logger.info(
+            f"Deleted prompt version {version_id} from prompt with id: {prompt_id}"
+        )
 
 
 class AsyncPromptManagement(_api_module.BaseModule):
@@ -1780,6 +2077,117 @@ class AsyncPromptManagement(_api_module.BaseModule):
             response_dict = _ListDatasetVersionsResponse_from_vertex(response_dict)
 
         return_value = types.ListDatasetVersionsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _delete_dataset(
+        self, *, prompt_id: str, config: Optional[types.DeletePromptConfigOrDict] = None
+    ) -> types.DeletePromptOperation:
+        parameter_model = types._DeleteDatasetRequestParameters(
+            prompt_id=prompt_id,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeleteDatasetRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}".format_map(request_url_dict)
+            else:
+                path = "datasets/{dataset_id}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _DeletePromptOperation_from_vertex(response_dict)
+
+        return_value = types.DeletePromptOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _delete_dataset_version(
+        self,
+        *,
+        prompt_id: str,
+        version_id: str,
+        config: Optional[types.DeletePromptConfigOrDict] = None,
+    ) -> types.DeletePromptVersionOperation:
+        parameter_model = types._DeletePromptVersionRequestParameters(
+            prompt_id=prompt_id,
+            version_id=version_id,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeletePromptVersionRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}/datasetVersions/{version_id}".format_map(
+                    request_url_dict
+                )
+            else:
+                path = "datasets/{dataset_id}/datasetVersions/{version_id}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _DeletePromptVersionOperation_from_vertex(response_dict)
+
+        return_value = types.DeletePromptVersionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 

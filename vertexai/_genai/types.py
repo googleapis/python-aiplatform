@@ -8638,6 +8638,168 @@ ListDatasetVersionsResponseOrDict = Union[
 ]
 
 
+class DeletePromptConfig(_common.BaseModel):
+    """Config for deleting a prompt."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""Timeout for the delete prompt operation in seconds. Defaults to 90.""",
+    )
+
+
+class DeletePromptConfigDict(TypedDict, total=False):
+    """Config for deleting a prompt."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    timeout: Optional[int]
+    """Timeout for the delete prompt operation in seconds. Defaults to 90."""
+
+
+DeletePromptConfigOrDict = Union[DeletePromptConfig, DeletePromptConfigDict]
+
+
+class _DeleteDatasetRequestParameters(_common.BaseModel):
+    """Parameters for deleting a prompt dataset."""
+
+    prompt_id: Optional[str] = Field(
+        default=None, description="""ID of the prompt dataset to be deleted."""
+    )
+    config: Optional[DeletePromptConfig] = Field(default=None, description="""""")
+
+
+class _DeleteDatasetRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a prompt dataset."""
+
+    prompt_id: Optional[str]
+    """ID of the prompt dataset to be deleted."""
+
+    config: Optional[DeletePromptConfigDict]
+    """"""
+
+
+_DeleteDatasetRequestParametersOrDict = Union[
+    _DeleteDatasetRequestParameters, _DeleteDatasetRequestParametersDict
+]
+
+
+class DeletePromptOperation(_common.BaseModel):
+    """Operation for deleting prompts."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeletePromptOperationDict(TypedDict, total=False):
+    """Operation for deleting prompts."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeletePromptOperationOrDict = Union[DeletePromptOperation, DeletePromptOperationDict]
+
+
+class _DeletePromptVersionRequestParameters(_common.BaseModel):
+    """Parameters for deleting a prompt version."""
+
+    prompt_id: Optional[str] = Field(
+        default=None, description="""ID of the prompt to be deleted."""
+    )
+    version_id: Optional[str] = Field(
+        default=None,
+        description="""ID of the prompt version to be deleted within the provided prompt_id.""",
+    )
+    config: Optional[DeletePromptConfig] = Field(default=None, description="""""")
+
+
+class _DeletePromptVersionRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a prompt version."""
+
+    prompt_id: Optional[str]
+    """ID of the prompt to be deleted."""
+
+    version_id: Optional[str]
+    """ID of the prompt version to be deleted within the provided prompt_id."""
+
+    config: Optional[DeletePromptConfigDict]
+    """"""
+
+
+_DeletePromptVersionRequestParametersOrDict = Union[
+    _DeletePromptVersionRequestParameters, _DeletePromptVersionRequestParametersDict
+]
+
+
+class DeletePromptVersionOperation(_common.BaseModel):
+    """Operation for deleting prompt versions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeletePromptVersionOperationDict(TypedDict, total=False):
+    """Operation for deleting prompt versions."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeletePromptVersionOperationOrDict = Union[
+    DeletePromptVersionOperation, DeletePromptVersionOperationDict
+]
+
+
 class PromptOptimizerVAPOConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
