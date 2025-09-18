@@ -18,6 +18,7 @@ from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import types as genai_types
 
+import pytest
 
 TEST_PROMPT_DATASET_ID = "8005484238453342208"
 TEST_VARIABLES = [
@@ -279,3 +280,31 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="prompt_management.create_version",
 )
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_create_version_async(client):
+    prompt_resource = await client.aio.prompt_management.create_version(
+        prompt=TEST_PROMPT.model_dump(),
+        config=TEST_CONFIG.model_dump(),
+    )
+    assert isinstance(prompt_resource, types.Prompt)
+    assert isinstance(prompt_resource.dataset, types.Dataset)
+
+
+@pytest.mark.asyncio
+async def test_create_version_in_existing_dataset_async(client):
+    prompt_version_resource = await client.aio.prompt_management.create_version(
+        prompt=TEST_PROMPT.model_dump(),
+        config=types.CreatePromptConfig(
+            prompt_id=TEST_PROMPT_DATASET_ID,
+            prompt_display_name=TEST_CONFIG.prompt_display_name,
+            version_display_name="my_version_existing_dataset",
+        ),
+    )
+    assert isinstance(prompt_version_resource, types.Prompt)
+    assert isinstance(prompt_version_resource.dataset, types.Dataset)
+    assert isinstance(prompt_version_resource.dataset_version, types.DatasetVersion)
+    assert prompt_version_resource.dataset.name.endswith(TEST_PROMPT_DATASET_ID)

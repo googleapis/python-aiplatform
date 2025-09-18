@@ -18,6 +18,9 @@ from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import types as genai_types
 
+import pytest
+
+
 TEST_PROMPT_DATASET_ID = "6550997480673116160"
 TEST_PROMPT_VERSION_ID = "2"
 
@@ -75,3 +78,21 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="prompt_management._get_dataset_resource",
 )
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_get_prompt_async(client):
+    prompt = await client.aio.prompt_management.get(prompt_id=TEST_PROMPT_DATASET_ID)
+    assert isinstance(prompt, types.Prompt)
+    assert isinstance(prompt.dataset, types.Dataset)
+    assert prompt.dataset.name.endswith(TEST_PROMPT_DATASET_ID)
+    assert (
+        prompt.prompt_data
+        == prompt.dataset.metadata.prompt_api_schema.multimodal_prompt.prompt_message
+    )
+    assert isinstance(prompt.prompt_data, types.SchemaPromptSpecPromptMessage)
+
+    contents = prompt.assemble_contents()
+    assert isinstance(contents[0], genai_types.Content)

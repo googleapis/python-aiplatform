@@ -119,3 +119,26 @@ def _create_prompt_from_dataset_metadata(
                         prompt.prompt_data.variables.append(var_map)
 
     return prompt
+
+
+def _raise_for_invalid_prompt(
+    prompt: types.Prompt, config: types.CreatePromptConfig
+) -> None:
+
+    if config.encryption_spec and config.prompt_id:
+        raise ValueError(
+            "Encryption spec can only be used for creating new prompts, not for creating new prompt versions."
+        )
+
+    if not prompt.prompt_data:
+        raise ValueError("Prompt data must be provided.")
+    if not prompt.prompt_data.contents:
+        raise ValueError("Prompt contents must be provided.")
+    if not prompt.prompt_data.model:
+        raise ValueError("Model name must be provided.")
+    if (
+        prompt.prompt_data
+        and prompt.prompt_data.contents
+        and len(prompt.prompt_data.contents) > 1
+    ):
+        raise ValueError("Multi-turn prompts are not currently supported.")
