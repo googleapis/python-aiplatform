@@ -24,6 +24,20 @@ Vertex AI SDK for Python
 .. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
+Installation
+~~~~~~~~~~~~
+
+.. code-block:: console
+
+    pip install google-cloud-aiplatform
+
+
+With :code:`uv`:
+
+.. code-block:: console
+
+    uv pip install google-cloud-aiplatform
+
 Generative AI in the Vertex AI SDK
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -162,41 +176,6 @@ In order to use this library, you first need to go through the following steps:
 .. _Enable billing for your project.: https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project
 .. _Enable the Vertex AI API.:  https://cloud.google.com/vertex-ai/docs/start/use-vertex-ai-python-sdk
 .. _Setup Authentication.: https://googleapis.dev/python/google-api-core/latest/auth.html
-
-Installation
-~~~~~~~~~~~~
-
-Install this library in a `virtualenv`_ using pip. `virtualenv`_ is a tool to
-create isolated Python environments. The basic problem it addresses is one of
-dependencies and versions, and indirectly permissions.
-
-With `virtualenv`_, it's possible to install this library without needing system
-install permissions, and without clashing with the installed system
-dependencies.
-
-.. _virtualenv: https://virtualenv.pypa.io/en/latest/
-
-
-Mac/Linux
-^^^^^^^^^
-
-.. code-block:: console
-
-    pip install virtualenv
-    virtualenv <your-env>
-    source <your-env>/bin/activate
-    <your-env>/bin/pip install google-cloud-aiplatform
-
-
-Windows
-^^^^^^^
-
-.. code-block:: console
-
-    pip install virtualenv
-    virtualenv <your-env>
-    <your-env>\Scripts\activate
-    <your-env>\Scripts\pip.exe install google-cloud-aiplatform
 
 
 Supported Python Versions
