@@ -97,6 +97,79 @@ Then run evaluation by providing the inference results and specifying the metric
         ]
     )
 
+Agent Engine with Agent Development Kit (ADK)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+First, define a function that looks up the exchange rate:
+
+.. code-block:: Python
+
+    def get_exchange_rate(
+        currency_from: str = "USD",
+        currency_to: str = "EUR",
+        currency_date: str = "latest",
+    ):
+        """Retrieves the exchange rate between two currencies on a specified date.
+
+        Uses the Frankfurter API (https://api.frankfurter.app/) to obtain
+        exchange rate data.
+
+        Returns:
+            dict: A dictionary containing the exchange rate information.
+                Example: {"amount": 1.0, "base": "USD", "date": "2023-11-24",
+                    "rates": {"EUR": 0.95534}}
+        """
+        import requests
+        response = requests.get(
+            f"https://api.frankfurter.app/{currency_date}",
+            params={"from": currency_from, "to": currency_to},
+        )
+        return response.json()
+
+Next, define an ADK Agent:
+
+.. code-block:: Python
+
+    from google.adk.agents import Agent
+    from vertexai.agent_engines import AdkApp
+
+    app = AdkApp(agent=Agent(
+        model="gemini-2.0-flash",        # Required.
+        name='currency_exchange_agent',  # Required.
+        tools=[get_exchange_rate],       # Optional.
+    ))
+
+Test the agent locally using US dollars and Swedish Krona:
+
+.. code-block:: Python
+
+    async for event in app.async_stream_query(
+        user_id="user-id",
+        message="What is the exchange rate from US dollars to SEK today?",
+    ):
+        print(event)
+
+To deploy the agent to Agent Engine:
+
+.. code-block:: Python
+
+    remote_app = client.agent_engines.create(
+        agent=app,
+        config={
+            "requirements": ["google-cloud-aiplatform[agent_engines,adk]"],
+        },
+    )
+
+You can also run queries against the deployed agent:
+
+.. code-block:: Python
+
+    async for event in remote_app.async_stream_query(
+        user_id="user-id",
+        message="What is the exchange rate from US dollars to SEK today?",
+    ):
+        print(event)
+
 Prompt optimization
 ^^^^^^^^^^^^^^^^^^^
 
