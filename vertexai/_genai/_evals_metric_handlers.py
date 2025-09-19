@@ -871,6 +871,19 @@ class PredefinedMetricHandler(MetricHandler):
                 eval_case.prompt
             )
 
+        other_data_map = {}
+        if hasattr(eval_case, "context") and eval_case.context:
+            if isinstance(eval_case.context, str):
+                other_data_map["context"] = types.InstanceData(text=eval_case.context)
+            elif isinstance(eval_case.context, genai_types.Content):
+                other_data_map["context"] = (
+                    PredefinedMetricHandler._content_to_instance_data(eval_case.context)
+                )
+            else:
+                logger.warning(
+                    f"Unsupported type for context: {type(eval_case.context)}"
+                )
+
         instance_payload = types.EvaluationInstance(
             prompt=prompt_instance_data,
             response=PredefinedMetricHandler._content_to_instance_data(
@@ -878,6 +891,11 @@ class PredefinedMetricHandler(MetricHandler):
             ),
             reference=reference_instance_data,
             rubric_groups=eval_case.rubric_groups,
+            other_data=(
+                types.MapInstance(map_instance=other_data_map)
+                if other_data_map
+                else None
+            ),
         )
 
         return {
