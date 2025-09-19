@@ -9459,6 +9459,52 @@ class ResponseCandidateDict(TypedDict, total=False):
 ResponseCandidateOrDict = Union[ResponseCandidate, ResponseCandidateDict]
 
 
+class Event(_common.BaseModel):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the agent event."""
+    )
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Content of the event."""
+    )
+    creation_timestamp: Optional[datetime.datetime] = Field(
+        default=None, description="""The creation timestamp of the event."""
+    )
+    author: Optional[str] = Field(
+        default=None, description="""Name of the entity that produced the event."""
+    )
+
+
+class EventDict(TypedDict, total=False):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str]
+    """Unique identifier for the agent event."""
+
+    content: Optional[genai_types.ContentDict]
+    """Content of the event."""
+
+    creation_timestamp: Optional[datetime.datetime]
+    """The creation timestamp of the event."""
+
+    author: Optional[str]
+    """Name of the entity that produced the event."""
+
+
+EventOrDict = Union[Event, EventDict]
+
+
 class EvalCase(_common.BaseModel):
     """A comprehensive representation of a GenAI interaction for evaluation."""
 
@@ -9467,11 +9513,11 @@ class EvalCase(_common.BaseModel):
     )
     responses: Optional[list[ResponseCandidate]] = Field(
         default=None,
-        description="""Model-generated replies to the last user message. Multiple responses are allowed to support use cases such as comparing different model outputs.""",
+        description="""Model-generated replies to the last user message. Multiple responses are allowed to support use cases such as comparing different model outputs; Response for last user message in multi-turn agent eval.""",
     )
     reference: Optional[ResponseCandidate] = Field(
         default=None,
-        description="""User-provided, golden reference model reply to prompt in context of chat history.""",
+        description="""User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in multi-turn agent eval.""",
     )
     system_instruction: Optional[genai_types.Content] = Field(
         default=None, description="""System instruction for the model."""
@@ -9487,6 +9533,14 @@ class EvalCase(_common.BaseModel):
     eval_case_id: Optional[str] = Field(
         default=None, description="""Unique identifier for the evaluation case."""
     )
+    intermediate_events: Optional[list[Event]] = Field(
+        default=None,
+        description="""Immtermiate events of a single turn in agent eval, the last turn for multi-turn agent eval.""",
+    )
+    agent_metadata: Optional[dict[str, "AgentMetadata"]] = Field(
+        default=None,
+        description="""Agent metadata for agent eval, keyed by agent name.""",
+    )
     # Allow extra fields to support custom metric prompts and stay backward compatible.
     model_config = ConfigDict(frozen=True, extra="allow")
 
@@ -9498,10 +9552,10 @@ class EvalCaseDict(TypedDict, total=False):
     """The most recent user message (current input)."""
 
     responses: Optional[list[ResponseCandidateDict]]
-    """Model-generated replies to the last user message. Multiple responses are allowed to support use cases such as comparing different model outputs."""
+    """Model-generated replies to the last user message. Multiple responses are allowed to support use cases such as comparing different model outputs; Response for last user message in multi-turn agent eval."""
 
     reference: Optional[ResponseCandidateDict]
-    """User-provided, golden reference model reply to prompt in context of chat history."""
+    """User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in multi-turn agent eval."""
 
     system_instruction: Optional[genai_types.ContentDict]
     """System instruction for the model."""
@@ -9514,6 +9568,12 @@ class EvalCaseDict(TypedDict, total=False):
 
     eval_case_id: Optional[str]
     """Unique identifier for the evaluation case."""
+
+    intermediate_events: Optional[list[EventDict]]
+    """Immtermiate events of a single turn in agent eval, the last turn for multi-turn agent eval."""
+
+    agent_metadata: Optional[dict[str, "AgentMetadataDict"]]
+    """Agent metadata for agent eval, keyed by agent name."""
 
 
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
