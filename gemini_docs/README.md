@@ -318,7 +318,7 @@ result = EvalTask(
 Before you begin, install the packages with
 
 ```shell
-pip3 install --upgrade --user "google-cloud-aiplatform[agent_engines,adk]>=1.95.1"
+pip3 install --upgrade --user "google-cloud-aiplatform[agent_engines,adk]>=1.111"
 ```
 
 First, define a function that looks up the exchange rate:
@@ -351,7 +351,7 @@ Next, define an ADK Agent:
 
 ```python
 from google.adk.agents import Agent
-from vertexai.preview.reasoning_engines import AdkApp
+from vertexai.agent_engines import AdkApp
 
 app = AdkApp(agent=Agent(
     model="gemini-2.0-flash",        # Required.
@@ -363,7 +363,7 @@ app = AdkApp(agent=Agent(
 Test the agent locally using US dollars and Swedish Krona:
 
 ```python
-for event in app.stream_query(
+async for event in app.async_stream_query(
     user_id="user-id",
     message="What is the exchange rate from US dollars to SEK today?",
 ):
@@ -388,7 +388,7 @@ remote_app = vertexai.agent_engines.create(
 You can also run queries against the deployed agent:
 
 ```python
-for event in remote_app.stream_query(
+async for event in remote_app.async_stream_query(
     user_id="user-id",
     message="What is the exchange rate from US dollars to SEK today?",
 ):
