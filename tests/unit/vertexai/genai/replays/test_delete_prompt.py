@@ -19,6 +19,8 @@ import logging
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import types as genai_types
+import pytest
+
 
 TEST_PROMPT_DATASET_ID = "6550997480673116160"
 TEST_PROMPT_VERSION_ID = "2"
@@ -79,3 +81,57 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="prompt_management.delete",
 )
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_delete_dataset_async(client, caplog):
+    caplog.set_level(logging.INFO)
+    prompt = client.prompt_management.create_version(
+        prompt=types.Prompt(
+            prompt_data=types.PromptData(
+                model="gemini-2.5-flash",
+                contents=[
+                    genai_types.Content(
+                        parts=[genai_types.Part(text="What is the capital of France?")],
+                    )
+                ],
+            )
+        ),
+        config=types.CreatePromptConfig(
+            prompt_display_name="test_delete_prompt_dataset",
+            version_display_name="test_delete_prompt_dataset_version",
+        ),
+    )
+    await client.aio.prompt_management.delete_prompt(
+        prompt_id=prompt.prompt_id,
+    )
+    assert "Deleted prompt with id: " in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_delete_version_async(client, caplog):
+    caplog.set_level(logging.INFO)
+    prompt = client.prompt_management.create_version(
+        prompt=types.Prompt(
+            prompt_data=types.PromptData(
+                model="gemini-2.5-flash",
+                contents=[
+                    genai_types.Content(
+                        parts=[genai_types.Part(text="What is the capital of France?")],
+                    )
+                ],
+            )
+        ),
+        config=types.CreatePromptConfig(
+            prompt_display_name="test_delete_prompt_dataset",
+            version_display_name="test_delete_prompt_dataset_version",
+        ),
+    )
+    version_id = prompt.dataset_version.name.split("/")[-1]
+    await client.aio.prompt_management.delete_version(
+        prompt_id=prompt.prompt_id,
+        version_id=version_id,
+    )
+    assert "Deleted prompt version" in caplog.text

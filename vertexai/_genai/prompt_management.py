@@ -2397,3 +2397,101 @@ class AsyncPromptManagement(_api_module.BaseModule):
             prompt._dataset_version = prompt_version_resource
 
         return prompt
+
+    async def _wait_for_project_operation(
+        self,
+        operation: types.DatasetOperation,
+        timeout: int,
+    ) -> None:
+        """Waits for a dataset deletion operation to complete.
+
+        Delete operations are project level operations and are separate from dataset resource operations, for example: projects/123/locations/us-central1/operations/789.
+
+        Args:
+          operation: The project operation to wait for.
+          timeout: The maximum time to wait for the operation to complete.
+        Raises:
+          TimeoutError: If the operation does not complete within the timeout.
+          ValueError: If the operation fails.
+        """
+        done = False
+
+        start_time = time.time()
+        sleep_duration = 5
+        wait_multiplier = 2
+        max_wait_time = 60
+        previous_time = time.time()
+        while not done:
+            if (time.time() - start_time) > timeout:
+                raise TimeoutError(
+                    f"Delete operation did not complete within the"
+                    f" specified timeout of {timeout} seconds."
+                )
+            current_time = time.time()
+            if current_time - previous_time >= sleep_duration:
+                sleep_duration = min(sleep_duration * wait_multiplier, max_wait_time)
+                previous_time = current_time
+            await asyncio.sleep(sleep_duration)
+            operations_module = operations.AsyncOperations(api_client_=self._api_client)
+
+            operation = await operations_module._get(
+                operation_id=operation.name.split("/")[-1],
+            )
+            done = operation.done if hasattr(operation, "done") else False
+        if hasattr(operation, "error") and operation.error is not None:
+            raise ValueError(f"Error in delete operation: {operation.error}")
+
+    async def delete_prompt(
+        self,
+        *,
+        prompt_id: str,
+        config: Optional[types.DeletePromptConfig] = None,
+    ) -> None:
+        """Deletes a prompt resource.
+
+        Args:
+          prompt_id: The id of the prompt resource to delete.
+
+        Raises:
+          TimeoutError: If the delete operation does not complete within the timeout.
+          ValueError: If the delete operation fails.
+        """
+
+        delete_prompt_operation = await self._delete_dataset(
+            prompt_id=prompt_id,
+            config=config,
+        )
+        await self._wait_for_project_operation(
+            operation=delete_prompt_operation, timeout=config.timeout if config else 90
+        )
+        logger.info(f"Deleted prompt with id: {prompt_id}")
+
+    async def delete_version(
+        self,
+        *,
+        prompt_id: str,
+        version_id: str,
+        config: Optional[types.DeletePromptConfig] = None,
+    ) -> None:
+        """Deletes a prompt version resource.
+
+        Args:
+          prompt_id: The id of the prompt resource to delete.
+          version_id: The id of the prompt version resource to delete.
+
+        Raises:
+          TimeoutError: If the delete operation does not complete within the timeout.
+          ValueError: If the delete operation fails.
+        """
+        delete_version_operation = await self._delete_dataset_version(
+            prompt_id=prompt_id,
+            version_id=version_id,
+            config=config,
+        )
+
+        await self._wait_for_project_operation(
+            operation=delete_version_operation, timeout=config.timeout if config else 90
+        )
+        logger.info(
+            f"Deleted prompt version {version_id} from prompt with id: {prompt_id}"
+        )
