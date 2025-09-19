@@ -8036,7 +8036,7 @@ class DatasetOperation(_common.BaseModel):
         description="""The error result of the operation in case of failure or cancellation.""",
     )
     response: Optional[dict[str, Any]] = Field(
-        default=None, description="""The result of the operation."""
+        default=None, description="""The result of the dataset operation."""
     )
 
 
@@ -8056,7 +8056,7 @@ class DatasetOperationDict(TypedDict, total=False):
     """The error result of the operation in case of failure or cancellation."""
 
     response: Optional[dict[str, Any]]
-    """The result of the operation."""
+    """The result of the dataset operation."""
 
 
 DatasetOperationOrDict = Union[DatasetOperation, DatasetOperationDict]
@@ -8486,7 +8486,7 @@ GetDatasetOperationConfigOrDict = Union[
 
 
 class _GetDatasetOperationParameters(_common.BaseModel):
-    """Parameters for getting a dataset resource to store prompts."""
+    """Parameters for getting a dataset operation."""
 
     config: Optional[GetDatasetOperationConfig] = Field(
         default=None, description=""""""
@@ -8496,7 +8496,7 @@ class _GetDatasetOperationParameters(_common.BaseModel):
 
 
 class _GetDatasetOperationParametersDict(TypedDict, total=False):
-    """Parameters for getting a dataset resource to store prompts."""
+    """Parameters for getting a dataset operation."""
 
     config: Optional[GetDatasetOperationConfigDict]
     """"""
@@ -8815,6 +8815,96 @@ class DeletePromptVersionOperationDict(TypedDict, total=False):
 
 DeletePromptVersionOperationOrDict = Union[
     DeletePromptVersionOperation, DeletePromptVersionOperationDict
+]
+
+
+class RestoreVersionConfig(_common.BaseModel):
+    """Config for restoring a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class RestoreVersionConfigDict(TypedDict, total=False):
+    """Config for restoring a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+RestoreVersionConfigOrDict = Union[RestoreVersionConfig, RestoreVersionConfigDict]
+
+
+class _RestoreVersionRequestParameters(_common.BaseModel):
+    """Parameters for restoring a prompt version."""
+
+    config: Optional[RestoreVersionConfig] = Field(default=None, description="""""")
+    dataset_id: Optional[str] = Field(
+        default=None, description="""ID of the prompt dataset to be restored."""
+    )
+    version_id: Optional[str] = Field(
+        default=None, description="""ID of the prompt dataset version to be restored."""
+    )
+
+
+class _RestoreVersionRequestParametersDict(TypedDict, total=False):
+    """Parameters for restoring a prompt version."""
+
+    config: Optional[RestoreVersionConfigDict]
+    """"""
+
+    dataset_id: Optional[str]
+    """ID of the prompt dataset to be restored."""
+
+    version_id: Optional[str]
+    """ID of the prompt dataset version to be restored."""
+
+
+_RestoreVersionRequestParametersOrDict = Union[
+    _RestoreVersionRequestParameters, _RestoreVersionRequestParametersDict
+]
+
+
+class RestoreVersionOperation(_common.BaseModel):
+    """Represents the restore version operation."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class RestoreVersionOperationDict(TypedDict, total=False):
+    """Represents the restore version operation."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+RestoreVersionOperationOrDict = Union[
+    RestoreVersionOperation, RestoreVersionOperationDict
 ]
 
 
