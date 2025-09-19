@@ -19,7 +19,7 @@ import asyncio
 import json
 import logging
 import time
-from typing import Any, Iterator, Optional, Union
+from typing import Any, AsyncIterator, Iterator, Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
@@ -28,7 +28,7 @@ from google.genai import operations
 from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
-from google.genai.pagers import Pager
+from google.genai.pagers import AsyncPager, Pager
 
 from . import _prompt_management_utils
 from . import types
@@ -2495,3 +2495,112 @@ class AsyncPromptManagement(_api_module.BaseModule):
         logger.info(
             f"Deleted prompt version {version_id} from prompt with id: {prompt_id}"
         )
+
+    async def _list_prompts_pager(
+        self,
+        *,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+    ) -> AsyncPager[types.Dataset]:
+        return AsyncPager(
+            "datasets",
+            self._list_prompts,
+            await self._list_prompts(config=config),
+            config,
+        )
+
+    async def _list_versions_pager(
+        self,
+        *,
+        prompt_id: str,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+    ) -> AsyncPager[types.DatasetVersion]:
+        return AsyncPager(
+            "dataset_versions",
+            self._list_versions,
+            await self._list_versions(config=config, dataset_id=prompt_id),
+            config,
+        )
+
+    async def list_prompts(
+        self,
+        *,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+    ) -> AsyncIterator[types.PromptRef]:
+        """Lists prompt resources in a project.
+
+        This method retrieves all the prompts from the project provided in the
+        vertexai.Client constructor and returns a list of prompt references containing the prompt_id and model for the prompt.
+
+        To get the full types.Prompt resource for a PromptRef after calling this method, use the get() method with the prompt_id as the prompt_id argument.
+        Example usage:
+
+        ```
+        prompt_refs = client.aio.prompt_management.list_prompts()
+        async for prompt_ref in prompt_refs:
+          await client.prompt_management.get(prompt_id=prompt_ref.prompt_id)
+        ```
+
+        Args:
+          config: Optional configuration for listing prompts.
+
+        Returns:
+            An async iterator of types.PromptRef objects.
+        """
+        if isinstance(config, dict):
+            config = types.ListPromptsConfig(**config)
+        elif not config:
+            config = types.ListPromptsConfig()
+        async for dataset in await self._list_prompts_pager(config=config):
+            if not dataset or not dataset.model_reference or not dataset.name:
+                continue
+            prompt_ref = types.PromptRef(
+                model=dataset.model_reference, prompt_id=dataset.name.split("/")[-1]
+            )
+            yield prompt_ref
+
+    async def list_versions(
+        self,
+        *,
+        prompt_id: str,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
+    ) -> AsyncIterator[types.PromptVersionRef]:
+        """Lists prompt version resources for a provided prompt_id.
+
+        This method retrieves all the prompt versions for a provided prompt_id.
+
+        To get the full types.Prompt resource for a PromptVersionRef after calling this method, use the get() method with the returned prompt_id and version_id.
+        Example usage:
+
+        ```
+        prompt_version_refs = await client.prompt_management.list_versions(prompt_id="123")
+        async for version_ref in prompt_version_refs:
+          await client.aio.prompt_management.get(prompt_id=version_ref.prompt_id, version_id=version_ref.version_id)
+        ```
+
+        Args:
+          prompt_id: The id of the Vertex Dataset resource containing the prompt. For example, if the prompt resource name is "projects/123/locations/us-central1/datasets/456", then the prompt_id is "456".
+          config: Optional configuration for listing prompts.
+
+        Returns:
+            An async iterator of types.PromptVersionRef objects representing the prompt version resources for the provided prompt_id.
+
+        """
+        if isinstance(config, dict):
+            config = types.ListPromptsConfig(**config)
+        elif not config:
+            config = types.ListPromptsConfig()
+        async for dataset_version in await self._list_versions_pager(
+            config=config, prompt_id=prompt_id
+        ):
+            if (
+                not dataset_version
+                or not dataset_version.model_reference
+                or not dataset_version.name
+            ):
+                continue
+            prompt_version_ref = types.PromptVersionRef(
+                model=dataset_version.model_reference,
+                version_id=dataset_version.name.split("/")[-1],
+                prompt_id=prompt_id,
+            )
+            yield prompt_version_ref

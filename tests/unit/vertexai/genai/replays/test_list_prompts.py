@@ -16,6 +16,8 @@
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 
+import pytest
+
 
 def test_list_returns_prompts(client):
     prompt_refs = client.prompt_management.list_prompts()
@@ -71,3 +73,26 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="prompt_management.list_prompts",
 )
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_list_returns_prompts_async(client):
+    prompt_refs = client.aio.prompt_management.list_prompts()
+    async for prompt in prompt_refs:
+        assert isinstance(prompt, types.PromptRef)
+        assert prompt.prompt_id is not None
+        assert prompt.model is not None
+
+
+@pytest.mark.asyncio
+async def test_list_versions_async(client):
+    prompt_version_refs = client.aio.prompt_management.list_versions(
+        prompt_id="3331020504126455808"
+    )
+    async for prompt_version in prompt_version_refs:
+        assert isinstance(prompt_version, types.PromptVersionRef)
+        assert prompt_version.prompt_id is not None
+        assert prompt_version.version_id is not None
+        assert prompt_version.model is not None
