@@ -569,6 +569,7 @@ class AdkApp:
 
         self._tmpl_attrs["runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
+            plugins=self._tmpl_attrs.get("plugins"),
             session_service=self._tmpl_attrs.get("session_service"),
             artifact_service=self._tmpl_attrs.get("artifact_service"),
             memory_service=self._tmpl_attrs.get("memory_service"),

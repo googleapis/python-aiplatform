@@ -571,6 +571,7 @@ class AdkApp:
         self._tmpl_attrs["in_memory_memory_service"] = InMemoryMemoryService()
         self._tmpl_attrs["in_memory_runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
+            plugins=self._tmpl_attrs.get("plugins"),
             session_service=self._tmpl_attrs.get("in_memory_session_service"),
             artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
             memory_service=self._tmpl_attrs.get("in_memory_memory_service"),
