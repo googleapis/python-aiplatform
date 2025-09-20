@@ -410,7 +410,7 @@ class ReasoningEngineExecutionServiceAsyncClient:
         # Done; return the response.
         return response
 
-    def stream_query_reasoning_engine(
+    async def stream_query_reasoning_engine(
         self,
         request: Optional[
             Union[
@@ -543,7 +543,7 @@ class ReasoningEngineExecutionServiceAsyncClient:
         self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
