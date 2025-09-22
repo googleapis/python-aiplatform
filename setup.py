@@ -170,7 +170,7 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm >= 1.72.4",
+    "litellm >= 1.72.4, <= 1.76.3",
 ]
 
 langchain_extra_require = [
