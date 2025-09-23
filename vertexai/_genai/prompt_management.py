@@ -534,6 +534,43 @@ def _ListPromptsConfig_to_vertex(
     return to_object
 
 
+def _RestoreVersionOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    return to_object
+
+
+def _RestoreVersionRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    if getv(from_object, ["dataset_id"]) is not None:
+        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
+
+    if getv(from_object, ["version_id"]) is not None:
+        setv(to_object, ["_url", "version_id"], getv(from_object, ["version_id"]))
+
+    return to_object
+
+
 def _SchemaTextPromptDatasetMetadata_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -930,7 +967,7 @@ class PromptManagement(_api_module.BaseModule):
         operation_id: Optional[str] = None,
     ) -> types.DatasetOperation:
         """
-        Gets the operation from creating a dataset version.
+        Gets the operation from creating a dataset.
         """
 
         parameter_model = types._GetDatasetOperationParameters(
@@ -1197,6 +1234,66 @@ class PromptManagement(_api_module.BaseModule):
             response_dict = _DeletePromptVersionOperation_from_vertex(response_dict)
 
         return_value = types.DeletePromptVersionOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _restore_version(
+        self,
+        *,
+        config: Optional[types.RestoreVersionConfigOrDict] = None,
+        dataset_id: str,
+        version_id: str,
+    ) -> types.RestoreVersionOperation:
+        """
+        Restores the provided prompt version to the latest version.
+        """
+
+        parameter_model = types._RestoreVersionRequestParameters(
+            config=config,
+            dataset_id=dataset_id,
+            version_id=version_id,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RestoreVersionRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}/datasetVersions/{version_id}:restore".format_map(
+                    request_url_dict
+                )
+            else:
+                path = "datasets/{dataset_id}/datasetVersions/{version_id}:restore"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _RestoreVersionOperation_from_vertex(response_dict)
+
+        return_value = types.RestoreVersionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1631,6 +1728,42 @@ class PromptManagement(_api_module.BaseModule):
             f"Deleted prompt version {version_id} from prompt with id: {prompt_id}"
         )
 
+    def restore_version(
+        self,
+        *,
+        prompt_id: str,
+        version_id: str,
+        config: Optional[types.RestoreVersionConfig] = None,
+    ) -> types.Prompt:
+        """Restores the provided prompt version to the latest version.
+
+        Args:
+          prompt_id: The id of the Vertex Dataset resource containing the prompt. For example, if the prompt resource name is "projects/123/locations/us-central1/datasets/456", then the prompt_id is "456".
+          version_id: The id of the Vertex Dataset Version resource to restore. For example, if the version resource name is "projects/123/locations/us-central1/datasets/456/datasetVersions/789", then the version_id is "789".
+          config: Optional configuration for restoring the prompt version.
+
+        Returns:
+            A types.Prompt object representing the prompt with the updated Dataset Version resource.
+        """
+
+        restore_prompt_operation = self._restore_version(
+            dataset_id=prompt_id,
+            version_id=version_id,
+        )
+        self._wait_for_project_operation(
+            operation=restore_prompt_operation,
+            timeout=config.timeout if config else 90,
+        )
+        dataset_version_resource = self._get_dataset_version_resource(
+            dataset_id=prompt_id,
+            dataset_version_id=version_id,
+        )
+        updated_prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            dataset_version_resource,
+        )
+        updated_prompt._dataset_version = dataset_version_resource
+        return updated_prompt
+
 
 class AsyncPromptManagement(_api_module.BaseModule):
 
@@ -1896,7 +2029,7 @@ class AsyncPromptManagement(_api_module.BaseModule):
         operation_id: Optional[str] = None,
     ) -> types.DatasetOperation:
         """
-        Gets the operation from creating a dataset version.
+        Gets the operation from creating a dataset.
         """
 
         parameter_model = types._GetDatasetOperationParameters(
@@ -2173,6 +2306,68 @@ class AsyncPromptManagement(_api_module.BaseModule):
             response_dict = _DeletePromptVersionOperation_from_vertex(response_dict)
 
         return_value = types.DeletePromptVersionOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _restore_version(
+        self,
+        *,
+        config: Optional[types.RestoreVersionConfigOrDict] = None,
+        dataset_id: str,
+        version_id: str,
+    ) -> types.RestoreVersionOperation:
+        """
+        Restores the provided prompt version to the latest version.
+        """
+
+        parameter_model = types._RestoreVersionRequestParameters(
+            config=config,
+            dataset_id=dataset_id,
+            version_id=version_id,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RestoreVersionRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}/datasetVersions/{version_id}:restore".format_map(
+                    request_url_dict
+                )
+            else:
+                path = "datasets/{dataset_id}/datasetVersions/{version_id}:restore"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _RestoreVersionOperation_from_vertex(response_dict)
+
+        return_value = types.RestoreVersionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -2604,3 +2799,39 @@ class AsyncPromptManagement(_api_module.BaseModule):
                 prompt_id=prompt_id,
             )
             yield prompt_version_ref
+
+    async def restore_version(
+        self,
+        *,
+        prompt_id: str,
+        version_id: str,
+        config: Optional[types.RestoreVersionConfig] = None,
+    ) -> types.Prompt:
+        """Restores the provided prompt version to the latest version.
+
+        Args:
+          prompt_id: The id of the Vertex Dataset resource containing the prompt. For example, if the prompt resource name is "projects/123/locations/us-central1/datasets/456", then the prompt_id is "456".
+          version_id: The id of the Vertex Dataset Version resource to restore. For example, if the version resource name is "projects/123/locations/us-central1/datasets/456/datasetVersions/789", then the version_id is "789".
+          config: Optional configuration for restoring the prompt version.
+
+        Returns:
+            A types.Prompt object representing the prompt with the updated Dataset Version resource.
+        """
+
+        restore_prompt_operation = await self._restore_version(
+            dataset_id=prompt_id,
+            version_id=version_id,
+        )
+        await self._wait_for_project_operation(
+            operation=restore_prompt_operation,
+            timeout=config.timeout if config else 90,
+        )
+        dataset_version_resource = await self._get_dataset_version_resource(
+            dataset_id=prompt_id,
+            dataset_version_id=version_id,
+        )
+        updated_prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            dataset_version_resource,
+        )
+        updated_prompt._dataset_version = dataset_version_resource
+        return updated_prompt
