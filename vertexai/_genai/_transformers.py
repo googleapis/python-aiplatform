@@ -78,3 +78,15 @@ def t_metrics(
             )
         metrics_payload.append(metric_payload_item)
     return metrics_payload
+
+
+def t_evaluation_run_data_source(
+    data_source: dict[str, Any],
+) -> dict[str, Any]:
+    """Converts an EvaluationDataset to an EvaluationRunDataSource."""
+    eval_dataset = {}
+    if "evaluationSet" in data_source:
+        eval_dataset["evaluationSet"] = data_source["evaluationSet"]
+    elif "bigqueryRequestSet" in data_source:
+        eval_dataset["bigquery_source"] = data_source["bigqueryRequestSet"]
+    return eval_dataset
