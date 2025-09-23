@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.116.0](https://github.com/googleapis/python-aiplatform/compare/v1.115.0...v1.116.0) (2025-09-22)
+
+
+### Features
+
+* Add experimental async list_prompts and list_version methods to prompt management ([13a626b](https://github.com/googleapis/python-aiplatform/commit/13a626bb38f5e8f9ba5c0b7db41b41c46ecf4f58))
+* GenAI SDK client - add experimental async delete_prompt and delete_version method to Prompt Management ([45e616a](https://github.com/googleapis/python-aiplatform/commit/45e616a94f1b14646930cb9d598ac20776326038))
+* Update gapic utils to allows creating RAG clients with api_override ([9851905](https://github.com/googleapis/python-aiplatform/commit/98519056af7f3f95ac15c0b585b788a82ab548a7))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Add support for `context` in Grounding metric ([e75d91f](https://github.com/googleapis/python-aiplatform/commit/e75d91fc928358299ed4d6cd1a210a2448cbea4e))
+* Pass plugins to the Runner in ADK template. ([b43b7b4](https://github.com/googleapis/python-aiplatform/commit/b43b7b4f259cea295fe447fa0c751ff5c5a34c6a))
+
+
+### Documentation
+
+* Update AgentEngine with ADK template to the version in GA ([0d600fd](https://github.com/googleapis/python-aiplatform/commit/0d600fdf93a3e70e9a6b0d43913147b100f116ce))
+
 ## [1.115.0](https://github.com/googleapis/python-aiplatform/compare/v1.114.0...v1.115.0) (2025-09-18)
 
 
