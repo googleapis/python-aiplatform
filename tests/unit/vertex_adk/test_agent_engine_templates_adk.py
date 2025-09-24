@@ -116,6 +116,32 @@ def simple_span_processor_mock():
 
 
 @pytest.fixture
+def get_gcp_exporters_mock():
+    from google.adk.telemetry import google_cloud
+
+    with mock.patch.object(google_cloud, "get_gcp_exporters") as get_gcp_exporters_mock:
+        yield get_gcp_exporters_mock
+
+
+@pytest.fixture
+def maybe_set_otel_providers_mock():
+    from google.adk.telemetry import setup
+
+    with mock.patch.object(
+        setup, "maybe_set_otel_providers"
+    ) as maybe_set_otel_providers_mock:
+        yield maybe_set_otel_providers_mock
+
+
+@pytest.fixture
+def default_instrumentor_builder_mock():
+    with mock.patch(
+        "google.cloud.aiplatform.vertexai.agent_engines.templates.adk._default_instrumentor_builder"
+    ) as default_instrumentor_builder_mock:
+        yield default_instrumentor_builder_mock
+
+
+@pytest.fixture
 def mock_adk_version():
     with mock.patch(
         "google.cloud.aiplatform.vertexai.agent_engines.templates.adk.get_adk_version",
@@ -384,6 +410,80 @@ class TestAdkApp:
             query=_TEST_SEARCH_MEMORY_QUERY,
         )
         assert len(response.memories) >= 1
+
+    def test_telemetry_setup(
+        self,
+        get_gcp_exporters_mock: mock.Mock,
+        maybe_set_otel_providers_mock: mock.Mock,
+        default_instrumentor_builder_mock: mock.Mock,
+    ):
+        fake_exporters = "fake_exporters"
+        get_gcp_exporters_mock.return_value = fake_exporters
+
+        app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        app.set_up()
+
+        expected_get_gcp_exporters_calls = [
+            mock.call(
+                enable_cloud_tracing=True,
+                enable_cloud_logging=False,
+                enable_cloud_metrics=False,
+            )
+        ]
+        get_gcp_exporters_mock.assert_has_calls(expected_get_gcp_exporters_calls)
+        assert get_gcp_exporters_mock.call_count == len(
+            expected_get_gcp_exporters_calls
+        )
+
+        assert maybe_set_otel_providers_mock.call_count == 1
+        setup_exporters = maybe_set_otel_providers_mock.call_args[0][0]
+        setup_resource = maybe_set_otel_providers_mock.call_args[0][1]
+        assert setup_exporters == [fake_exporters]
+        assert setup_resource.attributes == {
+            "gcp.project_id": _TEST_PROJECT,
+            "service.name": "unknown_service",
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": setup_resource.attributes.get(
+                "telemetry.sdk.version"
+            ),  # Prevent test from failing when upgrading telemetry sdk
+        }
+        # Legacy method of setting telemetry is not invoked
+        assert default_instrumentor_builder_mock.call_count == 0
+
+    @pytest.mark.parametrize("enable_tracing", [False, True])
+    def test_user_telemetry_setup(self, enable_tracing: bool):
+        instrumentor_builder = mock.Mock()
+
+        app = agent_engines.AdkApp(
+            agent=_TEST_AGENT,
+            enable_tracing=enable_tracing,
+            instrumentor_builder=instrumentor_builder,
+        )
+        app.set_up()
+
+        if enable_tracing:
+            instrumentor_builder.assert_called_once_with(_TEST_PROJECT)
+        else:
+            instrumentor_builder.assert_not_called()
+
+    @mock.patch("google.adk.version.__version__", "1.14.0")
+    def test_legacy_telemetry_setup(
+        self,
+        get_gcp_exporters_mock: mock.Mock,
+        maybe_set_otel_providers_mock: mock.Mock,
+        default_instrumentor_builder_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        app.set_up()
+
+        # Method of enabling telemetry from ADK, available from 1.15.0 is not invoked.
+        assert get_gcp_exporters_mock.call_count == 0
+        assert maybe_set_otel_providers_mock.call_count == 0
+        # Legacy method of setting telemetry is invoked
+        default_instrumentor_builder_mock.assert_called_once_with(
+            _TEST_PROJECT, enable_tracing=True
+        )
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing(

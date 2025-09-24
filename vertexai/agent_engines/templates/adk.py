@@ -197,7 +197,10 @@ class _StreamingRunResponse:
         return result
 
 
-def _default_instrumentor_builder(project_id: str):
+def _default_instrumentor_builder(project_id: str, *, enable_tracing: bool = False):
+    if not enable_tracing:
+        return None
+
     from vertexai.agent_engines import _utils
 
     cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
@@ -267,6 +270,72 @@ def _default_instrumentor_builder(project_id: str):
             "`opentelemetry-exporter-gcp-trace`) for tracing have been installed"
         )
         return None
+
+
+def _adk_instrumentator_builder(
+    project_id: str,
+    *,
+    enable_tracing: bool = False,
+):
+    if not enable_tracing:
+        return
+
+    import os
+    from vertexai.agent_engines import _utils
+
+    def detect_cloud_resource_id() -> Optional[str]:
+        location = os.getenv("GOOGLE_CLOUD_LOCATION", None)
+        agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", None)
+        if all(v is not None for v in (location, agent_engine_id)):
+            return f"//aiplatform.googleapis.com/v1/projects/{project_id}/locations/{location}/reasoningEngines/{agent_engine_id}"
+        return None
+
+    opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
+    if opentelemetry_sdk_trace is None:
+        from google.cloud.aiplatform import base
+
+        _LOGGER = base.Logger(__name__)
+        _LOGGER.warning(
+            f"telemetry enabled but proceeding with telemetry disabled, because not all packages (i.e. opentelemetry-sdk) for telemetry have been installed"
+        )
+        return None
+
+    from google.adk.telemetry.google_cloud import get_gcp_exporters
+    from google.adk.telemetry.setup import maybe_set_otel_providers
+
+    cloud_resource_id = detect_cloud_resource_id()
+
+    gcp_exporters = get_gcp_exporters(
+        enable_cloud_tracing=enable_tracing,
+        enable_cloud_logging=False,
+        enable_cloud_metrics=False,
+    )
+    otel_resource = opentelemetry_sdk_trace.Resource.create(
+        attributes={
+            "gcp.project_id": project_id,
+            "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
+        }
+        | (
+            {"cloud.resource_id": cloud_resource_id}
+            if cloud_resource_id is not None
+            else {}
+        )
+    )
+    maybe_set_otel_providers([gcp_exporters], otel_resource)
+
+    try:
+        from opentelemetry.instrumentation.google_genai import (
+            GoogleGenAiSdkInstrumentor,
+        )
+
+        GoogleGenAiSdkInstrumentor().instrument()
+    except ImportError:
+        from google.cloud.aiplatform import base
+
+        _LOGGER = base.Logger(__name__)
+        _LOGGER.warning(
+            "logging enabled but proceeding with some logging disabled, because not all packages (i.e. opentelemetry-instrumentation-google-genai) for telemetry have been installed"
+        )
 
 
 def _override_active_span_processor(
@@ -511,14 +580,20 @@ class AdkApp:
         os.environ["GOOGLE_CLOUD_PROJECT"] = project
         location = self._tmpl_attrs.get("location")
         os.environ["GOOGLE_CLOUD_LOCATION"] = location
-        if self._tmpl_attrs.get("enable_tracing"):
+
+        if instrumentor_builder := self._tmpl_attrs.get("instrumentor_builder"):
+            if self._tmpl_attrs.get("enable_tracing"):
+                self._tmpl_attrs["instrumentor"] = instrumentor_builder(project)
+        else:
             instrumentor_builder = (
-                self._tmpl_attrs.get("instrumentor_builder")
-                or _default_instrumentor_builder
+                _adk_instrumentator_builder
+                if is_version_sufficient("1.15.0")
+                else _default_instrumentor_builder
             )
             self._tmpl_attrs["instrumentor"] = instrumentor_builder(
-                project_id=self._tmpl_attrs.get("project")
+                project, enable_tracing=self._tmpl_attrs.get("enable_tracing")
             )
+
         if not self._tmpl_attrs.get("app_name"):
             if "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
                 self._tmpl_attrs["app_name"] = os.environ.get(
