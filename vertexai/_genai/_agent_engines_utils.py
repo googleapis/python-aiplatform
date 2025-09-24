@@ -1414,7 +1414,7 @@ AgentEngineOperationUnion = Union[
 
 
 class GetOperationFunction(Protocol):
-    def __call__(
+    def __call__(  # noqa: E704
         self, *, operation_name: str, **kwargs
     ) -> AgentEngineOperationUnion: ...
 
