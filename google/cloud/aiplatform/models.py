@@ -815,6 +815,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             return getattr(self._gca_resource, "dedicated_endpoint_enabled", False)
         return False
 
+    @property
+    def enable_private_model_server(self) -> bool:
+        """The private model server is enabled for this Endpoint.
+        """
+        return getattr(self._gca_resource, "private_model_server_enabled", False)
+
     @classmethod
     def create(
         cls,
@@ -834,6 +840,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         request_response_logging_bq_destination_table: Optional[str] = None,
         dedicated_endpoint_enabled=False,
         inference_timeout: Optional[int] = None,
+        enable_private_model_server=False,
     ) -> "Endpoint":
         """Creates a new endpoint.
 
@@ -907,7 +914,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 latency will be reduced.
             inference_timeout (int):
                 Optional. It defines the prediction timeout, in seconds, for online predictions using cloud-based endpoints. This applies to either PSC endpoints, when private_service_connect_config is set, or dedicated endpoints, when dedicated_endpoint_enabled is true.
-
+            enable_private_model_server (bool):
+                Optional. If enabled, a private model server will be created and
+                the model server will be isolated from the external traffic.
+                By default, set to false, which means the model server will have
+                access to the external traffic.
         Returns:
             endpoint (aiplatform.Endpoint):
                 Created endpoint.
@@ -964,6 +975,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             predict_request_response_logging_config=predict_request_response_logging_config,
             dedicated_endpoint_enabled=dedicated_endpoint_enabled,
             client_connection_config=client_connection_config,
+            enable_private_model_server=enable_private_model_server,
         )
 
     @classmethod
@@ -993,6 +1005,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         client_connection_config: Optional[
             gca_endpoint_compat.ClientConnectionConfig
         ] = None,
+        enable_private_model_server: bool = False,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -1065,7 +1078,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 latency will be reduced.
             client_connection_config (aiplatform.endpoint.ClientConnectionConfig):
                 Optional. The inference timeout which is applied on cloud-based (PSC, or dedicated) endpoints for online prediction.
-
+            enable_private_model_server (bool):
+                Optional. If enabled, a private model server will be created and
+                the model server will be isolated from the external traffic.
+                By default, set to false, which means the model server will have
+                access to the external traffic.
         Returns:
             endpoint (aiplatform.Endpoint):
                 Created endpoint.
@@ -1085,6 +1102,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             private_service_connect_config=private_service_connect_config,
             dedicated_endpoint_enabled=dedicated_endpoint_enabled,
             client_connection_config=client_connection_config,
+            private_model_server_enabled=enable_private_model_server,
         )
 
         operation_future = api_client.create_endpoint(
