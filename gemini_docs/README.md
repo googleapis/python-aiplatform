@@ -218,7 +218,7 @@ prompt = types.Prompt(
     ),
 )
 
-prompt_resource = client.prompt_management.create_version(
+prompt_resource = client.prompt_management.create_prompt(
     prompt=prompt,
 )
 ```
