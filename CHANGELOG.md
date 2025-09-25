@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.117.0](https://github.com/googleapis/python-aiplatform/compare/v1.116.0...v1.117.0) (2025-09-25)
+
+
+### Features
+
+* Expose user reservation for CustomModel ([f796e74](https://github.com/googleapis/python-aiplatform/commit/f796e747f0c2c106e6ab83d2b2af0169c882ff58))
+* Gen AI SDK client - add experimental restore_version method to Prompt Management ([820e0b6](https://github.com/googleapis/python-aiplatform/commit/820e0b68159e70c262fbfa823ae21a1172f58cee))
+
+
+### Documentation
+
+* Add generated docs for Gen AI Modules ([c3c2f7f](https://github.com/googleapis/python-aiplatform/commit/c3c2f7f4d7dddb2d2bc76557582f0958cd80c951))
+
 ## [1.116.0](https://github.com/googleapis/python-aiplatform/compare/v1.115.0...v1.116.0) (2025-09-22)
 
 
