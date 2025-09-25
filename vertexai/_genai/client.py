@@ -46,7 +46,7 @@ _api_client.append_library_version_headers = _add_tracking_headers
 
 
 class AsyncClient:
-    """Async Client for the GenAI SDK."""
+    """Async Gen AI Client for the Vertex SDK."""
 
     def __init__(self, api_client: genai_client.Client):
         self._api_client = api_client
@@ -124,7 +124,7 @@ class AsyncClient:
 
 
 class Client:
-    """Client for the GenAI SDK.
+    """Gen AI Client for the Vertex SDK.
 
     Use this client to interact with Vertex-specific Gemini features.
     """
