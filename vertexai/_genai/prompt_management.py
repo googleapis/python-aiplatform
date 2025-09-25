@@ -88,14 +88,17 @@ def _CreateDatasetVersionParameters_to_vertex(
     if getv(from_object, ["dataset_name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["dataset_name"]))
 
-    if getv(from_object, ["dataset_version"]) is not None:
+    if getv(from_object, ["metadata"]) is not None:
         setv(
             to_object,
-            ["datasetVersion"],
-            _DatasetVersion_to_vertex(
-                getv(from_object, ["dataset_version"]), to_object
+            ["metadata"],
+            _SchemaTextPromptDatasetMetadata_to_vertex(
+                getv(from_object, ["metadata"]), to_object
             ),
         )
+
+    if getv(from_object, ["model_reference"]) is not None:
+        setv(to_object, ["modelReference"], getv(from_object, ["model_reference"]))
 
     if getv(from_object, ["parent"]) is not None:
         setv(to_object, ["parent"], getv(from_object, ["parent"]))
@@ -173,54 +176,6 @@ def _DatasetVersion_from_vertex(
 
     if getv(from_object, ["updateTime"]) is not None:
         setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
-def _DatasetVersion_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metadata"]) is not None:
-        setv(
-            to_object,
-            ["metadata"],
-            _SchemaTextPromptDatasetMetadata_to_vertex(
-                getv(from_object, ["metadata"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["big_query_dataset_name"]) is not None:
-        setv(
-            to_object,
-            ["bigQueryDatasetName"],
-            getv(from_object, ["big_query_dataset_name"]),
-        )
-
-    if getv(from_object, ["create_time"]) is not None:
-        setv(to_object, ["createTime"], getv(from_object, ["create_time"]))
-
-    if getv(from_object, ["display_name"]) is not None:
-        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
-
-    if getv(from_object, ["etag"]) is not None:
-        setv(to_object, ["etag"], getv(from_object, ["etag"]))
-
-    if getv(from_object, ["model_reference"]) is not None:
-        setv(to_object, ["modelReference"], getv(from_object, ["model_reference"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["satisfies_pzi"]) is not None:
-        setv(to_object, ["satisfiesPzi"], getv(from_object, ["satisfies_pzi"]))
-
-    if getv(from_object, ["satisfies_pzs"]) is not None:
-        setv(to_object, ["satisfiesPzs"], getv(from_object, ["satisfies_pzs"]))
-
-    if getv(from_object, ["update_time"]) is not None:
-        setv(to_object, ["updateTime"], getv(from_object, ["update_time"]))
 
     return to_object
 
@@ -786,7 +741,8 @@ class PromptManagement(_api_module.BaseModule):
         *,
         config: Optional[types.CreateDatasetVersionConfigOrDict] = None,
         dataset_name: Optional[str] = None,
-        dataset_version: Optional[types.DatasetVersionOrDict] = None,
+        metadata: Optional[types.SchemaTextPromptDatasetMetadataOrDict] = None,
+        model_reference: Optional[str] = None,
         parent: Optional[str] = None,
         display_name: Optional[str] = None,
     ) -> types.DatasetOperation:
@@ -797,7 +753,8 @@ class PromptManagement(_api_module.BaseModule):
         parameter_model = types._CreateDatasetVersionParameters(
             config=config,
             dataset_name=dataset_name,
-            dataset_version=dataset_version,
+            metadata=metadata,
+            model_reference=model_reference,
             parent=parent,
             display_name=display_name,
         )
@@ -1300,31 +1257,23 @@ class PromptManagement(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    def create_version(
+    def create_prompt(
         self,
         *,
         prompt: types.PromptOrDict,
         config: Optional[types.CreatePromptConfigOrDict] = None,
     ) -> types.Prompt:
-        """Creates a new version of a prompt in a Vertex Dataset resource.
+        """Creates a new prompt in a Vertex Dataset resource.
 
-        If config.prompt_id is not provided, this method creates a new Dataset
-        resource for the prompt and a new Dataset Version resource under that
-        Dataset.
-        If config.prompt_id is provided, this method creates a new Dataset
-        Version resource under the existing Dataset resource with the provided
-        prompt_id.
-
-        When creating new Dataset and Dataset Version resources, this waits for
-        the Dataset operations to complete before returning.
+        This method waits for prompt creation to be complete before returning.
 
         Args:
           prompt: The prompt to create a version for.
-          config: Optional configuration for creating the prompt version.
+          config: Optional configuration for creating the prompt.
 
         Returns:
           A types.Prompt object representing the prompt with its associated
-          Dataset and Dataset Version resources.
+          Dataset resources.
         """
         if isinstance(prompt, dict):
             prompt = types.Prompt(**prompt)
@@ -1344,65 +1293,71 @@ class PromptManagement(_api_module.BaseModule):
             ),
         )
 
-        if config and config.prompt_id:
-            prompt_id = config.prompt_id
-        else:
-            prompt_id = None
-
-        if config and config.version_display_name:
-            version_name = config.version_display_name
-        else:
-            version_name = None
-
-        dataset_id = prompt_id
-        if (
-            dataset_id
-            and prompt._dataset
-            and dataset_id != prompt._dataset.name.split("/")[-1]
-        ):
-            # prompt_id takes precedence over existing prompt resource if provided.
-            logger.info(
-                f"The provided prompt_id {prompt_id} is different from the"
-                f" existing prompt resource {prompt._dataset.name} and will"
-                " take precedence. Creating a new prompt version for prompt"
-                f" with id: {prompt_id}."
-            )
-        if not dataset_id and prompt._dataset and prompt._dataset.name:
-            dataset_id = prompt._dataset.name.split("/")[-1]
-
-        # Step 1: Create the dataset resource for the prompt if it doesn't exist.
-        if not dataset_id:
-            create_prompt_dataset_operation = self._create_dataset_resource(
-                display_name=(
-                    config.prompt_display_name
-                    if config and config.prompt_display_name
-                    else f"prompt_{time.strftime('%Y%m%d-%H%M%S')}"
-                ),
-                name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
-                metadata_schema_uri=_prompt_management_utils.PROMPT_SCHEMA_URI,
-                metadata=prompt_metadata,
-                model_reference=prompt.prompt_data.model,
-                encryption_spec=(
-                    config.encryption_spec
-                    if config and config.encryption_spec
-                    else None
-                ),
-            )
-            dataset_resource_name = self._wait_for_operation(
-                operation=create_prompt_dataset_operation,
-                timeout=config.timeout if config else 90,
-            )
-            dataset_id = dataset_resource_name.split("/")[-1]
+        # Step 1: Create the dataset resource for the prompt and wait for the operation to complete.
+        create_prompt_dataset_operation = self._create_dataset_resource(
+            display_name=(
+                config.prompt_display_name
+                if config and config.prompt_display_name
+                else f"prompt_{time.strftime('%Y%m%d-%H%M%S')}"
+            ),
+            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
+            metadata_schema_uri=_prompt_management_utils.PROMPT_SCHEMA_URI,
+            metadata=prompt_metadata,
+            model_reference=prompt.prompt_data.model,
+            encryption_spec=(
+                config.encryption_spec if config and config.encryption_spec else None
+            ),
+        )
+        dataset_resource_name = self._wait_for_operation(
+            operation=create_prompt_dataset_operation,
+            timeout=config.timeout if config else 90,
+        )
+        dataset_id = dataset_resource_name.split("/")[-1]
 
         # Step 2: Get the dataset resource
         dataset_resource = self._get_dataset_resource(
             name=dataset_id,
         )
         prompt._dataset = dataset_resource
+        return prompt
 
-        # Step 3: Create the dataset version
+    def create_prompt_version(
+        self,
+        *,
+        prompt_id: str,
+        config: Optional[types.CreatePromptVersionConfigOrDict] = None,
+    ) -> types.Prompt:
+        """Creates a new version of a prompt in the prompt resource associated with the provided prompt_id.
+
+        When creating new prompt version resources, this waits for
+        the create operation to complete before returning.
+
+        Args:
+          prompt_id: The ID of the prompt to create a version for.
+          config: Optional configuration for creating the prompt version.
+
+        Returns:
+          A types.Prompt object representing the prompt with its associated
+          Dataset and Dataset Version resources.
+        """
+        if isinstance(config, dict):
+            config = types.CreatePromptVersionConfig(**config)
+        elif not config:
+            config = types.CreatePromptVersionConfig()
+
+        if config and config.version_display_name:
+            version_name = config.version_display_name
+        else:
+            version_name = None
+
+        # Step 1: Get the dataset resource for the prompt
+        dataset_resource = self._get_dataset_resource(
+            name=prompt_id,
+        )
+
+        # Step 2: Create the dataset version
         create_dataset_version_operation = self._create_dataset_version_resource(
-            dataset_name=dataset_id,
+            dataset_name=prompt_id,
             display_name=(
                 version_name
                 if version_name
@@ -1414,11 +1369,15 @@ class PromptManagement(_api_module.BaseModule):
             timeout=config.timeout if config else 90,
         )
 
-        # Step 4: Get the dataset version resource and return it with the prompt
+        # Step 3: Get the dataset version resource and return it with the prompt
         dataset_version_resource = self._get_dataset_version_resource(
-            dataset_id=dataset_id,
+            dataset_id=prompt_id,
             dataset_version_id=dataset_version_resource_name.split("/")[-1],
         )
+        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            dataset_version_resource
+        )
+        prompt._dataset = dataset_resource
         prompt._dataset_version = dataset_version_resource
         return prompt
 
@@ -1842,7 +1801,8 @@ class AsyncPromptManagement(_api_module.BaseModule):
         *,
         config: Optional[types.CreateDatasetVersionConfigOrDict] = None,
         dataset_name: Optional[str] = None,
-        dataset_version: Optional[types.DatasetVersionOrDict] = None,
+        metadata: Optional[types.SchemaTextPromptDatasetMetadataOrDict] = None,
+        model_reference: Optional[str] = None,
         parent: Optional[str] = None,
         display_name: Optional[str] = None,
     ) -> types.DatasetOperation:
@@ -1853,7 +1813,8 @@ class AsyncPromptManagement(_api_module.BaseModule):
         parameter_model = types._CreateDatasetVersionParameters(
             config=config,
             dataset_name=dataset_name,
-            dataset_version=dataset_version,
+            metadata=metadata,
+            model_reference=model_reference,
             parent=parent,
             display_name=display_name,
         )
@@ -2374,31 +2335,23 @@ class AsyncPromptManagement(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    async def create_version(
+    async def create_prompt(
         self,
         *,
         prompt: types.PromptOrDict,
         config: Optional[types.CreatePromptConfigOrDict] = None,
     ) -> types.Prompt:
-        """Creates a new version of a prompt in a Vertex Dataset resource.
+        """Creates a new prompt in a Vertex Dataset resource.
 
-        If config.prompt_id is not provided, this method creates a new Dataset
-        resource for the prompt and a new Dataset Version resource under that
-        Dataset.
-        If config.prompt_id is provided, this method creates a new Dataset
-        Version resource under the existing Dataset resource with the provided
-        prompt_id.
-
-        When creating new Dataset and Dataset Version resources, this waits for
-        the Dataset operations to complete before returning.
+        This method waits for prompt creation to be complete before returning.
 
         Args:
-          prompt: The prompt to create a version for.
-          config: Optional configuration for creating the prompt version.
+          prompt: The prompt to create.
+          config: Optional configuration for creating the prompt.
 
         Returns:
           A types.Prompt object representing the prompt with its associated
-          Dataset and Dataset Version resources.
+          Dataset resources.
         """
         if isinstance(prompt, dict):
             prompt = types.Prompt(**prompt)
@@ -2418,65 +2371,75 @@ class AsyncPromptManagement(_api_module.BaseModule):
             ),
         )
 
-        if config and config.prompt_id:
-            prompt_id = config.prompt_id
-        else:
-            prompt_id = None
-
-        if config and config.version_display_name:
-            version_name = config.version_display_name
-        else:
-            version_name = None
-
-        dataset_id = prompt_id
-        if (
-            dataset_id
-            and prompt._dataset
-            and dataset_id != prompt._dataset.name.split("/")[-1]
-        ):
-            # prompt_id takes precedence over existing prompt resource if provided.
-            logger.info(
-                f"The provided prompt_id {prompt_id} is different from the"
-                f" existing prompt resource {prompt._dataset.name} and will"
-                " take precedence. Creating a new prompt version for prompt"
-                f" with id: {prompt_id}."
-            )
-        if not dataset_id and prompt._dataset and prompt._dataset.name:
-            dataset_id = prompt._dataset.name.split("/")[-1]
-
-        # Step 1: Create the dataset resource for the prompt if it doesn't exist.
-        if not dataset_id:
-            create_prompt_dataset_operation = await self._create_dataset_resource(
-                display_name=(
-                    config.prompt_display_name
-                    if config and config.prompt_display_name
-                    else f"prompt_{time.strftime('%Y%m%d-%H%M%S')}"
-                ),
-                name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
-                metadata_schema_uri=_prompt_management_utils.PROMPT_SCHEMA_URI,
-                metadata=prompt_metadata,
-                model_reference=prompt.prompt_data.model,
-                encryption_spec=(
-                    config.encryption_spec
-                    if config and config.encryption_spec
-                    else None
-                ),
-            )
-            dataset_resource_name = await self._wait_for_operation(
-                operation=create_prompt_dataset_operation,
-                timeout=config.timeout if config else 90,
-            )
-            dataset_id = dataset_resource_name.split("/")[-1]
+        # Step 1: Create the dataset resource for the prompt and wait for the operation to complete.
+        create_prompt_dataset_operation = await self._create_dataset_resource(
+            display_name=(
+                config.prompt_display_name
+                if config and config.prompt_display_name
+                else f"prompt_{time.strftime('%Y%m%d-%H%M%S')}"
+            ),
+            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
+            metadata_schema_uri=_prompt_management_utils.PROMPT_SCHEMA_URI,
+            metadata=prompt_metadata,
+            model_reference=prompt.prompt_data.model,
+            encryption_spec=(
+                config.encryption_spec if config and config.encryption_spec else None
+            ),
+        )
+        dataset_resource_name = await self._wait_for_operation(
+            operation=create_prompt_dataset_operation,
+            timeout=config.timeout if config else 90,
+        )
+        dataset_id = dataset_resource_name.split("/")[-1]
 
         # Step 2: Get the dataset resource
         dataset_resource = await self._get_dataset_resource(
             name=dataset_id,
         )
         prompt._dataset = dataset_resource
+        return prompt
 
-        # Step 3: Create the dataset version
+    async def create_prompt_version(
+        self,
+        *,
+        prompt_id: str,
+        config: Optional[types.CreatePromptVersionConfigOrDict] = None,
+    ) -> types.Prompt:
+        """Creates a new version of a prompt in the prompt resource associated with the provided prompt_id.
+
+        When creating new prompt version resources, this waits for
+        the create operation to complete before returning.
+
+        Args:
+          prompt_id: The ID of the prompt to create a version for.
+          config: Optional configuration for creating the prompt version.
+
+        Returns:
+          A types.Prompt object representing the prompt with its associated
+          Dataset and Dataset Version resources.
+        """
+        if isinstance(config, dict):
+            config = types.CreatePromptVersionConfig(**config)
+        elif not config:
+            config = types.CreatePromptVersionConfig()
+
+        if config and config.version_display_name:
+            version_name = config.version_display_name
+        else:
+            version_name = None
+
+        # Step 1: Get the dataset resource for the prompt
+        dataset_resource = await self._get_dataset_resource(
+            name=prompt_id,
+        )
+        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            dataset_resource
+        )
+        prompt._dataset = dataset_resource
+
+        # Step 2: Create the dataset version
         create_dataset_version_operation = await self._create_dataset_version_resource(
-            dataset_name=dataset_id,
+            dataset_name=prompt_id,
             display_name=(
                 version_name
                 if version_name
@@ -2488,9 +2451,9 @@ class AsyncPromptManagement(_api_module.BaseModule):
             timeout=config.timeout if config else 90,
         )
 
-        # Step 4: Get the dataset version resource and return it with the prompt
+        # Step 3: Get the dataset version resource and return it with the prompt
         dataset_version_resource = await self._get_dataset_version_resource(
-            dataset_id=dataset_id,
+            dataset_id=prompt_id,
             dataset_version_id=dataset_version_resource_name.split("/")[-1],
         )
         prompt._dataset_version = dataset_version_resource

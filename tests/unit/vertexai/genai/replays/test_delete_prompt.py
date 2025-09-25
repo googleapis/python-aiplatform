@@ -28,22 +28,8 @@ TEST_PROMPT_VERSION_ID = "2"
 
 def test_delete_dataset(client, caplog):
     caplog.set_level(logging.INFO)
-    prompt = client.prompt_management.create_version(
-        prompt=types.Prompt(
-            prompt_data=types.PromptData(
-                model="gemini-2.5-flash",
-                contents=[
-                    genai_types.Content(
-                        parts=[genai_types.Part(text="What is the capital of France?")],
-                    )
-                ],
-            )
-        ),
-        config=types.CreatePromptConfig(
-            prompt_display_name="test_delete_prompt_dataset",
-            version_display_name="test_delete_prompt_dataset_version",
-        ),
-    )
+    prompt_list = list(client.prompt_management.list_prompts())
+    assert len(prompt_list) > 0
     client.prompt_management.delete_prompt(
         prompt_id=prompt.prompt_id,
     )
@@ -52,7 +38,7 @@ def test_delete_dataset(client, caplog):
 
 def test_delete_dataset_version(client, caplog):
     caplog.set_level(logging.INFO)
-    prompt = client.prompt_management.create_version(
+    prompt = client.prompt_management.create_prompt(
         prompt=types.Prompt(
             prompt_data=types.PromptData(
                 model="gemini-2.5-flash",
@@ -65,10 +51,12 @@ def test_delete_dataset_version(client, caplog):
         ),
         config=types.CreatePromptConfig(
             prompt_display_name="test_delete_prompt_dataset",
-            version_display_name="test_delete_prompt_dataset_version",
         ),
     )
-    version_id = prompt.dataset_version.name.split("/")[-1]
+    prompt_version = client.prompt_management.create_prompt_version(
+        prompt_id=prompt.prompt_id,
+    )
+    version_id = prompt_version.dataset_version.name.split("/")[-1]
     client.prompt_management.delete_version(
         prompt_id=prompt.prompt_id,
         version_id=version_id,
@@ -88,7 +76,7 @@ pytest_plugins = ("pytest_asyncio",)
 @pytest.mark.asyncio
 async def test_delete_dataset_async(client, caplog):
     caplog.set_level(logging.INFO)
-    prompt = client.prompt_management.create_version(
+    prompt = client.prompt_management.create_prompt(
         prompt=types.Prompt(
             prompt_data=types.PromptData(
                 model="gemini-2.5-flash",
@@ -101,7 +89,6 @@ async def test_delete_dataset_async(client, caplog):
         ),
         config=types.CreatePromptConfig(
             prompt_display_name="test_delete_prompt_dataset",
-            version_display_name="test_delete_prompt_dataset_version",
         ),
     )
     await client.aio.prompt_management.delete_prompt(
@@ -113,7 +100,7 @@ async def test_delete_dataset_async(client, caplog):
 @pytest.mark.asyncio
 async def test_delete_version_async(client, caplog):
     caplog.set_level(logging.INFO)
-    prompt = client.prompt_management.create_version(
+    prompt = client.prompt_management.create_prompt(
         prompt=types.Prompt(
             prompt_data=types.PromptData(
                 model="gemini-2.5-flash",
@@ -126,10 +113,12 @@ async def test_delete_version_async(client, caplog):
         ),
         config=types.CreatePromptConfig(
             prompt_display_name="test_delete_prompt_dataset",
-            version_display_name="test_delete_prompt_dataset_version",
         ),
     )
-    version_id = prompt.dataset_version.name.split("/")[-1]
+    prompt_version = client.prompt_management.create_prompt_version(
+        prompt_id=prompt.prompt_id,
+    )
+    version_id = prompt_version.dataset_version.name.split("/")[-1]
     await client.aio.prompt_management.delete_version(
         prompt_id=prompt.prompt_id,
         version_id=version_id,

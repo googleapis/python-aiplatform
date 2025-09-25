@@ -25,20 +25,26 @@ TEST_PROMPT_VERSION_ID = "2"
 
 
 def test_restore_version(client):
-    my_prompt = client.prompt_management.create_version(
+    my_prompt = client.prompt_management.create_prompt(
         prompt=test_create_prompt.TEST_PROMPT.model_dump(),
-        config=test_create_prompt.TEST_CONFIG,
+        config=test_create_prompt.TEST_CREATE_PROMPT_CONFIG,
     )
-    my_prompt_v1_id = my_prompt.dataset_version.name.split("/")[-1]
 
-    # Create a second version on my_prompt
-    new_version = client.prompt_management.create_version(
-        prompt=test_create_prompt.TEST_PROMPT.model_dump(),
-        config=types.CreatePromptConfig(
-            prompt_id=my_prompt.prompt_id, version_display_name="my_prompt_v2"
+    # Create 2 versions on my_prompt
+    prompt_v1 = client.prompt_management.create_prompt_version(
+        prompt_id=my_prompt.prompt_id,
+        config=types.CreatePromptVersionConfig(
+            version_display_name="my_prompt_v1"
         ),
     )
-    my_prompt_v2_id = new_version.dataset_version.name.split("/")[-1]
+    prompt_v2 = client.prompt_management.create_prompt_version(
+        prompt_id=my_prompt.prompt_id,
+        config=types.CreatePromptVersionConfig(
+            version_display_name="my_prompt_v2"
+        ),
+    )
+    my_prompt_v1_id = prompt_v1.dataset_version.name.split("/")[-1]
+    my_prompt_v2_id = prompt_v2.dataset_version.name.split("/")[-1]
     assert my_prompt_v2_id != my_prompt_v1_id
 
     # Restore version to my_prompt_v1_id
@@ -60,20 +66,26 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_restore_version_async(client):
-    my_prompt = await client.aio.prompt_management.create_version(
+    my_prompt = await client.aio.prompt_management.create_prompt(
         prompt=test_create_prompt.TEST_PROMPT.model_dump(),
-        config=test_create_prompt.TEST_CONFIG,
+        config=test_create_prompt.TEST_CREATE_PROMPT_CONFIG,
     )
-    my_prompt_v1_id = my_prompt.dataset_version.name.split("/")[-1]
 
-    # Create a second version on my_prompt
-    new_version = await client.aio.prompt_management.create_version(
-        prompt=test_create_prompt.TEST_PROMPT.model_dump(),
-        config=types.CreatePromptConfig(
-            prompt_id=my_prompt.prompt_id, version_display_name="my_prompt_v2"
+    # Create 2 versions on my_prompt
+    prompt_v1 = client.prompt_management.create_prompt_version(
+        prompt_id=my_prompt.prompt_id,
+        config=types.CreatePromptVersionConfig(
+            version_display_name="my_prompt_v1"
         ),
     )
-    my_prompt_v2_id = new_version.dataset_version.name.split("/")[-1]
+    prompt_v2 = client.prompt_management.create_prompt_version(
+        prompt_id=my_prompt.prompt_id,
+        config=types.CreatePromptVersionConfig(
+            version_display_name="my_prompt_v2"
+        ),
+    )
+    my_prompt_v1_id = prompt_v1.dataset_version.name.split("/")[-1]
+    my_prompt_v2_id = prompt_v2.dataset_version.name.split("/")[-1]
     assert my_prompt_v2_id != my_prompt_v1_id
 
     # Restore version to my_prompt_v1_id
