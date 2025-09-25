@@ -1476,6 +1476,49 @@ class TestModelGardenCustomModel:
             )
         )
 
+    def test_deploy_custom_model_with_reservation_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+        model.deploy(
+            machine_type="n1-standard-4",
+            accelerator_type="NVIDIA_TESLA_T4",
+            accelerator_count=1,
+            reservation_affinity_type="SPECIFIC_RESERVATION",
+            reservation_affinity_key="compute.googleapis.com/reservation-name",
+            reservation_affinity_values=[
+                "projects/test-project/zones/us-central1-a/reservations/test-reservation"
+            ],
+        )
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                custom_model=types.DeployRequest.CustomModel(
+                    gcs_uri=_TEST_GCS_URI,
+                ),
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        min_replica_count=1,
+                        max_replica_count=1,
+                        machine_spec=types.MachineSpec(
+                            machine_type="n1-standard-4",
+                            accelerator_type="NVIDIA_TESLA_T4",
+                            accelerator_count=1,
+                            reservation_affinity=types.ReservationAffinity(
+                                reservation_affinity_type="SPECIFIC_RESERVATION",
+                                key="compute.googleapis.com/reservation-name",
+                                values=[
+                                    "projects/test-project/zones/us-central1-a/reservations/test-reservation"
+                                ],
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        )
+
     @pytest.mark.parametrize("filter_by_user_quota", [True, False])
     def test_list_deploy_options_with_recommendations(self, filter_by_user_quota):
         """Tests list_deploy_options when recommend_spec returns recommendations."""

@@ -987,6 +987,9 @@ class CustomModel:
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
@@ -1016,6 +1019,19 @@ class CustomModel:
               set accelerator_count if used.
             accelerator_count (int): Optional. The number of accelerators to attach
               to a worker replica.
+            reservation_affinity_type (str): Optional. The type of reservation
+              affinity. One of NO_RESERVATION, ANY_RESERVATION,
+              SPECIFIC_RESERVATION, SPECIFIC_THEN_ANY_RESERVATION,
+              SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str): Optional. Corresponds to the label key
+              of a reservation resource. To target a SPECIFIC_RESERVATION by name,
+              use `compute.googleapis.com/reservation-name` as the key and specify
+              the name of your reservation as its value.
+            reservation_affinity_values (List[str]): Optional. Corresponds to the
+              label values of a reservation resource. This must be the full resource
+              name of the reservation.
+                Format:
+                  'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
             deploy_request_timeout: The timeout for the deploy request. Default is 2
@@ -1031,6 +1047,9 @@ class CustomModel:
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             endpoint_display_name=endpoint_display_name,
             model_display_name=model_display_name,
             deploy_request_timeout=deploy_request_timeout,
@@ -1049,6 +1068,9 @@ class CustomModel:
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
@@ -1080,6 +1102,19 @@ class CustomModel:
               NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int): Optional. The number of accelerators to attach
               to a worker replica.
+            reservation_affinity_type (str): Optional. The type of reservation
+              affinity. One of NO_RESERVATION, ANY_RESERVATION,
+              SPECIFIC_RESERVATION, SPECIFIC_THEN_ANY_RESERVATION,
+              SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str): Optional. Corresponds to the label key
+              of a reservation resource. To target a SPECIFIC_RESERVATION by name,
+              use `compute.googleapis.com/reservation-name` as the key and specify
+              the name of your reservation as its value.
+            reservation_affinity_values (List[str]): Optional. Corresponds to the
+              label values of a reservation resource. This must be the full resource
+              name of the reservation.
+                Format:
+                  'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
             deploy_request_timeout: The timeout for the deploy request. Default is 2
@@ -1126,6 +1161,18 @@ class CustomModel:
         if max_replica_count:
             request.deploy_config.dedicated_resources.max_replica_count = (
                 max_replica_count
+            )
+
+        if reservation_affinity_type:
+            request.deploy_config.dedicated_resources.machine_spec.reservation_affinity.reservation_affinity_type = (
+                reservation_affinity_type
+            )
+        if reservation_affinity_key and reservation_affinity_values:
+            request.deploy_config.dedicated_resources.machine_spec.reservation_affinity.key = (
+                reservation_affinity_key
+            )
+            request.deploy_config.dedicated_resources.machine_spec.reservation_affinity.values = (
+                reservation_affinity_values
             )
 
         _LOGGER.info(f"Deploying custom model: {self._gcs_uri}")
