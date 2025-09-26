@@ -73,9 +73,7 @@ from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     DatasetServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.dataset_service import pagers
-from google.cloud.aiplatform_v1beta1.services.dataset_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.dataset_service import transports
 from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import annotation_spec
 from google.cloud.aiplatform_v1beta1.types import content
@@ -84,9 +82,7 @@ from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
 from google.cloud.aiplatform_v1beta1.types import dataset_version
-from google.cloud.aiplatform_v1beta1.types import (
-    dataset_version as gca_dataset_version,
-)
+from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset_version
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import openapi
@@ -872,10 +868,9 @@ def test_dataset_service_client_get_mtls_endpoint_and_cert_source(client_class):
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

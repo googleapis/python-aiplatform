@@ -73,9 +73,7 @@ from google.cloud.aiplatform_v1beta1.services.session_service import (
     SessionServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.session_service import pagers
-from google.cloud.aiplatform_v1beta1.services.session_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.session_service import transports
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import session
@@ -861,10 +859,9 @@ def test_session_service_client_get_mtls_endpoint_and_cert_source(client_class):
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -6845,6 +6842,15 @@ def test_append_event_rest_call_success(request_type):
                             "title": "title_value",
                             "text": "text_value",
                             "place_id": "place_id_value",
+                            "place_answer_sources": {
+                                "review_snippets": [
+                                    {
+                                        "review_id": "review_id_value",
+                                        "google_maps_uri": "google_maps_uri_value",
+                                        "title": "title_value",
+                                    }
+                                ]
+                            },
                         },
                     }
                 ],
@@ -6862,6 +6868,12 @@ def test_append_event_rest_call_success(request_type):
                 ],
                 "retrieval_metadata": {"google_search_dynamic_retrieval_score": 0.3902},
                 "google_maps_widget_context_token": "google_maps_widget_context_token_value",
+                "source_flagging_uris": [
+                    {
+                        "source_id": "source_id_value",
+                        "flag_content_uri": "flag_content_uri_value",
+                    }
+                ],
             },
             "partial": True,
             "turn_complete": True,
@@ -9028,6 +9040,15 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                             "title": "title_value",
                             "text": "text_value",
                             "place_id": "place_id_value",
+                            "place_answer_sources": {
+                                "review_snippets": [
+                                    {
+                                        "review_id": "review_id_value",
+                                        "google_maps_uri": "google_maps_uri_value",
+                                        "title": "title_value",
+                                    }
+                                ]
+                            },
                         },
                     }
                 ],
@@ -9045,6 +9066,12 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                 ],
                 "retrieval_metadata": {"google_search_dynamic_retrieval_score": 0.3902},
                 "google_maps_widget_context_token": "google_maps_widget_context_token_value",
+                "source_flagging_uris": [
+                    {
+                        "source_id": "source_id_value",
+                        "flag_content_uri": "flag_content_uri_value",
+                    }
+                ],
             },
             "partial": True,
             "turn_complete": True,

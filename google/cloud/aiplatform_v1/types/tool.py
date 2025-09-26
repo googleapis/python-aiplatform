@@ -676,7 +676,16 @@ class GoogleMaps(proto.Message):
     r"""Tool to retrieve public maps data for grounding, powered by
     Google.
 
+    Attributes:
+        enable_widget (bool):
+            If true, include the widget context token in
+            the response.
     """
+
+    enable_widget: bool = proto.Field(
+        proto.BOOL,
+        number=1,
+    )
 
 
 class EnterpriseWebSearch(proto.Message):

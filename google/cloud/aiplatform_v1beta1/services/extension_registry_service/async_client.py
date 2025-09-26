@@ -47,9 +47,7 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.extension_registry_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.extension_registry_service import pagers
 from google.cloud.aiplatform_v1beta1.types import extension
 from google.cloud.aiplatform_v1beta1.types import extension as gca_extension
 from google.cloud.aiplatform_v1beta1.types import extension_registry_service

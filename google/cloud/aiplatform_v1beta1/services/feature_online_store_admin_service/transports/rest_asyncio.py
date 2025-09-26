@@ -51,9 +51,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
 from google.cloud.aiplatform_v1beta1.types import feature_online_store
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_online_store_admin_service,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_online_store_admin_service
 from google.cloud.aiplatform_v1beta1.types import feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view_sync
 from google.longrunning import operations_pb2  # type: ignore
@@ -1453,11 +1451,10 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_feature_online_store(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_feature_online_store_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_feature_online_store_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1783,11 +1780,10 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_feature_online_store(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_feature_online_store_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_feature_online_store_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2108,11 +2104,10 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_feature_online_store(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_feature_online_store_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_feature_online_store_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2600,11 +2595,10 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_feature_online_stores(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_feature_online_stores_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_feature_online_stores_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2929,11 +2923,10 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_feature_view_syncs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_feature_view_syncs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_feature_view_syncs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3270,11 +3263,10 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_feature_online_store(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_feature_online_store_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_feature_online_store_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

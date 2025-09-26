@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_spec
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -235,29 +233,29 @@ class ModelMonitoringSchema(proto.Message):
             Feature names of the model. Vertex AI will try to match the
             features from your dataset as follows:
 
-            -  For 'csv' files, the header names are required, and we
-               will extract the corresponding feature values when the
-               header names align with the feature names.
-            -  For 'jsonl' files, we will extract the corresponding
-               feature values if the key names match the feature names.
-               Note: Nested features are not supported, so please ensure
-               your features are flattened. Ensure the feature values
-               are scalar or an array of scalars.
-            -  For 'bigquery' dataset, we will extract the corresponding
-               feature values if the column names match the feature
-               names. Note: The column type can be a scalar or an array
-               of scalars. STRUCT or JSON types are not supported. You
-               may use SQL queries to select or aggregate the relevant
-               features from your original table. However, ensure that
-               the 'schema' of the query results meets our requirements.
-            -  For the Vertex AI Endpoint Request Response Logging table
-               or Vertex AI Batch Prediction Job results. If the
-               [instance_type][google.cloud.aiplatform.v1beta1.ModelMonitoringSchema.instance_type]
-               is an array, ensure that the sequence in
-               [feature_fields][google.cloud.aiplatform.v1beta1.ModelMonitoringSchema.feature_fields]
-               matches the order of features in the prediction instance.
-               We will match the feature with the array in the order
-               specified in [feature_fields].
+            - For 'csv' files, the header names are required, and we
+              will extract the corresponding feature values when the
+              header names align with the feature names.
+            - For 'jsonl' files, we will extract the corresponding
+              feature values if the key names match the feature names.
+              Note: Nested features are not supported, so please ensure
+              your features are flattened. Ensure the feature values are
+              scalar or an array of scalars.
+            - For 'bigquery' dataset, we will extract the corresponding
+              feature values if the column names match the feature
+              names. Note: The column type can be a scalar or an array
+              of scalars. STRUCT or JSON types are not supported. You
+              may use SQL queries to select or aggregate the relevant
+              features from your original table. However, ensure that
+              the 'schema' of the query results meets our requirements.
+            - For the Vertex AI Endpoint Request Response Logging table
+              or Vertex AI Batch Prediction Job results. If the
+              [instance_type][google.cloud.aiplatform.v1beta1.ModelMonitoringSchema.instance_type]
+              is an array, ensure that the sequence in
+              [feature_fields][google.cloud.aiplatform.v1beta1.ModelMonitoringSchema.feature_fields]
+              matches the order of features in the prediction instance.
+              We will match the feature with the array in the order
+              specified in [feature_fields].
         prediction_fields (MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringSchema.FieldSchema]):
             Prediction output names of the model. The requirements are
             the same as the
@@ -267,10 +265,10 @@ class ModelMonitoringSchema(proto.Message):
             ``target_column`` is the one you specified when you train
             the model. For Prediction output drift analysis:
 
-            -  AutoML Classification, the distribution of the argmax
-               label will be analyzed.
-            -  AutoML Regression, the distribution of the value will be
-               analyzed.
+            - AutoML Classification, the distribution of the argmax
+              label will be analyzed.
+            - AutoML Regression, the distribution of the value will be
+              analyzed.
         ground_truth_fields (MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringSchema.FieldSchema]):
             Target /ground truth names of the model.
     """

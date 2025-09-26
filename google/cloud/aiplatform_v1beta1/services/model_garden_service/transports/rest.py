@@ -3225,11 +3225,10 @@ class ModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport):
                 _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = self._interceptor.pre_check_publisher_model_eula_acceptance(
-                request, metadata
+            request, metadata = (
+                self._interceptor.pre_check_publisher_model_eula_acceptance(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelGardenServiceRestTransport._BaseCheckPublisherModelEulaAcceptance._get_transcoded_request(
                 http_options, request
@@ -3295,11 +3294,10 @@ class ModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport):
 
             resp = self._interceptor.post_check_publisher_model_eula_acceptance(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_check_publisher_model_eula_acceptance_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_check_publisher_model_eula_acceptance_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
