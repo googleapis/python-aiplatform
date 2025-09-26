@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    accelerator_type as gca_accelerator_type,
-)
+from google.cloud.aiplatform_v1.types import accelerator_type as gca_accelerator_type
 from google.cloud.aiplatform_v1.types import (
     reservation_affinity as gca_reservation_affinity,
 )
@@ -399,9 +397,9 @@ class AutoscalingMetricSpec(proto.Message):
         metric_name (str):
             Required. The resource metric name. Supported metrics:
 
-            -  For Online Prediction:
-            -  ``aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle``
-            -  ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
+            - For Online Prediction:
+            - ``aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle``
+            - ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
         target (int):
             The target resource utilization in percentage
             (1% - 100%) for the given metric; once the real

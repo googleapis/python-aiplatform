@@ -1382,6 +1382,23 @@ class AsyncPredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             resp, _ = await self._interceptor.post_chat_completions_with_metadata(
                 resp, response_metadata
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.PredictionServiceAsyncClient.chat_completions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "ChatCompletions",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _CountTokens(
@@ -2731,12 +2748,28 @@ class AsyncPredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             )
             resp = await self._interceptor.post_server_streaming_predict(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_server_streaming_predict_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_server_streaming_predict_with_metadata(
+                    resp, response_metadata
+                )
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.PredictionServiceAsyncClient.server_streaming_predict",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "ServerStreamingPredict",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _StreamDirectPredict(
@@ -2911,12 +2944,28 @@ class AsyncPredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             )
             resp = await self._interceptor.post_stream_generate_content(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_stream_generate_content_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_stream_generate_content_with_metadata(
+                    resp, response_metadata
+                )
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.PredictionServiceAsyncClient.stream_generate_content",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "StreamGenerateContent",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _StreamingPredict(
@@ -3142,6 +3191,23 @@ class AsyncPredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             resp, _ = await self._interceptor.post_stream_raw_predict_with_metadata(
                 resp, response_metadata
             )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                http_response = {
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.PredictionServiceAsyncClient.stream_raw_predict",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "StreamRawPredict",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     @property

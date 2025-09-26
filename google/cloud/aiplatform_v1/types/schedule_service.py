@@ -91,24 +91,24 @@ class ListSchedulesRequest(proto.Message):
             Lists the Schedules that match the filter expression. The
             following fields are supported:
 
-            -  ``display_name``: Supports ``=``, ``!=`` comparisons, and
-               ``:`` wildcard.
-            -  ``state``: Supports ``=`` and ``!=`` comparisons.
-            -  ``request``: Supports existence of the <request_type>
-               check. (e.g. ``create_pipeline_job_request:*`` -->
-               Schedule has create_pipeline_job_request).
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``start_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``end_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, ``>=`` comparisons and ``:*`` existence check.
-               Values must be in RFC 3339 format.
-            -  ``next_run_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
+            - ``display_name``: Supports ``=``, ``!=`` comparisons, and
+              ``:`` wildcard.
+            - ``state``: Supports ``=`` and ``!=`` comparisons.
+            - ``request``: Supports existence of the <request_type>
+              check. (e.g. ``create_pipeline_job_request:*`` -->
+              Schedule has create_pipeline_job_request).
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``start_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``end_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, ``>=`` comparisons and ``:*`` existence check.
+              Values must be in RFC 3339 format.
+            - ``next_run_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
 
             Filter expressions can be combined together using logical
             operators (``NOT``, ``AND`` & ``OR``). The syntax to define
@@ -116,11 +116,11 @@ class ListSchedulesRequest(proto.Message):
 
             Examples:
 
-            -  ``state="ACTIVE" AND display_name:"my_schedule_*"``
-            -  ``NOT display_name="my_schedule"``
-            -  ``create_time>"2021-05-18T00:00:00Z"``
-            -  ``end_time>"2021-05-18T00:00:00Z" OR NOT end_time:*``
-            -  ``create_pipeline_job_request:*``
+            - ``state="ACTIVE" AND display_name:"my_schedule_*"``
+            - ``NOT display_name="my_schedule"``
+            - ``create_time>"2021-05-18T00:00:00Z"``
+            - ``end_time>"2021-05-18T00:00:00Z" OR NOT end_time:*``
+            - ``create_pipeline_job_request:*``
         page_size (int):
             The standard list page size.
             Default to 100 if not specified.
@@ -146,10 +146,10 @@ class ListSchedulesRequest(proto.Message):
 
             Supported fields:
 
-            -  ``create_time``
-            -  ``start_time``
-            -  ``end_time``
-            -  ``next_run_time``
+            - ``create_time``
+            - ``start_time``
+            - ``end_time``
+            - ``next_run_time``
     """
 
     parent: str = proto.Field(
@@ -273,9 +273,9 @@ class UpdateScheduleRequest(proto.Message):
             Required. The Schedule which replaces the resource on the
             server. The following restrictions will be applied:
 
-            -  The scheduled request type cannot be changed.
-            -  The non-empty fields cannot be unset.
-            -  The output_only fields will be ignored if specified.
+            - The scheduled request type cannot be changed.
+            - The non-empty fields cannot be unset.
+            - The output_only fields will be ignored if specified.
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. See
             [google.protobuf.FieldMask][google.protobuf.FieldMask].

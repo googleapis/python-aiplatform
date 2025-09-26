@@ -29,9 +29,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 from google.cloud.aiplatform_v1beta1.types import genai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import tuning_job
-from google.cloud.aiplatform_v1beta1.types import (
-    tuning_job as gca_tuning_job,
-)
+from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
 from google.protobuf import empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
