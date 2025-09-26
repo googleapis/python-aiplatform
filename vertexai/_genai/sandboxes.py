@@ -37,50 +37,6 @@ logger = logging.getLogger("vertexai_genai.sandboxes")
 logger.setLevel(logging.INFO)
 
 
-def _AgentEngineSandboxOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _SandboxEnvironment_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
-def _Chunk_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["mime_type"]) is not None:
-        setv(to_object, ["mimeType"], getv(from_object, ["mime_type"]))
-
-    if getv(from_object, ["data"]) is not None:
-        setv(to_object, ["data"], getv(from_object, ["data"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    return to_object
-
-
 def _CreateAgentEngineSandboxConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -105,11 +61,7 @@ def _CreateAgentEngineSandboxRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["spec"]) is not None:
-        setv(
-            to_object,
-            ["spec"],
-            _SandboxEnvironmentSpec_to_vertex(getv(from_object, ["spec"]), to_object),
-        )
+        setv(to_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["config"]) is not None:
         setv(
@@ -119,26 +71,6 @@ def _CreateAgentEngineSandboxRequestParameters_to_vertex(
                 getv(from_object, ["config"]), to_object
             ),
         )
-
-    return to_object
-
-
-def _DeleteAgentEngineSandboxOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
 
     return to_object
 
@@ -166,28 +98,10 @@ def _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["inputs"]) is not None:
-        setv(
-            to_object,
-            ["inputs"],
-            [
-                _Chunk_to_vertex(item, to_object)
-                for item in getv(from_object, ["inputs"])
-            ],
-        )
+        setv(to_object, ["inputs"], [item for item in getv(from_object, ["inputs"])])
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _ExecuteSandboxEnvironmentResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["outputs"]) is not None:
-        setv(to_object, ["outputs"], getv(from_object, ["outputs"]))
 
     return to_object
 
@@ -260,74 +174,6 @@ def _ListAgentEngineSandboxesRequestParameters_to_vertex(
     return to_object
 
 
-def _ListAgentEngineSandboxesResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["sandboxEnvironments"]) is not None:
-        setv(
-            to_object,
-            ["sandbox_environments"],
-            [
-                _SandboxEnvironment_from_vertex(item, to_object)
-                for item in getv(from_object, ["sandboxEnvironments"])
-            ],
-        )
-
-    return to_object
-
-
-def _SandboxEnvironmentSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["code_execution_environment"]) is not None:
-        setv(
-            to_object,
-            ["codeExecutionEnvironment"],
-            getv(from_object, ["code_execution_environment"]),
-        )
-
-    return to_object
-
-
-def _SandboxEnvironment_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["spec"]) is not None:
-        setv(to_object, ["spec"], getv(from_object, ["spec"]))
-
-    if getv(from_object, ["state"]) is not None:
-        setv(to_object, ["state"], getv(from_object, ["state"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
 class Sandboxes(_api_module.BaseModule):
 
     def _create(
@@ -378,10 +224,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSandboxOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSandboxOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -442,12 +285,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response = self._api_client.request("delete", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeleteAgentEngineSandboxOperation_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineSandboxOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -504,12 +342,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ExecuteSandboxEnvironmentResponse_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ExecuteSandboxEnvironmentResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -570,10 +403,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _SandboxEnvironment_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.SandboxEnvironment._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -638,10 +468,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListAgentEngineSandboxesResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListAgentEngineSandboxesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -692,10 +519,7 @@ class Sandboxes(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSandboxOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSandboxOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -898,10 +722,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSandboxOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSandboxOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -964,12 +785,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             "delete", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeleteAgentEngineSandboxOperation_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineSandboxOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1028,12 +844,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ExecuteSandboxEnvironmentResponse_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ExecuteSandboxEnvironmentResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1096,10 +907,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _SandboxEnvironment_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.SandboxEnvironment._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1166,10 +974,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListAgentEngineSandboxesResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListAgentEngineSandboxesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1222,10 +1027,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSandboxOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSandboxOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
