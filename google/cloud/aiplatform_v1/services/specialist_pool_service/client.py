@@ -63,14 +63,10 @@ _LOGGER = std_logging.getLogger(__name__)
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1.services.specialist_pool_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1.services.specialist_pool_service import pagers
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import specialist_pool
-from google.cloud.aiplatform_v1.types import (
-    specialist_pool as gca_specialist_pool,
-)
+from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -642,11 +638,9 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = SpecialistPoolServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            SpecialistPoolServiceClient._read_environment_variables()
+        )
         self._client_cert_source = SpecialistPoolServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )

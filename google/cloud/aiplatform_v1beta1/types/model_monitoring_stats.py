@@ -109,11 +109,11 @@ class ModelMonitoringStatsDataPoint(proto.Message):
                     Distribution distance deviation from the current dataset's
                     statistics to baseline dataset's statistics.
 
-                    -  For categorical feature, the distribution distance is
-                       calculated by L-inifinity norm or Jensen–Shannon
-                       divergence.
-                    -  For numerical feature, the distribution distance is
-                       calculated by Jensen–Shannon divergence.
+                    - For categorical feature, the distribution distance is
+                      calculated by L-inifinity norm or Jensen–Shannon
+                      divergence.
+                    - For numerical feature, the distribution distance is
+                      calculated by Jensen–Shannon divergence.
             """
 
             distribution: struct_pb2.Value = proto.Field(

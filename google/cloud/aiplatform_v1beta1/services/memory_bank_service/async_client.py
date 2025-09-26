@@ -47,9 +47,7 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.memory_bank_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.memory_bank_service import pagers
 from google.cloud.aiplatform_v1beta1.types import memory_bank
 from google.cloud.aiplatform_v1beta1.types import memory_bank_service
 from google.cloud.location import locations_pb2  # type: ignore

@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import machine_resources
@@ -174,6 +172,9 @@ class Endpoint(proto.Message):
             native RAG integration can be configured.
             Currently, only Model Garden models are
             supported.
+        private_model_server_enabled (bool):
+            If true, the model server will be isolated
+            from the external internet.
     """
 
     name: str = proto.Field(
@@ -273,6 +274,10 @@ class Endpoint(proto.Message):
         proto.MESSAGE,
         number=29,
         message="GenAiAdvancedFeaturesConfig",
+    )
+    private_model_server_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=30,
     )
 
 

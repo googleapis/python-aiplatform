@@ -96,8 +96,8 @@ class ModelEvaluation(proto.Message):
 
                 For AutoML Image Classification models, possible values are:
 
-                -  ``image-integrated-gradients``
-                -  ``image-xrai``
+                - ``image-integrated-gradients``
+                - ``image-xrai``
             explanation_spec (google.cloud.aiplatform_v1beta1.types.ExplanationSpec):
                 Explanation spec details.
         """
