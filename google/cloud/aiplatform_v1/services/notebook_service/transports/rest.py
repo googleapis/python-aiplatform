@@ -3600,11 +3600,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
 
             resp = self._interceptor.post_create_notebook_execution_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_create_notebook_execution_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_create_notebook_execution_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3760,11 +3759,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
 
             resp = self._interceptor.post_create_notebook_runtime_template(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_create_notebook_runtime_template_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_create_notebook_runtime_template_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3916,11 +3914,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
 
             resp = self._interceptor.post_delete_notebook_execution_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_delete_notebook_execution_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_delete_notebook_execution_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4222,11 +4219,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
 
             resp = self._interceptor.post_delete_notebook_runtime_template(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_delete_notebook_runtime_template_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_delete_notebook_runtime_template_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -4696,11 +4692,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
 
             resp = self._interceptor.post_get_notebook_runtime_template(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_get_notebook_runtime_template_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_get_notebook_runtime_template_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5164,11 +5159,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
 
             resp = self._interceptor.post_list_notebook_runtime_templates(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_list_notebook_runtime_templates_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_list_notebook_runtime_templates_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5644,11 +5638,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
 
             resp = self._interceptor.post_update_notebook_runtime_template(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_update_notebook_runtime_template_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_update_notebook_runtime_template_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

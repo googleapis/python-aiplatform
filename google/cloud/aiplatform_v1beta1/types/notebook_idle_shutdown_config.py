@@ -42,7 +42,7 @@ class NotebookIdleShutdownConfig(proto.Message):
 
             -
 
-               60.
+              60.
         idle_shutdown_disabled (bool):
             Whether Idle Shutdown is disabled in this
             NotebookRuntimeTemplate.

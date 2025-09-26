@@ -181,8 +181,8 @@ class EvaluatedAnnotationExplanation(proto.Message):
 
             For AutoML Image Classification models, possible values are:
 
-            -  ``image-integrated-gradients``
-            -  ``image-xrai``
+            - ``image-integrated-gradients``
+            - ``image-xrai``
         explanation (google.cloud.aiplatform_v1.types.Explanation):
             Explanation attribution response details.
     """
