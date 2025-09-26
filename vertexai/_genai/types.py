@@ -10099,6 +10099,10 @@ class EvaluationResult(_common.BaseModel):
     metadata: Optional[EvaluationRunMetadata] = Field(
         default=None, description="""Metadata for the evaluation run."""
     )
+    agent_metadata: Optional[dict[str, AgentMetadata]] = Field(
+        default=None,
+        description="""Metadata for the agent(s) used for the agent evaluation.""",
+    )
 
     def show(self, candidate_names: Optional[List[str]] = None) -> None:
         """Shows the evaluation result.
