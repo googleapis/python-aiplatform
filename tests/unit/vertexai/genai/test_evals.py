@@ -2297,6 +2297,98 @@ class TestObservabilityDataConverter:
         )
 
 
+class TestAgentMetadata:
+    """Unit tests for the AgentMetadata class."""
+
+    def test_agent_metadata_creation(self):
+        tool = genai_types.Tool(
+            function_declarations=[
+                genai_types.FunctionDeclaration(
+                    name="get_weather",
+                    description="Get weather in a location",
+                    parameters={
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                    },
+                )
+            ]
+        )
+        agent_metadata = vertexai_genai_types.AgentMetadata(
+            name="agent1",
+            instruction="instruction1",
+            description="description1",
+            tool_declarations=[tool],
+            sub_agent_names=["sub_agent1"],
+        )
+        assert agent_metadata.name == "agent1"
+        assert agent_metadata.instruction == "instruction1"
+        assert agent_metadata.description == "description1"
+        assert agent_metadata.tool_declarations == [tool]
+        assert agent_metadata.sub_agent_names == ["sub_agent1"]
+
+
+class TestEvent:
+    """Unit tests for the Event class."""
+
+    def test_event_creation(self):
+        event = vertexai_genai_types.Event(
+            event_id="event1",
+            content=genai_types.Content(
+                parts=[genai_types.Part(text="intermediate event")]
+            ),
+            author="user",
+        )
+        assert event.event_id == "event1"
+        assert event.content.parts[0].text == "intermediate event"
+        assert event.author == "user"
+
+
+class TestEvalCase:
+    """Unit tests for the EvalCase class."""
+
+    def test_eval_case_with_agent_eval_fields(self):
+        tool = genai_types.Tool(
+            function_declarations=[
+                genai_types.FunctionDeclaration(
+                    name="get_weather",
+                    description="Get weather in a location",
+                    parameters={
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                    },
+                )
+            ]
+        )
+        agent_metadata = {
+            "agent1": vertexai_genai_types.AgentMetadata(
+                name="agent1",
+                instruction="instruction1",
+                tool_declarations=[tool],
+            )
+        }
+        intermediate_events = [
+            vertexai_genai_types.Event(
+                event_id="event1",
+                content=genai_types.Content(
+                    parts=[genai_types.Part(text="intermediate event")]
+                ),
+            )
+        ]
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            agent_metadata=agent_metadata,
+            intermediate_events=intermediate_events,
+        )
+
+        assert eval_case.agent_metadata == agent_metadata
+        assert eval_case.intermediate_events == intermediate_events
+
+
 class TestMetric:
     """Unit tests for the Metric class."""
 

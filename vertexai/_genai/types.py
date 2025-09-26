@@ -9461,6 +9461,113 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
 
 
+class AgentMetadata(_common.BaseModel):
+    """AgentMetadata for agent eval."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Agent name, used as an identifier."""
+    )
+    instruction: Optional[str] = Field(
+        default=None, description="""Agent developer instruction."""
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Agent description."""
+    )
+    tool_declarations: Optional[genai_types.ToolListUnion] = Field(
+        default=None, description="""List of tools used by the Agent."""
+    )
+    sub_agent_names: Optional[list[str]] = Field(
+        default=None, description="""List of sub-agent names."""
+    )
+
+
+class AgentMetadataDict(TypedDict, total=False):
+    """AgentMetadata for agent eval."""
+
+    name: Optional[str]
+    """Agent name, used as an identifier."""
+
+    instruction: Optional[str]
+    """Agent developer instruction."""
+
+    description: Optional[str]
+    """Agent description."""
+
+    tool_declarations: Optional[genai_types.ToolListUnionDict]
+    """List of tools used by the Agent."""
+
+    sub_agent_names: Optional[list[str]]
+    """List of sub-agent names."""
+
+
+AgentMetadataOrDict = Union[AgentMetadata, AgentMetadataDict]
+
+
+class ContentMapContents(_common.BaseModel):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""Contents of the model input."""
+    )
+
+
+class ContentMapContentsDict(TypedDict, total=False):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Contents of the model input."""
+
+
+ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
+
+
+class EvalCaseMetricResult(_common.BaseModel):
+    """Evaluation result for a single evaluation case for a single metric."""
+
+    metric_name: Optional[str] = Field(
+        default=None, description="""Name of the metric."""
+    )
+    score: Optional[float] = Field(default=None, description="""Score of the metric.""")
+    explanation: Optional[str] = Field(
+        default=None, description="""Explanation of the metric."""
+    )
+    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+        default=None,
+        description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
+    )
+    raw_output: Optional[list[str]] = Field(
+        default=None, description="""Raw output of the metric."""
+    )
+    error_message: Optional[str] = Field(
+        default=None, description="""Error message for the metric."""
+    )
+
+
+class EvalCaseMetricResultDict(TypedDict, total=False):
+    """Evaluation result for a single evaluation case for a single metric."""
+
+    metric_name: Optional[str]
+    """Name of the metric."""
+
+    score: Optional[float]
+    """Score of the metric."""
+
+    explanation: Optional[str]
+    """Explanation of the metric."""
+
+    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    """The details of all the rubrics and their verdicts for rubric-based metrics."""
+
+    raw_output: Optional[list[str]]
+    """Raw output of the metric."""
+
+    error_message: Optional[str]
+    """Error message for the metric."""
+
+
+EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
+
+
 class Message(_common.BaseModel):
     """Represents a single message turn in a conversation."""
 
@@ -9549,6 +9656,52 @@ class ResponseCandidateDict(TypedDict, total=False):
 ResponseCandidateOrDict = Union[ResponseCandidate, ResponseCandidateDict]
 
 
+class Event(_common.BaseModel):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the agent event."""
+    )
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Content of the event."""
+    )
+    creation_timestamp: Optional[datetime.datetime] = Field(
+        default=None, description="""The creation timestamp of the event."""
+    )
+    author: Optional[str] = Field(
+        default=None, description="""Name of the entity that produced the event."""
+    )
+
+
+class EventDict(TypedDict, total=False):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str]
+    """Unique identifier for the agent event."""
+
+    content: Optional[genai_types.ContentDict]
+    """Content of the event."""
+
+    creation_timestamp: Optional[datetime.datetime]
+    """The creation timestamp of the event."""
+
+    author: Optional[str]
+    """Name of the entity that produced the event."""
+
+
+EventOrDict = Union[Event, EventDict]
+
+
 class EvalCase(_common.BaseModel):
     """A comprehensive representation of a GenAI interaction for evaluation."""
 
@@ -9557,11 +9710,11 @@ class EvalCase(_common.BaseModel):
     )
     responses: Optional[list[ResponseCandidate]] = Field(
         default=None,
-        description="""Model-generated replies to the last user message. Multiple responses are allowed to support use cases such as comparing different model outputs.""",
+        description="""Model-generated replies to the last user message in a conversation. Multiple responses are allowed to support use cases such as comparing different model outputs.""",
     )
     reference: Optional[ResponseCandidate] = Field(
         default=None,
-        description="""User-provided, golden reference model reply to prompt in context of chat history.""",
+        description="""User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in a conversation.""",
     )
     system_instruction: Optional[genai_types.Content] = Field(
         default=None, description="""System instruction for the model."""
@@ -9577,6 +9730,14 @@ class EvalCase(_common.BaseModel):
     eval_case_id: Optional[str] = Field(
         default=None, description="""Unique identifier for the evaluation case."""
     )
+    intermediate_events: Optional[list[Event]] = Field(
+        default=None,
+        description="""Intermediate events of a single turn in agent eval or intermediate events of the last turn for multi-turn agent eval.""",
+    )
+    agent_metadata: Optional[dict[str, AgentMetadata]] = Field(
+        default=None,
+        description="""Agent metadata for agent eval, keyed by agent name. This can be extended for multi-agent evaluation.""",
+    )
     # Allow extra fields to support custom metric prompts and stay backward compatible.
     model_config = ConfigDict(frozen=True, extra="allow")
 
@@ -9588,10 +9749,10 @@ class EvalCaseDict(TypedDict, total=False):
     """The most recent user message (current input)."""
 
     responses: Optional[list[ResponseCandidateDict]]
-    """Model-generated replies to the last user message. Multiple responses are allowed to support use cases such as comparing different model outputs."""
+    """Model-generated replies to the last user message in a conversation. Multiple responses are allowed to support use cases such as comparing different model outputs."""
 
     reference: Optional[ResponseCandidateDict]
-    """User-provided, golden reference model reply to prompt in context of chat history."""
+    """User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in a conversation."""
 
     system_instruction: Optional[genai_types.ContentDict]
     """System instruction for the model."""
@@ -9604,6 +9765,12 @@ class EvalCaseDict(TypedDict, total=False):
 
     eval_case_id: Optional[str]
     """Unique identifier for the evaluation case."""
+
+    intermediate_events: Optional[list[EventDict]]
+    """Intermediate events of a single turn in agent eval or intermediate events of the last turn for multi-turn agent eval."""
+
+    agent_metadata: Optional[dict[str, AgentMetadataDict]]
+    """Agent metadata for agent eval, keyed by agent name. This can be extended for multi-agent evaluation."""
 
 
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
@@ -9767,78 +9934,6 @@ class EvaluationDatasetDict(TypedDict, total=False):
 EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
 
 
-class WinRateStats(_common.BaseModel):
-    """Statistics for win rates for a single metric."""
-
-    win_rates: Optional[list[float]] = Field(
-        default=None,
-        description="""Win rates for the metric, one for each candidate.""",
-    )
-    tie_rate: Optional[float] = Field(
-        default=None, description="""Tie rate for the metric."""
-    )
-
-
-class WinRateStatsDict(TypedDict, total=False):
-    """Statistics for win rates for a single metric."""
-
-    win_rates: Optional[list[float]]
-    """Win rates for the metric, one for each candidate."""
-
-    tie_rate: Optional[float]
-    """Tie rate for the metric."""
-
-
-WinRateStatsOrDict = Union[WinRateStats, WinRateStatsDict]
-
-
-class EvalCaseMetricResult(_common.BaseModel):
-    """Evaluation result for a single evaluation case for a single metric."""
-
-    metric_name: Optional[str] = Field(
-        default=None, description="""Name of the metric."""
-    )
-    score: Optional[float] = Field(default=None, description="""Score of the metric.""")
-    explanation: Optional[str] = Field(
-        default=None, description="""Explanation of the metric."""
-    )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
-        default=None,
-        description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
-    )
-    raw_output: Optional[list[str]] = Field(
-        default=None, description="""Raw output of the metric."""
-    )
-    error_message: Optional[str] = Field(
-        default=None, description="""Error message for the metric."""
-    )
-
-
-class EvalCaseMetricResultDict(TypedDict, total=False):
-    """Evaluation result for a single evaluation case for a single metric."""
-
-    metric_name: Optional[str]
-    """Name of the metric."""
-
-    score: Optional[float]
-    """Score of the metric."""
-
-    explanation: Optional[str]
-    """Explanation of the metric."""
-
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
-    """The details of all the rubrics and their verdicts for rubric-based metrics."""
-
-    raw_output: Optional[list[str]]
-    """Raw output of the metric."""
-
-    error_message: Optional[str]
-    """Error message for the metric."""
-
-
-EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
-
-
 class ResponseCandidateResult(_common.BaseModel):
     """Aggregated metric results for a single response candidate of an EvalCase."""
 
@@ -9993,7 +10088,7 @@ class EvaluationResult(_common.BaseModel):
         default=None,
         description="""A list of summary-level evaluation results for each metric.""",
     )
-    win_rates: Optional[dict[str, WinRateStats]] = Field(
+    win_rates: Optional[dict[str, "WinRateStats"]] = Field(
         default=None,
         description="""A dictionary of win rates for each metric, only populated for multi-response evaluation runs.""",
     )
@@ -10031,7 +10126,7 @@ class EvaluationResultDict(TypedDict, total=False):
     summary_metrics: Optional[list[AggregatedMetricResultDict]]
     """A list of summary-level evaluation results for each metric."""
 
-    win_rates: Optional[dict[str, WinRateStatsDict]]
+    win_rates: Optional[dict[str, "WinRateStatsDict"]]
     """A dictionary of win rates for each metric, only populated for multi-response evaluation runs."""
 
     evaluation_dataset: Optional[list[EvaluationDatasetDict]]
@@ -10044,22 +10139,29 @@ class EvaluationResultDict(TypedDict, total=False):
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
 
 
-class ContentMapContents(_common.BaseModel):
-    """Map of placeholder in metric prompt template to contents of model input."""
+class WinRateStats(_common.BaseModel):
+    """Statistics for win rates for a single metric."""
 
-    contents: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""Contents of the model input."""
+    win_rates: Optional[list[float]] = Field(
+        default=None,
+        description="""Win rates for the metric, one for each candidate.""",
+    )
+    tie_rate: Optional[float] = Field(
+        default=None, description="""Tie rate for the metric."""
     )
 
 
-class ContentMapContentsDict(TypedDict, total=False):
-    """Map of placeholder in metric prompt template to contents of model input."""
+class WinRateStatsDict(TypedDict, total=False):
+    """Statistics for win rates for a single metric."""
 
-    contents: Optional[list[genai_types.ContentDict]]
-    """Contents of the model input."""
+    win_rates: Optional[list[float]]
+    """Win rates for the metric, one for each candidate."""
+
+    tie_rate: Optional[float]
+    """Tie rate for the metric."""
 
 
-ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
+WinRateStatsOrDict = Union[WinRateStats, WinRateStatsDict]
 
 
 class EvaluateMethodConfig(_common.BaseModel):
