@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.118.0](https://github.com/googleapis/python-aiplatform/compare/v1.117.0...v1.118.0) (2025-09-26)
+
+
+### Features
+
+* Add enable_widget option in Google Maps and additional grounding information ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Add private_model_server_enabled to in Endpoint.proto ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Add Validation mode in FunctionCallingConfig ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Add Validation mode in FunctionCallingConfig ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* GenAI SDK client(evals) Add data model for agent evaluation ([d3ef487](https://github.com/googleapis/python-aiplatform/commit/d3ef4872c0fb2e98567c58346eea8d5c0fa83bfb))
+* PSC support for custom weights deploy ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Tuning PreTunedModel API field ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+
+
+### Bug Fixes
+
+* Mitigate breaking change in GenAI SDK for ADK on AgentEngine ([9fa50aa](https://github.com/googleapis/python-aiplatform/commit/9fa50aa4895efd3e71e1ce347ab062e418983942))
+* Relax the type annotations to avoid issues with pydantic when deploying ([7a6a2f5](https://github.com/googleapis/python-aiplatform/commit/7a6a2f588b4d2a48f46a9d572fcdb82b1a6de954))
+
+
+### Documentation
+
+* A comment for field `dedicated_endpoint_disabled` in message `.google.cloud.aiplatform.v1beta1.DeployRequest` is changed ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Remove legacy internal lint directives ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Update the comment for ANY mode in FunctionCallingConfig. ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Update the comment for ANY mode in FunctionCallingConfig. ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+
 ## [1.117.0](https://github.com/googleapis/python-aiplatform/compare/v1.116.0...v1.117.0) (2025-09-25)
 
 
