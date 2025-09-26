@@ -351,11 +351,11 @@ class AuthConfig(proto.Message):
                 resource storing the API key. Format:
                 ``projects/{project}/secrets/{secrete}/versions/{version}``
 
-                -  If specified, the ``secretmanager.versions.access``
-                   permission should be granted to Vertex AI Extension
-                   Service Agent
-                   (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
-                   on the specified resource.
+                - If specified, the ``secretmanager.versions.access``
+                  permission should be granted to Vertex AI Extension
+                  Service Agent
+                  (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
+                  on the specified resource.
             http_element_location (google.cloud.aiplatform_v1beta1.types.HttpElementLocation):
                 Required. The location of the API key.
         """
@@ -383,11 +383,11 @@ class AuthConfig(proto.Message):
                 resource storing the base64 encoded credentials. Format:
                 ``projects/{project}/secrets/{secrete}/versions/{version}``
 
-                -  If specified, the ``secretmanager.versions.access``
-                   permission should be granted to Vertex AI Extension
-                   Service Agent
-                   (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
-                   on the specified resource.
+                - If specified, the ``secretmanager.versions.access``
+                  permission should be granted to Vertex AI Extension
+                  Service Agent
+                  (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
+                  on the specified resource.
         """
 
         credential_secret: str = proto.Field(
@@ -403,14 +403,14 @@ class AuthConfig(proto.Message):
                 Optional. The service account that the extension execution
                 service runs as.
 
-                -  If the service account is specified, the
-                   ``iam.serviceAccounts.getAccessToken`` permission should
-                   be granted to Vertex AI Extension Service Agent
-                   (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
-                   on the specified service account.
+                - If the service account is specified, the
+                  ``iam.serviceAccounts.getAccessToken`` permission should
+                  be granted to Vertex AI Extension Service Agent
+                  (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
+                  on the specified service account.
 
-                -  If not specified, the Vertex AI Extension Service Agent
-                   will be used to execute the Extension.
+                - If not specified, the Vertex AI Extension Service Agent
+                  will be used to execute the Extension.
         """
 
         service_account: str = proto.Field(
@@ -439,11 +439,11 @@ class AuthConfig(proto.Message):
                 The service account used to generate access tokens for
                 executing the Extension.
 
-                -  If the service account is specified, the
-                   ``iam.serviceAccounts.getAccessToken`` permission should
-                   be granted to Vertex AI Extension Service Agent
-                   (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
-                   on the provided service account.
+                - If the service account is specified, the
+                  ``iam.serviceAccounts.getAccessToken`` permission should
+                  be granted to Vertex AI Extension Service Agent
+                  (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
+                  on the provided service account.
 
                 This field is a member of `oneof`_ ``oauth_config``.
         """
@@ -483,13 +483,13 @@ class AuthConfig(proto.Message):
                 Provider (accounts.google.com) for extension endpoint
                 (https://cloud.google.com/iam/docs/create-short-lived-credentials-direct#sa-credentials-oidc).
 
-                -  The audience for the token will be set to the URL in the
-                   server url defined in the OpenApi spec.
+                - The audience for the token will be set to the URL in the
+                  server url defined in the OpenApi spec.
 
-                -  If the service account is provided, the service account
-                   should grant ``iam.serviceAccounts.getOpenIdToken``
-                   permission to Vertex AI Extension Service Agent
-                   (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents).
+                - If the service account is provided, the service account
+                  should grant ``iam.serviceAccounts.getOpenIdToken``
+                  permission to Vertex AI Extension Service Agent
+                  (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents).
 
                 This field is a member of `oneof`_ ``oidc_config``.
         """
@@ -661,11 +661,11 @@ class ExtensionPrivateServiceConnectConfig(proto.Message):
             registered. Format:
             ``projects/{project_id}/locations/{location_id}/namespaces/{namespace_id}/services/{service_id}``
 
-            -  The Vertex AI Extension Service Agent
-               (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
-               should be granted ``servicedirectory.viewer`` and
-               ``servicedirectory.pscAuthorizedService`` roles on the
-               resource.
+            - The Vertex AI Extension Service Agent
+              (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
+              should be granted ``servicedirectory.viewer`` and
+              ``servicedirectory.pscAuthorizedService`` roles on the
+              resource.
     """
 
     service_directory: str = proto.Field(

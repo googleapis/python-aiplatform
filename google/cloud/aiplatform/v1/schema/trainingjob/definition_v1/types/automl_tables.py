@@ -235,15 +235,15 @@ class AutoMlTablesInputs(proto.Message):
         class NumericTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
 
-            -  The value converted to float32.
-            -  The z_score of the value.
-            -  log(value+1) when the value is greater than or equal to 0.
-               Otherwise, this transformation is not applied and the value is
-               considered a missing value.
-            -  z_score of log(value+1) when the value is greater than or equal
-               to 0. Otherwise, this transformation is not applied and the value
-               is considered a missing value.
-            -  A boolean value that indicates whether the value is valid.
+            - The value converted to float32.
+            - The z_score of the value.
+            - log(value+1) when the value is greater than or equal to 0.
+              Otherwise, this transformation is not applied and the value is
+              considered a missing value.
+            - z_score of log(value+1) when the value is greater than or equal to
+              0. Otherwise, this transformation is not applied and the value is
+              considered a missing value.
+            - A boolean value that indicates whether the value is valid.
 
             Attributes:
                 column_name (str):
@@ -268,13 +268,13 @@ class AutoMlTablesInputs(proto.Message):
         class CategoricalTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
 
-            -  The categorical string as is--no change to case, punctuation,
-               spelling, tense, and so on.
-            -  Convert the category name to a dictionary lookup index and
-               generate an embedding for each index.
-            -  Categories that appear less than 5 times in the training dataset
-               are treated as the "unknown" category. The "unknown" category
-               gets its own special lookup index and resulting embedding.
+            - The categorical string as is--no change to case, punctuation,
+              spelling, tense, and so on.
+            - Convert the category name to a dictionary lookup index and
+              generate an embedding for each index.
+            - Categories that appear less than 5 times in the training dataset
+              are treated as the "unknown" category. The "unknown" category gets
+              its own special lookup index and resulting embedding.
 
             Attributes:
                 column_name (str):
@@ -289,13 +289,13 @@ class AutoMlTablesInputs(proto.Message):
         class TimestampTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
 
-            -  Apply the transformation functions for Numerical columns.
-            -  Determine the year, month, day,and weekday. Treat each value from
-               the
-            -  timestamp as a Categorical column.
-            -  Invalid numerical values (for example, values that fall outside
-               of a typical timestamp range, or are extreme values) receive no
-               special treatment and are not removed.
+            - Apply the transformation functions for Numerical columns.
+            - Determine the year, month, day,and weekday. Treat each value from
+              the
+            - timestamp as a Categorical column.
+            - Invalid numerical values (for example, values that fall outside of
+              a typical timestamp range, or are extreme values) receive no
+              special treatment and are not removed.
 
             Attributes:
                 column_name (str):
@@ -304,15 +304,15 @@ class AutoMlTablesInputs(proto.Message):
                     The format in which that time field is expressed. The
                     time_format must either be one of:
 
-                    -  ``unix-seconds``
-                    -  ``unix-milliseconds``
-                    -  ``unix-microseconds``
-                    -  ``unix-nanoseconds`` (for respectively number of seconds,
-                       milliseconds, microseconds and nanoseconds since start of
-                       the Unix epoch); or be written in ``strftime`` syntax. If
-                       time_format is not set, then the default format is RFC
-                       3339 ``date-time`` format, where ``time-offset`` =
-                       ``"Z"`` (e.g. 1985-04-12T23:20:50.52Z)
+                    - ``unix-seconds``
+                    - ``unix-milliseconds``
+                    - ``unix-microseconds``
+                    - ``unix-nanoseconds`` (for respectively number of seconds,
+                      milliseconds, microseconds and nanoseconds since start of
+                      the Unix epoch); or be written in ``strftime`` syntax. If
+                      time_format is not set, then the default format is RFC
+                      3339 ``date-time`` format, where ``time-offset`` = ``"Z"``
+                      (e.g. 1985-04-12T23:20:50.52Z)
                 invalid_values_allowed (bool):
                     If invalid values is allowed, the training
                     pipeline will create a boolean feature that
@@ -337,15 +337,14 @@ class AutoMlTablesInputs(proto.Message):
         class TextTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
 
-            -  The text as is--no change to case, punctuation, spelling, tense,
-               and so on.
-            -  Tokenize text to words. Convert each words to a dictionary lookup
-               index and generate an embedding for each index. Combine the
-               embedding of all elements into a single embedding using the mean.
-            -  Tokenization is based on unicode script boundaries.
-            -  Missing values get their own lookup index and resulting
-               embedding.
-            -  Stop-words receive no special treatment and are not removed.
+            - The text as is--no change to case, punctuation, spelling, tense,
+              and so on.
+            - Tokenize text to words. Convert each words to a dictionary lookup
+              index and generate an embedding for each index. Combine the
+              embedding of all elements into a single embedding using the mean.
+            - Tokenization is based on unicode script boundaries.
+            - Missing values get their own lookup index and resulting embedding.
+            - Stop-words receive no special treatment and are not removed.
 
             Attributes:
                 column_name (str):
@@ -361,9 +360,9 @@ class AutoMlTablesInputs(proto.Message):
             r"""Treats the column as numerical array and performs following
             transformation functions.
 
-            -  All transformations for Numerical types applied to the average of
-               the all elements.
-            -  The average of empty arrays is treated as zero.
+            - All transformations for Numerical types applied to the average of
+              the all elements.
+            - The average of empty arrays is treated as zero.
 
             Attributes:
                 column_name (str):
@@ -389,11 +388,11 @@ class AutoMlTablesInputs(proto.Message):
             r"""Treats the column as categorical array and performs following
             transformation functions.
 
-            -  For each element in the array, convert the category name to a
-               dictionary lookup index and generate an embedding for each index.
-               Combine the embedding of all elements into a single embedding
-               using the mean.
-            -  Empty arrays treated as an embedding of zeroes.
+            - For each element in the array, convert the category name to a
+              dictionary lookup index and generate an embedding for each index.
+              Combine the embedding of all elements into a single embedding
+              using the mean.
+            - Empty arrays treated as an embedding of zeroes.
 
             Attributes:
                 column_name (str):
@@ -409,10 +408,10 @@ class AutoMlTablesInputs(proto.Message):
             r"""Treats the column as text array and performs following
             transformation functions.
 
-            -  Concatenate all text values in the array into a single text value
-               using a space (" ") as a delimiter, and then treat the result as
-               a single text value. Apply the transformations for Text columns.
-            -  Empty arrays treated as an empty text.
+            - Concatenate all text values in the array into a single text value
+              using a space (" ") as a delimiter, and then treat the result as a
+              single text value. Apply the transformations for Text columns.
+            - Empty arrays treated as an empty text.
 
             Attributes:
                 column_name (str):

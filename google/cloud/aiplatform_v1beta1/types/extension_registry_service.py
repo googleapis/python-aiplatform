@@ -151,9 +151,9 @@ class ListExtensionsRequest(proto.Message):
             sorted in ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``display_name``
-            -  ``create_time``
-            -  ``update_time``
+            - ``display_name``
+            - ``create_time``
+            - ``update_time``
 
             Example: ``display_name, create_time desc``.
     """

@@ -45,9 +45,7 @@ from google.cloud.aiplatform_v1.types import execution
 from google.cloud.aiplatform_v1.types import execution as gca_execution
 from google.cloud.aiplatform_v1.types import lineage_subgraph
 from google.cloud.aiplatform_v1.types import metadata_schema
-from google.cloud.aiplatform_v1.types import (
-    metadata_schema as gca_metadata_schema,
-)
+from google.cloud.aiplatform_v1.types import metadata_schema as gca_metadata_schema
 from google.cloud.aiplatform_v1.types import metadata_service
 from google.cloud.aiplatform_v1.types import metadata_store
 from google.longrunning import operations_pb2  # type: ignore
@@ -4279,11 +4277,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = self._interceptor.pre_add_context_artifacts_and_executions(
-                request, metadata
+            request, metadata = (
+                self._interceptor.pre_add_context_artifacts_and_executions(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseMetadataServiceRestTransport._BaseAddContextArtifactsAndExecutions._get_transcoded_request(
                 http_options, request
@@ -4349,11 +4346,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
 
             resp = self._interceptor.post_add_context_artifacts_and_executions(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_add_context_artifacts_and_executions_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_add_context_artifacts_and_executions_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -8144,11 +8140,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
 
             resp = self._interceptor.post_query_artifact_lineage_subgraph(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_query_artifact_lineage_subgraph_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_query_artifact_lineage_subgraph_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -8304,11 +8299,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
 
             resp = self._interceptor.post_query_context_lineage_subgraph(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_query_context_lineage_subgraph_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_query_context_lineage_subgraph_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -8400,11 +8394,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
                 _BaseMetadataServiceRestTransport._BaseQueryExecutionInputsAndOutputs._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = self._interceptor.pre_query_execution_inputs_and_outputs(
-                request, metadata
+            request, metadata = (
+                self._interceptor.pre_query_execution_inputs_and_outputs(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseMetadataServiceRestTransport._BaseQueryExecutionInputsAndOutputs._get_transcoded_request(
                 http_options, request
@@ -8465,11 +8458,10 @@ class MetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
 
             resp = self._interceptor.post_query_execution_inputs_and_outputs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_query_execution_inputs_and_outputs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_query_execution_inputs_and_outputs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
