@@ -22,7 +22,8 @@ For detailed instructions, see [deploy an open model](https://cloud.google.com/v
 
 ## Quick Start: Default Deployment
 
-This is the simplest way to deploy a model. If you provide just a model name, the SDK will use the default deployment configuration.
+This is the simplest way to deploy a model. If you provide just a model name, the SDK
+will use the default deployment configuration.
 
 ```python
 from vertexai import model_garden
@@ -60,7 +61,9 @@ model = model_garden.OpenModel("Qwen/Qwen2-1.5B-Instruct")
 endpoint = model.deploy()
 ```
 
-**Use case:** Leverage community or third-party models without custom container setup. If the model is gated, you may need to provide a Hugging Face access token:
+**Use case:** Leverage community or third-party models without custom container
+setup. If the model is gated, you may need to provide a Hugging Face access
+token:
 
 ```python
 endpoint = model.deploy(hugging_face_access_token="your_hf_token")
@@ -79,19 +82,40 @@ deploy_options = model.list_deploy_options()
 
 **Use case:** Evaluate compatible machine specs and containers before deployment.
 
-## Customize Deployment: Machine and Resource Configuration
+## Select a Verified Deployment: By Container Image
 
-Specify exact hardware resources and endpoint/model names.
+Specify a container image from the list of verified deployment configurations.
 
 ```python
 endpoint = model.deploy(
-    machine_type="g2-standard-4",
-    accelerator_type="NVIDIA_L4",
+    serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20250430_0916_RC00_maas",
+)
+```
+
+## Select a Verified Deployment: By Hardware
+
+Specify a hardware configuration from the list of verified deployment
+configurations.
+
+```python
+endpoints = model.deploy(
+    machine_type="a3-highgpu-1g",
+    accelerator_type="NVIDIA_H100_80GB",
     accelerator_count=1,
-    min_replica_count=1,
-    max_replica_count=1,
-    endpoint_display_name="paligemma-endpoint",
-    model_display_name="paligemma-model"
+)
+```
+
+## Select a Verified Deployment: By Container and Hardware
+
+Specify both a container image and a hardware configuration from the list of
+verified deployment configurations.
+
+```python
+endpoint = model.deploy(
+    serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20250430_0916_RC00_maas",
+    machine_type="a3-highgpu-1g",
+    accelerator_type="NVIDIA_H100_80GB",
+    accelerator_count=1,
 )
 ```
 
@@ -99,7 +123,8 @@ endpoint = model.deploy(
 
 ## EULA Acceptance
 
-Some models require acceptance of a license agreement. Pass `eula=True` if prompted.
+Some models require acceptance of a license agreement. Pass `eula=True` if
+prompted.
 
 ```python
 model = model_garden.OpenModel("google/gemma2@gemma-2-27b-it")
@@ -184,7 +209,8 @@ endpoint = model.deploy(
 )
 ```
 
-**Use case:** Production-grade deployments requiring deep customization of runtime behavior and monitoring.
+**Use case:** Production-grade deployments requiring deep customization of
+runtime behavior and monitoring.
 
 ## Documentation
 
