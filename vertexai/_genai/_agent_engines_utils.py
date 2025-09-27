@@ -117,6 +117,32 @@ except (ImportError, AttributeError):
     TaskIdParams = None
     TaskQueryParams = None
 
+try:
+    from a2a.types import (
+        AgentCard,
+        TransportProtocol,
+        Message,
+        TaskIdParams,
+        TaskQueryParams,
+    )
+    from a2a.client import ClientConfig, ClientFactory
+
+    AgentCard = AgentCard
+    TransportProtocol = TransportProtocol
+    Message = Message
+    ClientConfig = ClientConfig
+    ClientFactory = ClientFactory
+    TaskIdParams = TaskIdParams
+    TaskQueryParams = TaskQueryParams
+except (ImportError, AttributeError):
+    AgentCard = None
+    TransportProtocol = None
+    Message = None
+    ClientConfig = None
+    ClientFactory = None
+    TaskIdParams = None
+    TaskQueryParams = None
+
 _ACTIONS_KEY = "actions"
 _ACTION_APPEND = "append"
 _AGENT_FRAMEWORK_ATTR = "agent_framework"
