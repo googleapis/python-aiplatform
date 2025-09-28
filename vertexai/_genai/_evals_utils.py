@@ -591,6 +591,10 @@ class PrebuiltMetricLoader:
     def MULTI_TURN_SAFETY(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("MULTI_TURN_SAFETY")
 
+    @property
+    def FINAL_RESPONSE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("FINAL_RESPONSE_QUALITY")
+
 
 PrebuiltMetric = PrebuiltMetricLoader()
 RubricMetric = PrebuiltMetric

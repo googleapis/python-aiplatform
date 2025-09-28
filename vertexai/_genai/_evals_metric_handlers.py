@@ -835,6 +835,45 @@ class PredefinedMetricHandler(MetricHandler):
             contents=types.InstanceDataContents(contents=[content])
         )
 
+    @staticmethod
+    def _eval_case_to_agent_data(
+        eval_case: types.EvalCase,
+    ) -> Optional[types.AgentData]:
+        """Converts an EvalCase object to an AgentData object."""
+        if not eval_case.agent_info and not eval_case.intermediate_events:
+            return None
+        tools = None
+        developer_instruction = None
+        events = None
+        agent_config = None
+
+        if eval_case.agent_info:
+            agent_info = eval_case.agent_info
+            if agent_info.instruction:
+                developer_instruction = types.InstanceData(text=agent_info.instruction)
+            if agent_info.tool_declarations:
+                tool_declarations = agent_info.tool_declarations
+                tools = types.Tools(tool=tool_declarations)
+            if tools or developer_instruction:
+                agent_config = types.AgentConfig(
+                    tools=tools,
+                    developer_instruction=developer_instruction,
+                )
+
+        if eval_case.intermediate_events:
+            event_contents = [
+                event.content
+                for event in eval_case.intermediate_events
+                if event.content
+            ]
+            if event_contents:
+                events = types.Events(event=event_contents)
+
+        return types.AgentData(
+            agent_config=agent_config,
+            events=events,
+        )
+
     def _build_request_payload(
         self, eval_case: types.EvalCase, response_index: int
     ) -> dict[str, Any]:
@@ -883,7 +922,6 @@ class PredefinedMetricHandler(MetricHandler):
                 logger.warning(
                     f"Unsupported type for context: {type(eval_case.context)}"
                 )
-
         instance_payload = types.EvaluationInstance(
             prompt=prompt_instance_data,
             response=PredefinedMetricHandler._content_to_instance_data(
@@ -896,6 +934,7 @@ class PredefinedMetricHandler(MetricHandler):
                 if other_data_map
                 else None
             ),
+            agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
         )
 
         return {
@@ -913,6 +952,11 @@ class PredefinedMetricHandler(MetricHandler):
             api_response = self.module._evaluate_instances(
                 metrics=[self.metric],
                 instance=payload.get("instance"),
+                config=types.EvaluateInstancesConfig(
+                    http_options=genai_types.HttpOptions(
+                        base_url="https://us-central1-staging-aiplatform.sandbox.googleapis.com"
+                    )
+                ),
             )
 
             if (
