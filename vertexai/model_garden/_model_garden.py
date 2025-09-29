@@ -678,12 +678,25 @@ class OpenModel:
     def list_deploy_options(
         self,
         concise: bool = False,
+        serving_container_image_uri_filter: Optional[Union[str, List[str]]] = None,
+        machine_type_filter: Optional[str] = None,
+        accelerator_type_filter: Optional[str] = None,
     ) -> Union[str, Sequence[types.PublisherModel.CallToAction.Deploy]]:
         """Lists the verified deploy options for the model.
 
         Args:
             concise: If true, returns a human-readable string with container and
               machine specs.
+            serving_container_image_uri_filter: If specified, only return the
+              deploy options where the serving container image URI contains one of
+              the specified keyword(s) (e.g., "vllm" or ["vllm", "tgi"]). The
+              filter is case-insensitive.
+            machine_type_filter: If specified, only return the deploy options
+              where the machine type contains one of the specified keyword(s)
+              (e.g., "n1" or ["n1", "g2"]). The filter is case-insensitive.
+            accelerator_type_filter: If specified, only return the deploy options
+              where the accelerator type contains one of the specified keyword(s)
+              (e.g., "T4" or ["T4", "L4"]). The filter is case-insensitive.
 
         Returns:
             A list of deploy options or a concise formatted string.
@@ -703,6 +716,64 @@ class OpenModel:
                 "Model does not support deployment. "
                 "Use `list_deployable_models()` to find supported models."
             )
+
+        if serving_container_image_uri_filter:
+            if isinstance(serving_container_image_uri_filter, str):
+                serving_container_image_uri_filter = [
+                    serving_container_image_uri_filter
+                ]
+            serving_container_image_uri_filter = [
+                f.lower() for f in serving_container_image_uri_filter
+            ]
+            deploy_options = [
+                option
+                for option in deploy_options
+                if option.container_spec
+                and any(
+                    f in option.container_spec.image_uri.lower()
+                    for f in serving_container_image_uri_filter
+                )
+            ]
+
+        if machine_type_filter:
+            filters = (
+                [machine_type_filter]
+                if isinstance(machine_type_filter, str)
+                else machine_type_filter
+            )
+            deploy_options = [
+                option
+                for option in deploy_options
+                if option.dedicated_resources
+                and option.dedicated_resources.machine_spec
+                and any(
+                    f.lower()
+                    in option.dedicated_resources.machine_spec.machine_type.lower()
+                    for f in filters
+                )
+            ]
+
+        if accelerator_type_filter:
+            filters = (
+                [accelerator_type_filter]
+                if isinstance(accelerator_type_filter, str)
+                else accelerator_type_filter
+            )
+            deploy_options = [
+                option
+                for option in deploy_options
+                if option.dedicated_resources
+                and option.dedicated_resources.machine_spec
+                and option.dedicated_resources.machine_spec.accelerator_type
+                and any(
+                    f.lower()
+                    in option.dedicated_resources.machine_spec.accelerator_type.name.lower()
+                    for f in filters
+                )
+            ]
+
+        if not deploy_options:
+            raise ValueError("No deploy options found.")
 
         if not concise:
             return deploy_options
