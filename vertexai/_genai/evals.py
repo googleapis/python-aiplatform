@@ -69,6 +69,39 @@ def _BigQueryRequestSet_from_vertex(
     return to_object
 
 
+def _BigQueryRequestSet_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["uri"]) is not None:
+        setv(to_object, ["uri"], getv(from_object, ["uri"]))
+
+    if getv(from_object, ["prompt_column"]) is not None:
+        setv(to_object, ["promptColumn"], getv(from_object, ["prompt_column"]))
+
+    if getv(from_object, ["rubrics_column"]) is not None:
+        setv(to_object, ["rubricsColumn"], getv(from_object, ["rubrics_column"]))
+
+    if getv(from_object, ["candidate_response_columns"]) is not None:
+        setv(
+            to_object,
+            ["candidateResponseColumns"],
+            getv(from_object, ["candidate_response_columns"]),
+        )
+
+    if getv(from_object, ["sampling_config"]) is not None:
+        setv(
+            to_object,
+            ["samplingConfig"],
+            _SamplingConfig_to_vertex(
+                getv(from_object, ["sampling_config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
 def _BleuInput_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -100,6 +133,35 @@ def _BleuInstance_to_vertex(
 
     if getv(from_object, ["reference"]) is not None:
         setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    return to_object
+
+
+def _CreateEvaluationRunParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["data_source"]) is not None:
+        setv(
+            to_object,
+            ["dataSource"],
+            _EvaluationRunDataSource_to_vertex(
+                getv(from_object, ["data_source"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["evaluation_config"]) is not None:
+        setv(to_object, ["evaluationConfig"], getv(from_object, ["evaluation_config"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -350,6 +412,26 @@ def _EvaluationRunDataSource_from_vertex(
             ["bigquery_request_set"],
             _BigQueryRequestSet_from_vertex(
                 getv(from_object, ["bigqueryRequestSet"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _EvaluationRunDataSource_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["evaluation_set"]) is not None:
+        setv(to_object, ["evaluationSet"], getv(from_object, ["evaluation_set"]))
+
+    if getv(from_object, ["bigquery_request_set"]) is not None:
+        setv(
+            to_object,
+            ["bigqueryRequestSet"],
+            _BigQueryRequestSet_to_vertex(
+                getv(from_object, ["bigquery_request_set"]), to_object
             ),
         )
 
@@ -791,6 +873,23 @@ def _SamplingConfig_from_vertex(
     return to_object
 
 
+def _SamplingConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sampling_count"]) is not None:
+        setv(to_object, ["samplingCount"], getv(from_object, ["sampling_count"]))
+
+    if getv(from_object, ["sampling_method"]) is not None:
+        setv(to_object, ["samplingMethod"], getv(from_object, ["sampling_method"]))
+
+    if getv(from_object, ["sampling_duration"]) is not None:
+        setv(to_object, ["samplingDuration"], getv(from_object, ["sampling_duration"]))
+
+    return to_object
+
+
 def _ToolCallValidInput_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -994,6 +1093,68 @@ def _ToolParameterKeyMatchSpec_to_vertex(
 
 
 class Evals(_api_module.BaseModule):
+
+    def _create_evaluation_run(
+        self,
+        *,
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSourceOrDict,
+        evaluation_config: genai_types.EvaluationConfigOrDict,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """
+        Creates an EvaluationRun.
+        """
+
+        parameter_model = types._CreateEvaluationRunParameters(
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     def _evaluate_instances(
         self,
@@ -1597,8 +1758,99 @@ class Evals(_api_module.BaseModule):
             name = name.split("/")[-1]
         return self._get_evaluation_run(name=name, config=config)
 
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    def create_evaluation_run(
+        self,
+        *,
+        name: str,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSource,
+        dest: str,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """Creates an EvaluationRun."""
+        output_config = genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
+        )
+        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+
+        return self._create_evaluation_run(  # type: ignore[no-any-return]
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            config=config,
+        )
+
 
 class AsyncEvals(_api_module.BaseModule):
+
+    async def _create_evaluation_run(
+        self,
+        *,
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSourceOrDict,
+        evaluation_config: genai_types.EvaluationConfigOrDict,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """
+        Creates an EvaluationRun.
+        """
+
+        parameter_model = types._CreateEvaluationRunParameters(
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     async def _evaluate_instances(
         self,
@@ -1914,5 +2166,34 @@ class AsyncEvals(_api_module.BaseModule):
         if name.startswith("projects/"):
             name = name.split("/")[-1]
         result = await self._get_evaluation_run(name=name, config=config)
+
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    async def create_evaluation_run(
+        self,
+        *,
+        name: str,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSource,
+        dest: str,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """Creates an EvaluationRun."""
+        output_config = genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
+        )
+        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+
+        result = await self._create_evaluation_run(  # type: ignore[no-any-return]
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            config=config,
+        )
 
         return result

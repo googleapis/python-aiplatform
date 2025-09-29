@@ -266,6 +266,36 @@ class State(_common.CaseInSensitiveEnum):
     """Sandbox runtime has been deleted."""
 
 
+class SamplingMethod(_common.CaseInSensitiveEnum):
+    """Represents the sampling method for a BigQuery request set."""
+
+    UNSPECIFIED = "UNSPECIFIED"
+    """Sampling method is unspecified."""
+    RANDOM = "RANDOM"
+    """Sampling method is random."""
+
+
+class EvaluationRunState(_common.CaseInSensitiveEnum):
+    """Represents the state of an evaluation run."""
+
+    UNSPECIFIED = "UNSPECIFIED"
+    """Evaluation run state is unspecified."""
+    PENDING = "PENDING"
+    """Evaluation run is pending."""
+    RUNNING = "RUNNING"
+    """Evaluation run is in progress."""
+    SUCCEEDED = "SUCCEEDED"
+    """Evaluation run has succeeded."""
+    FAILED = "FAILED"
+    """Evaluation run failed."""
+    CANCELLED = "CANCELLED"
+    """Evaluation run was cancelled."""
+    INFERENCE = "INFERENCE"
+    """Evaluation run is performing inference."""
+    GENERATING_RUBRICS = "GENERATING_RUBRICS"
+    """Evaluation run is performing rubric generation."""
+
+
 class RubricContentType(_common.CaseInSensitiveEnum):
     """Specifies the type of rubric content to generate."""
 
@@ -290,36 +320,6 @@ class Importance(_common.CaseInSensitiveEnum):
     """Low importance."""
 
 
-class EvaluationRunState(_common.CaseInSensitiveEnum):
-    """Represents the state of an evaluation run."""
-
-    UNSPECIFIED = "UNSPECIFIED"
-    """Evaluation run state is unspecified."""
-    PENDING = "PENDING"
-    """Evaluation run is pending."""
-    RUNNING = "RUNNING"
-    """Evaluation run is in progress."""
-    SUCCEEDED = "SUCCEEDED"
-    """Evaluation run has succeeded."""
-    FAILED = "FAILED"
-    """Evaluation run failed."""
-    CANCELLED = "CANCELLED"
-    """Evaluation run was cancelled."""
-    INFERENCE = "INFERENCE"
-    """Evaluation run is performing inference."""
-    GENERATING_RUBRICS = "GENERATING_RUBRICS"
-    """Evaluation run is performing rubric generation."""
-
-
-class SamplingMethod(_common.CaseInSensitiveEnum):
-    """Represents the sampling method for a BigQuery request set."""
-
-    UNSPECIFIED = "UNSPECIFIED"
-    """Sampling method is unspecified."""
-    RANDOM = "RANDOM"
-    """Sampling method is random."""
-
-
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
     """The action to take."""
 
@@ -334,6 +334,212 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
       """
     DELETED = "DELETED"
     """The memory was deleted."""
+
+
+class SamplingConfig(_common.BaseModel):
+    """Sampling config for a BigQuery request set."""
+
+    sampling_count: Optional[int] = Field(default=None, description="""""")
+    sampling_method: Optional[SamplingMethod] = Field(default=None, description="""""")
+    sampling_duration: Optional[str] = Field(default=None, description="""""")
+
+
+class SamplingConfigDict(TypedDict, total=False):
+    """Sampling config for a BigQuery request set."""
+
+    sampling_count: Optional[int]
+    """"""
+
+    sampling_method: Optional[SamplingMethod]
+    """"""
+
+    sampling_duration: Optional[str]
+    """"""
+
+
+SamplingConfigOrDict = Union[SamplingConfig, SamplingConfigDict]
+
+
+class BigQueryRequestSet(_common.BaseModel):
+    """Represents a BigQuery request set."""
+
+    uri: Optional[str] = Field(default=None, description="""""")
+    prompt_column: Optional[str] = Field(
+        default=None,
+        description="""The column name of the prompt in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    rubrics_column: Optional[str] = Field(
+        default=None,
+        description="""The column name of the rubrics in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    candidate_response_columns: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The column name of the response candidates in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    sampling_config: Optional[SamplingConfig] = Field(
+        default=None,
+        description="""The sampling config for the BigQuery request set. Used for EvaluationRun only.""",
+    )
+
+
+class BigQueryRequestSetDict(TypedDict, total=False):
+    """Represents a BigQuery request set."""
+
+    uri: Optional[str]
+    """"""
+
+    prompt_column: Optional[str]
+    """The column name of the prompt in the BigQuery table. Used for EvaluationRun only."""
+
+    rubrics_column: Optional[str]
+    """The column name of the rubrics in the BigQuery table. Used for EvaluationRun only."""
+
+    candidate_response_columns: Optional[dict[str, str]]
+    """The column name of the response candidates in the BigQuery table. Used for EvaluationRun only."""
+
+    sampling_config: Optional[SamplingConfigDict]
+    """The sampling config for the BigQuery request set. Used for EvaluationRun only."""
+
+
+BigQueryRequestSetOrDict = Union[BigQueryRequestSet, BigQueryRequestSetDict]
+
+
+class EvaluationRunDataSource(_common.BaseModel):
+    """Represents an evaluation run data source."""
+
+    evaluation_set: Optional[str] = Field(default=None, description="""""")
+    bigquery_request_set: Optional[BigQueryRequestSet] = Field(
+        default=None, description=""""""
+    )
+
+
+class EvaluationRunDataSourceDict(TypedDict, total=False):
+    """Represents an evaluation run data source."""
+
+    evaluation_set: Optional[str]
+    """"""
+
+    bigquery_request_set: Optional[BigQueryRequestSetDict]
+    """"""
+
+
+EvaluationRunDataSourceOrDict = Union[
+    EvaluationRunDataSource, EvaluationRunDataSourceDict
+]
+
+
+class CreateEvaluationRunConfig(_common.BaseModel):
+    """Config to create an evaluation run."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CreateEvaluationRunConfigDict(TypedDict, total=False):
+    """Config to create an evaluation run."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CreateEvaluationRunConfigOrDict = Union[
+    CreateEvaluationRunConfig, CreateEvaluationRunConfigDict
+]
+
+
+class _CreateEvaluationRunParameters(_common.BaseModel):
+    """Represents a job that creates an evaluation run."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    data_source: Optional[EvaluationRunDataSource] = Field(
+        default=None, description=""""""
+    )
+    evaluation_config: Optional[genai_types.EvaluationConfig] = Field(
+        default=None, description=""""""
+    )
+    config: Optional[CreateEvaluationRunConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateEvaluationRunParametersDict(TypedDict, total=False):
+    """Represents a job that creates an evaluation run."""
+
+    name: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    data_source: Optional[EvaluationRunDataSourceDict]
+    """"""
+
+    evaluation_config: Optional[genai_types.EvaluationConfigDict]
+    """"""
+
+    config: Optional[CreateEvaluationRunConfigDict]
+    """"""
+
+
+_CreateEvaluationRunParametersOrDict = Union[
+    _CreateEvaluationRunParameters, _CreateEvaluationRunParametersDict
+]
+
+
+class EvaluationRun(_common.BaseModel):
+    """Represents an evaluation run."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    metadata: Optional[dict[str, Any]] = Field(default=None, description="""""")
+    create_time: Optional[datetime.datetime] = Field(default=None, description="""""")
+    completion_time: Optional[datetime.datetime] = Field(
+        default=None, description=""""""
+    )
+    state: Optional[EvaluationRunState] = Field(default=None, description="""""")
+    evaluation_set_snapshot: Optional[str] = Field(default=None, description="""""")
+    error: Optional[genai_types.GoogleRpcStatus] = Field(
+        default=None, description=""""""
+    )
+    data_source: Optional[EvaluationRunDataSource] = Field(
+        default=None, description=""""""
+    )
+
+
+class EvaluationRunDict(TypedDict, total=False):
+    """Represents an evaluation run."""
+
+    name: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    metadata: Optional[dict[str, Any]]
+    """"""
+
+    create_time: Optional[datetime.datetime]
+    """"""
+
+    completion_time: Optional[datetime.datetime]
+    """"""
+
+    state: Optional[EvaluationRunState]
+    """"""
+
+    evaluation_set_snapshot: Optional[str]
+    """"""
+
+    error: Optional[genai_types.GoogleRpcStatusDict]
+    """"""
+
+    data_source: Optional[EvaluationRunDataSourceDict]
+    """"""
+
+
+EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
 
 
 class BleuInstance(_common.BaseModel):
@@ -2413,152 +2619,6 @@ class _GetEvaluationRunParametersDict(TypedDict, total=False):
 _GetEvaluationRunParametersOrDict = Union[
     _GetEvaluationRunParameters, _GetEvaluationRunParametersDict
 ]
-
-
-class SamplingConfig(_common.BaseModel):
-    """Sampling config for a BigQuery request set."""
-
-    sampling_count: Optional[int] = Field(default=None, description="""""")
-    sampling_method: Optional[SamplingMethod] = Field(default=None, description="""""")
-    sampling_duration: Optional[str] = Field(default=None, description="""""")
-
-
-class SamplingConfigDict(TypedDict, total=False):
-    """Sampling config for a BigQuery request set."""
-
-    sampling_count: Optional[int]
-    """"""
-
-    sampling_method: Optional[SamplingMethod]
-    """"""
-
-    sampling_duration: Optional[str]
-    """"""
-
-
-SamplingConfigOrDict = Union[SamplingConfig, SamplingConfigDict]
-
-
-class BigQueryRequestSet(_common.BaseModel):
-    """Represents a BigQuery request set."""
-
-    uri: Optional[str] = Field(default=None, description="""""")
-    prompt_column: Optional[str] = Field(
-        default=None,
-        description="""The column name of the prompt in the BigQuery table. Used for EvaluationRun only.""",
-    )
-    rubrics_column: Optional[str] = Field(
-        default=None,
-        description="""The column name of the rubrics in the BigQuery table. Used for EvaluationRun only.""",
-    )
-    candidate_response_columns: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""The column name of the response candidates in the BigQuery table. Used for EvaluationRun only.""",
-    )
-    sampling_config: Optional[SamplingConfig] = Field(
-        default=None,
-        description="""The sampling config for the BigQuery request set. Used for EvaluationRun only.""",
-    )
-
-
-class BigQueryRequestSetDict(TypedDict, total=False):
-    """Represents a BigQuery request set."""
-
-    uri: Optional[str]
-    """"""
-
-    prompt_column: Optional[str]
-    """The column name of the prompt in the BigQuery table. Used for EvaluationRun only."""
-
-    rubrics_column: Optional[str]
-    """The column name of the rubrics in the BigQuery table. Used for EvaluationRun only."""
-
-    candidate_response_columns: Optional[dict[str, str]]
-    """The column name of the response candidates in the BigQuery table. Used for EvaluationRun only."""
-
-    sampling_config: Optional[SamplingConfigDict]
-    """The sampling config for the BigQuery request set. Used for EvaluationRun only."""
-
-
-BigQueryRequestSetOrDict = Union[BigQueryRequestSet, BigQueryRequestSetDict]
-
-
-class EvaluationRunDataSource(_common.BaseModel):
-    """Represents an evaluation run data source."""
-
-    evaluation_set: Optional[str] = Field(default=None, description="""""")
-    bigquery_request_set: Optional[BigQueryRequestSet] = Field(
-        default=None, description=""""""
-    )
-
-
-class EvaluationRunDataSourceDict(TypedDict, total=False):
-    """Represents an evaluation run data source."""
-
-    evaluation_set: Optional[str]
-    """"""
-
-    bigquery_request_set: Optional[BigQueryRequestSetDict]
-    """"""
-
-
-EvaluationRunDataSourceOrDict = Union[
-    EvaluationRunDataSource, EvaluationRunDataSourceDict
-]
-
-
-class EvaluationRun(_common.BaseModel):
-    """Represents an evaluation run."""
-
-    name: Optional[str] = Field(default=None, description="""""")
-    display_name: Optional[str] = Field(default=None, description="""""")
-    metadata: Optional[dict[str, Any]] = Field(default=None, description="""""")
-    create_time: Optional[datetime.datetime] = Field(default=None, description="""""")
-    completion_time: Optional[datetime.datetime] = Field(
-        default=None, description=""""""
-    )
-    state: Optional[EvaluationRunState] = Field(default=None, description="""""")
-    evaluation_set_snapshot: Optional[str] = Field(default=None, description="""""")
-    error: Optional[genai_types.GoogleRpcStatus] = Field(
-        default=None, description=""""""
-    )
-    data_source: Optional[EvaluationRunDataSource] = Field(
-        default=None, description=""""""
-    )
-
-
-class EvaluationRunDict(TypedDict, total=False):
-    """Represents an evaluation run."""
-
-    name: Optional[str]
-    """"""
-
-    display_name: Optional[str]
-    """"""
-
-    metadata: Optional[dict[str, Any]]
-    """"""
-
-    create_time: Optional[datetime.datetime]
-    """"""
-
-    completion_time: Optional[datetime.datetime]
-    """"""
-
-    state: Optional[EvaluationRunState]
-    """"""
-
-    evaluation_set_snapshot: Optional[str]
-    """"""
-
-    error: Optional[genai_types.GoogleRpcStatusDict]
-    """"""
-
-    data_source: Optional[EvaluationRunDataSourceDict]
-    """"""
-
-
-EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
 
 
 class OptimizeConfig(_common.BaseModel):
