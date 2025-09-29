@@ -949,6 +949,131 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source is None
 
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_run_inference_with_agent_engine_and_session_inputs_dict(
+        self,
+        mock_vertexai_client,
+        mock_eval_dataset_loader,
+    ):
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt"],
+                "session_inputs": [
+                    {
+                        "user_id": "123",
+                        "state": {"a": "1"},
+                    }
+                ],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_agent_engine = mock.Mock()
+        mock_agent_engine.create_session.return_value = {"id": "session1"}
+        stream_query_return_value = [
+            {"content": {"parts": [{"text": "agent response"}]}}
+        ]
+        mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
+        mock_vertexai_client.return_value.agent_engines.get.return_value = (
+            mock_agent_engine
+        )
+
+        inference_result = self.client.evals.run_inference(
+            agent="projects/test-project/locations/us-central1/reasoningEngines/123",
+            src=mock_df,
+        )
+
+        mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
+        mock_vertexai_client.return_value.agent_engines.get.assert_called_once_with(
+            name="projects/test-project/locations/us-central1/reasoningEngines/123"
+        )
+        mock_agent_engine.create_session.assert_called_once_with(
+            user_id="123", state={"a": "1"}
+        )
+        mock_agent_engine.stream_query.assert_called_once_with(
+            user_id="123", session_id="session1", message="agent prompt"
+        )
+
+        pd.testing.assert_frame_equal(
+            inference_result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "prompt": ["agent prompt"],
+                    "session_inputs": [
+                        {
+                            "user_id": "123",
+                            "state": {"a": "1"},
+                        }
+                    ],
+                    "intermediate_events": [stream_query_return_value],
+                }
+            ),
+        )
+        assert inference_result.candidate_name == "agent"
+        assert inference_result.gcs_source is None
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_run_inference_with_agent_engine_and_session_inputs_literal_string(
+        self,
+        mock_vertexai_client,
+        mock_eval_dataset_loader,
+    ):
+        session_inputs_str = (
+            '{"user_id": "123", "state": {"a": "1"}}'
+        )
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt"],
+                "session_inputs": [session_inputs_str],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_agent_engine = mock.Mock()
+        mock_agent_engine.create_session.return_value = {"id": "session1"}
+        stream_query_return_value = [
+            {"content": {"parts": [{"text": "agent response"}]}}
+        ]
+        mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
+        mock_vertexai_client.return_value.agent_engines.get.return_value = (
+            mock_agent_engine
+        )
+
+        inference_result = self.client.evals.run_inference(
+            agent="projects/test-project/locations/us-central1/reasoningEngines/123",
+            src=mock_df,
+        )
+
+        mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
+        mock_vertexai_client.return_value.agent_engines.get.assert_called_once_with(
+            name="projects/test-project/locations/us-central1/reasoningEngines/123"
+        )
+        mock_agent_engine.create_session.assert_called_once_with(
+            user_id="123", state={"a": "1"}
+        )
+        mock_agent_engine.stream_query.assert_called_once_with(
+            user_id="123", session_id="session1", message="agent prompt"
+        )
+
+        pd.testing.assert_frame_equal(
+            inference_result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "prompt": ["agent prompt"],
+                    "session_inputs": [session_inputs_str],
+                    "intermediate_events": [stream_query_return_value],
+                }
+            ),
+        )
+        assert inference_result.candidate_name == "agent"
+        assert inference_result.gcs_source is None
+
     def test_run_inference_with_litellm_string_prompt_format(
         self,
         mock_api_client_fixture,
@@ -2297,10 +2422,10 @@ class TestObservabilityDataConverter:
         )
 
 
-class TestAgentMetadata:
-    """Unit tests for the AgentMetadata class."""
+class TestAgentInfo:
+    """Unit tests for the AgentInfo class."""
 
-    def test_agent_metadata_creation(self):
+    def test_agent_info_creation(self):
         tool = genai_types.Tool(
             function_declarations=[
                 genai_types.FunctionDeclaration(
@@ -2313,18 +2438,16 @@ class TestAgentMetadata:
                 )
             ]
         )
-        agent_metadata = vertexai_genai_types.AgentMetadata(
+        agent_info = vertexai_genai_types.AgentInfo(
             name="agent1",
             instruction="instruction1",
             description="description1",
             tool_declarations=[tool],
-            sub_agent_names=["sub_agent1"],
         )
-        assert agent_metadata.name == "agent1"
-        assert agent_metadata.instruction == "instruction1"
-        assert agent_metadata.description == "description1"
-        assert agent_metadata.tool_declarations == [tool]
-        assert agent_metadata.sub_agent_names == ["sub_agent1"]
+        assert agent_info.name == "agent1"
+        assert agent_info.instruction == "instruction1"
+        assert agent_info.description == "description1"
+        assert agent_info.tool_declarations == [tool]
 
 
 class TestEvent:
@@ -2359,13 +2482,11 @@ class TestEvalCase:
                 )
             ]
         )
-        agent_metadata = {
-            "agent1": vertexai_genai_types.AgentMetadata(
-                name="agent1",
-                instruction="instruction1",
-                tool_declarations=[tool],
-            )
-        }
+        agent_info = vertexai_genai_types.AgentInfo(
+            name="agent1",
+            instruction="instruction1",
+            tool_declarations=[tool],
+        )
         intermediate_events = [
             vertexai_genai_types.Event(
                 event_id="event1",
@@ -2381,12 +2502,24 @@ class TestEvalCase:
                     response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
                 )
             ],
-            agent_metadata=agent_metadata,
+            agent_info=agent_info,
             intermediate_events=intermediate_events,
         )
 
-        assert eval_case.agent_metadata == agent_metadata
+        assert eval_case.agent_info == agent_info
         assert eval_case.intermediate_events == intermediate_events
+
+
+class TestSessionInput:
+    """Unit tests for the SessionInput class."""
+
+    def test_session_input_creation(self):
+        session_input = vertexai_genai_types.SessionInput(
+            user_id="user1",
+            state={"key": "value"},
+        )
+        assert session_input.user_id == "user1"
+        assert session_input.state == {"key": "value"}
 
 
 class TestMetric:
