@@ -8358,86 +8358,6 @@ CreateDatasetVersionConfigOrDict = Union[
 ]
 
 
-class DatasetVersion(_common.BaseModel):
-    """Represents a dataset version resource to store prompts."""
-
-    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
-        default=None,
-        description="""Required. Output only. Additional information about the DatasetVersion.""",
-    )
-    big_query_dataset_name: Optional[str] = Field(
-        default=None,
-        description="""Output only. Name of the associated BigQuery dataset.""",
-    )
-    create_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when this DatasetVersion was created.""",
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
-    )
-    etag: Optional[str] = Field(
-        default=None,
-        description="""Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
-    )
-    model_reference: Optional[str] = Field(
-        default=None,
-        description="""Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions.""",
-    )
-    name: Optional[str] = Field(
-        default=None,
-        description="""Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`""",
-    )
-    satisfies_pzi: Optional[bool] = Field(
-        default=None, description="""Output only. Reserved for future use."""
-    )
-    satisfies_pzs: Optional[bool] = Field(
-        default=None, description="""Output only. Reserved for future use."""
-    )
-    update_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when this DatasetVersion was last updated.""",
-    )
-
-
-class DatasetVersionDict(TypedDict, total=False):
-    """Represents a dataset version resource to store prompts."""
-
-    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
-    """Required. Output only. Additional information about the DatasetVersion."""
-
-    big_query_dataset_name: Optional[str]
-    """Output only. Name of the associated BigQuery dataset."""
-
-    create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this DatasetVersion was created."""
-
-    display_name: Optional[str]
-    """The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
-
-    etag: Optional[str]
-    """Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
-
-    model_reference: Optional[str]
-    """Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions."""
-
-    name: Optional[str]
-    """Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`"""
-
-    satisfies_pzi: Optional[bool]
-    """Output only. Reserved for future use."""
-
-    satisfies_pzs: Optional[bool]
-    """Output only. Reserved for future use."""
-
-    update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this DatasetVersion was last updated."""
-
-
-DatasetVersionOrDict = Union[DatasetVersion, DatasetVersionDict]
-
-
 class _CreateDatasetVersionParameters(_common.BaseModel):
     """Represents the create dataset version parameters."""
 
@@ -8445,7 +8365,10 @@ class _CreateDatasetVersionParameters(_common.BaseModel):
         default=None, description=""""""
     )
     dataset_name: Optional[str] = Field(default=None, description="""""")
-    dataset_version: Optional[DatasetVersion] = Field(default=None, description="""""")
+    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
+        default=None, description=""""""
+    )
+    model_reference: Optional[str] = Field(default=None, description="""""")
     parent: Optional[str] = Field(default=None, description="""""")
     display_name: Optional[str] = Field(default=None, description="""""")
 
@@ -8459,7 +8382,10 @@ class _CreateDatasetVersionParametersDict(TypedDict, total=False):
     dataset_name: Optional[str]
     """"""
 
-    dataset_version: Optional[DatasetVersionDict]
+    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
+    """"""
+
+    model_reference: Optional[str]
     """"""
 
     parent: Optional[str]
@@ -8739,6 +8665,86 @@ class _GetDatasetVersionParametersDict(TypedDict, total=False):
 _GetDatasetVersionParametersOrDict = Union[
     _GetDatasetVersionParameters, _GetDatasetVersionParametersDict
 ]
+
+
+class DatasetVersion(_common.BaseModel):
+    """Represents a dataset version resource to store prompts."""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
+        default=None,
+        description="""Required. Output only. Additional information about the DatasetVersion.""",
+    )
+    big_query_dataset_name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Name of the associated BigQuery dataset.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this DatasetVersion was created.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
+    )
+    etag: Optional[str] = Field(
+        default=None,
+        description="""Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
+    )
+    model_reference: Optional[str] = Field(
+        default=None,
+        description="""Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`""",
+    )
+    satisfies_pzi: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    satisfies_pzs: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this DatasetVersion was last updated.""",
+    )
+
+
+class DatasetVersionDict(TypedDict, total=False):
+    """Represents a dataset version resource to store prompts."""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
+    """Required. Output only. Additional information about the DatasetVersion."""
+
+    big_query_dataset_name: Optional[str]
+    """Output only. Name of the associated BigQuery dataset."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this DatasetVersion was created."""
+
+    display_name: Optional[str]
+    """The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
+
+    etag: Optional[str]
+    """Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
+
+    model_reference: Optional[str]
+    """Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions."""
+
+    name: Optional[str]
+    """Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`"""
+
+    satisfies_pzi: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    satisfies_pzs: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this DatasetVersion was last updated."""
+
+
+DatasetVersionOrDict = Union[DatasetVersion, DatasetVersionDict]
 
 
 class GetDatasetOperationConfig(_common.BaseModel):
@@ -9181,6 +9187,74 @@ class RestoreVersionOperationDict(TypedDict, total=False):
 
 RestoreVersionOperationOrDict = Union[
     RestoreVersionOperation, RestoreVersionOperationDict
+]
+
+
+class UpdateDatasetConfig(_common.BaseModel):
+    """Config for creating a dataset resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class UpdateDatasetConfigDict(TypedDict, total=False):
+    """Config for creating a dataset resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+UpdateDatasetConfigOrDict = Union[UpdateDatasetConfig, UpdateDatasetConfigDict]
+
+
+class _UpdateDatasetParameters(_common.BaseModel):
+    """Parameters for creating a dataset resource to store prompts."""
+
+    config: Optional[UpdateDatasetConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
+    dataset_id: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
+        default=None, description=""""""
+    )
+    description: Optional[str] = Field(default=None, description="""""")
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None, description=""""""
+    )
+    model_reference: Optional[str] = Field(default=None, description="""""")
+
+
+class _UpdateDatasetParametersDict(TypedDict, total=False):
+    """Parameters for creating a dataset resource to store prompts."""
+
+    config: Optional[UpdateDatasetConfigDict]
+    """"""
+
+    name: Optional[str]
+    """"""
+
+    dataset_id: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
+    """"""
+
+    description: Optional[str]
+    """"""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """"""
+
+    model_reference: Optional[str]
+    """"""
+
+
+_UpdateDatasetParametersOrDict = Union[
+    _UpdateDatasetParameters, _UpdateDatasetParametersDict
 ]
 
 
@@ -11076,22 +11150,14 @@ SchemaPromptInstanceVariableValueOrDict = Union[
 
 
 class CreatePromptConfig(_common.BaseModel):
-    """Config for creating a prompt version."""
+    """Config for creating a prompt."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
-    prompt_id: Optional[str] = Field(
-        default=None,
-        description="""The dataset id of an existing prompt dataset to create the prompt version in. If not set, a new prompt dataset will be created.""",
-    )
     prompt_display_name: Optional[str] = Field(
         default=None,
         description="""The display name for the prompt. If not set, a default name with a timestamp will be used.""",
-    )
-    version_display_name: Optional[str] = Field(
-        default=None,
-        description="""The display name for the prompt version. If not set, a default name with a timestamp will be used.""",
     )
     timeout: Optional[int] = Field(
         default=90,
@@ -11104,19 +11170,13 @@ class CreatePromptConfig(_common.BaseModel):
 
 
 class CreatePromptConfigDict(TypedDict, total=False):
-    """Config for creating a prompt version."""
+    """Config for creating a prompt."""
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
-    prompt_id: Optional[str]
-    """The dataset id of an existing prompt dataset to create the prompt version in. If not set, a new prompt dataset will be created."""
-
     prompt_display_name: Optional[str]
     """The display name for the prompt. If not set, a default name with a timestamp will be used."""
-
-    version_display_name: Optional[str]
-    """The display name for the prompt version. If not set, a default name with a timestamp will be used."""
 
     timeout: Optional[int]
     """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
@@ -11128,15 +11188,45 @@ class CreatePromptConfigDict(TypedDict, total=False):
 CreatePromptConfigOrDict = Union[CreatePromptConfig, CreatePromptConfigDict]
 
 
+class CreatePromptVersionConfig(_common.BaseModel):
+    """Config for creating a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    version_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the prompt version. If not set, a default name with a timestamp will be used.""",
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds.""",
+    )
+
+
+class CreatePromptVersionConfigDict(TypedDict, total=False):
+    """Config for creating a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    version_display_name: Optional[str]
+    """The display name for the prompt version. If not set, a default name with a timestamp will be used."""
+
+    timeout: Optional[int]
+    """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
+
+
+CreatePromptVersionConfigOrDict = Union[
+    CreatePromptVersionConfig, CreatePromptVersionConfigDict
+]
+
+
 class GetPromptConfig(_common.BaseModel):
     """Config for getting a prompt."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
-    )
-    version_id: Optional[str] = Field(
-        default=None,
-        description="""The version id of the prompt in the prompt dataset to get. For example, if the full prompt resource name is projects/123/locations/us-central1/datasets/456/datasetVersions/789, then the version id is '789'.""",
     )
 
 
@@ -11145,9 +11235,6 @@ class GetPromptConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
-
-    version_id: Optional[str]
-    """The version id of the prompt in the prompt dataset to get. For example, if the full prompt resource name is projects/123/locations/us-central1/datasets/456/datasetVersions/789, then the version id is '789'."""
 
 
 GetPromptConfigOrDict = Union[GetPromptConfig, GetPromptConfigDict]

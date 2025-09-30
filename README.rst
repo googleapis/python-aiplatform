@@ -41,7 +41,7 @@ With :code:`uv`:
 Generative AI in the Vertex AI SDK
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To use Gen AI features from the Vertex AI SDK, you can instantiate a Gen AI client with the following:
+To use Gen AI features from the Vertex AI SDK, you can instantiate a Vertex SDK client with the following:
 
 .. code-block:: Python
 
@@ -52,7 +52,7 @@ To use Gen AI features from the Vertex AI SDK, you can instantiate a Gen AI clie
     # Replace with your project ID and location
     client = vertexai.Client(project='my-project', location='us-central1')
 
-See the examples below for guidance on how to use specific features supported by the Gen AI SDK client.
+See the examples below for guidance on how to use specific features supported by the Vertex SDK client.
 
 Gen AI Evaluation
 ^^^^^^^^^^^^^^^^^
@@ -224,6 +224,72 @@ We can also call optimize method async.
 .. code-block:: Python
 
     await client.aio.prompt_optimizer.optimize(method="vapo", config=vapo_config)
+
+Prompt Management
+^^^^^^^^^^^^^^^^^
+
+First define your prompt as a dictionary or types.Prompt object. Then call create_prompt.
+
+.. code-block:: Python
+
+    prompt = {
+        "prompt_data": {
+            "contents": [{"parts": [{"text": "Hello, {name}! How are you?"}]}],
+            "system_instruction": {"parts": [{"text": "Please answer in a short sentence."}]},
+            "variables": [
+                {"name": {"text": "Alice"}},
+            ],
+            "model": "gemini-2.5-flash",
+        },
+    }
+
+    prompt_resource = client.prompts.create(
+        prompt=prompt,
+    )
+
+Note that you can also use the types.Prompt object to define your prompt. Some of the types used to do this are from the Gen AI SDK.
+
+.. code-block:: Python
+
+    import types
+    from google.genai import types as genai_types
+
+    prompt = types.Prompt(
+        prompt_data=types.PromptData(
+          contents=[genai_types.Content(parts=[genai_types.Part(text="Hello, {name}! How are you?")])],
+          system_instruction=genai_types.Content(parts=[genai_types.Part(text="Please answer in a short sentence.")]),
+          variables=[
+            {"name": genai_types.Part(text="Alice")},
+          ],
+          model="gemini-2.5-flash",
+        ),
+    )
+
+Retrieve a prompt by calling get() with the prompt_id.
+
+.. code-block:: Python
+
+    retrieved_prompt = client.prompts.get(
+        prompt_id=prompt_resource.prompt_id,
+    )
+
+After creating or retrieving a prompt, you can call `generate_content()` with that prompt using the Gen AI SDK.
+
+The following uses a utility function available on Prompt objects to transform a Prompt object into a list of Content objects for use with `generate_content`. To run this you need to have the Gen AI SDK installed, which you can do via `pip install google-genai`.
+
+.. code-block:: Python
+
+    from google import genai
+    from google.genai import types as genai_types
+
+    # Create a Client in the Gen AI SDK
+    genai_client = genai.Client(vertexai=True, project="your-project", location="your-location")
+
+    # Call generate_content() with the prompt
+    response = genai_client.models.generate_content(
+        model=retrieved_prompt.prompt_data.model,
+        contents=retrieved_prompt.assemble_contents(),
+    )
 
 -----------------------------------------
 

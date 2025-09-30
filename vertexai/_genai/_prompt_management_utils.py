@@ -14,7 +14,7 @@
 #
 """Utility functions for prompt management."""
 
-from typing import Optional
+from typing import Optional, Union
 
 from google.genai import types as genai_types
 
@@ -122,10 +122,17 @@ def _create_prompt_from_dataset_metadata(
 
 
 def _raise_for_invalid_prompt(
-    prompt: types.Prompt, config: types.CreatePromptConfig
+    prompt: types.Prompt,
+    config: Optional[
+        Union[types.CreatePromptConfig, types.CreatePromptVersionConfig]
+    ] = None,
 ) -> None:
 
-    if config.encryption_spec and config.prompt_id:
+    if (
+        isinstance(config, types.CreatePromptConfig)
+        and config.encryption_spec
+        and config.prompt_id
+    ):
         raise ValueError(
             "Encryption spec can only be used for creating new prompts, not for creating new prompt versions."
         )

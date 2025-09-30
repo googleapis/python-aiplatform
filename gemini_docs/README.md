@@ -197,28 +197,21 @@ The Prompt Management module uses some types from the Gen AI SDK. First, import 
 from google.genai import types as genai_types
 ```
 
-To create and store a Prompt, first define a types.Prompt object and then run `create_version` to save it in Vertex.
+To create and store a Prompt, first define a types.Prompt object and then run `create` to save it in Vertex.
 
 ```python
-prompt = types.Prompt(
-    prompt_data=types.PromptData(
-      contents=[genai_types.Content(parts=[genai_types.Part(text="Hello, {name}! How are you?")])],
-      system_instruction=genai_types.Content(parts=[genai_types.Part(text="Please answer in a short sentence.")]),
-      generation_config=genai_types.GenerationConfig(temperature=0.1),
-      safety_settings=[genai_types.SafetySetting(
-          category="HARM_CATEGORY_DANGEROUS_CONTENT",
-          threshold="BLOCK_MEDIUM_AND_ABOVE",
-          method="SEVERITY",
-      )],
-      variables=[
-        {"name": genai_types.Part(text="Alice")},
-        {"name": genai_types.Part(text="Bob")},
-      ],
-      model="gemini-2.0-flash-001",
-    ),
-)
+prompt = {
+    "prompt_data": {
+        "contents": [{"parts": [{"text": "Hello, {name}! How are you?"}]}],
+        "system_instruction": {"parts": [{"text": "Please answer in a short sentence."}]},
+        "variables": [
+            {"name": {"text": "Alice"}},
+        ],
+        "model": "gemini-2.5-flash",
+    },
+}
 
-prompt_resource = client.prompt_management.create_version(
+prompt_resource = client.prompts.create(
     prompt=prompt,
 )
 ```
@@ -226,7 +219,7 @@ prompt_resource = client.prompt_management.create_version(
 To retrieve a prompt, provide the `prompt_id`:
 
 ```python
-retrieved_prompt = client.prompt_management.get(prompt_id=prompt_resource.prompt_id)
+retrieved_prompt = client.prompts.get(prompt_id=prompt_resource.prompt_id)
 ```
 
 After creating or retrieving a prompt, you can call `generate_content()` with that prompt using the Gen AI SDK.
