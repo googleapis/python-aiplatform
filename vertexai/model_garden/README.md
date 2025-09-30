@@ -79,19 +79,38 @@ deploy_options = model.list_deploy_options()
 
 **Use case:** Evaluate compatible machine specs and containers before deployment.
 
-## Customize Deployment: Machine and Resource Configuration
+## Select a Verified Deployment: By Container Image
 
-Specify exact hardware resources and endpoint/model names.
+Specify a container image from the list of verified deployment configurations.
 
 ```python
 endpoint = model.deploy(
-    machine_type="g2-standard-4",
-    accelerator_type="NVIDIA_L4",
+    serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20250430_0916_RC00_maas",
+)
+```
+
+## Select a Verified Deployment: By Hardware
+
+Specify a hardware configuration from the list of verified deployment configurations.
+
+```python
+endpoints = model.deploy(
+    machine_type="a3-highgpu-1g",
+    accelerator_type="NVIDIA_H100_80GB",
     accelerator_count=1,
-    min_replica_count=1,
-    max_replica_count=1,
-    endpoint_display_name="paligemma-endpoint",
-    model_display_name="paligemma-model"
+)
+```
+
+## Select a Verified Deployment: By Container and Hardware
+
+Specify both a container image and a hardware configuration from the list of verified deployment configurations.
+
+```python
+endpoint = model.deploy(
+    serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20250430_0916_RC00_maas",
+    machine_type="a3-highgpu-1g",
+    accelerator_type="NVIDIA_H100_80GB",
+    accelerator_count=1,
 )
 ```
 

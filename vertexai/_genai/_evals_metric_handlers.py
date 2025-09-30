@@ -854,13 +854,48 @@ class PredefinedMetricHandler(MetricHandler):
                 eval_case.reference.response
             )
 
+        prompt_instance_data = None
+        if self.metric.name.startswith("multi_turn"):
+            prompt_contents = []
+            if eval_case.conversation_history:
+                for message in eval_case.conversation_history:
+                    prompt_contents.append(message.content)
+            if eval_case.prompt:
+                prompt_contents.append(eval_case.prompt)
+
+            prompt_instance_data = types.InstanceData(
+                contents=types.InstanceDataContents(contents=prompt_contents)
+            )
+        else:
+            prompt_instance_data = PredefinedMetricHandler._content_to_instance_data(
+                eval_case.prompt
+            )
+
+        other_data_map = {}
+        if hasattr(eval_case, "context") and eval_case.context:
+            if isinstance(eval_case.context, str):
+                other_data_map["context"] = types.InstanceData(text=eval_case.context)
+            elif isinstance(eval_case.context, genai_types.Content):
+                other_data_map["context"] = (
+                    PredefinedMetricHandler._content_to_instance_data(eval_case.context)
+                )
+            else:
+                logger.warning(
+                    f"Unsupported type for context: {type(eval_case.context)}"
+                )
+
         instance_payload = types.EvaluationInstance(
-            prompt=PredefinedMetricHandler._content_to_instance_data(eval_case.prompt),
+            prompt=prompt_instance_data,
             response=PredefinedMetricHandler._content_to_instance_data(
                 response_content
             ),
             reference=reference_instance_data,
             rubric_groups=eval_case.rubric_groups,
+            other_data=(
+                types.MapInstance(map_instance=other_data_map)
+                if other_data_map
+                else None
+            ),
         )
 
         return {
@@ -886,8 +921,9 @@ class PredefinedMetricHandler(MetricHandler):
                 and api_response.metric_results
             ):
                 result_data = api_response.metric_results[0]
+
                 error_message = None
-                if result_data.error:
+                if result_data.error and getattr(result_data.error, "code"):
                     error_message = f"Error in metric result: {result_data.error}"
                 return types.EvalCaseMetricResult(
                     metric_name=metric_name,

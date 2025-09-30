@@ -69,9 +69,7 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.index_service import (
     IndexServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.index_service import (
-    IndexServiceClient,
-)
+from google.cloud.aiplatform_v1beta1.services.index_service import IndexServiceClient
 from google.cloud.aiplatform_v1beta1.services.index_service import pagers
 from google.cloud.aiplatform_v1beta1.services.index_service import transports
 from google.cloud.aiplatform_v1beta1.types import deployed_index_ref
@@ -838,10 +836,9 @@ def test_index_service_client_get_mtls_endpoint_and_cert_source(client_class):
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

@@ -36,16 +36,68 @@ from . import types
 logger = logging.getLogger("vertexai_genai.evals")
 
 
-def _BleuInstance_to_vertex(
+def _BigQueryRequestSet_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
+    if getv(from_object, ["uri"]) is not None:
+        setv(to_object, ["uri"], getv(from_object, ["uri"]))
 
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+    if getv(from_object, ["promptColumn"]) is not None:
+        setv(to_object, ["prompt_column"], getv(from_object, ["promptColumn"]))
+
+    if getv(from_object, ["rubricsColumn"]) is not None:
+        setv(to_object, ["rubrics_column"], getv(from_object, ["rubricsColumn"]))
+
+    if getv(from_object, ["candidateResponseColumns"]) is not None:
+        setv(
+            to_object,
+            ["candidate_response_columns"],
+            getv(from_object, ["candidateResponseColumns"]),
+        )
+
+    if getv(from_object, ["samplingConfig"]) is not None:
+        setv(
+            to_object,
+            ["sampling_config"],
+            _SamplingConfig_from_vertex(
+                getv(from_object, ["samplingConfig"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _BigQueryRequestSet_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["uri"]) is not None:
+        setv(to_object, ["uri"], getv(from_object, ["uri"]))
+
+    if getv(from_object, ["prompt_column"]) is not None:
+        setv(to_object, ["promptColumn"], getv(from_object, ["prompt_column"]))
+
+    if getv(from_object, ["rubrics_column"]) is not None:
+        setv(to_object, ["rubricsColumn"], getv(from_object, ["rubrics_column"]))
+
+    if getv(from_object, ["candidate_response_columns"]) is not None:
+        setv(
+            to_object,
+            ["candidateResponseColumns"],
+            getv(from_object, ["candidate_response_columns"]),
+        )
+
+    if getv(from_object, ["sampling_config"]) is not None:
+        setv(
+            to_object,
+            ["samplingConfig"],
+            _SamplingConfig_to_vertex(
+                getv(from_object, ["sampling_config"]), to_object
+            ),
+        )
 
     return to_object
 
@@ -71,7 +123,7 @@ def _BleuInput_to_vertex(
     return to_object
 
 
-def _ExactMatchInstance_to_vertex(
+def _BleuInstance_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
@@ -85,422 +137,31 @@ def _ExactMatchInstance_to_vertex(
     return to_object
 
 
-def _ExactMatchSpec_to_vertex(
+def _CreateEvaluationRunParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
 
-    return to_object
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
 
-
-def _ExactMatchInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
+    if getv(from_object, ["data_source"]) is not None:
         setv(
             to_object,
-            ["instances"],
-            [
-                _ExactMatchInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ExactMatchSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
-        )
-
-    return to_object
-
-
-def _RougeInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _RougeInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _RougeInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
-
-    return to_object
-
-
-def _PointwiseMetricInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["json_instance"]) is not None:
-        setv(to_object, ["jsonInstance"], getv(from_object, ["json_instance"]))
-
-    if getv(from_object, ["content_map_instance"]) is not None:
-        setv(
-            to_object,
-            ["contentMapInstance"],
-            getv(from_object, ["content_map_instance"]),
-        )
-
-    return to_object
-
-
-def _PointwiseMetricInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instance"]) is not None:
-        setv(
-            to_object,
-            ["instance"],
-            _PointwiseMetricInstance_to_vertex(
-                getv(from_object, ["instance"]), to_object
+            ["dataSource"],
+            _EvaluationRunDataSource_to_vertex(
+                getv(from_object, ["data_source"]), to_object
             ),
         )
 
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
-
-    return to_object
-
-
-def _PairwiseMetricInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["json_instance"]) is not None:
-        setv(to_object, ["jsonInstance"], getv(from_object, ["json_instance"]))
-
-    return to_object
-
-
-def _PairwiseMetricInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instance"]) is not None:
-        setv(
-            to_object,
-            ["instance"],
-            _PairwiseMetricInstance_to_vertex(
-                getv(from_object, ["instance"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
-
-    return to_object
-
-
-def _ToolCallValidInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _ToolCallValidSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _ToolCallValidInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _ToolCallValidInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ToolCallValidSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
-        )
-
-    return to_object
-
-
-def _ToolNameMatchInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _ToolNameMatchSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _ToolNameMatchInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _ToolNameMatchInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ToolNameMatchSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
-        )
-
-    return to_object
-
-
-def _ToolParameterKeyMatchInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _ToolParameterKeyMatchSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _ToolParameterKeyMatchInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _ToolParameterKeyMatchInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ToolParameterKeyMatchSpec_to_vertex(
-                getv(from_object, ["metric_spec"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _ToolParameterKVMatchInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _ToolParameterKVMatchSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["use_strict_string_match"]) is not None:
-        setv(
-            to_object,
-            ["useStrictStringMatch"],
-            getv(from_object, ["use_strict_string_match"]),
-        )
-
-    return to_object
-
-
-def _ToolParameterKVMatchInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _ToolParameterKVMatchInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ToolParameterKVMatchSpec_to_vertex(
-                getv(from_object, ["metric_spec"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _InstanceDataContents_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["contents"]) is not None:
-        setv(to_object, ["contents"], getv(from_object, ["contents"]))
-
-    return to_object
-
-
-def _InstanceData_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["text"]) is not None:
-        setv(to_object, ["text"], getv(from_object, ["text"]))
-
-    if getv(from_object, ["contents"]) is not None:
-        setv(
-            to_object,
-            ["contents"],
-            _InstanceDataContents_to_vertex(getv(from_object, ["contents"]), to_object),
-        )
-
-    return to_object
-
-
-def _MapInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["map_instance"]) is not None:
-        setv(to_object, ["mapInstance"], getv(from_object, ["map_instance"]))
-
-    return to_object
-
-
-def _EvaluationInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prompt"]) is not None:
-        setv(
-            to_object,
-            ["prompt"],
-            _InstanceData_to_vertex(getv(from_object, ["prompt"]), to_object),
-        )
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _InstanceData_to_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(
-            to_object,
-            ["reference"],
-            _InstanceData_to_vertex(getv(from_object, ["reference"]), to_object),
-        )
-
-    if getv(from_object, ["other_data"]) is not None:
-        setv(
-            to_object,
-            ["otherData"],
-            _MapInstance_to_vertex(getv(from_object, ["other_data"]), to_object),
-        )
-
-    if getv(from_object, ["rubric_groups"]) is not None:
-        setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
+    if getv(from_object, ["evaluation_config"]) is not None:
+        setv(to_object, ["evaluationConfig"], getv(from_object, ["evaluation_config"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -613,102 +274,6 @@ def _EvaluateInstancesRequestParameters_to_vertex(
     return to_object
 
 
-def _PredefinedMetricSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric_spec_name"]) is not None:
-        setv(to_object, ["metricSpecName"], getv(from_object, ["metric_spec_name"]))
-
-    if getv(from_object, ["metric_spec_parameters"]) is not None:
-        setv(
-            to_object,
-            ["metricSpecParameters"],
-            getv(from_object, ["metric_spec_parameters"]),
-        )
-
-    return to_object
-
-
-def _RubricGenerationSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prompt_template"]) is not None:
-        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
-
-    if getv(from_object, ["generator_model_config"]) is not None:
-        setv(to_object, ["model_config"], getv(from_object, ["generator_model_config"]))
-
-    if getv(from_object, ["rubric_content_type"]) is not None:
-        setv(
-            to_object, ["rubricContentType"], getv(from_object, ["rubric_content_type"])
-        )
-
-    if getv(from_object, ["rubric_type_ontology"]) is not None:
-        setv(
-            to_object,
-            ["rubricTypeOntology"],
-            getv(from_object, ["rubric_type_ontology"]),
-        )
-
-    return to_object
-
-
-def _GenerateInstanceRubricsRequest_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["contents"]) is not None:
-        setv(to_object, ["contents"], getv(from_object, ["contents"]))
-
-    if getv(from_object, ["predefined_rubric_generation_spec"]) is not None:
-        setv(
-            to_object,
-            ["predefinedRubricGenerationSpec"],
-            _PredefinedMetricSpec_to_vertex(
-                getv(from_object, ["predefined_rubric_generation_spec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["rubric_generation_spec"]) is not None:
-        setv(
-            to_object,
-            ["rubricGenerationSpec"],
-            _RubricGenerationSpec_to_vertex(
-                getv(from_object, ["rubric_generation_spec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _MetricResult_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["score"]) is not None:
-        setv(to_object, ["score"], getv(from_object, ["score"]))
-
-    if getv(from_object, ["rubricVerdicts"]) is not None:
-        setv(to_object, ["rubric_verdicts"], getv(from_object, ["rubricVerdicts"]))
-
-    if getv(from_object, ["explanation"]) is not None:
-        setv(to_object, ["explanation"], getv(from_object, ["explanation"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    return to_object
-
-
 def _EvaluateInstancesResponse_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -794,6 +359,425 @@ def _EvaluateInstancesResponse_from_vertex(
     return to_object
 
 
+def _EvaluationInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt"]) is not None:
+        setv(
+            to_object,
+            ["prompt"],
+            _InstanceData_to_vertex(getv(from_object, ["prompt"]), to_object),
+        )
+
+    if getv(from_object, ["response"]) is not None:
+        setv(
+            to_object,
+            ["response"],
+            _InstanceData_to_vertex(getv(from_object, ["response"]), to_object),
+        )
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(
+            to_object,
+            ["reference"],
+            _InstanceData_to_vertex(getv(from_object, ["reference"]), to_object),
+        )
+
+    if getv(from_object, ["other_data"]) is not None:
+        setv(
+            to_object,
+            ["otherData"],
+            _MapInstance_to_vertex(getv(from_object, ["other_data"]), to_object),
+        )
+
+    if getv(from_object, ["rubric_groups"]) is not None:
+        setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
+
+    return to_object
+
+
+def _EvaluationRunDataSource_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["evaluationSet"]) is not None:
+        setv(to_object, ["evaluation_set"], getv(from_object, ["evaluationSet"]))
+
+    if getv(from_object, ["bigqueryRequestSet"]) is not None:
+        setv(
+            to_object,
+            ["bigquery_request_set"],
+            _BigQueryRequestSet_from_vertex(
+                getv(from_object, ["bigqueryRequestSet"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _EvaluationRunDataSource_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["evaluation_set"]) is not None:
+        setv(to_object, ["evaluationSet"], getv(from_object, ["evaluation_set"]))
+
+    if getv(from_object, ["bigquery_request_set"]) is not None:
+        setv(
+            to_object,
+            ["bigqueryRequestSet"],
+            _BigQueryRequestSet_to_vertex(
+                getv(from_object, ["bigquery_request_set"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _EvaluationRun_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["completionTime"]) is not None:
+        setv(to_object, ["completion_time"], getv(from_object, ["completionTime"]))
+
+    if getv(from_object, ["state"]) is not None:
+        setv(to_object, ["state"], getv(from_object, ["state"]))
+
+    if getv(from_object, ["evaluationSetSnapshot"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_set_snapshot"],
+            getv(from_object, ["evaluationSetSnapshot"]),
+        )
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["dataSource"]) is not None:
+        setv(
+            to_object,
+            ["data_source"],
+            _EvaluationRunDataSource_from_vertex(
+                getv(from_object, ["dataSource"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _ExactMatchInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["instances"]) is not None:
+        setv(
+            to_object,
+            ["instances"],
+            [
+                _ExactMatchInstance_to_vertex(item, to_object)
+                for item in getv(from_object, ["instances"])
+            ],
+        )
+
+    if getv(from_object, ["metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["metricSpec"],
+            _ExactMatchSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
+        )
+
+    return to_object
+
+
+def _ExactMatchInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prediction"]) is not None:
+        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    return to_object
+
+
+def _ExactMatchSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    return to_object
+
+
+def _GenerateInstanceRubricsRequest_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["contents"]) is not None:
+        setv(to_object, ["contents"], getv(from_object, ["contents"]))
+
+    if getv(from_object, ["predefined_rubric_generation_spec"]) is not None:
+        setv(
+            to_object,
+            ["predefinedRubricGenerationSpec"],
+            _PredefinedMetricSpec_to_vertex(
+                getv(from_object, ["predefined_rubric_generation_spec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["rubric_generation_spec"]) is not None:
+        setv(
+            to_object,
+            ["rubricGenerationSpec"],
+            _RubricGenerationSpec_to_vertex(
+                getv(from_object, ["rubric_generation_spec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GenerateInstanceRubricsResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["generatedRubrics"]) is not None:
+        setv(
+            to_object,
+            ["generated_rubrics"],
+            [
+                _Rubric_from_vertex(item, to_object)
+                for item in getv(from_object, ["generatedRubrics"])
+            ],
+        )
+
+    return to_object
+
+
+def _GetEvaluationRunParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _InstanceDataContents_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["contents"]) is not None:
+        setv(to_object, ["contents"], getv(from_object, ["contents"]))
+
+    return to_object
+
+
+def _InstanceData_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["text"]) is not None:
+        setv(to_object, ["text"], getv(from_object, ["text"]))
+
+    if getv(from_object, ["contents"]) is not None:
+        setv(
+            to_object,
+            ["contents"],
+            _InstanceDataContents_to_vertex(getv(from_object, ["contents"]), to_object),
+        )
+
+    return to_object
+
+
+def _MapInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["map_instance"]) is not None:
+        setv(to_object, ["mapInstance"], getv(from_object, ["map_instance"]))
+
+    return to_object
+
+
+def _MetricResult_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["score"]) is not None:
+        setv(to_object, ["score"], getv(from_object, ["score"]))
+
+    if getv(from_object, ["rubricVerdicts"]) is not None:
+        setv(to_object, ["rubric_verdicts"], getv(from_object, ["rubricVerdicts"]))
+
+    if getv(from_object, ["explanation"]) is not None:
+        setv(to_object, ["explanation"], getv(from_object, ["explanation"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    return to_object
+
+
+def _PairwiseMetricInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["instance"]) is not None:
+        setv(
+            to_object,
+            ["instance"],
+            _PairwiseMetricInstance_to_vertex(
+                getv(from_object, ["instance"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["metric_spec"]) is not None:
+        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
+
+    return to_object
+
+
+def _PairwiseMetricInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["json_instance"]) is not None:
+        setv(to_object, ["jsonInstance"], getv(from_object, ["json_instance"]))
+
+    return to_object
+
+
+def _PointwiseMetricInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["instance"]) is not None:
+        setv(
+            to_object,
+            ["instance"],
+            _PointwiseMetricInstance_to_vertex(
+                getv(from_object, ["instance"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["metric_spec"]) is not None:
+        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
+
+    return to_object
+
+
+def _PointwiseMetricInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["json_instance"]) is not None:
+        setv(to_object, ["jsonInstance"], getv(from_object, ["json_instance"]))
+
+    if getv(from_object, ["content_map_instance"]) is not None:
+        setv(
+            to_object,
+            ["contentMapInstance"],
+            getv(from_object, ["content_map_instance"]),
+        )
+
+    return to_object
+
+
+def _PredefinedMetricSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric_spec_name"]) is not None:
+        setv(to_object, ["metricSpecName"], getv(from_object, ["metric_spec_name"]))
+
+    if getv(from_object, ["metric_spec_parameters"]) is not None:
+        setv(
+            to_object,
+            ["metricSpecParameters"],
+            getv(from_object, ["metric_spec_parameters"]),
+        )
+
+    return to_object
+
+
+def _RougeInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["instances"]) is not None:
+        setv(
+            to_object,
+            ["instances"],
+            [
+                _RougeInstance_to_vertex(item, to_object)
+                for item in getv(from_object, ["instances"])
+            ],
+        )
+
+    if getv(from_object, ["metric_spec"]) is not None:
+        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
+
+    return to_object
+
+
+def _RougeInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prediction"]) is not None:
+        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    return to_object
+
+
 def _RubricContentProperty_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -817,6 +801,32 @@ def _RubricContent_from_vertex(
             _RubricContentProperty_from_vertex(
                 getv(from_object, ["property"]), to_object
             ),
+        )
+
+    return to_object
+
+
+def _RubricGenerationSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt_template"]) is not None:
+        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
+
+    if getv(from_object, ["generator_model_config"]) is not None:
+        setv(to_object, ["model_config"], getv(from_object, ["generator_model_config"]))
+
+    if getv(from_object, ["rubric_content_type"]) is not None:
+        setv(
+            to_object, ["rubricContentType"], getv(from_object, ["rubric_content_type"])
+        )
+
+    if getv(from_object, ["rubric_type_ontology"]) is not None:
+        setv(
+            to_object,
+            ["rubricTypeOntology"],
+            getv(from_object, ["rubric_type_ontology"]),
         )
 
     return to_object
@@ -846,25 +856,305 @@ def _Rubric_from_vertex(
     return to_object
 
 
-def _GenerateInstanceRubricsResponse_from_vertex(
+def _SamplingConfig_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["generatedRubrics"]) is not None:
+    if getv(from_object, ["samplingCount"]) is not None:
+        setv(to_object, ["sampling_count"], getv(from_object, ["samplingCount"]))
+
+    if getv(from_object, ["samplingMethod"]) is not None:
+        setv(to_object, ["sampling_method"], getv(from_object, ["samplingMethod"]))
+
+    if getv(from_object, ["samplingDuration"]) is not None:
+        setv(to_object, ["sampling_duration"], getv(from_object, ["samplingDuration"]))
+
+    return to_object
+
+
+def _SamplingConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sampling_count"]) is not None:
+        setv(to_object, ["samplingCount"], getv(from_object, ["sampling_count"]))
+
+    if getv(from_object, ["sampling_method"]) is not None:
+        setv(to_object, ["samplingMethod"], getv(from_object, ["sampling_method"]))
+
+    if getv(from_object, ["sampling_duration"]) is not None:
+        setv(to_object, ["samplingDuration"], getv(from_object, ["sampling_duration"]))
+
+    return to_object
+
+
+def _ToolCallValidInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["instances"]) is not None:
         setv(
             to_object,
-            ["generated_rubrics"],
+            ["instances"],
             [
-                _Rubric_from_vertex(item, to_object)
-                for item in getv(from_object, ["generatedRubrics"])
+                _ToolCallValidInstance_to_vertex(item, to_object)
+                for item in getv(from_object, ["instances"])
             ],
+        )
+
+    if getv(from_object, ["metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["metricSpec"],
+            _ToolCallValidSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
         )
 
     return to_object
 
 
+def _ToolCallValidInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prediction"]) is not None:
+        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    return to_object
+
+
+def _ToolCallValidSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    return to_object
+
+
+def _ToolNameMatchInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["instances"]) is not None:
+        setv(
+            to_object,
+            ["instances"],
+            [
+                _ToolNameMatchInstance_to_vertex(item, to_object)
+                for item in getv(from_object, ["instances"])
+            ],
+        )
+
+    if getv(from_object, ["metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["metricSpec"],
+            _ToolNameMatchSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
+        )
+
+    return to_object
+
+
+def _ToolNameMatchInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prediction"]) is not None:
+        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    return to_object
+
+
+def _ToolNameMatchSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    return to_object
+
+
+def _ToolParameterKVMatchInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["instances"]) is not None:
+        setv(
+            to_object,
+            ["instances"],
+            [
+                _ToolParameterKVMatchInstance_to_vertex(item, to_object)
+                for item in getv(from_object, ["instances"])
+            ],
+        )
+
+    if getv(from_object, ["metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["metricSpec"],
+            _ToolParameterKVMatchSpec_to_vertex(
+                getv(from_object, ["metric_spec"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _ToolParameterKVMatchInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prediction"]) is not None:
+        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    return to_object
+
+
+def _ToolParameterKVMatchSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["use_strict_string_match"]) is not None:
+        setv(
+            to_object,
+            ["useStrictStringMatch"],
+            getv(from_object, ["use_strict_string_match"]),
+        )
+
+    return to_object
+
+
+def _ToolParameterKeyMatchInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["instances"]) is not None:
+        setv(
+            to_object,
+            ["instances"],
+            [
+                _ToolParameterKeyMatchInstance_to_vertex(item, to_object)
+                for item in getv(from_object, ["instances"])
+            ],
+        )
+
+    if getv(from_object, ["metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["metricSpec"],
+            _ToolParameterKeyMatchSpec_to_vertex(
+                getv(from_object, ["metric_spec"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _ToolParameterKeyMatchInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prediction"]) is not None:
+        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    return to_object
+
+
+def _ToolParameterKeyMatchSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    return to_object
+
+
 class Evals(_api_module.BaseModule):
+
+    def _create_evaluation_run(
+        self,
+        *,
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSourceOrDict,
+        evaluation_config: genai_types.EvaluationConfigOrDict,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """
+        Creates an EvaluationRun.
+        """
+
+        parameter_model = types._CreateEvaluationRunParameters(
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     def _evaluate_instances(
         self,
@@ -1008,6 +1298,59 @@ class Evals(_api_module.BaseModule):
             response_dict = _GenerateInstanceRubricsResponse_from_vertex(response_dict)
 
         return_value = types.GenerateInstanceRubricsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_evaluation_run(
+        self, *, name: str, config: Optional[types.GetEvaluationRunConfigOrDict] = None
+    ) -> types.EvaluationRun:
+        """
+        Retrieves an EvaluationRun from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationRunParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1398,8 +1741,116 @@ class Evals(_api_module.BaseModule):
         )
         return types.EvaluationDataset(eval_dataset_df=prompts_with_rubrics)
 
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    def get_evaluation_run(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """Retrieves an EvaluationRun from the resource name."""
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        return self._get_evaluation_run(name=name, config=config)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    def create_evaluation_run(
+        self,
+        *,
+        name: str,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSource,
+        dest: str,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """Creates an EvaluationRun."""
+        output_config = genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
+        )
+        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+
+        return self._create_evaluation_run(  # type: ignore[no-any-return]
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            config=config,
+        )
+
 
 class AsyncEvals(_api_module.BaseModule):
+
+    async def _create_evaluation_run(
+        self,
+        *,
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSourceOrDict,
+        evaluation_config: genai_types.EvaluationConfigOrDict,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """
+        Creates an EvaluationRun.
+        """
+
+        parameter_model = types._CreateEvaluationRunParameters(
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     async def _evaluate_instances(
         self,
@@ -1553,6 +2004,61 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _get_evaluation_run(
+        self, *, name: str, config: Optional[types.GetEvaluationRunConfigOrDict] = None
+    ) -> types.EvaluationRun:
+        """
+        Retrieves an EvaluationRun from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationRunParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = "" if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def batch_evaluate(
         self,
         *,
@@ -1638,6 +2144,56 @@ class AsyncEvals(_api_module.BaseModule):
 
         result = await self._evaluate_instances(
             **metric_config,
+        )
+
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    async def get_evaluation_run(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """
+        Retrieves an EvaluationRun from the resource name.
+        """
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        result = await self._get_evaluation_run(name=name, config=config)
+
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    async def create_evaluation_run(
+        self,
+        *,
+        name: str,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSource,
+        dest: str,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """Creates an EvaluationRun."""
+        output_config = genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
+        )
+        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+
+        result = await self._create_evaluation_run(  # type: ignore[no-any-return]
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            config=config,
         )
 
         return result

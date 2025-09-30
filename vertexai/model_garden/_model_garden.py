@@ -678,12 +678,25 @@ class OpenModel:
     def list_deploy_options(
         self,
         concise: bool = False,
+        serving_container_image_uri_filter: Optional[Union[str, List[str]]] = None,
+        machine_type_filter: Optional[str] = None,
+        accelerator_type_filter: Optional[str] = None,
     ) -> Union[str, Sequence[types.PublisherModel.CallToAction.Deploy]]:
         """Lists the verified deploy options for the model.
 
         Args:
             concise: If true, returns a human-readable string with container and
               machine specs.
+            serving_container_image_uri_filter: If specified, only return the
+              deploy options where the serving container image URI contains one of
+              the specified keyword(s) (e.g., "vllm" or ["vllm", "tgi"]). The
+              filter is case-insensitive.
+            machine_type_filter: If specified, only return the deploy options
+              where the machine type contains one of the specified keyword(s)
+              (e.g., "n1" or ["n1", "g2"]). The filter is case-insensitive.
+            accelerator_type_filter: If specified, only return the deploy options
+              where the accelerator type contains one of the specified keyword(s)
+              (e.g., "T4" or ["T4", "L4"]). The filter is case-insensitive.
 
         Returns:
             A list of deploy options or a concise formatted string.
@@ -703,6 +716,64 @@ class OpenModel:
                 "Model does not support deployment. "
                 "Use `list_deployable_models()` to find supported models."
             )
+
+        if serving_container_image_uri_filter:
+            if isinstance(serving_container_image_uri_filter, str):
+                serving_container_image_uri_filter = [
+                    serving_container_image_uri_filter
+                ]
+            serving_container_image_uri_filter = [
+                f.lower() for f in serving_container_image_uri_filter
+            ]
+            deploy_options = [
+                option
+                for option in deploy_options
+                if option.container_spec
+                and any(
+                    f in option.container_spec.image_uri.lower()
+                    for f in serving_container_image_uri_filter
+                )
+            ]
+
+        if machine_type_filter:
+            filters = (
+                [machine_type_filter]
+                if isinstance(machine_type_filter, str)
+                else machine_type_filter
+            )
+            deploy_options = [
+                option
+                for option in deploy_options
+                if option.dedicated_resources
+                and option.dedicated_resources.machine_spec
+                and any(
+                    f.lower()
+                    in option.dedicated_resources.machine_spec.machine_type.lower()
+                    for f in filters
+                )
+            ]
+
+        if accelerator_type_filter:
+            filters = (
+                [accelerator_type_filter]
+                if isinstance(accelerator_type_filter, str)
+                else accelerator_type_filter
+            )
+            deploy_options = [
+                option
+                for option in deploy_options
+                if option.dedicated_resources
+                and option.dedicated_resources.machine_spec
+                and option.dedicated_resources.machine_spec.accelerator_type
+                and any(
+                    f.lower()
+                    in option.dedicated_resources.machine_spec.accelerator_type.name.lower()
+                    for f in filters
+                )
+            ]
+
+        if not deploy_options:
+            raise ValueError("No deploy options found.")
 
         if not concise:
             return deploy_options
@@ -898,6 +969,7 @@ class CustomModel:
     def list_deploy_options(
         self,
         available_machines: bool = True,
+        filter_by_user_quota: bool = True,
         request_timeout: Optional[float] = None,
     ) -> str:
         """Lists the deploy options for the model.
@@ -905,6 +977,8 @@ class CustomModel:
         Args:
             available_machines: If true, only return the deploy options for
               available machines.
+            filter_by_user_quota: If true, only return the deploy options for
+              machines that the user has quota for.
             request_timeout: The timeout for the recommend spec request.
               Default is 60 seconds.
 
@@ -941,6 +1015,7 @@ class CustomModel:
             gcs_uri=self._gcs_uri,
             parent=f"projects/{self._project}/locations/{self._location}",
             check_machine_availability=available_machines,
+            check_user_quota=filter_by_user_quota,
         )
         try:
             response = self._model_service_client.recommend_spec(
@@ -953,6 +1028,13 @@ class CustomModel:
                     for recommendation in response.recommendations
                     if recommendation.spec
                 ]
+                if filter_by_user_quota:
+                    options = [
+                        option
+                        for option in options
+                        if option.get("user_quota_state")
+                        == "QUOTA_STATE_USER_HAS_QUOTA"
+                    ]
             elif response.specs:
                 options = [_extract_spec(spec) for spec in response.specs if spec]
             return "\n\n".join(
@@ -976,6 +1058,9 @@ class CustomModel:
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
@@ -1005,6 +1090,19 @@ class CustomModel:
               set accelerator_count if used.
             accelerator_count (int): Optional. The number of accelerators to attach
               to a worker replica.
+            reservation_affinity_type (str): Optional. The type of reservation
+              affinity. One of NO_RESERVATION, ANY_RESERVATION,
+              SPECIFIC_RESERVATION, SPECIFIC_THEN_ANY_RESERVATION,
+              SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str): Optional. Corresponds to the label key
+              of a reservation resource. To target a SPECIFIC_RESERVATION by name,
+              use `compute.googleapis.com/reservation-name` as the key and specify
+              the name of your reservation as its value.
+            reservation_affinity_values (List[str]): Optional. Corresponds to the
+              label values of a reservation resource. This must be the full resource
+              name of the reservation.
+                Format:
+                  'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
             deploy_request_timeout: The timeout for the deploy request. Default is 2
@@ -1020,6 +1118,9 @@ class CustomModel:
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            reservation_affinity_type=reservation_affinity_type,
+            reservation_affinity_key=reservation_affinity_key,
+            reservation_affinity_values=reservation_affinity_values,
             endpoint_display_name=endpoint_display_name,
             model_display_name=model_display_name,
             deploy_request_timeout=deploy_request_timeout,
@@ -1038,6 +1139,9 @@ class CustomModel:
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[List[str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
@@ -1069,6 +1173,19 @@ class CustomModel:
               NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int): Optional. The number of accelerators to attach
               to a worker replica.
+            reservation_affinity_type (str): Optional. The type of reservation
+              affinity. One of NO_RESERVATION, ANY_RESERVATION,
+              SPECIFIC_RESERVATION, SPECIFIC_THEN_ANY_RESERVATION,
+              SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str): Optional. Corresponds to the label key
+              of a reservation resource. To target a SPECIFIC_RESERVATION by name,
+              use `compute.googleapis.com/reservation-name` as the key and specify
+              the name of your reservation as its value.
+            reservation_affinity_values (List[str]): Optional. Corresponds to the
+              label values of a reservation resource. This must be the full resource
+              name of the reservation.
+                Format:
+                  'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
             deploy_request_timeout: The timeout for the deploy request. Default is 2
@@ -1115,6 +1232,18 @@ class CustomModel:
         if max_replica_count:
             request.deploy_config.dedicated_resources.max_replica_count = (
                 max_replica_count
+            )
+
+        if reservation_affinity_type:
+            request.deploy_config.dedicated_resources.machine_spec.reservation_affinity.reservation_affinity_type = (
+                reservation_affinity_type
+            )
+        if reservation_affinity_key and reservation_affinity_values:
+            request.deploy_config.dedicated_resources.machine_spec.reservation_affinity.key = (
+                reservation_affinity_key
+            )
+            request.deploy_config.dedicated_resources.machine_spec.reservation_affinity.values = (
+                reservation_affinity_values
             )
 
         _LOGGER.info(f"Deploying custom model: {self._gcs_uri}")

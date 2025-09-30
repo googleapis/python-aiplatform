@@ -1002,11 +1002,8 @@ class TestEvalsRunInference:
             assert call_kwargs["model"] == "gpt-4o"
             assert call_kwargs["messages"] == expected_messages
             assert "response" in result_dataset.eval_dataset_df.columns
-            response_content = json.loads(result_dataset.eval_dataset_df["response"][0])
-            assert (
-                response_content["choices"][0]["message"]["content"]
-                == "LiteLLM is a library..."
-            )
+            response_content = result_dataset.eval_dataset_df["response"][0]
+            assert response_content == "LiteLLM is a library..."
 
     def test_run_inference_with_litellm_openai_request_format(
         self,
@@ -1077,8 +1074,8 @@ class TestEvalsRunInference:
             assert call_kwargs["model"] == "gpt-4o"
             assert call_kwargs["messages"] == expected_messages
             assert "response" in result_dataset.eval_dataset_df.columns
-            response_content = json.loads(result_dataset.eval_dataset_df["response"][0])
-            assert response_content["choices"][0]["message"]["content"] == "Hello there"
+            response_content = result_dataset.eval_dataset_df["response"][0]
+            assert response_content == "Hello there"
 
     def test_run_inference_with_unsupported_model_string(
         self,
@@ -1102,9 +1099,116 @@ class TestEvalsRunInference:
         prompt_df = pd.DataFrame([{"prompt": "test"}])
         with pytest.raises(
             ImportError,
-            match="The 'litellm' library is required to use third-party models",
+            match="The 'litellm' library is required to use this model.",
         ):
             evals_module.run_inference(model="gpt-4o", src=prompt_df)
+
+    @mock.patch.object(_evals_common, "_run_litellm_inference")
+    @mock.patch.object(_evals_common, "_is_gemini_model")
+    @mock.patch.object(_evals_common, "_is_litellm_model")
+    @mock.patch.object(_evals_common, "_is_litellm_vertex_maas_model")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_run_inference_with_litellm_parsing(
+        self,
+        mock_eval_dataset_loader,
+        mock_is_litellm_vertex_maas_model,
+        mock_is_litellm_model,
+        mock_is_gemini_model,
+        mock_run_litellm_inference,
+    ):
+        """Tests the parsing logic for LiteLLM responses within _run_inference_internal."""
+        mock_is_gemini_model.return_value = False
+        mock_is_litellm_model.return_value = True
+        mock_is_litellm_vertex_maas_model.return_value = False
+
+        mock_df = pd.DataFrame(
+            {
+                "prompt": [
+                    "prompt1",
+                    "prompt2",
+                    "prompt3",
+                    "prompt4",
+                    "prompt5",
+                    "prompt6",
+                ]
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        raw_responses = [
+            {  # Successful response
+                "choices": [{"message": {"content": "LiteLLM response 1"}}]
+            },
+            {"error": "LiteLLM call failed: API key error"},  # Response with error key
+            {"id": "test-id-3"},  # Missing choices
+            {"choices": [{"index": 0}]},  # Missing message
+            {"choices": [{"message": {"role": "assistant"}}]},  # Missing content
+            "Invalid JSON string",  # Non-dict response
+        ]
+        mock_run_litellm_inference.return_value = raw_responses
+        # fmt: off
+        with mock.patch("vertexai._genai._evals_common.litellm") as mock_litellm:
+            # fmt: on
+            mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
+            inference_result = self.client.evals.run_inference(
+                model="gpt-4o",
+                src=mock_df,
+            )
+
+        expected_responses = [
+            "LiteLLM response 1",
+            json.dumps({"error": "LiteLLM call failed: API key error"}),
+            json.dumps(
+                {
+                    "error": "LiteLLM response missing 'choices'",
+                    "details": {"id": "test-id-3"},
+                }
+            ),
+            json.dumps(
+                {
+                    "error": "LiteLLM response missing 'message' in first choice",
+                    "details": {"choices": [{"index": 0}]},
+                }
+            ),
+            json.dumps(
+                {
+                    "error": "LiteLLM response missing 'content' in message",
+                    "details": {"choices": [{"message": {"role": "assistant"}}]},
+                }
+            ),
+            json.dumps(
+                {
+                    "error": "Invalid LiteLLM response format",
+                    "details": "Invalid JSON string",
+                }
+            ),
+        ]
+
+        expected_df = pd.DataFrame(
+            {
+                "prompt": [
+                    "prompt1",
+                    "prompt2",
+                    "prompt3",
+                    "prompt4",
+                    "prompt5",
+                    "prompt6",
+                ],
+                "response": expected_responses,
+            }
+        )
+
+        pd.testing.assert_frame_equal(
+            inference_result.eval_dataset_df.reset_index(drop=True),
+            expected_df.reset_index(drop=True),
+            check_dtype=False,
+        )
+        mock_run_litellm_inference.assert_called_once()
+        _, call_kwargs = mock_run_litellm_inference.call_args
+        assert call_kwargs["model"] == "gpt-4o"
+        pd.testing.assert_frame_equal(call_kwargs["prompt_dataset"], mock_df)
 
 
 class TestMetricPromptBuilder:
@@ -2191,6 +2295,98 @@ class TestObservabilityDataConverter:
             ],
             role="system",
         )
+
+
+class TestAgentMetadata:
+    """Unit tests for the AgentMetadata class."""
+
+    def test_agent_metadata_creation(self):
+        tool = genai_types.Tool(
+            function_declarations=[
+                genai_types.FunctionDeclaration(
+                    name="get_weather",
+                    description="Get weather in a location",
+                    parameters={
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                    },
+                )
+            ]
+        )
+        agent_metadata = vertexai_genai_types.AgentMetadata(
+            name="agent1",
+            instruction="instruction1",
+            description="description1",
+            tool_declarations=[tool],
+            sub_agent_names=["sub_agent1"],
+        )
+        assert agent_metadata.name == "agent1"
+        assert agent_metadata.instruction == "instruction1"
+        assert agent_metadata.description == "description1"
+        assert agent_metadata.tool_declarations == [tool]
+        assert agent_metadata.sub_agent_names == ["sub_agent1"]
+
+
+class TestEvent:
+    """Unit tests for the Event class."""
+
+    def test_event_creation(self):
+        event = vertexai_genai_types.Event(
+            event_id="event1",
+            content=genai_types.Content(
+                parts=[genai_types.Part(text="intermediate event")]
+            ),
+            author="user",
+        )
+        assert event.event_id == "event1"
+        assert event.content.parts[0].text == "intermediate event"
+        assert event.author == "user"
+
+
+class TestEvalCase:
+    """Unit tests for the EvalCase class."""
+
+    def test_eval_case_with_agent_eval_fields(self):
+        tool = genai_types.Tool(
+            function_declarations=[
+                genai_types.FunctionDeclaration(
+                    name="get_weather",
+                    description="Get weather in a location",
+                    parameters={
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                    },
+                )
+            ]
+        )
+        agent_metadata = {
+            "agent1": vertexai_genai_types.AgentMetadata(
+                name="agent1",
+                instruction="instruction1",
+                tool_declarations=[tool],
+            )
+        }
+        intermediate_events = [
+            vertexai_genai_types.Event(
+                event_id="event1",
+                content=genai_types.Content(
+                    parts=[genai_types.Part(text="intermediate event")]
+                ),
+            )
+        ]
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            agent_metadata=agent_metadata,
+            intermediate_events=intermediate_events,
+        )
+
+        assert eval_case.agent_metadata == agent_metadata
+        assert eval_case.intermediate_events == intermediate_events
 
 
 class TestMetric:

@@ -181,97 +181,106 @@ def get_publisher_model_mock():
     with mock.patch.object(
         model_garden_service.ModelGardenServiceClient, "get_publisher_model"
     ) as get_publisher_model_mock:
-        get_publisher_model_mock.side_effect = [
-            types.PublisherModel(name=_TEST_PUBLISHER_MODEL_NAME),
-            types.PublisherModel(
-                name=_TEST_PUBLISHER_MODEL_NAME,
-                supported_actions=types.PublisherModel.CallToAction(
-                    multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
-                        multi_deploy_vertex=[
-                            types.PublisherModel.CallToAction.Deploy(
-                                deploy_task_name="vLLM 32K context",
-                                container_spec=types.ModelContainerSpec(
-                                    image_uri=_TEST_IMAGE_URI,
-                                    command=["python", "main.py"],
-                                    args=["--model-id=gemma-2b"],
-                                    env=[
-                                        types.EnvVar(name="MODEL_ID", value="gemma-2b")
-                                    ],
-                                ),
-                                dedicated_resources=types.DedicatedResources(
-                                    machine_spec=types.MachineSpec(
-                                        machine_type="g2-standard-16",
-                                        accelerator_type="NVIDIA_L4",
-                                        accelerator_count=1,
-                                    )
-                                ),
+        error_response = types.PublisherModel(name=_TEST_PUBLISHER_MODEL_NAME)
+        success_response = types.PublisherModel(
+            name=_TEST_PUBLISHER_MODEL_NAME,
+            supported_actions=types.PublisherModel.CallToAction(
+                multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
+                    multi_deploy_vertex=[
+                        types.PublisherModel.CallToAction.Deploy(
+                            deploy_task_name="vLLM 32K context",
+                            container_spec=types.ModelContainerSpec(
+                                image_uri=_TEST_IMAGE_URI,
+                                command=["python", "main.py"],
+                                args=["--model-id=gemma-2b"],
+                                env=[types.EnvVar(name="MODEL_ID", value="gemma-2b")],
                             ),
-                            types.PublisherModel.CallToAction.Deploy(
-                                deploy_task_name="vLLM 128K context",
-                                container_spec=types.ModelContainerSpec(
-                                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
-                                    command=["python", "main.py"],
-                                    args=["--model-id=gemma-2b"],
-                                    env=[
-                                        types.EnvVar(name="MODEL_ID", value="gemma-2b")
-                                    ],
-                                ),
-                                dedicated_resources=types.DedicatedResources(
-                                    machine_spec=types.MachineSpec(
-                                        machine_type="g2-standard-32",
-                                        accelerator_type="NVIDIA_L4",
-                                        accelerator_count=4,
-                                    )
-                                ),
+                            dedicated_resources=types.DedicatedResources(
+                                machine_spec=types.MachineSpec(
+                                    machine_type="g2-standard-16",
+                                    accelerator_type="NVIDIA_L4",
+                                    accelerator_count=1,
+                                )
                             ),
-                        ]
-                    )
-                ),
+                        ),
+                        types.PublisherModel.CallToAction.Deploy(
+                            deploy_task_name="vLLM 128K context",
+                            container_spec=types.ModelContainerSpec(
+                                image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+                                command=["python", "main.py"],
+                                args=["--model-id=gemma-2b"],
+                                env=[types.EnvVar(name="MODEL_ID", value="gemma-2b")],
+                            ),
+                            dedicated_resources=types.DedicatedResources(
+                                machine_spec=types.MachineSpec(
+                                    machine_type="g2-standard-32",
+                                    accelerator_type="NVIDIA_L4",
+                                    accelerator_count=4,
+                                )
+                            ),
+                        ),
+                    ]
+                )
             ),
-            types.PublisherModel(
-                name=_TEST_MODEL_HUGGING_FACE_RESOURCE_NAME,
-                supported_actions=types.PublisherModel.CallToAction(
-                    multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
-                        multi_deploy_vertex=[
-                            types.PublisherModel.CallToAction.Deploy(
-                                container_spec=types.ModelContainerSpec(
-                                    image_uri=_TEST_IMAGE_URI,
-                                    command=["python", "main.py"],
-                                    args=["--model-id=gemma-2b"],
-                                    env=[
-                                        types.EnvVar(name="MODEL_ID", value="gemma-2b")
-                                    ],
-                                ),
-                                dedicated_resources=types.DedicatedResources(
-                                    machine_spec=types.MachineSpec(
-                                        machine_type="g2-standard-16",
-                                        accelerator_type="NVIDIA_L4",
-                                        accelerator_count=1,
-                                    )
-                                ),
+        )
+        hf_success_response = types.PublisherModel(
+            name=_TEST_MODEL_HUGGING_FACE_RESOURCE_NAME,
+            supported_actions=types.PublisherModel.CallToAction(
+                multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
+                    multi_deploy_vertex=[
+                        types.PublisherModel.CallToAction.Deploy(
+                            container_spec=types.ModelContainerSpec(
+                                image_uri=_TEST_IMAGE_URI,
+                                command=["python", "main.py"],
+                                args=["--model-id=gemma-2b"],
+                                env=[types.EnvVar(name="MODEL_ID", value="gemma-2b")],
                             ),
-                            types.PublisherModel.CallToAction.Deploy(
-                                container_spec=types.ModelContainerSpec(
-                                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
-                                    command=["python", "main.py"],
-                                    args=["--model-id=gemma-2b"],
-                                    env=[
-                                        types.EnvVar(name="MODEL_ID", value="gemma-2b")
-                                    ],
-                                ),
-                                dedicated_resources=types.DedicatedResources(
-                                    machine_spec=types.MachineSpec(
-                                        machine_type="g2-standard-32",
-                                        accelerator_type="NVIDIA_L4",
-                                        accelerator_count=4,
-                                    )
-                                ),
+                            dedicated_resources=types.DedicatedResources(
+                                machine_spec=types.MachineSpec(
+                                    machine_type="g2-standard-16",
+                                    accelerator_type="NVIDIA_L4",
+                                    accelerator_count=1,
+                                )
                             ),
-                        ]
-                    )
-                ),
+                        ),
+                        types.PublisherModel.CallToAction.Deploy(
+                            container_spec=types.ModelContainerSpec(
+                                image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+                                command=["python", "main.py"],
+                                args=["--model-id=gemma-2b"],
+                                env=[types.EnvVar(name="MODEL_ID", value="gemma-2b")],
+                            ),
+                            dedicated_resources=types.DedicatedResources(
+                                machine_spec=types.MachineSpec(
+                                    machine_type="g2-standard-32",
+                                    accelerator_type="NVIDIA_L4",
+                                    accelerator_count=4,
+                                )
+                            ),
+                        ),
+                    ]
+                )
             ),
-        ]
+        )
+
+        call_counts = {}
+
+        def side_effect_func(request, *args, **kwargs):
+            model_name = request.name
+            if model_name not in call_counts:
+                call_counts[model_name] = 0
+
+            call_counts[model_name] += 1
+
+            if model_name == _TEST_HUGGING_FACE_MODEL_FULL_RESOURCE_NAME:
+                return hf_success_response
+
+            if call_counts[model_name] == 1:
+                return error_response
+            else:
+                return success_response
+
+        get_publisher_model_mock.side_effect = side_effect_func
         yield get_publisher_model_mock
 
 
@@ -1239,6 +1248,72 @@ class TestModelGardenOpenModel:
             )
         )
 
+    def test_list_deploy_options_with_filters(self, get_publisher_model_mock):
+        """Tests getting the supported deploy options for a model with filters."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+
+        expected_message = (
+            "Model does not support deployment. "
+            "Use `list_deployable_models()` to find supported models."
+        )
+        with pytest.raises(ValueError) as exception:
+            _ = model.list_deploy_options()
+        assert str(exception.value) == expected_message
+
+        # Test serving_container_image_uri_filter
+        result = model.list_deploy_options(serving_container_image_uri_filter="vllm")
+        assert len(result) == 1
+        assert "vllm" in result[0].container_spec.image_uri
+
+        # Test case-insensitivity for serving_container_image_uri_filter
+        result = model.list_deploy_options(serving_container_image_uri_filter="VLLM")
+        assert len(result) == 1
+        assert "vllm" in result[0].container_spec.image_uri
+
+        # Test list of strings for serving_container_image_uri_filter
+        result = model.list_deploy_options(
+            serving_container_image_uri_filter=["vllm", "text-generation-inference"]
+        )
+        assert len(result) == 2
+
+        # Test machine_type_filter
+        result = model.list_deploy_options(machine_type_filter="g2-standard-16")
+        assert len(result) == 1
+        assert (
+            "g2-standard-16" == result[0].dedicated_resources.machine_spec.machine_type
+        )
+
+        # Test case-insensitivity for machine_type_filter
+        result = model.list_deploy_options(machine_type_filter="G2-STANDARD-16")
+        assert len(result) == 1
+        assert (
+            "g2-standard-16" == result[0].dedicated_resources.machine_spec.machine_type
+        )
+
+        # Test accelerator_type_filter
+        result = model.list_deploy_options(accelerator_type_filter="L4")
+        assert len(result) == 2
+
+        # Test case-insensitivity for accelerator_type_filter
+        result = model.list_deploy_options(accelerator_type_filter="l4")
+        assert len(result) == 2
+
+        # Test combination of filters
+        result = model.list_deploy_options(
+            serving_container_image_uri_filter="vllm",
+            machine_type_filter="g2-standard-16",
+            accelerator_type_filter="L4",
+        )
+        assert len(result) == 1
+
+        # Test with no match
+        with pytest.raises(ValueError):
+            model.list_deploy_options(machine_type_filter="non-existent")
+
     def test_list_deployable_models(self, list_publisher_models_mock):
         """Tests getting the supported deploy options for a model."""
         aiplatform.init(
@@ -1476,7 +1551,51 @@ class TestModelGardenCustomModel:
             )
         )
 
-    def test_list_deploy_options_with_recommendations(self):
+    def test_deploy_custom_model_with_reservation_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+        model.deploy(
+            machine_type="n1-standard-4",
+            accelerator_type="NVIDIA_TESLA_T4",
+            accelerator_count=1,
+            reservation_affinity_type="SPECIFIC_RESERVATION",
+            reservation_affinity_key="compute.googleapis.com/reservation-name",
+            reservation_affinity_values=[
+                "projects/test-project/zones/us-central1-a/reservations/test-reservation"
+            ],
+        )
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                custom_model=types.DeployRequest.CustomModel(
+                    gcs_uri=_TEST_GCS_URI,
+                ),
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        min_replica_count=1,
+                        max_replica_count=1,
+                        machine_spec=types.MachineSpec(
+                            machine_type="n1-standard-4",
+                            accelerator_type="NVIDIA_TESLA_T4",
+                            accelerator_count=1,
+                            reservation_affinity=types.ReservationAffinity(
+                                reservation_affinity_type="SPECIFIC_RESERVATION",
+                                key="compute.googleapis.com/reservation-name",
+                                values=[
+                                    "projects/test-project/zones/us-central1-a/reservations/test-reservation"
+                                ],
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        )
+
+    @pytest.mark.parametrize("filter_by_user_quota", [True, False])
+    def test_list_deploy_options_with_recommendations(self, filter_by_user_quota):
         """Tests list_deploy_options when recommend_spec returns recommendations."""
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1529,42 +1648,56 @@ class TestModelGardenCustomModel:
             mock_model_service_client.recommend_spec.return_value = mock_response
 
             custom_model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
-            result = custom_model.list_deploy_options()
-
-            expected_output = textwrap.dedent(
-                """\
-            [Option 1]
-                machine_type="n1-standard-4",
-                accelerator_type="NVIDIA_TESLA_T4",
-                accelerator_count=1,
-                region="us-central1",
-                user_quota_state="QUOTA_STATE_USER_HAS_QUOTA"
-
-            [Option 2]
-                machine_type="n1-standard-8",
-                accelerator_type="NVIDIA_TESLA_V100",
-                accelerator_count=2,
-                region="us-east1",
-                user_quota_state="QUOTA_STATE_NO_USER_QUOTA"
-
-            [Option 3]
-                machine_type="g2-standard-24",
-                accelerator_type="NVIDIA_L4",
-                accelerator_count=2,
-                region="us-central1\""""
+            result = custom_model.list_deploy_options(
+                filter_by_user_quota=filter_by_user_quota
             )
+
+            if filter_by_user_quota:
+                expected_output = textwrap.dedent(
+                    """\
+                [Option 1]
+                    machine_type="n1-standard-4",
+                    accelerator_type="NVIDIA_TESLA_T4",
+                    accelerator_count=1,
+                    region="us-central1",
+                    user_quota_state="QUOTA_STATE_USER_HAS_QUOTA\""""
+                )
+            else:
+                expected_output = textwrap.dedent(
+                    """\
+                [Option 1]
+                    machine_type="n1-standard-4",
+                    accelerator_type="NVIDIA_TESLA_T4",
+                    accelerator_count=1,
+                    region="us-central1",
+                    user_quota_state="QUOTA_STATE_USER_HAS_QUOTA"
+
+                [Option 2]
+                    machine_type="n1-standard-8",
+                    accelerator_type="NVIDIA_TESLA_V100",
+                    accelerator_count=2,
+                    region="us-east1",
+                    user_quota_state="QUOTA_STATE_NO_USER_QUOTA"
+
+                [Option 3]
+                    machine_type="g2-standard-24",
+                    accelerator_type="NVIDIA_L4",
+                    accelerator_count=2,
+                    region="us-central1\""""
+                )
             assert result == expected_output
             mock_model_service_client.recommend_spec.assert_called_once_with(
                 types.RecommendSpecRequest(
                     gcs_uri=_TEST_GCS_URI,
                     parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
                     check_machine_availability=True,
+                    check_user_quota=filter_by_user_quota,
                 ),
                 timeout=60,
             )
 
     def test_list_deploy_options_with_specs(self):
-        """Tests list_deploy_options when recommend_spec returns specs."""
+        """Tests list_deploy_options with available_machines set to False and recommend_spec returns all compatible specs."""
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -1596,7 +1729,9 @@ class TestModelGardenCustomModel:
             mock_model_service_client.recommend_spec.return_value = mock_response
 
             custom_model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
-            result = custom_model.list_deploy_options(available_machines=False)
+            result = custom_model.list_deploy_options(
+                available_machines=False, filter_by_user_quota=False
+            )
 
             expected_output = textwrap.dedent(
                 """\
@@ -1616,6 +1751,7 @@ class TestModelGardenCustomModel:
                     gcs_uri=_TEST_GCS_URI,
                     parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
                     check_machine_availability=False,
+                    check_user_quota=False,
                 ),
                 timeout=60,
             )

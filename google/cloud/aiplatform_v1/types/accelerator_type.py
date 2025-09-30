@@ -29,7 +29,7 @@ __protobuf__ = proto.module(
 
 
 class AcceleratorType(proto.Enum):
-    r"""LINT: LEGACY_NAMES Represents a hardware accelerator type.
+    r"""Represents a hardware accelerator type.
 
     Values:
         ACCELERATOR_TYPE_UNSPECIFIED (0):

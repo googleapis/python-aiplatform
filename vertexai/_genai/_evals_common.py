@@ -29,6 +29,7 @@ from google.genai.models import Models
 import pandas as pd
 from tqdm import tqdm
 
+from . import _evals_constant
 from . import _evals_data_converters
 from . import _evals_metric_handlers
 from . import _evals_utils
@@ -370,6 +371,14 @@ def _run_litellm_inference(
     return responses
 
 
+def _is_litellm_vertex_maas_model(model: str) -> bool:
+    """Checks if the model is a Vertex MAAS model to be handled by LiteLLM."""
+    return any(
+        model.startswith(prefix)
+        for prefix in _evals_constant.SUPPORTED_VERTEX_MAAS_MODEL_PREFIXES
+    )
+
+
 def _is_litellm_model(model: str) -> bool:
     """Checks if the model name corresponds to a valid LiteLLM model name."""
     return model in litellm.utils.get_valid_models(model)
@@ -431,30 +440,6 @@ def _run_inference_internal(
                 }
                 processed_responses.append(json.dumps(error_payload))
         responses = processed_responses
-    elif isinstance(model, str):
-        if litellm is None:
-            raise ImportError(
-                "The 'litellm' library is required to use third-party models."
-                " Please install it using 'pip install"
-                " google-cloud-aiplatform[evaluation]'."
-            )
-        if _is_litellm_model(model):
-            logger.info("Running inference with LiteLLM for model: %s", model)
-            raw_responses = _run_litellm_inference(  # type: ignore[assignment]
-                model=model, prompt_dataset=prompt_dataset
-            )
-            responses = [json.dumps(resp) for resp in raw_responses]
-        else:
-            raise TypeError(
-                f"Unsupported string model name: {model}. Expecting a Gemini model"
-                " name (e.g., 'gemini-2.5-pro', 'projects/.../models/...') or a"
-                " LiteLLM supported model name (e.g., 'openai/gpt-4o')."
-                " If using a third-party model via LiteLLM, ensure the"
-                " necessary environment variables are set (e.g., for OpenAI:"
-                " `os.environ['OPENAI_API_KEY'] = 'Your API Key'`). See"
-                " LiteLLM documentation for details:"
-                " https://docs.litellm.ai/docs/set_keys#environment-variables"
-            )
     elif callable(model):
         logger.info("Running inference with custom callable function.")
         custom_responses_raw = _run_custom_inference(
@@ -472,6 +457,102 @@ def _run_inference_internal(
                 except TypeError:
                     processed_custom_responses.append(str(resp_item))
         responses = processed_custom_responses
+    elif isinstance(model, str):
+        if litellm is None:
+            raise ImportError(
+                "The 'litellm' library is required to use this model."
+                " Please install it using 'pip install"
+                " google-cloud-aiplatform[evaluation]'."
+            )
+
+        processed_model_id = model
+        if model.startswith("vertex_ai/"):
+            # Already correctly prefixed for LiteLLM's Vertex AI provider
+            pass
+        elif _is_litellm_vertex_maas_model(model):
+            processed_model_id = f"vertex_ai/{model}"
+            logger.info(
+                "Detected Vertex AI Model Garden managed MaaS model. "
+                "Using LiteLLM ID: %s",
+                processed_model_id,
+            )
+        elif _is_litellm_model(model):
+            # Other LiteLLM supported model
+            logger.info("Running inference with LiteLLM for model: %s", model)
+        else:
+            # Unsupported model string
+            raise TypeError(
+                f"Unsupported string model name: {model}. Expecting a Gemini model"
+                " name (e.g., 'gemini-1.5-pro', 'projects/.../models/...') or a"
+                " LiteLLM supported model name (e.g., 'openai/gpt-4o')."
+                " If using a third-party model via LiteLLM, ensure the"
+                " necessary environment variables are set (e.g., for OpenAI:"
+                " `os.environ['OPENAI_API_KEY'] = 'Your API Key'`). See"
+                " LiteLLM documentation for details:"
+                " https://docs.litellm.ai/docs/set_keys#environment-variables"
+            )
+
+        logger.info("Running inference via LiteLLM for model: %s", processed_model_id)
+        raw_responses = _run_litellm_inference(
+            model=processed_model_id, prompt_dataset=prompt_dataset
+        )
+        processed_llm_responses = []
+        for response_dict in raw_responses:
+            if not isinstance(response_dict, dict):
+                processed_llm_responses.append(
+                    json.dumps(
+                        {
+                            "error": "Invalid LiteLLM response format",
+                            "details": str(response_dict),
+                        }
+                    )
+                )
+                continue
+
+            if "error" in response_dict:
+                processed_llm_responses.append(json.dumps(response_dict))
+                continue
+
+            if (
+                "choices" in response_dict
+                and isinstance(response_dict["choices"], list)
+                and len(response_dict["choices"]) > 0
+            ):
+                first_choice = response_dict["choices"][0]
+                if "message" in first_choice and isinstance(
+                    first_choice["message"], dict
+                ):
+                    message = first_choice["message"]
+                    if "content" in message and isinstance(message["content"], str):
+                        processed_llm_responses.append(message["content"])
+                    else:
+                        processed_llm_responses.append(
+                            json.dumps(
+                                {
+                                    "error": "LiteLLM response missing 'content' in message",
+                                    "details": response_dict,
+                                }
+                            )
+                        )
+                else:
+                    processed_llm_responses.append(
+                        json.dumps(
+                            {
+                                "error": "LiteLLM response missing 'message' in first choice",
+                                "details": response_dict,
+                            }
+                        )
+                    )
+            else:
+                processed_llm_responses.append(
+                    json.dumps(
+                        {
+                            "error": "LiteLLM response missing 'choices'",
+                            "details": response_dict,
+                        }
+                    )
+                )
+        responses = processed_llm_responses
     else:
         raise TypeError(
             f"Unsupported model type: {type(model)}. Expecting string (model"

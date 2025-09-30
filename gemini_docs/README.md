@@ -1,12 +1,9 @@
 # Vertex Generative AI SDK for Python
-The Vertex Generative AI SDK helps developers use Google's generative AI
+The Gen AI Modules in the Vertex SDK help developers use Google's generative AI
 [Gemini models](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/overview)
-to build AI-powered features and applications.
-The SDKs support use cases like the following:
+to build AI-powered features and applications in Vertex.
 
-- Generate text from texts, images and videos (multimodal generation)
-- Build stateful multi-turn conversations (chat)
-- Function calling
+The modules currently available are: Evaluation, Agent Engines, Prompt Management, and Prompt Optimization. See below for instructions on getting started with each module. For other Gemini features on Vertex, use the [Gen AI SDK](https://github.com/googleapis/python-genai).
 
 ## Installation
 
@@ -15,12 +12,246 @@ To install the
 Python package, run the following command:
 
 ```shell
-pip3 install --upgrade --user "google-cloud-aiplatform>=1.38"
+pip3 install --upgrade --user "google-cloud-aiplatform>=1.114.0"
 ```
 
-## Usage
+#### Imports:
+```python
+import vertexai
+from vertexai import types
+```
 
-For detailed instructions, see [quickstart](http://cloud.google.com/vertex-ai/docs/generative-ai/start/quickstarts/quickstart-multimodal) and [Introduction to multimodal classes in the Vertex AI SDK](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/sdk-for-gemini/gemini-sdk-overview-reference).
+#### Client initialization
+
+```python
+client = vertexai.Client(project='my-project', location='us-central1')
+```
+
+#### Gen AI Evaluation
+
+To run evaluation, first generate model responses from a set of prompts.
+
+```python
+import pandas as pd
+
+prompts_df = pd.DataFrame({
+    "prompt": [
+        "What is the capital of France?",
+        "Write a haiku about a cat.",
+        "Write a Python function to calculate the factorial of a number.",
+        "Translate 'How are you?' to French.",
+    ],
+})
+
+inference_results = client.evals.run_inference(
+    model="gemini-2.5-flash",
+        ("def factorial(n):\n"
+         "    if n < 0:\n"
+         "        return 'Factorial does not exist for negative numbers'\n"
+         "    elif n == 0:\n"
+         "        return 1\n"
+         "    else:\n"
+         "        fact = 1\n"
+         "        i = 1\n"
+         "        while i <= n:\n"
+         "            fact *= i\n"
+         "            i += 1\n"
+         "        return fact"),
+)
+inference_results.show()
+```
+
+Then run evaluation by providing the inference results and specifying the metric types.
+
+```python
+eval_result = client.evals.evaluate(
+    dataset=inference_results,
+    metrics=[
+        types.RubricMetric.GENERAL_QUALITY,
+    ]
+)
+eval_result.show()
+```
+
+#### Agent Engine with Agent Development Kit (ADK)
+
+First, define a function that looks up the exchange rate:
+
+```python
+def get_exchange_rate(
+    currency_from: str = "USD",
+    currency_to: str = "EUR",
+    currency_date: str = "latest",
+):
+    """Retrieves the exchange rate between two currencies on a specified date.
+
+    Uses the Frankfurter API (https://api.frankfurter.app/) to obtain
+    exchange rate data.
+
+    Returns:
+        dict: A dictionary containing the exchange rate information.
+            Example: {"amount": 1.0, "base": "USD", "date": "2023-11-24",
+                "rates": {"EUR": 0.95534}}
+    """
+    import requests
+    response = requests.get(
+        f"https://api.frankfurter.app/{currency_date}",
+        params={"from": currency_from, "to": currency_to},
+    )
+    return response.json()
+```
+
+Next, define an ADK Agent:
+
+```python
+
+from google.adk.agents import Agent
+from vertexai.agent_engines import AdkApp
+
+app = AdkApp(agent=Agent(
+    model="gemini-2.0-flash",        # Required.
+    name='currency_exchange_agent',  # Required.
+    tools=[get_exchange_rate],       # Optional.
+))
+```
+
+Test the agent locally using US dollars and Swedish Krona:
+
+```python
+async for event in app.async_stream_query(
+    user_id="user-id",
+    message="What is the exchange rate from US dollars to SEK today?",
+):
+    print(event)
+```
+
+To deploy the agent to Agent Engine:
+
+```python
+remote_app = client.agent_engines.create(
+    agent=app,
+    config={
+        "requirements": ["google-cloud-aiplatform[agent_engines,adk]"],
+    },
+)
+```
+
+You can also run queries against the deployed agent:
+
+```python
+async for event in remote_app.async_stream_query(
+    user_id="user-id",
+    message="What is the exchange rate from US dollars to SEK today?",
+):
+    print(event)
+```
+
+#### Prompt Optimization
+
+To do a zero-shot prompt optimization, use the `optimize_prompt`
+method.
+
+```python
+prompt = "Generate system instructions for a question-answering assistant"
+response = client.prompt_optimizer.optimize_prompt(prompt=prompt)
+print(response.raw_text_response)
+if response.parsed_response:
+    print(response.parsed_response.suggested_prompt)
+```
+
+To call the data-driven prompt optimization, call the `optimize` method.
+In this case however, we need to provide `vapo_config`. This config needs to
+have either service account or project **number** and the config path.
+Please refer to this [tutorial](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/data-driven-optimizer)
+for more details on config parameter.
+
+```python
+import logging
+
+project_number = PROJECT_NUMBER # replace with your project number
+service_account = f"{project_number}-compute@developer.gserviceaccount.com"
+
+vapo_config = types.PromptOptimizerVAPOConfig(
+    config_path="gs://your-bucket/config.json",
+    service_account_project_number=project_number,
+    wait_for_completion=False
+)
+
+# Set up logging to see the progress of the optimization job
+logging.basicConfig(encoding='utf-8', level=logging.INFO, force=True)
+
+result = client.prompt_optimizer.optimize(method="vapo", config=vapo_config)
+```
+
+We can also call optimize method async.
+
+```python
+await client.aio.prompt_optimizer.optimize(method="vapo", config=vapo_config)
+```
+
+#### Prompt Management
+
+The Prompt Management module uses some types from the Gen AI SDK. First, import those types:
+
+```python
+from google.genai import types as genai_types
+```
+
+To create and store a Prompt, first define a types.Prompt object and then run `create` to save it in Vertex.
+
+```python
+prompt = {
+    "prompt_data": {
+        "contents": [{"parts": [{"text": "Hello, {name}! How are you?"}]}],
+        "system_instruction": {"parts": [{"text": "Please answer in a short sentence."}]},
+        "variables": [
+            {"name": {"text": "Alice"}},
+        ],
+        "model": "gemini-2.5-flash",
+    },
+}
+
+prompt_resource = client.prompts.create(
+    prompt=prompt,
+)
+```
+
+To retrieve a prompt, provide the `prompt_id`:
+
+```python
+retrieved_prompt = client.prompts.get(prompt_id=prompt_resource.prompt_id)
+```
+
+After creating or retrieving a prompt, you can call `generate_content()` with that prompt using the Gen AI SDK.
+
+The following uses a utility function available on Prompt objects to transform a Prompt object into a list of Part objects for use with `generate_content`. To run this you need to have the Gen AI SDK installed, which you can do via `pip install google-genai`.
+
+```python
+from google import genai
+from google.genai import types as genai_types
+
+# Create a Client in the Gen AI SDK
+genai_client = genai.Client(vertexai=True, project="your-project", location="your-location")
+
+# Call generate_content() with the prompt
+response = genai_client.models.generate_content(
+    model=retrieved_prompt.prompt_data.model,
+    contents=retrieved_prompt.assemble_contents(),
+)
+```
+
+## Warning
+
+The following Generative AI modules in the Vertex AI SDK are deprecated as of
+June 24, 2025 and will be removed on June 24, 2026:
+`vertexai.generative_models`, `vertexai.language_models`,
+`vertexai.vision_models`, `vertexai.tuning`, `vertexai.caching`. Please use the
+[Google Gen AI SDK](https://pypi.org/project/google-genai/) to access these
+features. See
+[the migration guide](https://cloud.google.com/vertex-ai/generative-ai/docs/deprecations/genai-vertexai-sdk)
+for details. You can continue using all other Vertex AI SDK modules, as they are
+the recommended way to use the API.
+
 
 #### Imports:
 ```python
@@ -318,7 +549,7 @@ result = EvalTask(
 Before you begin, install the packages with
 
 ```shell
-pip3 install --upgrade --user "google-cloud-aiplatform[agent_engines,adk]>=1.95.1"
+pip3 install --upgrade --user "google-cloud-aiplatform[agent_engines,adk]>=1.111"
 ```
 
 First, define a function that looks up the exchange rate:
@@ -351,7 +582,7 @@ Next, define an ADK Agent:
 
 ```python
 from google.adk.agents import Agent
-from vertexai.preview.reasoning_engines import AdkApp
+from vertexai.agent_engines import AdkApp
 
 app = AdkApp(agent=Agent(
     model="gemini-2.0-flash",        # Required.
@@ -363,7 +594,7 @@ app = AdkApp(agent=Agent(
 Test the agent locally using US dollars and Swedish Krona:
 
 ```python
-for event in app.stream_query(
+async for event in app.async_stream_query(
     user_id="user-id",
     message="What is the exchange rate from US dollars to SEK today?",
 ):
@@ -388,7 +619,7 @@ remote_app = vertexai.agent_engines.create(
 You can also run queries against the deployed agent:
 
 ```python
-for event in remote_app.stream_query(
+async for event in remote_app.async_stream_query(
     user_id="user-id",
     message="What is the exchange rate from US dollars to SEK today?",
 ):

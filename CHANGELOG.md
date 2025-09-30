@@ -1,5 +1,96 @@
 # Changelog
 
+## [1.117.0](https://github.com/googleapis/python-aiplatform/compare/v1.116.0...v1.117.0) (2025-09-25)
+
+
+### Features
+
+* Expose user reservation for CustomModel ([f796e74](https://github.com/googleapis/python-aiplatform/commit/f796e747f0c2c106e6ab83d2b2af0169c882ff58))
+* Gen AI SDK client - add experimental restore_version method to Prompt Management ([820e0b6](https://github.com/googleapis/python-aiplatform/commit/820e0b68159e70c262fbfa823ae21a1172f58cee))
+
+
+### Documentation
+
+* Add generated docs for Gen AI Modules ([c3c2f7f](https://github.com/googleapis/python-aiplatform/commit/c3c2f7f4d7dddb2d2bc76557582f0958cd80c951))
+
+## [1.116.0](https://github.com/googleapis/python-aiplatform/compare/v1.115.0...v1.116.0) (2025-09-22)
+
+
+### Features
+
+* Add experimental async list_prompts and list_version methods to prompt management ([13a626b](https://github.com/googleapis/python-aiplatform/commit/13a626bb38f5e8f9ba5c0b7db41b41c46ecf4f58))
+* GenAI SDK client - add experimental async delete_prompt and delete_version method to Prompt Management ([45e616a](https://github.com/googleapis/python-aiplatform/commit/45e616a94f1b14646930cb9d598ac20776326038))
+* Update gapic utils to allows creating RAG clients with api_override ([9851905](https://github.com/googleapis/python-aiplatform/commit/98519056af7f3f95ac15c0b585b788a82ab548a7))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Add support for `context` in Grounding metric ([e75d91f](https://github.com/googleapis/python-aiplatform/commit/e75d91fc928358299ed4d6cd1a210a2448cbea4e))
+* Pass plugins to the Runner in ADK template. ([b43b7b4](https://github.com/googleapis/python-aiplatform/commit/b43b7b4f259cea295fe447fa0c751ff5c5a34c6a))
+
+
+### Documentation
+
+* Update AgentEngine with ADK template to the version in GA ([0d600fd](https://github.com/googleapis/python-aiplatform/commit/0d600fdf93a3e70e9a6b0d43913147b100f116ce))
+
+## [1.115.0](https://github.com/googleapis/python-aiplatform/compare/v1.114.0...v1.115.0) (2025-09-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* The `optimize_prompt` method no longer returns the parsed response directly. Code must be updated to access the `.raw_text_response` or `.parsed_response` attribute on the new return object.
+
+### Features
+
+* Add `has_template_config` to MultimodalDataset. ([97a6e71](https://github.com/googleapis/python-aiplatform/commit/97a6e719c410055fa82e5aebc88e3504e2a885a2))
+* GenAI SDK client - add experimental async create_version and get methods to prompt management ([d8de037](https://github.com/googleapis/python-aiplatform/commit/d8de03702ae77cabd4ea4edb5e8707426ea4f49f))
+* GenAI SDK client - Add experimental delete_prompt() and delete_version() methods to Prompt Management ([3f7f976](https://github.com/googleapis/python-aiplatform/commit/3f7f97633eb2994d75a99afcdc34ec58e820a98c))
+* GenAI SDK client - Modify optimize_prompt to return raw and parsed responses. ([415cf26](https://github.com/googleapis/python-aiplatform/commit/415cf26282283305afa9687ea055d59ad8784422))
+* GenAI SDK client -- add support for user defined labels for ReasoningEngine ([002b441](https://github.com/googleapis/python-aiplatform/commit/002b4416e41313a0148c5a69bee3459c14f1fb83))
+* Update list_deploy_options api for Vertex AI Model Garden custom model to support filtering by machines that user has quota for. ([540e9e0](https://github.com/googleapis/python-aiplatform/commit/540e9e02fc9c5ad937d8540b814d534bf7ff5315))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Improve LiteLLM model completion response parsing ([ff55a48](https://github.com/googleapis/python-aiplatform/commit/ff55a48c59f5c6a656df6aa167b09770c8878219))
+* Update definition of async_add_session_to_memory to not depend on Session ([dc9a5da](https://github.com/googleapis/python-aiplatform/commit/dc9a5da1505f5f75b7ffe06a68512aede6e2cad2))
+
+
+### Documentation
+
+* Add Agent Engine with ADK examples to README. ([c74305b](https://github.com/googleapis/python-aiplatform/commit/c74305bd1808cd08c41e4b8e87718c3e0e08209d))
+* Streamline installation section in README and add uv package installation command ([bf91a55](https://github.com/googleapis/python-aiplatform/commit/bf91a55e17d697aca40b0bde17ab1b4dbbfe9188))
+
+
+### Miscellaneous Chores
+
+* Release 1.115.0 ([bcf9ce0](https://github.com/googleapis/python-aiplatform/commit/bcf9ce008ce73d8245f52047a21bac7557c4a252))
+
+## [1.114.0](https://github.com/googleapis/python-aiplatform/compare/v1.113.0...v1.114.0) (2025-09-16)
+
+
+### Features
+
+* GenAI SDK client - Add experimental list_prompts() and list_versions() methods to Prompt Management ([18a5559](https://github.com/googleapis/python-aiplatform/commit/18a55590c5679b8ea7536c4c3c73566ba006bf36))
+
+
+### Bug Fixes
+
+* GenAI SDK client - Add agent_server_mode arg to AgentEngineConfig and pass it to API request if present. ([1f821fd](https://github.com/googleapis/python-aiplatform/commit/1f821fd5a79e3bad206ca1a725358890506e4383))
+
+## [1.113.0](https://github.com/googleapis/python-aiplatform/compare/v1.112.0...v1.113.0) (2025-09-12)
+
+
+### Features
+
+* GenAI - Added GPT, Qwen, and DeepSeek models support in GenAI batch prediction ([cdd73d2](https://github.com/googleapis/python-aiplatform/commit/cdd73d2a8428ab0c62619e631fe0efab6a32c972))
+* GenAI Client(evals) - Add support for Vertex Model Garden MaaS models. ([751cb18](https://github.com/googleapis/python-aiplatform/commit/751cb182245a16f075b66d7a3bdda082aa4bc83d))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Update data handling for adaptive rubric multi-turn evaluation metrics ([c511490](https://github.com/googleapis/python-aiplatform/commit/c51149083734fd773591d9ebcfb476e411613741))
+
 ## [1.112.0](https://github.com/googleapis/python-aiplatform/compare/v1.111.0...v1.112.0) (2025-09-09)
 
 

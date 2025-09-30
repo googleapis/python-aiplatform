@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    deployment_stage as gca_deployment_stage,
-)
+from google.cloud.aiplatform_v1.types import deployment_stage as gca_deployment_stage
 from google.cloud.aiplatform_v1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -152,26 +150,26 @@ class ListEndpointsRequest(proto.Message):
             request. For field names both snake_case and camelCase are
             supported.
 
-            -  ``endpoint`` supports ``=`` and ``!=``. ``endpoint``
-               represents the Endpoint ID, i.e. the last segment of the
-               Endpoint's [resource
-               name][google.cloud.aiplatform.v1.Endpoint.name].
-            -  ``display_name`` supports ``=`` and ``!=``.
-            -  ``labels`` supports general map functions that is:
+            - ``endpoint`` supports ``=`` and ``!=``. ``endpoint``
+              represents the Endpoint ID, i.e. the last segment of the
+              Endpoint's [resource
+              name][google.cloud.aiplatform.v1.Endpoint.name].
+            - ``display_name`` supports ``=`` and ``!=``.
+            - ``labels`` supports general map functions that is:
 
-               -  ``labels.key=value`` - key:value equality
-               -  ``labels.key:*`` or ``labels:key`` - key existence
-               -  A key including a space must be quoted.
-                  ``labels."a key"``.
+              - ``labels.key=value`` - key:value equality
+              - ``labels.key:*`` or ``labels:key`` - key existence
+              - A key including a space must be quoted.
+                ``labels."a key"``.
 
-            -  ``base_model_name`` only supports ``=``.
+            - ``base_model_name`` only supports ``=``.
 
             Some examples:
 
-            -  ``endpoint=1``
-            -  ``displayName="myDisplayName"``
-            -  ``labels.myKey="myValue"``
-            -  ``baseModelName="text-bison"``
+            - ``endpoint=1``
+            - ``displayName="myDisplayName"``
+            - ``labels.myKey="myValue"``
+            - ``baseModelName="text-bison"``
         page_size (int):
             Optional. The standard list page size.
         page_token (str):
@@ -189,9 +187,9 @@ class ListEndpointsRequest(proto.Message):
             ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``display_name``
-            -  ``create_time``
-            -  ``update_time``
+            - ``display_name``
+            - ``create_time``
+            - ``update_time``
 
             Example: ``display_name, create_time desc``.
     """
@@ -493,19 +491,19 @@ class MutateDeployedModelRequest(proto.Message):
             Required. The DeployedModel to be mutated within the
             Endpoint. Only the following fields can be mutated:
 
-            -  ``min_replica_count`` in either
-               [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
-               or
-               [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
-            -  ``max_replica_count`` in either
-               [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
-               or
-               [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
-            -  ``required_replica_count`` in
-               [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
-            -  [autoscaling_metric_specs][google.cloud.aiplatform.v1.DedicatedResources.autoscaling_metric_specs]
-            -  ``disable_container_logging`` (v1 only)
-            -  ``enable_container_logging`` (v1beta1 only)
+            - ``min_replica_count`` in either
+              [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
+              or
+              [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
+            - ``max_replica_count`` in either
+              [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
+              or
+              [AutomaticResources][google.cloud.aiplatform.v1.AutomaticResources]
+            - ``required_replica_count`` in
+              [DedicatedResources][google.cloud.aiplatform.v1.DedicatedResources]
+            - [autoscaling_metric_specs][google.cloud.aiplatform.v1.DedicatedResources.autoscaling_metric_specs]
+            - ``disable_container_logging`` (v1 only)
+            - ``enable_container_logging`` (v1beta1 only)
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. See
             [google.protobuf.FieldMask][google.protobuf.FieldMask].
