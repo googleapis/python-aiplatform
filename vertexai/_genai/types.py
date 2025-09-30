@@ -488,6 +488,61 @@ _CreateEvaluationRunParametersOrDict = Union[
 ]
 
 
+class SummaryMetric(_common.BaseModel):
+    """Represents a summary metric for an evaluation run."""
+
+    metrics: Optional[dict[str, Any]] = Field(
+        default=None, description="""Map of metric name to metric value."""
+    )
+    total_items: Optional[int] = Field(
+        default=None, description="""The total number of items that were evaluated."""
+    )
+    failed_items: Optional[int] = Field(
+        default=None, description="""The number of items that failed to be evaluated."""
+    )
+
+
+class SummaryMetricDict(TypedDict, total=False):
+    """Represents a summary metric for an evaluation run."""
+
+    metrics: Optional[dict[str, Any]]
+    """Map of metric name to metric value."""
+
+    total_items: Optional[int]
+    """The total number of items that were evaluated."""
+
+    failed_items: Optional[int]
+    """The number of items that failed to be evaluated."""
+
+
+SummaryMetricOrDict = Union[SummaryMetric, SummaryMetricDict]
+
+
+class EvaluationRunResults(_common.BaseModel):
+    """Represents the results of an evaluation run."""
+
+    evaluation_set: Optional[str] = Field(
+        default=None,
+        description="""The evaluation set where item level results are stored.""",
+    )
+    summary_metrics: Optional[SummaryMetric] = Field(
+        default=None, description="""The summary metrics for the evaluation run."""
+    )
+
+
+class EvaluationRunResultsDict(TypedDict, total=False):
+    """Represents the results of an evaluation run."""
+
+    evaluation_set: Optional[str]
+    """The evaluation set where item level results are stored."""
+
+    summary_metrics: Optional[SummaryMetricDict]
+    """The summary metrics for the evaluation run."""
+
+
+EvaluationRunResultsOrDict = Union[EvaluationRunResults, EvaluationRunResultsDict]
+
+
 class EvaluationRun(_common.BaseModel):
     """Represents an evaluation run."""
 
@@ -505,6 +560,9 @@ class EvaluationRun(_common.BaseModel):
     )
     data_source: Optional[EvaluationRunDataSource] = Field(
         default=None, description=""""""
+    )
+    evaluation_results: Optional[EvaluationRunResults] = Field(
+        default=None, description="""The results for the evaluation run."""
     )
 
 
@@ -537,6 +595,9 @@ class EvaluationRunDict(TypedDict, total=False):
 
     data_source: Optional[EvaluationRunDataSourceDict]
     """"""
+
+    evaluation_results: Optional[EvaluationRunResultsDict]
+    """The results for the evaluation run."""
 
 
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]

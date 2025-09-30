@@ -438,6 +438,26 @@ def _EvaluationRunDataSource_to_vertex(
     return to_object
 
 
+def _EvaluationRunResults_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["evaluationSet"]) is not None:
+        setv(to_object, ["evaluation_set"], getv(from_object, ["evaluationSet"]))
+
+    if getv(from_object, ["summaryMetrics"]) is not None:
+        setv(
+            to_object,
+            ["summary_metrics"],
+            _SummaryMetric_from_vertex(
+                getv(from_object, ["summaryMetrics"]), to_object
+            ),
+        )
+
+    return to_object
+
+
 def _EvaluationRun_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -477,6 +497,15 @@ def _EvaluationRun_from_vertex(
             ["data_source"],
             _EvaluationRunDataSource_from_vertex(
                 getv(from_object, ["dataSource"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["evaluationResults"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_results"],
+            _EvaluationRunResults_from_vertex(
+                getv(from_object, ["evaluationResults"]), to_object
             ),
         )
 
@@ -886,6 +915,23 @@ def _SamplingConfig_to_vertex(
 
     if getv(from_object, ["sampling_duration"]) is not None:
         setv(to_object, ["samplingDuration"], getv(from_object, ["sampling_duration"]))
+
+    return to_object
+
+
+def _SummaryMetric_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metrics"]) is not None:
+        setv(to_object, ["metrics"], getv(from_object, ["metrics"]))
+
+    if getv(from_object, ["totalItems"]) is not None:
+        setv(to_object, ["total_items"], getv(from_object, ["totalItems"]))
+
+    if getv(from_object, ["failedItems"]) is not None:
+        setv(to_object, ["failed_items"], getv(from_object, ["failedItems"]))
 
     return to_object
 
