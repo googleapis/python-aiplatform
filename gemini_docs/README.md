@@ -191,13 +191,8 @@ await client.aio.prompt_optimizer.optimize(method="vapo", config=vapo_config)
 
 #### Prompt Management
 
-The Prompt Management module uses some types from the Gen AI SDK. First, import those types:
-
-```python
-from google.genai import types as genai_types
-```
-
-To create and store a Prompt, first define a types.Prompt object and then run `create` to save it in Vertex.
+First define your prompt as a dictionary or `types.Prompt` object. Then call
+`create()`.
 
 ```python
 prompt = {
@@ -216,15 +211,38 @@ prompt_resource = client.prompts.create(
 )
 ```
 
-To retrieve a prompt, provide the `prompt_id`:
+Note that you can also use the `types.Prompt` object to define your prompt. Some
+of the types used to do this are from the [Gen AI SDK](https://github.com/googleapis/python-genai).
+
+```python
+import types
+from google.genai import types as genai_types
+
+prompt = types.Prompt(
+    prompt_data=types.PromptData(
+        contents=[genai_types.Content(parts=[genai_types.Part(text="Hello, {name}! How are you?")])],
+        system_instruction=genai_types.Content(parts=[genai_types.Part(text="Please answer in a short sentence.")]),
+        variables=[
+            {"name": genai_types.Part(text="Alice")},
+        ],
+        model="gemini-2.5-flash",
+    ),
+)
+```
+
+Retrieve a prompt by calling `get()` with the `prompt_id`.
 
 ```python
 retrieved_prompt = client.prompts.get(prompt_id=prompt_resource.prompt_id)
 ```
 
-After creating or retrieving a prompt, you can call `generate_content()` with that prompt using the Gen AI SDK.
+After creating or retrieving a prompt, you can call `generate_content()` with
+that prompt using the Gen AI SDK.
 
-The following uses a utility function available on Prompt objects to transform a Prompt object into a list of Part objects for use with `generate_content`. To run this you need to have the Gen AI SDK installed, which you can do via `pip install google-genai`.
+The following uses a utility function available on Prompt objects to transform a
+Prompt object into a list of Content objects for use with `generate_content`. To
+run this you need to have the Gen AI SDK installed, which you can do via
+`pip install google-genai`.
 
 ```python
 from google import genai

@@ -15,7 +15,7 @@ Vertex AI SDK
     .. autoattribute:: evals
     .. autoattribute:: agent_engines
     .. autoattribute:: prompt_optimizer
-    .. autoattribute:: prompt_management
+    .. autoattribute:: prompts
 
 .. automodule:: vertexai._genai.evals
     :members:
@@ -32,7 +32,7 @@ Vertex AI SDK
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: vertexai._genai.prompt_management
+.. automodule:: vertexai._genai.prompts
     :members:
     :undoc-members:
     :show-inheritance:
@@ -43,21 +43,6 @@ Vertex AI SDK
     :inherited-members:
 
 .. automodule:: vertexai.preview.generative_models
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-.. automodule:: vertexai.preview.prompts
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-.. automodule:: vertexai.prompts._prompts
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-.. automodule:: vertexai.prompts._prompt_management
     :members:
     :show-inheritance:
     :inherited-members:
