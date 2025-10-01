@@ -16,6 +16,7 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai import types
+from vertexai._genai import _evals_visualization
 import datetime
 import pytest
 
@@ -188,6 +189,38 @@ def check_run_1957799200510967808(
         )
     )
     assert evaluation_run.error is None
+    eval_result = _evals_visualization._get_eval_result_from_eval_run(
+        evaluation_run.evaluation_results
+    )
+    assert isinstance(eval_result, types.EvaluationResult)
+    assert eval_result.summary_metrics == [
+        types.AggregatedMetricResult(
+            metric_name="checkpoint_1/universal",
+            mean_score=0.986633250587865,
+            stdev_score=0.0393092386127714,
+        ),
+        types.AggregatedMetricResult(
+            metric_name="checkpoint_2/universal",
+            mean_score=0.9438178790243048,
+            stdev_score=0.07597187617837561,
+        ),
+        types.AggregatedMetricResult(
+            metric_name="gemini-2.0-flash-001@default/universal",
+            mean_score=0.6943817985685249,
+            stdev_score=0.17738341388587855,
+        ),
+        types.AggregatedMetricResult(
+            metric_name="checkpoint_1/user_defined", mean_score=5, stdev_score=0
+        ),
+        types.AggregatedMetricResult(
+            metric_name="checkpoint_2/user_defined", mean_score=5, stdev_score=0
+        ),
+        types.AggregatedMetricResult(
+            metric_name="gemini-2.0-flash-001@default/user_defined",
+            mean_score=4.736842105263158,
+            stdev_score=0.6359497880839245,
+        ),
+    ]
 
 
 pytestmark = pytest_helper.setup(
