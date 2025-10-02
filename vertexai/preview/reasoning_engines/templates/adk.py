@@ -536,15 +536,19 @@ class AdkApp:
         elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ and is_version_sufficient(
             "1.5.0"
         ):
-            from google.adk.memory.vertex_ai_memory_bank_service import (
-                VertexAiMemoryBankService,
-            )
+            try:
+                from google.adk.memory.vertex_ai_memory_bank_service import (
+                    VertexAiMemoryBankService,
+                )
 
-            self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
-                project=project,
-                location=location,
-                agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
-            )
+                self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
+                    project=project,
+                    location=location,
+                    agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                )
+            except ImportError:
+                # TODO(ysian): Handle this via _g3 import for google3.
+                pass
         else:
             self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
 
