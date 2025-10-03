@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.119.0](https://github.com/googleapis/python-aiplatform/compare/v1.118.0...v1.119.0) (2025-10-03)
+
+
+### Features
+
+* GenAI Client(evals) - Add EvaluationResults to `get_evaluation_run` method response in Vertex AI GenAI SDK evals ([f07ecc3](https://github.com/googleapis/python-aiplatform/commit/f07ecc39086d756b4d61f2f091e02ddef6f2698a))
+* GenAI SDK client (prompt management): Release Prompts module to GA ([3394028](https://github.com/googleapis/python-aiplatform/commit/33940289ee5219125c94a7aba738dad7e53f5886))
+
 ## [1.118.0](https://github.com/googleapis/python-aiplatform/compare/v1.117.0...v1.118.0) (2025-09-30)
 
 
