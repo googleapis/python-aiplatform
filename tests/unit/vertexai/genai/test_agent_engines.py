@@ -17,7 +17,6 @@ import importlib
 import json
 import logging
 import os
-import pytest
 import sys
 import tempfile
 from typing import Any, AsyncIterable, Dict, Iterable, List
@@ -29,11 +28,12 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer
-from vertexai._genai import agent_engines
 from vertexai._genai import _agent_engines_utils
+from vertexai._genai import agent_engines
 from vertexai._genai import types as _genai_types
 from google.genai import client as genai_client
 from google.genai import types as genai_types
+import pytest
 
 
 _TEST_AGENT_FRAMEWORK = "test-agent-framework"
@@ -1240,12 +1240,12 @@ class TestAgentEngine:
                     "displayName": _TEST_AGENT_ENGINE_DISPLAY_NAME,
                     "description": _TEST_AGENT_ENGINE_DESCRIPTION,
                     "spec": {
-                        "agentFramework": _TEST_AGENT_ENGINE_FRAMEWORK,
-                        "classMethods": mock.ANY,  # dict ordering was too flakey
-                        "deploymentSpec": _TEST_AGENT_ENGINE_SPEC.get(
+                        "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+                        "class_methods": mock.ANY,  # dict ordering was too flakey
+                        "deployment_spec": _TEST_AGENT_ENGINE_SPEC.get(
                             "deployment_spec"
                         ),
-                        "packageSpec": _TEST_AGENT_ENGINE_SPEC.get("package_spec"),
+                        "package_spec": _TEST_AGENT_ENGINE_SPEC.get("package_spec"),
                     },
                 },
                 None,
@@ -1362,9 +1362,9 @@ class TestAgentEngine:
                     "displayName": _TEST_AGENT_ENGINE_DISPLAY_NAME,
                     "description": _TEST_AGENT_ENGINE_DESCRIPTION,
                     "spec": {
-                        "agentFramework": _TEST_AGENT_ENGINE_FRAMEWORK,
-                        "classMethods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
-                        "packageSpec": {
+                        "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+                        "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
+                        "package_spec": {
                             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
                             "python_version": _TEST_PYTHON_VERSION,
                             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
@@ -1443,14 +1443,14 @@ class TestAgentEngine:
                     "displayName": _TEST_AGENT_ENGINE_DISPLAY_NAME,
                     "description": _TEST_AGENT_ENGINE_DESCRIPTION,
                     "spec": {
-                        "agentFramework": _TEST_AGENT_ENGINE_FRAMEWORK,
-                        "classMethods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
-                        "packageSpec": {
+                        "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+                        "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
+                        "package_spec": {
                             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
                             "python_version": _TEST_PYTHON_VERSION,
                             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
                         },
-                        "serviceAccount": _TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
+                        "service_account": _TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
                     },
                 },
                 None,
@@ -1526,11 +1526,11 @@ class TestAgentEngine:
                     "displayName": _TEST_AGENT_ENGINE_DISPLAY_NAME,
                     "description": _TEST_AGENT_ENGINE_DESCRIPTION,
                     "spec": {
-                        "classMethods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
-                        "deploymentSpec": {
+                        "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
+                        "deployment_spec": {
                             "agent_server_mode": _genai_types.AgentServerMode.EXPERIMENTAL,
                         },
-                        "packageSpec": {
+                        "package_spec": {
                             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
                             "python_version": _TEST_PYTHON_VERSION,
                             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
@@ -1580,9 +1580,9 @@ class TestAgentEngine:
                 {
                     "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
                     "spec": {
-                        "agentFramework": _TEST_AGENT_ENGINE_FRAMEWORK,
-                        "classMethods": mock.ANY,
-                        "packageSpec": {
+                        "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+                        "class_methods": mock.ANY,
+                        "package_spec": {
                             "python_version": _TEST_PYTHON_VERSION,
                             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
                             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
@@ -1638,9 +1638,9 @@ class TestAgentEngine:
                 {
                     "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
                     "spec": {
-                        "agentFramework": _TEST_AGENT_ENGINE_FRAMEWORK,
-                        "classMethods": mock.ANY,
-                        "packageSpec": {
+                        "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+                        "class_methods": mock.ANY,
+                        "package_spec": {
                             "python_version": _TEST_PYTHON_VERSION,
                             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
                             "dependency_files_gcs_uri": _TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
@@ -1693,14 +1693,14 @@ class TestAgentEngine:
                 {
                     "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
                     "spec": {
-                        "agentFramework": _TEST_AGENT_ENGINE_FRAMEWORK,
-                        "classMethods": mock.ANY,
-                        "packageSpec": {
+                        "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+                        "class_methods": mock.ANY,
+                        "package_spec": {
                             "python_version": _TEST_PYTHON_VERSION,
                             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
                             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
                         },
-                        "deploymentSpec": _TEST_AGENT_ENGINE_SPEC.get(
+                        "deployment_spec": _TEST_AGENT_ENGINE_SPEC.get(
                             "deployment_spec"
                         ),
                     },

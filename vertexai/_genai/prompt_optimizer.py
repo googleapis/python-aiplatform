@@ -53,152 +53,6 @@ def _CustomJobParameters_to_vertex(
     return to_object
 
 
-def _CustomJobSpec_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["baseOutputDirectory"]) is not None:
-        setv(
-            to_object,
-            ["base_output_directory"],
-            getv(from_object, ["baseOutputDirectory"]),
-        )
-
-    if getv(from_object, ["enableDashboardAccess"]) is not None:
-        setv(
-            to_object,
-            ["enable_dashboard_access"],
-            getv(from_object, ["enableDashboardAccess"]),
-        )
-
-    if getv(from_object, ["enableWebAccess"]) is not None:
-        setv(to_object, ["enable_web_access"], getv(from_object, ["enableWebAccess"]))
-
-    if getv(from_object, ["experiment"]) is not None:
-        setv(to_object, ["experiment"], getv(from_object, ["experiment"]))
-
-    if getv(from_object, ["experimentRun"]) is not None:
-        setv(to_object, ["experiment_run"], getv(from_object, ["experimentRun"]))
-
-    if getv(from_object, ["models"]) is not None:
-        setv(to_object, ["models"], getv(from_object, ["models"]))
-
-    if getv(from_object, ["network"]) is not None:
-        setv(to_object, ["network"], getv(from_object, ["network"]))
-
-    if getv(from_object, ["persistentResourceId"]) is not None:
-        setv(
-            to_object,
-            ["persistent_resource_id"],
-            getv(from_object, ["persistentResourceId"]),
-        )
-
-    if getv(from_object, ["protectedArtifactLocationId"]) is not None:
-        setv(
-            to_object,
-            ["protected_artifact_location_id"],
-            getv(from_object, ["protectedArtifactLocationId"]),
-        )
-
-    if getv(from_object, ["pscInterfaceConfig"]) is not None:
-        setv(
-            to_object,
-            ["psc_interface_config"],
-            getv(from_object, ["pscInterfaceConfig"]),
-        )
-
-    if getv(from_object, ["reservedIpRanges"]) is not None:
-        setv(to_object, ["reserved_ip_ranges"], getv(from_object, ["reservedIpRanges"]))
-
-    if getv(from_object, ["scheduling"]) is not None:
-        setv(to_object, ["scheduling"], getv(from_object, ["scheduling"]))
-
-    if getv(from_object, ["serviceAccount"]) is not None:
-        setv(to_object, ["service_account"], getv(from_object, ["serviceAccount"]))
-
-    if getv(from_object, ["tensorboard"]) is not None:
-        setv(to_object, ["tensorboard"], getv(from_object, ["tensorboard"]))
-
-    if getv(from_object, ["workerPoolSpecs"]) is not None:
-        setv(to_object, ["worker_pool_specs"], getv(from_object, ["workerPoolSpecs"]))
-
-    return to_object
-
-
-def _CustomJobSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["base_output_directory"]) is not None:
-        setv(
-            to_object,
-            ["baseOutputDirectory"],
-            getv(from_object, ["base_output_directory"]),
-        )
-
-    if getv(from_object, ["enable_dashboard_access"]) is not None:
-        setv(
-            to_object,
-            ["enableDashboardAccess"],
-            getv(from_object, ["enable_dashboard_access"]),
-        )
-
-    if getv(from_object, ["enable_web_access"]) is not None:
-        setv(to_object, ["enableWebAccess"], getv(from_object, ["enable_web_access"]))
-
-    if getv(from_object, ["experiment"]) is not None:
-        setv(to_object, ["experiment"], getv(from_object, ["experiment"]))
-
-    if getv(from_object, ["experiment_run"]) is not None:
-        setv(to_object, ["experimentRun"], getv(from_object, ["experiment_run"]))
-
-    if getv(from_object, ["models"]) is not None:
-        setv(to_object, ["models"], getv(from_object, ["models"]))
-
-    if getv(from_object, ["network"]) is not None:
-        setv(to_object, ["network"], getv(from_object, ["network"]))
-
-    if getv(from_object, ["persistent_resource_id"]) is not None:
-        setv(
-            to_object,
-            ["persistentResourceId"],
-            getv(from_object, ["persistent_resource_id"]),
-        )
-
-    if getv(from_object, ["protected_artifact_location_id"]) is not None:
-        setv(
-            to_object,
-            ["protectedArtifactLocationId"],
-            getv(from_object, ["protected_artifact_location_id"]),
-        )
-
-    if getv(from_object, ["psc_interface_config"]) is not None:
-        setv(
-            to_object,
-            ["pscInterfaceConfig"],
-            getv(from_object, ["psc_interface_config"]),
-        )
-
-    if getv(from_object, ["reserved_ip_ranges"]) is not None:
-        setv(to_object, ["reservedIpRanges"], getv(from_object, ["reserved_ip_ranges"]))
-
-    if getv(from_object, ["scheduling"]) is not None:
-        setv(to_object, ["scheduling"], getv(from_object, ["scheduling"]))
-
-    if getv(from_object, ["service_account"]) is not None:
-        setv(to_object, ["serviceAccount"], getv(from_object, ["service_account"]))
-
-    if getv(from_object, ["tensorboard"]) is not None:
-        setv(to_object, ["tensorboard"], getv(from_object, ["tensorboard"]))
-
-    if getv(from_object, ["worker_pool_specs"]) is not None:
-        setv(to_object, ["workerPoolSpecs"], getv(from_object, ["worker_pool_specs"]))
-
-    return to_object
-
-
 def _CustomJob_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -208,11 +62,7 @@ def _CustomJob_from_vertex(
         setv(to_object, ["display_name"], getv(parent_object, ["displayName"]))
 
     if getv(parent_object, ["jobSpec"]) is not None:
-        setv(
-            to_object,
-            ["job_spec"],
-            _CustomJobSpec_from_vertex(getv(parent_object, ["jobSpec"]), to_object),
-        )
+        setv(to_object, ["job_spec"], getv(parent_object, ["jobSpec"]))
 
     if getv(parent_object, ["encryptionSpec"]) is not None:
         setv(to_object, ["encryption_spec"], getv(parent_object, ["encryptionSpec"]))
@@ -262,11 +112,7 @@ def _CustomJob_to_vertex(
         setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
 
     if getv(from_object, ["job_spec"]) is not None:
-        setv(
-            parent_object,
-            ["jobSpec"],
-            _CustomJobSpec_to_vertex(getv(from_object, ["job_spec"]), to_object),
-        )
+        setv(parent_object, ["jobSpec"], getv(from_object, ["job_spec"]))
 
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
@@ -335,17 +181,6 @@ def _OptimizeRequestParameters_to_vertex(
     return to_object
 
 
-def _OptimizeResponseEndpoint_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["content"]) is not None:
-        setv(to_object, ["content"], getv(from_object, ["content"]))
-
-    return to_object
-
-
 class PromptOptimizer(_api_module.BaseModule):
     """Prompt Optimizer"""
 
@@ -393,10 +228,7 @@ class PromptOptimizer(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _OptimizeResponseEndpoint_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.OptimizeResponseEndpoint._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -449,7 +281,7 @@ class PromptOptimizer(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
             response_dict = _CustomJob_from_vertex(response_dict)
@@ -502,7 +334,7 @@ class PromptOptimizer(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
             response_dict = _CustomJob_from_vertex(response_dict)
@@ -714,9 +546,6 @@ class PromptOptimizer(_api_module.BaseModule):
         return_value = []
 
         for response_dict in response_list:
-            if self._api_client.vertexai:
-                response_dict = _OptimizeResponseEndpoint_from_vertex(response_dict)
-
             response_value = types.OptimizeResponseEndpoint._from_response(
                 response=response_dict, kwargs=parameter_model.model_dump()
             )
@@ -788,10 +617,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _OptimizeResponseEndpoint_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.OptimizeResponseEndpoint._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -846,7 +672,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
             response_dict = _CustomJob_from_vertex(response_dict)
@@ -901,7 +727,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         if self._api_client.vertexai:
             response_dict = _CustomJob_from_vertex(response_dict)
@@ -1061,9 +887,6 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         return_value = []
 
         for response_dict in response_list:
-            if self._api_client.vertexai:
-                response_dict = _OptimizeResponseEndpoint_from_vertex(response_dict)
-
             response_value = types.OptimizeResponseEndpoint._from_response(
                 response=response_dict, kwargs=parameter_model.model_dump()
             )

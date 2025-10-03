@@ -65,6 +65,19 @@ def _camel_to_snake(camel_case_string: str) -> str:
     return snake_case_string.lower()
 
 
+def _camel_key_to_snake(message: Any):
+    """Converts all camelCase keys to snake_case in a dict or list."""
+    if isinstance(message, dict):
+        return {
+            _camel_to_snake(key): _camel_key_to_snake(value)
+            for key, value in message.items()
+        }
+    elif isinstance(message, list):
+        return [_camel_key_to_snake(value) for value in message]
+    else:
+        return message
+
+
 if typing.TYPE_CHECKING:
     import pandas as pd
 
@@ -8627,8 +8640,8 @@ class Dataset(_common.BaseModel):
         description="""Output only. Timestamp when this Dataset was last updated.""",
     )
 
-    model_config = ConfigDict(alias_generator=_camel_to_snake, populate_by_name=True)
-
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
     @classmethod
     def _from_response(
         cls: typing.Type["Dataset"],
@@ -8638,12 +8651,8 @@ class Dataset(_common.BaseModel):
     ) -> "Dataset":
         """Converts a dictionary response into a Dataset object."""
 
-        # Some nested Dataset fields don't have converters, so we need to ensure camelCase fields from the API are converted to snake_case before calling _from_response.
-        # Instantiating a Dataset before calling _from_response ensures the model_config converting camel to snake is used
-        validated_dataset = Dataset.model_validate(response)
-        result = super()._from_response(
-            response=validated_dataset.model_dump(), kwargs=kwargs
-        )
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
         return result
 
 
@@ -8769,6 +8778,21 @@ class DatasetVersion(_common.BaseModel):
         default=None,
         description="""Output only. Timestamp when this DatasetVersion was last updated.""",
     )
+
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["DatasetVersion"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "DatasetVersion":
+        """Converts a dictionary response into a DatasetVersion object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
 
 
 class DatasetVersionDict(TypedDict, total=False):
@@ -8922,6 +8946,21 @@ class ListDatasetsResponse(_common.BaseModel):
       """,
     )
 
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["ListDatasetsResponse"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "ListDatasetsResponse":
+        """Converts a dictionary response into a ListDatasetsResponse object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
+
 
 class ListDatasetsResponseDict(TypedDict, total=False):
     """Response for listing prompt datasets."""
@@ -8978,6 +9017,21 @@ class ListDatasetVersionsResponse(_common.BaseModel):
         description="""List of datasets for the project.
       """,
     )
+
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["ListDatasetVersionsResponse"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "ListDatasetVersionsResponse":
+        """Converts a dictionary response into a ListDatasetVersionsResponse object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
 
 
 class ListDatasetVersionsResponseDict(TypedDict, total=False):

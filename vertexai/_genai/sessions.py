@@ -37,33 +37,6 @@ logger = logging.getLogger("vertexai_genai.sessions")
 logger.setLevel(logging.INFO)
 
 
-def _AgentEngineSessionOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _Session_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
 def _CreateAgentEngineSessionConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -104,26 +77,6 @@ def _CreateAgentEngineSessionRequestParameters_to_vertex(
                 getv(from_object, ["config"]), to_object
             ),
         )
-
-    return to_object
-
-
-def _DeleteAgentEngineSessionOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
 
     return to_object
 
@@ -206,62 +159,6 @@ def _ListAgentEngineSessionsRequestParameters_to_vertex(
                 getv(from_object, ["config"]), to_object
             ),
         )
-
-    return to_object
-
-
-def _ListReasoningEnginesSessionsResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["sessions"]) is not None:
-        setv(
-            to_object,
-            ["sessions"],
-            [
-                _Session_from_vertex(item, to_object)
-                for item in getv(from_object, ["sessions"])
-            ],
-        )
-
-    return to_object
-
-
-def _Session_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["expireTime"]) is not None:
-        setv(to_object, ["expire_time"], getv(from_object, ["expireTime"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["sessionState"]) is not None:
-        setv(to_object, ["session_state"], getv(from_object, ["sessionState"]))
-
-    if getv(from_object, ["ttl"]) is not None:
-        setv(to_object, ["ttl"], getv(from_object, ["ttl"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    if getv(from_object, ["userId"]) is not None:
-        setv(to_object, ["user_id"], getv(from_object, ["userId"]))
 
     return to_object
 
@@ -376,10 +273,7 @@ class Sessions(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -444,12 +338,7 @@ class Sessions(_api_module.BaseModule):
 
         response = self._api_client.request("delete", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeleteAgentEngineSessionOperation_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -514,10 +403,7 @@ class Sessions(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _Session_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Session._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -582,12 +468,7 @@ class Sessions(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListReasoningEnginesSessionsResponse_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListReasoningEnginesSessionsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -638,10 +519,7 @@ class Sessions(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -706,10 +584,7 @@ class Sessions(_api_module.BaseModule):
 
         response = self._api_client.request("patch", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -874,10 +749,7 @@ class AsyncSessions(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -944,12 +816,7 @@ class AsyncSessions(_api_module.BaseModule):
             "delete", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeleteAgentEngineSessionOperation_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1016,10 +883,7 @@ class AsyncSessions(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _Session_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Session._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1086,12 +950,7 @@ class AsyncSessions(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListReasoningEnginesSessionsResponse_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListReasoningEnginesSessionsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1144,10 +1003,7 @@ class AsyncSessions(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1214,10 +1070,7 @@ class AsyncSessions(_api_module.BaseModule):
             "patch", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineSessionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
