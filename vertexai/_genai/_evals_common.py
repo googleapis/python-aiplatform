@@ -1009,3 +1009,100 @@ def _convert_gcs_to_evaluation_item_request(
             "Failed to load evaluation request from GCS: %s. Error: %s", gcs_uri, e
         )
     return types.EvaluationItemRequest()
+
+
+def _get_aggregated_metrics(
+    results: types.EvaluationRunResults,
+) -> list[types.AggregatedMetricResult]:
+    """Retrieves an EvaluationResult from the resource name."""
+    if (
+        not results
+        or not results.summary_metrics
+        or not results.summary_metrics.metrics
+    ):
+        return []
+
+    aggregated_metrics_dict = {}
+    for name, value in results.summary_metrics.metrics.items():
+        result = name.rsplit("/", 1)
+        full_metric_name = result[0]
+        aggregated_metric_name = result[1]
+        if full_metric_name not in aggregated_metrics_dict:
+            aggregated_metrics_dict[full_metric_name] = {}
+            aggregated_metrics_dict[full_metric_name]["sub_metric_name"] = (
+                full_metric_name.split("/")[-1]
+            )
+        aggregated_metrics_dict[full_metric_name][aggregated_metric_name] = value
+
+    items_sorted = sorted(
+        aggregated_metrics_dict.items(),
+        key=lambda item: (item[1]["sub_metric_name"], item[0]),
+    )
+
+    return [
+        types.AggregatedMetricResult(
+            metric_name=name,
+            mean_score=values.get("AVERAGE"),
+            stdev_score=values.get("STANDARD_DEVIATION"),
+        )
+        for name, values in items_sorted
+    ]
+
+
+def _get_eval_case_results(
+    api_client: BaseApiClient,
+    results: types.EvaluationRunResults,
+) -> list[types.EvalCaseResult]:
+    """Retrieves an EvaluationResult from the resource name."""
+    evals_module = evals.Evals(api_client_=api_client)
+    if not results or not results.evaluation_set:
+        return []
+    # Get evaluation set
+    eval_set = evals_module.get_evaluation_set(name=results.evaluation_set)
+    if not eval_set:
+        return []
+    # Get evaluation items
+    eval_item_names = eval_set.evaluation_items
+    if not eval_item_names:
+        return []
+    # Get evaluation item and transform to eval case results
+    eval_case_results = []
+    for eval_item_name in eval_item_names:
+        eval_item = evals_module.get_evaluation_item(name=eval_item_name)
+        if eval_item and eval_item.evaluation_response:
+            # Transform EvaluationItem to EvalCaseResult
+            response_candidate_results = []
+            for candidate_result in eval_item.evaluation_response.candidate_results:
+                response_candidate_results.append(
+                    types.ResponseCandidateResult(
+                        metric_results={
+                            candidate_result.candidate: types.EvalCaseMetricResult(
+                                metric_name=candidate_result.metric,
+                                score=candidate_result.score,
+                                explanation=candidate_result.explanation,
+                                rubric_verdicts=candidate_result.rubric_verdicts,
+                                error_message=(
+                                    eval_item.error.message if eval_item.error else None
+                                ),
+                            ),
+                        },
+                    )
+                )
+            eval_case_results.append(
+                types.EvalCaseResult(
+                    response_candidate_results=response_candidate_results
+                )
+            )
+    return eval_case_results
+
+
+def _get_eval_result_from_eval_run(
+    api_client: BaseApiClient,
+    results: types.EvaluationRunResults,
+) -> types.EvaluationResult:
+    """Retrieves an EvaluationResult from the resource name."""
+    aggregated_metrics = _get_aggregated_metrics(results)
+    eval_case_results = _get_eval_case_results(api_client, results)
+    return types.EvaluationResult(
+        summary_metrics=aggregated_metrics, eval_case_results=eval_case_results
+    )

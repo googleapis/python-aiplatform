@@ -189,9 +189,7 @@ def check_run_1957799200510967808(
         )
     )
     assert evaluation_run.error is None
-    eval_result = _evals_visualization._get_eval_result_from_eval_run(
-        evaluation_run.evaluation_results
-    )
+    eval_result = evaluation_run.evaluation_result
     assert isinstance(eval_result, types.EvaluationResult)
     assert eval_result.summary_metrics == [
         types.AggregatedMetricResult(
@@ -221,6 +219,38 @@ def check_run_1957799200510967808(
             stdev_score=0.6359497880839245,
         ),
     ]
+    # Check the first eval case result.
+    eval_case_result = eval_result.eval_case_results[0]
+    assert isinstance(eval_case_result, types.EvalCaseResult)
+    # Check the response candidate results.
+    assert len(eval_case_result.response_candidate_results) == 3
+    response_candidate_result = eval_case_result.response_candidate_results[0]
+    assert isinstance(response_candidate_result, types.ResponseCandidateResult)
+    universal_metric_result = response_candidate_result.metric_results[
+        "gemini-2.0-flash-001@default"
+    ]
+    assert isinstance(universal_metric_result, types.EvalCaseMetricResult)
+    assert universal_metric_result.metric_name == "universal"
+    assert universal_metric_result.score == 0.5714286
+    assert universal_metric_result.explanation is None
+    # Check the first rubric verdict.
+    rubric_verdict_0 = universal_metric_result.rubric_verdicts[0]
+    assert rubric_verdict_0 == (
+        types.RubricVerdict(
+            evaluated_rubric=types.Rubric(
+                content=types.RubricContent(
+                    property=types.RubricContentProperty(
+                        description="The response is in English."
+                    )
+                ),
+                importance="HIGH",
+                type="LANGUAGE:PRIMARY_RESPONSE_LANGUAGE",
+            ),
+            reasoning=("The entire response is written in the English language."),
+            verdict=True,
+        )
+    )
+    assert universal_metric_result.error_message is None
 
 
 pytestmark = pytest_helper.setup(
