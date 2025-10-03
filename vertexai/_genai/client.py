@@ -110,10 +110,6 @@ class AsyncClient:
         return self._agent_engines.AsyncAgentEngines(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI async prompts module is experimental, "
-        "and may change in future versions."
-    )
     def prompts(self):
         if self._prompts is None:
             self._prompts = importlib.import_module(
@@ -211,10 +207,6 @@ class Client:
         return self._prompt_optimizer.PromptOptimizer(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI async client is experimental, "
-        "and may change in future versions."
-    )
     def aio(self):
         return self._aio
 
@@ -264,10 +256,6 @@ class Client:
         return self._agent_engines.AgentEngines(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI prompts module is experimental, "
-        "and may change in future versions."
-    )
     def prompts(self):
         if self._prompts is None:
             # Lazy loading the prompts module
