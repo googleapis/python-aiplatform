@@ -578,6 +578,20 @@ class EvaluationRun(_common.BaseModel):
         default=None, description="""The results for the evaluation run."""
     )
 
+    def show(self) -> None:
+        """Shows the evaluation result."""
+        from . import _evals_visualization
+
+        if self.state == "SUCCEEDED":
+            eval_result = _evals_visualization._get_eval_result_from_eval_run(
+                self.evaluation_results
+            )
+            _evals_visualization.display_evaluation_result(eval_result, None)
+        else:
+            logger.warning(f"Evaluation Run state: {self.state}.")
+            if self.error:
+                logger.warning(f"Evaluation Run error: {self.error.message}")
+
 
 class EvaluationRunDict(TypedDict, total=False):
     """Represents an evaluation run."""
