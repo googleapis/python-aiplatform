@@ -1063,6 +1063,8 @@ class CustomModel:
         reservation_affinity_values: Optional[List[str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
+        enable_private_service_connect: bool = False,
+        psc_project_allow_list: Optional[List[str]] = None,
         deploy_request_timeout: Optional[float] = None,
     ) -> aiplatform.Endpoint:
         """Deploys a Custom Model to an endpoint.
@@ -1105,6 +1107,10 @@ class CustomModel:
                   'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
+            enable_private_service_connect (bool): Whether to enable private service
+              connect.
+            psc_project_allow_list (List[str]): The list of projects that are allowed to
+              access the endpoint over private service connect.
             deploy_request_timeout: The timeout for the deploy request. Default is 2
               hours.
 
@@ -1123,6 +1129,8 @@ class CustomModel:
             reservation_affinity_values=reservation_affinity_values,
             endpoint_display_name=endpoint_display_name,
             model_display_name=model_display_name,
+            enable_private_service_connect=enable_private_service_connect,
+            psc_project_allow_list=psc_project_allow_list,
             deploy_request_timeout=deploy_request_timeout,
         )
 
@@ -1139,6 +1147,8 @@ class CustomModel:
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        enable_private_service_connect: bool = False,
+        psc_project_allow_list: Optional[List[str]] = None,
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
@@ -1188,6 +1198,10 @@ class CustomModel:
                   'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
+            enable_private_service_connect (bool): Whether to enable private service
+              connect.
+            psc_project_allow_list (List[str]): The list of projects that are allowed to
+              access the endpoint over private service connect.
             deploy_request_timeout: The timeout for the deploy request. Default is 2
               hours.
 
@@ -1216,6 +1230,14 @@ class CustomModel:
             request.endpoint_config.endpoint_display_name = endpoint_display_name
         if model_display_name:
             request.model_config.model_display_name = model_display_name
+
+        if enable_private_service_connect and psc_project_allow_list:
+            request.endpoint_config.private_service_connect_config = (
+                types.PrivateServiceConnectConfig(
+                    enable_private_service_connect=enable_private_service_connect,
+                    project_allowlist=psc_project_allow_list,
+                )
+            )
 
         if machine_type and accelerator_type and accelerator_count:
             request.deploy_config.dedicated_resources = types.DedicatedResources(
