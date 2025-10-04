@@ -609,6 +609,7 @@ class Evals(_api_module.BaseModule):
         ],
         metrics: list[types.MetricOrDict] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
+        **kwargs,
     ) -> types.EvaluationResult:
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
@@ -618,6 +619,7 @@ class Evals(_api_module.BaseModule):
           config: Optional configuration for the evaluation. Can be a dictionary or a `types.EvaluateMethodConfig` object.
             - dataset_schema: Schema to use for the dataset. If not specified, the dataset schema will be inferred from the dataset automatically.
             - dest: Destination path for storing evaluation results.
+          **kwargs: Extra arguments to pass to evaluation, such as `agent_metadata`.
 
         Returns:
           The evaluation result.
@@ -647,6 +649,7 @@ class Evals(_api_module.BaseModule):
             metrics=metrics,
             dataset_schema=config.dataset_schema,
             dest=config.dest,
+            **kwargs,
         )
 
     def batch_evaluate(

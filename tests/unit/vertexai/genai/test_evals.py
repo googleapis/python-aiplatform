@@ -166,6 +166,24 @@ class TestEvals:
         )
         mock_evaluate.assert_called_once()
 
+    @pytest.mark.usefixtures("google_auth_mock")
+    @mock.patch.object(_evals_common, "_execute_evaluation")
+    def test_eval_evaluate_with_agent_metadata(self, mock_execute_evaluation):
+        """Tests that agent_metadata is passed to _execute_evaluation."""
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+        )
+        agent_metadata = {"agent1": {"name": "agent1", "instruction": "instruction1"}}
+        self.client.evals.evaluate(
+            dataset=dataset,
+            metrics=[vertexai_genai_types.Metric(name="exact_match")],
+            agent_metadata=agent_metadata,
+        )
+        mock_execute_evaluation.assert_called_once()
+        _, kwargs = mock_execute_evaluation.call_args
+        assert "agent_metadata" in kwargs
+        assert kwargs["agent_metadata"] == agent_metadata
+
 
 class TestEvalsRunInference:
     """Unit tests for the Evals run_inference method."""
@@ -1885,6 +1903,62 @@ class TestFlattenEvalDataConverter:
         eval_case = result_dataset.eval_cases[0]
         assert eval_case.custom_column == "custom_value"
 
+    def test_convert_with_agent_eval_fields(self):
+        """Tests that agent eval data is converted correctly from a flattened format."""
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": ["Hi"],
+                "agent_metadata": [
+                    {
+                        "agent1": {
+                            "name": "agent1",
+                            "instruction": "instruction1",
+                            "tool_declarations": [
+                                {
+                                    "function_declarations": [
+                                        {
+                                            "name": "search_tool",
+                                            "description": "A tool to search for information.",
+                                            "parameters": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "query": {"type": "string"}
+                                                },
+                                            },
+                                        }
+                                    ]
+                                }
+                            ],
+                        }
+                    }
+                ],
+                "intermediate_events": [
+                    [
+                        {
+                            "event_id": "event1",
+                            "content": {
+                                "parts": [{"text": "intermediate event"}]
+                            },
+                        }
+                    ]
+                ],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        assert len(result_dataset.eval_cases) == 1
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.agent_metadata["agent1"].name == "agent1"
+        assert (
+            eval_case.agent_metadata["agent1"]
+            .tool_declarations[0]
+            .function_declarations[0]
+            .name
+            == "search_tool"
+        )
+        assert eval_case.intermediate_events[0].event_id == "event1"
+
 
 class TestOpenAIDataConverter:
     """Unit tests for the _OpenAIDataConverter class."""
@@ -3499,6 +3573,36 @@ class TestEvalsRunEvaluation:
         mock_eval_dependencies["mock_evaluate_instances"].assert_called_once()
         call_args = mock_eval_dependencies["mock_evaluate_instances"].call_args
         assert "exact_match_input" in call_args[1]["metric_config"]
+
+    def test_execute_evaluation_with_agent_metadata(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "Test prompt",
+                    "response": "Test response",
+                    "reference": "Test reference",
+                }
+            ]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        computation_metric = vertexai_genai_types.Metric(name="exact_match")
+        agent_metadata = {"agent1": {"name": "agent1", "instruction": "instruction1"}}
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[computation_metric],
+            agent_metadata=agent_metadata,
+        )
+
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.eval_case_results) == 1
+        assert result.agent_metadata["agent1"].name == "agent1"
+        assert result.agent_metadata["agent1"].instruction == "instruction1"
 
     def test_execute_evaluation_translation_metric(
         self, mock_api_client_fixture, mock_eval_dependencies
