@@ -4728,7 +4728,8 @@ def test_create_cached_content_rest_call_success(request_type):
                     "exclude_domains": [
                         "exclude_domains_value1",
                         "exclude_domains_value2",
-                    ]
+                    ],
+                    "blocking_confidence": 30,
                 },
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
@@ -4738,7 +4739,8 @@ def test_create_cached_content_rest_call_success(request_type):
                     "exclude_domains": [
                         "exclude_domains_value1",
                         "exclude_domains_value2",
-                    ]
+                    ],
+                    "blocking_confidence": 30,
                 },
                 "code_execution": {},
                 "url_context": {},
@@ -5244,7 +5246,8 @@ def test_update_cached_content_rest_call_success(request_type):
                     "exclude_domains": [
                         "exclude_domains_value1",
                         "exclude_domains_value2",
-                    ]
+                    ],
+                    "blocking_confidence": 30,
                 },
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
@@ -5254,7 +5257,8 @@ def test_update_cached_content_rest_call_success(request_type):
                     "exclude_domains": [
                         "exclude_domains_value1",
                         "exclude_domains_value2",
-                    ]
+                    ],
+                    "blocking_confidence": 30,
                 },
                 "code_execution": {},
                 "url_context": {},
@@ -6622,7 +6626,8 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     "exclude_domains": [
                         "exclude_domains_value1",
                         "exclude_domains_value2",
-                    ]
+                    ],
+                    "blocking_confidence": 30,
                 },
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
@@ -6632,7 +6637,8 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     "exclude_domains": [
                         "exclude_domains_value1",
                         "exclude_domains_value2",
-                    ]
+                    ],
+                    "blocking_confidence": 30,
                 },
                 "code_execution": {},
                 "url_context": {},
@@ -7174,7 +7180,8 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     "exclude_domains": [
                         "exclude_domains_value1",
                         "exclude_domains_value2",
-                    ]
+                    ],
+                    "blocking_confidence": 30,
                 },
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
@@ -7184,7 +7191,8 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     "exclude_domains": [
                         "exclude_domains_value1",
                         "exclude_domains_value2",
-                    ]
+                    ],
+                    "blocking_confidence": 30,
                 },
                 "code_execution": {},
                 "url_context": {},

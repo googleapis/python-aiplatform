@@ -107,20 +107,72 @@ class Tool(proto.Message):
             specific Function Declarations.
     """
 
+    class PhishBlockThreshold(proto.Enum):
+        r"""These are available confidence level user can set to block
+        malicious urls with chosen confidence and above. For
+        understanding different confidence of webrisk, please refer to
+        https://cloud.google.com/web-risk/docs/reference/rpc/google.cloud.webrisk.v1eap1#confidencelevel
+
+        Values:
+            PHISH_BLOCK_THRESHOLD_UNSPECIFIED (0):
+                Defaults to unspecified.
+            BLOCK_LOW_AND_ABOVE (30):
+                Blocks Low and above confidence URL that is
+                risky.
+            BLOCK_MEDIUM_AND_ABOVE (40):
+                Blocks Medium and above confidence URL that
+                is risky.
+            BLOCK_HIGH_AND_ABOVE (50):
+                Blocks High and above confidence URL that is
+                risky.
+            BLOCK_HIGHER_AND_ABOVE (55):
+                Blocks Higher and above confidence URL that
+                is risky.
+            BLOCK_VERY_HIGH_AND_ABOVE (60):
+                Blocks Very high and above confidence URL
+                that is risky.
+            BLOCK_ONLY_EXTREMELY_HIGH (100):
+                Blocks Extremely high confidence URL that is
+                risky.
+        """
+
+        PHISH_BLOCK_THRESHOLD_UNSPECIFIED = 0
+        BLOCK_LOW_AND_ABOVE = 30
+        BLOCK_MEDIUM_AND_ABOVE = 40
+        BLOCK_HIGH_AND_ABOVE = 50
+        BLOCK_HIGHER_AND_ABOVE = 55
+        BLOCK_VERY_HIGH_AND_ABOVE = 60
+        BLOCK_ONLY_EXTREMELY_HIGH = 100
+
     class GoogleSearch(proto.Message):
         r"""GoogleSearch tool type.
         Tool to support Google Search in Model. Powered by Google.
+
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
             exclude_domains (MutableSequence[str]):
                 Optional. List of domains to be excluded from the search
                 results. The default limit is 2000 domains. Example:
                 ["amazon.com", "facebook.com"].
+            blocking_confidence (google.cloud.aiplatform_v1beta1.types.Tool.PhishBlockThreshold):
+                Optional. Sites with confidence level chosen
+                & above this value will be blocked from the
+                search results.
+
+                This field is a member of `oneof`_ ``_blocking_confidence``.
         """
 
         exclude_domains: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=3,
+        )
+        blocking_confidence: "Tool.PhishBlockThreshold" = proto.Field(
+            proto.ENUM,
+            number=4,
+            optional=True,
+            enum="Tool.PhishBlockThreshold",
         )
 
     class CodeExecution(proto.Message):
@@ -816,16 +868,31 @@ class EnterpriseWebSearch(proto.Message):
     r"""Tool to search public web data, powered by Vertex AI Search
     and Sec4 compliance.
 
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         exclude_domains (MutableSequence[str]):
             Optional. List of domains to be excluded from
             the search results. The default limit is 2000
             domains.
+        blocking_confidence (google.cloud.aiplatform_v1beta1.types.Tool.PhishBlockThreshold):
+            Optional. Sites with confidence level chosen
+            & above this value will be blocked from the
+            search results.
+
+            This field is a member of `oneof`_ ``_blocking_confidence``.
     """
 
     exclude_domains: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
+    )
+    blocking_confidence: "Tool.PhishBlockThreshold" = proto.Field(
+        proto.ENUM,
+        number=4,
+        optional=True,
+        enum="Tool.PhishBlockThreshold",
     )
 
 

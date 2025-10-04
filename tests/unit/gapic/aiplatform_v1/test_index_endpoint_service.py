@@ -6502,6 +6502,7 @@ def test_create_index_endpoint_rest_call_success(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
+                "deployment_tier": 2,
                 "psc_automation_configs": [
                     {
                         "project_id": "project_id_value",
@@ -7087,6 +7088,7 @@ def test_update_index_endpoint_rest_call_success(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
+                "deployment_tier": 2,
                 "psc_automation_configs": [
                     {
                         "project_id": "project_id_value",
@@ -7780,6 +7782,7 @@ def test_mutate_deployed_index_rest_call_success(request_type):
             "reserved_ip_ranges_value2",
         ],
         "deployment_group": "deployment_group_value",
+        "deployment_tier": 2,
         "psc_automation_configs": [
             {
                 "project_id": "project_id_value",
@@ -8889,6 +8892,7 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
+                "deployment_tier": 2,
                 "psc_automation_configs": [
                     {
                         "project_id": "project_id_value",
@@ -9523,6 +9527,7 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
+                "deployment_tier": 2,
                 "psc_automation_configs": [
                     {
                         "project_id": "project_id_value",
@@ -10282,6 +10287,7 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
             "reserved_ip_ranges_value2",
         ],
         "deployment_group": "deployment_group_value",
+        "deployment_tier": 2,
         "psc_automation_configs": [
             {
                 "project_id": "project_id_value",
