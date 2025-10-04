@@ -39,7 +39,7 @@ def train(
     epochs: Optional[int] = None,
     learning_rate: Optional[float] = None,
     learning_rate_multiplier: Optional[float] = None,
-    adapter_size: Optional[Literal[1, 4, 8, 16, 32]] = None,
+    adapter_size: Optional[Literal[1, 2, 4, 8, 16, 32]] = None,
     labels: Optional[Dict[str, str]] = None,
     output_uri: Optional[str] = None,
 ) -> "SupervisedTuningJob":
@@ -91,6 +91,10 @@ def train(
         adapter_size_value = (
             gca_tuning_job_types.SupervisedHyperParameters.AdapterSize.ADAPTER_SIZE_ONE
         )
+    elif adapter_size == 2:
+        adapter_size_value = (
+            gca_tuning_job_types.SupervisedHyperParameters.AdapterSize.ADAPTER_SIZE_TWO
+        )
     elif adapter_size == 4:
         adapter_size_value = (
             gca_tuning_job_types.SupervisedHyperParameters.AdapterSize.ADAPTER_SIZE_FOUR
@@ -109,7 +113,7 @@ def train(
         )
     else:
         raise ValueError(
-            f"Unsupported adapter size: {adapter_size}. The supported sizes are [1, 4, 8, 16, 32]"
+            f"Unsupported adapter size: {adapter_size}. The supported sizes are [1, 2, 4, 8, 16, 32]"
         )
     if isinstance(train_dataset, datasets.MultimodalDataset):
         train_dataset = train_dataset.resource_name
