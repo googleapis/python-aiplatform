@@ -26,7 +26,7 @@ from vertexai.generative_models import GenerativeModel
 from vertexai.preview import batch_prediction
 
 
-_GEMINI_MODEL_NAME = "gemini-1.0-pro"
+_GEMINI_MODEL_NAME = "gemini-2.5-pro"
 _GEMINI_MODEL_RESOURCE_NAME = f"publishers/google/models/{_GEMINI_MODEL_NAME}"
 _GCS_INPUT_URI = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/gemini_batch_prediction_input.jsonl"
 _BQ_INPUT_URI = (
