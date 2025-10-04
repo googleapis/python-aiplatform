@@ -9926,8 +9926,8 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
 
 
-class AgentMetadata(_common.BaseModel):
-    """AgentMetadata for agent eval."""
+class AgentInfo(_common.BaseModel):
+    """The agent info of an agent, used for agent eval."""
 
     name: Optional[str] = Field(
         default=None, description="""Agent name, used as an identifier."""
@@ -9946,8 +9946,8 @@ class AgentMetadata(_common.BaseModel):
     )
 
 
-class AgentMetadataDict(TypedDict, total=False):
-    """AgentMetadata for agent eval."""
+class AgentInfoDict(TypedDict, total=False):
+    """The agent info of an agent, used for agent eval."""
 
     name: Optional[str]
     """Agent name, used as an identifier."""
@@ -9965,7 +9965,7 @@ class AgentMetadataDict(TypedDict, total=False):
     """List of sub-agent names."""
 
 
-AgentMetadataOrDict = Union[AgentMetadata, AgentMetadataDict]
+AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
 
 
 class ContentMapContents(_common.BaseModel):
@@ -10197,11 +10197,11 @@ class EvalCase(_common.BaseModel):
     )
     intermediate_events: Optional[list[Event]] = Field(
         default=None,
-        description="""Intermediate events of a single turn in agent eval or intermediate events of the last turn for multi-turn agent eval.""",
+        description="""This field is experimental and may change in future versions. Intermediate events of a single turn in agent eval or intermediate events of the last turn for multi-turn agent eval.""",
     )
-    agent_metadata: Optional[dict[str, AgentMetadata]] = Field(
+    agent_info: Optional[dict[str, AgentInfo]] = Field(
         default=None,
-        description="""Agent metadata for agent eval, keyed by agent name. This can be extended for multi-agent evaluation.""",
+        description="""This field is experimental and may change in future versions. The agent info of all agents in the evaluation case, keyed by agent name. This can be extended for multi-agent evaluation.""",
     )
     # Allow extra fields to support custom metric prompts and stay backward compatible.
     model_config = ConfigDict(frozen=True, extra="allow")
@@ -10232,10 +10232,10 @@ class EvalCaseDict(TypedDict, total=False):
     """Unique identifier for the evaluation case."""
 
     intermediate_events: Optional[list[EventDict]]
-    """Intermediate events of a single turn in agent eval or intermediate events of the last turn for multi-turn agent eval."""
+    """This field is experimental and may change in future versions. Intermediate events of a single turn in agent eval or intermediate events of the last turn for multi-turn agent eval."""
 
-    agent_metadata: Optional[dict[str, AgentMetadataDict]]
-    """Agent metadata for agent eval, keyed by agent name. This can be extended for multi-agent evaluation."""
+    agent_info: Optional[dict[str, AgentInfoDict]]
+    """This field is experimental and may change in future versions. The agent info of all agents in the evaluation case, keyed by agent name. This can be extended for multi-agent evaluation."""
 
 
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
@@ -10602,6 +10602,28 @@ class EvaluationResultDict(TypedDict, total=False):
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
+
+
+class SessionInput(_common.BaseModel):
+    """This field is experimental and may change in future versions. Input to initialize a session and run an agent, used for agent eval."""
+
+    user_id: Optional[str] = Field(default=None, description="""The user id.""")
+    state: Optional[dict[str, Any]] = Field(
+        default=None, description="""The state of the session."""
+    )
+
+
+class SessionInputDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions. Input to initialize a session and run an agent, used for agent eval."""
+
+    user_id: Optional[str]
+    """The user id."""
+
+    state: Optional[dict[str, Any]]
+    """The state of the session."""
+
+
+SessionInputOrDict = Union[SessionInput, SessionInputDict]
 
 
 class WinRateStats(_common.BaseModel):
