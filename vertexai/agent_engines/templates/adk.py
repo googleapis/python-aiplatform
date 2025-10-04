@@ -537,15 +537,20 @@ class AdkApp:
         if session_service_builder:
             self._tmpl_attrs["session_service"] = session_service_builder()
         elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
-            from google.adk.sessions.vertex_ai_session_service import (
-                VertexAiSessionService,
-            )
+            try:
+                from google.adk.sessions.vertex_ai_session_service import (
+                    VertexAiSessionService,
+                )
 
-            self._tmpl_attrs["session_service"] = VertexAiSessionService(
-                project=project,
-                location=location,
-                agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
-            )
+                self._tmpl_attrs["session_service"] = VertexAiSessionService(
+                    project=project,
+                    location=location,
+                    agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                )
+            except ImportError:
+                # TODO(ysian): Handle this via _g3 import for google3.
+                pass
+
         else:
             self._tmpl_attrs["session_service"] = InMemorySessionService()
 
