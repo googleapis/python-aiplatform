@@ -19,14 +19,19 @@ from vertexai._genai import types
 from google.genai import types as genai_types
 
 
-def test_generate_memories(client):
+def test_generate_and_rollback_memories(client):
+    client._api_client._http_options.base_url = (
+        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
+    )
     agent_engine = client.agent_engines.create()
     assert not list(
-        client.agent_engines.list_memories(
+        client.agent_engines.memories.list(
             name=agent_engine.api_resource.name,
         )
     )
-    client.agent_engines.generate_memories(
+    # Generate memories using source content. This result is non-deterministic,
+    # because an LLM is used to generate the memories.
+    client.agent_engines.memories.generate(
         name=agent_engine.api_resource.name,
         scope={"user_id": "test-user-id"},
         direct_contents_source=types.GenerateMemoriesRequestDirectContentsSource(
@@ -43,23 +48,72 @@ def test_generate_memories(client):
                 )
             ]
         ),
+        config=types.GenerateAgentEngineMemoriesConfig(
+            revision_labels={"key": "value"}
+        ),
     )
-    assert (
-        len(
-            list(
-                client.agent_engines.list_memories(
-                    name=agent_engine.api_resource.name,
-                )
-            )
+    memories = list(
+        client.agent_engines.memories.list(
+            name=agent_engine.api_resource.name,
         )
-        >= 1
     )
+    assert len(memories) >= 1
+
+    # Every action that modifies a memory creates a new revision.
+    memory_revisions = list(
+        client.agent_engines.memories.revisions.list(
+            name=memories[0].name,
+        )
+    )
+    assert len(memory_revisions) >= 1
+    # The revision's labels depend on the generation request's revision labels.
+    assert memory_revisions[0].labels == {"key": "value"}
+    revision_name = memory_revisions[0].name
+
+    # Update the memory.
+    client.agent_engines.memories._update(
+        name=memories[0].name,
+        fact="This is temporary",
+        scope={"user_id": "test-user-id"},
+    )
+    memory = client.agent_engines.memories.get(name=memories[0].name)
+    assert memory.fact == "This is temporary"
+
+    # Rollback to the revision with the original fact that was created by the
+    # generation request.
+    client.agent_engines.memories.rollback(
+        name=memories[0].name,
+        target_revision_id=revision_name.split("/")[-1],
+    )
+    memory = client.agent_engines.memories.get(name=memories[0].name)
+    assert memory.fact == memory_revisions[0].fact
+
+    # Update the memory again using generation. We use the original source
+    # content to ensure that the original memory is updated. The response should
+    # refer to the previous revision.
+    response = client.agent_engines.memories.generate(
+        name=agent_engine.api_resource.name,
+        scope={"user_id": "test-user-id"},
+        direct_contents_source=types.GenerateMemoriesRequestDirectContentsSource(
+            events=[
+                types.GenerateMemoriesRequestDirectContentsSourceEvent(
+                    content=genai_types.Content(
+                        role="model",
+                        parts=[genai_types.Part(text=memory_revisions[0].fact)],
+                    )
+                )
+            ]
+        ),
+    )
+    # The memory was updated, so the previous revision is set.
+    assert response.response.generated_memories[0].previous_revision is not None
+
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 def test_generate_memories_direct_memories_source(client):
     agent_engine = client.agent_engines.create()
-    client.agent_engines.generate_memories(
+    client.agent_engines.memories.generate(
         name=agent_engine.api_resource.name,
         scope={"user_id": "test-user-id"},
         direct_memories_source=types.GenerateMemoriesRequestDirectMemoriesSource(
@@ -77,7 +131,7 @@ def test_generate_memories_direct_memories_source(client):
     assert (
         len(
             list(
-                client.agent_engines.list_memories(
+                client.agent_engines.memories.list(
                     name=agent_engine.api_resource.name,
                 )
             )
