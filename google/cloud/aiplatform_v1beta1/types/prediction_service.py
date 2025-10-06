@@ -89,6 +89,10 @@ class PredictRequest(proto.Message):
             ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
             [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
+        labels (MutableMapping[str, str]):
+            Optional. The user labels for Imagen billing
+            usage only. Only Imagen supports labels. For
+            other use cases, it will be ignored.
     """
 
     endpoint: str = proto.Field(
@@ -104,6 +108,11 @@ class PredictRequest(proto.Message):
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=4,
     )
 
 
