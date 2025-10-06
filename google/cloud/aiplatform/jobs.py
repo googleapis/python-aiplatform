@@ -319,7 +319,7 @@ class _Job(base.VertexAiStatefulResource):
         getattr(self.api_client, self._cancel_method)(name=self.resource_name)
 
 
-class BatchPredictionJob(_Job):
+class BatchPredictionJob(_Job, base.PreviewMixin):
 
     _resource_noun = "batchPredictionJobs"
     _getter_method = "get_batch_prediction_job"
@@ -329,6 +329,9 @@ class BatchPredictionJob(_Job):
     _job_type = "batch-predictions"
     _parse_resource_name_method = "parse_batch_prediction_job_path"
     _format_resource_name_method = "batch_prediction_job_path"
+    _preview_class = (
+        "google.cloud.aiplatform.aiplatform.preview.jobs.BatchPredictionJob"
+    )
 
     def __init__(
         self,
@@ -949,6 +952,9 @@ class BatchPredictionJob(_Job):
         ] = None,
         analysis_instance_schema_uri: Optional[str] = None,
         service_account: Optional[str] = None,
+        reservation_affinity_type: Optional[str] = None,
+        reservation_affinity_key: Optional[str] = None,
+        reservation_affinity_values: Optional[Sequence[str]] = None,
         wait_for_completion: bool = False,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
@@ -1136,6 +1142,18 @@ class BatchPredictionJob(_Job):
             service_account (str):
                 Optional. Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+            reservation_affinity_type (str):
+                Optional. The type of reservation affinity.
+                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
+                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str):
+                Optional. Corresponds to the label key of a reservation resource.
+                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
+                and specify the name of your reservation as its value.
+            reservation_affinity_values (List[str]):
+                Optional. Corresponds to the label values of a reservation resource.
+                This must be the full resource name of the reservation.
+                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             wait_for_completion (bool):
                 Whether to wait for the job completion.
         Returns:
@@ -1267,6 +1285,13 @@ class BatchPredictionJob(_Job):
             machine_spec.machine_type = machine_type
             machine_spec.accelerator_type = accelerator_type
             machine_spec.accelerator_count = accelerator_count
+
+            if reservation_affinity_type:
+                machine_spec.reservation_affinity = utils.get_reservation_affinity(
+                    reservation_affinity_type,
+                    reservation_affinity_key,
+                    reservation_affinity_values,
+                )
 
             dedicated_resources = gca_machine_resources_compat.BatchDedicatedResources()
 
