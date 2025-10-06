@@ -131,29 +131,39 @@ def _get_replay_id(use_vertex: bool, replays_prefix: str) -> str:
 EVAL_CONFIG_GCS_URI = (
     "gs://vertex-ai-generative-ai-eval-sdk-resources/metrics/text_quality/v1.0.0.yaml"
 )
+EVAL_ITEM_REQUEST_GCS_URI = (
+    "gs://lakeyk-limited-bucket/agora_eval_080525/request_4813679498589372416.json"
+)
+EVAL_ITEM_RESULT_GCS_URI = (
+    "gs://lakeyk-limited-bucket/agora_eval_080525/result_1486082323915997184.json"
+)
+EVAL_GCS_URI_ITEMS = {
+    EVAL_CONFIG_GCS_URI: "test_resources/mock_eval_config.yaml",
+    EVAL_ITEM_REQUEST_GCS_URI: "test_resources/request_4813679498589372416.json",
+    EVAL_ITEM_RESULT_GCS_URI: "test_resources/result_1486082323915997184.json",
+}
 
 
 def _mock_read_file_contents_side_effect(uri: str):
     """
     Side effect to mock GcsUtils.read_file_contents for eval test test_batch_evaluate.
     """
-    if uri == EVAL_CONFIG_GCS_URI:
+    if uri in EVAL_GCS_URI_ITEMS:
         # Construct the absolute path to the local mock file.
         current_dir = os.path.dirname(__file__)
-        local_yaml_path = os.path.join(
-            current_dir, "test_resources/mock_eval_config.yaml"
-        )
+        local_mock_file_path = os.path.join(current_dir, EVAL_GCS_URI_ITEMS[uri])
         try:
-            with open(local_yaml_path, "r") as f:
+            with open(local_mock_file_path, "r") as f:
                 return f.read()
         except FileNotFoundError:
             raise FileNotFoundError(
-                "The mock data file 'mock_eval_config.yaml' was not found."
+                f"The mock data file '{EVAL_GCS_URI_ITEMS[uri]}' was not found."
             )
 
     raise ValueError(
         f"Unexpected GCS URI '{uri}' in replay test. Only "
-        f"'{EVAL_CONFIG_GCS_URI}' is mocked."
+        f"'{EVAL_CONFIG_GCS_URI}', '{EVAL_ITEM_REQUEST_GCS_URI}', and "
+        f"'{EVAL_ITEM_RESULT_GCS_URI}' are mocked."
     )
 
 
