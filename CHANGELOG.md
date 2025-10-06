@@ -1,5 +1,63 @@
 # Changelog
 
+## [1.119.0](https://github.com/googleapis/python-aiplatform/compare/v1.118.0...v1.119.0) (2025-10-03)
+
+
+### Features
+
+* GenAI Client(evals) - Add EvaluationResults to `get_evaluation_run` method response in Vertex AI GenAI SDK evals ([f07ecc3](https://github.com/googleapis/python-aiplatform/commit/f07ecc39086d756b4d61f2f091e02ddef6f2698a))
+* GenAI SDK client (prompt management): Release Prompts module to GA ([3394028](https://github.com/googleapis/python-aiplatform/commit/33940289ee5219125c94a7aba738dad7e53f5886))
+
+## [1.118.0](https://github.com/googleapis/python-aiplatform/compare/v1.117.0...v1.118.0) (2025-09-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* GenAI SDK client (prompt management) - Split create into two methods, create() and create_version()
+* GenAI SDK client (prompt management) - Split get into two methods, get() and get_version()
+* GenAI SDK client (prompt management) - Rename list methods to list() and list_versions()
+* GenAI SDK client (prompt management) - Rename delete methods to delete() and delete_version()
+* GenAI SDK client (prompt management) - Rename prompt_management module to prompts
+
+### Features
+
+* Add enable_widget option in Google Maps and additional grounding information ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Add filter option for deploy configuration in Model Garden deploy SDK ([ac33e87](https://github.com/googleapis/python-aiplatform/commit/ac33e8790601b6da499ffef8afaaa12ea29fc280))
+* Add Model Garden deploy SDK select verified config guide. ([36a5bbc](https://github.com/googleapis/python-aiplatform/commit/36a5bbc4af268d371bcfe20d307a2ee9a635a3e5))
+* Add private_model_server_enabled to in Endpoint.proto ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Add Validation mode in FunctionCallingConfig ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Add Validation mode in FunctionCallingConfig ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* GenAI Client(evals) - Add `create_evaluation_run` method to Vertex AI GenAI SDK evals ([7db9b4f](https://github.com/googleapis/python-aiplatform/commit/7db9b4f6f8440bbf87c0b23991a460b423d28641))
+* GenAI Client(evals) - Add `get_evaluation_run` method to Vertex AI GenAI SDK evals ([bbbadbc](https://github.com/googleapis/python-aiplatform/commit/bbbadbc8c896fbdabd0032f7683bab5fc5553f2e))
+* GenAI SDK client (prompt management) - Rename delete methods to delete() and delete_version() ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client (prompt management) - Rename list methods to list() and list_versions() ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client (prompt management) - Rename prompt_management module to prompts ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client (prompt management) - Split create into two methods, create() and create_version() ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client (prompt management) - Split get into two methods, get() and get_version() ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client(evals) Add data model for agent evaluation ([d3ef487](https://github.com/googleapis/python-aiplatform/commit/d3ef4872c0fb2e98567c58346eea8d5c0fa83bfb))
+* PSC support for custom weights deploy ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Tuning PreTunedModel API field ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+
+
+### Bug Fixes
+
+* Mitigate breaking change in GenAI SDK for ADK on AgentEngine ([9fa50aa](https://github.com/googleapis/python-aiplatform/commit/9fa50aa4895efd3e71e1ce347ab062e418983942))
+* Relax the type annotations to avoid issues with pydantic when deploying ([7a6a2f5](https://github.com/googleapis/python-aiplatform/commit/7a6a2f588b4d2a48f46a9d572fcdb82b1a6de954))
+* Remove the upperbound on google-genai for AgentEngine ([74726f3](https://github.com/googleapis/python-aiplatform/commit/74726f3b2600bf8a78f60b6bb386f51c89dddc40))
+
+
+### Documentation
+
+* A comment for field `dedicated_endpoint_disabled` in message `.google.cloud.aiplatform.v1beta1.DeployRequest` is changed ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Remove legacy internal lint directives ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Update the comment for ANY mode in FunctionCallingConfig. ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Update the comment for ANY mode in FunctionCallingConfig. ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+
+
+### Miscellaneous Chores
+
+* Release 1.118.0 ([a67a795](https://github.com/googleapis/python-aiplatform/commit/a67a795974294111d6ff19dd70948055ccb8ae33))
+
 ## [1.117.0](https://github.com/googleapis/python-aiplatform/compare/v1.116.0...v1.117.0) (2025-09-25)
 
 

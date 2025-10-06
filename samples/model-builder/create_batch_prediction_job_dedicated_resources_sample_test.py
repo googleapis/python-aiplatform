@@ -36,7 +36,6 @@ def test_create_batch_prediction_job_sample(
         accelerator_count=constants.ACCELERATOR_COUNT,
         accelerator_type=constants.ACCELERATOR_TYPE,
         starting_replica_count=constants.MIN_REPLICA_COUNT,
-        max_replica_count=constants.MAX_REPLICA_COUNT,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -52,6 +51,5 @@ def test_create_batch_prediction_job_sample(
         accelerator_count=constants.ACCELERATOR_COUNT,
         accelerator_type=constants.ACCELERATOR_TYPE,
         starting_replica_count=constants.MIN_REPLICA_COUNT,
-        max_replica_count=constants.MAX_REPLICA_COUNT,
         sync=True,
     )

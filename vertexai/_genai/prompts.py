@@ -57,13 +57,7 @@ def _CreateDatasetParameters_to_vertex(
         )
 
     if getv(from_object, ["metadata"]) is not None:
-        setv(
-            to_object,
-            ["metadata"],
-            _SchemaTextPromptDatasetMetadata_to_vertex(
-                getv(from_object, ["metadata"]), to_object
-            ),
-        )
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
 
     if getv(from_object, ["description"]) is not None:
         setv(to_object, ["description"], getv(from_object, ["description"]))
@@ -89,13 +83,7 @@ def _CreateDatasetVersionParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["dataset_name"]))
 
     if getv(from_object, ["metadata"]) is not None:
-        setv(
-            to_object,
-            ["metadata"],
-            _SchemaTextPromptDatasetMetadata_to_vertex(
-                getv(from_object, ["metadata"]), to_object
-            ),
-        )
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
 
     if getv(from_object, ["model_reference"]) is not None:
         setv(to_object, ["modelReference"], getv(from_object, ["model_reference"]))
@@ -109,141 +97,6 @@ def _CreateDatasetVersionParameters_to_vertex(
     return to_object
 
 
-def _DatasetOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(to_object, ["response"], getv(from_object, ["response"]))
-
-    return to_object
-
-
-def _DatasetVersion_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metadata"]) is not None:
-        setv(
-            to_object,
-            ["metadata"],
-            _SchemaTextPromptDatasetMetadata_from_vertex(
-                getv(from_object, ["metadata"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["bigQueryDatasetName"]) is not None:
-        setv(
-            to_object,
-            ["big_query_dataset_name"],
-            getv(from_object, ["bigQueryDatasetName"]),
-        )
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["etag"]) is not None:
-        setv(to_object, ["etag"], getv(from_object, ["etag"]))
-
-    if getv(from_object, ["modelReference"]) is not None:
-        setv(to_object, ["model_reference"], getv(from_object, ["modelReference"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["satisfiesPzi"]) is not None:
-        setv(to_object, ["satisfies_pzi"], getv(from_object, ["satisfiesPzi"]))
-
-    if getv(from_object, ["satisfiesPzs"]) is not None:
-        setv(to_object, ["satisfies_pzs"], getv(from_object, ["satisfiesPzs"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
-def _Dataset_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metadata"]) is not None:
-        setv(
-            to_object,
-            ["metadata"],
-            _SchemaTextPromptDatasetMetadata_from_vertex(
-                getv(from_object, ["metadata"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["dataItemCount"]) is not None:
-        setv(to_object, ["data_item_count"], getv(from_object, ["dataItemCount"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["etag"]) is not None:
-        setv(to_object, ["etag"], getv(from_object, ["etag"]))
-
-    if getv(from_object, ["labels"]) is not None:
-        setv(to_object, ["labels"], getv(from_object, ["labels"]))
-
-    if getv(from_object, ["metadataArtifact"]) is not None:
-        setv(to_object, ["metadata_artifact"], getv(from_object, ["metadataArtifact"]))
-
-    if getv(from_object, ["metadataSchemaUri"]) is not None:
-        setv(
-            to_object, ["metadata_schema_uri"], getv(from_object, ["metadataSchemaUri"])
-        )
-
-    if getv(from_object, ["modelReference"]) is not None:
-        setv(to_object, ["model_reference"], getv(from_object, ["modelReference"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["satisfiesPzi"]) is not None:
-        setv(to_object, ["satisfies_pzi"], getv(from_object, ["satisfiesPzi"]))
-
-    if getv(from_object, ["satisfiesPzs"]) is not None:
-        setv(to_object, ["satisfies_pzs"], getv(from_object, ["satisfiesPzs"]))
-
-    if getv(from_object, ["savedQueries"]) is not None:
-        setv(to_object, ["saved_queries"], getv(from_object, ["savedQueries"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
 def _DeleteDatasetRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -253,63 +106,7 @@ def _DeleteDatasetRequestParameters_to_vertex(
         setv(to_object, ["_url", "dataset_id"], getv(from_object, ["prompt_id"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _DeletePromptConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
-
-    return to_object
-
-
-def _DeletePromptConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["timeout"]) is not None:
-        setv(to_object, ["timeout"], getv(from_object, ["timeout"]))
-
-    return to_object
-
-
-def _DeletePromptOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    return to_object
-
-
-def _DeletePromptVersionOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -326,11 +123,7 @@ def _DeletePromptVersionRequestParameters_to_vertex(
         setv(to_object, ["_url", "version_id"], getv(from_object, ["version_id"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _DeletePromptConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -408,30 +201,6 @@ def _ListDatasetVersionsRequestParameters_to_vertex(
     return to_object
 
 
-def _ListDatasetVersionsResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["datasetVersions"]) is not None:
-        setv(
-            to_object,
-            ["dataset_versions"],
-            [
-                _DatasetVersion_from_vertex(item, to_object)
-                for item in getv(from_object, ["datasetVersions"])
-            ],
-        )
-
-    return to_object
-
-
 def _ListDatasetsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -442,30 +211,6 @@ def _ListDatasetsRequestParameters_to_vertex(
             to_object,
             ["config"],
             _ListPromptsConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
-
-    return to_object
-
-
-def _ListDatasetsResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["datasets"]) is not None:
-        setv(
-            to_object,
-            ["datasets"],
-            [
-                _Dataset_from_vertex(item, to_object)
-                for item in getv(from_object, ["datasets"])
-            ],
         )
 
     return to_object
@@ -489,26 +234,6 @@ def _ListPromptsConfig_to_vertex(
     return to_object
 
 
-def _RestoreVersionOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    return to_object
-
-
 def _RestoreVersionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -522,146 +247,6 @@ def _RestoreVersionRequestParameters_to_vertex(
 
     if getv(from_object, ["version_id"]) is not None:
         setv(to_object, ["_url", "version_id"], getv(from_object, ["version_id"]))
-
-    return to_object
-
-
-def _SchemaTextPromptDatasetMetadata_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["candidateCount"]) is not None:
-        setv(to_object, ["candidate_count"], getv(from_object, ["candidateCount"]))
-
-    if getv(from_object, ["gcsUri"]) is not None:
-        setv(to_object, ["gcs_uri"], getv(from_object, ["gcsUri"]))
-
-    if getv(from_object, ["groundingConfig"]) is not None:
-        setv(to_object, ["grounding_config"], getv(from_object, ["groundingConfig"]))
-
-    if getv(from_object, ["hasPromptVariable"]) is not None:
-        setv(
-            to_object, ["has_prompt_variable"], getv(from_object, ["hasPromptVariable"])
-        )
-
-    if getv(from_object, ["logprobs"]) is not None:
-        setv(to_object, ["logprobs"], getv(from_object, ["logprobs"]))
-
-    if getv(from_object, ["maxOutputTokens"]) is not None:
-        setv(to_object, ["max_output_tokens"], getv(from_object, ["maxOutputTokens"]))
-
-    if getv(from_object, ["note"]) is not None:
-        setv(to_object, ["note"], getv(from_object, ["note"]))
-
-    if getv(from_object, ["promptApiSchema"]) is not None:
-        setv(to_object, ["prompt_api_schema"], getv(from_object, ["promptApiSchema"]))
-
-    if getv(from_object, ["promptType"]) is not None:
-        setv(to_object, ["prompt_type"], getv(from_object, ["promptType"]))
-
-    if getv(from_object, ["seedEnabled"]) is not None:
-        setv(to_object, ["seed_enabled"], getv(from_object, ["seedEnabled"]))
-
-    if getv(from_object, ["seedValue"]) is not None:
-        setv(to_object, ["seed_value"], getv(from_object, ["seedValue"]))
-
-    if getv(from_object, ["stopSequences"]) is not None:
-        setv(to_object, ["stop_sequences"], getv(from_object, ["stopSequences"]))
-
-    if getv(from_object, ["systemInstruction"]) is not None:
-        setv(
-            to_object, ["system_instruction"], getv(from_object, ["systemInstruction"])
-        )
-
-    if getv(from_object, ["systemInstructionGcsUri"]) is not None:
-        setv(
-            to_object,
-            ["system_instruction_gcs_uri"],
-            getv(from_object, ["systemInstructionGcsUri"]),
-        )
-
-    if getv(from_object, ["temperature"]) is not None:
-        setv(to_object, ["temperature"], getv(from_object, ["temperature"]))
-
-    if getv(from_object, ["text"]) is not None:
-        setv(to_object, ["text"], getv(from_object, ["text"]))
-
-    if getv(from_object, ["topK"]) is not None:
-        setv(to_object, ["top_k"], getv(from_object, ["topK"]))
-
-    if getv(from_object, ["topP"]) is not None:
-        setv(to_object, ["top_p"], getv(from_object, ["topP"]))
-
-    return to_object
-
-
-def _SchemaTextPromptDatasetMetadata_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["candidate_count"]) is not None:
-        setv(to_object, ["candidateCount"], getv(from_object, ["candidate_count"]))
-
-    if getv(from_object, ["gcs_uri"]) is not None:
-        setv(to_object, ["gcsUri"], getv(from_object, ["gcs_uri"]))
-
-    if getv(from_object, ["grounding_config"]) is not None:
-        setv(to_object, ["groundingConfig"], getv(from_object, ["grounding_config"]))
-
-    if getv(from_object, ["has_prompt_variable"]) is not None:
-        setv(
-            to_object, ["hasPromptVariable"], getv(from_object, ["has_prompt_variable"])
-        )
-
-    if getv(from_object, ["logprobs"]) is not None:
-        setv(to_object, ["logprobs"], getv(from_object, ["logprobs"]))
-
-    if getv(from_object, ["max_output_tokens"]) is not None:
-        setv(to_object, ["maxOutputTokens"], getv(from_object, ["max_output_tokens"]))
-
-    if getv(from_object, ["note"]) is not None:
-        setv(to_object, ["note"], getv(from_object, ["note"]))
-
-    if getv(from_object, ["prompt_api_schema"]) is not None:
-        setv(to_object, ["promptApiSchema"], getv(from_object, ["prompt_api_schema"]))
-
-    if getv(from_object, ["prompt_type"]) is not None:
-        setv(to_object, ["promptType"], getv(from_object, ["prompt_type"]))
-
-    if getv(from_object, ["seed_enabled"]) is not None:
-        setv(to_object, ["seedEnabled"], getv(from_object, ["seed_enabled"]))
-
-    if getv(from_object, ["seed_value"]) is not None:
-        setv(to_object, ["seedValue"], getv(from_object, ["seed_value"]))
-
-    if getv(from_object, ["stop_sequences"]) is not None:
-        setv(to_object, ["stopSequences"], getv(from_object, ["stop_sequences"]))
-
-    if getv(from_object, ["system_instruction"]) is not None:
-        setv(
-            to_object, ["systemInstruction"], getv(from_object, ["system_instruction"])
-        )
-
-    if getv(from_object, ["system_instruction_gcs_uri"]) is not None:
-        setv(
-            to_object,
-            ["systemInstructionGcsUri"],
-            getv(from_object, ["system_instruction_gcs_uri"]),
-        )
-
-    if getv(from_object, ["temperature"]) is not None:
-        setv(to_object, ["temperature"], getv(from_object, ["temperature"]))
-
-    if getv(from_object, ["text"]) is not None:
-        setv(to_object, ["text"], getv(from_object, ["text"]))
-
-    if getv(from_object, ["top_k"]) is not None:
-        setv(to_object, ["topK"], getv(from_object, ["top_k"]))
-
-    if getv(from_object, ["top_p"]) is not None:
-        setv(to_object, ["topP"], getv(from_object, ["top_p"]))
 
     return to_object
 
@@ -684,13 +269,7 @@ def _UpdateDatasetParameters_to_vertex(
         setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
 
     if getv(from_object, ["metadata"]) is not None:
-        setv(
-            to_object,
-            ["metadata"],
-            _SchemaTextPromptDatasetMetadata_to_vertex(
-                getv(from_object, ["metadata"]), to_object
-            ),
-        )
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
 
     if getv(from_object, ["description"]) is not None:
         setv(to_object, ["description"], getv(from_object, ["description"]))
@@ -762,10 +341,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DatasetOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -826,10 +402,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DatasetOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -882,10 +455,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _Dataset_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Dataset._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -942,10 +512,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DatasetVersion_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetVersion._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1002,10 +569,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DatasetOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1054,10 +618,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListDatasetsResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListDatasetsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1116,10 +677,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListDatasetVersionsResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListDatasetVersionsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1165,10 +723,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("delete", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeletePromptOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeletePromptOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1223,10 +778,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("delete", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeletePromptVersionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeletePromptVersionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1283,10 +835,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _RestoreVersionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.RestoreVersionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1351,10 +900,7 @@ class Prompts(_api_module.BaseModule):
 
         response = self._api_client.request("patch", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _Dataset_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Dataset._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1934,10 +1480,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DatasetOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2000,10 +1543,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DatasetOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2058,10 +1598,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _Dataset_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Dataset._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2120,10 +1657,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DatasetVersion_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetVersion._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2182,10 +1716,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DatasetOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2236,10 +1767,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListDatasetsResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListDatasetsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2300,10 +1828,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListDatasetVersionsResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListDatasetVersionsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2351,10 +1876,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "delete", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeletePromptOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeletePromptOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2411,10 +1933,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "delete", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeletePromptVersionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeletePromptVersionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2473,10 +1992,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _RestoreVersionOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.RestoreVersionOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2543,10 +2059,7 @@ class AsyncPrompts(_api_module.BaseModule):
             "patch", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _Dataset_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Dataset._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()

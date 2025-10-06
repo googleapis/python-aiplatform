@@ -65,6 +65,19 @@ def _camel_to_snake(camel_case_string: str) -> str:
     return snake_case_string.lower()
 
 
+def _camel_key_to_snake(message: Any):
+    """Converts all camelCase keys to snake_case in a dict or list."""
+    if isinstance(message, dict):
+        return {
+            _camel_to_snake(key): _camel_key_to_snake(value)
+            for key, value in message.items()
+        }
+    elif isinstance(message, list):
+        return [_camel_key_to_snake(value) for value in message]
+    else:
+        return message
+
+
 if typing.TYPE_CHECKING:
     import pandas as pd
 
@@ -488,6 +501,61 @@ _CreateEvaluationRunParametersOrDict = Union[
 ]
 
 
+class SummaryMetric(_common.BaseModel):
+    """Represents a summary metric for an evaluation run."""
+
+    metrics: Optional[dict[str, Any]] = Field(
+        default=None, description="""Map of metric name to metric value."""
+    )
+    total_items: Optional[int] = Field(
+        default=None, description="""The total number of items that were evaluated."""
+    )
+    failed_items: Optional[int] = Field(
+        default=None, description="""The number of items that failed to be evaluated."""
+    )
+
+
+class SummaryMetricDict(TypedDict, total=False):
+    """Represents a summary metric for an evaluation run."""
+
+    metrics: Optional[dict[str, Any]]
+    """Map of metric name to metric value."""
+
+    total_items: Optional[int]
+    """The total number of items that were evaluated."""
+
+    failed_items: Optional[int]
+    """The number of items that failed to be evaluated."""
+
+
+SummaryMetricOrDict = Union[SummaryMetric, SummaryMetricDict]
+
+
+class EvaluationRunResults(_common.BaseModel):
+    """Represents the results of an evaluation run."""
+
+    evaluation_set: Optional[str] = Field(
+        default=None,
+        description="""The evaluation set where item level results are stored.""",
+    )
+    summary_metrics: Optional[SummaryMetric] = Field(
+        default=None, description="""The summary metrics for the evaluation run."""
+    )
+
+
+class EvaluationRunResultsDict(TypedDict, total=False):
+    """Represents the results of an evaluation run."""
+
+    evaluation_set: Optional[str]
+    """The evaluation set where item level results are stored."""
+
+    summary_metrics: Optional[SummaryMetricDict]
+    """The summary metrics for the evaluation run."""
+
+
+EvaluationRunResultsOrDict = Union[EvaluationRunResults, EvaluationRunResultsDict]
+
+
 class EvaluationRun(_common.BaseModel):
     """Represents an evaluation run."""
 
@@ -506,6 +574,23 @@ class EvaluationRun(_common.BaseModel):
     data_source: Optional[EvaluationRunDataSource] = Field(
         default=None, description=""""""
     )
+    evaluation_results: Optional[EvaluationRunResults] = Field(
+        default=None, description="""The results for the evaluation run."""
+    )
+
+    def show(self) -> None:
+        """Shows the evaluation result."""
+        from . import _evals_visualization
+
+        if self.state == "SUCCEEDED":
+            eval_result = _evals_visualization._get_eval_result_from_eval_run(
+                self.evaluation_results
+            )
+            _evals_visualization.display_evaluation_result(eval_result, None)
+        else:
+            logger.warning(f"Evaluation Run state: {self.state}.")
+            if self.error:
+                logger.warning(f"Evaluation Run error: {self.error.message}")
 
 
 class EvaluationRunDict(TypedDict, total=False):
@@ -537,6 +622,9 @@ class EvaluationRunDict(TypedDict, total=False):
 
     data_source: Optional[EvaluationRunDataSourceDict]
     """"""
+
+    evaluation_results: Optional[EvaluationRunResultsDict]
+    """The results for the evaluation run."""
 
 
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
@@ -8566,8 +8654,8 @@ class Dataset(_common.BaseModel):
         description="""Output only. Timestamp when this Dataset was last updated.""",
     )
 
-    model_config = ConfigDict(alias_generator=_camel_to_snake, populate_by_name=True)
-
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
     @classmethod
     def _from_response(
         cls: typing.Type["Dataset"],
@@ -8577,12 +8665,8 @@ class Dataset(_common.BaseModel):
     ) -> "Dataset":
         """Converts a dictionary response into a Dataset object."""
 
-        # Some nested Dataset fields don't have converters, so we need to ensure camelCase fields from the API are converted to snake_case before calling _from_response.
-        # Instantiating a Dataset before calling _from_response ensures the model_config converting camel to snake is used
-        validated_dataset = Dataset.model_validate(response)
-        result = super()._from_response(
-            response=validated_dataset.model_dump(), kwargs=kwargs
-        )
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
         return result
 
 
@@ -8708,6 +8792,21 @@ class DatasetVersion(_common.BaseModel):
         default=None,
         description="""Output only. Timestamp when this DatasetVersion was last updated.""",
     )
+
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["DatasetVersion"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "DatasetVersion":
+        """Converts a dictionary response into a DatasetVersion object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
 
 
 class DatasetVersionDict(TypedDict, total=False):
@@ -8861,6 +8960,21 @@ class ListDatasetsResponse(_common.BaseModel):
       """,
     )
 
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["ListDatasetsResponse"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "ListDatasetsResponse":
+        """Converts a dictionary response into a ListDatasetsResponse object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
+
 
 class ListDatasetsResponseDict(TypedDict, total=False):
     """Response for listing prompt datasets."""
@@ -8917,6 +9031,21 @@ class ListDatasetVersionsResponse(_common.BaseModel):
         description="""List of datasets for the project.
       """,
     )
+
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["ListDatasetVersionsResponse"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "ListDatasetVersionsResponse":
+        """Converts a dictionary response into a ListDatasetVersionsResponse object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
 
 
 class ListDatasetVersionsResponseDict(TypedDict, total=False):

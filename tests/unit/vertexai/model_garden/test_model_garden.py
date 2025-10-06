@@ -1551,6 +1551,45 @@ class TestModelGardenCustomModel:
             )
         )
 
+    def test_deploy_custom_model_with_psc_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+        model.deploy(
+            machine_type="n1-standard-4",
+            accelerator_type="NVIDIA_TESLA_T4",
+            accelerator_count=1,
+            enable_private_service_connect=True,
+            psc_project_allow_list=["test-project"],
+        )
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                custom_model=types.DeployRequest.CustomModel(
+                    gcs_uri=_TEST_GCS_URI,
+                ),
+                endpoint_config=types.DeployRequest.EndpointConfig(
+                    private_service_connect_config=types.PrivateServiceConnectConfig(
+                        enable_private_service_connect=True,
+                        project_allowlist=["test-project"],
+                    ),
+                ),
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        min_replica_count=1,
+                        max_replica_count=1,
+                        machine_spec=types.MachineSpec(
+                            machine_type="n1-standard-4",
+                            accelerator_type="NVIDIA_TESLA_T4",
+                            accelerator_count=1,
+                        ),
+                    ),
+                ),
+            )
+        )
+
     def test_deploy_custom_model_with_reservation_success(self, deploy_mock):
         aiplatform.init(
             project=_TEST_PROJECT,
