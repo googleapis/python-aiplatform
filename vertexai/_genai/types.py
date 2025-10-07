@@ -7467,7 +7467,7 @@ class _GetAgentEngineSessionRequestParameters(_common.BaseModel):
     """Parameters for getting an agent engine session."""
 
     name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine."""
+        default=None, description="""Name of the agent engine session."""
     )
     config: Optional[GetAgentEngineSessionConfig] = Field(
         default=None, description=""""""
@@ -7478,7 +7478,7 @@ class _GetAgentEngineSessionRequestParametersDict(TypedDict, total=False):
     """Parameters for getting an agent engine session."""
 
     name: Optional[str]
-    """Name of the agent engine."""
+    """Name of the agent engine session."""
 
     config: Optional[GetAgentEngineSessionConfigDict]
     """"""
@@ -7982,7 +7982,7 @@ ListAgentEngineSessionEventsConfigOrDict = Union[
 
 
 class _ListAgentEngineSessionEventsRequestParameters(_common.BaseModel):
-    """Parameters for listing agent engines."""
+    """Parameters for listing agent engine session events."""
 
     name: Optional[str] = Field(
         default=None, description="""Name of the agent engine session."""
@@ -7993,7 +7993,7 @@ class _ListAgentEngineSessionEventsRequestParameters(_common.BaseModel):
 
 
 class _ListAgentEngineSessionEventsRequestParametersDict(TypedDict, total=False):
-    """Parameters for listing agent engines."""
+    """Parameters for listing agent engine session events."""
 
     name: Optional[str]
     """Name of the agent engine session."""

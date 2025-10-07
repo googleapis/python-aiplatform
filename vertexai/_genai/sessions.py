@@ -225,7 +225,7 @@ class Sessions(_api_module.BaseModule):
         Creates a new session in the Agent Engine.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be created. Format:
+            name (str): Required. The name of the Agent Engine to create the session under. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             user_id (str): Required. The user ID of the session.
             config (CreateAgentEngineSessionConfig):
@@ -293,7 +293,7 @@ class Sessions(_api_module.BaseModule):
 
         Args:
             name (str): Required. The name of the Agent Engine session to be deleted. Format:
-                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             config (DeleteAgentEngineSessionConfig):
                 Optional. Additional configurations for deleting the Agent Engine session.
 
@@ -358,7 +358,7 @@ class Sessions(_api_module.BaseModule):
 
         Args:
             name (str): Required. The name of the Agent Engine session to get. Format:
-                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             config (GetAgentEngineSessionConfig):
                 Optional. Additional configurations for getting the Agent Engine session.
 
@@ -539,7 +539,7 @@ class Sessions(_api_module.BaseModule):
 
         Args:
             name (str): Required. The name of the Agent Engine session to be updated. Format:
-                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             config (UpdateAgentEngineSessionConfig):
                 Optional. Additional configurations for updating the Agent Engine session.
 
@@ -699,7 +699,7 @@ class AsyncSessions(_api_module.BaseModule):
         Creates a new session in the Agent Engine.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to be created. Format:
+            name (str): Required. The name of the Agent Engine to create the session under. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
             user_id (str): Required. The user ID of the session.
             config (CreateAgentEngineSessionConfig):
@@ -769,7 +769,7 @@ class AsyncSessions(_api_module.BaseModule):
 
         Args:
             name (str): Required. The name of the Agent Engine session to be deleted. Format:
-                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             config (DeleteAgentEngineSessionConfig):
                 Optional. Additional configurations for deleting the Agent Engine session.
 
@@ -836,7 +836,7 @@ class AsyncSessions(_api_module.BaseModule):
 
         Args:
             name (str): Required. The name of the Agent Engine session to get. Format:
-                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             config (GetAgentEngineSessionConfig):
                 Optional. Additional configurations for getting the Agent Engine session.
 
@@ -1023,7 +1023,7 @@ class AsyncSessions(_api_module.BaseModule):
 
         Args:
             name (str): Required. The name of the Agent Engine session to be updated. Format:
-                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`.
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             config (UpdateAgentEngineSessionConfig):
                 Optional. Additional configurations for updating the Agent Engine session.
 
