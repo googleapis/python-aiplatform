@@ -462,15 +462,25 @@ class LLMMetricHandler(MetricHandler):
                 "must be a dictionary."
             )
 
-        rubrics_list = rubric_groups_data.get(self.metric.rubric_group_name, [])
+        rubric_group_from_data = rubric_groups_data.get(
+            self.metric.rubric_group_name, {}
+        )
+        if isinstance(rubric_group_from_data, dict):
+            rubrics_list = rubric_group_from_data.get("rubrics", [])
+        else:
+            rubrics_list = []
+
         if not isinstance(rubrics_list, list):
             logger.warning(
-                "Rubric group '%s' in 'rubric_groups' is not a list for case %s.",
+                "Rubrics for group '%s' in case %s is not a list: %s. "
+                "Skipping rubrics for this case.",
                 self.metric.rubric_group_name,
                 eval_case.eval_case_id,
+                rubrics_list,
             )
             rubrics_list = []
 
+        parsed_rubrics = [types.Rubric(**r) for r in rubrics_list]
         rubric_enhanced_contents = {
             "prompt": (
                 [eval_case.prompt.model_dump(mode="json", exclude_none=True)]
@@ -481,8 +491,8 @@ class LLMMetricHandler(MetricHandler):
             "rubric_groups": {
                 self.metric.rubric_group_name: {
                     "rubrics": [
-                        r.model_dump(mode="json") if isinstance(r, types.Rubric) else r
-                        for r in rubrics_list
+                        r.model_dump(mode="json", exclude_none=True)
+                        for r in parsed_rubrics
                     ]
                 }
             },
