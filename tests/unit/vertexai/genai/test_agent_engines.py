@@ -2271,7 +2271,7 @@ class TestAsyncAgentEngine:
 
     def test_delete_agent_engine(self):
         with mock.patch.object(
-            self.client.agent_engines._api_client, "async_request"
+            self.client.aio.agent_engines._api_client, "async_request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
             asyncio.run(
@@ -2288,7 +2288,7 @@ class TestAsyncAgentEngine:
 
     def test_delete_agent_engine_force(self):
         with mock.patch.object(
-            self.client.agent_engines._api_client, "async_request"
+            self.client.aio.agent_engines._api_client, "async_request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
             asyncio.run(
