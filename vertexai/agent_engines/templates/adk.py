@@ -590,11 +590,52 @@ class AdkApp:
             artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
             memory_service=self._tmpl_attrs.get("in_memory_memory_service"),
         )
+    def _process_message_to_content(self, message: Any, types: Any) -> "types.Content":
+        """Converts various message formats to a Content object.
+        
+        Args:
+            message: The input message in various formats
+            types: The google.genai.types module
+            
+        Returns:
+            A types.Content object
+            
+        Raises:
+            TypeError: If the message type is not supported
+        """
+        # Handle Dict[str, Any] - dictionary representation of Content
+        if isinstance(message, Dict):
+            return types.Content.model_validate(message)
+        
+        # Handle str - plain text message
+        elif isinstance(message, str):
+            return types.Content(role="user", parts=[types.Part(text=message)])
+        
+        # Handle types.Content object - pass through
+        elif isinstance(message, types.Content):
+            return message
+        
+        # Handle List[types.Part] - list of Part objects
+        elif isinstance(message, list):
+            # Validate all items are Part objects
+            if all(isinstance(part, types.Part) for part in message):
+                return types.Content(role="user", parts=message)
+            else:
+                raise TypeError(
+                    "When message is a list, all items must be types.Part objects."
+                )
+        
+        # Unsupported type
+        else:
+            raise TypeError(
+                f"message must be a string, dictionary representing a Content object, "
+                f"types.Content object, or list of types.Part objects. Got: {type(message)}"
+            )
 
     async def async_stream_query(
         self,
         *,
-        message: Union[str, Dict[str, Any]],
+        message: Union[str, Dict[str, Any], "types.Content", List["types.Part"]],
         user_id: str,
         session_id: Optional[str] = None,
         run_config: Optional[Dict[str, Any]] = None,
@@ -603,8 +644,12 @@ class AdkApp:
         """Streams responses asynchronously from the ADK application.
 
         Args:
-            message (str):
-                Required. The message to stream responses for.
+            message (Union[str, Dict[str, Any], types.Content, List[types.Part]]):
+                Required. The message to stream responses for. Can be:
+                - str: Plain text message
+                - Dict[str, Any]: Dictionary representing a Content object
+                - types.Content: A Content object with role and parts
+                - List[types.Part]: A list of Part objects (text, images, files, etc.)
             user_id (str):
                 Required. The ID of the user.
             session_id (str):
@@ -624,15 +669,8 @@ class AdkApp:
         from vertexai.agent_engines import _utils
         from google.genai import types
 
-        if isinstance(message, Dict):
-            content = types.Content.model_validate(message)
-        elif isinstance(message, str):
-            content = types.Content(role="user", parts=[types.Part(text=message)])
-        else:
-            raise TypeError(
-                "message must be a string or a dictionary representing"
-                " a Content object."
-            )
+        # Convert message to Content object
+        content = self._process_message_to_content(message, types)
 
         if not self._tmpl_attrs.get("runner"):
             self.set_up()
@@ -660,6 +698,7 @@ class AdkApp:
         async for event in events_async:
             # Yield the event data as a dictionary
             yield _utils.dump_event_for_json(event)
+
 
     async def streaming_agent_run_with_events(self, request_json: str):
         """Streams responses asynchronously from the ADK application.
