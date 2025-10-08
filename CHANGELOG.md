@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.120.0](https://github.com/googleapis/python-aiplatform/compare/v1.119.0...v1.120.0) (2025-10-08)
+
+
+### Features
+
+* Add ability to use existing sessions for streaming_agent_run_with_events calls. ([0a369ea](https://github.com/googleapis/python-aiplatform/commit/0a369eacaa4e21e8055ef7c2e0f4c6da3a9298f8))
+* Add DeploymentTier enum to DeployedIndex ([89a26c1](https://github.com/googleapis/python-aiplatform/commit/89a26c15b8a15c8698192dc283e5839729ad3e66))
+* Add labels field for Predict API for Imagen use case (v1beta) ([89a26c1](https://github.com/googleapis/python-aiplatform/commit/89a26c15b8a15c8698192dc283e5839729ad3e66))
+* Auto-generated CL for //google/cloud/aiplatform:aiplatform_v1_public_proto_gen ([89a26c1](https://github.com/googleapis/python-aiplatform/commit/89a26c15b8a15c8698192dc283e5839729ad3e66))
+* Expose PSC for CustomModel ([d02099c](https://github.com/googleapis/python-aiplatform/commit/d02099cf200f7e372ad0c38f98a5b8c92bcc581c))
+* GenAI Client(evals) - Add `get_evaluation_set` and `get_evaluation_item` methods to Vertex AI GenAI SDK evals ([7757886](https://github.com/googleapis/python-aiplatform/commit/77578867ff7c4e8a9c4618481821cded32b4b135))
+* GenAI Client(evals) - Add `show` method for EvaluationRun class in Vertex AI GenAI SDK evals ([0c932b9](https://github.com/googleapis/python-aiplatform/commit/0c932b99bafde099734cf136828583de23fbaeb6))
+* Migrate vertex ai session service to use agent engine sdk ([b72df1c](https://github.com/googleapis/python-aiplatform/commit/b72df1c3e418c4b87ecb92e1506e7f3fe8da3994))
+* Migrate vertex_ai_session_service to use Agent Engine SDK ([55b54a2](https://github.com/googleapis/python-aiplatform/commit/55b54a21005587338abdd66c7605f534294b0c94))
+* Migrate vertex_ai_session_service to use Agent Engine SDK ([03772e2](https://github.com/googleapis/python-aiplatform/commit/03772e2a87f2fc6c66a69220e004522cc6ba1f94))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Parse user defined rubrics correctly to LLM metric ([64b0665](https://github.com/googleapis/python-aiplatform/commit/64b0665169b045ccfd16e537af2e45a4dd7977e0))
+
+
+### Documentation
+
+* Fix Sessions SDK docstrings ([0077bde](https://github.com/googleapis/python-aiplatform/commit/0077bdebe62d0363c1faacd5f6e5562086dff080))
+
 ## [1.119.0](https://github.com/googleapis/python-aiplatform/compare/v1.118.0...v1.119.0) (2025-10-03)
 
 
