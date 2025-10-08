@@ -40,6 +40,7 @@ logger = logging.getLogger("vertexai_genai.prompts")
 def _CreateDatasetParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
@@ -74,6 +75,7 @@ def _CreateDatasetParameters_to_vertex(
 def _CreateDatasetVersionParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
@@ -100,6 +102,7 @@ def _CreateDatasetVersionParameters_to_vertex(
 def _DeleteDatasetRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["prompt_id"]) is not None:
@@ -114,6 +117,7 @@ def _DeleteDatasetRequestParameters_to_vertex(
 def _DeletePromptVersionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["prompt_id"]) is not None:
@@ -131,6 +135,7 @@ def _DeletePromptVersionRequestParameters_to_vertex(
 def _GetDatasetOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
@@ -148,6 +153,7 @@ def _GetDatasetOperationParameters_to_vertex(
 def _GetDatasetParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
@@ -162,6 +168,7 @@ def _GetDatasetParameters_to_vertex(
 def _GetDatasetVersionParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
@@ -183,13 +190,16 @@ def _GetDatasetVersionParameters_to_vertex(
 def _ListDatasetVersionsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
         setv(
             to_object,
             ["config"],
-            _ListPromptsConfig_to_vertex(getv(from_object, ["config"]), to_object),
+            _ListPromptsConfig_to_vertex(
+                getv(from_object, ["config"]), to_object, root_object
+            ),
         )
 
     if getv(from_object, ["read_mask"]) is not None:
@@ -204,13 +214,16 @@ def _ListDatasetVersionsRequestParameters_to_vertex(
 def _ListDatasetsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
         setv(
             to_object,
             ["config"],
-            _ListPromptsConfig_to_vertex(getv(from_object, ["config"]), to_object),
+            _ListPromptsConfig_to_vertex(
+                getv(from_object, ["config"]), to_object, root_object
+            ),
         )
 
     return to_object
@@ -219,6 +232,7 @@ def _ListDatasetsRequestParameters_to_vertex(
 def _ListPromptsConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -237,6 +251,7 @@ def _ListPromptsConfig_to_vertex(
 def _RestoreVersionRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
@@ -254,6 +269,7 @@ def _RestoreVersionRequestParameters_to_vertex(
 def _UpdateDatasetParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
@@ -316,7 +332,9 @@ class Prompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _CreateDatasetParameters_to_vertex(parameter_model)
+            request_dict = _CreateDatasetParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets".format_map(request_url_dict)
@@ -377,7 +395,9 @@ class Prompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _CreateDatasetVersionParameters_to_vertex(parameter_model)
+            request_dict = _CreateDatasetVersionParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{name}/datasetVersions".format_map(request_url_dict)
@@ -430,7 +450,9 @@ class Prompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetDatasetParameters_to_vertex(parameter_model)
+            request_dict = _GetDatasetParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{name}".format_map(request_url_dict)
@@ -485,7 +507,9 @@ class Prompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetDatasetVersionParameters_to_vertex(parameter_model)
+            request_dict = _GetDatasetVersionParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}/datasetVersions/{dataset_version_id}".format_map(
@@ -542,7 +566,9 @@ class Prompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetDatasetOperationParameters_to_vertex(parameter_model)
+            request_dict = _GetDatasetOperationParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}/operations/{operation_id}".format_map(
@@ -593,7 +619,9 @@ class Prompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _ListDatasetsRequestParameters_to_vertex(parameter_model)
+            request_dict = _ListDatasetsRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets".format_map(request_url_dict)
@@ -649,7 +677,7 @@ class Prompts(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ListDatasetVersionsRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -698,7 +726,9 @@ class Prompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _DeleteDatasetRequestParameters_to_vertex(parameter_model)
+            request_dict = _DeleteDatasetRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}".format_map(request_url_dict)
@@ -750,7 +780,7 @@ class Prompts(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _DeletePromptVersionRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -808,7 +838,9 @@ class Prompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _RestoreVersionRequestParameters_to_vertex(parameter_model)
+            request_dict = _RestoreVersionRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}/datasetVersions/{version_id}:restore".format_map(
@@ -875,7 +907,9 @@ class Prompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _UpdateDatasetParameters_to_vertex(parameter_model)
+            request_dict = _UpdateDatasetParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}".format_map(request_url_dict)
@@ -1453,7 +1487,9 @@ class AsyncPrompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _CreateDatasetParameters_to_vertex(parameter_model)
+            request_dict = _CreateDatasetParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets".format_map(request_url_dict)
@@ -1516,7 +1552,9 @@ class AsyncPrompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _CreateDatasetVersionParameters_to_vertex(parameter_model)
+            request_dict = _CreateDatasetVersionParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{name}/datasetVersions".format_map(request_url_dict)
@@ -1571,7 +1609,9 @@ class AsyncPrompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetDatasetParameters_to_vertex(parameter_model)
+            request_dict = _GetDatasetParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{name}".format_map(request_url_dict)
@@ -1628,7 +1668,9 @@ class AsyncPrompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetDatasetVersionParameters_to_vertex(parameter_model)
+            request_dict = _GetDatasetVersionParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}/datasetVersions/{dataset_version_id}".format_map(
@@ -1687,7 +1729,9 @@ class AsyncPrompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetDatasetOperationParameters_to_vertex(parameter_model)
+            request_dict = _GetDatasetOperationParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}/operations/{operation_id}".format_map(
@@ -1740,7 +1784,9 @@ class AsyncPrompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _ListDatasetsRequestParameters_to_vertex(parameter_model)
+            request_dict = _ListDatasetsRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets".format_map(request_url_dict)
@@ -1798,7 +1844,7 @@ class AsyncPrompts(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ListDatasetVersionsRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1849,7 +1895,9 @@ class AsyncPrompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _DeleteDatasetRequestParameters_to_vertex(parameter_model)
+            request_dict = _DeleteDatasetRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}".format_map(request_url_dict)
@@ -1903,7 +1951,7 @@ class AsyncPrompts(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _DeletePromptVersionRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1963,7 +2011,9 @@ class AsyncPrompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _RestoreVersionRequestParameters_to_vertex(parameter_model)
+            request_dict = _RestoreVersionRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}/datasetVersions/{version_id}:restore".format_map(
@@ -2032,7 +2082,9 @@ class AsyncPrompts(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _UpdateDatasetParameters_to_vertex(parameter_model)
+            request_dict = _UpdateDatasetParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "datasets/{dataset_id}".format_map(request_url_dict)

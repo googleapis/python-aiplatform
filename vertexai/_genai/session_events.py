@@ -39,6 +39,7 @@ logger.setLevel(logging.INFO)
 def _AppendAgentEngineSessionEventConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -63,6 +64,7 @@ def _AppendAgentEngineSessionEventConfig_to_vertex(
 def _AppendAgentEngineSessionEventRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -82,7 +84,7 @@ def _AppendAgentEngineSessionEventRequestParameters_to_vertex(
             to_object,
             ["config"],
             _AppendAgentEngineSessionEventConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
+                getv(from_object, ["config"]), to_object, root_object
             ),
         )
 
@@ -92,6 +94,7 @@ def _AppendAgentEngineSessionEventRequestParameters_to_vertex(
 def _ListAgentEngineSessionEventsConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -110,6 +113,7 @@ def _ListAgentEngineSessionEventsConfig_to_vertex(
 def _ListAgentEngineSessionEventsRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -120,7 +124,7 @@ def _ListAgentEngineSessionEventsRequestParameters_to_vertex(
             to_object,
             ["config"],
             _ListAgentEngineSessionEventsConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
+                getv(from_object, ["config"]), to_object, root_object
             ),
         )
 
@@ -168,7 +172,7 @@ class SessionEvents(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _AppendAgentEngineSessionEventRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -233,7 +237,7 @@ class SessionEvents(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ListAgentEngineSessionEventsRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -339,7 +343,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _AppendAgentEngineSessionEventRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -406,7 +410,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ListAgentEngineSessionEventsRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
