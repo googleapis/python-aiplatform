@@ -25,6 +25,7 @@ SUPPORTED_PREDEFINED_METRICS = frozenset(
         "multi_turn_text_quality_v1",
         "final_response_match_v2",
         "final_response_reference_free_v1",
+        "final_response_quality_v1",
     }
 )
 
