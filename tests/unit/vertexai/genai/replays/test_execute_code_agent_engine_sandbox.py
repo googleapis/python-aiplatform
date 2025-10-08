@@ -33,15 +33,30 @@ def test_execute_code_sandbox(client):
         config=types.CreateAgentEngineSandboxConfig(display_name="test_sandbox"),
     )
     assert isinstance(operation, types.AgentEngineSandboxOperation)
+
+    code = """
+with open("test.txt", "r") as input:
+    with open("output.txt", "w") as output_txt:
+        for line in input:
+            output_txt.write(line)
+"""
     input_data = {
-        "language": "python",
-        "code": 'with open("hello.txt","w") as file:\n file.write("Hello, world!")',
+        "code": code,
+        "files": [
+            {
+                "name": "test.txt",
+                "mimeType": "text/plain",
+                "content": b"Hello, world!",
+            }
+        ],
     }
     response = client.agent_engines.sandboxes.execute_code(
         name=operation.response.name,
         input_data=input_data,
     )
     assert response.outputs[0].mime_type == "application/json"
+    assert response.outputs[1].data == b"Hello, world!"
+    assert response.outputs[1].metadata.attributes.get("file_name") == b"output.txt"
 
 
 pytestmark = pytest_helper.setup(
