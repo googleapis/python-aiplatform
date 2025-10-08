@@ -25,6 +25,8 @@ import warnings
 
 import nox
 
+nox.options.default_venv_backend = "uv"
+
 FLAKE8_VERSION = "flake8==6.1.0"
 BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
@@ -161,7 +163,7 @@ def format(session):
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def lint_setup_py(session):
     """Verify that setup.py is valid (including RST check)."""
-    session.install("docutils", "pygments")
+    session.install("docutils", "pygments", "setuptools")
     session.run("python", "setup.py", "check", "--restructuredtext", "--strict")
 
 
