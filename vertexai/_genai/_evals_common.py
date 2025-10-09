@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 """Common utilities for evals."""
+import asyncio
 import collections
 import concurrent.futures
 import datetime
@@ -1009,3 +1010,215 @@ def _convert_gcs_to_evaluation_item_request(
             "Failed to load evaluation request from GCS: %s. Error: %s", gcs_uri, e
         )
     return types.EvaluationItemRequest()
+
+
+def _get_aggregated_metrics(
+    results: types.EvaluationRunResults,
+) -> list[types.AggregatedMetricResult]:
+    """Retrieves an EvaluationResult from the resource name."""
+    if (
+        not results
+        or not results.summary_metrics
+        or not results.summary_metrics.metrics
+    ):
+        return []
+
+    aggregated_metrics_dict = {}
+    for name, value in results.summary_metrics.metrics.items():
+        result = name.rsplit("/", 1)
+        full_metric_name = result[0]
+        aggregated_metric_name = result[1]
+        if full_metric_name not in aggregated_metrics_dict:
+            aggregated_metrics_dict[full_metric_name] = {}
+            aggregated_metrics_dict[full_metric_name]["sub_metric_name"] = (
+                full_metric_name.split("/")[-1]
+            )
+        aggregated_metrics_dict[full_metric_name][aggregated_metric_name] = value
+
+    items_sorted = sorted(
+        aggregated_metrics_dict.items(),
+        key=lambda item: (item[1]["sub_metric_name"], item[0]),
+    )
+
+    return [
+        types.AggregatedMetricResult(
+            metric_name=name,
+            mean_score=values.get("AVERAGE"),
+            stdev_score=values.get("STANDARD_DEVIATION"),
+        )
+        for name, values in items_sorted
+    ]
+
+
+def _get_eval_case_result_from_eval_item(
+    index: int,
+    eval_item: types.EvaluationItem,
+) -> types.EvalCaseResult:
+    """Transforms EvaluationItem to EvalCaseResult."""
+    response_candidate_results = []
+    for candidate_index, candidate_result in enumerate(
+        eval_item.evaluation_response.candidate_results
+    ):
+        response_candidate_results.append(
+            types.ResponseCandidateResult(
+                response_index=candidate_index,
+                metric_results={
+                    candidate_result.metric: types.EvalCaseMetricResult(
+                        metric_name=candidate_result.metric,
+                        score=candidate_result.score,
+                        explanation=candidate_result.explanation,
+                        rubric_verdicts=candidate_result.rubric_verdicts,
+                        error_message=(
+                            eval_item.error.message if eval_item.error else None
+                        ),
+                    ),
+                },
+            )
+        )
+    return types.EvalCaseResult(
+        eval_case_index=index, response_candidate_results=response_candidate_results
+    )
+
+
+def _convert_request_to_dataset_row(
+    request: types.EvaluationItemRequest,
+) -> dict[str, Any]:
+    """Converts an EvaluationItemRequest to a dictionary."""
+    dict_row = {}
+    dict_row["prompt"] = request.prompt.text if request.prompt.text else None
+    dict_row["reference"] = request.golden_response
+    for candidate in request.candidate_responses:
+        dict_row[candidate.candidate] = candidate.text if candidate.text else None
+    return dict_row
+
+
+def _transform_dataframe(rows: list[dict[str, Any]]) -> list[types.EvaluationDataset]:
+    """Transforms rows to a list of EvaluationDatasets.
+
+    Args:
+      rows: A list of rows, each row is a dictionary of candidate name to response
+        text.
+    Returns:
+      A list of EvaluationDatasets, one for each candidate.
+    """
+    df = pd.DataFrame(rows)
+    exclude_cols = ["prompt", "reference"]
+    candidates = [col for col in df.columns if col not in exclude_cols]
+
+    eval_dfs = [
+        types.EvaluationDataset(
+            candidate_name=candidate,
+            eval_dataset_df=df[["prompt", "reference", candidate]].rename(
+                columns={candidate: "response"}
+            ),
+        )
+        for candidate in candidates
+    ]
+    return eval_dfs
+
+
+def _get_eval_cases_eval_dfs_from_eval_items(
+    eval_items: list[types.EvaluationItem],
+) -> tuple[list[types.EvalCaseResult], list[types.EvaluationDataset]]:
+    """Converts an EvaluationSet to a list of EvaluationCaseResults and EvaluationDatasets.
+
+    Args:
+      api_client: The API client.
+      evaluation_set_name: The name of the evaluation set.
+    Returns:
+      A tuple of two lists:
+        - eval_case_results: A list of EvalCaseResults, one for each evaluation
+          item.
+        - eval_dfs: A list of EvaluationDatasets, one for each candidate.
+    """
+    dataset_rows = []
+    eval_case_results = []
+    for index, eval_item in enumerate(eval_items):
+        if (
+            eval_item
+            and eval_item.evaluation_response
+            and eval_item.evaluation_response.request
+        ):
+            eval_case_results.append(
+                _get_eval_case_result_from_eval_item(index, eval_item)
+            )
+            dataset_rows.append(
+                _convert_request_to_dataset_row(eval_item.evaluation_response.request)
+            )
+    eval_dfs = _transform_dataframe(dataset_rows)
+    return eval_case_results, eval_dfs
+
+
+def _get_eval_result_from_eval_items(
+    results: types.EvaluationRunResults,
+    eval_items: list[types.EvaluationItem],
+) -> types.EvaluationResult:
+    """Retrieves an EvaluationResult from the EvaluationRunResults.
+
+    This function is used to convert an EvaluationRunResults object used by the
+    Evaluation Management API to an EvaluationResult object. It is used to display
+    the evaluation results in the UI.
+
+    Args:
+      results: The EvaluationRunResults object.
+      eval_items: The list of EvaluationItems.
+    Returns:
+      An EvaluationResult object.
+    """
+    aggregated_metrics = _get_aggregated_metrics(results)
+    eval_case_results, eval_dfs = _get_eval_cases_eval_dfs_from_eval_items(eval_items)
+    candidate_names = [eval_df.candidate_name for eval_df in eval_dfs]
+    eval_result = types.EvaluationResult(
+        summary_metrics=aggregated_metrics,
+        eval_case_results=eval_case_results,
+        evaluation_dataset=eval_dfs,
+        metadata=types.EvaluationRunMetadata(
+            candidate_names=candidate_names,
+        ),
+    )
+    return eval_result
+
+
+def _convert_evaluation_run_results(
+    api_client: BaseApiClient,
+    evaluation_run_results: types.EvaluationRunResults,
+) -> list[types.EvaluationItem]:
+    """Retrieves an EvaluationItem from the EvaluationRunResults."""
+    if not evaluation_run_results or not evaluation_run_results.evaluation_set:
+        return []
+
+    evals_module = evals.Evals(api_client_=api_client)
+    eval_set = evals_module.get_evaluation_set(
+        name=evaluation_run_results.evaluation_set
+    )
+
+    eval_items = []
+    if eval_set and eval_set.evaluation_items:
+        eval_items = [
+            evals_module.get_evaluation_item(name=item_name)
+            for item_name in eval_set.evaluation_items
+        ]
+    return _get_eval_result_from_eval_items(evaluation_run_results, eval_items)
+
+
+async def _convert_evaluation_run_results_async(
+    api_client: BaseApiClient,
+    evaluation_run_results: types.EvaluationRunResults,
+) -> list[types.EvaluationItem]:
+    """Retrieves an EvaluationItem from the EvaluationRunResults."""
+    if not evaluation_run_results or not evaluation_run_results.evaluation_set:
+        return []
+
+    evals_module = evals.AsyncEvals(api_client_=api_client)
+    eval_set = await evals_module.get_evaluation_set(
+        name=evaluation_run_results.evaluation_set
+    )
+
+    eval_items = []
+    if eval_set and eval_set.evaluation_items:
+        tasks = [
+            evals_module.get_evaluation_item(name=eval_item)
+            for eval_item in eval_set.evaluation_items
+        ]
+        eval_items = await asyncio.gather(*tasks)
+    return _get_eval_result_from_eval_items(evaluation_run_results, eval_items)

@@ -143,6 +143,52 @@ def _EvaluateInstancesRequestParameters_to_vertex(
     return to_object
 
 
+def _EvaluationRun_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["completionTime"]) is not None:
+        setv(to_object, ["completion_time"], getv(from_object, ["completionTime"]))
+
+    if getv(from_object, ["state"]) is not None:
+        setv(to_object, ["state"], getv(from_object, ["state"]))
+
+    if getv(from_object, ["evaluationSetSnapshot"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_set_snapshot"],
+            getv(from_object, ["evaluationSetSnapshot"]),
+        )
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["dataSource"]) is not None:
+        setv(to_object, ["data_source"], getv(from_object, ["dataSource"]))
+
+    if getv(from_object, ["evaluationResults"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_run_results"],
+            getv(from_object, ["evaluationResults"]),
+        )
+
+    return to_object
+
+
 def _GenerateInstanceRubricsRequest_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -356,6 +402,9 @@ class Evals(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
         return_value = types.EvaluationRun._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
@@ -547,6 +596,9 @@ class Evals(_api_module.BaseModule):
         response = self._api_client.request("get", path, request_dict, http_options)
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1047,6 +1099,7 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         name: str,
+        include_evaluation_items: bool = False,
         config: Optional[types.GetEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Retrieves an EvaluationRun from the resource name."""
@@ -1054,7 +1107,14 @@ class Evals(_api_module.BaseModule):
             raise ValueError("name cannot be empty.")
         if name.startswith("projects/"):
             name = name.split("/")[-1]
-        return self._get_evaluation_run(name=name, config=config)
+        result = self._get_evaluation_run(name=name, config=config)
+        if include_evaluation_items:
+            result.evaluation_item_results = (
+                _evals_common._convert_evaluation_run_results(
+                    self._api_client, result.evaluation_run_results
+                )
+            )
+        return result
 
     @_common.experimental_warning(
         "The Vertex SDK GenAI evals.create_evaluation_run module is experimental, "
@@ -1213,6 +1273,9 @@ class AsyncEvals(_api_module.BaseModule):
         )
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1411,6 +1474,9 @@ class AsyncEvals(_api_module.BaseModule):
         )
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1620,6 +1686,7 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         name: str,
+        include_evaluation_items: bool = False,
         config: Optional[types.GetEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """
@@ -1630,6 +1697,12 @@ class AsyncEvals(_api_module.BaseModule):
         if name.startswith("projects/"):
             name = name.split("/")[-1]
         result = await self._get_evaluation_run(name=name, config=config)
+        if include_evaluation_items:
+            result.evaluation_item_results = (
+                await _evals_common._convert_evaluation_run_results_async(
+                    self._api_client, result.evaluation_run_results
+                )
+            )
 
         return result
 

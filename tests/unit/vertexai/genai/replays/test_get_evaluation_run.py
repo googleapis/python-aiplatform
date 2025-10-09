@@ -16,7 +16,6 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai import types
-from vertexai._genai import _evals_visualization
 import datetime
 import pytest
 
@@ -26,8 +25,23 @@ def test_get_eval_run(client):
     evaluation_run_name = (
         "projects/503583131166/locations/us-central1/evaluationRuns/1957799200510967808"
     )
+    evaluation_run = client.evals.get_evaluation_run(
+        name=evaluation_run_name, include_evaluation_items=True
+    )
+    check_run_1957799200510967808(client, evaluation_run, evaluation_run_name)
+    check_run_1957799200510967808_evaluation_item_results(
+        client, evaluation_run, evaluation_run_name
+    )
+
+
+def test_get_eval_run_include_evaluation_items_false(client):
+    """Tests that get_evaluation_run() returns a correctly structured EvaluationRun."""
+    evaluation_run_name = (
+        "projects/503583131166/locations/us-central1/evaluationRuns/1957799200510967808"
+    )
     evaluation_run = client.evals.get_evaluation_run(name=evaluation_run_name)
-    check_run_1957799200510967808(evaluation_run, evaluation_run_name)
+    check_run_1957799200510967808(client, evaluation_run, evaluation_run_name)
+    assert evaluation_run.evaluation_item_results is None
 
 
 def test_get_eval_run_bq_source(client):
@@ -35,7 +49,9 @@ def test_get_eval_run_bq_source(client):
     evaluation_run_name = (
         "projects/503583131166/locations/us-central1/evaluationRuns/1968424880881795072"
     )
-    evaluation_run = client.evals.get_evaluation_run(name=evaluation_run_name)
+    evaluation_run = client.evals.get_evaluation_run(
+        name=evaluation_run_name, include_evaluation_items=True
+    )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.name == evaluation_run_name
     assert evaluation_run.display_name == "test1"
@@ -61,7 +77,9 @@ def test_get_eval_run_eval_set_source(client):
     evaluation_run_name = (
         "projects/503583131166/locations/us-central1/evaluationRuns/6903525647549726720"
     )
-    evaluation_run = client.evals.get_evaluation_run(name=evaluation_run_name)
+    evaluation_run = client.evals.get_evaluation_run(
+        name=evaluation_run_name, include_evaluation_items=True
+    )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.name == evaluation_run_name
     assert evaluation_run.display_name == "test3"
@@ -86,11 +104,12 @@ async def test_get_eval_run_async(client):
         f"projects/503583131166/locations/us-central1/evaluationRuns/{eval_run_id}"
     )
     evaluation_run = await client.aio.evals.get_evaluation_run(name=eval_run_id)
-    check_run_1957799200510967808(evaluation_run, evaluation_run_name)
+    check_run_1957799200510967808(client, evaluation_run, evaluation_run_name)
+    assert evaluation_run.evaluation_item_results is None
 
 
 def check_run_1957799200510967808(
-    evaluation_run: types.EvaluationRun, evaluation_run_name: str
+    client, evaluation_run: types.EvaluationRun, evaluation_run_name: str
 ):
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.name == evaluation_run_name
@@ -115,10 +134,10 @@ def check_run_1957799200510967808(
             "checkpoint_2": "checkpoint_2",
         },
     )
-    assert evaluation_run.evaluation_results.evaluation_set == (
+    assert evaluation_run.evaluation_run_results.evaluation_set == (
         "projects/503583131166/locations/us-central1/evaluationSets/102386522778501120"
     )
-    assert evaluation_run.evaluation_results.summary_metrics == (
+    assert evaluation_run.evaluation_run_results.summary_metrics == (
         types.SummaryMetric(
             metrics={
                 "checkpoint_1/user_defined/MODE": 5,
@@ -189,9 +208,12 @@ def check_run_1957799200510967808(
         )
     )
     assert evaluation_run.error is None
-    eval_result = _evals_visualization._get_eval_result_from_eval_run(
-        evaluation_run.evaluation_results
-    )
+
+
+def check_run_1957799200510967808_evaluation_item_results(
+    client, evaluation_run: types.EvaluationRun, evaluation_run_name: str
+):
+    eval_result = evaluation_run.evaluation_item_results
     assert isinstance(eval_result, types.EvaluationResult)
     assert eval_result.summary_metrics == [
         types.AggregatedMetricResult(
@@ -221,6 +243,39 @@ def check_run_1957799200510967808(
             stdev_score=0.6359497880839245,
         ),
     ]
+    # Check the first eval case result.
+    eval_case_result = eval_result.eval_case_results[0]
+    assert isinstance(eval_case_result, types.EvalCaseResult)
+    # Check the response candidate results.
+    response_candidate_result = eval_case_result.response_candidate_results[0]
+    assert isinstance(response_candidate_result, types.ResponseCandidateResult)
+    universal_metric_result = response_candidate_result.metric_results["universal"]
+    assert isinstance(universal_metric_result, types.EvalCaseMetricResult)
+    assert universal_metric_result.metric_name == "universal"
+    assert universal_metric_result.score > 0
+    assert universal_metric_result.explanation is None
+    # Check the first rubric verdict.
+    rubric_verdict_0 = universal_metric_result.rubric_verdicts[0]
+    assert rubric_verdict_0 == (
+        types.RubricVerdict(
+            evaluated_rubric=types.Rubric(
+                content=types.RubricContent(
+                    property=types.RubricContentProperty(
+                        description="The response is in English."
+                    )
+                ),
+                importance="HIGH",
+                type="LANGUAGE:PRIMARY_RESPONSE_LANGUAGE",
+            ),
+            reasoning=("The entire response is written in the English language."),
+            verdict=True,
+        )
+    )
+    # Check the first evaluation dataset.
+    eval_dataset = eval_result.evaluation_dataset[0]
+    assert isinstance(eval_dataset, types.EvaluationDataset)
+    assert eval_dataset.candidate_name == "gemini-2.0-flash-001@default"
+    assert eval_dataset.eval_dataset_df.shape == (19, 3)
 
 
 pytestmark = pytest_helper.setup(
