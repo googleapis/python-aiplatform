@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.121.0](https://github.com/googleapis/python-aiplatform/compare/v1.120.0...v1.121.0) (2025-10-09)
+
+
+### Features
+
+* Add matching engine deployment tier parameter and new shard size ([ffe9cde](https://github.com/googleapis/python-aiplatform/commit/ffe9cde28f33e432c8def7d03e2e9a30a26d4cbf))
+* GenAI SDK client(evals) Update data model for agent evaluation ([4ca9fcc](https://github.com/googleapis/python-aiplatform/commit/4ca9fccfed52cda4661e308aa9915f1bd0ea8492))
+
+
+### Bug Fixes
+
+* Adding google internal import rule for vertex service to adk app ([0d1240e](https://github.com/googleapis/python-aiplatform/commit/0d1240e43899a4ce5eafa19c6046380643e92755))
+
 ## [1.120.0](https://github.com/googleapis/python-aiplatform/compare/v1.119.0...v1.120.0) (2025-10-08)
 
 
