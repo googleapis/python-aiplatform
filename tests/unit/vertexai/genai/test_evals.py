@@ -2297,10 +2297,10 @@ class TestObservabilityDataConverter:
         )
 
 
-class TestAgentMetadata:
-    """Unit tests for the AgentMetadata class."""
+class TestAgentInfo:
+    """Unit tests for the AgentInfo class."""
 
-    def test_agent_metadata_creation(self):
+    def test_agent_info_creation(self):
         tool = genai_types.Tool(
             function_declarations=[
                 genai_types.FunctionDeclaration(
@@ -2313,18 +2313,16 @@ class TestAgentMetadata:
                 )
             ]
         )
-        agent_metadata = vertexai_genai_types.AgentMetadata(
+        agent_info = vertexai_genai_types.AgentInfo(
             name="agent1",
             instruction="instruction1",
             description="description1",
             tool_declarations=[tool],
-            sub_agent_names=["sub_agent1"],
         )
-        assert agent_metadata.name == "agent1"
-        assert agent_metadata.instruction == "instruction1"
-        assert agent_metadata.description == "description1"
-        assert agent_metadata.tool_declarations == [tool]
-        assert agent_metadata.sub_agent_names == ["sub_agent1"]
+        assert agent_info.name == "agent1"
+        assert agent_info.instruction == "instruction1"
+        assert agent_info.description == "description1"
+        assert agent_info.tool_declarations == [tool]
 
 
 class TestEvent:
@@ -2359,13 +2357,11 @@ class TestEvalCase:
                 )
             ]
         )
-        agent_metadata = {
-            "agent1": vertexai_genai_types.AgentMetadata(
-                name="agent1",
-                instruction="instruction1",
-                tool_declarations=[tool],
-            )
-        }
+        agent_info = vertexai_genai_types.AgentInfo(
+            name="agent1",
+            instruction="instruction1",
+            tool_declarations=[tool],
+        )
         intermediate_events = [
             vertexai_genai_types.Event(
                 event_id="event1",
@@ -2381,12 +2377,24 @@ class TestEvalCase:
                     response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
                 )
             ],
-            agent_metadata=agent_metadata,
+            agent_info=agent_info,
             intermediate_events=intermediate_events,
         )
 
-        assert eval_case.agent_metadata == agent_metadata
+        assert eval_case.agent_info == agent_info
         assert eval_case.intermediate_events == intermediate_events
+
+
+class TestSessionInput:
+    """Unit tests for the SessionInput class."""
+
+    def test_session_input_creation(self):
+        session_input = vertexai_genai_types.SessionInput(
+            user_id="user1",
+            state={"key": "value"},
+        )
+        assert session_input.user_id == "user1"
+        assert session_input.state == {"key": "value"}
 
 
 class TestMetric:

@@ -142,7 +142,7 @@ class SessionEvents(_api_module.BaseModule):
         Appends Agent Engine session event.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to append event for. Format:
+            name (str): Required. The name of the Agent Engine session to append the event to. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             author (str): Required. The author of the Agent Engine session event.
             invocation_id (str): Required. The invocation ID of the Agent Engine session event.
@@ -313,7 +313,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
         Appends Agent Engine session event.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to append event for. Format:
+            name (str): Required. The name of the Agent Engine session to append the event to. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             author (str): Required. The author of the Agent Engine session event.
             invocation_id (str): Required. The invocation ID of the Agent Engine session event.

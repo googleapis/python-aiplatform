@@ -318,7 +318,7 @@ class AgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    def delete(
+    def _delete(
         self,
         *,
         name: str,
@@ -724,6 +724,34 @@ class AgentEngines(_api_module.BaseModule):
         if api_resource.spec:
             self._register_api_methods(agent_engine=agent_engine)
         return agent_engine
+
+    def delete(
+        self,
+        *,
+        name: str,
+        force: Optional[bool] = None,
+        config: Optional[types.DeleteAgentEngineConfigOrDict] = None,
+    ) -> types.DeleteAgentEngineOperation:
+        """
+        Delete an Agent Engine resource.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
+                or `reasoningEngines/{resource_id}`.
+            force (bool):
+                Optional. If set to True, child resources will also be deleted.
+                Otherwise, the request will fail with FAILED_PRECONDITION error when
+                the Agent Engine has undeleted child resources. Defaults to False.
+            config (DeleteAgentEngineConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
+        """
+        logger.info(f"Deleting AgentEngine resource: {name}")
+        operation = self._delete(name=name, force=force, config=config)
+        logger.info(f"Started AgentEngine delete operation: {operation.name}")
+        return operation
 
     def create(
         self,
@@ -1659,7 +1687,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    async def delete(
+    async def _delete(
         self,
         *,
         name: str,
@@ -1993,6 +2021,34 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
     _memories = None
     _sessions = None
+
+    async def delete(
+        self,
+        *,
+        name: str,
+        force: Optional[bool] = None,
+        config: Optional[types.DeleteAgentEngineConfigOrDict] = None,
+    ) -> types.DeleteAgentEngineOperation:
+        """
+        Delete an Agent Engine resource.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
+                or `reasoningEngines/{resource_id}`.
+            force (bool):
+                Optional. If set to True, child resources will also be deleted.
+                Otherwise, the request will fail with FAILED_PRECONDITION error when
+                the Agent Engine has undeleted child resources. Defaults to False.
+            config (DeleteAgentEngineConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
+        """
+        logger.info(f"Deleting AgentEngine resource: {name}")
+        operation = await self._delete(name=name, force=force, config=config)
+        logger.info(f"Started AgentEngine delete operation: {operation.name}")
+        return operation
 
     @property
     def memories(self):

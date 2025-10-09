@@ -975,3 +975,37 @@ def _execute_evaluation(
             "Evaluation results uploaded successfully to GCS: %s", uploaded_path
         )
     return evaluation_result
+
+
+def _convert_gcs_to_evaluation_item_result(
+    api_client: BaseApiClient,
+    gcs_uri: str,
+) -> types.EvaluationItemResult:
+    """Converts a json file to an EvaluationItemResult."""
+    logger.info("Loading evaluation item result from GCS: %s", gcs_uri)
+    gcs_utils = _evals_utils.GcsUtils(api_client=api_client)
+    try:
+        eval_item_data = json.loads(gcs_utils.read_file_contents(gcs_uri))
+        return types.EvaluationItemResult(**eval_item_data)
+    except Exception as e:
+        logger.error(
+            "Failed to load evaluation result from GCS: %s. Error: %s", gcs_uri, e
+        )
+    return types.EvaluationItemResult()
+
+
+def _convert_gcs_to_evaluation_item_request(
+    api_client: BaseApiClient,
+    gcs_uri: str,
+) -> types.EvaluationItemRequest:
+    """Converts a json file to an EvaluationItemRequest."""
+    logger.info("Loading evaluation item request from GCS: %s", gcs_uri)
+    gcs_utils = _evals_utils.GcsUtils(api_client=api_client)
+    try:
+        eval_item_data = json.loads(gcs_utils.read_file_contents(gcs_uri))
+        return types.EvaluationItemRequest(**eval_item_data)
+    except Exception as e:
+        logger.error(
+            "Failed to load evaluation request from GCS: %s. Error: %s", gcs_uri, e
+        )
+    return types.EvaluationItemRequest()
