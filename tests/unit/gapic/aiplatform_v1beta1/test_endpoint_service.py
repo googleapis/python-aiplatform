@@ -8226,6 +8226,7 @@ def test_create_endpoint_rest_call_success(request_type):
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
+                    "initial_replica_count": 2225,
                     "autoscaling_metric_specs": [
                         {
                             "metric_name": "metric_name_value",
@@ -8236,6 +8237,10 @@ def test_create_endpoint_rest_call_success(request_type):
                     "spot": True,
                     "flex_start": {
                         "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
+                    "scale_to_zero_spec": {
+                        "min_scaleup_period": {},
+                        "idle_scaledown_period": {},
                     },
                 },
                 "automatic_resources": {
@@ -8874,6 +8879,7 @@ def test_update_endpoint_rest_call_success(request_type):
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
+                    "initial_replica_count": 2225,
                     "autoscaling_metric_specs": [
                         {
                             "metric_name": "metric_name_value",
@@ -8884,6 +8890,10 @@ def test_update_endpoint_rest_call_success(request_type):
                     "spot": True,
                     "flex_start": {
                         "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
+                    "scale_to_zero_spec": {
+                        "min_scaleup_period": {},
+                        "idle_scaledown_period": {},
                     },
                 },
                 "automatic_resources": {
@@ -11040,6 +11050,7 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
+                    "initial_replica_count": 2225,
                     "autoscaling_metric_specs": [
                         {
                             "metric_name": "metric_name_value",
@@ -11050,6 +11061,10 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                     "spot": True,
                     "flex_start": {
                         "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
+                    "scale_to_zero_spec": {
+                        "min_scaleup_period": {},
+                        "idle_scaledown_period": {},
                     },
                 },
                 "automatic_resources": {
@@ -11745,6 +11760,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
+                    "initial_replica_count": 2225,
                     "autoscaling_metric_specs": [
                         {
                             "metric_name": "metric_name_value",
@@ -11755,6 +11771,10 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                     "spot": True,
                     "flex_start": {
                         "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
+                    "scale_to_zero_spec": {
+                        "min_scaleup_period": {},
+                        "idle_scaledown_period": {},
                     },
                 },
                 "automatic_resources": {
