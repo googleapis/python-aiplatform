@@ -944,6 +944,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         auth_config_audiences: Optional[Sequence[str]] = None,
         auth_config_allowed_issuers: Optional[Sequence[str]] = None,
         psc_automation_configs: Optional[Sequence[Tuple[str, str]]] = None,
+        deployment_tier: Optional[str] = None,
     ) -> gca_matching_engine_index_endpoint.DeployedIndex:
         """Builds a DeployedIndex.
 
@@ -1046,6 +1047,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 projects/{project}/global/networks/{network}, where
                 {project} is a project number, as in '12345', and {network}
                 is network name.
+            deployment_tier (str):
+                Optional. The deployment tier that the index is deployed to.
 
         """
 
@@ -1056,6 +1059,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             enable_access_logging=enable_access_logging,
             reserved_ip_ranges=reserved_ip_ranges,
             deployment_group=deployment_group,
+            deployment_tier=deployment_tier,
         )
 
         if auth_config_audiences and auth_config_allowed_issuers:
@@ -1115,6 +1119,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         deploy_request_timeout: Optional[float] = None,
         psc_automation_configs: Optional[Sequence[Tuple[str, str]]] = None,
+        deployment_tier: Optional[str] = None,
     ) -> "MatchingEngineIndexEndpoint":
         """Deploys an existing index resource to this endpoint resource.
 
@@ -1231,6 +1236,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 [(project_id_1, network_1), (project_id_1, network_2))] will enable
                 PSC automation for the index to be deployed to project_id_1's network_1
                 and network_2 and can be queried within these networks.
+            deployment_tier (str):
+                Optional. The deployment tier that the index is deployed to.
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
@@ -1250,6 +1257,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             deploy_request_timeout=deploy_request_timeout,
             psc_automation_configs=psc_automation_configs,
+            deployment_tier=deployment_tier,
         )
 
     @base.optional_sync(return_input_arg="self")
@@ -1270,6 +1278,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         deploy_request_timeout: Optional[float] = None,
         psc_automation_configs: Optional[Sequence[Tuple[str, str]]] = None,
+        deployment_tier: Optional[str] = None,
     ) -> "MatchingEngineIndexEndpoint":
         """Helper method to deploy an existing index resource to this endpoint resource.
 
@@ -1386,6 +1395,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 [(project_id_1, network_1), (project_id_1, network_2))] will enable
                 PSC automation for the index to be deployed to project_id_1's network_1
                 and network_2 and can be queried within these networks.
+            deployment_tier (str):
+                Optional. The deployment tier that the index is deployed to.
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
@@ -1411,6 +1422,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             auth_config_audiences=auth_config_audiences,
             auth_config_allowed_issuers=auth_config_allowed_issuers,
             psc_automation_configs=psc_automation_configs,
+            deployment_tier=deployment_tier,
         )
 
         deploy_lro = self.api_client.deploy_index(
