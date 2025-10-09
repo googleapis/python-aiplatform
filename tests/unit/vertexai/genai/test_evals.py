@@ -2036,15 +2036,15 @@ class TestObservabilityDataConverter:
         raw_data = [
             {
                 "format": "observability",
-                "request": [
+                "request": json.dumps(
                     {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
-                ],
-                "response": [
+                ),
+                "response": json.dumps(
                     {
                         "role": "system",
                         "parts": [{"content": "Hi", "type": "text"}],
                     }
-                ],
+                ),
             }
         ]
         result_dataset = self.converter.convert(raw_data)
@@ -2068,19 +2068,21 @@ class TestObservabilityDataConverter:
         raw_data = [
             {
                 "format": "observability",
-                "request": [
+                "request": json.dumps(
                     {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
-                ],
-                "response": [
+                ),
+                "response": json.dumps(
                     {
                         "role": "system",
                         "parts": [{"content": "Hi", "type": "text"}],
                     }
-                ],
-                "system_instruction": {
-                    "role": "user",
-                    "parts": [{"content": "Be helpful", "type": "text"}],
-                },
+                ),
+                "system_instruction": json.dumps(
+                    {
+                        "role": "user",
+                        "parts": [{"content": "Be helpful", "type": "text"}],
+                    }
+                ),
             }
         ]
         result_dataset = self.converter.convert(raw_data)
@@ -2093,22 +2095,28 @@ class TestObservabilityDataConverter:
         raw_data = [
             {
                 "format": "observability",
-                "request": [
-                    {"role": "user", "parts": [{"content": "Hello", "type": "text"}]},
-                    {"role": "system", "parts": [{"content": "Hi", "type": "text"}]},
+                "request": json.dumps(
+                    {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
+                )
+                + "\n"
+                + json.dumps(
+                    {"role": "system", "parts": [{"content": "Hi", "type": "text"}]}
+                )
+                + "\n"
+                + json.dumps(
                     {
                         "role": "user",
                         "parts": [
                             {"content": "What's the meaning of life?", "type": "text"}
                         ],
-                    },
-                ],
-                "response": [
+                    }
+                ),
+                "response": json.dumps(
                     {
                         "role": "system",
                         "parts": [{"content": "42.", "type": "text"}],
                     }
-                ],
+                ),
             }
         ]
 
@@ -2139,27 +2147,27 @@ class TestObservabilityDataConverter:
         raw_data = [
             {
                 "format": "observability",
-                "request": [
+                "request": json.dumps(
                     {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
-                ],
-                "response": [
+                ),
+                "response": json.dumps(
                     {
                         "role": "system",
                         "parts": [{"content": "Hi", "type": "text"}],
                     }
-                ],
+                ),
             },
             {
                 "format": "observability",
-                "request": [
+                "request": json.dumps(
                     {"role": "user", "parts": [{"content": "Goodbye", "type": "text"}]}
-                ],
-                "response": [
+                ),
+                "response": json.dumps(
                     {
                         "role": "system",
                         "parts": [{"content": "Bye", "type": "text"}],
                     }
-                ],
+                ),
             },
         ]
         result_dataset = self.converter.convert(raw_data)
@@ -2187,7 +2195,7 @@ class TestObservabilityDataConverter:
         raw_data = [
             {
                 "format": "observability",
-                "request": [
+                "request": json.dumps(
                     {
                         "role": "user",
                         "parts": [
@@ -2196,13 +2204,13 @@ class TestObservabilityDataConverter:
                             {"content": "Hello", "type": "text"},
                         ],
                     }
-                ],
-                "response": [
+                ),
+                "response": json.dumps(
                     {
                         "role": "system",
                         "parts": [{"content": "Hi", "type": "text"}],
                     }
-                ],
+                ),
             }
         ]
 
@@ -2217,12 +2225,12 @@ class TestObservabilityDataConverter:
         raw_data = [
             {
                 "format": "observability",
-                "response": [
+                "response": json.dumps(
                     {
                         "role": "system",
                         "parts": [{"content": "Hi", "type": "text"}],
                     }
-                ],
+                ),
             }
         ]
         result_dataset = self.converter.convert(raw_data)
@@ -2232,9 +2240,9 @@ class TestObservabilityDataConverter:
         raw_data = [
             {
                 "format": "observability",
-                "request": [
+                "request": json.dumps(
                     {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
-                ],
+                ),
             }
         ]
         result_dataset = self.converter.convert(raw_data)
@@ -2244,7 +2252,7 @@ class TestObservabilityDataConverter:
         raw_data = [
             {
                 "format": "observability",
-                "request": [
+                "request": json.dumps(
                     {
                         "role": "user",
                         "parts": [
@@ -2256,8 +2264,8 @@ class TestObservabilityDataConverter:
                             }
                         ],
                     }
-                ],
-                "response": [
+                ),
+                "response": json.dumps(
                     {
                         "role": "system",
                         "parts": [
@@ -2268,7 +2276,7 @@ class TestObservabilityDataConverter:
                             }
                         ],
                     }
-                ],
+                ),
             }
         ]
         result_dataset = self.converter.convert(raw_data)
@@ -3433,15 +3441,15 @@ class TestAutoDetectDatasetSchema:
         raw_data = [
             {
                 "format": "observability",
-                "request": [
+                "request": json.dumps(
                     {"role": "user", "parts": [{"content": "Hello", "type": "text"}]}
-                ],
-                "response": [
+                ),
+                "response": json.dumps(
                     {
                         "role": "system",
                         "parts": [{"content": "Hi", "type": "text"}],
                     }
-                ],
+                ),
             }
         ]
         assert (

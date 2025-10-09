@@ -131,42 +131,24 @@ class ObservabilityDataConverter(_evals_utils.EvalDataConverter):
             reference=None,
         )
 
-    def _load_json_dict(self, data: Any, case_id: str) -> dict[Any, str]:
-        """Parses the raw data into a dict if possible."""
+    def _load_jsonl(self, data: Any, case_id: str) -> list[dict[Any, Any]]:
+        """Parses the raw JSONL data into a list of dict possible."""
         if isinstance(data, str):
-            loaded_json = json.loads(data)
-            if isinstance(loaded_json, dict):
-                return loaded_json
-            else:
-                raise TypeError(
-                    f"Decoded JSON payload is not a dictionary for case "
-                    f"{case_id}. Type found: {type(loaded_json).__name__}"
-                )
-        elif isinstance(data, dict):
-            return data
+            json_list = []
+            for line in data.splitlines():
+                loaded_json = json.loads(line)
+                if isinstance(loaded_json, dict):
+                    json_list.append(loaded_json)
+                else:
+                    raise TypeError(
+                        f"Decoded JSON payload is not a dict for case "
+                        f"{case_id}. Type found: {type(loaded_json).__name__}"
+                    )
+            return json_list
         else:
             raise TypeError(
-                f"Payload is not a dictionary for case {case_id}. Type found: "
-                f"{type(data).__name__}"
-            )
-
-    def _load_json_list(self, data: Any, case_id: str) -> list[Any]:
-        """Parses the raw data into a list if possible."""
-        if isinstance(data, str):
-            loaded_json = json.loads(data)
-            if isinstance(loaded_json, list):
-                return loaded_json
-            else:
-                raise TypeError(
-                    f"Decoded JSON payload is not a list for case "
-                    f"{case_id}. Type found: {type(loaded_json).__name__}"
-                )
-        elif isinstance(data, list):
-            return data
-        else:
-            raise TypeError(
-                f"Payload is not a list for case {case_id}. Type found: "
-                f"{type(data).__name__}"
+                f"Payload is not a JSONL string for case {case_id}. Type "
+                f"found: {type(data).__name__}"
             )
 
     @override
@@ -185,15 +167,16 @@ class ObservabilityDataConverter(_evals_utils.EvalDataConverter):
                 continue
 
             request_data = case.get("request", [])
-            request_list = self._load_json_list(request_data, eval_case_id)
+            request_list = self._load_jsonl(request_data, eval_case_id)
 
             response_data = case.get("response", [])
-            response_list = self._load_json_list(response_data, eval_case_id)
+            response_list = self._load_jsonl(response_data, eval_case_id)
 
             system_dict = None
             if "system_instruction" in case:
                 system_data = case.get("system_instruction", {})
-                system_dict = self._load_json_dict(system_data, eval_case_id)
+                system_list = self._load_jsonl(system_data, eval_case_id)
+                system_dict = system_list[0] if system_list else {}
 
             eval_case = self._parse_messages(
                 eval_case_id, request_list, response_list, system_dict
