@@ -2078,6 +2078,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
+        logger.info(f"AsyncSessions: {self._sessions}")
         return self._sessions.AsyncSessions(self._api_client)
 
     async def append_session_event(
