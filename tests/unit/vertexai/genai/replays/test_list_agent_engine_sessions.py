@@ -14,6 +14,9 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import pytest
+
+
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 
@@ -21,23 +24,49 @@ from vertexai._genai import types
 def test_list_sessions(client):
     agent_engine = client.agent_engines.create()
     assert not list(
-        client.agent_engines.list_sessions(
+        client.agent_engines.sessions.list(
             name=agent_engine.api_resource.name,
         )
     )
-    client.agent_engines.create_session(
+    client.agent_engines.sessions.create(
         name=agent_engine.api_resource.name,
         user_id="test-user-123",
     )
-    session_list = client.agent_engines.list_sessions(
+    session_list = client.agent_engines.sessions.list(
         name=agent_engine.api_resource.name,
     )
     assert len(session_list) == 1
     assert isinstance(session_list[0], types.Session)
 
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.list_sessions",
+    test_method="agent_engines.sessions.list",
 )
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_async_list_sessions(client):
+    agent_engine = client.agent_engines.create()
+    pager = await client.aio.agent_engines.sessions.list(
+        name=agent_engine.api_resource.name
+    )
+    assert not [item async for item in pager]
+
+    await client.aio.agent_engines.sessions.create(
+        name=agent_engine.api_resource.name,
+        user_id="test-user-123",
+    )
+    pager = await client.aio.agent_engines.sessions.list(
+        name=agent_engine.api_resource.name,
+    )
+    session_list = [item async for item in pager]
+    assert len(session_list) == 1
+    assert isinstance(session_list[0], types.Session)
+
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
