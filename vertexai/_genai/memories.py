@@ -39,6 +39,7 @@ logger.setLevel(logging.INFO)
 def _AgentEngineMemoryConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -60,6 +61,7 @@ def _AgentEngineMemoryConfig_to_vertex(
 def _CreateAgentEngineMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -76,7 +78,7 @@ def _CreateAgentEngineMemoryRequestParameters_to_vertex(
             to_object,
             ["config"],
             _AgentEngineMemoryConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
+                getv(from_object, ["config"]), to_object, root_object
             ),
         )
 
@@ -86,6 +88,7 @@ def _CreateAgentEngineMemoryRequestParameters_to_vertex(
 def _DeleteAgentEngineMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -100,6 +103,7 @@ def _DeleteAgentEngineMemoryRequestParameters_to_vertex(
 def _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -138,6 +142,7 @@ def _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
 def _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["operation_name"]) is not None:
@@ -154,6 +159,7 @@ def _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
 def _GetAgentEngineMemoryOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["operation_name"]) is not None:
@@ -170,6 +176,7 @@ def _GetAgentEngineMemoryOperationParameters_to_vertex(
 def _GetAgentEngineMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -184,6 +191,7 @@ def _GetAgentEngineMemoryRequestParameters_to_vertex(
 def _ListAgentEngineMemoryConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -205,6 +213,7 @@ def _ListAgentEngineMemoryConfig_to_vertex(
 def _ListAgentEngineMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -215,7 +224,7 @@ def _ListAgentEngineMemoryRequestParameters_to_vertex(
             to_object,
             ["config"],
             _ListAgentEngineMemoryConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
+                getv(from_object, ["config"]), to_object, root_object
             ),
         )
 
@@ -225,6 +234,7 @@ def _ListAgentEngineMemoryRequestParameters_to_vertex(
 def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -256,6 +266,7 @@ def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
 def _UpdateAgentEngineMemoryConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -282,6 +293,7 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
 def _UpdateAgentEngineMemoryRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -298,7 +310,7 @@ def _UpdateAgentEngineMemoryRequestParameters_to_vertex(
             to_object,
             ["config"],
             _UpdateAgentEngineMemoryConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
+                getv(from_object, ["config"]), to_object, root_object
             ),
         )
 
@@ -331,7 +343,7 @@ class Memories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _CreateAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -394,7 +406,7 @@ class Memories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _DeleteAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -463,7 +475,7 @@ class Memories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -524,7 +536,7 @@ class Memories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -579,7 +591,7 @@ class Memories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ListAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -630,7 +642,7 @@ class Memories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineMemoryOperationParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -681,7 +693,7 @@ class Memories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -746,7 +758,7 @@ class Memories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -805,7 +817,7 @@ class Memories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _UpdateAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1060,7 +1072,7 @@ class AsyncMemories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _CreateAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1125,7 +1137,7 @@ class AsyncMemories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _DeleteAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1196,7 +1208,7 @@ class AsyncMemories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1259,7 +1271,7 @@ class AsyncMemories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1316,7 +1328,7 @@ class AsyncMemories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ListAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1369,7 +1381,7 @@ class AsyncMemories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineMemoryOperationParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1422,7 +1434,7 @@ class AsyncMemories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1489,7 +1501,7 @@ class AsyncMemories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1550,7 +1562,7 @@ class AsyncMemories(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _UpdateAgentEngineMemoryRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:

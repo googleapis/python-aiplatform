@@ -39,6 +39,7 @@ logger = logging.getLogger("vertexai_genai.evals")
 def _CreateEvaluationRunParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -62,6 +63,7 @@ def _CreateEvaluationRunParameters_to_vertex(
 def _EvaluateInstancesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["bleu_input"]) is not None:
@@ -120,7 +122,7 @@ def _EvaluateInstancesRequestParameters_to_vertex(
             to_object,
             ["rubricBasedMetricInput"],
             _RubricBasedMetricInput_to_vertex(
-                getv(from_object, ["rubric_based_metric_input"]), to_object
+                getv(from_object, ["rubric_based_metric_input"]), to_object, root_object
             ),
         )
 
@@ -146,6 +148,7 @@ def _EvaluateInstancesRequestParameters_to_vertex(
 def _GenerateInstanceRubricsRequest_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["contents"]) is not None:
@@ -163,7 +166,7 @@ def _GenerateInstanceRubricsRequest_to_vertex(
             to_object,
             ["rubricGenerationSpec"],
             _RubricGenerationSpec_to_vertex(
-                getv(from_object, ["rubric_generation_spec"]), to_object
+                getv(from_object, ["rubric_generation_spec"]), to_object, root_object
             ),
         )
 
@@ -176,6 +179,7 @@ def _GenerateInstanceRubricsRequest_to_vertex(
 def _GetEvaluationItemParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -190,6 +194,7 @@ def _GetEvaluationItemParameters_to_vertex(
 def _GetEvaluationRunParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -204,6 +209,7 @@ def _GetEvaluationRunParameters_to_vertex(
 def _GetEvaluationSetParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -218,6 +224,7 @@ def _GetEvaluationSetParameters_to_vertex(
 def _RubricBasedMetricInput_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["metric_spec"]) is not None:
@@ -225,7 +232,7 @@ def _RubricBasedMetricInput_to_vertex(
             to_object,
             ["metricSpec"],
             _RubricBasedMetricSpec_to_vertex(
-                getv(from_object, ["metric_spec"]), to_object
+                getv(from_object, ["metric_spec"]), to_object, root_object
             ),
         )
 
@@ -238,6 +245,7 @@ def _RubricBasedMetricInput_to_vertex(
 def _RubricBasedMetricSpec_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["metric_prompt_template"]) is not None:
@@ -269,7 +277,7 @@ def _RubricBasedMetricSpec_to_vertex(
             to_object,
             ["rubricGenerationSpec"],
             _RubricGenerationSpec_to_vertex(
-                getv(from_object, ["rubric_generation_spec"]), to_object
+                getv(from_object, ["rubric_generation_spec"]), to_object, root_object
             ),
         )
 
@@ -279,6 +287,7 @@ def _RubricBasedMetricSpec_to_vertex(
 def _RubricGenerationSpec_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["prompt_template"]) is not None:
@@ -329,7 +338,9 @@ class Evals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_dict = _CreateEvaluationRunParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationRuns".format_map(request_url_dict)
@@ -411,7 +422,7 @@ class Evals(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _EvaluateInstancesRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -471,7 +482,9 @@ class Evals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
+            request_dict = _GenerateInstanceRubricsRequest_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":generateInstanceRubrics".format_map(request_url_dict)
@@ -521,7 +534,9 @@ class Evals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
+            request_dict = _GetEvaluationRunParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationRuns/{name}".format_map(request_url_dict)
@@ -571,7 +586,9 @@ class Evals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _GetEvaluationSetParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets/{name}".format_map(request_url_dict)
@@ -621,7 +638,9 @@ class Evals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
+            request_dict = _GetEvaluationItemParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationItems/{name}".format_map(request_url_dict)
@@ -1185,7 +1204,9 @@ class AsyncEvals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_dict = _CreateEvaluationRunParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationRuns".format_map(request_url_dict)
@@ -1269,7 +1290,7 @@ class AsyncEvals(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _EvaluateInstancesRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1331,7 +1352,9 @@ class AsyncEvals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
+            request_dict = _GenerateInstanceRubricsRequest_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = ":generateInstanceRubrics".format_map(request_url_dict)
@@ -1383,7 +1406,9 @@ class AsyncEvals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
+            request_dict = _GetEvaluationRunParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationRuns/{name}".format_map(request_url_dict)
@@ -1435,7 +1460,9 @@ class AsyncEvals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
+            request_dict = _GetEvaluationSetParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationSets/{name}".format_map(request_url_dict)
@@ -1487,7 +1514,9 @@ class AsyncEvals(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
+            request_dict = _GetEvaluationItemParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "evaluationItems/{name}".format_map(request_url_dict)
