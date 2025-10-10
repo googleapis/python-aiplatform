@@ -1490,11 +1490,10 @@ class AsyncModelMonitoringServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_model_monitoring_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_model_monitoring_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_model_monitoring_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1814,11 +1813,10 @@ class AsyncModelMonitoringServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_model_monitoring_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_model_monitoring_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_model_monitoring_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2139,11 +2137,10 @@ class AsyncModelMonitoringServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_model_monitoring_job(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_get_model_monitoring_job_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_get_model_monitoring_job_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2304,11 +2301,10 @@ class AsyncModelMonitoringServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_model_monitoring_jobs(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_list_model_monitoring_jobs_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_list_model_monitoring_jobs_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2564,11 +2560,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringAlerts._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_search_model_monitoring_alerts(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_search_model_monitoring_alerts(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringAlerts._get_transcoded_request(
                 http_options, request
@@ -2641,11 +2636,10 @@ class AsyncModelMonitoringServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_search_model_monitoring_alerts(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_search_model_monitoring_alerts_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_search_model_monitoring_alerts_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2740,11 +2734,10 @@ class AsyncModelMonitoringServiceRestTransport(
                 _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringStats._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_search_model_monitoring_stats(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_search_model_monitoring_stats(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelMonitoringServiceRestTransport._BaseSearchModelMonitoringStats._get_transcoded_request(
                 http_options, request
@@ -2817,11 +2810,10 @@ class AsyncModelMonitoringServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_search_model_monitoring_stats(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_search_model_monitoring_stats_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_search_model_monitoring_stats_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

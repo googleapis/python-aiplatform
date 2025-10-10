@@ -27,6 +27,8 @@ from vertexai.rag.utils import resources
 
 def retrieval_query(
     text: str,
+    parent_override: Optional[str] = None,
+    api_path_override: Optional[str] = None,
     rag_resources: Optional[List[resources.RagResource]] = None,
     rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
 ) -> aiplatform_v1.RetrieveContextsResponse:
@@ -62,6 +64,8 @@ def retrieval_query(
 
     Args:
         text: The query in text format to get relevant contexts.
+        parent_override: Optional. The resource path of the parent.
+        api_path_override: Optional. The base API endpoint to use for the request.
         rag_resources: A list of RagResource. It can be used to specify corpus
             only or ragfiles. Currently only support one corpus or multiple files
             from one corpus. In the future we may open up multiple corpora support.
@@ -72,8 +76,10 @@ def retrieval_query(
         RetrieveContextsResonse.
     """
     parent = initializer.global_config.common_location_path()
+    if parent_override:
+        parent = parent_override
 
-    client = _gapic_utils.create_rag_service_client()
+    client = _gapic_utils.create_rag_service_client(api_path_override)
 
     if rag_resources:
         if len(rag_resources) > 1:
@@ -82,7 +88,7 @@ def retrieval_query(
     else:
         raise ValueError("rag_resources must be specified.")
 
-    data_client = _gapic_utils.create_rag_data_service_client()
+    data_client = _gapic_utils.create_rag_data_service_client(api_path_override)
     if data_client.parse_rag_corpus_path(name):
         rag_corpus_name = name
     elif re.match("^{}$".format(_gapic_utils._VALID_RESOURCE_NAME_REGEX), name):

@@ -46,7 +46,7 @@ _api_client.append_library_version_headers = _add_tracking_headers
 
 
 class AsyncClient:
-    """Async Client for the GenAI SDK."""
+    """Async Gen AI Client for the Vertex SDK."""
 
     def __init__(self, api_client: genai_client.Client):
         self._api_client = api_client
@@ -54,6 +54,7 @@ class AsyncClient:
         self._evals = None
         self._agent_engines = None
         self._prompt_optimizer = None
+        self._prompts = None
 
     @property
     @_common.experimental_warning(
@@ -108,9 +109,18 @@ class AsyncClient:
                 ) from e
         return self._agent_engines.AsyncAgentEngines(self._api_client)
 
+    @property
+    def prompts(self):
+        if self._prompts is None:
+            self._prompts = importlib.import_module(
+                ".prompts",
+                __package__,
+            )
+        return self._prompts.AsyncPrompts(self._api_client)
+
 
 class Client:
-    """Client for the GenAI SDK.
+    """Gen AI Client for the Vertex SDK.
 
     Use this client to interact with Vertex-specific Gemini features.
     """
@@ -167,7 +177,7 @@ class Client:
         self._evals = None
         self._prompt_optimizer = None
         self._agent_engines = None
-        self._prompt_management = None
+        self._prompts = None
 
     @property
     def evals(self) -> Any:
@@ -197,10 +207,6 @@ class Client:
         return self._prompt_optimizer.PromptOptimizer(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI async client is experimental, "
-        "and may change in future versions."
-    )
     def aio(self):
         return self._aio
 
@@ -250,15 +256,11 @@ class Client:
         return self._agent_engines.AgentEngines(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI prompt management module is experimental, "
-        "and may change in future versions."
-    )
-    def prompt_management(self):
-        if self._prompt_management is None:
-            # Lazy loading the prompt_management module
-            self._prompt_management = importlib.import_module(
-                ".prompt_management",
+    def prompts(self):
+        if self._prompts is None:
+            # Lazy loading the prompts module
+            self._prompts = importlib.import_module(
+                ".prompts",
                 __package__,
             )
-        return self._prompt_management.PromptManagement(self._api_client)
+        return self._prompts.Prompts(self._api_client)

@@ -183,6 +183,9 @@ class _StreamRunRequest:
         self.user_id: Optional[str] = kwargs.get("user_id", _DEFAULT_USER_ID)
         # The user ID.
 
+        self.session_id: Optional[str] = kwargs.get("session_id")
+        # The session ID.
+
 
 class _StreamingRunResponse:
     """Response object for `streaming_agent_run_with_events` method.
@@ -195,6 +198,8 @@ class _StreamingRunResponse:
         # List of generated events.
         self.artifacts: Optional[List[_Artifact]] = kwargs.get("artifacts")
         # List of artifacts belonging to the session.
+        self.session_id: Optional[str] = kwargs.get("session_id")
+        # The session ID.
 
     def dump(self) -> Dict[str, Any]:
         from vertexai.agent_engines import _utils
@@ -208,6 +213,8 @@ class _StreamingRunResponse:
                 result["events"].append(event_dict)
         if self.artifacts:
             result["artifacts"] = [artifact.dump() for artifact in self.artifacts]
+        if self.session_id:
+            result["session_id"] = self.session_id
         return result
 
 
@@ -383,7 +390,10 @@ class AdkApp:
                 auth = _Authorization(**auth)
                 session_state[f"temp:{auth_id}"] = auth.access_token
 
-        session_id = f"temp_session_{random.randbytes(8).hex()}"
+        if request.session_id:
+            session_id = request.session_id
+        else:
+            session_id = f"temp_session_{random.randbytes(8).hex()}"
         session = await session_service.create_session(
             app_name=self._tmpl_attrs.get("app_name"),
             user_id=request.user_id,
@@ -431,7 +441,9 @@ class AdkApp:
         """Converts the events to the streaming run response object."""
         import collections
 
-        result = _StreamingRunResponse(events=events, artifacts=[])
+        result = _StreamingRunResponse(
+            events=events, artifacts=[], session_id=session_id
+        )
 
         # Save the generated artifacts into the result object.
         artifact_versions = collections.defaultdict(list)
@@ -512,21 +524,33 @@ class AdkApp:
         if session_service_builder:
             self._tmpl_attrs["session_service"] = session_service_builder()
         elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
-            from google.adk.sessions.vertex_ai_session_service import (
-                VertexAiSessionService,
-            )
+            try:
+                from google.adk.sessions.vertex_ai_session_service import (
+                    VertexAiSessionService,
+                )
 
-            if is_version_sufficient("1.5.0"):
+                if is_version_sufficient("1.5.0"):
+                    self._tmpl_attrs["session_service"] = VertexAiSessionService(
+                        project=project,
+                        location=location,
+                        agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                    )
+                else:
+                    self._tmpl_attrs["session_service"] = VertexAiSessionService(
+                        project=project,
+                        location=location,
+                    )
+            except ImportError:
+                from google.adk.sessions.vertex_ai_session_service_g3 import (
+                    VertexAiSessionService,
+                )
+
                 self._tmpl_attrs["session_service"] = VertexAiSessionService(
                     project=project,
                     location=location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
-            else:
-                self._tmpl_attrs["session_service"] = VertexAiSessionService(
-                    project=project,
-                    location=location,
-                )
+
         else:
             self._tmpl_attrs["session_service"] = InMemorySessionService()
 
@@ -536,15 +560,19 @@ class AdkApp:
         elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ and is_version_sufficient(
             "1.5.0"
         ):
-            from google.adk.memory.vertex_ai_memory_bank_service import (
-                VertexAiMemoryBankService,
-            )
+            try:
+                from google.adk.memory.vertex_ai_memory_bank_service import (
+                    VertexAiMemoryBankService,
+                )
 
-            self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
-                project=project,
-                location=location,
-                agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
-            )
+                self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
+                    project=project,
+                    location=location,
+                    agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                )
+            except ImportError:
+                # TODO(ysian): Handle this via _g3 import for google3.
+                pass
         else:
             self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
 
@@ -571,6 +599,7 @@ class AdkApp:
         self._tmpl_attrs["in_memory_memory_service"] = InMemoryMemoryService()
         self._tmpl_attrs["in_memory_runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
+            plugins=self._tmpl_attrs.get("plugins"),
             session_service=self._tmpl_attrs.get("in_memory_session_service"),
             artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
             memory_service=self._tmpl_attrs.get("in_memory_memory_service"),
@@ -725,21 +754,33 @@ class AdkApp:
             request = _StreamRunRequest(**json.loads(request_json))
             if not self._tmpl_attrs.get("in_memory_runner"):
                 self.set_up()
-            if not self._tmpl_attrs.get("artifact_service"):
-                self.set_up()
             # Prepare the in-memory session.
             if not self._tmpl_attrs.get("in_memory_artifact_service"):
                 self.set_up()
             if not self._tmpl_attrs.get("in_memory_session_service"):
                 self.set_up()
-            session = await self._init_session(
-                session_service=self._tmpl_attrs.get("in_memory_session_service"),
-                artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
-                request=request,
-            )
+            session_service = self._tmpl_attrs.get("in_memory_session_service")
+            artifact_service = self._tmpl_attrs.get("in_memory_artifact_service")
+            # Try to get the session, if it doesn't exist, create a new one.
+            session = None
+            if request.session_id:
+                try:
+                    session = await session_service.get_session(
+                        app_name=self._tmpl_attrs.get("app_name"),
+                        user_id=request.user_id,
+                        session_id=request.session_id,
+                    )
+                except RuntimeError:
+                    pass
+            if not session:
+                #  Fall back to create session if the session is not found.
+                session = await self._init_session(
+                    session_service=session_service,
+                    artifact_service=artifact_service,
+                    request=request,
+                )
             if not session:
                 raise RuntimeError("Session initialization failed.")
-
             # Run the agent.
             message_for_agent = types.Content(**request.message)
             try:
@@ -752,17 +793,16 @@ class AdkApp:
                         user_id=request.user_id,
                         session_id=session.id,
                         events=[event],
-                        artifact_service=self._tmpl_attrs.get(
-                            "in_memory_artifact_service"
-                        ),
+                        artifact_service=artifact_service,
                     )
                     event_queue.put(converted_event)
             finally:
-                await self._tmpl_attrs.get("in_memory_session_service").delete_session(
-                    app_name=self._tmpl_attrs.get("app_name"),
-                    user_id=request.user_id,
-                    session_id=session.id,
-                )
+                if session and not request.session_id:
+                    await session_service.delete_session(
+                        app_name=self._tmpl_attrs.get("app_name"),
+                        user_id=request.user_id,
+                        session_id=session.id,
+                    )
 
         def _asyncio_thread_main():
             try:

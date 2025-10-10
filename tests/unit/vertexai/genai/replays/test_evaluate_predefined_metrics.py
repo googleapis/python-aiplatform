@@ -37,7 +37,7 @@ def test_evaluation_result(client):
     )
 
     predefined_metrics = [
-        types.PrebuiltMetric.GENERAL_QUALITY,
+        types.RubricMetric.GENERAL_QUALITY,
     ]
 
     evaluation_result = client.evals.evaluate(
@@ -195,6 +195,53 @@ def test_multi_turn_predefined_metric(client):
 
     assert evaluation_result.eval_case_results is not None
     assert len(evaluation_result.eval_case_results) > 0
+    for case_result in evaluation_result.eval_case_results:
+        assert isinstance(case_result, types.EvalCaseResult)
+        assert case_result.eval_case_index is not None
+        assert case_result.response_candidate_results is not None
+
+
+def test_evaluation_grounding_metric(client):
+    """Tests that grounding metric produces a correctly structured EvaluationResult."""
+    prompts_df = pd.DataFrame(
+        {
+            "prompt": ["Explain the concept of machine learning in simple terms."],
+            "response": [
+                "Machine learning is a type of artificial intelligence that allows"
+                " computers to learn from data without being explicitly programmed."
+            ],
+            "context": [
+                "Article: 'Intro to AI', Section 2.1\n"
+                "Machine learning (ML) is a subfield of artificial intelligence (AI). "
+                "The core idea of machine learning is that it allows computer systems to "
+                "learn from and adapt to new data without being explicitly programmed. "
+                "Instead of a developer writing code for every possible scenario, the "
+                "system builds a model based on patterns in training data."
+            ],
+        }
+    )
+
+    eval_dataset = types.EvaluationDataset(
+        eval_dataset_df=prompts_df,
+        candidate_name="gemini-2.5-flash",
+    )
+
+    evaluation_result = client.evals.evaluate(
+        dataset=eval_dataset,
+        metrics=[
+            types.RubricMetric.GROUNDING,
+        ],
+    )
+
+    assert isinstance(evaluation_result, types.EvaluationResult)
+
+    assert evaluation_result.summary_metrics is not None
+    for summary in evaluation_result.summary_metrics:
+        assert isinstance(summary, types.AggregatedMetricResult)
+        assert summary.metric_name is not None
+        assert summary.mean_score is not None
+
+    assert evaluation_result.eval_case_results is not None
     for case_result in evaluation_result.eval_case_results:
         assert isinstance(case_result, types.EvalCaseResult)
         assert case_result.eval_case_index is not None

@@ -46,11 +46,7 @@ def _AppendAgentEngineSessionEventConfig_to_vertex(
         setv(parent_object, ["content"], getv(from_object, ["content"]))
 
     if getv(from_object, ["actions"]) is not None:
-        setv(
-            parent_object,
-            ["actions"],
-            _EventActions_to_vertex(getv(from_object, ["actions"]), to_object),
-        )
+        setv(parent_object, ["actions"], getv(from_object, ["actions"]))
 
     if getv(from_object, ["error_code"]) is not None:
         setv(parent_object, ["errorCode"], getv(from_object, ["error_code"]))
@@ -59,11 +55,7 @@ def _AppendAgentEngineSessionEventConfig_to_vertex(
         setv(parent_object, ["errorMessage"], getv(from_object, ["error_message"]))
 
     if getv(from_object, ["event_metadata"]) is not None:
-        setv(
-            parent_object,
-            ["eventMetadata"],
-            _EventMetadata_to_vertex(getv(from_object, ["event_metadata"]), to_object),
-        )
+        setv(parent_object, ["eventMetadata"], getv(from_object, ["event_metadata"]))
 
     return to_object
 
@@ -93,85 +85,6 @@ def _AppendAgentEngineSessionEventRequestParameters_to_vertex(
                 getv(from_object, ["config"]), to_object
             ),
         )
-
-    return to_object
-
-
-def _AppendAgentEngineSessionEventResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _EventActions_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["artifact_delta"]) is not None:
-        setv(to_object, ["artifactDelta"], getv(from_object, ["artifact_delta"]))
-
-    if getv(from_object, ["escalate"]) is not None:
-        setv(to_object, ["escalate"], getv(from_object, ["escalate"]))
-
-    if getv(from_object, ["requested_auth_configs"]) is not None:
-        setv(
-            to_object,
-            ["requestedAuthConfigs"],
-            getv(from_object, ["requested_auth_configs"]),
-        )
-
-    if getv(from_object, ["skip_summarization"]) is not None:
-        setv(
-            to_object, ["skipSummarization"], getv(from_object, ["skip_summarization"])
-        )
-
-    if getv(from_object, ["state_delta"]) is not None:
-        setv(to_object, ["stateDelta"], getv(from_object, ["state_delta"]))
-
-    if getv(from_object, ["transfer_agent"]) is not None:
-        setv(to_object, ["transferAgent"], getv(from_object, ["transfer_agent"]))
-
-    if getv(from_object, ["transfer_to_agent"]) is not None:
-        setv(to_object, ["transferToAgent"], getv(from_object, ["transfer_to_agent"]))
-
-    return to_object
-
-
-def _EventMetadata_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["grounding_metadata"]) is not None:
-        setv(
-            to_object, ["groundingMetadata"], getv(from_object, ["grounding_metadata"])
-        )
-
-    if getv(from_object, ["branch"]) is not None:
-        setv(to_object, ["branch"], getv(from_object, ["branch"]))
-
-    if getv(from_object, ["custom_metadata"]) is not None:
-        setv(to_object, ["customMetadata"], getv(from_object, ["custom_metadata"]))
-
-    if getv(from_object, ["interrupted"]) is not None:
-        setv(to_object, ["interrupted"], getv(from_object, ["interrupted"]))
-
-    if getv(from_object, ["long_running_tool_ids"]) is not None:
-        setv(
-            to_object,
-            ["longRunningToolIds"],
-            getv(from_object, ["long_running_tool_ids"]),
-        )
-
-    if getv(from_object, ["partial"]) is not None:
-        setv(to_object, ["partial"], getv(from_object, ["partial"]))
-
-    if getv(from_object, ["turn_complete"]) is not None:
-        setv(to_object, ["turnComplete"], getv(from_object, ["turn_complete"]))
 
     return to_object
 
@@ -214,65 +127,6 @@ def _ListAgentEngineSessionEventsRequestParameters_to_vertex(
     return to_object
 
 
-def _ListAgentEngineSessionEventsResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["sessionEvents"]) is not None:
-        setv(
-            to_object,
-            ["session_events"],
-            [
-                _SessionEvent_from_vertex(item, to_object)
-                for item in getv(from_object, ["sessionEvents"])
-            ],
-        )
-
-    return to_object
-
-
-def _SessionEvent_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["content"]) is not None:
-        setv(to_object, ["content"], getv(from_object, ["content"]))
-
-    if getv(from_object, ["actions"]) is not None:
-        setv(to_object, ["actions"], getv(from_object, ["actions"]))
-
-    if getv(from_object, ["author"]) is not None:
-        setv(to_object, ["author"], getv(from_object, ["author"]))
-
-    if getv(from_object, ["errorCode"]) is not None:
-        setv(to_object, ["error_code"], getv(from_object, ["errorCode"]))
-
-    if getv(from_object, ["errorMessage"]) is not None:
-        setv(to_object, ["error_message"], getv(from_object, ["errorMessage"]))
-
-    if getv(from_object, ["eventMetadata"]) is not None:
-        setv(to_object, ["event_metadata"], getv(from_object, ["eventMetadata"]))
-
-    if getv(from_object, ["invocationId"]) is not None:
-        setv(to_object, ["invocation_id"], getv(from_object, ["invocationId"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["timestamp"]) is not None:
-        setv(to_object, ["timestamp"], getv(from_object, ["timestamp"]))
-
-    return to_object
-
-
 class SessionEvents(_api_module.BaseModule):
 
     def append(
@@ -288,7 +142,7 @@ class SessionEvents(_api_module.BaseModule):
         Appends Agent Engine session event.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to append event for. Format:
+            name (str): Required. The name of the Agent Engine session to append the event to. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             author (str): Required. The author of the Agent Engine session event.
             invocation_id (str): Required. The invocation ID of the Agent Engine session event.
@@ -340,12 +194,7 @@ class SessionEvents(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AppendAgentEngineSessionEventResponse_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AppendAgentEngineSessionEventResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -410,12 +259,7 @@ class SessionEvents(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListAgentEngineSessionEventsResponse_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListAgentEngineSessionEventsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -469,7 +313,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
         Appends Agent Engine session event.
 
         Args:
-            name (str): Required. The name of the Agent Engine session to append event for. Format:
+            name (str): Required. The name of the Agent Engine session to append the event to. Format:
                 `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sessions/{session_id}`.
             author (str): Required. The author of the Agent Engine session event.
             invocation_id (str): Required. The invocation ID of the Agent Engine session event.
@@ -523,12 +367,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AppendAgentEngineSessionEventResponse_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AppendAgentEngineSessionEventResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -595,12 +434,7 @@ class AsyncSessionEvents(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListAgentEngineSessionEventsResponse_from_vertex(
-                response_dict
-            )
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListAgentEngineSessionEventsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()

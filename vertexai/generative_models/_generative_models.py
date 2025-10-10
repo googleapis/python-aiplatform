@@ -639,7 +639,7 @@ class _GenerativeModel:
         return GenerationResponse._from_gapic(response)
 
     @overload
-    def generate_content(
+    def generate_content(  # noqa: E704
         self,
         contents: ContentsType,
         *,
@@ -652,7 +652,7 @@ class _GenerativeModel:
     ) -> "GenerationResponse": ...
 
     @overload
-    def generate_content(
+    def generate_content(  # noqa: E704
         self,
         contents: ContentsType,
         *,
@@ -717,7 +717,7 @@ class _GenerativeModel:
             )
 
     @overload
-    async def generate_content_async(
+    async def generate_content_async(  # noqa: E704
         self,
         contents: ContentsType,
         *,
@@ -730,7 +730,7 @@ class _GenerativeModel:
     ) -> "GenerationResponse": ...
 
     @overload
-    async def generate_content_async(
+    async def generate_content_async(  # noqa: E704
         self,
         contents: ContentsType,
         *,
@@ -1282,7 +1282,7 @@ class ChatSession:
         return self._history
 
     @overload
-    def send_message(
+    def send_message(  # noqa: E704
         self,
         content: PartsType,
         *,
@@ -1294,7 +1294,7 @@ class ChatSession:
     ) -> "GenerationResponse": ...
 
     @overload
-    def send_message(
+    def send_message(  # noqa: E704
         self,
         content: PartsType,
         *,
@@ -1354,7 +1354,7 @@ class ChatSession:
             )
 
     @overload
-    def send_message_async(
+    def send_message_async(  # noqa: E704
         self,
         content: PartsType,
         *,
@@ -1366,7 +1366,7 @@ class ChatSession:
     ) -> Awaitable["GenerationResponse"]: ...
 
     @overload
-    def send_message_async(
+    def send_message_async(  # noqa: E704
         self,
         content: PartsType,
         *,

@@ -96,10 +96,10 @@ class ExampleStoreConfig(proto.Message):
             Required. The embedding model to be used for vector
             embedding. Immutable. Supported models:
 
-            -  "textembedding-gecko@003"
-            -  "text-embedding-004"
-            -  "text-embedding-005"
-            -  "text-multilingual-embedding-002".
+            - "textembedding-gecko@003"
+            - "text-embedding-004"
+            - "text-embedding-005"
+            - "text-multilingual-embedding-002".
     """
 
     vertex_embedding_model: str = proto.Field(

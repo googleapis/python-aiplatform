@@ -6,27 +6,43 @@ Vertex AI SDK
     :show-inheritance:
     :inherited-members:
 
+.. autoclass:: vertexai.Client
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+    .. autoattribute:: evals
+    .. autoattribute:: agent_engines
+    .. autoattribute:: prompt_optimizer
+    .. autoattribute:: prompts
+
+.. automodule:: vertexai._genai.evals
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: vertexai._genai.agent_engines
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: vertexai._genai.prompt_optimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: vertexai._genai.prompts
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: vertexai.generative_models
     :members:
     :show-inheritance:
     :inherited-members:
 
 .. automodule:: vertexai.preview.generative_models
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-.. automodule:: vertexai.preview.prompts
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-.. automodule:: vertexai.prompts._prompts
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-.. automodule:: vertexai.prompts._prompt_management
     :members:
     :show-inheritance:
     :inherited-members:

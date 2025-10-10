@@ -2297,6 +2297,106 @@ class TestObservabilityDataConverter:
         )
 
 
+class TestAgentInfo:
+    """Unit tests for the AgentInfo class."""
+
+    def test_agent_info_creation(self):
+        tool = genai_types.Tool(
+            function_declarations=[
+                genai_types.FunctionDeclaration(
+                    name="get_weather",
+                    description="Get weather in a location",
+                    parameters={
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                    },
+                )
+            ]
+        )
+        agent_info = vertexai_genai_types.AgentInfo(
+            name="agent1",
+            instruction="instruction1",
+            description="description1",
+            tool_declarations=[tool],
+        )
+        assert agent_info.name == "agent1"
+        assert agent_info.instruction == "instruction1"
+        assert agent_info.description == "description1"
+        assert agent_info.tool_declarations == [tool]
+
+
+class TestEvent:
+    """Unit tests for the Event class."""
+
+    def test_event_creation(self):
+        event = vertexai_genai_types.Event(
+            event_id="event1",
+            content=genai_types.Content(
+                parts=[genai_types.Part(text="intermediate event")]
+            ),
+            author="user",
+        )
+        assert event.event_id == "event1"
+        assert event.content.parts[0].text == "intermediate event"
+        assert event.author == "user"
+
+
+class TestEvalCase:
+    """Unit tests for the EvalCase class."""
+
+    def test_eval_case_with_agent_eval_fields(self):
+        tool = genai_types.Tool(
+            function_declarations=[
+                genai_types.FunctionDeclaration(
+                    name="get_weather",
+                    description="Get weather in a location",
+                    parameters={
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                    },
+                )
+            ]
+        )
+        agent_info = vertexai_genai_types.AgentInfo(
+            name="agent1",
+            instruction="instruction1",
+            tool_declarations=[tool],
+        )
+        intermediate_events = [
+            vertexai_genai_types.Event(
+                event_id="event1",
+                content=genai_types.Content(
+                    parts=[genai_types.Part(text="intermediate event")]
+                ),
+            )
+        ]
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            agent_info=agent_info,
+            intermediate_events=intermediate_events,
+        )
+
+        assert eval_case.agent_info == agent_info
+        assert eval_case.intermediate_events == intermediate_events
+
+
+class TestSessionInput:
+    """Unit tests for the SessionInput class."""
+
+    def test_session_input_creation(self):
+        session_input = vertexai_genai_types.SessionInput(
+            user_id="user1",
+            state={"key": "value"},
+        )
+        assert session_input.user_id == "user1"
+        assert session_input.state == {"key": "value"}
+
+
 class TestMetric:
     """Unit tests for the Metric class."""
 

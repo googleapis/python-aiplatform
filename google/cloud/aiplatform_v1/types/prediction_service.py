@@ -603,11 +603,11 @@ class ExplainRequest(proto.Message):
             of the DeployedModel. Can be used for explaining prediction
             results with different configurations, such as:
 
-            -  Explaining top-5 predictions results as opposed to top-1;
-            -  Increasing path count or step count of the attribution
-               methods to reduce approximate errors;
-            -  Using different baselines for explaining the prediction
-               results.
+            - Explaining top-5 predictions results as opposed to top-1;
+            - Increasing path count or step count of the attribution
+              methods to reduce approximate errors;
+            - Using different baselines for explaining the prediction
+              results.
         deployed_model_id (str):
             If specified, this ExplainRequest will be served by the
             chosen DeployedModel, overriding

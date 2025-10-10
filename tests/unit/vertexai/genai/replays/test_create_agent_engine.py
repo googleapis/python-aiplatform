@@ -38,6 +38,16 @@ def test_create_config_lightweight(client):
     }
 
 
+def test_create_with_labels(client):
+    labels = {"test-label": "test-value"}
+    agent_engine = client.agent_engines.create(
+        config={"labels": labels},
+    )
+    assert agent_engine.api_resource.labels == labels
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+
+
 def test_create_with_context_spec(client):
     project = "test-project"
     location = "us-central1"

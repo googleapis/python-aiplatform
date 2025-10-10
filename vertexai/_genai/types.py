@@ -65,6 +65,19 @@ def _camel_to_snake(camel_case_string: str) -> str:
     return snake_case_string.lower()
 
 
+def _camel_key_to_snake(message: Any):
+    """Converts all camelCase keys to snake_case in a dict or list."""
+    if isinstance(message, dict):
+        return {
+            _camel_to_snake(key): _camel_key_to_snake(value)
+            for key, value in message.items()
+        }
+    elif isinstance(message, list):
+        return [_camel_key_to_snake(value) for value in message]
+    else:
+        return message
+
+
 if typing.TYPE_CHECKING:
     import pandas as pd
 
@@ -266,6 +279,36 @@ class State(_common.CaseInSensitiveEnum):
     """Sandbox runtime has been deleted."""
 
 
+class SamplingMethod(_common.CaseInSensitiveEnum):
+    """Represents the sampling method for a BigQuery request set."""
+
+    UNSPECIFIED = "UNSPECIFIED"
+    """Sampling method is unspecified."""
+    RANDOM = "RANDOM"
+    """Sampling method is random."""
+
+
+class EvaluationRunState(_common.CaseInSensitiveEnum):
+    """Represents the state of an evaluation run."""
+
+    UNSPECIFIED = "UNSPECIFIED"
+    """Evaluation run state is unspecified."""
+    PENDING = "PENDING"
+    """Evaluation run is pending."""
+    RUNNING = "RUNNING"
+    """Evaluation run is in progress."""
+    SUCCEEDED = "SUCCEEDED"
+    """Evaluation run has succeeded."""
+    FAILED = "FAILED"
+    """Evaluation run failed."""
+    CANCELLED = "CANCELLED"
+    """Evaluation run was cancelled."""
+    INFERENCE = "INFERENCE"
+    """Evaluation run is performing inference."""
+    GENERATING_RUBRICS = "GENERATING_RUBRICS"
+    """Evaluation run is performing rubric generation."""
+
+
 class RubricContentType(_common.CaseInSensitiveEnum):
     """Specifies the type of rubric content to generate."""
 
@@ -290,6 +333,17 @@ class Importance(_common.CaseInSensitiveEnum):
     """Low importance."""
 
 
+class EvaluationItemType(_common.CaseInSensitiveEnum):
+    """The type of the EvaluationItem."""
+
+    EVALUATION_ITEM_TYPE_UNSPECIFIED = "EVALUATION_ITEM_TYPE_UNSPECIFIED"
+    """The default value. This value is unused."""
+    REQUEST = "REQUEST"
+    """The EvaluationItem is a request to evaluate."""
+    RESULT = "RESULT"
+    """The EvaluationItem is the result of evaluation."""
+
+
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
     """The action to take."""
 
@@ -304,6 +358,287 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
       """
     DELETED = "DELETED"
     """The memory was deleted."""
+
+
+class SamplingConfig(_common.BaseModel):
+    """Sampling config for a BigQuery request set."""
+
+    sampling_count: Optional[int] = Field(default=None, description="""""")
+    sampling_method: Optional[SamplingMethod] = Field(default=None, description="""""")
+    sampling_duration: Optional[str] = Field(default=None, description="""""")
+
+
+class SamplingConfigDict(TypedDict, total=False):
+    """Sampling config for a BigQuery request set."""
+
+    sampling_count: Optional[int]
+    """"""
+
+    sampling_method: Optional[SamplingMethod]
+    """"""
+
+    sampling_duration: Optional[str]
+    """"""
+
+
+SamplingConfigOrDict = Union[SamplingConfig, SamplingConfigDict]
+
+
+class BigQueryRequestSet(_common.BaseModel):
+    """Represents a BigQuery request set."""
+
+    uri: Optional[str] = Field(default=None, description="""""")
+    prompt_column: Optional[str] = Field(
+        default=None,
+        description="""The column name of the prompt in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    rubrics_column: Optional[str] = Field(
+        default=None,
+        description="""The column name of the rubrics in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    candidate_response_columns: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The column name of the response candidates in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    sampling_config: Optional[SamplingConfig] = Field(
+        default=None,
+        description="""The sampling config for the BigQuery request set. Used for EvaluationRun only.""",
+    )
+
+
+class BigQueryRequestSetDict(TypedDict, total=False):
+    """Represents a BigQuery request set."""
+
+    uri: Optional[str]
+    """"""
+
+    prompt_column: Optional[str]
+    """The column name of the prompt in the BigQuery table. Used for EvaluationRun only."""
+
+    rubrics_column: Optional[str]
+    """The column name of the rubrics in the BigQuery table. Used for EvaluationRun only."""
+
+    candidate_response_columns: Optional[dict[str, str]]
+    """The column name of the response candidates in the BigQuery table. Used for EvaluationRun only."""
+
+    sampling_config: Optional[SamplingConfigDict]
+    """The sampling config for the BigQuery request set. Used for EvaluationRun only."""
+
+
+BigQueryRequestSetOrDict = Union[BigQueryRequestSet, BigQueryRequestSetDict]
+
+
+class EvaluationRunDataSource(_common.BaseModel):
+    """Represents an evaluation run data source."""
+
+    evaluation_set: Optional[str] = Field(default=None, description="""""")
+    bigquery_request_set: Optional[BigQueryRequestSet] = Field(
+        default=None, description=""""""
+    )
+
+
+class EvaluationRunDataSourceDict(TypedDict, total=False):
+    """Represents an evaluation run data source."""
+
+    evaluation_set: Optional[str]
+    """"""
+
+    bigquery_request_set: Optional[BigQueryRequestSetDict]
+    """"""
+
+
+EvaluationRunDataSourceOrDict = Union[
+    EvaluationRunDataSource, EvaluationRunDataSourceDict
+]
+
+
+class CreateEvaluationRunConfig(_common.BaseModel):
+    """Config to create an evaluation run."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CreateEvaluationRunConfigDict(TypedDict, total=False):
+    """Config to create an evaluation run."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CreateEvaluationRunConfigOrDict = Union[
+    CreateEvaluationRunConfig, CreateEvaluationRunConfigDict
+]
+
+
+class _CreateEvaluationRunParameters(_common.BaseModel):
+    """Represents a job that creates an evaluation run."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    data_source: Optional[EvaluationRunDataSource] = Field(
+        default=None, description=""""""
+    )
+    evaluation_config: Optional[genai_types.EvaluationConfig] = Field(
+        default=None, description=""""""
+    )
+    config: Optional[CreateEvaluationRunConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateEvaluationRunParametersDict(TypedDict, total=False):
+    """Represents a job that creates an evaluation run."""
+
+    name: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    data_source: Optional[EvaluationRunDataSourceDict]
+    """"""
+
+    evaluation_config: Optional[genai_types.EvaluationConfigDict]
+    """"""
+
+    config: Optional[CreateEvaluationRunConfigDict]
+    """"""
+
+
+_CreateEvaluationRunParametersOrDict = Union[
+    _CreateEvaluationRunParameters, _CreateEvaluationRunParametersDict
+]
+
+
+class SummaryMetric(_common.BaseModel):
+    """Represents a summary metric for an evaluation run."""
+
+    metrics: Optional[dict[str, Any]] = Field(
+        default=None, description="""Map of metric name to metric value."""
+    )
+    total_items: Optional[int] = Field(
+        default=None, description="""The total number of items that were evaluated."""
+    )
+    failed_items: Optional[int] = Field(
+        default=None, description="""The number of items that failed to be evaluated."""
+    )
+
+
+class SummaryMetricDict(TypedDict, total=False):
+    """Represents a summary metric for an evaluation run."""
+
+    metrics: Optional[dict[str, Any]]
+    """Map of metric name to metric value."""
+
+    total_items: Optional[int]
+    """The total number of items that were evaluated."""
+
+    failed_items: Optional[int]
+    """The number of items that failed to be evaluated."""
+
+
+SummaryMetricOrDict = Union[SummaryMetric, SummaryMetricDict]
+
+
+class EvaluationRunResults(_common.BaseModel):
+    """Represents the results of an evaluation run."""
+
+    evaluation_set: Optional[str] = Field(
+        default=None,
+        description="""The evaluation set where item level results are stored.""",
+    )
+    summary_metrics: Optional[SummaryMetric] = Field(
+        default=None, description="""The summary metrics for the evaluation run."""
+    )
+
+
+class EvaluationRunResultsDict(TypedDict, total=False):
+    """Represents the results of an evaluation run."""
+
+    evaluation_set: Optional[str]
+    """The evaluation set where item level results are stored."""
+
+    summary_metrics: Optional[SummaryMetricDict]
+    """The summary metrics for the evaluation run."""
+
+
+EvaluationRunResultsOrDict = Union[EvaluationRunResults, EvaluationRunResultsDict]
+
+
+class EvaluationRun(_common.BaseModel):
+    """Represents an evaluation run."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    metadata: Optional[dict[str, Any]] = Field(default=None, description="""""")
+    create_time: Optional[datetime.datetime] = Field(default=None, description="""""")
+    completion_time: Optional[datetime.datetime] = Field(
+        default=None, description=""""""
+    )
+    state: Optional[EvaluationRunState] = Field(default=None, description="""""")
+    evaluation_set_snapshot: Optional[str] = Field(default=None, description="""""")
+    error: Optional[genai_types.GoogleRpcStatus] = Field(
+        default=None, description=""""""
+    )
+    data_source: Optional[EvaluationRunDataSource] = Field(
+        default=None, description=""""""
+    )
+    evaluation_results: Optional[EvaluationRunResults] = Field(
+        default=None, description="""The results for the evaluation run."""
+    )
+
+    def show(self) -> None:
+        """Shows the evaluation result."""
+        from . import _evals_visualization
+
+        if self.state == "SUCCEEDED":
+            eval_result = _evals_visualization._get_eval_result_from_eval_run(
+                self.evaluation_results
+            )
+            _evals_visualization.display_evaluation_result(eval_result, None)
+        else:
+            logger.warning(f"Evaluation Run state: {self.state}.")
+            if self.error:
+                logger.warning(f"Evaluation Run error: {self.error.message}")
+
+
+class EvaluationRunDict(TypedDict, total=False):
+    """Represents an evaluation run."""
+
+    name: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    metadata: Optional[dict[str, Any]]
+    """"""
+
+    create_time: Optional[datetime.datetime]
+    """"""
+
+    completion_time: Optional[datetime.datetime]
+    """"""
+
+    state: Optional[EvaluationRunState]
+    """"""
+
+    evaluation_set_snapshot: Optional[str]
+    """"""
+
+    error: Optional[genai_types.GoogleRpcStatusDict]
+    """"""
+
+    data_source: Optional[EvaluationRunDataSourceDict]
+    """"""
+
+    evaluation_results: Optional[EvaluationRunResultsDict]
+    """The results for the evaluation run."""
+
+
+EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
 
 
 class BleuInstance(_common.BaseModel):
@@ -2345,6 +2680,493 @@ GenerateInstanceRubricsResponseOrDict = Union[
 ]
 
 
+class GetEvaluationRunConfig(_common.BaseModel):
+    """Config for get evaluation run."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetEvaluationRunConfigDict(TypedDict, total=False):
+    """Config for get evaluation run."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetEvaluationRunConfigOrDict = Union[GetEvaluationRunConfig, GetEvaluationRunConfigDict]
+
+
+class _GetEvaluationRunParameters(_common.BaseModel):
+    """Represents a job that runs evaluation."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetEvaluationRunConfig] = Field(default=None, description="""""")
+
+
+class _GetEvaluationRunParametersDict(TypedDict, total=False):
+    """Represents a job that runs evaluation."""
+
+    name: Optional[str]
+    """"""
+
+    config: Optional[GetEvaluationRunConfigDict]
+    """"""
+
+
+_GetEvaluationRunParametersOrDict = Union[
+    _GetEvaluationRunParameters, _GetEvaluationRunParametersDict
+]
+
+
+class GetEvaluationSetConfig(_common.BaseModel):
+    """Config for get evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetEvaluationSetConfigDict(TypedDict, total=False):
+    """Config for get evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetEvaluationSetConfigOrDict = Union[GetEvaluationSetConfig, GetEvaluationSetConfigDict]
+
+
+class _GetEvaluationSetParameters(_common.BaseModel):
+    """Represents a job that gets an evaluation set."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetEvaluationSetConfig] = Field(default=None, description="""""")
+
+
+class _GetEvaluationSetParametersDict(TypedDict, total=False):
+    """Represents a job that gets an evaluation set."""
+
+    name: Optional[str]
+    """"""
+
+    config: Optional[GetEvaluationSetConfigDict]
+    """"""
+
+
+_GetEvaluationSetParametersOrDict = Union[
+    _GetEvaluationSetParameters, _GetEvaluationSetParametersDict
+]
+
+
+class EvaluationSet(_common.BaseModel):
+    """Represents an evaluation set."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The resource name of the evaluation set."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the evaluation set."""
+    )
+    evaluation_items: Optional[list[str]] = Field(
+        default=None,
+        description="""The EvaluationItems that are part of this dataset.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None, description="""The create time of the evaluation set."""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None, description="""The update time of the evaluation set."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""The metadata of the evaluation set."""
+    )
+
+
+class EvaluationSetDict(TypedDict, total=False):
+    """Represents an evaluation set."""
+
+    name: Optional[str]
+    """The resource name of the evaluation set."""
+
+    display_name: Optional[str]
+    """The display name of the evaluation set."""
+
+    evaluation_items: Optional[list[str]]
+    """The EvaluationItems that are part of this dataset."""
+
+    create_time: Optional[datetime.datetime]
+    """The create time of the evaluation set."""
+
+    update_time: Optional[datetime.datetime]
+    """The update time of the evaluation set."""
+
+    metadata: Optional[dict[str, Any]]
+    """The metadata of the evaluation set."""
+
+
+EvaluationSetOrDict = Union[EvaluationSet, EvaluationSetDict]
+
+
+class GetEvaluationItemConfig(_common.BaseModel):
+    """Config for get evaluation item."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetEvaluationItemConfigDict(TypedDict, total=False):
+    """Config for get evaluation item."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetEvaluationItemConfigOrDict = Union[
+    GetEvaluationItemConfig, GetEvaluationItemConfigDict
+]
+
+
+class _GetEvaluationItemParameters(_common.BaseModel):
+    """Represents a job that gets an evaluation item."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetEvaluationItemConfig] = Field(default=None, description="""""")
+
+
+class _GetEvaluationItemParametersDict(TypedDict, total=False):
+    """Represents a job that gets an evaluation item."""
+
+    name: Optional[str]
+    """"""
+
+    config: Optional[GetEvaluationItemConfigDict]
+    """"""
+
+
+_GetEvaluationItemParametersOrDict = Union[
+    _GetEvaluationItemParameters, _GetEvaluationItemParametersDict
+]
+
+
+class PromptTemplateData(_common.BaseModel):
+    """Message to hold a prompt template and the values to populate the template."""
+
+    values: Optional[dict[str, genai_types.Content]] = Field(
+        default=None, description="""The values for fields in the prompt template."""
+    )
+
+
+class PromptTemplateDataDict(TypedDict, total=False):
+    """Message to hold a prompt template and the values to populate the template."""
+
+    values: Optional[dict[str, genai_types.ContentDict]]
+    """The values for fields in the prompt template."""
+
+
+PromptTemplateDataOrDict = Union[PromptTemplateData, PromptTemplateDataDict]
+
+
+class EvaluationPrompt(_common.BaseModel):
+    """Represents the prompt to be evaluated."""
+
+    text: Optional[str] = Field(default=None, description="""Text prompt.""")
+    value: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Fields and values that can be used to populate the prompt template.""",
+    )
+    prompt_template_data: Optional[PromptTemplateData] = Field(
+        default=None, description="""Prompt template data."""
+    )
+
+
+class EvaluationPromptDict(TypedDict, total=False):
+    """Represents the prompt to be evaluated."""
+
+    text: Optional[str]
+    """Text prompt."""
+
+    value: Optional[dict[str, Any]]
+    """Fields and values that can be used to populate the prompt template."""
+
+    prompt_template_data: Optional[PromptTemplateDataDict]
+    """Prompt template data."""
+
+
+EvaluationPromptOrDict = Union[EvaluationPrompt, EvaluationPromptDict]
+
+
+class CandidateResponse(_common.BaseModel):
+    """Responses from model or agent."""
+
+    candidate: Optional[str] = Field(
+        default=None,
+        description="""The name of the candidate that produced the response.""",
+    )
+    text: Optional[str] = Field(default=None, description="""The text response.""")
+    value: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Fields and values that can be used to populate the response template.""",
+    )
+    events: Optional[list[genai_types.Content]] = Field(
+        default=None,
+        description="""Intermediate events (such as tool calls and responses) that led to the final response.""",
+    )
+
+
+class CandidateResponseDict(TypedDict, total=False):
+    """Responses from model or agent."""
+
+    candidate: Optional[str]
+    """The name of the candidate that produced the response."""
+
+    text: Optional[str]
+    """The text response."""
+
+    value: Optional[dict[str, Any]]
+    """Fields and values that can be used to populate the response template."""
+
+    events: Optional[list[genai_types.ContentDict]]
+    """Intermediate events (such as tool calls and responses) that led to the final response."""
+
+
+CandidateResponseOrDict = Union[CandidateResponse, CandidateResponseDict]
+
+
+class EvaluationItemRequest(_common.BaseModel):
+    """Single evaluation request."""
+
+    prompt: Optional[EvaluationPrompt] = Field(
+        default=None, description="""The request/prompt to evaluate."""
+    )
+    golden_response: Optional[CandidateResponse] = Field(
+        default=None, description="""The ideal response or ground truth."""
+    )
+    rubrics: Optional[dict[str, "RubricGroup"]] = Field(
+        default=None,
+        description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
+    )
+    candidate_responses: Optional[list[CandidateResponse]] = Field(
+        default=None,
+        description="""Responses from model under test and other baseline models for comparison.""",
+    )
+
+
+class EvaluationItemRequestDict(TypedDict, total=False):
+    """Single evaluation request."""
+
+    prompt: Optional[EvaluationPromptDict]
+    """The request/prompt to evaluate."""
+
+    golden_response: Optional[CandidateResponseDict]
+    """The ideal response or ground truth."""
+
+    rubrics: Optional[dict[str, "RubricGroupDict"]]
+    """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
+
+    candidate_responses: Optional[list[CandidateResponseDict]]
+    """Responses from model under test and other baseline models for comparison."""
+
+
+EvaluationItemRequestOrDict = Union[EvaluationItemRequest, EvaluationItemRequestDict]
+
+
+class CandidateResult(_common.BaseModel):
+    """Result for a single candidate."""
+
+    candidate: Optional[str] = Field(
+        default=None,
+        description="""The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest.""",
+    )
+    metric: Optional[str] = Field(
+        default=None, description="""The metric that was evaluated."""
+    )
+    score: Optional[float] = Field(
+        default=None, description="""The score of the metric."""
+    )
+    explanation: Optional[str] = Field(
+        default=None, description="""The explanation for the metric."""
+    )
+    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+        default=None, description="""The rubric verdicts for the metric."""
+    )
+    additional_results: Optional[dict[str, Any]] = Field(
+        default=None, description="""Additional results for the metric."""
+    )
+
+
+class CandidateResultDict(TypedDict, total=False):
+    """Result for a single candidate."""
+
+    candidate: Optional[str]
+    """The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest."""
+
+    metric: Optional[str]
+    """The metric that was evaluated."""
+
+    score: Optional[float]
+    """The score of the metric."""
+
+    explanation: Optional[str]
+    """The explanation for the metric."""
+
+    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    """The rubric verdicts for the metric."""
+
+    additional_results: Optional[dict[str, Any]]
+    """Additional results for the metric."""
+
+
+CandidateResultOrDict = Union[CandidateResult, CandidateResultDict]
+
+
+class EvaluationItemResult(_common.BaseModel):
+    """Represents the result of an evaluation item."""
+
+    evaluation_request: Optional[str] = Field(
+        default=None, description="""The request item that was evaluated."""
+    )
+    evaluation_run: Optional[str] = Field(
+        default=None,
+        description="""The evaluation run that was used to generate the result.""",
+    )
+    request: Optional[EvaluationItemRequest] = Field(
+        default=None, description="""The request that was evaluated."""
+    )
+    metric: Optional[str] = Field(
+        default=None, description="""The metric that was evaluated."""
+    )
+    candidate_results: Optional[list[CandidateResult]] = Field(
+        default=None, description="""TThe results for the metric."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""Metadata about the evaluation result."""
+    )
+
+
+class EvaluationItemResultDict(TypedDict, total=False):
+    """Represents the result of an evaluation item."""
+
+    evaluation_request: Optional[str]
+    """The request item that was evaluated."""
+
+    evaluation_run: Optional[str]
+    """The evaluation run that was used to generate the result."""
+
+    request: Optional[EvaluationItemRequestDict]
+    """The request that was evaluated."""
+
+    metric: Optional[str]
+    """The metric that was evaluated."""
+
+    candidate_results: Optional[list[CandidateResultDict]]
+    """TThe results for the metric."""
+
+    metadata: Optional[dict[str, Any]]
+    """Metadata about the evaluation result."""
+
+
+EvaluationItemResultOrDict = Union[EvaluationItemResult, EvaluationItemResultDict]
+
+
+class EvaluationItem(_common.BaseModel):
+    """EvaluationItem is a single evaluation request or result.
+
+    The content of an EvaluationItem is immutable - it cannot be updated once
+    created. EvaluationItems can be deleted when no longer needed.
+    """
+
+    name: Optional[str] = Field(
+        default=None, description="""The resource name of the EvaluationItem."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the EvaluationItem."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""Metadata for the EvaluationItem."""
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""Labels for the EvaluationItem."""
+    )
+    evaluation_item_type: Optional[EvaluationItemType] = Field(
+        default=None, description="""The type of the EvaluationItem."""
+    )
+    evaluation_request: Optional[EvaluationItemRequest] = Field(
+        default=None, description="""The request to evaluate."""
+    )
+    evaluation_response: Optional[EvaluationItemResult] = Field(
+        default=None, description="""The response from evaluation."""
+    )
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""The Cloud Storage object where the request or response is stored.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None, description="""Timestamp when this item was created."""
+    )
+    error: Optional[genai_types.GoogleRpcStatus] = Field(
+        default=None, description="""Error for the evaluation item."""
+    )
+
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["EvaluationItem"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "EvaluationItem":
+        """Converts a dictionary response into a EvaluationItem object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
+
+
+class EvaluationItemDict(TypedDict, total=False):
+    """EvaluationItem is a single evaluation request or result.
+
+    The content of an EvaluationItem is immutable - it cannot be updated once
+    created. EvaluationItems can be deleted when no longer needed.
+    """
+
+    name: Optional[str]
+    """The resource name of the EvaluationItem."""
+
+    display_name: Optional[str]
+    """The display name of the EvaluationItem."""
+
+    metadata: Optional[dict[str, Any]]
+    """Metadata for the EvaluationItem."""
+
+    labels: Optional[dict[str, str]]
+    """Labels for the EvaluationItem."""
+
+    evaluation_item_type: Optional[EvaluationItemType]
+    """The type of the EvaluationItem."""
+
+    evaluation_request: Optional[EvaluationItemRequestDict]
+    """The request to evaluate."""
+
+    evaluation_response: Optional[EvaluationItemResultDict]
+    """The response from evaluation."""
+
+    gcs_uri: Optional[str]
+    """The Cloud Storage object where the request or response is stored."""
+
+    create_time: Optional[datetime.datetime]
+    """Timestamp when this item was created."""
+
+    error: Optional[genai_types.GoogleRpcStatusDict]
+    """Error for the evaluation item."""
+
+
+EvaluationItemOrDict = Union[EvaluationItem, EvaluationItemDict]
+
+
 class OptimizeConfig(_common.BaseModel):
     """Config for Prompt Optimizer."""
 
@@ -3805,6 +4627,9 @@ class CreateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""The labels to be used for the Agent Engine."""
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -3859,6 +4684,9 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
 
+    labels: Optional[dict[str, str]]
+    """The labels to be used for the Agent Engine."""
+
 
 CreateAgentEngineConfigOrDict = Union[
     CreateAgentEngineConfig, CreateAgentEngineConfigDict
@@ -3906,6 +4734,9 @@ class ReasoningEngine(_common.BaseModel):
         default=None,
         description="""Required. The display name of the ReasoningEngine.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""Labels for the ReasoningEngine."""
+    )
     etag: Optional[str] = Field(
         default=None,
         description="""Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
@@ -3940,6 +4771,9 @@ class ReasoningEngineDict(TypedDict, total=False):
 
     display_name: Optional[str]
     """Required. The display name of the ReasoningEngine."""
+
+    labels: Optional[dict[str, str]]
+    """Labels for the ReasoningEngine."""
 
     etag: Optional[str]
     """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
@@ -4407,6 +5241,9 @@ class UpdateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""The labels to be used for the Agent Engine."""
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -4465,6 +5302,9 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
+
+    labels: Optional[dict[str, str]]
+    """The labels to be used for the Agent Engine."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -6627,7 +7467,7 @@ class _GetAgentEngineSessionRequestParameters(_common.BaseModel):
     """Parameters for getting an agent engine session."""
 
     name: Optional[str] = Field(
-        default=None, description="""Name of the agent engine."""
+        default=None, description="""Name of the agent engine session."""
     )
     config: Optional[GetAgentEngineSessionConfig] = Field(
         default=None, description=""""""
@@ -6638,7 +7478,7 @@ class _GetAgentEngineSessionRequestParametersDict(TypedDict, total=False):
     """Parameters for getting an agent engine session."""
 
     name: Optional[str]
-    """Name of the agent engine."""
+    """Name of the agent engine session."""
 
     config: Optional[GetAgentEngineSessionConfigDict]
     """"""
@@ -7142,7 +7982,7 @@ ListAgentEngineSessionEventsConfigOrDict = Union[
 
 
 class _ListAgentEngineSessionEventsRequestParameters(_common.BaseModel):
-    """Parameters for listing agent engines."""
+    """Parameters for listing agent engine session events."""
 
     name: Optional[str] = Field(
         default=None, description="""Name of the agent engine session."""
@@ -7153,7 +7993,7 @@ class _ListAgentEngineSessionEventsRequestParameters(_common.BaseModel):
 
 
 class _ListAgentEngineSessionEventsRequestParametersDict(TypedDict, total=False):
-    """Parameters for listing agent engines."""
+    """Parameters for listing agent engine session events."""
 
     name: Optional[str]
     """Name of the agent engine session."""
@@ -8018,7 +8858,7 @@ class DatasetOperation(_common.BaseModel):
         description="""The error result of the operation in case of failure or cancellation.""",
     )
     response: Optional[dict[str, Any]] = Field(
-        default=None, description="""The result of the operation."""
+        default=None, description="""The result of the dataset operation."""
     )
 
 
@@ -8038,7 +8878,7 @@ class DatasetOperationDict(TypedDict, total=False):
     """The error result of the operation in case of failure or cancellation."""
 
     response: Optional[dict[str, Any]]
-    """The result of the operation."""
+    """The result of the dataset operation."""
 
 
 DatasetOperationOrDict = Union[DatasetOperation, DatasetOperationDict]
@@ -8064,86 +8904,6 @@ CreateDatasetVersionConfigOrDict = Union[
 ]
 
 
-class DatasetVersion(_common.BaseModel):
-    """Represents a dataset version resource to store prompts."""
-
-    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
-        default=None,
-        description="""Required. Output only. Additional information about the DatasetVersion.""",
-    )
-    big_query_dataset_name: Optional[str] = Field(
-        default=None,
-        description="""Output only. Name of the associated BigQuery dataset.""",
-    )
-    create_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when this DatasetVersion was created.""",
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
-    )
-    etag: Optional[str] = Field(
-        default=None,
-        description="""Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
-    )
-    model_reference: Optional[str] = Field(
-        default=None,
-        description="""Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions.""",
-    )
-    name: Optional[str] = Field(
-        default=None,
-        description="""Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`""",
-    )
-    satisfies_pzi: Optional[bool] = Field(
-        default=None, description="""Output only. Reserved for future use."""
-    )
-    satisfies_pzs: Optional[bool] = Field(
-        default=None, description="""Output only. Reserved for future use."""
-    )
-    update_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when this DatasetVersion was last updated.""",
-    )
-
-
-class DatasetVersionDict(TypedDict, total=False):
-    """Represents a dataset version resource to store prompts."""
-
-    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
-    """Required. Output only. Additional information about the DatasetVersion."""
-
-    big_query_dataset_name: Optional[str]
-    """Output only. Name of the associated BigQuery dataset."""
-
-    create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this DatasetVersion was created."""
-
-    display_name: Optional[str]
-    """The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
-
-    etag: Optional[str]
-    """Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
-
-    model_reference: Optional[str]
-    """Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions."""
-
-    name: Optional[str]
-    """Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`"""
-
-    satisfies_pzi: Optional[bool]
-    """Output only. Reserved for future use."""
-
-    satisfies_pzs: Optional[bool]
-    """Output only. Reserved for future use."""
-
-    update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this DatasetVersion was last updated."""
-
-
-DatasetVersionOrDict = Union[DatasetVersion, DatasetVersionDict]
-
-
 class _CreateDatasetVersionParameters(_common.BaseModel):
     """Represents the create dataset version parameters."""
 
@@ -8151,7 +8911,10 @@ class _CreateDatasetVersionParameters(_common.BaseModel):
         default=None, description=""""""
     )
     dataset_name: Optional[str] = Field(default=None, description="""""")
-    dataset_version: Optional[DatasetVersion] = Field(default=None, description="""""")
+    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
+        default=None, description=""""""
+    )
+    model_reference: Optional[str] = Field(default=None, description="""""")
     parent: Optional[str] = Field(default=None, description="""""")
     display_name: Optional[str] = Field(default=None, description="""""")
 
@@ -8165,7 +8928,10 @@ class _CreateDatasetVersionParametersDict(TypedDict, total=False):
     dataset_name: Optional[str]
     """"""
 
-    dataset_version: Optional[DatasetVersionDict]
+    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
+    """"""
+
+    model_reference: Optional[str]
     """"""
 
     parent: Optional[str]
@@ -8346,8 +9112,8 @@ class Dataset(_common.BaseModel):
         description="""Output only. Timestamp when this Dataset was last updated.""",
     )
 
-    model_config = ConfigDict(alias_generator=_camel_to_snake, populate_by_name=True)
-
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
     @classmethod
     def _from_response(
         cls: typing.Type["Dataset"],
@@ -8357,12 +9123,8 @@ class Dataset(_common.BaseModel):
     ) -> "Dataset":
         """Converts a dictionary response into a Dataset object."""
 
-        # Some nested Dataset fields don't have converters, so we need to ensure camelCase fields from the API are converted to snake_case before calling _from_response.
-        # Instantiating a Dataset before calling _from_response ensures the model_config converting camel to snake is used
-        validated_dataset = Dataset.model_validate(response)
-        result = super()._from_response(
-            response=validated_dataset.model_dump(), kwargs=kwargs
-        )
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
         return result
 
 
@@ -8447,6 +9209,101 @@ _GetDatasetVersionParametersOrDict = Union[
 ]
 
 
+class DatasetVersion(_common.BaseModel):
+    """Represents a dataset version resource to store prompts."""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
+        default=None,
+        description="""Required. Output only. Additional information about the DatasetVersion.""",
+    )
+    big_query_dataset_name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Name of the associated BigQuery dataset.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this DatasetVersion was created.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
+    )
+    etag: Optional[str] = Field(
+        default=None,
+        description="""Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
+    )
+    model_reference: Optional[str] = Field(
+        default=None,
+        description="""Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`""",
+    )
+    satisfies_pzi: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    satisfies_pzs: Optional[bool] = Field(
+        default=None, description="""Output only. Reserved for future use."""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this DatasetVersion was last updated.""",
+    )
+
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["DatasetVersion"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "DatasetVersion":
+        """Converts a dictionary response into a DatasetVersion object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
+
+
+class DatasetVersionDict(TypedDict, total=False):
+    """Represents a dataset version resource to store prompts."""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
+    """Required. Output only. Additional information about the DatasetVersion."""
+
+    big_query_dataset_name: Optional[str]
+    """Output only. Name of the associated BigQuery dataset."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this DatasetVersion was created."""
+
+    display_name: Optional[str]
+    """The user-defined name of the DatasetVersion. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
+
+    etag: Optional[str]
+    """Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
+
+    model_reference: Optional[str]
+    """Output only. Reference to the public base model last used by the dataset version. Only set for prompt dataset versions."""
+
+    name: Optional[str]
+    """Output only. Identifier. The resource name of the DatasetVersion. Format: `projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}`"""
+
+    satisfies_pzi: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    satisfies_pzs: Optional[bool]
+    """Output only. Reserved for future use."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this DatasetVersion was last updated."""
+
+
+DatasetVersionOrDict = Union[DatasetVersion, DatasetVersionDict]
+
+
 class GetDatasetOperationConfig(_common.BaseModel):
     """Config for getting a dataset version operation."""
 
@@ -8468,7 +9325,7 @@ GetDatasetOperationConfigOrDict = Union[
 
 
 class _GetDatasetOperationParameters(_common.BaseModel):
-    """Parameters for getting a dataset resource to store prompts."""
+    """Parameters for getting a dataset operation."""
 
     config: Optional[GetDatasetOperationConfig] = Field(
         default=None, description=""""""
@@ -8478,7 +9335,7 @@ class _GetDatasetOperationParameters(_common.BaseModel):
 
 
 class _GetDatasetOperationParametersDict(TypedDict, total=False):
-    """Parameters for getting a dataset resource to store prompts."""
+    """Parameters for getting a dataset operation."""
 
     config: Optional[GetDatasetOperationConfigDict]
     """"""
@@ -8561,6 +9418,21 @@ class ListDatasetsResponse(_common.BaseModel):
       """,
     )
 
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["ListDatasetsResponse"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "ListDatasetsResponse":
+        """Converts a dictionary response into a ListDatasetsResponse object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
+
 
 class ListDatasetsResponseDict(TypedDict, total=False):
     """Response for listing prompt datasets."""
@@ -8618,6 +9490,21 @@ class ListDatasetVersionsResponse(_common.BaseModel):
       """,
     )
 
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["ListDatasetVersionsResponse"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "ListDatasetVersionsResponse":
+        """Converts a dictionary response into a ListDatasetVersionsResponse object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
+
 
 class ListDatasetVersionsResponseDict(TypedDict, total=False):
     """Response for listing prompt datasets."""
@@ -8635,6 +9522,326 @@ class ListDatasetVersionsResponseDict(TypedDict, total=False):
 
 ListDatasetVersionsResponseOrDict = Union[
     ListDatasetVersionsResponse, ListDatasetVersionsResponseDict
+]
+
+
+class DeletePromptConfig(_common.BaseModel):
+    """Config for deleting a prompt."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""Timeout for the delete prompt operation in seconds. Defaults to 90.""",
+    )
+
+
+class DeletePromptConfigDict(TypedDict, total=False):
+    """Config for deleting a prompt."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    timeout: Optional[int]
+    """Timeout for the delete prompt operation in seconds. Defaults to 90."""
+
+
+DeletePromptConfigOrDict = Union[DeletePromptConfig, DeletePromptConfigDict]
+
+
+class _DeleteDatasetRequestParameters(_common.BaseModel):
+    """Parameters for deleting a prompt dataset."""
+
+    prompt_id: Optional[str] = Field(
+        default=None, description="""ID of the prompt dataset to be deleted."""
+    )
+    config: Optional[DeletePromptConfig] = Field(default=None, description="""""")
+
+
+class _DeleteDatasetRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a prompt dataset."""
+
+    prompt_id: Optional[str]
+    """ID of the prompt dataset to be deleted."""
+
+    config: Optional[DeletePromptConfigDict]
+    """"""
+
+
+_DeleteDatasetRequestParametersOrDict = Union[
+    _DeleteDatasetRequestParameters, _DeleteDatasetRequestParametersDict
+]
+
+
+class DeletePromptOperation(_common.BaseModel):
+    """Operation for deleting prompts."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeletePromptOperationDict(TypedDict, total=False):
+    """Operation for deleting prompts."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeletePromptOperationOrDict = Union[DeletePromptOperation, DeletePromptOperationDict]
+
+
+class _DeletePromptVersionRequestParameters(_common.BaseModel):
+    """Parameters for deleting a prompt version."""
+
+    prompt_id: Optional[str] = Field(
+        default=None, description="""ID of the prompt to be deleted."""
+    )
+    version_id: Optional[str] = Field(
+        default=None,
+        description="""ID of the prompt version to be deleted within the provided prompt_id.""",
+    )
+    config: Optional[DeletePromptConfig] = Field(default=None, description="""""")
+
+
+class _DeletePromptVersionRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a prompt version."""
+
+    prompt_id: Optional[str]
+    """ID of the prompt to be deleted."""
+
+    version_id: Optional[str]
+    """ID of the prompt version to be deleted within the provided prompt_id."""
+
+    config: Optional[DeletePromptConfigDict]
+    """"""
+
+
+_DeletePromptVersionRequestParametersOrDict = Union[
+    _DeletePromptVersionRequestParameters, _DeletePromptVersionRequestParametersDict
+]
+
+
+class DeletePromptVersionOperation(_common.BaseModel):
+    """Operation for deleting prompt versions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeletePromptVersionOperationDict(TypedDict, total=False):
+    """Operation for deleting prompt versions."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeletePromptVersionOperationOrDict = Union[
+    DeletePromptVersionOperation, DeletePromptVersionOperationDict
+]
+
+
+class RestoreVersionConfig(_common.BaseModel):
+    """Config for restoring a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class RestoreVersionConfigDict(TypedDict, total=False):
+    """Config for restoring a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+RestoreVersionConfigOrDict = Union[RestoreVersionConfig, RestoreVersionConfigDict]
+
+
+class _RestoreVersionRequestParameters(_common.BaseModel):
+    """Parameters for restoring a prompt version."""
+
+    config: Optional[RestoreVersionConfig] = Field(default=None, description="""""")
+    dataset_id: Optional[str] = Field(
+        default=None, description="""ID of the prompt dataset to be restored."""
+    )
+    version_id: Optional[str] = Field(
+        default=None, description="""ID of the prompt dataset version to be restored."""
+    )
+
+
+class _RestoreVersionRequestParametersDict(TypedDict, total=False):
+    """Parameters for restoring a prompt version."""
+
+    config: Optional[RestoreVersionConfigDict]
+    """"""
+
+    dataset_id: Optional[str]
+    """ID of the prompt dataset to be restored."""
+
+    version_id: Optional[str]
+    """ID of the prompt dataset version to be restored."""
+
+
+_RestoreVersionRequestParametersOrDict = Union[
+    _RestoreVersionRequestParameters, _RestoreVersionRequestParametersDict
+]
+
+
+class RestoreVersionOperation(_common.BaseModel):
+    """Represents the restore version operation."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class RestoreVersionOperationDict(TypedDict, total=False):
+    """Represents the restore version operation."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+RestoreVersionOperationOrDict = Union[
+    RestoreVersionOperation, RestoreVersionOperationDict
+]
+
+
+class UpdateDatasetConfig(_common.BaseModel):
+    """Config for creating a dataset resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class UpdateDatasetConfigDict(TypedDict, total=False):
+    """Config for creating a dataset resource to store prompts."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+UpdateDatasetConfigOrDict = Union[UpdateDatasetConfig, UpdateDatasetConfigDict]
+
+
+class _UpdateDatasetParameters(_common.BaseModel):
+    """Parameters for creating a dataset resource to store prompts."""
+
+    config: Optional[UpdateDatasetConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
+    dataset_id: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    metadata: Optional[SchemaTextPromptDatasetMetadata] = Field(
+        default=None, description=""""""
+    )
+    description: Optional[str] = Field(default=None, description="""""")
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None, description=""""""
+    )
+    model_reference: Optional[str] = Field(default=None, description="""""")
+
+
+class _UpdateDatasetParametersDict(TypedDict, total=False):
+    """Parameters for creating a dataset resource to store prompts."""
+
+    config: Optional[UpdateDatasetConfigDict]
+    """"""
+
+    name: Optional[str]
+    """"""
+
+    dataset_id: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    metadata: Optional[SchemaTextPromptDatasetMetadataDict]
+    """"""
+
+    description: Optional[str]
+    """"""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """"""
+
+    model_reference: Optional[str]
+    """"""
+
+
+_UpdateDatasetParametersOrDict = Union[
+    _UpdateDatasetParameters, _UpdateDatasetParametersDict
 ]
 
 
@@ -9191,6 +10398,107 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
 
 
+class AgentInfo(_common.BaseModel):
+    """The agent info of an agent, used for agent eval."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Agent name, used as an identifier."""
+    )
+    instruction: Optional[str] = Field(
+        default=None, description="""Agent developer instruction."""
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Agent description."""
+    )
+    tool_declarations: Optional[genai_types.ToolListUnion] = Field(
+        default=None, description="""List of tools used by the Agent."""
+    )
+
+
+class AgentInfoDict(TypedDict, total=False):
+    """The agent info of an agent, used for agent eval."""
+
+    name: Optional[str]
+    """Agent name, used as an identifier."""
+
+    instruction: Optional[str]
+    """Agent developer instruction."""
+
+    description: Optional[str]
+    """Agent description."""
+
+    tool_declarations: Optional[genai_types.ToolListUnionDict]
+    """List of tools used by the Agent."""
+
+
+AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
+
+
+class ContentMapContents(_common.BaseModel):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""Contents of the model input."""
+    )
+
+
+class ContentMapContentsDict(TypedDict, total=False):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Contents of the model input."""
+
+
+ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
+
+
+class EvalCaseMetricResult(_common.BaseModel):
+    """Evaluation result for a single evaluation case for a single metric."""
+
+    metric_name: Optional[str] = Field(
+        default=None, description="""Name of the metric."""
+    )
+    score: Optional[float] = Field(default=None, description="""Score of the metric.""")
+    explanation: Optional[str] = Field(
+        default=None, description="""Explanation of the metric."""
+    )
+    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+        default=None,
+        description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
+    )
+    raw_output: Optional[list[str]] = Field(
+        default=None, description="""Raw output of the metric."""
+    )
+    error_message: Optional[str] = Field(
+        default=None, description="""Error message for the metric."""
+    )
+
+
+class EvalCaseMetricResultDict(TypedDict, total=False):
+    """Evaluation result for a single evaluation case for a single metric."""
+
+    metric_name: Optional[str]
+    """Name of the metric."""
+
+    score: Optional[float]
+    """Score of the metric."""
+
+    explanation: Optional[str]
+    """Explanation of the metric."""
+
+    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    """The details of all the rubrics and their verdicts for rubric-based metrics."""
+
+    raw_output: Optional[list[str]]
+    """Raw output of the metric."""
+
+    error_message: Optional[str]
+    """Error message for the metric."""
+
+
+EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
+
+
 class Message(_common.BaseModel):
     """Represents a single message turn in a conversation."""
 
@@ -9279,6 +10587,52 @@ class ResponseCandidateDict(TypedDict, total=False):
 ResponseCandidateOrDict = Union[ResponseCandidate, ResponseCandidateDict]
 
 
+class Event(_common.BaseModel):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the agent event."""
+    )
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Content of the event."""
+    )
+    creation_timestamp: Optional[datetime.datetime] = Field(
+        default=None, description="""The creation timestamp of the event."""
+    )
+    author: Optional[str] = Field(
+        default=None, description="""Name of the entity that produced the event."""
+    )
+
+
+class EventDict(TypedDict, total=False):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str]
+    """Unique identifier for the agent event."""
+
+    content: Optional[genai_types.ContentDict]
+    """Content of the event."""
+
+    creation_timestamp: Optional[datetime.datetime]
+    """The creation timestamp of the event."""
+
+    author: Optional[str]
+    """Name of the entity that produced the event."""
+
+
+EventOrDict = Union[Event, EventDict]
+
+
 class EvalCase(_common.BaseModel):
     """A comprehensive representation of a GenAI interaction for evaluation."""
 
@@ -9287,11 +10641,11 @@ class EvalCase(_common.BaseModel):
     )
     responses: Optional[list[ResponseCandidate]] = Field(
         default=None,
-        description="""Model-generated replies to the last user message. Multiple responses are allowed to support use cases such as comparing different model outputs.""",
+        description="""Model-generated replies to the last user message in a conversation. Multiple responses are allowed to support use cases such as comparing different model outputs.""",
     )
     reference: Optional[ResponseCandidate] = Field(
         default=None,
-        description="""User-provided, golden reference model reply to prompt in context of chat history.""",
+        description="""User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in a conversation.""",
     )
     system_instruction: Optional[genai_types.Content] = Field(
         default=None, description="""System instruction for the model."""
@@ -9307,6 +10661,14 @@ class EvalCase(_common.BaseModel):
     eval_case_id: Optional[str] = Field(
         default=None, description="""Unique identifier for the evaluation case."""
     )
+    intermediate_events: Optional[list[Event]] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run.""",
+    )
+    agent_info: Optional[AgentInfo] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
+    )
     # Allow extra fields to support custom metric prompts and stay backward compatible.
     model_config = ConfigDict(frozen=True, extra="allow")
 
@@ -9318,10 +10680,10 @@ class EvalCaseDict(TypedDict, total=False):
     """The most recent user message (current input)."""
 
     responses: Optional[list[ResponseCandidateDict]]
-    """Model-generated replies to the last user message. Multiple responses are allowed to support use cases such as comparing different model outputs."""
+    """Model-generated replies to the last user message in a conversation. Multiple responses are allowed to support use cases such as comparing different model outputs."""
 
     reference: Optional[ResponseCandidateDict]
-    """User-provided, golden reference model reply to prompt in context of chat history."""
+    """User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in a conversation."""
 
     system_instruction: Optional[genai_types.ContentDict]
     """System instruction for the model."""
@@ -9334,6 +10696,12 @@ class EvalCaseDict(TypedDict, total=False):
 
     eval_case_id: Optional[str]
     """Unique identifier for the evaluation case."""
+
+    intermediate_events: Optional[list[EventDict]]
+    """This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run."""
+
+    agent_info: Optional[AgentInfoDict]
+    """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
 
 
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
@@ -9497,78 +10865,6 @@ class EvaluationDatasetDict(TypedDict, total=False):
 EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
 
 
-class WinRateStats(_common.BaseModel):
-    """Statistics for win rates for a single metric."""
-
-    win_rates: Optional[list[float]] = Field(
-        default=None,
-        description="""Win rates for the metric, one for each candidate.""",
-    )
-    tie_rate: Optional[float] = Field(
-        default=None, description="""Tie rate for the metric."""
-    )
-
-
-class WinRateStatsDict(TypedDict, total=False):
-    """Statistics for win rates for a single metric."""
-
-    win_rates: Optional[list[float]]
-    """Win rates for the metric, one for each candidate."""
-
-    tie_rate: Optional[float]
-    """Tie rate for the metric."""
-
-
-WinRateStatsOrDict = Union[WinRateStats, WinRateStatsDict]
-
-
-class EvalCaseMetricResult(_common.BaseModel):
-    """Evaluation result for a single evaluation case for a single metric."""
-
-    metric_name: Optional[str] = Field(
-        default=None, description="""Name of the metric."""
-    )
-    score: Optional[float] = Field(default=None, description="""Score of the metric.""")
-    explanation: Optional[str] = Field(
-        default=None, description="""Explanation of the metric."""
-    )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
-        default=None,
-        description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
-    )
-    raw_output: Optional[list[str]] = Field(
-        default=None, description="""Raw output of the metric."""
-    )
-    error_message: Optional[str] = Field(
-        default=None, description="""Error message for the metric."""
-    )
-
-
-class EvalCaseMetricResultDict(TypedDict, total=False):
-    """Evaluation result for a single evaluation case for a single metric."""
-
-    metric_name: Optional[str]
-    """Name of the metric."""
-
-    score: Optional[float]
-    """Score of the metric."""
-
-    explanation: Optional[str]
-    """Explanation of the metric."""
-
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
-    """The details of all the rubrics and their verdicts for rubric-based metrics."""
-
-    raw_output: Optional[list[str]]
-    """Raw output of the metric."""
-
-    error_message: Optional[str]
-    """Error message for the metric."""
-
-
-EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
-
-
 class ResponseCandidateResult(_common.BaseModel):
     """Aggregated metric results for a single response candidate of an EvalCase."""
 
@@ -9723,7 +11019,7 @@ class EvaluationResult(_common.BaseModel):
         default=None,
         description="""A list of summary-level evaluation results for each metric.""",
     )
-    win_rates: Optional[dict[str, WinRateStats]] = Field(
+    win_rates: Optional[dict[str, "WinRateStats"]] = Field(
         default=None,
         description="""A dictionary of win rates for each metric, only populated for multi-response evaluation runs.""",
     )
@@ -9761,7 +11057,7 @@ class EvaluationResultDict(TypedDict, total=False):
     summary_metrics: Optional[list[AggregatedMetricResultDict]]
     """A list of summary-level evaluation results for each metric."""
 
-    win_rates: Optional[dict[str, WinRateStatsDict]]
+    win_rates: Optional[dict[str, "WinRateStatsDict"]]
     """A dictionary of win rates for each metric, only populated for multi-response evaluation runs."""
 
     evaluation_dataset: Optional[list[EvaluationDatasetDict]]
@@ -9774,22 +11070,57 @@ class EvaluationResultDict(TypedDict, total=False):
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
 
 
-class ContentMapContents(_common.BaseModel):
-    """Map of placeholder in metric prompt template to contents of model input."""
+class SessionInput(_common.BaseModel):
+    """This field is experimental and may change in future versions.
 
-    contents: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""Contents of the model input."""
+    Input to initialize a session and run an agent, used for agent evaluation.
+    """
+
+    user_id: Optional[str] = Field(default=None, description="""The user id.""")
+    state: Optional[dict[str, str]] = Field(
+        default=None, description="""The state of the session."""
     )
 
 
-class ContentMapContentsDict(TypedDict, total=False):
-    """Map of placeholder in metric prompt template to contents of model input."""
+class SessionInputDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
 
-    contents: Optional[list[genai_types.ContentDict]]
-    """Contents of the model input."""
+    Input to initialize a session and run an agent, used for agent evaluation.
+    """
+
+    user_id: Optional[str]
+    """The user id."""
+
+    state: Optional[dict[str, str]]
+    """The state of the session."""
 
 
-ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
+SessionInputOrDict = Union[SessionInput, SessionInputDict]
+
+
+class WinRateStats(_common.BaseModel):
+    """Statistics for win rates for a single metric."""
+
+    win_rates: Optional[list[float]] = Field(
+        default=None,
+        description="""Win rates for the metric, one for each candidate.""",
+    )
+    tie_rate: Optional[float] = Field(
+        default=None, description="""Tie rate for the metric."""
+    )
+
+
+class WinRateStatsDict(TypedDict, total=False):
+    """Statistics for win rates for a single metric."""
+
+    win_rates: Optional[list[float]]
+    """Win rates for the metric, one for each candidate."""
+
+    tie_rate: Optional[float]
+    """Tie rate for the metric."""
+
+
+WinRateStatsOrDict = Union[WinRateStats, WinRateStatsDict]
 
 
 class EvaluateMethodConfig(_common.BaseModel):
@@ -10164,6 +11495,9 @@ class AgentEngineConfig(_common.BaseModel):
         default=None,
         description="""The encryption spec to be used for the Agent Engine.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""The labels to be used for the Agent Engine."""
+    )
     agent_server_mode: Optional[AgentServerMode] = Field(
         default=None, description="""The agent server mode to use for deployment."""
     )
@@ -10246,6 +11580,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """The encryption spec to be used for the Agent Engine."""
+
+    labels: Optional[dict[str, str]]
+    """The labels to be used for the Agent Engine."""
 
     agent_server_mode: Optional[AgentServerMode]
     """The agent server mode to use for deployment."""
@@ -10422,22 +11759,14 @@ SchemaPromptInstanceVariableValueOrDict = Union[
 
 
 class CreatePromptConfig(_common.BaseModel):
-    """Config for creating a prompt version."""
+    """Config for creating a prompt."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
-    prompt_id: Optional[str] = Field(
-        default=None,
-        description="""The dataset id of an existing prompt dataset to create the prompt version in. If not set, a new prompt dataset will be created.""",
-    )
     prompt_display_name: Optional[str] = Field(
         default=None,
         description="""The display name for the prompt. If not set, a default name with a timestamp will be used.""",
-    )
-    version_display_name: Optional[str] = Field(
-        default=None,
-        description="""The display name for the prompt version. If not set, a default name with a timestamp will be used.""",
     )
     timeout: Optional[int] = Field(
         default=90,
@@ -10450,19 +11779,13 @@ class CreatePromptConfig(_common.BaseModel):
 
 
 class CreatePromptConfigDict(TypedDict, total=False):
-    """Config for creating a prompt version."""
+    """Config for creating a prompt."""
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
-    prompt_id: Optional[str]
-    """The dataset id of an existing prompt dataset to create the prompt version in. If not set, a new prompt dataset will be created."""
-
     prompt_display_name: Optional[str]
     """The display name for the prompt. If not set, a default name with a timestamp will be used."""
-
-    version_display_name: Optional[str]
-    """The display name for the prompt version. If not set, a default name with a timestamp will be used."""
 
     timeout: Optional[int]
     """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
@@ -10474,15 +11797,45 @@ class CreatePromptConfigDict(TypedDict, total=False):
 CreatePromptConfigOrDict = Union[CreatePromptConfig, CreatePromptConfigDict]
 
 
+class CreatePromptVersionConfig(_common.BaseModel):
+    """Config for creating a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    version_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the prompt version. If not set, a default name with a timestamp will be used.""",
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds.""",
+    )
+
+
+class CreatePromptVersionConfigDict(TypedDict, total=False):
+    """Config for creating a prompt version."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    version_display_name: Optional[str]
+    """The display name for the prompt version. If not set, a default name with a timestamp will be used."""
+
+    timeout: Optional[int]
+    """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
+
+
+CreatePromptVersionConfigOrDict = Union[
+    CreatePromptVersionConfig, CreatePromptVersionConfigDict
+]
+
+
 class GetPromptConfig(_common.BaseModel):
     """Config for getting a prompt."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
-    )
-    version_id: Optional[str] = Field(
-        default=None,
-        description="""The version id of the prompt in the prompt dataset to get. For example, if the full prompt resource name is projects/123/locations/us-central1/datasets/456/datasetVersions/789, then the version id is '789'.""",
     )
 
 
@@ -10491,9 +11844,6 @@ class GetPromptConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
-
-    version_id: Optional[str]
-    """The version id of the prompt in the prompt dataset to get. For example, if the full prompt resource name is projects/123/locations/us-central1/datasets/456/datasetVersions/789, then the version id is '789'."""
 
 
 GetPromptConfigOrDict = Union[GetPromptConfig, GetPromptConfigDict]

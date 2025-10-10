@@ -452,11 +452,11 @@ class GenerationConfig(proto.Message):
             Optional. Output response mimetype of the generated
             candidate text. Supported mimetype:
 
-            -  ``text/plain``: (default) Text output.
-            -  ``application/json``: JSON response in the candidates.
-               The model needs to be prompted to output the appropriate
-               response type, otherwise the behavior is undefined. This
-               is a preview feature.
+            - ``text/plain``: (default) Text output.
+            - ``application/json``: JSON response in the candidates. The
+              model needs to be prompted to output the appropriate
+              response type, otherwise the behavior is undefined. This
+              is a preview feature.
         response_schema (google.cloud.aiplatform_v1beta1.types.Schema):
             Optional. The ``Schema`` object allows the definition of
             input and output data types. These types can be objects, but
@@ -480,26 +480,26 @@ class GenerationConfig(proto.Message):
             supported. Specifically, only the following properties are
             supported:
 
-            -  ``$id``
-            -  ``$defs``
-            -  ``$ref``
-            -  ``$anchor``
-            -  ``type``
-            -  ``format``
-            -  ``title``
-            -  ``description``
-            -  ``enum`` (for strings and numbers)
-            -  ``items``
-            -  ``prefixItems``
-            -  ``minItems``
-            -  ``maxItems``
-            -  ``minimum``
-            -  ``maximum``
-            -  ``anyOf``
-            -  ``oneOf`` (interpreted the same as ``anyOf``)
-            -  ``properties``
-            -  ``additionalProperties``
-            -  ``required``
+            - ``$id``
+            - ``$defs``
+            - ``$ref``
+            - ``$anchor``
+            - ``type``
+            - ``format``
+            - ``title``
+            - ``description``
+            - ``enum`` (for strings and numbers)
+            - ``items``
+            - ``prefixItems``
+            - ``minItems``
+            - ``maxItems``
+            - ``minimum``
+            - ``maximum``
+            - ``anyOf``
+            - ``oneOf`` (interpreted the same as ``anyOf``)
+            - ``properties``
+            - ``additionalProperties``
+            - ``required``
 
             The non-standard ``propertyOrdering`` property may also be
             set.
@@ -1528,7 +1528,54 @@ class GroundingChunk(proto.Message):
                 Can be used to look up the Place.
 
                 This field is a member of `oneof`_ ``_place_id``.
+            place_answer_sources (google.cloud.aiplatform_v1beta1.types.GroundingChunk.Maps.PlaceAnswerSources):
+                Sources used to generate the place answer.
+                This includes review snippets and photos that
+                were used to generate the answer, as well as
+                uris to flag content.
         """
+
+        class PlaceAnswerSources(proto.Message):
+            r"""
+
+            Attributes:
+                review_snippets (MutableSequence[google.cloud.aiplatform_v1beta1.types.GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet]):
+                    Snippets of reviews that are used to generate
+                    the answer.
+            """
+
+            class ReviewSnippet(proto.Message):
+                r"""Encapsulates a review snippet.
+
+                Attributes:
+                    review_id (str):
+                        Id of the review referencing the place.
+                    google_maps_uri (str):
+                        A link to show the review on Google Maps.
+                    title (str):
+                        Title of the review.
+                """
+
+                review_id: str = proto.Field(
+                    proto.STRING,
+                    number=1,
+                )
+                google_maps_uri: str = proto.Field(
+                    proto.STRING,
+                    number=2,
+                )
+                title: str = proto.Field(
+                    proto.STRING,
+                    number=3,
+                )
+
+            review_snippets: MutableSequence[
+                "GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet"
+            ] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=1,
+                message="GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet",
+            )
 
         uri: str = proto.Field(
             proto.STRING,
@@ -1549,6 +1596,11 @@ class GroundingChunk(proto.Message):
             proto.STRING,
             number=4,
             optional=True,
+        )
+        place_answer_sources: "GroundingChunk.Maps.PlaceAnswerSources" = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            message="GroundingChunk.Maps.PlaceAnswerSources",
         )
 
     web: Web = proto.Field(
@@ -1644,7 +1696,36 @@ class GroundingMetadata(proto.Message):
             Google Maps grounding.
 
             This field is a member of `oneof`_ ``_google_maps_widget_context_token``.
+        source_flagging_uris (MutableSequence[google.cloud.aiplatform_v1beta1.types.GroundingMetadata.SourceFlaggingUri]):
+            List of source flagging uris. This is
+            currently populated only for Google Maps
+            grounding.
     """
+
+    class SourceFlaggingUri(proto.Message):
+        r"""Source content flagging uri for a place or review. This is
+        currently populated only for Google Maps grounding.
+
+        Attributes:
+            source_id (str):
+                Id of the place or review.
+            flag_content_uri (str):
+                A link where users can flag a problem with
+                the source (place or review). (-- The link is
+                generated by Google and it does not contain
+                information from the user query. It may contain
+                information of the content it is flagging, which
+                can be used to identify places. --)
+        """
+
+        source_id: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        flag_content_uri: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
 
     web_search_queries: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
@@ -1680,6 +1761,11 @@ class GroundingMetadata(proto.Message):
         proto.STRING,
         number=8,
         optional=True,
+    )
+    source_flagging_uris: MutableSequence[SourceFlaggingUri] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message=SourceFlaggingUri,
     )
 
 

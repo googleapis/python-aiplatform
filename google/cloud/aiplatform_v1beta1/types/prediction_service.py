@@ -89,6 +89,10 @@ class PredictRequest(proto.Message):
             ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
             [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
+        labels (MutableMapping[str, str]):
+            Optional. The user labels for Imagen billing
+            usage only. Only Imagen supports labels. For
+            other use cases, it will be ignored.
     """
 
     endpoint: str = proto.Field(
@@ -104,6 +108,11 @@ class PredictRequest(proto.Message):
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=4,
     )
 
 
@@ -610,11 +619,11 @@ class ExplainRequest(proto.Message):
             of the DeployedModel. Can be used for explaining prediction
             results with different configurations, such as:
 
-            -  Explaining top-5 predictions results as opposed to top-1;
-            -  Increasing path count or step count of the attribution
-               methods to reduce approximate errors;
-            -  Using different baselines for explaining the prediction
-               results.
+            - Explaining top-5 predictions results as opposed to top-1;
+            - Increasing path count or step count of the attribution
+              methods to reduce approximate errors;
+            - Using different baselines for explaining the prediction
+              results.
         concurrent_explanation_spec_override (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationSpecOverride]):
             Optional. This field is the same as the one above, but
             supports multiple explanations to occur in parallel. The key

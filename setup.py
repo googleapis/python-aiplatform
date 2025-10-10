@@ -170,7 +170,7 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm >= 1.72.4",
+    "litellm >= 1.72.4, <= 1.76.3",
 ]
 
 langchain_extra_require = [
@@ -303,7 +303,7 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "shapely < 3.0.0",
-        "google-genai >= 1.0.0, <2.0.0",
+        "google-genai >= 1.37.0, <2.0.0",
     )
     + genai_requires,
     extras_require={

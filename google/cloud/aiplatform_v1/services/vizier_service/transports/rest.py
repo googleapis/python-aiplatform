@@ -3412,11 +3412,10 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
 
             resp = self._interceptor.post_check_trial_early_stopping_state(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_check_trial_early_stopping_state_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_check_trial_early_stopping_state_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

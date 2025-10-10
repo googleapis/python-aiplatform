@@ -588,6 +588,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                     SHARD_SIZE_SMALL
                     SHARD_SIZE_MEDIUM
                     SHARD_SIZE_LARGE
+                    SHARD_SIZE_SO_DYNAMIC
 
 
         Returns:
@@ -740,6 +741,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                     SHARD_SIZE_SMALL
                     SHARD_SIZE_MEDIUM
                     SHARD_SIZE_LARGE
+                    SHARD_SIZE_SO_DYNAMIC
 
         Returns:
             MatchingEngineIndex - Index resource object

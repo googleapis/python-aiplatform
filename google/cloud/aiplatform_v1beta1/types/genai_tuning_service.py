@@ -21,9 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.cloud.aiplatform_v1beta1.types import (
-    tuning_job as gca_tuning_job,
-)
+from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
 
 
 __protobuf__ = proto.module(

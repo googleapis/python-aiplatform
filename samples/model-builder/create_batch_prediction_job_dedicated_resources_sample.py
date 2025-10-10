@@ -30,7 +30,6 @@ def create_batch_prediction_job_dedicated_resources_sample(
     accelerator_count: int = 1,
     accelerator_type: Union[str, aiplatform_v1.AcceleratorType] = "NVIDIA_TESLA_K80",
     starting_replica_count: int = 1,
-    max_replica_count: int = 1,
     sync: bool = True,
 ):
     aiplatform.init(project=project, location=location)
@@ -46,7 +45,6 @@ def create_batch_prediction_job_dedicated_resources_sample(
         accelerator_count=accelerator_count,
         accelerator_type=accelerator_type,
         starting_replica_count=starting_replica_count,
-        max_replica_count=max_replica_count,
         sync=sync,
     )
 
