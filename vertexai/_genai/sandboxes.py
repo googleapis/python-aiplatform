@@ -19,6 +19,7 @@ import base64
 import functools
 import json
 import logging
+import mimetypes
 from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
@@ -528,6 +529,8 @@ class Sandboxes(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    _NEEDED_BASE64_ENCODING_MIME_TYPES = []
+
     def create(
         self,
         *,
@@ -618,19 +621,65 @@ class Sandboxes(_api_module.BaseModule):
         Returns:
             ExecuteSandboxEnvironmentResponse: The response from executing the code.
         """
-        json_string = json.dumps(input_data)
+        input_chunks = []
 
-        base64_bytes = base64.b64encode(json_string.encode("utf-8"))
-        base64_string = base64_bytes.decode("utf-8")
+        if input_data.get("code") is not None:
+            code = input_data.get("code", "")
+            json_code = json.dumps({"code": code}).encode("utf-8")
+            input_chunks.append(
+                types.Chunk(
+                    mime_type="application/json",
+                    data=json_code,
+                )
+            )
 
-        # Only single JSON input is supported for now.
-        inputs = [{"mime_type": "application/json", "data": base64_string}]
+        for file in input_data.get("files", []):
+            file_name = file.get("name", "")
+            mime_type = file.get("mimeType", "")
+            if mime_type is None:
+                mime_type, _ = mimetypes.guess_type(file_name)
+            if mime_type in self._NEEDED_BASE64_ENCODING_MIME_TYPES:
+                base64_bytes = base64.b64encode(file.get("content", b""))
+                content = base64_bytes.decode("utf-8")
+            else:
+                content = file.get("content", b"")
+            input_chunks.append(
+                types.Chunk(
+                    mime_type=mime_type,
+                    data=content,
+                    metadata={"attributes": {"file_name": file_name.encode("utf-8")}},
+                )
+            )
 
         response = self._execute_code(
             name=name,
-            inputs=inputs,
+            inputs=input_chunks,
             config=config,
         )
+
+        output_chunks = []
+        for output in response.outputs:
+            if output.mime_type != "application/json":
+                mime_type = output.mime_type
+                # if mime_type is not available, try to guess the mime_type from the file_name.
+                if (
+                    mime_type is None
+                    and output.metadata is not None
+                    and output.metadata.attributes is not None
+                ):
+                    file_name = output.metadata.attributes.get("file_name", b"").decode(
+                        "utf-8"
+                    )
+                    mime_type, _ = mimetypes.guess_type(file_name)
+                    output.mime_type = mime_type
+
+                # if the mime_type is in the list of mime_types that need base64 encoding,
+                # decode the data.
+                if mime_type in self._NEEDED_BASE64_ENCODING_MIME_TYPES:
+                    output.data = base64.b64decode(output.data)
+            output_chunks.append(output)
+
+        response = types.ExecuteSandboxEnvironmentResponse(outputs=output_chunks)
 
         return response
 

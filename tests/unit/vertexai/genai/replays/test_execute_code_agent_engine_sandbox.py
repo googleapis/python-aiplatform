@@ -33,15 +33,44 @@ def test_execute_code_sandbox(client):
         config=types.CreateAgentEngineSandboxConfig(display_name="test_sandbox"),
     )
     assert isinstance(operation, types.AgentEngineSandboxOperation)
+
+    code = """
+with open("test.txt", "r") as input:
+    with open("output.txt", "w") as output_txt:
+        for line in input:
+            output_txt.write(line)
+import matplotlib.pyplot as plt
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 6, 8, 10]
+plt.figure()
+plt.plot(x, y)
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
+plt.title('Simple Line Plot')
+plt.savefig('chart_out.png')
+"""
     input_data = {
-        "language": "python",
-        "code": 'with open("hello.txt","w") as file:\n file.write("Hello, world!")',
+        "code": code,
+        "files": [
+            {
+                "name": "test.txt",
+                "mimeType": "text/plain",
+                "content": b"Hello, world!",
+            },
+            {
+                "name": "picture.png",
+                "mimeType": "text/plain",
+                "content": b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89",
+            },
+        ],
     }
     response = client.agent_engines.sandboxes.execute_code(
         name=operation.response.name,
         input_data=input_data,
     )
     assert response.outputs[0].mime_type == "application/json"
+    assert response.outputs[1].data == b"Hello, world!"
+    assert response.outputs[1].metadata.attributes.get("file_name") == b"output.txt"
 
 
 pytestmark = pytest_helper.setup(
