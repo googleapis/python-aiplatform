@@ -754,6 +754,7 @@ def _resolve_dataset_inputs(
     dataset: list[types.EvaluationDataset],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
     loader: "_evals_utils.EvalDatasetLoader",
+    agent_metadata: Optional[dict[str, types.AgentMetadata]] = None,
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
 
@@ -763,6 +764,7 @@ def _resolve_dataset_inputs(
       dataset_schema: The schema to use for the dataset(s). If None, it will be
         auto-detected.
       loader: An instance of EvalDatasetLoader to load data.
+      agent_metadata: Agent metadata to use for agent evaluation.
 
     Returns:
       A tuple containing:
@@ -815,7 +817,9 @@ def _resolve_dataset_inputs(
 
     processed_eval_dataset = (
         _evals_data_converters.merge_response_datasets_into_canonical_format(
-            raw_datasets=loaded_raw_datasets, schemas=schemas_for_merge
+            raw_datasets=loaded_raw_datasets,
+            schemas=schemas_for_merge,
+            agent_metadata=agent_metadata,
         )
     )
 
@@ -876,6 +880,7 @@ def _execute_evaluation(
     metrics: list[types.Metric],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = None,
     dest: Optional[str] = None,
+    **kwargs,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.
 
@@ -885,6 +890,7 @@ def _execute_evaluation(
         metrics: The metrics to evaluate the dataset against.
         dataset_schema: The schema of the dataset.
         dest: The destination to save the evaluation results.
+        **kwargs: Extra arguments to pass to evaluation, such as `agent_metadata`.
 
     Returns:
         The evaluation result.
@@ -924,8 +930,26 @@ def _execute_evaluation(
             deduped_candidate_names.append(name)
 
     loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
+
+    agent_metadata = kwargs.get("agent_metadata", None)
+    validated_agent_metadata = None
+    if agent_metadata:
+        validated_agent_metadata = {}
+        for k, v in agent_metadata.items():
+            if isinstance(v, dict):
+                validated_agent_metadata[k] = types.AgentMetadata.model_validate(v)
+            elif isinstance(v, types.AgentMetadata):
+                validated_agent_metadata[k] = v
+            else:
+                raise TypeError(
+                    f"agent_metadata values must be of type types.AgentMetadata or dict, but got {type(v)} for key '{k}'"
+                )
+
     processed_eval_dataset, num_response_candidates = _resolve_dataset_inputs(
-        dataset=dataset_list, dataset_schema=dataset_schema, loader=loader
+        dataset=dataset_list,
+        dataset_schema=dataset_schema,
+        loader=loader,
+        agent_metadata=validated_agent_metadata,
     )
 
     resolved_metrics = _resolve_metrics(metrics, api_client)
@@ -934,7 +958,7 @@ def _execute_evaluation(
         evals_module=evals.Evals(api_client_=api_client),
         dataset=processed_eval_dataset,
         metrics=resolved_metrics,
-        num_response_candidates=num_response_candidates,
+        num_response_candidates=num_response_candidates
     )
 
     logger.info("Running Metric Computation...")
@@ -946,6 +970,7 @@ def _execute_evaluation(
     logger.info("Evaluation took: %f seconds", t2 - t1)
 
     evaluation_result.evaluation_dataset = dataset_list
+    evaluation_result.agent_metadata = validated_agent_metadata
 
     if not evaluation_result.metadata:
         evaluation_result.metadata = types.EvaluationRunMetadata()

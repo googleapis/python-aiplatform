@@ -14,6 +14,7 @@
 #
 """Dataset converters for evals."""
 
+import copy
 import json
 import logging
 from typing import Any, Optional, Union
@@ -189,7 +190,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                     f"Expected a dictionary for item at index {i}, but got"
                     f" {type(item_dict).__name__}: {item_dict}"
                 )
-            item = item_dict.copy()
+            item = copy.deepcopy(item_dict)
             eval_case_id = f"eval_case_{i}"
             prompt_data = item.pop("prompt", None)
             if not prompt_data:
@@ -200,6 +201,8 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
             reference_data = item.pop("reference", None)
             system_instruction_data = item.pop("instruction", None)
             rubric_groups_data = item.pop("rubric_groups", None)
+            agent_metadata_data = item.pop("agent_metadata", None)
+            intermediate_events_data = item.pop("intermediate_events", None)
 
             if not response_data:
                 raise ValueError(
@@ -362,6 +365,57 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                         f"Invalid type for rubric_groups in case {i}. Expected dict."
                     )
 
+            agent_metadata: Optional[dict[str, types.AgentMetadata]] = None
+            if agent_metadata_data:
+                if isinstance(agent_metadata_data, dict):
+                    agent_metadata = {}
+                    for key, value in agent_metadata_data.items():
+                        if isinstance(value, dict):
+                            try:
+                                agent_metadata[key] = types.AgentMetadata.model_validate(
+                                    value
+                                )
+                            except Exception as e:
+                                logger.warning(
+                                    "Failed to validate agent metadata for key"
+                                    f" '{key}' in case {i}: {e}"
+                                )
+                        elif isinstance(value, types.AgentMetadata):
+                            agent_metadata[key] = value
+                        else:
+                            logger.warning(
+                                f"Invalid type for agent metadata value for key '{key}'"
+                                f" in case {i}. Expected dict or AgentMetadata."
+                            )
+                else:
+                    logger.warning(
+                        f"Invalid type for agent_metadata in case {i}. Expected dict."
+                    )
+
+            intermediate_events: Optional[list[types.Event]] = None
+            if intermediate_events_data:
+                if isinstance(intermediate_events_data, list):
+                    intermediate_events = []
+                    for event in intermediate_events_data:
+                        if isinstance(event, dict):
+                            try:
+                                validated_event = types.Event.model_validate(event)
+                                intermediate_events.append(validated_event)
+                            except Exception as e:
+                                logger.warning(
+                                    "Failed to validate intermediate event dict for"
+                                    f" case {i}: {e}"
+                                )
+                        else:
+                            logger.warning(
+                                "Invalid type for intermediate_events in case"
+                                f" {i}. Expected list of dicts."
+                            )
+                else:
+                    logger.warning(
+                        f"Invalid type for intermediate_events in case {i}. Expected list."
+                    )
+
             eval_case = types.EvalCase(
                 eval_case_id=eval_case_id,
                 prompt=prompt,
@@ -370,6 +424,8 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                 conversation_history=conversation_history,
                 system_instruction=system_instruction,
                 rubric_groups=rubric_groups,
+                agent_metadata=agent_metadata,
+                intermediate_events=intermediate_events,
                 **item,  # Pass remaining columns as extra fields to EvalCase.
                 # They can be used for custom metric prompt templates.
             )
@@ -654,6 +710,7 @@ def _validate_case_consistency(
 def merge_response_datasets_into_canonical_format(
     raw_datasets: list[list[dict[str, Any]]],
     schemas: list[str],
+    agent_metadata: Optional[dict[str, types.AgentMetadata]] = None,
 ) -> types.EvaluationDataset:
     """Merges multiple raw response datasets into a single EvaluationDataset.
 
@@ -777,6 +834,7 @@ def merge_response_datasets_into_canonical_format(
             reference=base_eval_case.reference,
             system_instruction=base_eval_case.system_instruction,
             conversation_history=base_eval_case.conversation_history,
+            agent_metadata=agent_metadata,
             **eval_case_custom_columns,
         )
         merged_eval_cases.append(merged_case)
