@@ -504,6 +504,8 @@ from .types.feature_online_store_service import FeatureViewDirectWriteRequest
 from .types.feature_online_store_service import FeatureViewDirectWriteResponse
 from .types.feature_online_store_service import FetchFeatureValuesRequest
 from .types.feature_online_store_service import FetchFeatureValuesResponse
+from .types.feature_online_store_service import GenerateFetchAccessTokenRequest
+from .types.feature_online_store_service import GenerateFetchAccessTokenResponse
 from .types.feature_online_store_service import NearestNeighborQuery
 from .types.feature_online_store_service import NearestNeighbors
 from .types.feature_online_store_service import SearchNearestEntitiesRequest
@@ -1735,6 +1737,8 @@ __all__ = (
 'GenAiTuningServiceClient',
 'GenerateContentRequest',
 'GenerateContentResponse',
+'GenerateFetchAccessTokenRequest',
+'GenerateFetchAccessTokenResponse',
 'GenerateMemoriesOperationMetadata',
 'GenerateMemoriesRequest',
 'GenerateMemoriesResponse',

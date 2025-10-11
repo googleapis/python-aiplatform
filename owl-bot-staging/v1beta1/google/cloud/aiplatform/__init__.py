@@ -504,6 +504,8 @@ from google.cloud.aiplatform_v1beta1.types.feature_online_store_service import F
 from google.cloud.aiplatform_v1beta1.types.feature_online_store_service import FeatureViewDirectWriteResponse
 from google.cloud.aiplatform_v1beta1.types.feature_online_store_service import FetchFeatureValuesRequest
 from google.cloud.aiplatform_v1beta1.types.feature_online_store_service import FetchFeatureValuesResponse
+from google.cloud.aiplatform_v1beta1.types.feature_online_store_service import GenerateFetchAccessTokenRequest
+from google.cloud.aiplatform_v1beta1.types.feature_online_store_service import GenerateFetchAccessTokenResponse
 from google.cloud.aiplatform_v1beta1.types.feature_online_store_service import NearestNeighborQuery
 from google.cloud.aiplatform_v1beta1.types.feature_online_store_service import NearestNeighbors
 from google.cloud.aiplatform_v1beta1.types.feature_online_store_service import SearchNearestEntitiesRequest
@@ -1751,6 +1753,8 @@ __all__ = ('DatasetServiceClient',
     'FeatureViewDirectWriteResponse',
     'FetchFeatureValuesRequest',
     'FetchFeatureValuesResponse',
+    'GenerateFetchAccessTokenRequest',
+    'GenerateFetchAccessTokenResponse',
     'NearestNeighborQuery',
     'NearestNeighbors',
     'SearchNearestEntitiesRequest',

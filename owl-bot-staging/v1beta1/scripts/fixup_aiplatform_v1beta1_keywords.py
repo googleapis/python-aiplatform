@@ -194,6 +194,7 @@ class aiplatformCallTransformer(cst.CSTTransformer):
         'fetch_publisher_model_config': ('name', ),
         'find_neighbors': ('index_endpoint', 'deployed_index_id', 'queries', 'return_full_datapoint', ),
         'generate_content': ('model', 'contents', 'system_instruction', 'cached_content', 'tools', 'tool_config', 'labels', 'safety_settings', 'model_armor_config', 'generation_config', ),
+        'generate_fetch_access_token': ('feature_view', ),
         'generate_memories': ('parent', 'vertex_session_source', 'direct_contents_source', 'direct_memories_source', 'disable_consolidation', 'scope', ),
         'get_annotation_spec': ('name', 'read_mask', ),
         'get_artifact': ('name', ),

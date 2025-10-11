@@ -432,6 +432,34 @@ class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTra
             )
         return self._stubs['feature_view_direct_write']
 
+    @property
+    def generate_fetch_access_token(self) -> Callable[
+            [feature_online_store_service.GenerateFetchAccessTokenRequest],
+            Awaitable[feature_online_store_service.GenerateFetchAccessTokenResponse]]:
+        r"""Return a callable for the generate fetch access token method over gRPC.
+
+        RPC to generate an access token for the given feature
+        view. FeatureViews under the same FeatureOnlineStore
+        share the same access token.
+
+        Returns:
+            Callable[[~.GenerateFetchAccessTokenRequest],
+                    Awaitable[~.GenerateFetchAccessTokenResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if 'generate_fetch_access_token' not in self._stubs:
+            self._stubs['generate_fetch_access_token'] = self._logged_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService/GenerateFetchAccessToken',
+                request_serializer=feature_online_store_service.GenerateFetchAccessTokenRequest.serialize,
+                response_deserializer=feature_online_store_service.GenerateFetchAccessTokenResponse.deserialize,
+            )
+        return self._stubs['generate_fetch_access_token']
+
     def _prep_wrapped_messages(self, client_info):
         """ Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -452,6 +480,11 @@ class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTra
             ),
             self.feature_view_direct_write: self._wrap_method(
                 self.feature_view_direct_write,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.generate_fetch_access_token: self._wrap_method(
+                self.generate_fetch_access_token,
                 default_timeout=None,
                 client_info=client_info,
             ),

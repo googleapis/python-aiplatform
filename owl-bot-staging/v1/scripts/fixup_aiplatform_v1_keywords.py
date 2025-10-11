@@ -168,6 +168,7 @@ class aiplatformCallTransformer(cst.CSTTransformer):
         'fetch_feature_values': ('feature_view', 'data_key', 'data_format', ),
         'find_neighbors': ('index_endpoint', 'deployed_index_id', 'queries', 'return_full_datapoint', ),
         'generate_content': ('model', 'contents', 'system_instruction', 'cached_content', 'tools', 'tool_config', 'labels', 'safety_settings', 'model_armor_config', 'generation_config', ),
+        'generate_fetch_access_token': ('feature_view', ),
         'generate_synthetic_data': ('location', 'count', 'output_field_specs', 'task_description', 'examples', ),
         'get_annotation_spec': ('name', 'read_mask', ),
         'get_artifact': ('name', ),
