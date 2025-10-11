@@ -126,6 +126,9 @@ class FeatureView(proto.Message):
             Output only. Reserved for future use.
         satisfies_pzi (bool):
             Output only. Reserved for future use.
+        bigtable_metadata (google.cloud.aiplatform_v1beta1.types.FeatureView.BigtableMetadata):
+            Metadata containing information about the
+            Cloud Bigtable.
     """
 
     class ServiceAgentType(proto.Enum):
@@ -582,6 +585,21 @@ class FeatureView(proto.Message):
             message=machine_resources.AutomaticResources,
         )
 
+    class BigtableMetadata(proto.Message):
+        r"""Metadata for the Cloud Bigtable that supports directly
+        interacting Bigtable instances.
+
+        Attributes:
+            read_app_profile (str):
+                The Bigtable App Profile to use for reading
+                from Bigtable.
+        """
+
+        read_app_profile: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
     big_query_source: BigQuerySource = proto.Field(
         proto.MESSAGE,
         number=6,
@@ -659,6 +677,11 @@ class FeatureView(proto.Message):
     satisfies_pzi: bool = proto.Field(
         proto.BOOL,
         number=20,
+    )
+    bigtable_metadata: BigtableMetadata = proto.Field(
+        proto.MESSAGE,
+        number=21,
+        message=BigtableMetadata,
     )
 
 

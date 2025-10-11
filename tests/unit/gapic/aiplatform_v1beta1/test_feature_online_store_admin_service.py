@@ -10263,7 +10263,13 @@ def test_create_feature_online_store_rest_call_success(request_type):
                 "min_node_count": 1489,
                 "max_node_count": 1491,
                 "cpu_utilization_target": 2377,
-            }
+            },
+            "enable_direct_bigtable_access": True,
+            "bigtable_metadata": {
+                "tenant_project_id": "tenant_project_id_value",
+                "instance_id": "instance_id_value",
+                "table_id": "table_id_value",
+            },
         },
         "optimized": {},
         "name": "name_value",
@@ -10815,7 +10821,13 @@ def test_update_feature_online_store_rest_call_success(request_type):
                 "min_node_count": 1489,
                 "max_node_count": 1491,
                 "cpu_utilization_target": 2377,
-            }
+            },
+            "enable_direct_bigtable_access": True,
+            "bigtable_metadata": {
+                "tenant_project_id": "tenant_project_id_value",
+                "instance_id": "instance_id_value",
+                "table_id": "table_id_value",
+            },
         },
         "optimized": {},
         "name": "projects/sample1/locations/sample2/featureOnlineStores/sample3",
@@ -11245,6 +11257,7 @@ def test_create_feature_view_rest_call_success(request_type):
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "bigtable_metadata": {"read_app_profile": "read_app_profile_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11800,6 +11813,7 @@ def test_update_feature_view_rest_call_success(request_type):
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "bigtable_metadata": {"read_app_profile": "read_app_profile_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -13537,7 +13551,13 @@ async def test_create_feature_online_store_rest_asyncio_call_success(request_typ
                 "min_node_count": 1489,
                 "max_node_count": 1491,
                 "cpu_utilization_target": 2377,
-            }
+            },
+            "enable_direct_bigtable_access": True,
+            "bigtable_metadata": {
+                "tenant_project_id": "tenant_project_id_value",
+                "instance_id": "instance_id_value",
+                "table_id": "table_id_value",
+            },
         },
         "optimized": {},
         "name": "name_value",
@@ -14137,7 +14157,13 @@ async def test_update_feature_online_store_rest_asyncio_call_success(request_typ
                 "min_node_count": 1489,
                 "max_node_count": 1491,
                 "cpu_utilization_target": 2377,
-            }
+            },
+            "enable_direct_bigtable_access": True,
+            "bigtable_metadata": {
+                "tenant_project_id": "tenant_project_id_value",
+                "instance_id": "instance_id_value",
+                "table_id": "table_id_value",
+            },
         },
         "optimized": {},
         "name": "projects/sample1/locations/sample2/featureOnlineStores/sample3",
@@ -14599,6 +14625,7 @@ async def test_create_feature_view_rest_asyncio_call_success(request_type):
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "bigtable_metadata": {"read_app_profile": "read_app_profile_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -15203,6 +15230,7 @@ async def test_update_feature_view_rest_asyncio_call_success(request_type):
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "bigtable_metadata": {"read_app_profile": "read_app_profile_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

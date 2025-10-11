@@ -69,6 +69,7 @@ from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 from .transports.base import FeatureOnlineStoreServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import FeatureOnlineStoreServiceGrpcTransport
@@ -1177,6 +1178,101 @@ class FeatureOnlineStoreServiceClient(metaclass=FeatureOnlineStoreServiceClientM
         # Send the request.
         response = rpc(
             requests,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def generate_fetch_access_token(
+        self,
+        request: Optional[
+            Union[feature_online_store_service.GenerateFetchAccessTokenRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> feature_online_store_service.GenerateFetchAccessTokenResponse:
+        r"""RPC to generate an access token for the given feature
+        view. FeatureViews under the same FeatureOnlineStore
+        share the same access token.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_generate_fetch_access_token():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureOnlineStoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GenerateFetchAccessTokenRequest(
+                )
+
+                # Make the request
+                response = client.generate_fetch_access_token(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GenerateFetchAccessTokenRequest, dict]):
+                The request object. Request message for
+                [FeatureOnlineStoreService.GenerateFetchAccessToken][].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.GenerateFetchAccessTokenResponse:
+                Response message for
+                [FeatureOnlineStoreService.GenerateFetchAccessToken][].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, feature_online_store_service.GenerateFetchAccessTokenRequest
+        ):
+            request = feature_online_store_service.GenerateFetchAccessTokenRequest(
+                request
+            )
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.generate_fetch_access_token
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("feature_view", request.feature_view),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
             retry=retry,
             timeout=timeout,
             metadata=metadata,
