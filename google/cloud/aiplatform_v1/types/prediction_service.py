@@ -968,6 +968,8 @@ class GenerateContentResponse(proto.Message):
                     Candidates blocked due to prohibited content.
                 MODEL_ARMOR (5):
                     The user prompt was blocked by Model Armor.
+                JAILBREAK (6):
+                    The user prompt was blocked due to jailbreak.
             """
 
             BLOCKED_REASON_UNSPECIFIED = 0
@@ -976,6 +978,7 @@ class GenerateContentResponse(proto.Message):
             BLOCKLIST = 3
             PROHIBITED_CONTENT = 4
             MODEL_ARMOR = 5
+            JAILBREAK = 6
 
         block_reason: "GenerateContentResponse.PromptFeedback.BlockedReason" = (
             proto.Field(

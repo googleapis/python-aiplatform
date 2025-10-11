@@ -158,6 +158,11 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.generate_fetch_access_token: gapic_v1.method.wrap_method(
+                self.generate_fetch_access_token,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -263,6 +268,18 @@ class FeatureOnlineStoreServiceTransport(abc.ABC):
         Union[
             feature_online_store_service.FeatureViewDirectWriteResponse,
             Awaitable[feature_online_store_service.FeatureViewDirectWriteResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def generate_fetch_access_token(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.GenerateFetchAccessTokenRequest],
+        Union[
+            feature_online_store_service.GenerateFetchAccessTokenResponse,
+            Awaitable[feature_online_store_service.GenerateFetchAccessTokenResponse],
         ],
     ]:
         raise NotImplementedError()
