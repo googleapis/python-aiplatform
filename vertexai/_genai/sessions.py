@@ -26,7 +26,7 @@ from google.genai import _api_module
 from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
-from google.genai.pagers import Pager
+from google.genai.pagers import AsyncPager, Pager
 
 from . import _agent_engines_utils
 from . import types
@@ -1078,3 +1078,95 @@ class AsyncSessions(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    _events = None
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI agent_engines.sessions.events module is "
+        "experimental, and may change in future versions."
+    )
+    def events(self):
+        if self._events is None:
+            try:
+                # We need to lazy load the sessions.events module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._events = importlib.import_module(".session_events", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.sessions.events' module requires"
+                    "additional packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._events.AsyncSessionEvents(self._api_client)
+
+    async def create(
+        self,
+        *,
+        name: str,
+        user_id: str,
+        config: Optional[types.CreateAgentEngineSessionConfigOrDict] = None,
+    ) -> types.AgentEngineSessionOperation:
+        """Creates a new session in the Agent Engine.
+
+        Args:
+            name (str):
+                Required. The name of the agent engine to create the session for.
+            user_id (str):
+                Required. The user ID of the session.
+            config (CreateAgentEngineSessionConfig):
+                Optional. The configuration for the session to create.
+
+        Returns:
+            AgentEngineSessionOperation: The operation for creating the session.
+        """
+        if config is None:
+            config = types.CreateAgentEngineSessionConfig()
+        elif isinstance(config, dict):
+            config = types.CreateAgentEngineSessionConfig.model_validate(config)
+        operation = await self._create(
+            name=name,
+            user_id=user_id,
+            config=config,
+        )
+        if config.wait_for_completion and not operation.done:
+            operation = await _agent_engines_utils._await_async_operation(
+                operation_name=operation.name,
+                get_operation_fn=self._get_session_operation,
+                poll_interval_seconds=0.5,
+            )
+            if operation.response:
+                operation.response = await self.get(name=operation.response.name)
+            elif operation.error:
+                raise RuntimeError(f"Failed to create session: {operation.error}")
+            else:
+                raise RuntimeError(
+                    "Error retrieving session from the operation response. "
+                    f"Operation name: {operation.name}"
+                )
+        return operation
+
+    async def list(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListAgentEngineSessionsConfigOrDict] = None,
+    ) -> AsyncPager[types.Session]:
+        """Lists Agent Engine sessions.
+
+        Args:
+            name (str): Required. The name of the agent engine to list sessions
+                for.
+            config (ListAgentEngineSessionConfig): Optional. The configuration
+                for the sessions to list.
+
+        Returns:
+            AsyncPager[Session]: An async pager of sessions.
+        """
+
+        return AsyncPager(
+            "sessions",
+            functools.partial(self._list, name=name),
+            await self._list(name=name, config=config),
+            config,
+        )

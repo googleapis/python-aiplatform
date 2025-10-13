@@ -26,7 +26,7 @@ from google.genai import _api_module
 from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
-from google.genai.pagers import Pager
+from google.genai.pagers import AsyncPager, Pager
 
 from . import types
 
@@ -442,3 +442,32 @@ class AsyncSessionEvents(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    async def list(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListAgentEngineSessionEventsConfigOrDict] = None,
+    ) -> AsyncPager[types.SessionEvent]:
+        """Lists Agent Engine session events.
+
+        Args:
+            name (str): Required. The name of the agent engine to list session
+                events for.
+            config (ListAgentEngineSessionEventsConfig): Optional. The configuration
+                for the session events to list. Currently, the `filter` field in
+                `config` only supports filtering by `timestamp`. The timestamp
+                value must be enclosed in double quotes and include the time zone
+                information. For example:
+                `config={'filter': 'timestamp>="2025-08-07T19:44:38.4Z"'}`.
+
+        Returns:
+            AsyncPager[SessionEvent]: An async pager of session events.
+        """
+
+        return AsyncPager(
+            "session_events",
+            functools.partial(self._list, name=name),
+            await self._list(name=name, config=config),
+            config,
+        )
