@@ -7737,10 +7737,6 @@ class EventActions(_common.BaseModel):
         default=None,
         description="""Optional. If set, the event transfers to the specified agent.""",
     )
-    transfer_to_agent: Optional[bool] = Field(
-        default=None,
-        description="""Deprecated. If set, the event transfers to the specified agent.""",
-    )
 
 
 class EventActionsDict(TypedDict, total=False):
@@ -7763,9 +7759,6 @@ class EventActionsDict(TypedDict, total=False):
 
     transfer_agent: Optional[str]
     """Optional. If set, the event transfers to the specified agent."""
-
-    transfer_to_agent: Optional[bool]
-    """Deprecated. If set, the event transfers to the specified agent."""
 
 
 EventActionsOrDict = Union[EventActions, EventActionsDict]
