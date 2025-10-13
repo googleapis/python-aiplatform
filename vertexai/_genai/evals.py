@@ -721,7 +721,10 @@ class Evals(_api_module.BaseModule):
     ) -> types.EvaluateInstancesResponse:
         """Evaluates an instance of a model."""
 
-        if isinstance(metric_config, types._EvaluateInstancesRequestParameters):
+        if (
+            hasattr(metric_config, "pairwise_metric_input")
+            and type(metric_config).__name__ == "EvaluateInstancesRequestParameters"
+        ):
             metric_config = metric_config.model_dump()  # type: ignore[assignment]
         else:
             metric_config = dict(metric_config)
@@ -765,7 +768,7 @@ class Evals(_api_module.BaseModule):
         if isinstance(config, dict):
             config = types.EvalRunInferenceConfig.model_validate(config)
 
-        if isinstance(src, types.EvaluationDataset):
+        if hasattr(src, "eval_cases") and type(src).__name__ == "EvaluationDataset":
             if src.eval_dataset_df is None:
                 raise ValueError(
                     "EvaluationDataset must have eval_dataset_df populated."
@@ -956,7 +959,7 @@ class Evals(_api_module.BaseModule):
             `eval_dataset_df`. Each cell in this column contains a dictionary like:
             {rubric_group_name: [list[Rubric]]}.
         """
-        if isinstance(src, types.EvaluationDataset):
+        if hasattr(src, "eval_cases") and type(src).__name__ == "EvaluationDataset":
             if src.eval_dataset_df is None:
                 raise ValueError(
                     "EvaluationDataset must have eval_dataset_df populated."
@@ -1667,7 +1670,10 @@ class AsyncEvals(_api_module.BaseModule):
     ) -> types.EvaluateInstancesResponse:
         """Evaluates an instance of a model."""
 
-        if isinstance(metric_config, types._EvaluateInstancesRequestParameters):
+        if (
+            hasattr(metric_config, "pointwise_metric_input")
+            and type(metric_config).__name__ == "EvaluateInstancesRequestParameters"
+        ):
             metric_config = metric_config.model_dump()  # type: ignore[assignment]
         else:
             metric_config = dict(metric_config)

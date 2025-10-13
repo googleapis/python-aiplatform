@@ -91,7 +91,7 @@ def _create_prompt_from_dataset_metadata(
     if (
         not hasattr(dataset, "metadata")
         or dataset.metadata is None
-        or not isinstance(dataset.metadata, types.SchemaTextPromptDatasetMetadata)
+        or not (hasattr(dataset.metadata, "prompt_api_schema") and type(dataset.metadata).__name__ == "SchemaTextPromptDatasetMetadata")
     ):
         raise ValueError(
             "Error retrieving prompt: prompt dataset resource is missing 'metadata'."
@@ -129,7 +129,7 @@ def _raise_for_invalid_prompt(
 ) -> None:
 
     if (
-        isinstance(config, types.CreatePromptConfig)
+        hasattr(config, "prompt_display_name") and type(config).__name__ == "CreatePromptConfig"
         and config.encryption_spec
         and config.prompt_id
     ):

@@ -527,15 +527,15 @@ class LLMMetricHandler(MetricHandler):
         content_map_values = {}
         for key, value in instance_data.items():
             content_list_to_serialize = []
-            if isinstance(value, genai_types.Content):
+            if hasattr(value, "parts") and type(value).__name__ == "Content":
                 content_list_to_serialize = [value]
-            elif isinstance(value, types.ResponseCandidate):
+            elif hasattr(value, "response") and type(value).__name__ == "ResponseCandidate":
                 if value.response:  # pytype: disable=attribute-error
                     content_list_to_serialize = [value.response]
             elif isinstance(value, list) and value:
                 if isinstance(value[0], genai_types.Content):
                     content_list_to_serialize = value
-                elif isinstance(value[0], types.Message):
+                elif hasattr(value[0], "turn_id") and type(value[0]).__name__ == "Message":
                     history_texts = []
                     for msg_obj in value:
                         msg_text = _extract_text_from_content(msg_obj.content)
@@ -780,7 +780,7 @@ class CustomMetricHandler(MetricHandler):
                     instance_for_custom_fn
                 )
 
-                if isinstance(custom_function_result, types.EvalCaseMetricResult):
+                if hasattr(custom_function_result, "metric_name") and type(custom_function_result).__name__ == "EvalCaseMetricResult":
                     return custom_function_result
                 elif (
                     isinstance(custom_function_result, dict)
@@ -995,7 +995,7 @@ _METRIC_HANDLER_MAPPING = [
         lambda m: m.name in _evals_constant.SUPPORTED_PREDEFINED_METRICS,
         PredefinedMetricHandler,
     ),
-    (lambda m: isinstance(m, types.LLMMetric), LLMMetricHandler),
+    (lambda m: (hasattr(m, "rubric_group_name") and type(m).__name__ == "LLMMetric"), LLMMetricHandler),
 ]
 
 MetricHandlerType = TypeVar(
