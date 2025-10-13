@@ -486,6 +486,9 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
     config: Optional[CreateEvaluationRunConfig] = Field(
         default=None, description=""""""
     )
+    inference_configs: Optional[dict[str, "InferenceConfig"]] = Field(
+        default=None, description=""""""
+    )
 
 
 class _CreateEvaluationRunParametersDict(TypedDict, total=False):
@@ -504,6 +507,9 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     """"""
 
     config: Optional[CreateEvaluationRunConfigDict]
+    """"""
+
+    inference_configs: Optional[dict[str, "InferenceConfigDict"]]
     """"""
 
 
@@ -1194,6 +1200,32 @@ class EvaluationRun(_common.BaseModel):
         default=None,
         description="""The parsed EvaluationItem results for the evaluation run. This is only populated when include_evaluation_items is set to True.""",
     )
+    inference_configs: Optional[dict[str, "InferenceConfig"]] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. The inference configs for the evaluation run.""",
+    )
+
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["EvaluationRun"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "EvaluationRun":
+        """Converts a dictionary response into a EvaluationRun object."""
+
+        snaked_response = _camel_key_to_snake(response)
+        if (
+            "evaluation_run_results" in response
+            and "summaryMetrics" in response["evaluation_run_results"]
+        ):
+            snaked_response["evaluation_run_results"]["summary_metrics"] = response[
+                "evaluation_run_results"
+            ]["summaryMetrics"]
+        result = super()._from_response(response=snaked_response, kwargs=kwargs)
+        return result
 
     def show(self) -> None:
         """Shows the evaluation result."""
@@ -1249,6 +1281,9 @@ class EvaluationRunDict(TypedDict, total=False):
 
     evaluation_item_results: Optional[EvaluationResultDict]
     """The parsed EvaluationItem results for the evaluation run. This is only populated when include_evaluation_items is set to True."""
+
+    inference_configs: Optional[dict[str, "InferenceConfigDict"]]
+    """This field is experimental and may change in future versions. The inference configs for the evaluation run."""
 
 
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
@@ -11693,6 +11728,67 @@ class EvalCaseMetricResultDict(TypedDict, total=False):
 
 
 EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
+
+
+class AgentConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.Content] = Field(
+        default=None, description="""The developer instruction for the agent."""
+    )
+    tools: Optional[list[genai_types.Tool]] = Field(
+        default=None, description="""The tools available to the agent."""
+    )
+
+
+class AgentConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.ContentDict]
+    """The developer instruction for the agent."""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """The tools available to the agent."""
+
+
+AgentConfigOrDict = Union[AgentConfig, AgentConfigDict]
+
+
+class InferenceConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[AgentConfig] = Field(
+        default=None, description="""The agent config."""
+    )
+    model: Optional[str] = Field(
+        default=None,
+        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
+    )
+
+
+class InferenceConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[AgentConfigDict]
+    """The agent config."""
+
+    model: Optional[str]
+    """The fully qualified name of the publisher model or endpoint to use for inference."""
+
+
+InferenceConfigOrDict = Union[InferenceConfig, InferenceConfigDict]
 
 
 class SessionInput(_common.BaseModel):

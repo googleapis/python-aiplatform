@@ -56,6 +56,9 @@ def _CreateEvaluationRunParameters_to_vertex(
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
+    if getv(from_object, ["inference_configs"]) is not None:
+        setv(to_object, ["inferenceConfigs"], getv(from_object, ["inference_configs"]))
+
     return to_object
 
 
@@ -185,6 +188,9 @@ def _EvaluationRun_from_vertex(
             ["evaluation_run_results"],
             getv(from_object, ["evaluationResults"]),
         )
+
+    if getv(from_object, ["inferenceConfigs"]) is not None:
+        setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
 
     return to_object
 
@@ -358,6 +364,7 @@ class Evals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: genai_types.EvaluationConfigOrDict,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        inference_configs: Optional[dict[str, types.InferenceConfigOrDict]] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -369,6 +376,7 @@ class Evals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             config=config,
+            inference_configs=inference_configs,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1127,6 +1135,7 @@ class Evals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSource,
         dest: str,
+        agent_info: Optional[types.AgentInfo] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
@@ -1134,12 +1143,26 @@ class Evals(_api_module.BaseModule):
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
         evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        inference_configs = {}
+        if agent_info:
+            logger.warning(
+                "The agent_info field is experimental and may change in future versions."
+            )
+            inference_configs[agent_info.name] = types.InferenceConfig(
+                agent_config=types.AgentConfig(
+                    developer_instruction=genai_types.Content(
+                        parts=[genai_types.Part(text=agent_info.instruction)]
+                    ),
+                    tools=agent_info.tool_declarations,
+                )
+            )
 
         return self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
             display_name=display_name,
             data_source=data_source,
             evaluation_config=evaluation_config,
+            inference_configs=inference_configs,
             config=config,
         )
 
@@ -1228,6 +1251,7 @@ class AsyncEvals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: genai_types.EvaluationConfigOrDict,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        inference_configs: Optional[dict[str, types.InferenceConfigOrDict]] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1239,6 +1263,7 @@ class AsyncEvals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             config=config,
+            inference_configs=inference_configs,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1717,6 +1742,7 @@ class AsyncEvals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSource,
         dest: str,
+        agent_info: Optional[types.AgentInfo] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
@@ -1724,12 +1750,26 @@ class AsyncEvals(_api_module.BaseModule):
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
         evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        inference_configs = {}
+        if agent_info:
+            logger.warning(
+                "The agent_info field is experimental and may change in future versions."
+            )
+            inference_configs[agent_info.name] = types.InferenceConfig(
+                agent_config=types.AgentConfig(
+                    developer_instruction=genai_types.Content(
+                        parts=[genai_types.Part(text=agent_info.instruction)]
+                    ),
+                    tools=agent_info.tool_declarations,
+                )
+            )
 
         result = await self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
             display_name=display_name,
             data_source=data_source,
             evaluation_config=evaluation_config,
+            inference_configs=inference_configs,
             config=config,
         )
 
