@@ -4615,6 +4615,15 @@ def test_create_reasoning_engine_rest_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "source_code_spec": {
+                "inline_source": {"source_archive": b"source_archive_blob"},
+                "python_spec": {
+                    "version": "version_value",
+                    "entrypoint_module": "entrypoint_module_value",
+                    "entrypoint_object": "entrypoint_object_value",
+                    "requirements_file": "requirements_file_value",
+                },
+            },
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -4671,6 +4680,7 @@ def test_create_reasoning_engine_rest_call_success(request_type):
             }
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "labels": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5159,6 +5169,15 @@ def test_update_reasoning_engine_rest_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "source_code_spec": {
+                "inline_source": {"source_archive": b"source_archive_blob"},
+                "python_spec": {
+                    "version": "version_value",
+                    "entrypoint_module": "entrypoint_module_value",
+                    "entrypoint_object": "entrypoint_object_value",
+                    "requirements_file": "requirements_file_value",
+                },
+            },
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -5215,6 +5234,7 @@ def test_update_reasoning_engine_rest_call_success(request_type):
             }
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "labels": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6325,6 +6345,15 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "source_code_spec": {
+                "inline_source": {"source_archive": b"source_archive_blob"},
+                "python_spec": {
+                    "version": "version_value",
+                    "entrypoint_module": "entrypoint_module_value",
+                    "entrypoint_object": "entrypoint_object_value",
+                    "requirements_file": "requirements_file_value",
+                },
+            },
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -6381,6 +6410,7 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
             }
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "labels": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6923,6 +6953,15 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "source_code_spec": {
+                "inline_source": {"source_archive": b"source_archive_blob"},
+                "python_spec": {
+                    "version": "version_value",
+                    "entrypoint_module": "entrypoint_module_value",
+                    "entrypoint_object": "entrypoint_object_value",
+                    "requirements_file": "requirements_file_value",
+                },
+            },
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -6979,6 +7018,7 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
             }
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "labels": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
