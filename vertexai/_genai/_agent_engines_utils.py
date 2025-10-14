@@ -566,6 +566,13 @@ def _generate_class_methods_spec_or_raise(
     return class_methods_spec
 
 
+def _class_methods_to_class_methods_spec(
+    class_methods: List[dict[str, Any]],
+) -> List[proto.Message]:
+    """Converts a list of class methods to a list of ReasoningEngineSpec.ClassMethod messages."""
+    return [_to_proto(class_method) for class_method in class_methods]
+
+
 def _is_pydantic_serializable(param: inspect.Parameter) -> bool:
     """Checks if the parameter is pydantic serializable."""
 

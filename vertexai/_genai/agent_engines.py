@@ -870,6 +870,7 @@ class AgentEngines(_api_module.BaseModule):
             encryption_spec=config.encryption_spec,
             agent_server_mode=config.agent_server_mode,
             labels=config.labels,
+            class_methods=config.class_methods,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -928,6 +929,7 @@ class AgentEngines(_api_module.BaseModule):
         encryption_spec: Optional[genai_types.EncryptionSpecDict] = None,
         labels: Optional[dict[str, str]] = None,
         agent_server_mode: Optional[types.AgentServerMode] = None,
+        class_methods: Optional[Sequence[dict[str, Any]]] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -971,9 +973,6 @@ class AgentEngines(_api_module.BaseModule):
             requirements = _agent_engines_utils._validate_requirements_or_raise(
                 agent=agent,
                 requirements=requirements,
-            )
-            extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
-                extra_packages=extra_packages,
             )
             extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
                 extra_packages=extra_packages,
@@ -1041,13 +1040,27 @@ class AgentEngines(_api_module.BaseModule):
             if service_account is not None:
                 agent_engine_spec["service_account"] = service_account
                 update_masks.append("spec.service_account")
-            class_methods = _agent_engines_utils._generate_class_methods_spec_or_raise(
-                agent=agent,
-                operations=_agent_engines_utils._get_registered_operations(agent=agent),
-            )
+
+            update_masks.append("spec.class_methods")
+            class_methods_spec = []
+            if class_methods is not None:
+                class_methods_spec = (
+                    _agent_engines_utils._class_methods_to_class_methods_spec(
+                        class_methods=class_methods
+                    )
+                )
+            else:
+                class_methods_spec = (
+                    _agent_engines_utils._generate_class_methods_spec_or_raise(
+                        agent=agent,
+                        operations=_agent_engines_utils._get_registered_operations(
+                            agent=agent
+                        ),
+                    )
+                )
             agent_engine_spec["class_methods"] = [
-                _agent_engines_utils._to_dict(class_method)
-                for class_method in class_methods
+                _agent_engines_utils._to_dict(class_method_spec)
+                for class_method_spec in class_methods_spec
             ]
 
             if agent_server_mode:
@@ -1059,7 +1072,6 @@ class AgentEngines(_api_module.BaseModule):
                     "agent_server_mode"
                 ] = agent_server_mode
 
-            update_masks.append("spec.class_methods")
             agent_engine_spec["agent_framework"] = (
                 _agent_engines_utils._get_agent_framework(agent=agent)
             )
@@ -1283,6 +1295,7 @@ class AgentEngines(_api_module.BaseModule):
             resource_limits=config.resource_limits,
             container_concurrency=config.container_concurrency,
             labels=config.labels,
+            class_methods=config.class_methods,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(
