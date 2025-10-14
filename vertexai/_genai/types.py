@@ -5806,6 +5806,10 @@ class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
         default=True,
         description="""Waits for the operation to complete before returning.""",
     )
+    revision_labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Labels to apply to the memory revision. For example, you can use this to label a revision with its data source.""",
+    )
 
 
 class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
@@ -5824,6 +5828,9 @@ class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
 
     wait_for_completion: Optional[bool]
     """Waits for the operation to complete before returning."""
+
+    revision_labels: Optional[dict[str, str]]
+    """Labels to apply to the memory revision. For example, you can use this to label a revision with its data source."""
 
 
 GenerateAgentEngineMemoriesConfigOrDict = Union[
@@ -5910,6 +5917,14 @@ class GenerateMemoriesResponseGeneratedMemory(_common.BaseModel):
     action: Optional[GenerateMemoriesResponseGeneratedMemoryAction] = Field(
         default=None, description="""The action to take."""
     )
+    previous_revision: Optional[str] = Field(
+        default=None,
+        description="""The previous revision of the Memory before the action was performed. This
+      field is only set if the action is `UPDATED` or `DELETED`. You can use
+      this to rollback the Memory to the previous revision, undoing the action.
+      Format:
+      `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{revision}`""",
+    )
 
 
 class GenerateMemoriesResponseGeneratedMemoryDict(TypedDict, total=False):
@@ -5920,6 +5935,13 @@ class GenerateMemoriesResponseGeneratedMemoryDict(TypedDict, total=False):
 
     action: Optional[GenerateMemoriesResponseGeneratedMemoryAction]
     """The action to take."""
+
+    previous_revision: Optional[str]
+    """The previous revision of the Memory before the action was performed. This
+      field is only set if the action is `UPDATED` or `DELETED`. You can use
+      this to rollback the Memory to the previous revision, undoing the action.
+      Format:
+      `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{revision}`"""
 
 
 GenerateMemoriesResponseGeneratedMemoryOrDict = Union[
@@ -6404,6 +6426,108 @@ RetrieveMemoriesResponseOrDict = Union[
 ]
 
 
+class RollbackAgentEngineMemoryConfig(_common.BaseModel):
+    """Config for rolling back a memory."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class RollbackAgentEngineMemoryConfigDict(TypedDict, total=False):
+    """Config for rolling back a memory."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+RollbackAgentEngineMemoryConfigOrDict = Union[
+    RollbackAgentEngineMemoryConfig, RollbackAgentEngineMemoryConfigDict
+]
+
+
+class _RollbackAgentEngineMemoryRequestParameters(_common.BaseModel):
+    """Parameters for generating agent engine memories."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine memory to rollback."""
+    )
+    target_revision_id: Optional[str] = Field(
+        default=None, description="""The ID of the revision to rollback to."""
+    )
+    config: Optional[RollbackAgentEngineMemoryConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _RollbackAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
+    """Parameters for generating agent engine memories."""
+
+    name: Optional[str]
+    """Name of the agent engine memory to rollback."""
+
+    target_revision_id: Optional[str]
+    """The ID of the revision to rollback to."""
+
+    config: Optional[RollbackAgentEngineMemoryConfigDict]
+    """"""
+
+
+_RollbackAgentEngineMemoryRequestParametersOrDict = Union[
+    _RollbackAgentEngineMemoryRequestParameters,
+    _RollbackAgentEngineMemoryRequestParametersDict,
+]
+
+
+class AgentEngineRollbackMemoryOperation(_common.BaseModel):
+    """Operation that rolls back a memory."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class AgentEngineRollbackMemoryOperationDict(TypedDict, total=False):
+    """Operation that rolls back a memory."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+AgentEngineRollbackMemoryOperationOrDict = Union[
+    AgentEngineRollbackMemoryOperation, AgentEngineRollbackMemoryOperationDict
+]
+
+
 class UpdateAgentEngineMemoryConfig(_common.BaseModel):
     """Config for updating agent engine memory."""
 
@@ -6520,6 +6644,194 @@ class _UpdateAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
 _UpdateAgentEngineMemoryRequestParametersOrDict = Union[
     _UpdateAgentEngineMemoryRequestParameters,
     _UpdateAgentEngineMemoryRequestParametersDict,
+]
+
+
+class GetAgentEngineMemoryRevisionConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Memory Revision."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineMemoryRevisionConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Memory Revision."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineMemoryRevisionConfigOrDict = Union[
+    GetAgentEngineMemoryRevisionConfig, GetAgentEngineMemoryRevisionConfigDict
+]
+
+
+class _GetAgentEngineMemoryRevisionRequestParameters(_common.BaseModel):
+    """Parameters for getting an Agent Engine memory revision."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[GetAgentEngineMemoryRevisionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetAgentEngineMemoryRevisionRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an Agent Engine memory revision."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[GetAgentEngineMemoryRevisionConfigDict]
+    """"""
+
+
+_GetAgentEngineMemoryRevisionRequestParametersOrDict = Union[
+    _GetAgentEngineMemoryRevisionRequestParameters,
+    _GetAgentEngineMemoryRevisionRequestParametersDict,
+]
+
+
+class MemoryRevision(_common.BaseModel):
+    """A memory revision."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this Memory Revision was created.""",
+    )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp of when this resource is considered expired.""",
+    )
+    fact: Optional[str] = Field(
+        default=None,
+        description="""Output only. The fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation.""",
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`.""",
+    )
+
+
+class MemoryRevisionDict(TypedDict, total=False):
+    """A memory revision."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`"""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this Memory Revision was created."""
+
+    expire_time: Optional[datetime.datetime]
+    """Output only. Timestamp of when this resource is considered expired."""
+
+    fact: Optional[str]
+    """Output only. The fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation."""
+
+    labels: Optional[dict[str, str]]
+    """Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`."""
+
+
+MemoryRevisionOrDict = Union[MemoryRevision, MemoryRevisionDict]
+
+
+class ListAgentEngineMemoryRevisionsConfig(_common.BaseModel):
+    """Config for listing Agent Engine memory revisions."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListAgentEngineMemoryRevisionsConfigDict(TypedDict, total=False):
+    """Config for listing Agent Engine memory revisions."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListAgentEngineMemoryRevisionsConfigOrDict = Union[
+    ListAgentEngineMemoryRevisionsConfig, ListAgentEngineMemoryRevisionsConfigDict
+]
+
+
+class _ListAgentEngineMemoryRevisionsRequestParameters(_common.BaseModel):
+    """Parameters for listing Agent Engine memory revisions."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Agent Engine memory"""
+    )
+    config: Optional[ListAgentEngineMemoryRevisionsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineMemoryRevisionsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing Agent Engine memory revisions."""
+
+    name: Optional[str]
+    """Name of the Agent Engine memory"""
+
+    config: Optional[ListAgentEngineMemoryRevisionsConfigDict]
+    """"""
+
+
+_ListAgentEngineMemoryRevisionsRequestParametersOrDict = Union[
+    _ListAgentEngineMemoryRevisionsRequestParameters,
+    _ListAgentEngineMemoryRevisionsRequestParametersDict,
+]
+
+
+class ListAgentEngineMemoryRevisionsResponse(_common.BaseModel):
+    """Response for listing agent engine memory revisions."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    memory_revisions: Optional[list[MemoryRevision]] = Field(
+        default=None, description="""List of memory revisions."""
+    )
+
+
+class ListAgentEngineMemoryRevisionsResponseDict(TypedDict, total=False):
+    """Response for listing agent engine memory revisions."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    memory_revisions: Optional[list[MemoryRevisionDict]]
+    """List of memory revisions."""
+
+
+ListAgentEngineMemoryRevisionsResponseOrDict = Union[
+    ListAgentEngineMemoryRevisionsResponse, ListAgentEngineMemoryRevisionsResponseDict
 ]
 
 
@@ -7737,10 +8049,6 @@ class EventActions(_common.BaseModel):
         default=None,
         description="""Optional. If set, the event transfers to the specified agent.""",
     )
-    transfer_to_agent: Optional[bool] = Field(
-        default=None,
-        description="""Deprecated. If set, the event transfers to the specified agent.""",
-    )
 
 
 class EventActionsDict(TypedDict, total=False):
@@ -7763,9 +8071,6 @@ class EventActionsDict(TypedDict, total=False):
 
     transfer_agent: Optional[str]
     """Optional. If set, the event transfers to the specified agent."""
-
-    transfer_to_agent: Optional[bool]
-    """Deprecated. If set, the event transfers to the specified agent."""
 
 
 EventActionsOrDict = Union[EventActions, EventActionsDict]

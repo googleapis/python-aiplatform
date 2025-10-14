@@ -30,6 +30,7 @@ import typing
 from typing import (
     Any,
     AsyncIterator,
+    Awaitable,
     Callable,
     Coroutine,
     Dict,
@@ -389,6 +390,41 @@ AgentEngineOperationUnion = Union[
 class GetOperationFunction(Protocol):
     def __call__(self, *, operation_name: str, **kwargs) -> AgentEngineOperationUnion:
         pass
+
+
+class GetAsyncOperationFunction(Protocol):
+    async def __call__(
+        self, *, operation_name: str, **kwargs
+    ) -> Awaitable[AgentEngineOperationUnion]:
+        pass
+
+
+async def _await_async_operation(
+    *,
+    operation_name: str,
+    get_operation_fn: GetAsyncOperationFunction,
+    poll_interval_seconds: float = 10,
+) -> Any:
+    """Waits for the operation for creating an agent engine to complete.
+
+    Args:
+        operation_name (str):
+            Required. The name of the operation for creating the Agent Engine.
+        poll_interval_seconds (float):
+            The number of seconds to wait between each poll.
+        get_operation_fn (Callable[[str], Awaitable[Any]]):
+            Optional. The async function to use for getting the operation. If not
+            provided, `self._get_agent_operation` will be used.
+
+    Returns:
+        The operation that has completed (i.e. `operation.done==True`).
+    """
+    operation = await get_operation_fn(operation_name=operation_name)
+    while not operation.done:
+        await asyncio.sleep(poll_interval_seconds)
+        operation = await get_operation_fn(operation_name=operation.name)
+
+    return operation
 
 
 def _await_operation(
