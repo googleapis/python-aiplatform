@@ -318,7 +318,7 @@ class AgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    def delete(
+    def _delete(
         self,
         *,
         name: str,
@@ -725,6 +725,34 @@ class AgentEngines(_api_module.BaseModule):
             self._register_api_methods(agent_engine=agent_engine)
         return agent_engine
 
+    def delete(
+        self,
+        *,
+        name: str,
+        force: Optional[bool] = None,
+        config: Optional[types.DeleteAgentEngineConfigOrDict] = None,
+    ) -> types.DeleteAgentEngineOperation:
+        """
+        Delete an Agent Engine resource.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
+                or `reasoningEngines/{resource_id}`.
+            force (bool):
+                Optional. If set to True, child resources will also be deleted.
+                Otherwise, the request will fail with FAILED_PRECONDITION error when
+                the Agent Engine has undeleted child resources. Defaults to False.
+            config (DeleteAgentEngineConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
+        """
+        logger.info(f"Deleting AgentEngine resource: {name}")
+        operation = self._delete(name=name, force=force, config=config)
+        logger.info(f"Started AgentEngine delete operation: {operation.name}")
+        return operation
+
     def create(
         self,
         *,
@@ -842,6 +870,7 @@ class AgentEngines(_api_module.BaseModule):
             encryption_spec=config.encryption_spec,
             agent_server_mode=config.agent_server_mode,
             labels=config.labels,
+            class_methods=config.class_methods,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -900,6 +929,7 @@ class AgentEngines(_api_module.BaseModule):
         encryption_spec: Optional[genai_types.EncryptionSpecDict] = None,
         labels: Optional[dict[str, str]] = None,
         agent_server_mode: Optional[types.AgentServerMode] = None,
+        class_methods: Optional[Sequence[dict[str, Any]]] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -943,9 +973,6 @@ class AgentEngines(_api_module.BaseModule):
             requirements = _agent_engines_utils._validate_requirements_or_raise(
                 agent=agent,
                 requirements=requirements,
-            )
-            extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
-                extra_packages=extra_packages,
             )
             extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
                 extra_packages=extra_packages,
@@ -1013,13 +1040,27 @@ class AgentEngines(_api_module.BaseModule):
             if service_account is not None:
                 agent_engine_spec["service_account"] = service_account
                 update_masks.append("spec.service_account")
-            class_methods = _agent_engines_utils._generate_class_methods_spec_or_raise(
-                agent=agent,
-                operations=_agent_engines_utils._get_registered_operations(agent=agent),
-            )
+
+            update_masks.append("spec.class_methods")
+            class_methods_spec = []
+            if class_methods is not None:
+                class_methods_spec = (
+                    _agent_engines_utils._class_methods_to_class_methods_spec(
+                        class_methods=class_methods
+                    )
+                )
+            else:
+                class_methods_spec = (
+                    _agent_engines_utils._generate_class_methods_spec_or_raise(
+                        agent=agent,
+                        operations=_agent_engines_utils._get_registered_operations(
+                            agent=agent
+                        ),
+                    )
+                )
             agent_engine_spec["class_methods"] = [
-                _agent_engines_utils._to_dict(class_method)
-                for class_method in class_methods
+                _agent_engines_utils._to_dict(class_method_spec)
+                for class_method_spec in class_methods_spec
             ]
 
             if agent_server_mode:
@@ -1031,7 +1072,6 @@ class AgentEngines(_api_module.BaseModule):
                     "agent_server_mode"
                 ] = agent_server_mode
 
-            update_masks.append("spec.class_methods")
             agent_engine_spec["agent_framework"] = (
                 _agent_engines_utils._get_agent_framework(agent=agent)
             )
@@ -1255,6 +1295,7 @@ class AgentEngines(_api_module.BaseModule):
             resource_limits=config.resource_limits,
             container_concurrency=config.container_concurrency,
             labels=config.labels,
+            class_methods=config.class_methods,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(
@@ -1659,7 +1700,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    async def delete(
+    async def _delete(
         self,
         *,
         name: str,
@@ -1993,6 +2034,34 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
     _memories = None
     _sessions = None
+
+    async def delete(
+        self,
+        *,
+        name: str,
+        force: Optional[bool] = None,
+        config: Optional[types.DeleteAgentEngineConfigOrDict] = None,
+    ) -> types.DeleteAgentEngineOperation:
+        """
+        Delete an Agent Engine resource.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
+                or `reasoningEngines/{resource_id}`.
+            force (bool):
+                Optional. If set to True, child resources will also be deleted.
+                Otherwise, the request will fail with FAILED_PRECONDITION error when
+                the Agent Engine has undeleted child resources. Defaults to False.
+            config (DeleteAgentEngineConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
+        """
+        logger.info(f"Deleting AgentEngine resource: {name}")
+        operation = await self._delete(name=name, force=force, config=config)
+        logger.info(f"Started AgentEngine delete operation: {operation.name}")
+        return operation
 
     @property
     def memories(self):

@@ -14,6 +14,7 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import logging
 import pytest
 
 
@@ -21,10 +22,13 @@ from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 
 
-def test_agent_engine_delete(client):
+def test_agent_engine_delete(client, caplog):
+    caplog.set_level(logging.INFO)
     agent_engine = client.agent_engines.create()
     operation = client.agent_engines.delete(name=agent_engine.api_resource.name)
     assert isinstance(operation, types.DeleteAgentEngineOperation)
+    assert "Deleting AgentEngine resource" in caplog.text
+    assert f"Started AgentEngine delete operation: {operation.name}" in caplog.text
 
 
 pytestmark = pytest_helper.setup(
@@ -38,10 +42,13 @@ pytest_plugins = ("pytest_asyncio",)
 
 
 @pytest.mark.asyncio
-async def test_agent_engine_delete_async(client):
+async def test_agent_engine_delete_async(client, caplog):
+    caplog.set_level(logging.INFO)
     # TODO(b/431785750): use async methods for create() when available
     agent_engine = client.agent_engines.create()
     operation = await client.aio.agent_engines.delete(
         name=agent_engine.api_resource.name
     )
     assert isinstance(operation, types.DeleteAgentEngineOperation)
+    assert "Deleting AgentEngine resource" in caplog.text
+    assert f"Started AgentEngine delete operation: {operation.name}" in caplog.text

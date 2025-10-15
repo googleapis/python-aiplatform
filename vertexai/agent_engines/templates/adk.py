@@ -169,6 +169,9 @@ class _StreamRunRequest:
         self.user_id: Optional[str] = kwargs.get("user_id", _DEFAULT_USER_ID)
         # The user ID.
 
+        self.session_id: Optional[str] = kwargs.get("session_id")
+        # The session ID.
+
 
 class _StreamingRunResponse:
     """Response object for `streaming_agent_run_with_events` method.
@@ -181,6 +184,8 @@ class _StreamingRunResponse:
         # List of generated events.
         self.artifacts: Optional[List[_Artifact]] = kwargs.get("artifacts")
         # List of artifacts belonging to the session.
+        self.session_id: Optional[str] = kwargs.get("session_id")
+        # The session ID.
 
     def dump(self) -> Dict[str, Any]:
         from vertexai.agent_engines import _utils
@@ -194,79 +199,133 @@ class _StreamingRunResponse:
                 result["events"].append(event_dict)
         if self.artifacts:
             result["artifacts"] = [artifact.dump() for artifact in self.artifacts]
+        if self.session_id:
+            result["session_id"] = self.session_id
         return result
 
 
+def _warn(msg: str):
+    if not hasattr(_warn, "_LOGGER"):
+        from google.cloud.aiplatform import base
+
+        _warn._LOGGER = base.Logger(
+            __name__
+        )  # pyright: ignore[reportFunctionMemberAccess]
+
+    _warn._LOGGER.warning(msg)  # pyright: ignore[reportFunctionMemberAccess]
+
+
 def _default_instrumentor_builder(project_id: str):
+
     from vertexai.agent_engines import _utils
+    import os
 
-    cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
-    cloud_trace_v2 = _utils._import_cloud_trace_v2_or_warn()
-    opentelemetry = _utils._import_opentelemetry_or_warn()
-    opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
-    if all(
-        (
-            cloud_trace_exporter,
-            cloud_trace_v2,
-            opentelemetry,
-            opentelemetry_sdk_trace,
-        )
-    ):
-        import google.auth
+    def _warn_missing_dependency(package: str) -> None:
+        MISSING_IMPORT_ERROR_MESSAGE = "enable_tracing=True but proceeding with tracing disabled because not all packages (i.e. `google-cloud-trace`, `opentelemetry-sdk`, `opentelemetry-exporter-gcp-trace`) for tracing have been installed"
 
-        credentials, _ = google.auth.default()
-        span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
-            project_id=project_id,
-            client=cloud_trace_v2.TraceServiceClient(
-                credentials=credentials.with_quota_project(project_id),
-            ),
+        _warn(
+            f"{package} is not installed. Please call 'pip install google-cloud-aiplatform[agent_engines]'."
         )
-        span_processor = opentelemetry_sdk_trace.export.BatchSpanProcessor(
-            span_exporter=span_exporter,
-        )
-        tracer_provider = opentelemetry.trace.get_tracer_provider()
-        # Get the appropriate tracer provider:
-        # 1. If _TRACER_PROVIDER is already set, use that.
-        # 2. Otherwise, if the OTEL_PYTHON_TRACER_PROVIDER environment
-        # variable is set, use that.
-        # 3. As a final fallback, use _PROXY_TRACER_PROVIDER.
-        # If none of the above is set, we log a warning, and
-        # create a tracer provider.
-        if not tracer_provider:
-            from google.cloud.aiplatform import base
-
-            _LOGGER = base.Logger(__name__)
-            _LOGGER.warning(
-                "No tracer provider. By default, "
-                "we should get one of the following providers: "
-                "OTEL_PYTHON_TRACER_PROVIDER, _TRACER_PROVIDER, "
-                "or _PROXY_TRACER_PROVIDER."
-            )
-            tracer_provider = opentelemetry_sdk_trace.TracerProvider()
-            opentelemetry.trace.set_tracer_provider(tracer_provider)
-        # Avoids AttributeError:
-        # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
-        # attribute 'add_span_processor'.
-        if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
-            tracer_provider = opentelemetry_sdk_trace.TracerProvider()
-            opentelemetry.trace.set_tracer_provider(tracer_provider)
-        # Avoids OpenTelemetry client already exists error.
-        _override_active_span_processor(
-            tracer_provider,
-            opentelemetry_sdk_trace.SynchronousMultiSpanProcessor(),
-        )
-        tracer_provider.add_span_processor(span_processor)
+        _warn(MISSING_IMPORT_ERROR_MESSAGE)
         return None
-    else:
+
+    def _detect_cloud_resource_id(project_id: str) -> Optional[str]:
+        location = os.getenv("GOOGLE_CLOUD_LOCATION", None)
+        agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", None)
+        if all(v is not None for v in (location, agent_engine_id)):
+            return f"//aiplatform.googleapis.com/projects/{project_id}/locations/{location}/reasoningEngines/{agent_engine_id}"
+        return None
+
+    try:
+        import opentelemetry.exporter.cloud_trace
+    except (ImportError, AttributeError):
+        return _warn_missing_dependency("opentelemetry-exporter-gcp-trace")
+    try:
+        import google.cloud.trace_v2
+    except (ImportError, AttributeError):
+        return _warn_missing_dependency("google-cloud-trace")
+    try:
+        import opentelemetry
+        import opentelemetry.trace
+    except (ImportError, AttributeError):
+        return _warn_missing_dependency("opentelemetry-api")
+    try:
+        import opentelemetry.sdk.trace
+        import opentelemetry.sdk.trace.export
+    except (ImportError, AttributeError):
+        return _warn_missing_dependency("opentelemetry-sdk")
+
+    import google.auth
+
+    cloud_resource_id = _detect_cloud_resource_id(project_id)
+    resource = opentelemetry.sdk.trace.Resource.create(
+        attributes={
+            "gcp.project_id": project_id,
+            "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
+        }
+        | (
+            {"cloud.resource_id": cloud_resource_id}
+            if cloud_resource_id is not None
+            else {}
+        )
+    )
+
+    credentials, _ = google.auth.default()
+    span_exporter = opentelemetry.exporter.cloud_trace.CloudTraceSpanExporter(
+        project_id=project_id,
+        client=google.cloud.trace_v2.TraceServiceClient(
+            credentials=credentials.with_quota_project(project_id),
+        ),
+        resource_regex="|".join(resource.attributes.keys()),
+    )
+    span_processor = opentelemetry.sdk.trace.export.BatchSpanProcessor(
+        span_exporter=span_exporter,
+    )
+    tracer_provider = opentelemetry.trace.get_tracer_provider()
+    # Get the appropriate tracer provider:
+    # 1. If _TRACER_PROVIDER is already set, use that.
+    # 2. Otherwise, if the OTEL_PYTHON_TRACER_PROVIDER environment
+    # variable is set, use that.
+    # 3. As a final fallback, use _PROXY_TRACER_PROVIDER.
+    # If none of the above is set, we log a warning, and
+    # create a tracer provider.
+    if not tracer_provider:
         from google.cloud.aiplatform import base
 
         _LOGGER = base.Logger(__name__)
         _LOGGER.warning(
-            "enable_tracing=True but proceeding with tracing disabled "
-            "because not all packages (i.e. `google-cloud-trace`, `opentelemetry-sdk`, "
-            "`opentelemetry-exporter-gcp-trace`) for tracing have been installed"
+            "No tracer provider. By default, "
+            "we should get one of the following providers: "
+            "OTEL_PYTHON_TRACER_PROVIDER, _TRACER_PROVIDER, "
+            "or _PROXY_TRACER_PROVIDER."
         )
-        return None
+        tracer_provider = opentelemetry.sdk.trace.TracerProvider(resource=resource)
+        opentelemetry.trace.set_tracer_provider(tracer_provider)
+    # Avoids AttributeError:
+    # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
+    # attribute 'add_span_processor'.
+    if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+        tracer_provider = opentelemetry.sdk.trace.TracerProvider(resource=resource)
+        opentelemetry.trace.set_tracer_provider(tracer_provider)
+    # Avoids OpenTelemetry client already exists error.
+    _override_active_span_processor(
+        tracer_provider,
+        opentelemetry.sdk.trace.SynchronousMultiSpanProcessor(),
+    )
+    tracer_provider.add_span_processor(span_processor)
+
+    try:
+        from opentelemetry.instrumentation.google_genai import (
+            GoogleGenAiSdkInstrumentor,
+        )
+
+        GoogleGenAiSdkInstrumentor().instrument()
+    except (ImportError, AttributeError):
+        _warn(
+            "telemetry enabled but proceeding without GenAI instrumentation, because not all packages (i.e. opentelemetry-instrumentation-google-genai) have been installed"
+        )
+
+    return None
 
 
 def _override_active_span_processor(
@@ -402,7 +461,10 @@ class AdkApp:
                 auth = _Authorization(**auth)
                 session_state[f"temp:{auth_id}"] = auth.access_token
 
-        session_id = f"temp_session_{random.randbytes(8).hex()}"
+        if request.session_id:
+            session_id = request.session_id
+        else:
+            session_id = f"temp_session_{random.randbytes(8).hex()}"
         session = await session_service.create_session(
             app_name=self._tmpl_attrs.get("app_name"),
             user_id=request.user_id,
@@ -450,7 +512,9 @@ class AdkApp:
         """Converts the events to the streaming run response object."""
         import collections
 
-        result = _StreamingRunResponse(events=events, artifacts=[])
+        result = _StreamingRunResponse(
+            events=events, artifacts=[], session_id=session_id
+        )
 
         # Save the generated artifacts into the result object.
         artifact_versions = collections.defaultdict(list)
@@ -537,15 +601,27 @@ class AdkApp:
         if session_service_builder:
             self._tmpl_attrs["session_service"] = session_service_builder()
         elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
-            from google.adk.sessions.vertex_ai_session_service import (
-                VertexAiSessionService,
-            )
+            try:
+                from google.adk.sessions.vertex_ai_session_service import (
+                    VertexAiSessionService,
+                )
 
-            self._tmpl_attrs["session_service"] = VertexAiSessionService(
-                project=project,
-                location=location,
-                agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
-            )
+                self._tmpl_attrs["session_service"] = VertexAiSessionService(
+                    project=project,
+                    location=location,
+                    agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                )
+            except ImportError:
+                from google.adk.sessions.vertex_ai_session_service_g3 import (
+                    VertexAiSessionService,
+                )
+
+                self._tmpl_attrs["session_service"] = VertexAiSessionService(
+                    project=project,
+                    location=location,
+                    agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                )
+
         else:
             self._tmpl_attrs["session_service"] = InMemorySessionService()
 
@@ -680,22 +756,35 @@ class AdkApp:
         request = _StreamRunRequest(**json.loads(request_json))
         if not self._tmpl_attrs.get("in_memory_runner"):
             self.set_up()
-        if not self._tmpl_attrs.get("artifact_service"):
-            self.set_up()
         # Prepare the in-memory session.
         if not self._tmpl_attrs.get("in_memory_artifact_service"):
             self.set_up()
         if not self._tmpl_attrs.get("in_memory_session_service"):
             self.set_up()
-        session = await self._init_session(
-            session_service=self._tmpl_attrs.get("in_memory_session_service"),
-            artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
-            request=request,
-        )
+        session_service = self._tmpl_attrs.get("in_memory_session_service")
+        artifact_service = self._tmpl_attrs.get("in_memory_artifact_service")
+        # Try to get the session, if it doesn't exist, create a new one.
+        session = None
+        if request.session_id:
+            try:
+                session = await session_service.get_session(
+                    app_name=self._tmpl_attrs.get("app_name"),
+                    user_id=request.user_id,
+                    session_id=request.session_id,
+                )
+            except RuntimeError:
+                pass
+        if not session:
+            #  Fall back to create session if the session is not found.
+            session = await self._init_session(
+                session_service=session_service,
+                artifact_service=artifact_service,
+                request=request,
+            )
         if not session:
             raise RuntimeError("Session initialization failed.")
 
-        # Run the agent.
+        # Run the agent
         message_for_agent = types.Content(**request.message)
         try:
             async for event in self._tmpl_attrs.get("in_memory_runner").run_async(
@@ -707,15 +796,16 @@ class AdkApp:
                     user_id=request.user_id,
                     session_id=session.id,
                     events=[event],
-                    artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
+                    artifact_service=artifact_service,
                 )
                 yield converted_event
         finally:
-            await self._tmpl_attrs.get("in_memory_session_service").delete_session(
-                app_name=self._tmpl_attrs.get("app_name"),
-                user_id=request.user_id,
-                session_id=session.id,
-            )
+            if session and not request.session_id:
+                await session_service.delete_session(
+                    app_name=self._tmpl_attrs.get("app_name"),
+                    user_id=request.user_id,
+                    session_id=session.id,
+                )
 
     async def async_get_session(
         self,
