@@ -360,6 +360,16 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
     """The memory was deleted."""
 
 
+class IdentityType(_common.CaseInSensitiveEnum):
+    """The identity type for the agent engine."""
+    IDENTITY_TYPE_UNSPECIFIED = "IDENTITY_TYPE_UNSPECIFIED"
+    """The identity type is unspecified. Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project."""
+    SERVICE_ACCOUNT = "SERVICE_ACCOUNT"
+    """Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project."""
+    AGENT_IDENTITY = "AGENT_IDENTITY"
+    """Use the Agent Identity to access the resources."""
+
+
 class SamplingConfig(_common.BaseModel):
     """Sampling config for a BigQuery request set."""
 
@@ -4788,7 +4798,15 @@ class ReasoningEngineSpec(_common.BaseModel):
     )
     service_account: Optional[str] = Field(
         default=None,
-        description="""Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used.""",
+        description="""Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used. To clear the service account, this field needs to be set to an empty string.""",
+    )
+    identity_type: Optional[IdentityType] = Field(
+        default=None,
+        description="""Optional. The identity type for the Reasoning Engine. If not specified, the default value is `IDENTITY_TYPE_UNSPECIFIED`.""",
+    )
+    effective_identity: Optional[str] = Field(
+        default=None,
+        description="""Output only. The identity to be used for the Reasoning Engine. If not specified, the default value is the service account specified in `service_account` or the Vertex AI Reasoning Engine Service Agent in the project if `service_account` is not specified.""",
     )
 
 
@@ -4808,8 +4826,13 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
     """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes."""
 
     service_account: Optional[str]
-    """Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used."""
+    """Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used. To clear the service account, this field needs to be set to an empty string."""
 
+    identity_type: Optional[IdentityType]
+    """Optional. The identity type for the Reasoning Engine. If not specified, the default value is `IDENTITY_TYPE_UNSPECIFIED`."""
+
+    effective_identity: Optional[str]
+    """Output only. The identity to be used for the Reasoning Engine. If not specified, the default value is the service account specified in `service_account` or the Vertex AI Reasoning Engine Service Agent in the project if `service_account` is not specified."""
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
@@ -12198,6 +12221,10 @@ class AgentEngineConfig(_common.BaseModel):
     agent_server_mode: Optional[AgentServerMode] = Field(
         default=None, description="""The agent server mode to use for deployment."""
     )
+    identity_type: Optional[IdentityType] = Field(
+        default=None,
+        description="""The identity type to use for the Agent Engine.""",
+    )
     class_methods: Optional[list[dict[str, Any]]] = Field(
         default=None,
         description="""The class methods to be used for the Agent Engine.
@@ -12292,6 +12319,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     agent_server_mode: Optional[AgentServerMode]
     """The agent server mode to use for deployment."""
+
+    identity_type: Optional[IdentityType]
+    """The identity type to use for the Agent Engine."""
 
     class_methods: Optional[list[dict[str, Any]]]
     """The class methods to be used for the Agent Engine.
