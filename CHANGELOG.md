@@ -1,5 +1,47 @@
 # Changelog
 
+## [1.121.0](https://github.com/googleapis/python-aiplatform/compare/v1.120.0...v1.121.0) (2025-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove deprecated transfer_to_agent parameter
+
+### Features
+
+* A new message `ScaleToZeroSpec` is added ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add additional proto fields and GenerateFetchAccessToken API ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add aspect_ratio and image_config for v1 version ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add aspect_ratio and image_config for v1beta1 version ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add async methods for Sessions and Session Events ([ac6e0b4](https://github.com/googleapis/python-aiplatform/commit/ac6e0b42ff947ab33e4a13e47f59707c7a2d2a8f))
+* Add JAILBREAK as a new Prompt block reason in PredictionService ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add JAILBREAK category to SafetySettings for prediction service ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add JAILBREAK category to SafetySettings for prediction service ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add labels field for Predict API for Imagen use case (v1beta and v1) ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add ListOperations partial success flag ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add ListOperations unreachable resources ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add matching engine deployment tier parameter and new shard size ([ffe9cde](https://github.com/googleapis/python-aiplatform/commit/ffe9cde28f33e432c8def7d03e2e9a30a26d4cbf))
+* Add resource attributes and GenAI instrumentation to default instrumentator in ADK VAE template ([f0dc877](https://github.com/googleapis/python-aiplatform/commit/f0dc877350863fe80e9a5d74529a34c6d95f0e3c))
+* Add support for Inline source based deployment ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add support for Inline source based deployment ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add support for Python 3.14 ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* GenAI SDK client - Update input handling inside code execution sandbox ([9a452cc](https://github.com/googleapis/python-aiplatform/commit/9a452cc28d9564b85e9ff15d0b38db07b0ee50c8))
+* GenAI SDK client(evals) Update data model for agent evaluation ([4ca9fcc](https://github.com/googleapis/python-aiplatform/commit/4ca9fccfed52cda4661e308aa9915f1bd0ea8492))
+* Initial implementation of the SDK for Memory Revisions ([b91b63c](https://github.com/googleapis/python-aiplatform/commit/b91b63c6f66e6350e753bc8b21d65e9f31d3b8f8))
+* Support for explicitly providing `class_methods` in Agent Engine config. ([af8c898](https://github.com/googleapis/python-aiplatform/commit/af8c8989a04c1e95dda551cef44a61e58a6ba912))
+* Updated Observability GenAI data format converter for JSONL ([00e57de](https://github.com/googleapis/python-aiplatform/commit/00e57debaad83824200e8ebf038da9799a777407))
+
+
+### Bug Fixes
+
+* Adding google internal import rule for vertex service to adk app ([0d1240e](https://github.com/googleapis/python-aiplatform/commit/0d1240e43899a4ce5eafa19c6046380643e92755))
+
+
+### Miscellaneous Chores
+
+* Release 1.121.0 ([8b2eed8](https://github.com/googleapis/python-aiplatform/commit/8b2eed8625df335094d385b85f52a536dd8441b9))
+* Remove deprecated transfer_to_agent parameter ([71a7832](https://github.com/googleapis/python-aiplatform/commit/71a7832d13f33c8a9561f5de382e3ba66aefa184))
+
 ## [1.120.0](https://github.com/googleapis/python-aiplatform/compare/v1.119.0...v1.120.0) (2025-10-08)
 
 
