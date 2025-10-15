@@ -869,6 +869,11 @@
                 "fetch_feature_values"
               ]
             },
+            "GenerateFetchAccessToken": {
+              "methods": [
+                "generate_fetch_access_token"
+              ]
+            },
             "SearchNearestEntities": {
               "methods": [
                 "search_nearest_entities"
@@ -889,6 +894,11 @@
                 "fetch_feature_values"
               ]
             },
+            "GenerateFetchAccessToken": {
+              "methods": [
+                "generate_fetch_access_token"
+              ]
+            },
             "SearchNearestEntities": {
               "methods": [
                 "search_nearest_entities"
@@ -907,6 +917,11 @@
             "FetchFeatureValues": {
               "methods": [
                 "fetch_feature_values"
+              ]
+            },
+            "GenerateFetchAccessToken": {
+              "methods": [
+                "generate_fetch_access_token"
               ]
             },
             "SearchNearestEntities": {

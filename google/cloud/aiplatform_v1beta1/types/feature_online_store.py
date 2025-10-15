@@ -145,6 +145,12 @@ class FeatureOnlineStore(proto.Message):
             auto_scaling (google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore.Bigtable.AutoScaling):
                 Required. Autoscaling config applied to
                 Bigtable Instance.
+            enable_direct_bigtable_access (bool):
+                If true, enable direct access to the Bigtable
+                instance.
+            bigtable_metadata (google.cloud.aiplatform_v1beta1.types.FeatureOnlineStore.Bigtable.BigtableMetadata):
+                Metadata of the Bigtable instance. Output
+                only.
         """
 
         class AutoScaling(proto.Message):
@@ -182,10 +188,45 @@ class FeatureOnlineStore(proto.Message):
                 number=3,
             )
 
+        class BigtableMetadata(proto.Message):
+            r"""Metadata of the Bigtable instance. This is used by direct
+            read access to the Bigtable in tenant project.
+
+            Attributes:
+                tenant_project_id (str):
+                    Tenant project ID.
+                instance_id (str):
+                    The Cloud Bigtable instance id.
+                table_id (str):
+                    The Cloud Bigtable table id.
+            """
+
+            tenant_project_id: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            instance_id: str = proto.Field(
+                proto.STRING,
+                number=2,
+            )
+            table_id: str = proto.Field(
+                proto.STRING,
+                number=3,
+            )
+
         auto_scaling: "FeatureOnlineStore.Bigtable.AutoScaling" = proto.Field(
             proto.MESSAGE,
             number=1,
             message="FeatureOnlineStore.Bigtable.AutoScaling",
+        )
+        enable_direct_bigtable_access: bool = proto.Field(
+            proto.BOOL,
+            number=2,
+        )
+        bigtable_metadata: "FeatureOnlineStore.Bigtable.BigtableMetadata" = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            message="FeatureOnlineStore.Bigtable.BigtableMetadata",
         )
 
     class Optimized(proto.Message):

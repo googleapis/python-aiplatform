@@ -178,6 +178,23 @@ class DedicatedResources(proto.Message):
             available_replica_count reaches required_replica_count, and
             the rest of the replicas will be retried. If not set, the
             default required_replica_count will be min_replica_count.
+        initial_replica_count (int):
+            Immutable. Number of initial replicas being deployed on when
+            scaling the workload up from zero or when creating the
+            workload in case
+            [min_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.min_replica_count]
+            = 0. When
+            [min_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.min_replica_count]
+
+               0 (meaning that the scale-to-zero feature is not
+               enabled),
+               [initial_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.initial_replica_count]
+               should not be set. When
+               [min_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.min_replica_count]
+               = 0 (meaning that the scale-to-zero feature is enabled),
+               [initial_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.initial_replica_count]
+               should be larger than zero, but no greater than
+               [max_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.max_replica_count].
         autoscaling_metric_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.AutoscalingMetricSpec]):
             Immutable. The metric specifications that overrides a
             resource utilization metric (CPU utilization, accelerator's
@@ -214,7 +231,34 @@ class DedicatedResources(proto.Message):
             to schedule the deployment workload. reference:
 
             (https://cloud.google.com/blog/products/compute/introducing-dynamic-workload-scheduler)
+        scale_to_zero_spec (google.cloud.aiplatform_v1beta1.types.DedicatedResources.ScaleToZeroSpec):
+            Optional. Specification for scale-to-zero
+            feature.
     """
+
+    class ScaleToZeroSpec(proto.Message):
+        r"""Specification for scale-to-zero feature.
+
+        Attributes:
+            min_scaleup_period (google.protobuf.duration_pb2.Duration):
+                Optional. Minimum duration that a deployment will be scaled
+                up before traffic is evaluated for potential scale-down.
+                [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)
+            idle_scaledown_period (google.protobuf.duration_pb2.Duration):
+                Optional. Duration of no traffic before scaling to zero.
+                [MinValue=3600] (5 minutes) [MaxValue=28800] (8 hours)
+        """
+
+        min_scaleup_period: duration_pb2.Duration = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=duration_pb2.Duration,
+        )
+        idle_scaledown_period: duration_pb2.Duration = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=duration_pb2.Duration,
+        )
 
     machine_spec: "MachineSpec" = proto.Field(
         proto.MESSAGE,
@@ -233,6 +277,10 @@ class DedicatedResources(proto.Message):
         proto.INT32,
         number=9,
     )
+    initial_replica_count: int = proto.Field(
+        proto.INT32,
+        number=6,
+    )
     autoscaling_metric_specs: MutableSequence["AutoscalingMetricSpec"] = (
         proto.RepeatedField(
             proto.MESSAGE,
@@ -248,6 +296,11 @@ class DedicatedResources(proto.Message):
         proto.MESSAGE,
         number=10,
         message="FlexStart",
+    )
+    scale_to_zero_spec: ScaleToZeroSpec = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=ScaleToZeroSpec,
     )
 
 

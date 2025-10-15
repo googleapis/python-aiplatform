@@ -155,9 +155,10 @@ class FeatureOnlineStoreServiceGrpcTransport(FeatureOnlineStoreServiceTransport)
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
                 This argument is ignored if a ``channel`` instance is provided.
-            credentials_file (Optional[str]): A file with credentials that can
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
                 This argument is ignored if a ``channel`` instance is provided.
+                This argument will be removed in the next major version of this library.
             scopes (Optional(Sequence[str])): A list of scopes. This argument is
                 ignored if a ``channel`` instance is provided.
             channel (Optional[Union[grpc.Channel, Callable[..., grpc.Channel]]]):
@@ -290,9 +291,10 @@ class FeatureOnlineStoreServiceGrpcTransport(FeatureOnlineStoreServiceTransport)
                 credentials identify this application to the service. If
                 none are specified, the client will attempt to ascertain
                 the credentials from the environment.
-            credentials_file (Optional[str]): A file with credentials that can
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is mutually exclusive with credentials.
+                This argument is mutually exclusive with credentials.  This argument will be
+                removed in the next major version of this library.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.
@@ -418,6 +420,39 @@ class FeatureOnlineStoreServiceGrpcTransport(FeatureOnlineStoreServiceTransport)
                 )
             )
         return self._stubs["feature_view_direct_write"]
+
+    @property
+    def generate_fetch_access_token(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.GenerateFetchAccessTokenRequest],
+        feature_online_store_service.GenerateFetchAccessTokenResponse,
+    ]:
+        r"""Return a callable for the generate fetch access token method over gRPC.
+
+        RPC to generate an access token for the given feature
+        view. FeatureViews under the same FeatureOnlineStore
+        share the same access token.
+
+        Returns:
+            Callable[[~.GenerateFetchAccessTokenRequest],
+                    ~.GenerateFetchAccessTokenResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "generate_fetch_access_token" not in self._stubs:
+            self._stubs["generate_fetch_access_token"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1.FeatureOnlineStoreService/GenerateFetchAccessToken",
+                    request_serializer=feature_online_store_service.GenerateFetchAccessTokenRequest.serialize,
+                    response_deserializer=feature_online_store_service.GenerateFetchAccessTokenResponse.deserialize,
+                )
+            )
+        return self._stubs["generate_fetch_access_token"]
 
     def close(self):
         self._logged_channel.close()

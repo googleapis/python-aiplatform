@@ -40,6 +40,8 @@ __protobuf__ = proto.module(
         "SearchNearestEntitiesResponse",
         "FeatureViewDirectWriteRequest",
         "FeatureViewDirectWriteResponse",
+        "GenerateFetchAccessTokenRequest",
+        "GenerateFetchAccessTokenResponse",
     },
 )
 
@@ -869,6 +871,44 @@ class FeatureViewDirectWriteResponse(proto.Message):
         proto.MESSAGE,
         number=2,
         message=WriteResponse,
+    )
+
+
+class GenerateFetchAccessTokenRequest(proto.Message):
+    r"""Request message for
+    [FeatureOnlineStoreService.GenerateFetchAccessToken][].
+
+    Attributes:
+        feature_view (str):
+            FeatureView resource format
+            ``projects/{project}/locations/{location}/featureOnlineStores/{featureOnlineStore}/featureViews/{featureView}``
+    """
+
+    feature_view: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class GenerateFetchAccessTokenResponse(proto.Message):
+    r"""Response message for
+    [FeatureOnlineStoreService.GenerateFetchAccessToken][].
+
+    Attributes:
+        access_token (str):
+            The OAuth 2.0 access token.
+        expire_time (google.protobuf.timestamp_pb2.Timestamp):
+            Token expiration time. This is always set
+    """
+
+    access_token: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    expire_time: timestamp_pb2.Timestamp = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=timestamp_pb2.Timestamp,
     )
 
 

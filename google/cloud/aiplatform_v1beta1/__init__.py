@@ -129,6 +129,7 @@ from .types.content import GenerationConfig
 from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
+from .types.content import ImageConfig
 from .types.content import LogprobsResult
 from .types.content import ModalityTokenCount
 from .types.content import ModelArmorConfig
@@ -528,6 +529,8 @@ from .types.feature_online_store_service import FeatureViewDirectWriteRequest
 from .types.feature_online_store_service import FeatureViewDirectWriteResponse
 from .types.feature_online_store_service import FetchFeatureValuesRequest
 from .types.feature_online_store_service import FetchFeatureValuesResponse
+from .types.feature_online_store_service import GenerateFetchAccessTokenRequest
+from .types.feature_online_store_service import GenerateFetchAccessTokenResponse
 from .types.feature_online_store_service import NearestNeighborQuery
 from .types.feature_online_store_service import NearestNeighbors
 from .types.feature_online_store_service import SearchNearestEntitiesRequest
@@ -1767,6 +1770,8 @@ __all__ = (
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
+    "GenerateFetchAccessTokenRequest",
+    "GenerateFetchAccessTokenResponse",
     "GenerateMemoriesOperationMetadata",
     "GenerateMemoriesRequest",
     "GenerateMemoriesResponse",
@@ -1846,6 +1851,7 @@ __all__ = (
     "HttpElementLocation",
     "HyperparameterTuningJob",
     "IdMatcher",
+    "ImageConfig",
     "ImportDataConfig",
     "ImportDataOperationMetadata",
     "ImportDataRequest",

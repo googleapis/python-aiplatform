@@ -84,6 +84,10 @@ class PredictRequest(proto.Message):
             [Model's ][google.cloud.aiplatform.v1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
             [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
+        labels (MutableMapping[str, str]):
+            Optional. The user labels for Imagen billing
+            usage only. Only Imagen supports labels. For
+            other use cases, it will be ignored.
     """
 
     endpoint: str = proto.Field(
@@ -99,6 +103,11 @@ class PredictRequest(proto.Message):
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=4,
     )
 
 
@@ -959,6 +968,8 @@ class GenerateContentResponse(proto.Message):
                     Candidates blocked due to prohibited content.
                 MODEL_ARMOR (5):
                     The user prompt was blocked by Model Armor.
+                JAILBREAK (6):
+                    The user prompt was blocked due to jailbreak.
             """
 
             BLOCKED_REASON_UNSPECIFIED = 0
@@ -967,6 +978,7 @@ class GenerateContentResponse(proto.Message):
             BLOCKLIST = 3
             PROHIBITED_CONTENT = 4
             MODEL_ARMOR = 5
+            JAILBREAK = 6
 
         block_reason: "GenerateContentResponse.PromptFeedback.BlockedReason" = (
             proto.Field(
