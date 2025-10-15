@@ -119,6 +119,7 @@ from .types.content import GenerationConfig
 from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
+from .types.content import ImageConfig
 from .types.content import LogprobsResult
 from .types.content import ModalityTokenCount
 from .types.content import ModelArmorConfig
@@ -1514,6 +1515,7 @@ __all__ = (
     "HarmCategory",
     "HyperparameterTuningJob",
     "IdMatcher",
+    "ImageConfig",
     "ImportDataConfig",
     "ImportDataOperationMetadata",
     "ImportDataRequest",
