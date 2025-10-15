@@ -15,7 +15,9 @@
 import base64
 import importlib
 import json
+import os
 from unittest import mock
+import dataclasses
 
 from google import auth
 import vertexai
@@ -94,16 +96,35 @@ def vertexai_init_mock():
 
 @pytest.fixture
 def cloud_trace_exporter_mock():
-    with mock.patch.object(
-        _utils,
-        "_import_cloud_trace_exporter_or_warn",
-    ) as cloud_trace_exporter_mock:
-        yield cloud_trace_exporter_mock
+    import sys
+    import opentelemetry
+
+    mock_cloud_trace_exporter = mock.Mock()
+
+    opentelemetry.exporter = type(sys)("exporter")
+    opentelemetry.exporter.cloud_trace = type(sys)("cloud_trace")
+    opentelemetry.exporter.cloud_trace.CloudTraceSpanExporter = (
+        mock_cloud_trace_exporter
+    )
+
+    sys.modules["opentelemetry.exporter"] = opentelemetry.exporter
+    sys.modules["opentelemetry.exporter.cloud_trace"] = (
+        opentelemetry.exporter.cloud_trace
+    )
+
+    yield mock_cloud_trace_exporter
+
+    del sys.modules["opentelemetry.exporter.cloud_trace"]
+    del sys.modules["opentelemetry.exporter"]
 
 
 @pytest.fixture
-def tracer_provider_mock():
-    with mock.patch("opentelemetry.sdk.trace.TracerProvider") as tracer_provider_mock:
+def trace_provider_mock():
+    import opentelemetry.sdk.trace
+
+    with mock.patch.object(
+        opentelemetry.sdk.trace, "TracerProvider"
+    ) as tracer_provider_mock:
         yield tracer_provider_mock
 
 
@@ -113,15 +134,6 @@ def simple_span_processor_mock():
         "opentelemetry.sdk.trace.export.SimpleSpanProcessor"
     ) as simple_span_processor_mock:
         yield simple_span_processor_mock
-
-
-@pytest.fixture
-def mock_adk_version():
-    with mock.patch(
-        "google.cloud.aiplatform.vertexai.agent_engines.templates.adk.get_adk_version",
-        return_value="1.5.0",
-    ):
-        yield
 
 
 class _MockRunner:
@@ -384,6 +396,40 @@ class TestAdkApp:
             query=_TEST_SEARCH_MEMORY_QUERY,
         )
         assert len(response.memories) >= 1
+
+    @mock.patch.dict(os.environ, {"GOOGLE_CLOUD_AGENT_ENGINE_ID": "test_agent_id"})
+    def test_tracing_setup(
+        self, trace_provider_mock: mock.Mock, cloud_trace_exporter_mock: mock.Mock
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        app.set_up()
+
+        expected_attributes = {
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": "1.36.0",
+            "gcp.project_id": "test-project",
+            "service.name": "test_agent_id",
+            "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project/locations/us-central1/reasoningEngines/test_agent_id",
+        }
+
+        @dataclasses.dataclass
+        class RegexMatchingAll:
+            keys: set[str]
+
+            def __eq__(self, regex: object) -> bool:
+                return isinstance(regex, str) and set(regex.split("|")) == self.keys
+
+        cloud_trace_exporter_mock.assert_called_once_with(
+            project_id=_TEST_PROJECT,
+            client=mock.ANY,
+            resource_regex=RegexMatchingAll(keys=set(expected_attributes.keys())),
+        )
+
+        assert (
+            trace_provider_mock.call_args.kwargs["resource"].attributes
+            == expected_attributes
+        )
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing(

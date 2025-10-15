@@ -140,6 +140,7 @@ ray_testing_extra_require = ray_extra_require + [
 adk_extra_require = [
     # 1.0.0 contains breaking changes, so we need to pin to 1.0.0.
     "google-adk >= 1.0.0, < 2.0.0",
+    "opentelemetry-instrumentation-google-genai>=0.3b0, <1.0.0",
 ]
 
 reasoning_engine_extra_require = [

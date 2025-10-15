@@ -204,76 +204,128 @@ class _StreamingRunResponse:
         return result
 
 
+def _warn(msg: str):
+    if not hasattr(_warn, "_LOGGER"):
+        from google.cloud.aiplatform import base
+
+        _warn._LOGGER = base.Logger(
+            __name__
+        )  # pyright: ignore[reportFunctionMemberAccess]
+
+    _warn._LOGGER.warning(msg)  # pyright: ignore[reportFunctionMemberAccess]
+
+
 def _default_instrumentor_builder(project_id: str):
+
     from vertexai.agent_engines import _utils
+    import os
 
-    cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
-    cloud_trace_v2 = _utils._import_cloud_trace_v2_or_warn()
-    opentelemetry = _utils._import_opentelemetry_or_warn()
-    opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
-    if all(
-        (
-            cloud_trace_exporter,
-            cloud_trace_v2,
-            opentelemetry,
-            opentelemetry_sdk_trace,
-        )
-    ):
-        import google.auth
+    def _warn_missing_dependency(package: str) -> None:
+        MISSING_IMPORT_ERROR_MESSAGE = "enable_tracing=True but proceeding with tracing disabled because not all packages (i.e. `google-cloud-trace`, `opentelemetry-sdk`, `opentelemetry-exporter-gcp-trace`) for tracing have been installed"
 
-        credentials, _ = google.auth.default()
-        span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
-            project_id=project_id,
-            client=cloud_trace_v2.TraceServiceClient(
-                credentials=credentials.with_quota_project(project_id),
-            ),
+        _warn(
+            f"{package} is not installed. Please call 'pip install google-cloud-aiplatform[agent_engines]'."
         )
-        span_processor = opentelemetry_sdk_trace.export.BatchSpanProcessor(
-            span_exporter=span_exporter,
-        )
-        tracer_provider = opentelemetry.trace.get_tracer_provider()
-        # Get the appropriate tracer provider:
-        # 1. If _TRACER_PROVIDER is already set, use that.
-        # 2. Otherwise, if the OTEL_PYTHON_TRACER_PROVIDER environment
-        # variable is set, use that.
-        # 3. As a final fallback, use _PROXY_TRACER_PROVIDER.
-        # If none of the above is set, we log a warning, and
-        # create a tracer provider.
-        if not tracer_provider:
-            from google.cloud.aiplatform import base
-
-            _LOGGER = base.Logger(__name__)
-            _LOGGER.warning(
-                "No tracer provider. By default, "
-                "we should get one of the following providers: "
-                "OTEL_PYTHON_TRACER_PROVIDER, _TRACER_PROVIDER, "
-                "or _PROXY_TRACER_PROVIDER."
-            )
-            tracer_provider = opentelemetry_sdk_trace.TracerProvider()
-            opentelemetry.trace.set_tracer_provider(tracer_provider)
-        # Avoids AttributeError:
-        # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
-        # attribute 'add_span_processor'.
-        if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
-            tracer_provider = opentelemetry_sdk_trace.TracerProvider()
-            opentelemetry.trace.set_tracer_provider(tracer_provider)
-        # Avoids OpenTelemetry client already exists error.
-        _override_active_span_processor(
-            tracer_provider,
-            opentelemetry_sdk_trace.SynchronousMultiSpanProcessor(),
-        )
-        tracer_provider.add_span_processor(span_processor)
+        _warn(MISSING_IMPORT_ERROR_MESSAGE)
         return None
-    else:
+
+    def _detect_cloud_resource_id(project_id: str) -> Optional[str]:
+        location = os.getenv("GOOGLE_CLOUD_LOCATION", None)
+        agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", None)
+        if all(v is not None for v in (location, agent_engine_id)):
+            return f"//aiplatform.googleapis.com/projects/{project_id}/locations/{location}/reasoningEngines/{agent_engine_id}"
+        return None
+
+    try:
+        import opentelemetry.exporter.cloud_trace
+    except (ImportError, AttributeError):
+        return _warn_missing_dependency("opentelemetry-exporter-gcp-trace")
+    try:
+        import google.cloud.trace_v2
+    except (ImportError, AttributeError):
+        return _warn_missing_dependency("google-cloud-trace")
+    try:
+        import opentelemetry
+        import opentelemetry.trace
+    except (ImportError, AttributeError):
+        return _warn_missing_dependency("opentelemetry-api")
+    try:
+        import opentelemetry.sdk.trace
+        import opentelemetry.sdk.trace.export
+    except (ImportError, AttributeError):
+        return _warn_missing_dependency("opentelemetry-sdk")
+
+    import google.auth
+
+    cloud_resource_id = _detect_cloud_resource_id(project_id)
+    resource = opentelemetry.sdk.trace.Resource.create(
+        attributes={
+            "gcp.project_id": project_id,
+            "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
+        }
+        | (
+            {"cloud.resource_id": cloud_resource_id}
+            if cloud_resource_id is not None
+            else {}
+        )
+    )
+
+    credentials, _ = google.auth.default()
+    span_exporter = opentelemetry.exporter.cloud_trace.CloudTraceSpanExporter(
+        project_id=project_id,
+        client=google.cloud.trace_v2.TraceServiceClient(
+            credentials=credentials.with_quota_project(project_id),
+        ),
+        resource_regex="|".join(resource.attributes.keys()),
+    )
+    span_processor = opentelemetry.sdk.trace.export.BatchSpanProcessor(
+        span_exporter=span_exporter,
+    )
+    tracer_provider = opentelemetry.trace.get_tracer_provider()
+    # Get the appropriate tracer provider:
+    # 1. If _TRACER_PROVIDER is already set, use that.
+    # 2. Otherwise, if the OTEL_PYTHON_TRACER_PROVIDER environment
+    # variable is set, use that.
+    # 3. As a final fallback, use _PROXY_TRACER_PROVIDER.
+    # If none of the above is set, we log a warning, and
+    # create a tracer provider.
+    if not tracer_provider:
         from google.cloud.aiplatform import base
 
         _LOGGER = base.Logger(__name__)
         _LOGGER.warning(
-            "enable_tracing=True but proceeding with tracing disabled "
-            "because not all packages (i.e. `google-cloud-trace`, `opentelemetry-sdk`, "
-            "`opentelemetry-exporter-gcp-trace`) for tracing have been installed"
+            "No tracer provider. By default, "
+            "we should get one of the following providers: "
+            "OTEL_PYTHON_TRACER_PROVIDER, _TRACER_PROVIDER, "
+            "or _PROXY_TRACER_PROVIDER."
         )
-        return None
+        tracer_provider = opentelemetry.sdk.trace.TracerProvider(resource=resource)
+        opentelemetry.trace.set_tracer_provider(tracer_provider)
+    # Avoids AttributeError:
+    # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
+    # attribute 'add_span_processor'.
+    if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+        tracer_provider = opentelemetry.sdk.trace.TracerProvider(resource=resource)
+        opentelemetry.trace.set_tracer_provider(tracer_provider)
+    # Avoids OpenTelemetry client already exists error.
+    _override_active_span_processor(
+        tracer_provider,
+        opentelemetry.sdk.trace.SynchronousMultiSpanProcessor(),
+    )
+    tracer_provider.add_span_processor(span_processor)
+
+    try:
+        from opentelemetry.instrumentation.google_genai import (
+            GoogleGenAiSdkInstrumentor,
+        )
+
+        GoogleGenAiSdkInstrumentor().instrument()
+    except (ImportError, AttributeError):
+        _warn(
+            "telemetry enabled but proceeding without GenAI instrumentation, because not all packages (i.e. opentelemetry-instrumentation-google-genai) have been installed"
+        )
+
+    return None
 
 
 def _override_active_span_processor(
