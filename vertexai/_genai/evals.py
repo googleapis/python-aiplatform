@@ -681,24 +681,33 @@ class Evals(_api_module.BaseModule):
     def run_inference(
         self,
         *,
-        model: Union[str, Callable[[Any], Any]],
         src: Union[str, pd.DataFrame, types.EvaluationDataset],
+        model: Optional[Union[str, Callable[[Any], Any]]] = None,
+        agent: Optional[Union[str, types.AgentEngine]] = None,
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
     ) -> types.EvaluationDataset:
         """Runs inference on a dataset for evaluation.
 
         Args:
-          model: The model to use for inference.
+          src: The source of the dataset. Can be a string (path to a local file,
+                a GCS path, or a BigQuery table), a Pandas DataFrame, or an
+                EvaluationDataset object. If an Evalu
+                ationDataset is provided,
+                it must have `eval_dataset_df` populated.
+          model: Optional type is experimental and may change in future versions.
+                The model to use for inference, optional for agent evaluations.
               - For Google Gemini models, provide the model name string (e.g., "gemini-2.5-flash").
               - For third-party models via LiteLLM, use the format "provider/model_name"
                 (e.g., "openai/gpt-4o"). Ensure the necessary API key (e.g., OPENAI_API_KEY)
                 is set as an environment variable.
               - For custom logic, provide a callable function that accepts a prompt and
                 returns a response.
-          src: The source of the dataset. Can be a string (path to a local file,
-                a GCS path, or a BigQuery table), a Pandas DataFrame, or an
-                EvaluationDataset object. If an EvaluationDataset is provided,
-                it must have `eval_dataset_df` populated.
+          agent: This field is experimental and may change in future versions
+                The agent engine used to run agent, optional for non-agent evaluations.
+              - agent engine resource name in str type, with format
+                `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`,
+                run_inference will fetch the agent engine from the resource name.
+              - Or `types.AgentEngine` object.
           config: The optional configuration for the inference run. Must be a dict or
               `types.EvalRunInferenceConfig` type.
                 - dest: The destination path for storage of the inference results.
@@ -723,6 +732,7 @@ class Evals(_api_module.BaseModule):
         return _evals_common._execute_inference(  # type: ignore[no-any-return]
             api_client=self._api_client,
             model=model,
+            agent_engine=agent,
             src=src,
             dest=config.dest,
             config=config.generate_content_config,
@@ -737,6 +747,7 @@ class Evals(_api_module.BaseModule):
         ],
         metrics: list[types.MetricOrDict] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
+        **kwargs,
     ) -> types.EvaluationResult:
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
@@ -746,6 +757,7 @@ class Evals(_api_module.BaseModule):
           config: Optional configuration for the evaluation. Can be a dictionary or a `types.EvaluateMethodConfig` object.
             - dataset_schema: Schema to use for the dataset. If not specified, the dataset schema will be inferred from the dataset automatically.
             - dest: Destination path for storing evaluation results.
+          **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
         Returns:
           The evaluation result.
@@ -769,12 +781,18 @@ class Evals(_api_module.BaseModule):
         if metrics is None:
             metrics = [types.Metric(name="general_quality_v1")]
 
+        if kwargs:
+            logger.warning(
+                "`kwargs` attribute in `evaluate` method is experimental and may change in future versions."
+            )
+
         return _evals_common._execute_evaluation(
             api_client=self._api_client,
             dataset=dataset,
             metrics=metrics,
             dataset_schema=config.dataset_schema,
             dest=config.dest,
+            **kwargs,
         )
 
     def batch_evaluate(
