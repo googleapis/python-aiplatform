@@ -203,6 +203,17 @@ class JobState(_common.CaseInSensitiveEnum):
     """The job is partially succeeded, some results may be missing due to errors."""
 
 
+class IdentityType(_common.CaseInSensitiveEnum):
+    """The identity type for the agent engine."""
+
+    IDENTITY_TYPE_UNSPECIFIED = "IDENTITY_TYPE_UNSPECIFIED"
+    """The identity type is unspecified. Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project."""
+    SERVICE_ACCOUNT = "SERVICE_ACCOUNT"
+    """Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project."""
+    AGENT_IDENTITY = "AGENT_IDENTITY"
+    """Use the Agent Identity to access the resources."""
+
+
 class AgentServerMode(_common.CaseInSensitiveEnum):
     """The agent server mode."""
 
@@ -5017,6 +5028,14 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Optional. The specification of a Reasoning Engine deployment.""",
     )
+    effective_identity: Optional[str] = Field(
+        default=None,
+        description="""Output only. The identity to use for the Reasoning Engine. It can contain one of the following values: * service-{project}@gcp-sa-aiplatform-re.googleapis.com (for SERVICE_AGENT identity type) * {name}@{project}.gserviceaccount.com (for SERVICE_ACCOUNT identity type) * agents.global.{org}.system.id.goog/resources/aiplatform/projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine} (for AGENT_IDENTITY identity type)""",
+    )
+    identity_type: Optional[IdentityType] = Field(
+        default=None,
+        description="""Optional. The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.""",
+    )
     package_spec: Optional[ReasoningEngineSpecPackageSpec] = Field(
         default=None,
         description="""Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified.""",
@@ -5042,6 +5061,12 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
     deployment_spec: Optional[ReasoningEngineSpecDeploymentSpecDict]
     """Optional. The specification of a Reasoning Engine deployment."""
+
+    effective_identity: Optional[str]
+    """Output only. The identity to use for the Reasoning Engine. It can contain one of the following values: * service-{project}@gcp-sa-aiplatform-re.googleapis.com (for SERVICE_AGENT identity type) * {name}@{project}.gserviceaccount.com (for SERVICE_ACCOUNT identity type) * agents.global.{org}.system.id.goog/resources/aiplatform/projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine} (for AGENT_IDENTITY identity type)"""
+
+    identity_type: Optional[IdentityType]
+    """Optional. The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used."""
 
     package_spec: Optional[ReasoningEngineSpecPackageSpecDict]
     """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified."""
@@ -13099,6 +13124,9 @@ class AgentEngineConfig(_common.BaseModel):
 
       If not specified, the default Reasoning Engine P6SA service agent will be used.""",
     )
+    identity_type: Optional[IdentityType] = Field(
+        default=None, description="""The identity type to use for the Agent Engine."""
+    )
     context_spec: Optional[ReasoningEngineContextSpec] = Field(
         default=None,
         description="""The context spec to be used for the Agent Engine.""",
@@ -13237,6 +13265,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
     """The service account to be used for the Agent Engine.
 
       If not specified, the default Reasoning Engine P6SA service agent will be used."""
+
+    identity_type: Optional[IdentityType]
+    """The identity type to use for the Agent Engine."""
 
     context_spec: Optional[ReasoningEngineContextSpecDict]
     """The context spec to be used for the Agent Engine."""
