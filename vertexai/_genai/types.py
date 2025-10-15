@@ -4475,6 +4475,10 @@ class ReasoningEngineContextSpecMemoryBankConfigTtlConfig(_common.BaseModel):
         default=None,
         description="""Optional. The granular TTL configuration of the memories in the Memory Bank.""",
     )
+    memory_revision_default_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The default TTL duration of the memory revisions in the Memory Bank. This applies to all operations that create a memory revision. If not set, a default TTL of 365 days will be used.""",
+    )
 
 
 class ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict(TypedDict, total=False):
@@ -4487,6 +4491,9 @@ class ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict(TypedDict, total=F
         ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict
     ]
     """Optional. The granular TTL configuration of the memories in the Memory Bank."""
+
+    memory_revision_default_ttl: Optional[str]
+    """Optional. The default TTL duration of the memory revisions in the Memory Bank. This applies to all operations that create a memory revision. If not set, a default TTL of 365 days will be used."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict = Union[
@@ -4518,6 +4525,10 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
         default=None,
         description="""Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
     )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""If true, no memory revisions will be created for any requests to the Memory Bank.""",
+    )
 
 
 class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
@@ -4538,6 +4549,9 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
 
     ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
     """Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
+
+    disable_memory_revisions: Optional[bool]
+    """If true, no memory revisions will be created for any requests to the Memory Bank."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
@@ -5400,6 +5414,18 @@ class AgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
     )
+    revision_expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
+    )
+    revision_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
+    )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Input only. If true, no revision will be created for this request.""",
+    )
 
 
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -5424,6 +5450,15 @@ class AgentEngineMemoryConfigDict(TypedDict, total=False):
 
     expire_time: Optional[datetime.datetime]
     """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
+
+    revision_expire_time: Optional[datetime.datetime]
+    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
+
+    revision_ttl: Optional[str]
+    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
+
+    disable_memory_revisions: Optional[bool]
+    """Optional. Input only. If true, no revision will be created for this request."""
 
 
 AgentEngineMemoryConfigOrDict = Union[
@@ -5494,6 +5529,18 @@ class Memory(_common.BaseModel):
         default=None,
         description="""Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL.""",
     )
+    revision_expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
+    )
+    revision_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
+    )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Input only. If true, no revision will be created for this request.""",
+    )
     create_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Timestamp when this Memory was created.""",
@@ -5530,6 +5577,15 @@ class MemoryDict(TypedDict, total=False):
 
     ttl: Optional[str]
     """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
+
+    revision_expire_time: Optional[datetime.datetime]
+    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
+
+    revision_ttl: Optional[str]
+    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
+
+    disable_memory_revisions: Optional[bool]
+    """Optional. Input only. If true, no revision will be created for this request."""
 
     create_time: Optional[datetime.datetime]
     """Output only. Timestamp when this Memory was created."""
@@ -5844,6 +5900,18 @@ class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
         default=None,
         description="""Labels to apply to the memory revision. For example, you can use this to label a revision with its data source.""",
     )
+    revision_expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
+    )
+    revision_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
+    )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Input only. If true, no revisions will be created for this request.""",
+    )
 
 
 class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
@@ -5865,6 +5933,15 @@ class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
 
     revision_labels: Optional[dict[str, str]]
     """Labels to apply to the memory revision. For example, you can use this to label a revision with its data source."""
+
+    revision_expire_time: Optional[datetime.datetime]
+    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
+
+    revision_ttl: Optional[str]
+    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
+
+    disable_memory_revisions: Optional[bool]
+    """Optional. Input only. If true, no revisions will be created for this request."""
 
 
 GenerateAgentEngineMemoriesConfigOrDict = Union[
@@ -6588,6 +6665,18 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
     )
+    revision_expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
+    )
+    revision_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
+    )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Input only. If true, no revision will be created for this request.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -6617,6 +6706,15 @@ class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
 
     expire_time: Optional[datetime.datetime]
     """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
+
+    revision_expire_time: Optional[datetime.datetime]
+    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
+
+    revision_ttl: Optional[str]
+    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
+
+    disable_memory_revisions: Optional[bool]
+    """Optional. Input only. If true, no revision will be created for this request."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see

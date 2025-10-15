@@ -55,6 +55,23 @@ def _AgentEngineMemoryConfig_to_vertex(
     if getv(from_object, ["expire_time"]) is not None:
         setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
 
+    if getv(from_object, ["revision_expire_time"]) is not None:
+        setv(
+            parent_object,
+            ["revisionExpireTime"],
+            getv(from_object, ["revision_expire_time"]),
+        )
+
+    if getv(from_object, ["revision_ttl"]) is not None:
+        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
+
+    if getv(from_object, ["disable_memory_revisions"]) is not None:
+        setv(
+            parent_object,
+            ["disableMemoryRevisions"],
+            getv(from_object, ["disable_memory_revisions"]),
+        )
+
     return to_object
 
 
@@ -113,6 +130,23 @@ def _GenerateAgentEngineMemoriesConfig_to_vertex(
 
     if getv(from_object, ["revision_labels"]) is not None:
         setv(parent_object, ["revisionLabels"], getv(from_object, ["revision_labels"]))
+
+    if getv(from_object, ["revision_expire_time"]) is not None:
+        setv(
+            parent_object,
+            ["revisionExpireTime"],
+            getv(from_object, ["revision_expire_time"]),
+        )
+
+    if getv(from_object, ["revision_ttl"]) is not None:
+        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
+
+    if getv(from_object, ["disable_memory_revisions"]) is not None:
+        setv(
+            parent_object,
+            ["disableMemoryRevisions"],
+            getv(from_object, ["disable_memory_revisions"]),
+        )
 
     return to_object
 
@@ -313,6 +347,23 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
 
     if getv(from_object, ["expire_time"]) is not None:
         setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
+
+    if getv(from_object, ["revision_expire_time"]) is not None:
+        setv(
+            parent_object,
+            ["revisionExpireTime"],
+            getv(from_object, ["revision_expire_time"]),
+        )
+
+    if getv(from_object, ["revision_ttl"]) is not None:
+        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
+
+    if getv(from_object, ["disable_memory_revisions"]) is not None:
+        setv(
+            parent_object,
+            ["disableMemoryRevisions"],
+            getv(from_object, ["disable_memory_revisions"]),
+        )
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
