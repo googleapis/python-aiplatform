@@ -37,6 +37,7 @@ __protobuf__ = proto.module(
         "Blob",
         "FileData",
         "VideoMetadata",
+        "ImageConfig",
         "GenerationConfig",
         "SafetySetting",
         "SafetyRating",
@@ -340,6 +341,34 @@ class VideoMetadata(proto.Message):
     )
 
 
+class ImageConfig(proto.Message):
+    r"""Config for image generation features.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        aspect_ratio (str):
+            Optional. The desired aspect ratio for the
+            generated images. The following aspect ratios
+            are supported:
+
+            "1:1"
+            "2:3", "3:2"
+            "3:4", "4:3"
+            "4:5", "5:4"
+            "9:16", "16:9"
+            "21:9".
+
+            This field is a member of `oneof`_ ``_aspect_ratio``.
+    """
+
+    aspect_ratio: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
+    )
+
+
 class GenerationConfig(proto.Message):
     r"""Generation config.
 
@@ -464,6 +493,11 @@ class GenerationConfig(proto.Message):
             Optional. Config for thinking features.
             An error will be returned if this field is set
             for models that don't support thinking.
+        image_config (google.cloud.aiplatform_v1.types.ImageConfig):
+            Optional. Config for image generation
+            features.
+
+            This field is a member of `oneof`_ ``_image_config``.
     """
 
     class RoutingConfig(proto.Message):
@@ -675,6 +709,12 @@ class GenerationConfig(proto.Message):
         proto.MESSAGE,
         number=25,
         message=ThinkingConfig,
+    )
+    image_config: "ImageConfig" = proto.Field(
+        proto.MESSAGE,
+        number=30,
+        optional=True,
+        message="ImageConfig",
     )
 
 
