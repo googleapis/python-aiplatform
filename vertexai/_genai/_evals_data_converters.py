@@ -14,6 +14,7 @@
 #
 """Dataset converters for evals."""
 
+import copy
 import json
 import logging
 from typing import Any, Optional, Union
@@ -189,7 +190,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                     f"Expected a dictionary for item at index {i}, but got"
                     f" {type(item_dict).__name__}: {item_dict}"
                 )
-            item = item_dict.copy()
+            item = copy.deepcopy(item_dict)
             eval_case_id = f"eval_case_{i}"
             prompt_data = item.pop("prompt", None)
             if not prompt_data:
@@ -200,6 +201,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
             reference_data = item.pop("reference", None)
             system_instruction_data = item.pop("instruction", None)
             rubric_groups_data = item.pop("rubric_groups", None)
+            intermediate_events_data = item.pop("intermediate_events", None)
 
             if not response_data:
                 raise ValueError(
@@ -362,6 +364,38 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                         f"Invalid type for rubric_groups in case {i}. Expected dict."
                     )
 
+            intermediate_events: Optional[list[types.Event]] = None
+            if intermediate_events_data:
+                logger.warning(
+                    "intermediate_events attribute is experimental and may change in "
+                    "future versions."
+                )
+                if isinstance(intermediate_events_data, list):
+                    intermediate_events = []
+                    for event in intermediate_events_data:
+                        if isinstance(event, dict):
+                            try:
+                                validated_event = types.Event.model_validate(event)
+                                intermediate_events.append(validated_event)
+                            except Exception as e:
+                                logger.warning(
+                                    "Failed to validate intermediate event dict for"
+                                    f" case {i}: {e}"
+                                )
+                        elif isinstance(event, types.Event):
+                            intermediate_events.append(event)
+                        else:
+                            logger.warning(
+                                "Invalid type for intermediate_event in case"
+                                f" {i}. Expected list of dicts or list of"
+                                " types.Event objects."
+                            )
+                else:
+                    logger.warning(
+                        f"Invalid type for intermediate_events in case {i}. Expected"
+                        " list of types.Event objects."
+                    )
+
             eval_case = types.EvalCase(
                 eval_case_id=eval_case_id,
                 prompt=prompt,
@@ -370,6 +404,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                 conversation_history=conversation_history,
                 system_instruction=system_instruction,
                 rubric_groups=rubric_groups,
+                intermediate_events=intermediate_events,
                 **item,  # Pass remaining columns as extra fields to EvalCase.
                 # They can be used for custom metric prompt templates.
             )
@@ -726,6 +761,7 @@ def merge_response_datasets_into_canonical_format(
                 "reference",
                 "system_instruction",
                 "conversation_history",
+                "intermediate_events",
             },
             exclude_none=True,
         )
@@ -750,6 +786,7 @@ def merge_response_datasets_into_canonical_format(
                     "reference",
                     "system_instruction",
                     "conversation_history",
+                    "intermediate_events",
                 },
                 exclude_none=True,
             )
@@ -777,6 +814,7 @@ def merge_response_datasets_into_canonical_format(
             reference=base_eval_case.reference,
             system_instruction=base_eval_case.system_instruction,
             conversation_history=base_eval_case.conversation_history,
+            intermediate_events=base_eval_case.intermediate_events,
             **eval_case_custom_columns,
         )
         merged_eval_cases.append(merged_case)

@@ -1885,6 +1885,56 @@ class TestFlattenEvalDataConverter:
         eval_case = result_dataset.eval_cases[0]
         assert eval_case.custom_column == "custom_value"
 
+    def test_convert_with_agent_eval_fields(self):
+        """Tests that agent eval data is converted correctly from a flattened format."""
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": ["Hi"],
+                "intermediate_events": [
+                    [
+                        {
+                            "event_id": "event1",
+                            "content": {"parts": [{"text": "intermediate event"}]},
+                        }
+                    ]
+                ],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        assert len(result_dataset.eval_cases) == 1
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.intermediate_events[0].event_id == "event1"
+
+    def test_convert_with_intermediate_events_as_event_objects(self):
+        """Tests that agent eval data is converted correctly when intermediate_events are Event objects."""
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Hello"],
+                "response": ["Hi"],
+                "intermediate_events": [
+                    [
+                        vertexai_genai_types.Event(
+                            event_id="event1",
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="intermediate event")]
+                            ),
+                        )
+                    ]
+                ],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        assert len(result_dataset.eval_cases) == 1
+        eval_case = result_dataset.eval_cases[0]
+        assert eval_case.intermediate_events[0].event_id == "event1"
+        assert (
+            eval_case.intermediate_events[0].content.parts[0].text
+            == "intermediate event"
+        )
+
 
 class TestOpenAIDataConverter:
     """Unit tests for the _OpenAIDataConverter class."""
@@ -2765,7 +2815,10 @@ class TestMergeResponseDatasets:
         )
 
     def test_merge_empty_input_list(self):
-        with pytest.raises(ValueError, match="Input 'raw_datasets' cannot be empty."):
+        with pytest.raises(
+            ValueError,
+            match="Input 'raw_datasets' cannot be empty and must be a list of lists.",
+        ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 raw_datasets=[], schemas=[]
             )
@@ -2810,7 +2863,10 @@ class TestMergeResponseDatasets:
         ]
         with pytest.raises(
             ValueError,
-            match="A list of schemas must be provided, one for each raw dataset.",
+            match=(
+                "A list of schemas must be provided, one for each raw dataset. Got 2"
+                " schemas for 3 datasets."
+            ),
         ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 [raw_dataset_1, raw_dataset_2, raw_dataset_3],
@@ -2824,7 +2880,10 @@ class TestMergeResponseDatasets:
         ]
         with pytest.raises(
             ValueError,
-            match="A list of schemas must be provided, one for each raw dataset.",
+            match=(
+                "A list of schemas must be provided, one for each raw dataset. Got 0"
+                " schemas for 1 datasets."
+            ),
         ):
             _evals_data_converters.merge_response_datasets_into_canonical_format(
                 [raw_dataset_1], schemas=[]
@@ -2917,6 +2976,46 @@ class TestMergeResponseDatasets:
         assert merged_dataset.eval_cases[1].custom_col_1 == "value_2_1"
         assert merged_dataset.eval_cases[1].custom_col_2 == "value_2_2"
         assert merged_dataset.eval_cases[1].custom_col_3 == "value_2_3"
+
+    def test_merge_with_intermediate_events(self):
+        raw_dataset_1 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1a",
+                "intermediate_events": [
+                    {
+                        "event_id": "event1",
+                        "content": {"parts": [{"text": "intermediate event"}]},
+                    }
+                ],
+            }
+        ]
+        raw_dataset_2 = [
+            {
+                "prompt": "Prompt 1",
+                "response": "Response 1b",
+                "intermediate_events": [
+                    {
+                        "event_id": "event2",
+                        "content": {"parts": [{"text": "intermediate event 2"}]},
+                    }
+                ],
+            }
+        ]
+        schemas = [
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+            _evals_data_converters.EvalDatasetSchema.FLATTEN,
+        ]
+
+        merged_dataset = (
+            _evals_data_converters.merge_response_datasets_into_canonical_format(
+                [raw_dataset_1, raw_dataset_2], schemas=schemas
+            )
+        )
+
+        assert len(merged_dataset.eval_cases) == 1
+        assert len(merged_dataset.eval_cases[0].intermediate_events) == 1
+        assert merged_dataset.eval_cases[0].intermediate_events[0].event_id == "event1"
 
     def test_merge_with_metadata(self):
         raw_dataset_1 = [

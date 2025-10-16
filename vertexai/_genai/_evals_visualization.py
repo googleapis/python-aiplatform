@@ -56,8 +56,6 @@ def _preprocess_df_for_json(df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame
         ):
 
             def stringify_cell(cell: Any) -> Optional[str]:
-                if pd.isna(cell):
-                    return None
                 if isinstance(cell, (dict, list)):
                     try:
                         return json.dumps(
@@ -65,6 +63,8 @@ def _preprocess_df_for_json(df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame
                         )
                     except TypeError:
                         return str(cell)
+                elif pd.isna(cell):
+                    return None
                 elif not isinstance(cell, (str, int, float, bool)):
                     if hasattr(cell, "model_dump"):
                         return json.dumps(
