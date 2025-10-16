@@ -567,6 +567,608 @@ class EvaluationRunResultsDict(TypedDict, total=False):
 EvaluationRunResultsOrDict = Union[EvaluationRunResults, EvaluationRunResultsDict]
 
 
+class ResponseCandidateResult(_common.BaseModel):
+    """Aggregated metric results for a single response candidate of an EvalCase."""
+
+    response_index: Optional[int] = Field(
+        default=None,
+        description="""Index of the response candidate this result pertains to.""",
+    )
+    metric_results: Optional[dict[str, "EvalCaseMetricResult"]] = Field(
+        default=None,
+        description="""A dictionary of metric results for this response candidate, keyed by metric name.""",
+    )
+
+
+class ResponseCandidateResultDict(TypedDict, total=False):
+    """Aggregated metric results for a single response candidate of an EvalCase."""
+
+    response_index: Optional[int]
+    """Index of the response candidate this result pertains to."""
+
+    metric_results: Optional[dict[str, "EvalCaseMetricResultDict"]]
+    """A dictionary of metric results for this response candidate, keyed by metric name."""
+
+
+ResponseCandidateResultOrDict = Union[
+    ResponseCandidateResult, ResponseCandidateResultDict
+]
+
+
+class EvalCaseResult(_common.BaseModel):
+    """Eval result for a single evaluation case."""
+
+    eval_case_index: Optional[int] = Field(
+        default=None, description="""Index of the evaluation case."""
+    )
+    response_candidate_results: Optional[list[ResponseCandidateResult]] = Field(
+        default=None,
+        description="""A list of results, one for each response candidate of the EvalCase.""",
+    )
+
+
+class EvalCaseResultDict(TypedDict, total=False):
+    """Eval result for a single evaluation case."""
+
+    eval_case_index: Optional[int]
+    """Index of the evaluation case."""
+
+    response_candidate_results: Optional[list[ResponseCandidateResultDict]]
+    """A list of results, one for each response candidate of the EvalCase."""
+
+
+EvalCaseResultOrDict = Union[EvalCaseResult, EvalCaseResultDict]
+
+
+class AggregatedMetricResult(_common.BaseModel):
+    """Evaluation result for a single metric for an evaluation dataset."""
+
+    metric_name: Optional[str] = Field(
+        default=None, description="""Name of the metric."""
+    )
+    num_cases_total: Optional[int] = Field(
+        default=None, description="""Total number of cases in the dataset."""
+    )
+    num_cases_valid: Optional[int] = Field(
+        default=None, description="""Number of valid cases in the dataset."""
+    )
+    num_cases_error: Optional[int] = Field(
+        default=None, description="""Number of cases with errors in the dataset."""
+    )
+    mean_score: Optional[float] = Field(
+        default=None, description="""Mean score of the metric."""
+    )
+    stdev_score: Optional[float] = Field(
+        default=None, description="""Standard deviation of the metric."""
+    )
+
+    # Allow extra fields to support custom aggregation stats.
+    model_config = ConfigDict(extra="allow")
+
+
+class AggregatedMetricResultDict(TypedDict, total=False):
+    """Evaluation result for a single metric for an evaluation dataset."""
+
+    metric_name: Optional[str]
+    """Name of the metric."""
+
+    num_cases_total: Optional[int]
+    """Total number of cases in the dataset."""
+
+    num_cases_valid: Optional[int]
+    """Number of valid cases in the dataset."""
+
+    num_cases_error: Optional[int]
+    """Number of cases with errors in the dataset."""
+
+    mean_score: Optional[float]
+    """Mean score of the metric."""
+
+    stdev_score: Optional[float]
+    """Standard deviation of the metric."""
+
+
+AggregatedMetricResultOrDict = Union[AggregatedMetricResult, AggregatedMetricResultDict]
+
+
+class Message(_common.BaseModel):
+    """Represents a single message turn in a conversation."""
+
+    turn_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the message turn."""
+    )
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Content of the message, including function call."""
+    )
+    creation_timestamp: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Timestamp indicating when the message was created.""",
+    )
+    author: Optional[str] = Field(
+        default=None, description="""Name of the entity that produced the message."""
+    )
+
+
+class MessageDict(TypedDict, total=False):
+    """Represents a single message turn in a conversation."""
+
+    turn_id: Optional[str]
+    """Unique identifier for the message turn."""
+
+    content: Optional[genai_types.ContentDict]
+    """Content of the message, including function call."""
+
+    creation_timestamp: Optional[datetime.datetime]
+    """Timestamp indicating when the message was created."""
+
+    author: Optional[str]
+    """Name of the entity that produced the message."""
+
+
+MessageOrDict = Union[Message, MessageDict]
+
+
+class AgentData(_common.BaseModel):
+    """Container for all agent-specific data."""
+
+    tool_use_trajectory: Optional[list[Message]] = Field(
+        default=None, description="""Tool use trajectory in chronological order."""
+    )
+    intermediate_responses: Optional[list[Message]] = Field(
+        default=None,
+        description="""Intermediate responses generated by sub-agents to convey progress or status in a multi-agent system, distinct from the final response.""",
+    )
+
+
+class AgentDataDict(TypedDict, total=False):
+    """Container for all agent-specific data."""
+
+    tool_use_trajectory: Optional[list[MessageDict]]
+    """Tool use trajectory in chronological order."""
+
+    intermediate_responses: Optional[list[MessageDict]]
+    """Intermediate responses generated by sub-agents to convey progress or status in a multi-agent system, distinct from the final response."""
+
+
+AgentDataOrDict = Union[AgentData, AgentDataDict]
+
+
+class ResponseCandidate(_common.BaseModel):
+    """A model-generated content to the prompt."""
+
+    response: Optional[genai_types.Content] = Field(
+        default=None,
+        description="""The final model-generated response to the `prompt`.""",
+    )
+    agent_data: Optional[AgentData] = Field(
+        default=None,
+        description="""Agent-specific data including tool use trajectory and intermediate responses for more complex interactions.""",
+    )
+
+
+class ResponseCandidateDict(TypedDict, total=False):
+    """A model-generated content to the prompt."""
+
+    response: Optional[genai_types.ContentDict]
+    """The final model-generated response to the `prompt`."""
+
+    agent_data: Optional[AgentDataDict]
+    """Agent-specific data including tool use trajectory and intermediate responses for more complex interactions."""
+
+
+ResponseCandidateOrDict = Union[ResponseCandidate, ResponseCandidateDict]
+
+
+class Event(_common.BaseModel):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the agent event."""
+    )
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Content of the event."""
+    )
+    creation_timestamp: Optional[datetime.datetime] = Field(
+        default=None, description="""The creation timestamp of the event."""
+    )
+    author: Optional[str] = Field(
+        default=None, description="""Name of the entity that produced the event."""
+    )
+
+
+class EventDict(TypedDict, total=False):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str]
+    """Unique identifier for the agent event."""
+
+    content: Optional[genai_types.ContentDict]
+    """Content of the event."""
+
+    creation_timestamp: Optional[datetime.datetime]
+    """The creation timestamp of the event."""
+
+    author: Optional[str]
+    """Name of the entity that produced the event."""
+
+
+EventOrDict = Union[Event, EventDict]
+
+
+class AgentInfo(_common.BaseModel):
+    """The agent info of an agent, used for agent eval."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Agent name, used as an identifier."""
+    )
+    instruction: Optional[str] = Field(
+        default=None, description="""Agent developer instruction."""
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Agent description."""
+    )
+    tool_declarations: Optional[genai_types.ToolListUnion] = Field(
+        default=None, description="""List of tools used by the Agent."""
+    )
+
+
+class AgentInfoDict(TypedDict, total=False):
+    """The agent info of an agent, used for agent eval."""
+
+    name: Optional[str]
+    """Agent name, used as an identifier."""
+
+    instruction: Optional[str]
+    """Agent developer instruction."""
+
+    description: Optional[str]
+    """Agent description."""
+
+    tool_declarations: Optional[genai_types.ToolListUnionDict]
+    """List of tools used by the Agent."""
+
+
+AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
+
+
+class EvalCase(_common.BaseModel):
+    """A comprehensive representation of a GenAI interaction for evaluation."""
+
+    prompt: Optional[genai_types.Content] = Field(
+        default=None, description="""The most recent user message (current input)."""
+    )
+    responses: Optional[list[ResponseCandidate]] = Field(
+        default=None,
+        description="""Model-generated replies to the last user message in a conversation. Multiple responses are allowed to support use cases such as comparing different model outputs.""",
+    )
+    reference: Optional[ResponseCandidate] = Field(
+        default=None,
+        description="""User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in a conversation.""",
+    )
+    system_instruction: Optional[genai_types.Content] = Field(
+        default=None, description="""System instruction for the model."""
+    )
+    conversation_history: Optional[list[Message]] = Field(
+        default=None,
+        description="""List of all prior messages in the conversation (chat history).""",
+    )
+    rubric_groups: Optional[dict[str, "RubricGroup"]] = Field(
+        default=None,
+        description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
+    )
+    eval_case_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the evaluation case."""
+    )
+    intermediate_events: Optional[list[Event]] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run.""",
+    )
+    agent_info: Optional[AgentInfo] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
+    )
+    # Allow extra fields to support custom metric prompts and stay backward compatible.
+    model_config = ConfigDict(frozen=True, extra="allow")
+
+
+class EvalCaseDict(TypedDict, total=False):
+    """A comprehensive representation of a GenAI interaction for evaluation."""
+
+    prompt: Optional[genai_types.ContentDict]
+    """The most recent user message (current input)."""
+
+    responses: Optional[list[ResponseCandidateDict]]
+    """Model-generated replies to the last user message in a conversation. Multiple responses are allowed to support use cases such as comparing different model outputs."""
+
+    reference: Optional[ResponseCandidateDict]
+    """User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in a conversation."""
+
+    system_instruction: Optional[genai_types.ContentDict]
+    """System instruction for the model."""
+
+    conversation_history: Optional[list[MessageDict]]
+    """List of all prior messages in the conversation (chat history)."""
+
+    rubric_groups: Optional[dict[str, "RubricGroupDict"]]
+    """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
+
+    eval_case_id: Optional[str]
+    """Unique identifier for the evaluation case."""
+
+    intermediate_events: Optional[list[EventDict]]
+    """This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run."""
+
+    agent_info: Optional[AgentInfoDict]
+    """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
+
+
+EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
+
+
+class GcsSource(_common.BaseModel):
+    """Cloud storage source holds the dataset.
+
+    Currently only one Cloud Storage file path is supported.
+    """
+
+    uris: Optional[list[str]] = Field(
+        default=None,
+        description="""Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards.""",
+    )
+
+
+class GcsSourceDict(TypedDict, total=False):
+    """Cloud storage source holds the dataset.
+
+    Currently only one Cloud Storage file path is supported.
+    """
+
+    uris: Optional[list[str]]
+    """Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards."""
+
+
+GcsSourceOrDict = Union[GcsSource, GcsSourceDict]
+
+
+class BigQuerySource(_common.BaseModel):
+    """The BigQuery location for the input content."""
+
+    input_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`.""",
+    )
+
+
+class BigQuerySourceDict(TypedDict, total=False):
+    """The BigQuery location for the input content."""
+
+    input_uri: Optional[str]
+    """Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`."""
+
+
+BigQuerySourceOrDict = Union[BigQuerySource, BigQuerySourceDict]
+
+
+class EvaluationDataset(_common.BaseModel):
+    """The dataset used for evaluation."""
+
+    eval_cases: Optional[list[EvalCase]] = Field(
+        default=None, description="""The evaluation cases to be evaluated."""
+    )
+    eval_dataset_df: Optional[PandasDataFrame] = Field(
+        default=None,
+        description="""The evaluation dataset in the form of a Pandas DataFrame.""",
+    )
+    candidate_name: Optional[str] = Field(
+        default=None,
+        description="""The name of the candidate model or agent for this evaluation dataset.""",
+    )
+    gcs_source: Optional[GcsSource] = Field(
+        default=None, description="""The GCS source for the evaluation dataset."""
+    )
+    bigquery_source: Optional[BigQuerySource] = Field(
+        default=None, description="""The BigQuery source for the evaluation dataset."""
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _check_pandas_installed(cls, data: Any) -> Any:
+        if isinstance(data, dict) and data.get("eval_dataset_df") is not None:
+            if pd is None:
+                logger.warning(
+                    "Pandas is not installed, some evals features are not available."
+                    " Please install it with `pip install"
+                    " google-cloud-aiplatform[evaluation]`."
+                )
+        return data
+
+    @classmethod
+    def load_from_observability_eval_cases(
+        cls, cases: list["ObservabilityEvalCase"]
+    ) -> "EvaluationDataset":
+        """Fetches GenAI Observability data from GCS and parses into a DataFrame."""
+        try:
+            import pandas as pd
+            from . import _evals_utils
+
+            formats = []
+            requests = []
+            responses = []
+            system_instructions = []
+
+            for case in cases:
+                gcs_utils = _evals_utils.GcsUtils(
+                    case.api_client._api_client if case.api_client else None
+                )
+
+                # Associate "observability" data format for given sources
+                formats.append("observability")
+
+                # Input source
+                request_data = gcs_utils.read_file_contents(case.input_src)
+                requests.append(request_data)
+
+                # Output source
+                response_data = gcs_utils.read_file_contents(case.output_src)
+                responses.append(response_data)
+
+                # System instruction source
+                system_instruction_data = ""
+                if case.system_instruction_src is not None:
+                    system_instruction_data = gcs_utils.read_file_contents(
+                        case.system_instruction_src
+                    )
+                system_instructions.append(system_instruction_data)
+
+            eval_dataset_df = pd.DataFrame(
+                {
+                    "format": formats,
+                    "request": requests,
+                    "response": responses,
+                    "system_instruction": system_instructions,
+                }
+            )
+
+        except ImportError as e:
+            raise ImportError("Pandas DataFrame library is required.") from e
+
+        return EvaluationDataset(eval_dataset_df=eval_dataset_df)
+
+    def show(self) -> None:
+        """Shows the evaluation dataset."""
+        from . import _evals_visualization
+
+        _evals_visualization.display_evaluation_dataset(self)
+
+
+class EvaluationDatasetDict(TypedDict, total=False):
+    """The dataset used for evaluation."""
+
+    eval_cases: Optional[list[EvalCaseDict]]
+    """The evaluation cases to be evaluated."""
+
+    eval_dataset_df: Optional[PandasDataFrame]
+    """The evaluation dataset in the form of a Pandas DataFrame."""
+
+    candidate_name: Optional[str]
+    """The name of the candidate model or agent for this evaluation dataset."""
+
+    gcs_source: Optional[GcsSourceDict]
+    """The GCS source for the evaluation dataset."""
+
+    bigquery_source: Optional[BigQuerySourceDict]
+    """The BigQuery source for the evaluation dataset."""
+
+
+EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
+
+
+class EvaluationRunMetadata(_common.BaseModel):
+    """Metadata for an evaluation run."""
+
+    candidate_names: Optional[list[str]] = Field(
+        default=None,
+        description="""Name of the candidate(s) being evaluated in the evaluation run.""",
+    )
+    dataset_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the evaluation dataset used for the evaluation run.""",
+    )
+    dataset_id: Optional[str] = Field(
+        default=None,
+        description="""Unique identifier for the evaluation dataset used for the evaluation run.""",
+    )
+    creation_timestamp: Optional[datetime.datetime] = Field(
+        default=None, description="""Creation timestamp of the evaluation run."""
+    )
+
+
+class EvaluationRunMetadataDict(TypedDict, total=False):
+    """Metadata for an evaluation run."""
+
+    candidate_names: Optional[list[str]]
+    """Name of the candidate(s) being evaluated in the evaluation run."""
+
+    dataset_name: Optional[str]
+    """Name of the evaluation dataset used for the evaluation run."""
+
+    dataset_id: Optional[str]
+    """Unique identifier for the evaluation dataset used for the evaluation run."""
+
+    creation_timestamp: Optional[datetime.datetime]
+    """Creation timestamp of the evaluation run."""
+
+
+EvaluationRunMetadataOrDict = Union[EvaluationRunMetadata, EvaluationRunMetadataDict]
+
+
+class EvaluationResult(_common.BaseModel):
+    """Result of an evaluation run for an evaluation dataset."""
+
+    eval_case_results: Optional[list[EvalCaseResult]] = Field(
+        default=None,
+        description="""A list of evaluation results for each evaluation case.""",
+    )
+    summary_metrics: Optional[list[AggregatedMetricResult]] = Field(
+        default=None,
+        description="""A list of summary-level evaluation results for each metric.""",
+    )
+    win_rates: Optional[dict[str, "WinRateStats"]] = Field(
+        default=None,
+        description="""A dictionary of win rates for each metric, only populated for multi-response evaluation runs.""",
+    )
+    evaluation_dataset: Optional[list[EvaluationDataset]] = Field(
+        default=None,
+        description="""The input evaluation dataset(s) for the evaluation run.""",
+    )
+    metadata: Optional[EvaluationRunMetadata] = Field(
+        default=None, description="""Metadata for the evaluation run."""
+    )
+
+    def show(self, candidate_names: Optional[List[str]] = None) -> None:
+        """Shows the evaluation result.
+
+        Args:
+            candidate_names: list of names for the evaluated candidates, used in
+            comparison reports.
+        """
+        from . import _evals_visualization
+
+        _evals_visualization.display_evaluation_result(self, candidate_names)
+
+
+class EvaluationResultDict(TypedDict, total=False):
+    """Result of an evaluation run for an evaluation dataset."""
+
+    eval_case_results: Optional[list[EvalCaseResultDict]]
+    """A list of evaluation results for each evaluation case."""
+
+    summary_metrics: Optional[list[AggregatedMetricResultDict]]
+    """A list of summary-level evaluation results for each metric."""
+
+    win_rates: Optional[dict[str, "WinRateStatsDict"]]
+    """A dictionary of win rates for each metric, only populated for multi-response evaluation runs."""
+
+    evaluation_dataset: Optional[list[EvaluationDatasetDict]]
+    """The input evaluation dataset(s) for the evaluation run."""
+
+    metadata: Optional[EvaluationRunMetadataDict]
+    """Metadata for the evaluation run."""
+
+
+EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
+
+
 class EvaluationRun(_common.BaseModel):
     """Represents an evaluation run."""
 
@@ -585,23 +1187,31 @@ class EvaluationRun(_common.BaseModel):
     data_source: Optional[EvaluationRunDataSource] = Field(
         default=None, description=""""""
     )
-    evaluation_results: Optional[EvaluationRunResults] = Field(
-        default=None, description="""The results for the evaluation run."""
+    evaluation_run_results: Optional[EvaluationRunResults] = Field(
+        default=None, description="""The evaluation run formatted results."""
+    )
+    evaluation_item_results: Optional[EvaluationResult] = Field(
+        default=None,
+        description="""The parsed EvaluationItem results for the evaluation run. This is only populated when include_evaluation_items is set to True.""",
     )
 
     def show(self) -> None:
         """Shows the evaluation result."""
         from . import _evals_visualization
 
+        logger.warning(f"Evaluation Run state: {self.state}.")
+        if self.error:
+            logger.warning(f"Evaluation Run error: {self.error.message}")
         if self.state == "SUCCEEDED":
-            eval_result = _evals_visualization._get_eval_result_from_eval_run(
-                self.evaluation_results
-            )
-            _evals_visualization.display_evaluation_result(eval_result, None)
-        else:
-            logger.warning(f"Evaluation Run state: {self.state}.")
-            if self.error:
-                logger.warning(f"Evaluation Run error: {self.error.message}")
+            if self.evaluation_item_results is not None:
+                _evals_visualization.display_evaluation_result(
+                    self.evaluation_item_results, None
+                )
+            else:
+                logger.warning(f"Evaluation Run state: {self.state}.")
+                logger.warning(
+                    "Evaluation Run succeeded but no evaluation item results found. To display results, please set include_evaluation_items to True when calling get_evaluation_run()."
+                )
 
 
 class EvaluationRunDict(TypedDict, total=False):
@@ -634,8 +1244,11 @@ class EvaluationRunDict(TypedDict, total=False):
     data_source: Optional[EvaluationRunDataSourceDict]
     """"""
 
-    evaluation_results: Optional[EvaluationRunResultsDict]
-    """The results for the evaluation run."""
+    evaluation_run_results: Optional[EvaluationRunResultsDict]
+    """The evaluation run formatted results."""
+
+    evaluation_item_results: Optional[EvaluationResultDict]
+    """The parsed EvaluationItem results for the evaluation run. This is only populated when include_evaluation_items is set to True."""
 
 
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
@@ -10835,42 +11448,6 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
 
 
-class AgentInfo(_common.BaseModel):
-    """The agent info of an agent, used for agent eval."""
-
-    name: Optional[str] = Field(
-        default=None, description="""Agent name, used as an identifier."""
-    )
-    instruction: Optional[str] = Field(
-        default=None, description="""Agent developer instruction."""
-    )
-    description: Optional[str] = Field(
-        default=None, description="""Agent description."""
-    )
-    tool_declarations: Optional[genai_types.ToolListUnion] = Field(
-        default=None, description="""List of tools used by the Agent."""
-    )
-
-
-class AgentInfoDict(TypedDict, total=False):
-    """The agent info of an agent, used for agent eval."""
-
-    name: Optional[str]
-    """Agent name, used as an identifier."""
-
-    instruction: Optional[str]
-    """Agent developer instruction."""
-
-    description: Optional[str]
-    """Agent description."""
-
-    tool_declarations: Optional[genai_types.ToolListUnionDict]
-    """List of tools used by the Agent."""
-
-
-AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
-
-
 class ContentMapContents(_common.BaseModel):
     """Map of placeholder in metric prompt template to contents of model input."""
 
@@ -10934,577 +11511,6 @@ class EvalCaseMetricResultDict(TypedDict, total=False):
 
 
 EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
-
-
-class Message(_common.BaseModel):
-    """Represents a single message turn in a conversation."""
-
-    turn_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the message turn."""
-    )
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Content of the message, including function call."""
-    )
-    creation_timestamp: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Timestamp indicating when the message was created.""",
-    )
-    author: Optional[str] = Field(
-        default=None, description="""Name of the entity that produced the message."""
-    )
-
-
-class MessageDict(TypedDict, total=False):
-    """Represents a single message turn in a conversation."""
-
-    turn_id: Optional[str]
-    """Unique identifier for the message turn."""
-
-    content: Optional[genai_types.ContentDict]
-    """Content of the message, including function call."""
-
-    creation_timestamp: Optional[datetime.datetime]
-    """Timestamp indicating when the message was created."""
-
-    author: Optional[str]
-    """Name of the entity that produced the message."""
-
-
-MessageOrDict = Union[Message, MessageDict]
-
-
-class AgentData(_common.BaseModel):
-    """Container for all agent-specific data."""
-
-    tool_use_trajectory: Optional[list[Message]] = Field(
-        default=None, description="""Tool use trajectory in chronological order."""
-    )
-    intermediate_responses: Optional[list[Message]] = Field(
-        default=None,
-        description="""Intermediate responses generated by sub-agents to convey progress or status in a multi-agent system, distinct from the final response.""",
-    )
-
-
-class AgentDataDict(TypedDict, total=False):
-    """Container for all agent-specific data."""
-
-    tool_use_trajectory: Optional[list[MessageDict]]
-    """Tool use trajectory in chronological order."""
-
-    intermediate_responses: Optional[list[MessageDict]]
-    """Intermediate responses generated by sub-agents to convey progress or status in a multi-agent system, distinct from the final response."""
-
-
-AgentDataOrDict = Union[AgentData, AgentDataDict]
-
-
-class ResponseCandidate(_common.BaseModel):
-    """A model-generated content to the prompt."""
-
-    response: Optional[genai_types.Content] = Field(
-        default=None,
-        description="""The final model-generated response to the `prompt`.""",
-    )
-    agent_data: Optional[AgentData] = Field(
-        default=None,
-        description="""Agent-specific data including tool use trajectory and intermediate responses for more complex interactions.""",
-    )
-
-
-class ResponseCandidateDict(TypedDict, total=False):
-    """A model-generated content to the prompt."""
-
-    response: Optional[genai_types.ContentDict]
-    """The final model-generated response to the `prompt`."""
-
-    agent_data: Optional[AgentDataDict]
-    """Agent-specific data including tool use trajectory and intermediate responses for more complex interactions."""
-
-
-ResponseCandidateOrDict = Union[ResponseCandidate, ResponseCandidateDict]
-
-
-class Event(_common.BaseModel):
-    """Represents an event in a conversation between agents and users.
-
-    It is used to store the content of the conversation, as well as the actions
-    taken by the agents like function calls, function responses, intermediate NL
-    responses etc.
-    """
-
-    event_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the agent event."""
-    )
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Content of the event."""
-    )
-    creation_timestamp: Optional[datetime.datetime] = Field(
-        default=None, description="""The creation timestamp of the event."""
-    )
-    author: Optional[str] = Field(
-        default=None, description="""Name of the entity that produced the event."""
-    )
-
-
-class EventDict(TypedDict, total=False):
-    """Represents an event in a conversation between agents and users.
-
-    It is used to store the content of the conversation, as well as the actions
-    taken by the agents like function calls, function responses, intermediate NL
-    responses etc.
-    """
-
-    event_id: Optional[str]
-    """Unique identifier for the agent event."""
-
-    content: Optional[genai_types.ContentDict]
-    """Content of the event."""
-
-    creation_timestamp: Optional[datetime.datetime]
-    """The creation timestamp of the event."""
-
-    author: Optional[str]
-    """Name of the entity that produced the event."""
-
-
-EventOrDict = Union[Event, EventDict]
-
-
-class EvalCase(_common.BaseModel):
-    """A comprehensive representation of a GenAI interaction for evaluation."""
-
-    prompt: Optional[genai_types.Content] = Field(
-        default=None, description="""The most recent user message (current input)."""
-    )
-    responses: Optional[list[ResponseCandidate]] = Field(
-        default=None,
-        description="""Model-generated replies to the last user message in a conversation. Multiple responses are allowed to support use cases such as comparing different model outputs.""",
-    )
-    reference: Optional[ResponseCandidate] = Field(
-        default=None,
-        description="""User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in a conversation.""",
-    )
-    system_instruction: Optional[genai_types.Content] = Field(
-        default=None, description="""System instruction for the model."""
-    )
-    conversation_history: Optional[list[Message]] = Field(
-        default=None,
-        description="""List of all prior messages in the conversation (chat history).""",
-    )
-    rubric_groups: Optional[dict[str, "RubricGroup"]] = Field(
-        default=None,
-        description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
-    )
-    eval_case_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the evaluation case."""
-    )
-    intermediate_events: Optional[list[Event]] = Field(
-        default=None,
-        description="""This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run.""",
-    )
-    agent_info: Optional[AgentInfo] = Field(
-        default=None,
-        description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
-    )
-    # Allow extra fields to support custom metric prompts and stay backward compatible.
-    model_config = ConfigDict(frozen=True, extra="allow")
-
-
-class EvalCaseDict(TypedDict, total=False):
-    """A comprehensive representation of a GenAI interaction for evaluation."""
-
-    prompt: Optional[genai_types.ContentDict]
-    """The most recent user message (current input)."""
-
-    responses: Optional[list[ResponseCandidateDict]]
-    """Model-generated replies to the last user message in a conversation. Multiple responses are allowed to support use cases such as comparing different model outputs."""
-
-    reference: Optional[ResponseCandidateDict]
-    """User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in a conversation."""
-
-    system_instruction: Optional[genai_types.ContentDict]
-    """System instruction for the model."""
-
-    conversation_history: Optional[list[MessageDict]]
-    """List of all prior messages in the conversation (chat history)."""
-
-    rubric_groups: Optional[dict[str, "RubricGroupDict"]]
-    """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
-
-    eval_case_id: Optional[str]
-    """Unique identifier for the evaluation case."""
-
-    intermediate_events: Optional[list[EventDict]]
-    """This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run."""
-
-    agent_info: Optional[AgentInfoDict]
-    """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
-
-
-EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
-
-
-class GcsSource(_common.BaseModel):
-    """Cloud storage source holds the dataset.
-
-    Currently only one Cloud Storage file path is supported.
-    """
-
-    uris: Optional[list[str]] = Field(
-        default=None,
-        description="""Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards.""",
-    )
-
-
-class GcsSourceDict(TypedDict, total=False):
-    """Cloud storage source holds the dataset.
-
-    Currently only one Cloud Storage file path is supported.
-    """
-
-    uris: Optional[list[str]]
-    """Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards."""
-
-
-GcsSourceOrDict = Union[GcsSource, GcsSourceDict]
-
-
-class BigQuerySource(_common.BaseModel):
-    """The BigQuery location for the input content."""
-
-    input_uri: Optional[str] = Field(
-        default=None,
-        description="""Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`.""",
-    )
-
-
-class BigQuerySourceDict(TypedDict, total=False):
-    """The BigQuery location for the input content."""
-
-    input_uri: Optional[str]
-    """Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`."""
-
-
-BigQuerySourceOrDict = Union[BigQuerySource, BigQuerySourceDict]
-
-
-class EvaluationDataset(_common.BaseModel):
-    """The dataset used for evaluation."""
-
-    eval_cases: Optional[list[EvalCase]] = Field(
-        default=None, description="""The evaluation cases to be evaluated."""
-    )
-    eval_dataset_df: Optional[PandasDataFrame] = Field(
-        default=None,
-        description="""The evaluation dataset in the form of a Pandas DataFrame.""",
-    )
-    candidate_name: Optional[str] = Field(
-        default=None,
-        description="""The name of the candidate model or agent for this evaluation dataset.""",
-    )
-    gcs_source: Optional[GcsSource] = Field(
-        default=None, description="""The GCS source for the evaluation dataset."""
-    )
-    bigquery_source: Optional[BigQuerySource] = Field(
-        default=None, description="""The BigQuery source for the evaluation dataset."""
-    )
-
-    @model_validator(mode="before")
-    @classmethod
-    def _check_pandas_installed(cls, data: Any) -> Any:
-        if isinstance(data, dict) and data.get("eval_dataset_df") is not None:
-            if pd is None:
-                logger.warning(
-                    "Pandas is not installed, some evals features are not available."
-                    " Please install it with `pip install"
-                    " google-cloud-aiplatform[evaluation]`."
-                )
-        return data
-
-    @classmethod
-    def load_from_observability_eval_cases(
-        cls, cases: list["ObservabilityEvalCase"]
-    ) -> "EvaluationDataset":
-        """Fetches GenAI Observability data from GCS and parses into a DataFrame."""
-        try:
-            import pandas as pd
-            from . import _evals_utils
-
-            formats = []
-            requests = []
-            responses = []
-            system_instructions = []
-
-            for case in cases:
-                gcs_utils = _evals_utils.GcsUtils(
-                    case.api_client._api_client if case.api_client else None
-                )
-
-                # Associate "observability" data format for given sources
-                formats.append("observability")
-
-                # Input source
-                request_data = gcs_utils.read_file_contents(case.input_src)
-                requests.append(request_data)
-
-                # Output source
-                response_data = gcs_utils.read_file_contents(case.output_src)
-                responses.append(response_data)
-
-                # System instruction source
-                system_instruction_data = ""
-                if case.system_instruction_src is not None:
-                    system_instruction_data = gcs_utils.read_file_contents(
-                        case.system_instruction_src
-                    )
-                system_instructions.append(system_instruction_data)
-
-            eval_dataset_df = pd.DataFrame(
-                {
-                    "format": formats,
-                    "request": requests,
-                    "response": responses,
-                    "system_instruction": system_instructions,
-                }
-            )
-
-        except ImportError as e:
-            raise ImportError("Pandas DataFrame library is required.") from e
-
-        return EvaluationDataset(eval_dataset_df=eval_dataset_df)
-
-    def show(self) -> None:
-        """Shows the evaluation dataset."""
-        from . import _evals_visualization
-
-        _evals_visualization.display_evaluation_dataset(self)
-
-
-class EvaluationDatasetDict(TypedDict, total=False):
-    """The dataset used for evaluation."""
-
-    eval_cases: Optional[list[EvalCaseDict]]
-    """The evaluation cases to be evaluated."""
-
-    eval_dataset_df: Optional[PandasDataFrame]
-    """The evaluation dataset in the form of a Pandas DataFrame."""
-
-    candidate_name: Optional[str]
-    """The name of the candidate model or agent for this evaluation dataset."""
-
-    gcs_source: Optional[GcsSourceDict]
-    """The GCS source for the evaluation dataset."""
-
-    bigquery_source: Optional[BigQuerySourceDict]
-    """The BigQuery source for the evaluation dataset."""
-
-
-EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
-
-
-class ResponseCandidateResult(_common.BaseModel):
-    """Aggregated metric results for a single response candidate of an EvalCase."""
-
-    response_index: Optional[int] = Field(
-        default=None,
-        description="""Index of the response candidate this result pertains to.""",
-    )
-    metric_results: Optional[dict[str, EvalCaseMetricResult]] = Field(
-        default=None,
-        description="""A dictionary of metric results for this response candidate, keyed by metric name.""",
-    )
-
-
-class ResponseCandidateResultDict(TypedDict, total=False):
-    """Aggregated metric results for a single response candidate of an EvalCase."""
-
-    response_index: Optional[int]
-    """Index of the response candidate this result pertains to."""
-
-    metric_results: Optional[dict[str, EvalCaseMetricResultDict]]
-    """A dictionary of metric results for this response candidate, keyed by metric name."""
-
-
-ResponseCandidateResultOrDict = Union[
-    ResponseCandidateResult, ResponseCandidateResultDict
-]
-
-
-class EvalCaseResult(_common.BaseModel):
-    """Eval result for a single evaluation case."""
-
-    eval_case_index: Optional[int] = Field(
-        default=None, description="""Index of the evaluation case."""
-    )
-    response_candidate_results: Optional[list[ResponseCandidateResult]] = Field(
-        default=None,
-        description="""A list of results, one for each response candidate of the EvalCase.""",
-    )
-
-
-class EvalCaseResultDict(TypedDict, total=False):
-    """Eval result for a single evaluation case."""
-
-    eval_case_index: Optional[int]
-    """Index of the evaluation case."""
-
-    response_candidate_results: Optional[list[ResponseCandidateResultDict]]
-    """A list of results, one for each response candidate of the EvalCase."""
-
-
-EvalCaseResultOrDict = Union[EvalCaseResult, EvalCaseResultDict]
-
-
-class AggregatedMetricResult(_common.BaseModel):
-    """Evaluation result for a single metric for an evaluation dataset."""
-
-    metric_name: Optional[str] = Field(
-        default=None, description="""Name of the metric."""
-    )
-    num_cases_total: Optional[int] = Field(
-        default=None, description="""Total number of cases in the dataset."""
-    )
-    num_cases_valid: Optional[int] = Field(
-        default=None, description="""Number of valid cases in the dataset."""
-    )
-    num_cases_error: Optional[int] = Field(
-        default=None, description="""Number of cases with errors in the dataset."""
-    )
-    mean_score: Optional[float] = Field(
-        default=None, description="""Mean score of the metric."""
-    )
-    stdev_score: Optional[float] = Field(
-        default=None, description="""Standard deviation of the metric."""
-    )
-
-    # Allow extra fields to support custom aggregation stats.
-    model_config = ConfigDict(extra="allow")
-
-
-class AggregatedMetricResultDict(TypedDict, total=False):
-    """Evaluation result for a single metric for an evaluation dataset."""
-
-    metric_name: Optional[str]
-    """Name of the metric."""
-
-    num_cases_total: Optional[int]
-    """Total number of cases in the dataset."""
-
-    num_cases_valid: Optional[int]
-    """Number of valid cases in the dataset."""
-
-    num_cases_error: Optional[int]
-    """Number of cases with errors in the dataset."""
-
-    mean_score: Optional[float]
-    """Mean score of the metric."""
-
-    stdev_score: Optional[float]
-    """Standard deviation of the metric."""
-
-
-AggregatedMetricResultOrDict = Union[AggregatedMetricResult, AggregatedMetricResultDict]
-
-
-class EvaluationRunMetadata(_common.BaseModel):
-    """Metadata for an evaluation run."""
-
-    candidate_names: Optional[list[str]] = Field(
-        default=None,
-        description="""Name of the candidate(s) being evaluated in the evaluation run.""",
-    )
-    dataset_name: Optional[str] = Field(
-        default=None,
-        description="""Name of the evaluation dataset used for the evaluation run.""",
-    )
-    dataset_id: Optional[str] = Field(
-        default=None,
-        description="""Unique identifier for the evaluation dataset used for the evaluation run.""",
-    )
-    creation_timestamp: Optional[datetime.datetime] = Field(
-        default=None, description="""Creation timestamp of the evaluation run."""
-    )
-
-
-class EvaluationRunMetadataDict(TypedDict, total=False):
-    """Metadata for an evaluation run."""
-
-    candidate_names: Optional[list[str]]
-    """Name of the candidate(s) being evaluated in the evaluation run."""
-
-    dataset_name: Optional[str]
-    """Name of the evaluation dataset used for the evaluation run."""
-
-    dataset_id: Optional[str]
-    """Unique identifier for the evaluation dataset used for the evaluation run."""
-
-    creation_timestamp: Optional[datetime.datetime]
-    """Creation timestamp of the evaluation run."""
-
-
-EvaluationRunMetadataOrDict = Union[EvaluationRunMetadata, EvaluationRunMetadataDict]
-
-
-class EvaluationResult(_common.BaseModel):
-    """Result of an evaluation run for an evaluation dataset."""
-
-    eval_case_results: Optional[list[EvalCaseResult]] = Field(
-        default=None,
-        description="""A list of evaluation results for each evaluation case.""",
-    )
-    summary_metrics: Optional[list[AggregatedMetricResult]] = Field(
-        default=None,
-        description="""A list of summary-level evaluation results for each metric.""",
-    )
-    win_rates: Optional[dict[str, "WinRateStats"]] = Field(
-        default=None,
-        description="""A dictionary of win rates for each metric, only populated for multi-response evaluation runs.""",
-    )
-    evaluation_dataset: Optional[list[EvaluationDataset]] = Field(
-        default=None,
-        description="""The input evaluation dataset(s) for the evaluation run.""",
-    )
-    metadata: Optional[EvaluationRunMetadata] = Field(
-        default=None, description="""Metadata for the evaluation run."""
-    )
-
-    def show(self, candidate_names: Optional[List[str]] = None) -> None:
-        """Shows the evaluation result.
-
-        Args:
-            candidate_names: list of names for the evaluated candidates, used in
-            comparison reports.
-        """
-        from . import _evals_visualization
-
-        _evals_visualization.display_evaluation_result(self, candidate_names)
-
-
-PromptData = SchemaPromptSpecPromptMessage
-PromptDataDict = SchemaPromptSpecPromptMessageDict
-PromptDataOrDict = Union[PromptData, PromptDataDict]
-
-
-class EvaluationResultDict(TypedDict, total=False):
-    """Result of an evaluation run for an evaluation dataset."""
-
-    eval_case_results: Optional[list[EvalCaseResultDict]]
-    """A list of evaluation results for each evaluation case."""
-
-    summary_metrics: Optional[list[AggregatedMetricResultDict]]
-    """A list of summary-level evaluation results for each metric."""
-
-    win_rates: Optional[dict[str, "WinRateStatsDict"]]
-    """A dictionary of win rates for each metric, only populated for multi-response evaluation runs."""
-
-    evaluation_dataset: Optional[list[EvaluationDatasetDict]]
-    """The input evaluation dataset(s) for the evaluation run."""
-
-    metadata: Optional[EvaluationRunMetadataDict]
-    """Metadata for the evaluation run."""
-
-
-EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
 
 
 class SessionInput(_common.BaseModel):
@@ -12180,6 +12186,11 @@ class Prompt(_common.BaseModel):
                 else:
                     all_rendered_parts.append(template_part)
         return [genai_types.Content(parts=all_rendered_parts, role="user")]
+
+
+PromptData = SchemaPromptSpecPromptMessage
+PromptDataDict = SchemaPromptSpecPromptMessageDict
+PromptDataOrDict = Union[PromptData, PromptDataDict]
 
 
 class PromptDict(TypedDict, total=False):
