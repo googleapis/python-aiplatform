@@ -9161,6 +9161,188 @@ ListAgentEngineSessionEventsResponseOrDict = Union[
 ]
 
 
+class CreateMultimodalDatasetConfig(_common.BaseModel):
+    """Config for creating a dataset resource to store multimodal dataset."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CreateMultimodalDatasetConfigDict(TypedDict, total=False):
+    """Config for creating a dataset resource to store multimodal dataset."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CreateMultimodalDatasetConfigOrDict = Union[
+    CreateMultimodalDatasetConfig, CreateMultimodalDatasetConfigDict
+]
+
+
+class SchemaTablesDatasetMetadataBigQuerySource(_common.BaseModel):
+    """Represents the BigQuery source for multimodal dataset metadata."""
+
+    uri: Optional[str] = Field(
+        default=None,
+        description="""The URI of a BigQuery table. e.g. bq://projectId.bqDatasetId.bqTableId""",
+    )
+
+
+class SchemaTablesDatasetMetadataBigQuerySourceDict(TypedDict, total=False):
+    """Represents the BigQuery source for multimodal dataset metadata."""
+
+    uri: Optional[str]
+    """The URI of a BigQuery table. e.g. bq://projectId.bqDatasetId.bqTableId"""
+
+
+SchemaTablesDatasetMetadataBigQuerySourceOrDict = Union[
+    SchemaTablesDatasetMetadataBigQuerySource,
+    SchemaTablesDatasetMetadataBigQuerySourceDict,
+]
+
+
+class SchemaTablesDatasetMetadataInputConfig(_common.BaseModel):
+    """Represents the input config for multimodal dataset metadata."""
+
+    bigquery_source: Optional[SchemaTablesDatasetMetadataBigQuerySource] = Field(
+        default=None, description=""""""
+    )
+
+
+class SchemaTablesDatasetMetadataInputConfigDict(TypedDict, total=False):
+    """Represents the input config for multimodal dataset metadata."""
+
+    bigquery_source: Optional[SchemaTablesDatasetMetadataBigQuerySourceDict]
+    """"""
+
+
+SchemaTablesDatasetMetadataInputConfigOrDict = Union[
+    SchemaTablesDatasetMetadataInputConfig, SchemaTablesDatasetMetadataInputConfigDict
+]
+
+
+class SchemaTablesDatasetMetadata(_common.BaseModel):
+    """Represents the metadata schema for multimodal dataset metadata."""
+
+    input_config: Optional[SchemaTablesDatasetMetadataInputConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
+    """Represents the metadata schema for multimodal dataset metadata."""
+
+    input_config: Optional[SchemaTablesDatasetMetadataInputConfigDict]
+    """"""
+
+
+SchemaTablesDatasetMetadataOrDict = Union[
+    SchemaTablesDatasetMetadata, SchemaTablesDatasetMetadataDict
+]
+
+
+class _CreateMultimodalDatasetParameters(_common.BaseModel):
+    """Parameters for creating a dataset resource to store multimodal dataset."""
+
+    config: Optional[CreateMultimodalDatasetConfig] = Field(
+        default=None, description=""""""
+    )
+    name: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    metadata_schema_uri: Optional[str] = Field(default=None, description="""""")
+    metadata: Optional[SchemaTablesDatasetMetadata] = Field(
+        default=None, description=""""""
+    )
+    description: Optional[str] = Field(default=None, description="""""")
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None, description=""""""
+    )
+    model_reference: Optional[str] = Field(default=None, description="""""")
+
+
+class _CreateMultimodalDatasetParametersDict(TypedDict, total=False):
+    """Parameters for creating a dataset resource to store multimodal dataset."""
+
+    config: Optional[CreateMultimodalDatasetConfigDict]
+    """"""
+
+    name: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    metadata_schema_uri: Optional[str]
+    """"""
+
+    metadata: Optional[SchemaTablesDatasetMetadataDict]
+    """"""
+
+    description: Optional[str]
+    """"""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """"""
+
+    model_reference: Optional[str]
+    """"""
+
+
+_CreateMultimodalDatasetParametersOrDict = Union[
+    _CreateMultimodalDatasetParameters, _CreateMultimodalDatasetParametersDict
+]
+
+
+class MultimodalDatasetOperation(_common.BaseModel):
+    """Represents the create dataset operation."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[dict[str, Any]] = Field(
+        default=None, description="""The result of the dataset operation."""
+    )
+
+
+class MultimodalDatasetOperationDict(TypedDict, total=False):
+    """Represents the create dataset operation."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[dict[str, Any]]
+    """The result of the dataset operation."""
+
+
+MultimodalDatasetOperationOrDict = Union[
+    MultimodalDatasetOperation, MultimodalDatasetOperationDict
+]
+
+
 class CreateDatasetConfig(_common.BaseModel):
     """Config for creating a dataset resource to store prompts."""
 

@@ -55,6 +55,7 @@ class AsyncClient:
         self._agent_engines = None
         self._prompt_optimizer = None
         self._prompts = None
+        self._multimodal = None
 
     @property
     @_common.experimental_warning(
@@ -118,6 +119,19 @@ class AsyncClient:
             )
         return self._prompts.AsyncPrompts(self._api_client)
 
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI async multimodal module is experimental, "
+        "and may change in future versions."
+    )
+    def multimodal(self):
+        if self._multimodal is None:
+            self._multimodal = importlib.import_module(
+                ".multimodal",
+                __package__,
+            )
+        return self._multimodal.AsyncMultimodal(self._api_client)
+
 
 class Client:
     """Gen AI Client for the Vertex SDK.
@@ -178,6 +192,7 @@ class Client:
         self._prompt_optimizer = None
         self._agent_engines = None
         self._prompts = None
+        self._multimodal = None
 
     @property
     def evals(self) -> Any:
@@ -264,3 +279,16 @@ class Client:
                 __package__,
             )
         return self._prompts.Prompts(self._api_client)
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI multimodal module is experimental, "
+        "and may change in future versions."
+    )
+    def multimodal(self):
+        if self._multimodal is None:
+            self._multimodal = importlib.import_module(
+                ".multimodal",
+                __package__,
+            )
+        return self._multimodal.Multimodal(self._api_client)
