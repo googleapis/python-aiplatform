@@ -60,9 +60,6 @@ def _CreateMultimodalDatasetParameters_to_vertex(
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
 
-    if getv(from_object, ["model_reference"]) is not None:
-        setv(to_object, ["modelReference"], getv(from_object, ["model_reference"]))
-
     return to_object
 
 
@@ -78,7 +75,6 @@ class Multimodal(_api_module.BaseModule):
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
-        model_reference: Optional[str] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Creates a dataset resource to store multimodal datasets.
@@ -92,7 +88,6 @@ class Multimodal(_api_module.BaseModule):
             metadata=metadata,
             description=description,
             encryption_spec=encryption_spec,
-            model_reference=model_reference,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -146,7 +141,6 @@ class AsyncMultimodal(_api_module.BaseModule):
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
-        model_reference: Optional[str] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Creates a dataset resource to store multimodal datasets.
@@ -160,7 +154,6 @@ class AsyncMultimodal(_api_module.BaseModule):
             metadata=metadata,
             description=description,
             encryption_spec=encryption_spec,
-            model_reference=model_reference,
         )
 
         request_url_dict: Optional[dict[str, str]]

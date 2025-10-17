@@ -9259,7 +9259,6 @@ class _CreateMultimodalDatasetParameters(_common.BaseModel):
     encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None, description=""""""
     )
-    model_reference: Optional[str] = Field(default=None, description="""""")
 
 
 class _CreateMultimodalDatasetParametersDict(TypedDict, total=False):
@@ -9284,9 +9283,6 @@ class _CreateMultimodalDatasetParametersDict(TypedDict, total=False):
     """"""
 
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
-    """"""
-
-    model_reference: Optional[str]
     """"""
 
 
