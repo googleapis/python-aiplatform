@@ -16,18 +16,26 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai import types
+from google.genai import types as genai_types
 import pytest
 
 
 def test_create_eval_run_data_source_evaluation_set(client):
     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun."""
+    gcs_dest = "gs://lakeyk-test-limited/eval_run_output"
+    universal_metric = types.UnifiedMetric(
+        predefined_metric_spec=types.PredefinedMetricSpec(
+            metric_spec_name="universal_ar_v1",
+        )
+    )
     evaluation_run = client.evals.create_evaluation_run(
         name="test4",
         display_name="test4",
         data_source=types.EvaluationRunDataSource(
             evaluation_set="projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
         ),
-        dest="gs://lakeyk-test-limited/eval_run_output",
+        dest=gcs_dest,
+        metrics=[universal_metric],
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.display_name == "test4"
@@ -35,6 +43,12 @@ def test_create_eval_run_data_source_evaluation_set(client):
     assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
     assert evaluation_run.data_source.evaluation_set == (
         "projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+    )
+    assert evaluation_run.evaluation_config == types.EvaluationConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=gcs_dest)
+        ),
+        metrics=[universal_metric],
     )
     assert evaluation_run.error is None
 

@@ -16,6 +16,7 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai import types
+from google.genai import types as genai_types
 import datetime
 import pytest
 
@@ -42,6 +43,47 @@ def test_get_eval_run_include_evaluation_items_false(client):
     evaluation_run = client.evals.get_evaluation_run(name=evaluation_run_name)
     check_run_1957799200510967808(client, evaluation_run, evaluation_run_name)
     assert evaluation_run.evaluation_item_results is None
+    assert evaluation_run.evaluation_config == types.EvaluationConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(
+                output_uri_prefix="gs://lakeyk-limited-bucket/agora_eval_080525"
+            )
+        ),
+        metrics=[
+            types.UnifiedMetric(
+                predefined_metric_spec=types.PredefinedMetricSpec(
+                    metric_spec_name="universal_ar_v1",
+                )
+            ),
+            types.UnifiedMetric(
+                llm_based_metric_spec=types.LlmBasedMetricSpec(
+                    metric_prompt_template=(
+                        "\nEvaluate the fluency of the response. Provide a score from 1-5."
+                        " RESPONSE: {response}.\n\n# Output Format\nRespond in a JSON"
+                        ' format with the following schema:\n{\n    "type": "OBJECT",\n'
+                        '    "properties": {\n        "score": {"type": "NUMBER"},\n'
+                        '        "explanation": {"type": "STRING"},\n    },\n'
+                        '    "required": ["score", "explanation"],\n}\nReturn the JSON'
+                        " format output in a string representation of a Python"
+                        " dictionary directly, without strings like '```json' or"
+                        " '```'.\n\nThe output would include the following fields:\n"
+                        "score: based on your evaluation, the score should be a number"
+                        " based on the rating rubrics.\nexplanation: your explanation"
+                        " for the score rating, in one line.\n\n## Example Output"
+                        ' Format:\n{"score" : -1, "explanation": "Here is the reason'
+                        " that the response is given a score of -1 based on the rating"
+                        ' rubric."}\n{"score" : 3, "explanation": "Here is the reason'
+                        " that the response is given a score of 3 based on the rating"
+                        ' rubric."}\n{"score" : 0, "explanation": "Here is the reason'
+                        " that the response is given a score of 0 based on the rating"
+                        ' rubric."}\n{"score" : 5, "explanation": "Here is the reason'
+                        " that the response is given a score of 5 based on the rating"
+                        ' rubric."}\n'
+                    )
+                ),
+            ),
+        ],
+    )
 
 
 def test_get_eval_run_bq_source(client):
@@ -70,6 +112,20 @@ def test_get_eval_run_bq_source(client):
             sampling_duration="60s",
         ),
     )
+    assert evaluation_run.evaluation_config == types.EvaluationConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(
+                output_uri_prefix="gs://lakeyk-limited-bucket/agora_eval_0915"
+            )
+        ),
+        metrics=[
+            types.UnifiedMetric(
+                predefined_metric_spec=types.PredefinedMetricSpec(
+                    metric_spec_name="universal_ar_v1",
+                )
+            ),
+        ],
+    )
 
 
 def test_get_eval_run_eval_set_source(client):
@@ -90,6 +146,13 @@ def test_get_eval_run_eval_set_source(client):
     assert evaluation_run.error.message == (
         "code=INVALID_ARGUMENT, message=EvaluationRun 6903525647549726720 has no "
         "items, cause=null"
+    )
+    assert evaluation_run.evaluation_config == types.EvaluationConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(
+                output_uri_prefix="gs://lakeyk-limited-bucket/agora_eval_0915"
+            )
+        )
     )
 
 
@@ -206,6 +269,47 @@ def check_run_1957799200510967808(
             },
             total_items=19,
         )
+    )
+    assert evaluation_run.evaluation_config == types.EvaluationConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(
+                output_uri_prefix="gs://lakeyk-limited-bucket/agora_eval_080525"
+            )
+        ),
+        metrics=[
+            types.UnifiedMetric(
+                predefined_metric_spec=types.PredefinedMetricSpec(
+                    metric_spec_name="universal_ar_v1",
+                )
+            ),
+            types.UnifiedMetric(
+                llm_based_metric_spec=types.LlmBasedMetricSpec(
+                    metric_prompt_template=(
+                        "\nEvaluate the fluency of the response. Provide a score from 1-5."
+                        " RESPONSE: {response}.\n\n# Output Format\nRespond in a JSON"
+                        ' format with the following schema:\n{\n    "type": "OBJECT",\n'
+                        '    "properties": {\n        "score": {"type": "NUMBER"},\n'
+                        '        "explanation": {"type": "STRING"},\n    },\n'
+                        '    "required": ["score", "explanation"],\n}\nReturn the JSON'
+                        " format output in a string representation of a Python"
+                        " dictionary directly, without strings like '```json' or"
+                        " '```'.\n\nThe output would include the following fields:\n"
+                        "score: based on your evaluation, the score should be a number"
+                        " based on the rating rubrics.\nexplanation: your explanation"
+                        " for the score rating, in one line.\n\n## Example Output"
+                        ' Format:\n{"score" : -1, "explanation": "Here is the reason'
+                        " that the response is given a score of -1 based on the rating"
+                        ' rubric."}\n{"score" : 3, "explanation": "Here is the reason'
+                        " that the response is given a score of 3 based on the rating"
+                        ' rubric."}\n{"score" : 0, "explanation": "Here is the reason'
+                        " that the response is given a score of 0 based on the rating"
+                        ' rubric."}\n{"score" : 5, "explanation": "Here is the reason'
+                        " that the response is given a score of 5 based on the rating"
+                        ' rubric."}\n'
+                    )
+                ),
+            ),
+        ],
     )
     assert evaluation_run.error is None
 

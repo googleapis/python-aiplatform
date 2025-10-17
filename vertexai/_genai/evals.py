@@ -56,6 +56,9 @@ def _CreateEvaluationRunParameters_to_vertex(
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
+    if getv(from_object, ["metrics"]) is not None:
+        setv(to_object, ["metrics"], [item for item in getv(from_object, ["metrics"])])
+
     return to_object
 
 
@@ -185,6 +188,9 @@ def _EvaluationRun_from_vertex(
             ["evaluation_run_results"],
             getv(from_object, ["evaluationResults"]),
         )
+
+    if getv(from_object, ["evaluationConfig"]) is not None:
+        setv(to_object, ["evaluation_config"], getv(from_object, ["evaluationConfig"]))
 
     return to_object
 
@@ -356,8 +362,9 @@ class Evals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSourceOrDict,
-        evaluation_config: genai_types.EvaluationConfigOrDict,
+        evaluation_config: types.EvaluationConfigOrDict,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        metrics: Optional[list[types.UnifiedMetricOrDict]] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -369,6 +376,7 @@ class Evals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             config=config,
+            metrics=metrics,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1136,13 +1144,16 @@ class Evals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSource,
         dest: str,
+        metrics: Optional[list[types.UnifiedMetric]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
-        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        evaluation_config = types.EvaluationConfig(
+            output_config=output_config, metrics=metrics
+        )
 
         return self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
@@ -1235,8 +1246,9 @@ class AsyncEvals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSourceOrDict,
-        evaluation_config: genai_types.EvaluationConfigOrDict,
+        evaluation_config: types.EvaluationConfigOrDict,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        metrics: Optional[list[types.UnifiedMetricOrDict]] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1248,6 +1260,7 @@ class AsyncEvals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             config=config,
+            metrics=metrics,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1726,13 +1739,16 @@ class AsyncEvals(_api_module.BaseModule):
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSource,
         dest: str,
+        metrics: Optional[list[types.UnifiedMetric]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
-        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        evaluation_config = types.EvaluationConfig(
+            output_config=output_config, metrics=metrics
+        )
 
         result = await self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
