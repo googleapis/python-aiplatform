@@ -25,6 +25,8 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
 from vertexai._genai import _evals_data_converters
 from vertexai._genai import _evals_metric_handlers
+from vertexai._genai import _evals_metric_loaders
+from vertexai._genai import _gcs_utils
 from vertexai._genai import _observability_data_converter
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
@@ -74,9 +76,9 @@ def mock_eval_dependencies(mock_api_client_fixture):
     ) as mock_bq_client, mock.patch(
         "vertexai._genai.evals.Evals.evaluate_instances"
     ) as mock_evaluate_instances, mock.patch(
-        "vertexai._genai._evals_utils.GcsUtils.upload_json_to_prefix"
+        "vertexai._genai._gcs_utils.GcsUtils.upload_json_to_prefix"
     ) as mock_upload_to_gcs, mock.patch(
-        "vertexai._genai._evals_utils.LazyLoadedPrebuiltMetric._fetch_and_parse"
+        "vertexai._genai._evals_metric_loaders.LazyLoadedPrebuiltMetric._fetch_and_parse"
     ) as mock_fetch_prebuilt_metric:
 
         def mock_evaluate_instances_side_effect(*args, **kwargs):
@@ -181,6 +183,8 @@ class TestEvalsRunInference:
         importlib.reload(_evals_common)
         importlib.reload(_evals_metric_handlers)
         importlib.reload(_genai.evals)
+        importlib.reload(_evals_metric_loaders)
+        importlib.reload(_gcs_utils)
 
         vertexai.init(
             project=_TEST_PROJECT,
@@ -189,7 +193,7 @@ class TestEvalsRunInference:
         self.client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     def test_inference_with_string_model_success(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -232,7 +236,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     def test_inference_with_callable_model_sets_candidate_name(
         self, mock_eval_dataset_loader
     ):
@@ -251,7 +255,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "my_model_fn"
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     def test_inference_with_lambda_model_candidate_name_is_none(
         self, mock_eval_dataset_loader
     ):
@@ -273,7 +277,7 @@ class TestEvalsRunInference:
         )
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     def test_inference_with_callable_model_success(self, mock_eval_dataset_loader):
         mock_df = pd.DataFrame({"prompt": ["test prompt"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
@@ -301,7 +305,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     def test_inference_with_prompt_template(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -348,8 +352,8 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
-    @mock.patch.object(_evals_utils, "GcsUtils")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_gcs_utils, "GcsUtils")
     def test_inference_with_gcs_destination(
         self, mock_gcs_utils, mock_eval_dataset_loader, mock_models
     ):
@@ -402,7 +406,7 @@ class TestEvalsRunInference:
         )
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     @mock.patch("pandas.DataFrame.to_json")
     @mock.patch("os.makedirs")
     def test_inference_with_local_destination(
@@ -454,7 +458,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     def test_inference_from_request_column_save_to_local_dir(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -688,7 +692,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     def test_inference_with_row_level_config_overrides(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -873,7 +877,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     def test_inference_with_multimodal_content(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -1107,7 +1111,7 @@ class TestEvalsRunInference:
     @mock.patch.object(_evals_common, "_is_gemini_model")
     @mock.patch.object(_evals_common, "_is_litellm_model")
     @mock.patch.object(_evals_common, "_is_litellm_vertex_maas_model")
-    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     def test_run_inference_with_litellm_parsing(
         self,
         mock_eval_dataset_loader,
@@ -2521,7 +2525,7 @@ class TestMetric:
         metric = vertexai_genai_types.Metric(name="UPPERCASEMetric")
         assert metric.name == "uppercasemetric"
 
-    @mock.patch("vertexai._genai.types.yaml.dump")
+    @mock.patch("vertexai._genai.types.common.yaml.dump")
     @mock.patch("builtins.open", new_callable=mock.mock_open)
     def test_metric_to_yaml_file_with_version_and_set_fields(
         self, mock_open_file, mock_yaml_dump
@@ -2558,7 +2562,7 @@ class TestMetric:
             allow_unicode=True,
         )
 
-    @mock.patch("vertexai._genai.types.yaml.dump")
+    @mock.patch("vertexai._genai.types.common.yaml.dump")
     @mock.patch("builtins.open", new_callable=mock.mock_open)
     def test_metric_to_yaml_file_without_version_minimal_fields(
         self, mock_open_file, mock_yaml_dump
@@ -2579,7 +2583,7 @@ class TestMetric:
             allow_unicode=True,
         )
 
-    @mock.patch("vertexai._genai.types.yaml", None)
+    @mock.patch("vertexai._genai.types.common.yaml", None)
     def test_metric_to_yaml_file_raises_importerror_if_yaml_is_none(self):
         metric_obj = vertexai_genai_types.Metric(name="ErrorMetric")
         with pytest.raises(
@@ -3280,6 +3284,8 @@ class TestLLMMetricHandlerPayload:
         importlib.reload(vertexai_genai_types)
         importlib.reload(_evals_data_converters)
         importlib.reload(_evals_metric_handlers)
+        importlib.reload(_gcs_utils)
+        importlib.reload(_evals_metric_loaders)
 
         vertexai.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         self.mock_api_client = mock.Mock(spec=client.Client)
@@ -3740,7 +3746,7 @@ class TestEvalsRunEvaluation:
             name="test_metric", prompt_template="Evaluate: {response}"
         )
 
-        with mock.patch.object(_evals_utils, "EvalDatasetLoader") as mock_loader_class:
+        with mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader") as mock_loader_class:
             mock_loader_instance = mock_loader_class.return_value
             mock_loader_instance.load.return_value = mock_openai_raw_data
 
@@ -3993,7 +3999,7 @@ class TestEvalsRunEvaluation:
             eval_dataset_df=dataset_df
         )
 
-        lazy_metric_instance = _evals_utils.LazyLoadedPrebuiltMetric(
+        lazy_metric_instance = _evals_metric_loaders.LazyLoadedPrebuiltMetric(
             name="fluency", version="v1"
         )
 
@@ -4193,7 +4199,7 @@ class TestEvalsRunEvaluation:
 class TestEvaluationDataset:
     """Contains set of tests for the EvaluationDataset class methods."""
 
-    @mock.patch.object(_evals_utils, "GcsUtils")
+    @mock.patch.object(_gcs_utils, "GcsUtils")
     def test_load_from_observability_eval_cases(self, mock_gcs_utils):
         """Tests that load_from_observability_eval_cases reads data from GCS."""
 
@@ -4245,7 +4251,7 @@ class TestEvaluationDataset:
             ),
         )
 
-    @mock.patch.object(_evals_utils, "GcsUtils")
+    @mock.patch.object(_gcs_utils, "GcsUtils")
     def test_load_from_observability_eval_cases_no_system_instruction(
         self, mock_gcs_utils
     ):
@@ -4297,7 +4303,7 @@ class TestEvaluationDataset:
             ),
         )
 
-    @mock.patch.object(_evals_utils, "GcsUtils")
+    @mock.patch.object(_gcs_utils, "GcsUtils")
     def test_load_from_observability_eval_cases_multiple_cases(self, mock_gcs_utils):
         """Test load_from_observability_eval_cases can handle multiple cases."""
 

@@ -636,7 +636,10 @@ def display_evaluation_result(
         processed_rows = []
         if (
             single_dataset is not None
-            and isinstance(single_dataset, types.EvaluationDataset)
+            and (
+                hasattr(single_dataset, "eval_cases")
+                and type(single_dataset).__name__ == "EvaluationDataset"
+            )
             and single_dataset.eval_dataset_df is not None
         ):
             processed_df = _preprocess_df_for_json(single_dataset.eval_dataset_df)

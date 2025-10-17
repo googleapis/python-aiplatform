@@ -835,7 +835,10 @@ class AgentEngines(_api_module.BaseModule):
             config = {}
         if isinstance(config, dict):
             config = types.AgentEngineConfig.model_validate(config)
-        elif not isinstance(config, types.AgentEngineConfig):
+        elif not (
+            hasattr(config, "requirements")
+            and type(config).__name__ == "AgentEngineConfig"
+        ):
             raise TypeError(
                 f"config must be a dict or AgentEngineConfig, but got {type(config)}."
             )
@@ -1262,7 +1265,10 @@ class AgentEngines(_api_module.BaseModule):
         """
         if isinstance(config, dict):
             config = types.AgentEngineConfig.model_validate(config)
-        elif not isinstance(config, types.AgentEngineConfig):
+        elif not (
+            hasattr(config, "requirements")
+            and type(config).__name__ == "AgentEngineConfig"
+        ):
             raise TypeError(
                 f"config must be a dict or AgentEngineConfig, but got {type(config)}."
             )

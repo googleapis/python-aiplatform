@@ -329,7 +329,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                                     for r in value
                                 ]
                                 if all(
-                                    isinstance(r, types.Rubric)
+                                    hasattr(r, "rubric_id") and type(r).__name__ == "Rubric"
                                     for r in validated_rubrics
                                 ):
                                     rubric_groups[key] = types.RubricGroup(
@@ -343,7 +343,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                                 logger.warning(
                                     f"Failed to validate rubrics for group '{key}' in case {i}: {e}"
                                 )
-                        elif isinstance(value, types.RubricGroup):
+                        elif hasattr(value, "group_id") and type(value).__name__ == "RubricGroup":
                             rubric_groups[key] = value
                         elif isinstance(value, dict):
                             try:
@@ -382,7 +382,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                                     "Failed to validate intermediate event dict for"
                                     f" case {i}: {e}"
                                 )
-                        elif isinstance(event, types.Event):
+                        elif hasattr(event, "event_id") and type(event).__name__ == "Event":
                             intermediate_events.append(event)
                         else:
                             logger.warning(
