@@ -258,7 +258,7 @@ testing_extra_require = (
         "scikit-learn; python_version>'3.10'",
         # Lazy import requires > 2.12.0
         "tensorflow == 2.14.1; python_version<='3.11'",
-        "tensorflow == 2.19.0; python_version>'3.11'",
+        "tensorflow >= 2.19.0; python_version=='3.12'",
         "protobuf <= 5.29.4",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
@@ -348,6 +348,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
