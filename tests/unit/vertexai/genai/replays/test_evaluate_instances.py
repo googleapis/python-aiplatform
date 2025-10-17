@@ -99,6 +99,84 @@ def test_pointwise_metric(client):
     assert response.pointwise_metric_result.score is not None
 
 
+def test_pointwise_metric_with_agent_data(client):
+    """Tests the _evaluate_instances method with PointwiseMetricInput and agent_data."""
+    instance_dict = {"prompt": "What is the capital of France?", "response": "Paris"}
+    json_instance = json.dumps(instance_dict)
+    agent_data = types.AgentData(
+        agent_config=types.AgentConfig(
+            tools=types.Tools(
+                tool=[
+                    genai_types.Tool(
+                        function_declarations=[
+                            genai_types.FunctionDeclaration(name="search")
+                        ]
+                    )
+                ]
+            ),
+            developer_instruction=types.InstanceData(text="instruction"),
+        ),
+        events=types.Events(
+            event=[genai_types.Content(parts=[genai_types.Part(text="hello")])]
+        ),
+    )
+    instance = types.EvaluationInstance(
+        prompt=types.InstanceData(text="What is the capital of France?"),
+        response=types.InstanceData(text="Paris"),
+        agent_data=agent_data,
+    )
+
+    test_input = types.PointwiseMetricInput(
+        instance=types.PointwiseMetricInstance(json_instance=json_instance),
+        metric_spec=genai_types.PointwiseMetricSpec(
+            metric_prompt_template="Evaluate if the response '{response}' correctly answers the prompt '{prompt}'."
+        ),
+    )
+    response = client.evals.evaluate_instances(
+        metric_config=types._EvaluateInstancesRequestParameters(
+            pointwise_metric_input=test_input,
+            instance=instance,
+        )
+    )
+    assert response.pointwise_metric_result is not None
+    assert response.pointwise_metric_result.score is not None
+
+
+def test_predefined_metric_with_agent_data(client):
+    """Tests the _evaluate_instances method with predefined metric and agent_data."""
+    agent_data = types.AgentData(
+        agent_config=types.AgentConfig(
+            tools=types.Tools(
+                tool=[
+                    genai_types.Tool(
+                        function_declarations=[
+                            genai_types.FunctionDeclaration(name="search")
+                        ]
+                    )
+                ]
+            ),
+            developer_instruction=types.InstanceData(text="instruction"),
+        ),
+        events=types.Events(
+            event=[genai_types.Content(parts=[genai_types.Part(text="hello")])]
+        ),
+    )
+    instance = types.EvaluationInstance(
+        prompt=types.InstanceData(text="What is the capital of France?"),
+        response=types.InstanceData(text="Paris"),
+        reference=types.InstanceData(text="Paris"),
+        agent_data=agent_data,
+    )
+
+    response = client.evals.evaluate_instances(
+        metric_config=types._EvaluateInstancesRequestParameters(
+            metrics=[types.Metric(name="general_quality_v1")],
+            instance=instance,
+        )
+    )
+    assert response.metric_results[0].score is not None
+
+
 def test_pairwise_metric_with_autorater(client):
     """Tests the _evaluate_instances method with PairwiseMetricInput and AutoraterConfig."""
 

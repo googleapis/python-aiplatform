@@ -3289,6 +3289,115 @@ class TestMergeResponseDatasets:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+class TestPredefinedMetricHandler:
+    """Unit tests for the PredefinedMetricHandler class."""
+
+    def test_eval_case_to_agent_data(self):
+        tool = genai_types.Tool(
+            function_declarations=[
+                genai_types.FunctionDeclaration(
+                    name="get_weather",
+                    description="Get weather in a location",
+                    parameters={
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                    },
+                )
+            ]
+        )
+        agent_info = vertexai_genai_types.AgentInfo(
+            name="agent1",
+            instruction="instruction1",
+            tool_declarations=[tool],
+        )
+        intermediate_events = [
+            vertexai_genai_types.Event(
+                event_id="event1",
+                content=genai_types.Content(
+                    parts=[genai_types.Part(text="intermediate event")]
+                ),
+            )
+        ]
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            agent_info=agent_info,
+            intermediate_events=intermediate_events,
+        )
+
+        agent_data = (
+            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
+                eval_case
+            )
+        )
+
+        assert agent_data.agent_config.developer_instruction.text == "instruction1"
+        assert agent_data.agent_config.tools.tool == [tool]
+        assert agent_data.events.event[0].parts[0].text == "intermediate event"
+
+    def test_eval_case_to_agent_data_events_only(self):
+        intermediate_events = [
+            vertexai_genai_types.Event(
+                event_id="event1",
+                content=genai_types.Content(
+                    parts=[genai_types.Part(text="intermediate event")]
+                ),
+            )
+        ]
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            agent_info=None,
+            intermediate_events=intermediate_events,
+        )
+
+        agent_data = (
+            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
+                eval_case
+            )
+        )
+
+        assert agent_data.agent_config is None
+        assert agent_data.events.event[0].parts[0].text == "intermediate event"
+
+    def test_eval_case_to_agent_data_empty_events(self):
+        intermediate_events = [
+            vertexai_genai_types.Event(
+                event_id="event1",
+                content=None,
+            )
+        ]
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            agent_info=None,
+            intermediate_events=intermediate_events,
+        )
+
+        agent_data = (
+            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
+                eval_case
+            )
+        )
+
+        assert agent_data.agent_config is None
+        assert agent_data.events is None
+        assert not agent_data.events_text
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestLLMMetricHandlerPayload:
     def setup_method(self):
         importlib.reload(aiplatform_initializer)
@@ -3648,7 +3757,9 @@ class TestEvalsRunEvaluation:
         input_dataset = vertexai_genai_types.EvaluationDataset(
             eval_dataset_df=dataset_df
         )
-        computation_metric = vertexai_genai_types.Metric(name="exact_match")
+        predefined_metric = vertexai_genai_types.PredefinedMetricSpec(
+            metric_spec_name="tool_search_validity"
+        )
         tool = {
             "function_declarations": [
                 {
@@ -3671,7 +3782,7 @@ class TestEvalsRunEvaluation:
         result = _evals_common._execute_evaluation(
             api_client=mock_api_client_fixture,
             dataset=input_dataset,
-            metrics=[computation_metric],
+            metrics=[predefined_metric],
             agent_info=agent_info,
         )
 
