@@ -575,6 +575,19 @@ class AdkApp:
         os.environ["GOOGLE_CLOUD_PROJECT"] = project
         location = self._tmpl_attrs.get("location")
         os.environ["GOOGLE_CLOUD_LOCATION"] = location
+
+        content_enabled = os.getenv(
+            "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", "false"
+        ).lower() in ("true", "1")
+        # Disable content capture in custom ADK spans unless:
+        # 1. User opted-in for content capture.
+        # 2. Or user enabled tracing explicitly with the old flag (this is to
+        #    preserve compatibility with old behavior).
+        if self._tmpl_attrs.get("enable_tracing") or content_enabled:
+            os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "true"
+        else:
+            os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "false"
+
         if self._tmpl_attrs.get("enable_tracing"):
             instrumentor_builder = (
                 self._tmpl_attrs.get("instrumentor_builder")

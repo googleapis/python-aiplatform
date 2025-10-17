@@ -457,6 +457,26 @@ class TestAdkApp:
         # app.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
+    @mock.patch.dict(os.environ)
+    def test_span_content_capture_disabled_by_default(self):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "false"
+
+    @mock.patch.dict(
+        os.environ, {"OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT": "true"}
+    )
+    def test_span_content_capture_enabled_with_env_var(self):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "true"
+
+    @mock.patch.dict(os.environ)
+    def test_span_content_capture_enabled_with_tracing(self):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        app.set_up()
+        assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "true"
+
 
 def test_dump_event_for_json():
     from google.adk.events import event
