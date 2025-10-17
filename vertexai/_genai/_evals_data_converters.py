@@ -689,6 +689,7 @@ def _validate_case_consistency(
 def merge_response_datasets_into_canonical_format(
     raw_datasets: list[list[dict[str, Any]]],
     schemas: list[str],
+    agent_info: Optional[types.AgentInfo] = None,
 ) -> types.EvaluationDataset:
     """Merges multiple raw response datasets into a single EvaluationDataset.
 
@@ -814,6 +815,7 @@ def merge_response_datasets_into_canonical_format(
             reference=base_eval_case.reference,
             system_instruction=base_eval_case.system_instruction,
             conversation_history=base_eval_case.conversation_history,
+            agent_info=agent_info,
             intermediate_events=base_eval_case.intermediate_events,
             **eval_case_custom_columns,
         )

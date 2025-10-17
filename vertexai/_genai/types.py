@@ -1134,6 +1134,10 @@ class EvaluationResult(_common.BaseModel):
     metadata: Optional[EvaluationRunMetadata] = Field(
         default=None, description="""Metadata for the evaluation run."""
     )
+    agent_info: Optional[AgentInfo] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
+    )
 
     def show(self, candidate_names: Optional[List[str]] = None) -> None:
         """Shows the evaluation result.
@@ -1164,6 +1168,9 @@ class EvaluationResultDict(TypedDict, total=False):
 
     metadata: Optional[EvaluationRunMetadataDict]
     """Metadata for the evaluation run."""
+
+    agent_info: Optional[AgentInfoDict]
+    """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]

@@ -166,6 +166,24 @@ class TestEvals:
         )
         mock_evaluate.assert_called_once()
 
+    @pytest.mark.usefixtures("google_auth_mock")
+    @mock.patch.object(_evals_common, "_execute_evaluation")
+    def test_eval_evaluate_with_agent_info(self, mock_execute_evaluation):
+        """Tests that agent_info is passed to _execute_evaluation."""
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"prompt": "p1", "response": "r1"}])
+        )
+        agent_info = {"agent1": {"name": "agent1", "instruction": "instruction1"}}
+        self.client.evals.evaluate(
+            dataset=dataset,
+            metrics=[vertexai_genai_types.Metric(name="exact_match")],
+            agent_info=agent_info,
+        )
+        mock_execute_evaluation.assert_called_once()
+        _, kwargs = mock_execute_evaluation.call_args
+        assert "agent_info" in kwargs
+        assert kwargs["agent_info"] == agent_info
+
 
 class TestEvalsRunInference:
     """Unit tests for the Evals run_inference method."""
@@ -3614,6 +3632,67 @@ class TestEvalsRunEvaluation:
         mock_eval_dependencies["mock_evaluate_instances"].assert_called_once()
         call_args = mock_eval_dependencies["mock_evaluate_instances"].call_args
         assert "exact_match_input" in call_args[1]["metric_config"]
+
+    def test_execute_evaluation_with_agent_info(
+        self, mock_api_client_fixture, mock_eval_dependencies
+    ):
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "Test prompt",
+                    "response": "Test response",
+                    "reference": "Test reference",
+                }
+            ]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        computation_metric = vertexai_genai_types.Metric(name="exact_match")
+        tool = {
+            "function_declarations": [
+                {
+                    "name": "get_weather",
+                    "description": "Get weather in a location",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"location": {"type": "string"}},
+                    },
+                }
+            ]
+        }
+        agent_info = {
+            "name": "agent1",
+            "instruction": "instruction1",
+            "description": "description1",
+            "tool_declarations": [tool],
+        }
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[computation_metric],
+            agent_info=agent_info,
+        )
+
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert len(result.eval_case_results) == 1
+        assert result.agent_info.name == "agent1"
+        assert result.agent_info.instruction == "instruction1"
+        assert result.agent_info.tool_declarations == [
+            genai_types.Tool(
+                function_declarations=[
+                    genai_types.FunctionDeclaration(
+                        name="get_weather",
+                        description="Get weather in a location",
+                        parameters={
+                            "type": "object",
+                            "properties": {"location": {"type": "string"}},
+                        },
+                    )
+                ]
+            )
+        ]
 
     def test_execute_evaluation_translation_metric(
         self, mock_api_client_fixture, mock_eval_dependencies

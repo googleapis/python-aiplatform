@@ -755,6 +755,7 @@ def _resolve_dataset_inputs(
     dataset: list[types.EvaluationDataset],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
     loader: "_evals_utils.EvalDatasetLoader",
+    agent_info: Optional[types.AgentInfo] = None,
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
 
@@ -764,6 +765,7 @@ def _resolve_dataset_inputs(
       dataset_schema: The schema to use for the dataset(s). If None, it will be
         auto-detected.
       loader: An instance of EvalDatasetLoader to load data.
+      agent_info: The agent info of the agent under evaluation.
 
     Returns:
       A tuple containing:
@@ -816,7 +818,9 @@ def _resolve_dataset_inputs(
 
     processed_eval_dataset = (
         _evals_data_converters.merge_response_datasets_into_canonical_format(
-            raw_datasets=loaded_raw_datasets, schemas=schemas_for_merge
+            raw_datasets=loaded_raw_datasets,
+            schemas=schemas_for_merge,
+            agent_info=agent_info,
         )
     )
 
@@ -877,6 +881,7 @@ def _execute_evaluation(
     metrics: list[types.Metric],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = None,
     dest: Optional[str] = None,
+    **kwargs,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.
 
@@ -886,6 +891,7 @@ def _execute_evaluation(
         metrics: The metrics to evaluate the dataset against.
         dataset_schema: The schema of the dataset.
         dest: The destination to save the evaluation results.
+        **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
     Returns:
         The evaluation result.
@@ -925,8 +931,24 @@ def _execute_evaluation(
             deduped_candidate_names.append(name)
 
     loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
+
+    agent_info = kwargs.get("agent_info", None)
+    validated_agent_info = None
+    if agent_info:
+        if isinstance(agent_info, dict):
+            validated_agent_info = types.AgentInfo.model_validate(agent_info)
+        elif isinstance(agent_info, types.AgentInfo):
+            validated_agent_info = agent_info
+        else:
+            raise TypeError(
+                f"agent_info values must be of type types.AgentInfo or dict, but got {type(agent_info)}'"
+            )
+
     processed_eval_dataset, num_response_candidates = _resolve_dataset_inputs(
-        dataset=dataset_list, dataset_schema=dataset_schema, loader=loader
+        dataset=dataset_list,
+        dataset_schema=dataset_schema,
+        loader=loader,
+        agent_info=validated_agent_info,
     )
 
     resolved_metrics = _resolve_metrics(metrics, api_client)
@@ -947,6 +969,7 @@ def _execute_evaluation(
     logger.info("Evaluation took: %f seconds", t2 - t1)
 
     evaluation_result.evaluation_dataset = dataset_list
+    evaluation_result.agent_info = validated_agent_info
 
     if not evaluation_result.metadata:
         evaluation_result.metadata = types.EvaluationRunMetadata()
