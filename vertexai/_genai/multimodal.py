@@ -17,6 +17,7 @@
 
 import json
 import logging
+import time
 from typing import Any, Optional, Union
 from urllib.parse import urlencode
 
@@ -26,6 +27,7 @@ from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
+from . import _multimodal_utils
 from . import types
 
 
@@ -59,6 +61,23 @@ def _CreateMultimodalDatasetParameters_to_vertex(
 
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
+    return to_object
+
+
+def _GetMultimodalDatasetOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    if getv(from_object, ["dataset_id"]) is not None:
+        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
+
+    if getv(from_object, ["operation_id"]) is not None:
+        setv(to_object, ["_url", "operation_id"], getv(from_object, ["operation_id"]))
 
     return to_object
 
@@ -128,6 +147,174 @@ class Multimodal(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _get_multimodal_dataset_operation(
+        self,
+        *,
+        config: Optional[types.GetMultimodalDatasetOperationConfigOrDict] = None,
+        dataset_id: Optional[str] = None,
+        operation_id: Optional[str] = None,
+    ) -> types.MultimodalDatasetOperation:
+        """
+        Gets the operation from creating a multimodal dataset.
+        """
+
+        parameter_model = types._GetMultimodalDatasetOperationParameters(
+            config=config,
+            dataset_id=dataset_id,
+            operation_id=operation_id,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetMultimodalDatasetOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}/operations/{operation_id}".format_map(
+                    request_url_dict
+                )
+            else:
+                path = "datasets/{dataset_id}/operations/{operation_id}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _wait_for_operation(
+        self,
+        operation: types.MultimodalDatasetOperation,
+        timeout: int,
+    ) -> str:
+        """Waits for a multimodal dataset operation to complete.
+
+        Args:
+          operation: The multimodal dataset operation to wait for.
+          timeout: The maximum time to wait for the operation to complete.
+
+        Returns:
+          The name of the Multimodal Dataset resource from the operation result.
+
+        Raises:
+          TimeoutError: If the operation does not complete within the timeout.
+          ValueError: If the operation fails.
+        """
+        done = False
+        multimodal_operation: Optional[types.MultimodalDatasetOperation] = None
+
+        response_operation_name = operation.name
+        dataset_id = response_operation_name.split("/datasets/")[1].split("/")[0]
+        operation_id = response_operation_name.split("/")[-1]
+
+        start_time = time.time()
+        sleep_duration = 5
+        wait_multiplier = 2
+        max_wait_time = 60
+        previous_time = time.time()
+
+        while not done:
+            if (time.time() - start_time) > timeout:
+                raise TimeoutError(
+                    "Create multimodal dataset operation did not complete within the"
+                    f" specified timeout of {timeout} seconds."
+                )
+            current_time = time.time()
+            if current_time - previous_time >= sleep_duration:
+                sleep_duration = min(sleep_duration * wait_multiplier, max_wait_time)
+                previous_time = current_time
+            time.sleep(sleep_duration)
+            multimodal_operation = self._get_multimodal_dataset_operation(
+                dataset_id=dataset_id,
+                operation_id=operation_id,
+            )
+            done = (
+                multimodal_operation.done
+                if hasattr(multimodal_operation, "done")
+                else False
+            )
+        if (
+            not multimodal_operation
+            or multimodal_operation.response is None
+            or multimodal_operation.response.get("name") is None
+        ):
+            raise ValueError("Error creating multimodal dataset resource.")
+        if (
+            hasattr(multimodal_operation, "error")
+            and multimodal_operation.error is not None
+        ):
+            raise ValueError(
+                f"Error creating multimodal dataset resource: {multimodal_operation.error}"
+            )
+        return multimodal_operation.response.get("name")
+
+    def from_bigquery(
+        self,
+        *,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        multimodal_dataset: types.MultimodalDataset,
+    ) -> types.MultimodalDataset:
+        """Creates a multimodal dataset from a BigQuery table.
+
+        Args:
+          config:
+            Optional. A configuration for creating the multimodal dataset. If not
+            provided, the default configuration will be used.
+          multimodal_dataset:
+            Required. A representation of amultimodal dataset.
+
+        Returns:
+          A types.MultimodalDataset object representing a multimodal dataset.
+        """
+        if not multimodal_dataset.bigquery_uri.startswith("bq://"):
+            multimodal_dataset.bigquery_uri = f"bq://{multimodal_dataset.bigquery_uri}"
+        if isinstance(config, dict):
+            config = types.CreateMultimodalDatasetConfig(**config)
+        elif not config:
+            config = types.CreateMultimodalDatasetConfig()
+
+        multimodal_dataset_operation = self._create_multimodal_dataset(
+            config=config,
+            display_name=multimodal_dataset.display_name,
+            metadata_schema_uri=_multimodal_utils.METADATA_SCHEMA_URI,
+            metadata={
+                "inputConfig": {
+                    "bigquerySource": {"uri": multimodal_dataset.bigquery_uri},
+                },
+            },
+        )
+        dataset_resource_name = self._wait_for_operation(
+            operation=multimodal_dataset_operation,
+            timeout=config.timeout if config else 90,
+        )
+        multimodal_dataset.dataset_id = dataset_resource_name.split("/")[-1]
+
+        return multimodal_dataset
+
 
 class AsyncMultimodal(_api_module.BaseModule):
 
@@ -195,3 +382,173 @@ class AsyncMultimodal(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    async def _get_multimodal_dataset_operation(
+        self,
+        *,
+        config: Optional[types.GetMultimodalDatasetOperationConfigOrDict] = None,
+        dataset_id: Optional[str] = None,
+        operation_id: Optional[str] = None,
+    ) -> types.MultimodalDatasetOperation:
+        """
+        Gets the operation from creating a multimodal dataset.
+        """
+
+        parameter_model = types._GetMultimodalDatasetOperationParameters(
+            config=config,
+            dataset_id=dataset_id,
+            operation_id=operation_id,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetMultimodalDatasetOperationParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{dataset_id}/operations/{operation_id}".format_map(
+                    request_url_dict
+                )
+            else:
+                path = "datasets/{dataset_id}/operations/{operation_id}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _wait_for_operation(
+        self,
+        operation: types.MultimodalDatasetOperation,
+        timeout: int,
+    ) -> str:
+        """Waits for a multimodal dataset operation to complete.
+
+        Args:
+          operation: The multimodal dataset operation to wait for.
+          timeout: The maximum time to wait for the operation to complete.
+
+        Returns:
+          The name of the Multimodal Dataset resource from the operation result.
+
+        Raises:
+          TimeoutError: If the operation does not complete within the timeout.
+          ValueError: If the operation fails.
+        """
+        done = False
+        multimodal_operation: Optional[types.MultimodalDatasetOperation] = None
+
+        response_operation_name = operation.name
+        dataset_id = response_operation_name.split("/datasets/")[1].split("/")[0]
+        operation_id = response_operation_name.split("/")[-1]
+
+        start_time = time.time()
+        sleep_duration = 5
+        wait_multiplier = 2
+        max_wait_time = 60
+        previous_time = time.time()
+
+        while not done:
+            if (time.time() - start_time) > timeout:
+                raise TimeoutError(
+                    "Create multimodal dataset operation did not complete within the"
+                    f" specified timeout of {timeout} seconds."
+                )
+            current_time = time.time()
+            if current_time - previous_time >= sleep_duration:
+                sleep_duration = min(sleep_duration * wait_multiplier, max_wait_time)
+                previous_time = current_time
+            time.sleep(sleep_duration)
+            multimodal_operation = await self._get_multimodal_dataset_operation(
+                dataset_id=dataset_id,
+                operation_id=operation_id,
+            )
+            done = (
+                multimodal_operation.done
+                if hasattr(multimodal_operation, "done")
+                else False
+            )
+        if (
+            not multimodal_operation
+            or multimodal_operation.response is None
+            or multimodal_operation.response.get("name") is None
+        ):
+            raise ValueError("Error creating multimodal dataset resource.")
+        if (
+            hasattr(multimodal_operation, "error")
+            and multimodal_operation.error is not None
+        ):
+            raise ValueError(
+                f"Error creating multimodal dataset resource: {multimodal_operation.error}"
+            )
+        return multimodal_operation.response.get("name")
+
+    async def from_bigquery(
+        self,
+        *,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        multimodal_dataset: types.MultimodalDataset,
+    ) -> types.MultimodalDataset:
+        """Creates a multimodal dataset from a BigQuery table.
+
+        Args:
+          config:
+            Optional. A configuration for creating the multimodal dataset. If not
+            provided, the default configuration will be used.
+          multimodal_dataset:
+            Required. A representation of amultimodal dataset.
+
+        Returns:
+          A types.MultimodalDataset object representing a multimodal dataset.
+        """
+        if not multimodal_dataset.bigquery_uri.startswith("bq://"):
+            multimodal_dataset.bigquery_uri = f"bq://{multimodal_dataset.bigquery_uri}"
+        if isinstance(config, dict):
+            config = types.CreateMultimodalDatasetConfig(**config)
+        elif not config:
+            config = types.CreateMultimodalDatasetConfig()
+
+        multimodal_dataset_operation = await self._create_multimodal_dataset(
+            config=config,
+            display_name=multimodal_dataset.display_name,
+            metadata_schema_uri=_multimodal_utils.METADATA_SCHEMA_URI,
+            metadata={
+                "inputConfig": {
+                    "bigquerySource": {"uri": multimodal_dataset.bigquery_uri},
+                },
+            },
+        )
+        dataset_resource_name = await self._wait_for_operation(
+            operation=multimodal_dataset_operation,
+            timeout=config.timeout if config else 90,
+        )
+        multimodal_dataset.dataset_id = dataset_resource_name.split("/")[-1]
+
+        return multimodal_dataset
