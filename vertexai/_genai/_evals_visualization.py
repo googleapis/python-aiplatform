@@ -100,6 +100,31 @@ def _get_evaluation_html(eval_result_json: str) -> str:
         summary {{ font-weight: 500; font-size: 1.1em; cursor: pointer; }}
         .prompt-container {{ background-color: #e8f0fe; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
         .reference-container {{ background-color: #e6f4ea; padding: 16px; margin: 12px 0; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
+        .agent-info-container {{
+            background-color: #f1f3f4;
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            font-size: 14px;
+         }}
+        .agent-info-grid {{
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }}
+        .agent-info-grid dt {{
+            font-weight: 500;
+            color: #3c4043;
+        }}
+        .agent-info-grid dd {{
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }}
+        .intermediate-events-container {{ background-color: #f1f3f4; padding: 16px; margin: 12px 0; border-radius: 8px; word-wrap: break-word; overflow-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-x: auto; }}
         .response-container {{ background-color: #f9f9f9; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }}
         .explanation {{ color: #5f6368; font-style: italic; font-size: 0.9em; padding-top: 6px; }}
         .raw-json-details summary {{ font-size: 0.9em; cursor: pointer; color: #5f6368;}}
@@ -129,16 +154,224 @@ def _get_evaluation_html(eval_result_json: str) -> str:
         }}
         .pass {{ color: green; font-weight: bold; }}
         .fail {{ color: red; font-weight: bold; }}
+        .case-content-wrapper {{ display: flex; gap: 1rem; }}
+        .case-content-main {{ flex: 1; }}
+        .case-content-sidebar {{ flex: 1; min-width: 0; }}
+        .case-content-sidebar .intermediate-events-container {{
+            padding: 0;
+            background-color: #F8F9FA;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0;
+        }}
+        .trace-event-row {{
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+            background-color: #F8F9FA;
+        }}
+        .trace-event-row:last-child {{
+            border-bottom: none;
+        }}
+        .trace-event-row .name {{
+            flex-grow: 1;
+            color: #3c4043;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }}
+        .trace-event-row .duration {{
+            background-color: #d2e3fc;
+            color: #1967d2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }}
+        .trace-event-row .name .icon {{
+            margin-right: 8px;
+            font-size: 16px;
+            line-height: 1;
+        }}
+        .trace-details {{
+            padding: 2px 12px 6px 38px; /* indent to align with text after icon */
+            font-size: 13px;
+            line-height: 1.4;
+            color: #5f6368;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #F8F9FA;
+            border-bottom: 1px solid #eee;
+        }}
+        .trace-event-row .name.trace-l1 {{
+            padding-left: 20px;
+        }}
+        .trace-details.details-l1 {{
+            padding-left: 58px;
+        }}
+        .trace-details-wrapper details {{
+            border:0;
+            padding:0;
+            margin:0;
+        }}
+        .trace-details-wrapper summary {{
+            list-style: none;
+            cursor: pointer;
+        }}
+        .trace-details-wrapper summary::-webkit-details-marker {{
+            display: none;
+        }}
+        .tool-declarations-container {{
+             background-color: #f1f1f1;
+             padding: 10px;
+             border-radius: 4px;
+             margin-top: 8px;
+             max-height: 300px;
+             overflow-y: auto;
+        }}
+        .tool-declaration {{
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }}
+        .tool-declaration:last-child {{
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }}
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Evaluation Report</h1>
         <div id="summary-section"></div>
+        <div id="agent-info-section"></div>
         <div id="details-section"></div>
     </div>
     <script>
         const vizData = {eval_result_json};
+        function formatDictVals(obj) {{
+            if (typeof obj === 'string') return obj;
+            if (obj === undefined || obj === null) return '';
+            if (typeof obj !== 'object') return String(obj);
+            if (Array.isArray(obj)) return JSON.stringify(obj);
+            return Object.entries(obj).map(([k,v]) => `${{k}}=${{formatDictVals(v)}}`).join(', ');
+        }}
+        function formatIntermediateEvents(events) {{
+            let eventsArray = events;
+            if (typeof events === 'string') {{
+                try {{
+                    eventsArray = JSON.parse(events);
+                }} catch (e) {{
+                    console.error("Failed to parse intermediate_events:", e);
+                    return '';
+                }}
+            }}
+            if (!eventsArray || !Array.isArray(eventsArray)) {{
+                return '';
+            }}
+
+            const agentInfo = vizData.agent_info;
+
+            // If we have agent info, render as trace
+            if(agentInfo) {{
+                let traceHtml = `<div class="trace-event-row"><div class="name"><span class="icon">🏃</span>agent_run</div></div>`;
+                eventsArray.forEach(event => {{
+                    if (event.content && event.content.parts && event.content.parts.length > 0) {{
+                        const part = event.content.parts[0];
+                        if (part.function_call) {{
+                            traceHtml += `<div class="trace-details-wrapper"><details><summary><div class="trace-event-row"><div class="name trace-l1"><span class="icon">🛠️</span>function_call</div></div></summary>`;
+                            traceHtml += `<div class="trace-details details-l1">function name: ${{part.function_call.name}}</div>`;
+                            traceHtml += `<div class="trace-details details-l1">function args: ${{formatDictVals(part.function_call.args)}}</div></details></div>`;
+                        }} else if (part.text && event.content.role === 'model') {{
+                            traceHtml += `<div class="trace-details-wrapper"><details><summary><div class="trace-event-row"><div class="name trace-l1"><span class="icon">💬</span>call_llm</div></div></summary>`;
+                            traceHtml += `<div class="trace-details details-l1">model response: ${{part.text}}</div></details></div>`;
+                        }} else if (part.function_response) {{
+                            traceHtml += `<div class="trace-details-wrapper"><details><summary><div class="trace-event-row"><div class="name trace-l1"><span class="icon">🛠️</span>function_response</div></div></summary>`;
+                            traceHtml += `<div class="trace-details details-l1">function name: ${{part.function_response.name}}</div>`;
+                            let response_val = part.function_response.response;
+                            if(typeof response_val === 'object' && response_val !== null && response_val.result !== undefined) {{
+                                response_val = response_val.result;
+                            }}
+                            traceHtml += `<div class="trace-details details-l1">function response: ${{formatDictVals(response_val)}}</div></details></div>`;
+                        }} else {{
+                            // Skipping user messages and other parts in trace view
+                            return;
+                        }}
+                    }}
+                }});
+                return traceHtml;
+            }}
+
+            // Fallback to original conversation view if not agent trace
+            return eventsArray.map(event => {{
+                const role = event.content.role;
+                let contentHtml = '';
+                if (event.content && event.content.parts && event.content.parts.length > 0) {{
+                    const part = event.content.parts[0];
+                    if (part.text) {{
+                        contentHtml = DOMPurify.sanitize(marked.parse(String(part.text)));
+                    }} else if (part.function_call) {{
+                        contentHtml = `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(part.function_call, null, 2))}}</pre>`;
+                    }} else if (part.function_response) {{
+                        contentHtml = `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(part.function_response, null, 2))}}</pre>`;
+                    }} else {{
+                         contentHtml = `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(event.content, null, 2))}}</pre>`;
+                    }}
+                }} else {{
+                    contentHtml = `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(event.content, null, 2))}}</pre>`;
+                }}
+                return `<div class="trace-event" style="margin-bottom: 1rem;">
+                            <div class="trace-role" style="font-weight: 500;">${{role}}</div>
+                            <div class="trace-content">${{contentHtml}}</div>
+                        </div>`;
+            }}).join('');
+        }}
+
+        function formatToolDeclarations(toolDeclarations) {{
+            if (!toolDeclarations) {{
+                return '';
+            }}
+            let functions = [];
+            if (Array.isArray(toolDeclarations)) {{
+                toolDeclarations.forEach(tool => {{
+                    if (tool.function_declarations) {{
+                        functions = functions.concat(tool.function_declarations);
+                    }} else if (tool.name && tool.parameters) {{
+                        // It might be a list of function declarations directly
+                        functions.push(tool);
+                    }}
+                }});
+            }} else if (typeof toolDeclarations === 'object' && toolDeclarations.function_declarations) {{
+                functions = toolDeclarations.function_declarations;
+            }}
+
+            if (functions.length === 0) {{
+                 return `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(toolDeclarations, null, 2))}}</pre>`;
+            }}
+
+            let html = '<div class="tool-declarations-container">';
+            functions.forEach(func => {{
+                html += '<div class="tool-declaration">';
+                const params = func.parameters && func.parameters.properties ? func.parameters.properties : {{}};
+                const requiredParams = func.parameters && func.parameters.required ? new Set(func.parameters.required) : new Set();
+                const paramStrings = Object.keys(params).map(p => `${{p}}: ${{params[p].type}}`).join(', ');
+                html += `<strong>${{func.name}}</strong>(${{paramStrings}})<br>`;
+                if(func.description) html += `<em>${{func.description}}</em><br>`;
+                if(Object.keys(params).length > 0) html += 'Parameters:<br>';
+                Object.keys(params).forEach(p => {{
+                    html += `&nbsp;&nbsp;- ${{p}}: ${{params[p].description || ''}} ${{requiredParams.has(p) ? '<strong>(required)</strong>' : ''}}<br>`;
+                }});
+                html += '</div>';
+            }});
+            html += '</div>';
+            return html;
+        }}
+
         function renderSummary(summaryMetrics) {{
             const container = document.getElementById('summary-section');
             let content = '<h2>Summary Metrics</h2>';
@@ -149,7 +382,27 @@ def _get_evaluation_html(eval_result_json: str) -> str:
             }});
             container.innerHTML = content + table + '</tbody></table>';
         }}
-        function renderDetails(caseResults, metadata) {{
+        function renderAgentInfo(agentInfo) {{
+            const container = document.getElementById('agent-info-section');
+            if (!agentInfo) {{
+                return;
+            }}
+            let content = '<h2>Agent Info</h2>';
+            content += '<div class="agent-info-container">';
+            content += '<dl class="agent-info-grid">';
+            if(agentInfo.name) content += `<dt>Name:</dt><dd>${{agentInfo.name}}</dd>`;
+            if(agentInfo.instruction) content += `<dt>Instruction:</dt><dd>${{agentInfo.instruction}}</dd>`;
+            if(agentInfo.description) content += `<dt>Description:</dt><dd>${{agentInfo.description}}</dd>`;
+            content += '</dl>';
+            if(agentInfo.tool_declarations) {{
+                content += `<div style="margin-top: 12px;"><div style="font-weight: 500; color: #3c4043; margin-bottom: 8px;">Tool Declarations</div>`;
+                content += formatToolDeclarations(agentInfo.tool_declarations);
+                content += '</div>';
+            }}
+            content += '</div>';
+            container.innerHTML = content;
+        }}
+        function renderDetails(caseResults, metadata, agentInfo) {{
             const container = document.getElementById('details-section');
             container.innerHTML = '<h2>Detailed Results</h2>';
             if (!caseResults || caseResults.length === 0) {{ container.innerHTML += '<p>No detailed results.</p>'; return; }}
@@ -162,9 +415,14 @@ def _get_evaluation_html(eval_result_json: str) -> str:
                 const reference = original_case.reference || '';
                 const responseText = original_case.response_display_text || '(response not found)';
                 const responseJson = original_case.response_raw_json;
+                const intermediateEvents = original_case.intermediate_events;
+                const isAgentEval = agentInfo || intermediateEvents;
 
                 let card = `<details><summary>Case #${{caseResult.eval_case_index != null ? caseResult.eval_case_index : i}}</summary>`;
 
+                card += `<div class="case-content-wrapper">`;
+
+                card += `<div class="case-content-main">`;
                 card += `<div class="prompt-container"><strong>Prompt:</strong><br>${{DOMPurify.sanitize(marked.parse(String(promptText)))}}</div>`;
                 if (promptJson) {{
                     card += `<details class="raw-json-details"><summary>View Raw Prompt JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(promptJson)}}</pre></details>`;
@@ -172,29 +430,93 @@ def _get_evaluation_html(eval_result_json: str) -> str:
 
                 if (reference) {{ card += `<div class="reference-container"><strong>Reference:</strong><br>${{DOMPurify.sanitize(marked.parse(String(reference)))}}</div>`; }}
 
-                card += `<div class="response-container"><h4>Candidate Response</h4>${{DOMPurify.sanitize(marked.parse(String(responseText)))}}</div>`;
+                const responseTitle = isAgentEval ? 'Final Response' : 'Candidate Response';
+                card += `<div class="response-container"><h4>${{responseTitle}}</h4>${{DOMPurify.sanitize(marked.parse(String(responseText)))}}</div>`;
                 if (responseJson) {{
                     card += `<details class="raw-json-details"><summary>View Raw Response JSON</summary><pre class="raw-json-container">${{DOMPurify.sanitize(responseJson)}}</pre></details>`;
                 }}
+                card += `</div>`; // case-content-main
+
+                if (isAgentEval) {{
+                    card += `<div class="case-content-sidebar">
+                                <h4>Traces</h4>
+                                <div class="intermediate-events-container">${{formatIntermediateEvents(intermediateEvents)}}</div>
+                             </div>`;
+                }}
+
+                card += `</div>`; // case-content-wrapper
 
                 let metricTable = '<h4>Metrics</h4><table><tbody>';
                 const candidateMetrics = (caseResult.response_candidate_results && caseResult.response_candidate_results[0] && caseResult.response_candidate_results[0].metric_results) || {{}};
                 Object.entries(candidateMetrics).forEach(([name, val]) => {{
-                    metricTable += `<tr><td>${{name}}</td><td><b>${{val.score != null ? val.score.toFixed(2) : 'N/A'}}</b></td></tr>`;
-                    if (val.explanation) {{ metricTable += `<tr><td colspan="2"><div class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</div></td></tr>`; }}
-                    if (val.rubric_verdicts && val.rubric_verdicts.length > 0) {{
-                        metricTable += '<tr><td colspan="2"><div class="rubric-bubble-container">';
+                    let metricNameCell = name;
+                    let explanationHandled = false;
+                    let bubbles = '';
+
+                    if (name.startsWith('hallucination') && val.explanation) {{
+                        try {{
+                            const explanationData = JSON.parse(val.explanation);
+                            if (Array.isArray(explanationData) && explanationData.length > 0 && explanationData[0].sentence) {{
+                                bubbles += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
+                                explanationData.forEach(item => {{
+                                    const sentence = item.sentence || 'N/A';
+                                    const label = item.label ? item.label.toLowerCase() : '';
+                                    const verdictText = label === 'no_rad' ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+                                    const rationale = item.rationale || 'N/A';
+                                    const itemJson = JSON.stringify(item, null, 2);
+                                    bubbles += `
+                                        <details class="rubric-details">
+                                            <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(sentence)}}</summary>
+                                            <div class="explanation" style="padding: 10px 0 0 20px;">${{DOMPurify.sanitize(rationale)}}</div>
+                                            <pre class="raw-json-container">${{DOMPurify.sanitize(itemJson)}}</pre>
+                                        </details>`;
+                                }});
+                                bubbles += '</div>';
+                                explanationHandled = true;
+                            }}
+                        }} catch (e) {{
+                            console.error("Failed to parse hallucination explanation:", e);
+                        }}
+                    }} else if (name.startsWith('safety') && val.score != null) {{
+                        try {{
+                            bubbles += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
+                            const verdictText = val.score >= 1.0 ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+                            const explanation = val.explanation || (val.score >= 1.0 ? 'Safety check passed' : 'Safety check failed');
+                            const itemJson = JSON.stringify(val, null, 2);
+                            bubbles += `
+                                <details class="rubric-details">
+                                    <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(explanation)}}</summary>
+                                    <pre class="raw-json-container">${{DOMPurify.sanitize(itemJson)}}</pre>
+                                </details>`;
+                            bubbles += '</div>';
+                            explanationHandled = true;
+                        }} catch (e) {{
+                            console.error("Failed to process safety metric:", e);
+                        }}
+                    }}
+
+                    if (!bubbles && val.rubric_verdicts && val.rubric_verdicts.length > 0) {{
+                        bubbles += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
                         val.rubric_verdicts.forEach(verdict => {{
                             const rubricDescription = verdict.evaluated_rubric && verdict.evaluated_rubric.content && verdict.evaluated_rubric.content.property ? verdict.evaluated_rubric.content.property.description : 'N/A';
                             const verdictText = verdict.verdict ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
                             const verdictJson = JSON.stringify(verdict, null, 2);
-                            metricTable += `
+                            bubbles += `
                                 <details class="rubric-details">
                                     <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(rubricDescription)}}</summary>
                                     <pre class="raw-json-container">${{DOMPurify.sanitize(verdictJson)}}</pre>
                                 </details>`;
                         }});
-                        metricTable += '</div></td></tr>';
+                        bubbles += '</div>';
+                    }}
+
+                    if(bubbles) {{
+                        metricNameCell += bubbles;
+                    }}
+
+                    metricTable += `<tr><td>${{metricNameCell}}</td><td><b>${{val.score != null ? val.score.toFixed(2) : 'N/A'}}</b></td></tr>`;
+                    if (val.explanation && !explanationHandled) {{
+                        metricTable += `<tr><td colspan="2"><div class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</div></td></tr>`;
                     }}
                 }});
                 card += metricTable + '</tbody></table>';
@@ -202,7 +524,8 @@ def _get_evaluation_html(eval_result_json: str) -> str:
             }});
         }}
         renderSummary(vizData.summary_metrics);
-        renderDetails(vizData.eval_case_results, vizData.metadata);
+        renderAgentInfo(vizData.agent_info);
+        renderDetails(vizData.eval_case_results, vizData.metadata, vizData.agent_info);
     </script>
 </body>
 </html>
@@ -651,6 +974,7 @@ def display_evaluation_result(
                         "reference": row.get("reference", ""),
                         "response_display_text": response_info["display_text"],
                         "response_raw_json": response_info["raw_json"],
+                        "intermediate_events": row.get("intermediate_events", None),
                     }
                     processed_rows.append(processed_row)
             metadata_payload["dataset"] = processed_rows
