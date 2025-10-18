@@ -49,6 +49,9 @@ def _CreateAgentEngineSandboxConfig_to_vertex(
     if getv(from_object, ["description"]) is not None:
         setv(parent_object, ["description"], getv(from_object, ["description"]))
 
+    if getv(from_object, ["ttl"]) is not None:
+        setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
+
     return to_object
 
 
