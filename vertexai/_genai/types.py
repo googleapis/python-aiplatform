@@ -7699,12 +7699,33 @@ SandboxEnvironmentSpecCodeExecutionEnvironmentOrDict = Union[
 ]
 
 
+class SandboxEnvironmentSpecComputerUseEnvironment(_common.BaseModel):
+    """The computer use environment with customized settings."""
+
+    pass
+
+
+class SandboxEnvironmentSpecComputerUseEnvironmentDict(TypedDict, total=False):
+    """The computer use environment with customized settings."""
+
+    pass
+
+
+SandboxEnvironmentSpecComputerUseEnvironmentOrDict = Union[
+    SandboxEnvironmentSpecComputerUseEnvironment,
+    SandboxEnvironmentSpecComputerUseEnvironmentDict,
+]
+
+
 class SandboxEnvironmentSpec(_common.BaseModel):
     """The specification of a sandbox environment."""
 
     code_execution_environment: Optional[
         SandboxEnvironmentSpecCodeExecutionEnvironment
     ] = Field(default=None, description="""Optional. The code execution environment.""")
+    computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironment] = (
+        Field(default=None, description="""Optional. The computer use environment.""")
+    )
 
 
 class SandboxEnvironmentSpecDict(TypedDict, total=False):
@@ -7714,6 +7735,9 @@ class SandboxEnvironmentSpecDict(TypedDict, total=False):
         SandboxEnvironmentSpecCodeExecutionEnvironmentDict
     ]
     """Optional. The code execution environment."""
+
+    computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironmentDict]
+    """Optional. The computer use environment."""
 
 
 SandboxEnvironmentSpecOrDict = Union[SandboxEnvironmentSpec, SandboxEnvironmentSpecDict]
@@ -7792,9 +7816,47 @@ _CreateAgentEngineSandboxRequestParametersOrDict = Union[
 ]
 
 
+class SandboxEnvironmentConnectionInfo(_common.BaseModel):
+    """The connection information of the SandboxEnvironment."""
+
+    load_balancer_hostname: Optional[str] = Field(
+        default=None, description="""Output only. The hostname of the load balancer."""
+    )
+    load_balancer_ip: Optional[str] = Field(
+        default=None,
+        description="""Output only. The IP address of the load balancer.""",
+    )
+    sandbox_internal_ip: Optional[str] = Field(
+        default=None,
+        description="""Output only. The internal IP address of the SandboxEnvironment.""",
+    )
+
+
+class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
+    """The connection information of the SandboxEnvironment."""
+
+    load_balancer_hostname: Optional[str]
+    """Output only. The hostname of the load balancer."""
+
+    load_balancer_ip: Optional[str]
+    """Output only. The IP address of the load balancer."""
+
+    sandbox_internal_ip: Optional[str]
+    """Output only. The internal IP address of the SandboxEnvironment."""
+
+
+SandboxEnvironmentConnectionInfoOrDict = Union[
+    SandboxEnvironmentConnectionInfo, SandboxEnvironmentConnectionInfoDict
+]
+
+
 class SandboxEnvironment(_common.BaseModel):
     """A sandbox environment."""
 
+    connection_info: Optional[SandboxEnvironmentConnectionInfo] = Field(
+        default=None,
+        description="""Output only. The connection information of the SandboxEnvironment.""",
+    )
     create_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. The timestamp when this SandboxEnvironment was created.""",
@@ -7826,6 +7888,9 @@ class SandboxEnvironment(_common.BaseModel):
 
 class SandboxEnvironmentDict(TypedDict, total=False):
     """A sandbox environment."""
+
+    connection_info: Optional[SandboxEnvironmentConnectionInfoDict]
+    """Output only. The connection information of the SandboxEnvironment."""
 
     create_time: Optional[datetime.datetime]
     """Output only. The timestamp when this SandboxEnvironment was created."""
