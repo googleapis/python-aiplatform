@@ -4626,6 +4626,20 @@ def test_create_cached_content_rest_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "response": {},
+                        "parts": [
+                            {
+                                "inline_data": {
+                                    "mime_type": "mime_type_value",
+                                    "data": b"data_blob",
+                                    "display_name": "display_name_value",
+                                },
+                                "file_data": {
+                                    "mime_type": "mime_type_value",
+                                    "file_uri": "file_uri_value",
+                                    "display_name": "display_name_value",
+                                },
+                            }
+                        ],
                     },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
@@ -4744,7 +4758,13 @@ def test_create_cached_content_rest_call_success(request_type):
                 },
                 "code_execution": {},
                 "url_context": {},
-                "computer_use": {"environment": 1},
+                "computer_use": {
+                    "environment": 1,
+                    "excluded_predefined_functions": [
+                        "excluded_predefined_functions_value1",
+                        "excluded_predefined_functions_value2",
+                    ],
+                },
             }
         ],
         "tool_config": {
@@ -5144,6 +5164,20 @@ def test_update_cached_content_rest_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "response": {},
+                        "parts": [
+                            {
+                                "inline_data": {
+                                    "mime_type": "mime_type_value",
+                                    "data": b"data_blob",
+                                    "display_name": "display_name_value",
+                                },
+                                "file_data": {
+                                    "mime_type": "mime_type_value",
+                                    "file_uri": "file_uri_value",
+                                    "display_name": "display_name_value",
+                                },
+                            }
+                        ],
                     },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
@@ -5262,7 +5296,13 @@ def test_update_cached_content_rest_call_success(request_type):
                 },
                 "code_execution": {},
                 "url_context": {},
-                "computer_use": {"environment": 1},
+                "computer_use": {
+                    "environment": 1,
+                    "excluded_predefined_functions": [
+                        "excluded_predefined_functions_value1",
+                        "excluded_predefined_functions_value2",
+                    ],
+                },
             }
         ],
         "tool_config": {
@@ -6524,6 +6564,20 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "response": {},
+                        "parts": [
+                            {
+                                "inline_data": {
+                                    "mime_type": "mime_type_value",
+                                    "data": b"data_blob",
+                                    "display_name": "display_name_value",
+                                },
+                                "file_data": {
+                                    "mime_type": "mime_type_value",
+                                    "file_uri": "file_uri_value",
+                                    "display_name": "display_name_value",
+                                },
+                            }
+                        ],
                     },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
@@ -6642,7 +6696,13 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                 },
                 "code_execution": {},
                 "url_context": {},
-                "computer_use": {"environment": 1},
+                "computer_use": {
+                    "environment": 1,
+                    "excluded_predefined_functions": [
+                        "excluded_predefined_functions_value1",
+                        "excluded_predefined_functions_value2",
+                    ],
+                },
             }
         ],
         "tool_config": {
@@ -7078,6 +7138,20 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "response": {},
+                        "parts": [
+                            {
+                                "inline_data": {
+                                    "mime_type": "mime_type_value",
+                                    "data": b"data_blob",
+                                    "display_name": "display_name_value",
+                                },
+                                "file_data": {
+                                    "mime_type": "mime_type_value",
+                                    "file_uri": "file_uri_value",
+                                    "display_name": "display_name_value",
+                                },
+                            }
+                        ],
                     },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
@@ -7196,7 +7270,13 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                 },
                 "code_execution": {},
                 "url_context": {},
-                "computer_use": {"environment": 1},
+                "computer_use": {
+                    "environment": 1,
+                    "excluded_predefined_functions": [
+                        "excluded_predefined_functions_value1",
+                        "excluded_predefined_functions_value2",
+                    ],
+                },
             }
         ],
         "tool_config": {
