@@ -980,6 +980,7 @@ from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import StratifiedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
+from .types.tuning_job import PreTunedModel
 from .types.tuning_job import SupervisedHyperParameters
 from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
@@ -1752,6 +1753,7 @@ __all__ = (
     "PointwiseMetricSpec",
     "Port",
     "PostStartupScriptConfig",
+    "PreTunedModel",
     "PredefinedSplit",
     "PredictRequest",
     "PredictRequestResponseLoggingConfig",

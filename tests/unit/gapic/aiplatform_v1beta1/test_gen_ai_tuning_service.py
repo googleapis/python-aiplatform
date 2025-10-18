@@ -4722,6 +4722,20 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
+                                    "parts": [
+                                        {
+                                            "inline_data": {
+                                                "mime_type": "mime_type_value",
+                                                "data": b"data_blob",
+                                                "display_name": "display_name_value",
+                                            },
+                                            "file_data": {
+                                                "mime_type": "mime_type_value",
+                                                "file_uri": "file_uri_value",
+                                                "display_name": "display_name_value",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "executable_code": {
                                     "language": 1,
@@ -6473,6 +6487,20 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                     "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
+                                    "parts": [
+                                        {
+                                            "inline_data": {
+                                                "mime_type": "mime_type_value",
+                                                "data": b"data_blob",
+                                                "display_name": "display_name_value",
+                                            },
+                                            "file_data": {
+                                                "mime_type": "mime_type_value",
+                                                "file_uri": "file_uri_value",
+                                                "display_name": "display_name_value",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "executable_code": {
                                     "language": 1,

@@ -4533,6 +4533,11 @@ def test_create_tuning_job_rest_call_success(request_type):
     request_init = {"parent": "projects/sample1/locations/sample2"}
     request_init["tuning_job"] = {
         "base_model": "base_model_value",
+        "pre_tuned_model": {
+            "tuned_model_name": "tuned_model_name_value",
+            "checkpoint_id": "checkpoint_id_value",
+            "base_model": "base_model_value",
+        },
         "supervised_tuning_spec": {
             "training_dataset_uri": "training_dataset_uri_value",
             "validation_dataset_uri": "validation_dataset_uri_value",
@@ -6134,6 +6139,11 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
     request_init = {"parent": "projects/sample1/locations/sample2"}
     request_init["tuning_job"] = {
         "base_model": "base_model_value",
+        "pre_tuned_model": {
+            "tuned_model_name": "tuned_model_name_value",
+            "checkpoint_id": "checkpoint_id_value",
+            "base_model": "base_model_value",
+        },
         "supervised_tuning_spec": {
             "training_dataset_uri": "training_dataset_uri_value",
             "validation_dataset_uri": "validation_dataset_uri_value",
