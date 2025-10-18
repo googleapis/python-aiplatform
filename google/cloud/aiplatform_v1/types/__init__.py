@@ -1101,6 +1101,7 @@ from .training_pipeline import (
     TrainingPipeline,
 )
 from .tuning_job import (
+    PreTunedModel,
     SupervisedHyperParameters,
     SupervisedTuningDatasetDistribution,
     SupervisedTuningDataStats,
@@ -2067,6 +2068,7 @@ __all__ = (
     "StratifiedSplit",
     "TimestampSplit",
     "TrainingPipeline",
+    "PreTunedModel",
     "SupervisedHyperParameters",
     "SupervisedTuningDatasetDistribution",
     "SupervisedTuningDataStats",
