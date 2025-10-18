@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.122.0](https://github.com/googleapis/python-aiplatform/compare/v1.121.0...v1.122.0) (2025-10-18)
+
+
+### Features
+
+* Add STZ support for Endpoint.deploy and Model.deploy (preview). ([7dd2629](https://github.com/googleapis/python-aiplatform/commit/7dd2629d826377560ad9ac3c0e24724e80c7e1bc))
+* Allow Memory Revisions to be disabled ([cf0948f](https://github.com/googleapis/python-aiplatform/commit/cf0948feeb403bd22006163a202a9833af7fbf5a))
+* Disable request/response content in custom ADK spans on Agent Engine in case there's no explicit consent ([dc5dcc7](https://github.com/googleapis/python-aiplatform/commit/dc5dcc769ff7b4d8772ecd119fa2fcbcd34c2115))
+* GenAI Client(evals) - Add agent eval data converter evals ([cd61c86](https://github.com/googleapis/python-aiplatform/commit/cd61c86bcf1be7b07e287b06d2bc34492b2b3e17))
+* GenAI Client(evals) - Add Detailed View to `show` method for EvaluationRun for Vertex AI GenAI SDK evals ([dc16065](https://github.com/googleapis/python-aiplatform/commit/dc160653d22071bf41434da17ebf2bd9de687e56))
+* GenAI SDK client(evals) - Update evaluate function to enable agent_info ([d13b230](https://github.com/googleapis/python-aiplatform/commit/d13b230e52d069ce180d0d57a692aed41db0c59e))
+* GenAI SDK client(evals) Send agent eval request to EvaluateInstance ([87ea594](https://github.com/googleapis/python-aiplatform/commit/87ea5943245854bdfa2857ccb7e77c3ed64f9aba))
+* Support TTL (per Memory Bank and per-request) for Memory Revisions ([cf0948f](https://github.com/googleapis/python-aiplatform/commit/cf0948feeb403bd22006163a202a9833af7fbf5a))
+
 ## [1.121.0](https://github.com/googleapis/python-aiplatform/compare/v1.120.0...v1.121.0) (2025-10-15)
 
 
