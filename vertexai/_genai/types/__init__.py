@@ -491,6 +491,9 @@ from .common import LLMBasedMetricSpec
 from .common import LLMBasedMetricSpecDict
 from .common import LLMBasedMetricSpecOrDict
 from .common import LLMMetric
+from .common import LustreMount
+from .common import LustreMountDict
+from .common import LustreMountOrDict
 from .common import MachineConfig
 from .common import MachineSpec
 from .common import MachineSpecDict
@@ -1265,6 +1268,9 @@ __all__ = [
     "DiskSpec",
     "DiskSpecDict",
     "DiskSpecOrDict",
+    "LustreMount",
+    "LustreMountDict",
+    "LustreMountOrDict",
     "ReservationAffinity",
     "ReservationAffinityDict",
     "ReservationAffinityOrDict",
@@ -1313,12 +1319,6 @@ __all__ = [
     "ReasoningEngineSpec",
     "ReasoningEngineSpecDict",
     "ReasoningEngineSpecOrDict",
-    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfig",
-    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict",
-    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict",
-    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig",
-    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict",
-    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict",
     "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic",
     "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict",
     "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict",
@@ -1346,6 +1346,12 @@ __all__ = [
     "MemoryBankCustomizationConfig",
     "MemoryBankCustomizationConfigDict",
     "MemoryBankCustomizationConfigOrDict",
+    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfig",
+    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict",
+    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict",
+    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig",
+    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict",
+    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict",
     "ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig",
     "ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict",
     "ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigOrDict",
