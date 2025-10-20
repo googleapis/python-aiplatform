@@ -4925,6 +4925,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used.""",
     )
+    agent_card: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. The A2A Agent Card that describes the agent capabilities.""",
+    )
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
@@ -4944,6 +4948,9 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
     service_account: Optional[str]
     """Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used."""
+
+    agent_card: Optional[dict[str, Any]]
+    """Optional. The A2A Agent Card that describes the agent capabilities."""
 
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]

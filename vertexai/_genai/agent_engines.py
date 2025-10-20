@@ -1076,6 +1076,17 @@ class AgentEngines(_api_module.BaseModule):
                 _agent_engines_utils._get_agent_framework(agent=agent)
             )
             update_masks.append("spec.agent_framework")
+
+            if hasattr(agent, "agent_card"):
+                agent_card = getattr(agent, "agent_card")
+                if agent_card:
+                    try:
+                        agent_engine_spec["agent_card"] = agent_card.model_dump()
+                    except TypeError as e:
+                        raise ValueError(
+                            f"Failed to convert agent card to dict (serialization error): {e}"
+                        ) from e
+
             config["spec"] = agent_engine_spec
         if update_masks and mode == "update":
             config["update_mask"] = ",".join(update_masks)
