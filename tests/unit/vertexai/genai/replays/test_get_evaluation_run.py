@@ -137,6 +137,14 @@ def check_run_1957799200510967808(
     assert evaluation_run.evaluation_run_results.evaluation_set == (
         "projects/503583131166/locations/us-central1/evaluationSets/102386522778501120"
     )
+    assert evaluation_run.inference_configs == {
+        "checkpoint_1": types.EvaluationRunInferenceConfig(
+            model="projects/503583131166/locations/us-central1/endpoints/9030177948249882624"
+        ),
+        "checkpoint_2": types.EvaluationRunInferenceConfig(
+            model="projects/503583131166/locations/us-central1/endpoints/7751155654076661760"
+        ),
+    }
     assert evaluation_run.evaluation_run_results.summary_metrics == (
         types.SummaryMetric(
             metrics={

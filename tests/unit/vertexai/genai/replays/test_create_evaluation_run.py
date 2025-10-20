@@ -16,16 +16,35 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai import types
+from google.genai import types as genai_types
 import pytest
 
 
 def test_create_eval_run_data_source_evaluation_set(client):
     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun."""
+    client._api_client._http_options.api_version = "v1beta1"
+    tool = genai_types.Tool(
+        function_declarations=[
+            genai_types.FunctionDeclaration(
+                name="get_weather",
+                description="Get weather in a location",
+                parameters={
+                    "type": "object",
+                    "properties": {"location": {"type": "string"}},
+                },
+            )
+        ]
+    )
     evaluation_run = client.evals.create_evaluation_run(
         name="test4",
         display_name="test4",
         data_source=types.EvaluationRunDataSource(
             evaluation_set="projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+        ),
+        agent_info=types.AgentInfo(
+            name="agent-1",
+            instruction="agent-1 instruction",
+            tool_declarations=[tool],
         ),
         dest="gs://lakeyk-test-limited/eval_run_output",
     )
@@ -35,6 +54,16 @@ def test_create_eval_run_data_source_evaluation_set(client):
     assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
     assert evaluation_run.data_source.evaluation_set == (
         "projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+    )
+    assert evaluation_run.inference_configs[
+        "agent-1"
+    ] == types.EvaluationRunInferenceConfig(
+        agent_config=types.EvaluationRunAgentConfig(
+            developer_instruction=genai_types.Content(
+                parts=[genai_types.Part(text="agent-1 instruction")]
+            ),
+            tools=[tool],
+        )
     )
     assert evaluation_run.error is None
 
@@ -72,6 +101,7 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
             },
         )
     )
+    assert evaluation_run.inference_configs is None
     assert evaluation_run.error is None
 
 
@@ -108,6 +138,8 @@ async def test_create_eval_run_async(client):
             "checkpoint_2": "checkpoint_2",
         },
     )
+    assert evaluation_run.inference_configs is None
+    assert evaluation_run.error is None
 
 
 pytestmark = pytest_helper.setup(
