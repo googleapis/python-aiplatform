@@ -16,6 +16,7 @@ import importlib
 import json
 import os
 import statistics
+import sys
 from unittest import mock
 
 import google.auth.credentials
@@ -25,6 +26,7 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
 from vertexai._genai import _evals_data_converters
 from vertexai._genai import _evals_metric_handlers
+from vertexai._genai import _evals_visualization
 from vertexai._genai import _observability_data_converter
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
@@ -183,6 +185,78 @@ class TestEvals:
         _, kwargs = mock_execute_evaluation.call_args
         assert "agent_info" in kwargs
         assert kwargs["agent_info"] == agent_info
+
+
+class TestEvalsVisualization:
+    @mock.patch(
+        "vertexai._genai._evals_visualization._is_ipython_env",
+        return_value=True,
+    )
+    def test_display_evaluation_result_with_agent_trace_prefixes(self, mock_is_ipython):
+        """Tests that agent trace view includes added prefixes."""
+        mock_display_module = mock.MagicMock()
+        mock_ipython_module = mock.MagicMock()
+        mock_ipython_module.display = mock_display_module
+        sys.modules["IPython"] = mock_ipython_module
+        sys.modules["IPython.display"] = mock_display_module
+
+        intermediate_events_list = [
+            {
+                "content": {
+                    "role": "model",
+                    "parts": [
+                        {
+                            "function_call": {
+                                "name": "my_function",
+                                "args": {"arg1": "value1"},
+                            }
+                        }
+                    ],
+                }
+            },
+            {
+                "content": {
+                    "role": "model",
+                    "parts": [{"text": "this is model response"}],
+                }
+            },
+        ]
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "Test prompt",
+                    "response": "Test response",
+                    "intermediate_events": intermediate_events_list,
+                },
+            ]
+        )
+        eval_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        eval_result = vertexai_genai_types.EvaluationResult(
+            evaluation_dataset=[eval_dataset],
+            agent_info=vertexai_genai_types.AgentInfo(name="test_agent"),
+            eval_case_results=[
+                vertexai_genai_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        vertexai_genai_types.ResponseCandidateResult(
+                            response_index=0, metric_results={}
+                        )
+                    ],
+                )
+            ],
+        )
+
+        _evals_visualization.display_evaluation_result(eval_result)
+
+        mock_display_module.HTML.assert_called_once()
+        html_content = mock_display_module.HTML.call_args[0][0]
+        assert "my_function" in html_content
+        assert "this is model response" in html_content
+
+        del sys.modules["IPython"]
+        del sys.modules["IPython.display"]
 
 
 class TestEvalsRunInference:
