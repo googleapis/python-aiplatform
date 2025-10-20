@@ -38,7 +38,7 @@ def test_create_eval_run_data_source_evaluation_set(client):
     evaluation_run = client.evals.create_evaluation_run(
         name="test4",
         display_name="test4",
-        data_source=types.EvaluationRunDataSource(
+        dataset=types.EvaluationRunDataSource(
             evaluation_set="projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
         ),
         agent_info=types.AgentInfo(
@@ -46,7 +46,7 @@ def test_create_eval_run_data_source_evaluation_set(client):
             instruction="agent-1 instruction",
             tool_declarations=[tool],
         ),
-        dest="gs://lakeyk-test-limited/eval_run_output",
+        dest="gs://lakeyk-limited-bucket/eval_run_output",
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.display_name == "test4"
@@ -73,7 +73,7 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
     evaluation_run = client.evals.create_evaluation_run(
         name="test5",
         display_name="test5",
-        data_source=types.EvaluationRunDataSource(
+        dataset=types.EvaluationRunDataSource(
             bigquery_request_set=types.BigQueryRequestSet(
                 uri="bq://lakeyk-test-limited.inference_batch_prediction_input.1317387725199900672_1b",
                 prompt_column="request",
@@ -84,7 +84,7 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
                 },
             )
         ),
-        dest="gs://lakeyk-test-limited/eval_run_output",
+        dest="gs://lakeyk-limited-bucket/eval_run_output",
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.display_name == "test5"
@@ -105,6 +105,101 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
     assert evaluation_run.error is None
 
 
+# Test fails in replay mode because of the timestamp issue
+# def test_create_eval_run_data_source_evaluation_dataset(client):
+#     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with EvaluationDataset."""
+#     input_df = pd.DataFrame(
+#         {
+#             "prompt": ["prompt1", "prompt2"],
+#             "reference": ["reference1", "reference2"],
+#             "response": ["response1", "response2"],
+#             "intermediate_events": [
+#                 [
+#                     {
+#                         "content": {
+#                             "parts": [
+#                                 {"text": "first user input"},
+#                             ],
+#                             "role": "user",
+#                         },
+#                     },
+#                     {
+#                         "content": {
+#                             "parts": [
+#                                 {"text": "first model response"},
+#                             ],
+#                             "role": "model",
+#                         },
+#                     },
+#                 ],
+#                 [
+#                     {
+#                         "content": {
+#                             "parts": [
+#                                 {"text": "second user input"},
+#                             ],
+#                             "role": "user",
+#                         },
+#                     },
+#                     {
+#                         "content": {
+#                             "parts": [
+#                                 {"text": "second model response"},
+#                             ],
+#                             "role": "model",
+#                         },
+#                     },
+#                 ],
+#             ],
+#         }
+#     )
+#     evaluation_run = client.evals.create_evaluation_run(
+#         name="test6",
+#         display_name="test6",
+#         dataset=types.EvaluationDataset(
+#             candidate_name="candidate_1",
+#             eval_dataset_df=input_df,
+#         ),
+#         dest="gs://lakeyk-limited-bucket/eval_run_output",
+#     )
+#     assert isinstance(evaluation_run, types.EvaluationRun)
+#     assert evaluation_run.display_name == "test6"
+#     assert evaluation_run.state == types.EvaluationRunState.PENDING
+#     assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+#     # Check evaluation set
+#     assert evaluation_run.data_source.evaluation_set
+#     eval_set = client.evals.get_evaluation_set(
+#         name=evaluation_run.data_source.evaluation_set
+#     )
+#     assert len(eval_set.evaluation_items) == 2
+#     # Check evaluation items
+#     for i, eval_item_name in enumerate(eval_set.evaluation_items):
+#         eval_item = client.evals.get_evaluation_item(name=eval_item_name)
+#         assert eval_item.evaluation_item_type == types.EvaluationItemType.REQUEST
+#         assert eval_item.evaluation_request.prompt.text == input_df.iloc[i]["prompt"]
+#         assert (
+#             eval_item.evaluation_request.candidate_responses[0].text
+#             == input_df.iloc[i]["response"]
+#         )
+#         assert (
+#             eval_item.evaluation_request.candidate_responses[0].events[0].parts[0].text
+#             == input_df.iloc[i]["intermediate_events"][0]["content"]["parts"][0]["text"]
+#         )
+#         assert (
+#             eval_item.evaluation_request.candidate_responses[0].events[0].role
+#             == input_df.iloc[i]["intermediate_events"][0]["content"]["role"]
+#         )
+#         assert (
+#             eval_item.evaluation_request.candidate_responses[0].events[1].parts[0].text
+#             == input_df.iloc[i]["intermediate_events"][1]["content"]["parts"][0]["text"]
+#         )
+#         assert (
+#             eval_item.evaluation_request.candidate_responses[0].events[1].role
+#             == input_df.iloc[i]["intermediate_events"][1]["content"]["role"]
+#         )
+#     assert evaluation_run.error is None
+
+
 pytest_plugins = ("pytest_asyncio",)
 
 
@@ -114,7 +209,7 @@ async def test_create_eval_run_async(client):
     evaluation_run = await client.aio.evals.create_evaluation_run(
         name="test8",
         display_name="test8",
-        data_source=types.EvaluationRunDataSource(
+        dataset=types.EvaluationRunDataSource(
             bigquery_request_set=types.BigQueryRequestSet(
                 uri="bq://lakeyk-test-limited.inference_batch_prediction_input.1317387725199900672_1b",
                 prompt_column="request",
@@ -125,7 +220,7 @@ async def test_create_eval_run_async(client):
                 },
             )
         ),
-        dest="gs://lakeyk-test-limited/eval_run_output",
+        dest="gs://lakeyk-limited-bucket/eval_run_output",
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.display_name == "test8"

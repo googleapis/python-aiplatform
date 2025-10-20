@@ -1505,3 +1505,89 @@ async def _convert_evaluation_run_results_async(
         ]
         eval_items = await asyncio.gather(*tasks)
     return _get_eval_result_from_eval_items(evaluation_run_results, eval_items)
+
+
+def _object_to_dict(obj) -> dict[str, Any]:
+    """Converts an object to a dictionary."""
+    if not hasattr(obj, "__dict__"):
+        return obj  # Not an object with attributes, return as is (e.g., int, str)
+
+    result: dict[str, Any] = {}
+    for key, value in obj.__dict__.items():
+        if value is None:
+            continue
+        if isinstance(value, (int, float, str, bool)):
+            result[key] = value
+        elif isinstance(value, (list, tuple)):
+            result[key] = [_object_to_dict(item) for item in value]
+        elif hasattr(value, "__dict__"):  # Nested object
+            result[key] = _object_to_dict(value)
+        else:
+            result[key] = value  # Handle other types like sets, etc.
+    return result
+
+
+def _create_evaluation_set_from_dataframe(
+    api_client: BaseApiClient,
+    gcs_dest_prefix: str,
+    eval_df: pd.DataFrame,
+    candidate_name: Optional[str] = None,
+) -> types.EvaluationSet:
+    """Converts a dataframe to an EvaluationSet."""
+    eval_item_requests = []
+    for _, row in eval_df.iterrows():
+        intermediate_events = []
+        if "intermediate_events" in row:
+            for event in row["intermediate_events"]:
+                intermediate_events.append(
+                    genai_types.Content(
+                        parts=event["content"]["parts"], role=event["content"]["role"]
+                    )
+                )
+        eval_item_requests.append(
+            types.EvaluationItemRequest(
+                prompt=(
+                    types.EvaluationPrompt(text=row["prompt"])
+                    if "prompt" in row
+                    else None
+                ),
+                golden_response=(
+                    types.CandidateResponse(text=row["reference"])
+                    if "reference" in row
+                    else None
+                ),
+                candidate_responses=[
+                    types.CandidateResponse(
+                        candidate=candidate_name or "Candidate 1",
+                        text=row.get("response", None),
+                        events=(
+                            intermediate_events
+                            if len(intermediate_events) > 0
+                            else None
+                        ),
+                    )
+                ],
+            )
+        )
+    logger.info("Writing evaluation item requests to GCS.")
+    gcs_utils = _evals_utils.GcsUtils(api_client=api_client)
+    evals_module = evals.Evals(api_client_=api_client)
+    eval_items = []
+    for eval_item_request in eval_item_requests:
+        gcs_uri = gcs_utils.upload_json_to_prefix(
+            data=_object_to_dict(eval_item_request),
+            gcs_dest_prefix=gcs_dest_prefix,
+            filename_prefix="request",
+        )
+        eval_item = evals_module.create_evaluation_item(
+            evaluation_item_type=types.EvaluationItemType.REQUEST,
+            gcs_uri=gcs_uri,
+            display_name="sdk-generated-eval-item",
+        )
+        eval_items.append(eval_item.name)
+    logger.info("Creating evaluation set from GCS URIs")
+    evaluation_set = evals_module.create_evaluation_set(
+        evaluation_items=eval_items,
+    )
+
+    return evaluation_set

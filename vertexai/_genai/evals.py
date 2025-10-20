@@ -1307,12 +1307,24 @@ class Evals(_api_module.BaseModule):
         *,
         name: str,
         display_name: Optional[str] = None,
-        data_source: types.EvaluationRunDataSource,
+        dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
         agent_info: Optional[types.AgentInfo] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
+        if type(dataset).__name__ == "EvaluationDataset":
+            logger.warning(
+                "EvaluationDataset input is experimental and may change in future versions."
+            )
+            if dataset.eval_dataset_df is None:
+                raise ValueError(
+                    "EvaluationDataset must have eval_dataset_df populated."
+                )
+            eval_set = _evals_common._create_evaluation_set_from_dataframe(
+                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
+            )
+            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
@@ -1334,7 +1346,7 @@ class Evals(_api_module.BaseModule):
         return self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
             display_name=display_name,
-            data_source=data_source,
+            data_source=dataset,
             evaluation_config=evaluation_config,
             inference_configs=inference_configs,
             config=config,
@@ -2092,12 +2104,24 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         name: str,
         display_name: Optional[str] = None,
-        data_source: types.EvaluationRunDataSource,
+        dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
         agent_info: Optional[types.AgentInfo] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
+        if type(dataset).__name__ == "EvaluationDataset":
+            logger.warning(
+                "EvaluationDataset input is experimental and may change in future versions."
+            )
+            if dataset.eval_dataset_df is None:
+                raise ValueError(
+                    "EvaluationDataset must have eval_dataset_df populated."
+                )
+            eval_set = _evals_common._create_evaluation_set_from_dataframe(
+                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
+            )
+            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
@@ -2119,7 +2143,7 @@ class AsyncEvals(_api_module.BaseModule):
         result = await self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
             display_name=display_name,
-            data_source=data_source,
+            data_source=dataset,
             evaluation_config=evaluation_config,
             inference_configs=inference_configs,
             config=config,
