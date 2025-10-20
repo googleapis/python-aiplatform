@@ -853,6 +853,7 @@ class AgentEngines(_api_module.BaseModule):
         api_config = self._create_config(
             mode="create",
             agent=agent,
+            identity_type=config.identity_type,
             staging_bucket=config.staging_bucket,
             requirements=config.requirements,
             display_name=config.display_name,
@@ -912,6 +913,7 @@ class AgentEngines(_api_module.BaseModule):
         *,
         mode: str,
         agent: Any = None,
+        identity_type: Optional[types.IdentityType] = None,
         staging_bucket: Optional[str] = None,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
@@ -957,6 +959,17 @@ class AgentEngines(_api_module.BaseModule):
         if labels is not None:
             update_masks.append("labels")
             config["labels"] = labels
+
+        agent_engine_spec: types.ReasoningEngineSpecDict = {}
+        if identity_type is not None:
+            agent_engine_spec["identity_type"] = identity_type
+            update_masks.append("spec.identity_type")
+        if service_account is not None:
+            # Clear the field in case of empty service_account.
+            if service_account:
+                agent_engine_spec["service_account"] = service_account
+            update_masks.append("spec.service_account")
+
         if agent is not None:
             project = self._api_client.project
             if project is None:
@@ -1013,9 +1026,7 @@ class AgentEngines(_api_module.BaseModule):
                     gcs_dir_name,
                     _agent_engines_utils._REQUIREMENTS_FILE,
                 )
-            agent_engine_spec: types.ReasoningEngineSpecDict = {
-                "package_spec": package_spec,
-            }
+            agent_engine_spec["package_spec"] = package_spec
             if (
                 env_vars is not None
                 or psc_interface_config is not None
@@ -1037,9 +1048,6 @@ class AgentEngines(_api_module.BaseModule):
                 )
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
-            if service_account is not None:
-                agent_engine_spec["service_account"] = service_account
-                update_masks.append("spec.service_account")
 
             update_masks.append("spec.class_methods")
             class_methods_spec = []
@@ -1076,7 +1084,10 @@ class AgentEngines(_api_module.BaseModule):
                 _agent_engines_utils._get_agent_framework(agent=agent)
             )
             update_masks.append("spec.agent_framework")
+
+        if agent_engine_spec.items():
             config["spec"] = agent_engine_spec
+
         if update_masks and mode == "update":
             config["update_mask"] = ",".join(update_masks)
         return config
@@ -1280,6 +1291,7 @@ class AgentEngines(_api_module.BaseModule):
         api_config = self._create_config(
             mode="update",
             agent=agent,
+            identity_type=config.identity_type,
             staging_bucket=config.staging_bucket,
             requirements=config.requirements,
             display_name=config.display_name,
